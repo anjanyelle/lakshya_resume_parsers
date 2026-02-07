@@ -1,0 +1,132 @@
+TOP_UNIVERSITIES = {
+    "massachusetts institute of technology",
+    "stanford university",
+    "harvard university",
+    "university of california, berkeley",
+    "california institute of technology",
+    "university of oxford",
+    "university of cambridge",
+    "eth zurich",
+    "princeton university",
+    "yale university",
+    "columbia university",
+    "university of chicago",
+    "imperial college london",
+    "national university of singapore",
+    "tsinghua university",
+    "peking university",
+    "university of tokyo",
+    "university of toronto",
+    "university of melbourne",
+    "indian institute of technology",
+
+    # ➕ USA
+    "carnegie mellon university",
+    "cornell university",
+    "university of washington",
+    "university of california, los angeles",
+    "university of california, san diego",
+    "university of pennsylvania",
+    "johns hopkins university",
+    "northwestern university",
+    "duke university",
+    "new york university",
+    "georgia institute of technology",
+    "university of texas at austin",
+    "purdue university",
+    "university of illinois urbana champaign",
+    "rice university",
+
+    # ➕ UK
+    "university college london",
+    "king's college london",
+    "london school of economics",
+    "university of edinburgh",
+    "university of manchester",
+    "university of bristol",
+    "university of glasgow",
+    "university of warwick",
+
+    # ➕ Europe
+    "technical university of munich",
+    "ludwig maximilian university of munich",
+    "heidelberg university",
+    "rwth aachen university",
+    "sorbonne university",
+    "ecole polytechnique",
+    "psl research university",
+    "delft university of technology",
+    "ku leuven",
+    "university of amsterdam",
+    "epfl",
+    "university of copenhagen",
+
+    # ➕ Canada
+    "university of british columbia",
+    "mcgill university",
+    "university of waterloo",
+    "university of alberta",
+    "western university canada",
+
+    # ➕ Australia
+    "australian national university",
+    "university of sydney",
+    "university of new south wales",
+    "monash university",
+    "university of queensland",
+
+    # ➕ Asia
+    "nanyang technological university",
+    "hong kong university of science and technology",
+    "university of hong kong",
+    "korea advanced institute of science and technology",
+    "seoul national university",
+    "kaist",
+    "yonsei university",
+    "osaka university",
+    "kyoto university",
+
+    # ➕ India — IITs
+    "iit bombay",
+    "iit delhi",
+    "iit madras",
+    "iit kanpur",
+    "iit kharagpur",
+    "iit roorkee",
+    "iit guwahati",
+    "iit hyderabad",
+    "iit indore",
+    "iit bhubaneswar",
+    "iit dhanbad",
+
+    # ➕ India — IIMs
+    "indian institute of management ahmedabad",
+    "indian institute of management bangalore",
+    "indian institute of management calcutta",
+    "indian institute of management lucknow",
+    "indian institute of management indore",
+    "indian institute of management kozhikode",
+
+    # ➕ India — Top Engineering / Science
+    "indian institute of science",
+    "iis bangalore",
+    "bits pilani",
+    "birla institute of technology and science",
+    "nit trichy",
+    "nit surathkal",
+    "nit warangal",
+    "nit rourkela",
+    "iiit hyderabad",
+    "iiit bangalore",
+
+    # ➕ Middle East
+    "king abdullah university of science and technology",
+    "king fahd university of petroleum and minerals",
+    "qatar university",
+
+    # ➕ China additional
+    "fudan university",
+    "zhejiang university",
+    "shanghai jiao tong university",
+    "university of science and technology of china"
+}

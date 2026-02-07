@@ -1,0 +1,138 @@
+DEGREE_ALIASES ={
+    "bachelor of science": "Bachelor of Science",
+    "bachelor of arts": "Bachelor of Arts",
+    "bachelor of engineering": "Bachelor of Engineering",
+    "be": "Bachelor of Engineering",
+    "b.e": "Bachelor of Engineering",
+
+    "bachelor of technology": "Bachelor of Technology",
+    "bachelor of commerce": "Bachelor of Commerce",
+    "bcom": "Bachelor of Commerce",
+    "b.com": "Bachelor of Commerce",
+
+    "bachelor of business administration": "Bachelor of Business Administration",
+    "bba": "Bachelor of Business Administration",
+    "b.b.a": "Bachelor of Business Administration",
+
+    "bachelor of computer applications": "Bachelor of Computer Applications",
+    "bca": "Bachelor of Computer Applications",
+    "b.c.a": "Bachelor of Computer Applications",
+
+    "bachelor of information technology": "Bachelor of Information Technology",
+    "bit": "Bachelor of Information Technology",
+    "b.i.t": "Bachelor of Information Technology",
+
+    "bachelor of pharmacy": "Bachelor of Pharmacy",
+    "bpharm": "Bachelor of Pharmacy",
+
+    "bachelor of medicine bachelor of surgery": "MBBS",
+    "mbbs": "MBBS",
+
+    "master of engineering": "Master of Engineering",
+    "me": "Master of Engineering",
+    "m.e": "Master of Engineering",
+
+    "master of technology": "Master of Technology",
+    "master of commerce": "Master of Commerce",
+    "mcom": "Master of Commerce",
+    "m.com": "Master of Commerce",
+
+    "master of computer applications": "Master of Computer Applications",
+    "mca": "Master of Computer Applications",
+    "m.c.a": "Master of Computer Applications",
+
+    "master of information technology": "Master of Information Technology",
+    "mit": "Master of Information Technology",
+
+    "master of philosophy": "Master of Philosophy",
+    "mphil": "Master of Philosophy",
+    "m.phil": "Master of Philosophy",
+
+    "post graduate diploma": "Post Graduate Diploma",
+    "pg diploma": "Post Graduate Diploma",
+    "pgdm": "Post Graduate Diploma in Management",
+
+    "doctor of business administration": "Doctor of Business Administration",
+    "dba": "Doctor of Business Administration",
+
+    "doctor of medicine": "Doctor of Medicine",
+    "md": "Doctor of Medicine",
+
+    "juris doctor": "Juris Doctor",
+    "jd": "Juris Doctor",
+
+    "associate of science": "Associate of Science",
+    "associate of arts": "Associate of Arts",
+    "associate degree": "Associate Degree",
+
+    "diploma in engineering": "Diploma in Engineering",
+    "polytechnic diploma": "Diploma in Engineering",
+
+    "higher national diploma": "Higher National Diploma",
+    "hnd": "Higher National Diploma",
+
+    "foundation degree": "Foundation Degree",
+
+    "graduate diploma": "Graduate Diploma",
+    "advanced diploma": "Advanced Diploma",
+
+    "honours degree": "Honours Degree",
+    "bsc hons": "Bachelor of Science (Honours)",
+    "ba hons": "Bachelor of Arts (Honours)",
+
+    "dual degree": "Dual Degree",
+    "integrated mtech": "Integrated Master of Technology",
+    "integrated mba": "Integrated MBA"
+}
+
+
+DEGREE_KEYWORDS = [
+    "bachelor",
+    "bachelors",
+    "undergraduate",
+    "ug",
+
+    "master",
+    "masters",
+    "postgraduate",
+    "pg",
+
+    "doctorate",
+    "phd",
+    "doctoral",
+
+    "associate degree",
+    "associate",
+
+    "diploma",
+    "polytechnic",
+    "advanced diploma",
+    "graduate diploma",
+    "post graduate diploma",
+
+    "certificate",
+    "certification",
+    "professional certificate",
+
+    "engineering",
+    "technology",
+    "computer science",
+    "information technology",
+    "information systems",
+
+    "business administration",
+    "management",
+    "commerce",
+
+    "medicine",
+    "pharmacy",
+    "law",
+
+    "honours",
+    "honors",
+    "hons",
+
+    "integrated degree",
+    "dual degree",
+    "foundation degree"
+]
