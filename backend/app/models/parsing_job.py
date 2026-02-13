@@ -34,6 +34,11 @@ class ParsingJob(Base):
     )
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     file_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    original_file_copy_path: Mapped[str | None] = mapped_column(
+        String(500), nullable=True
+    )
+    extracted_text_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    parsed_json_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     status: Mapped[ParsingJobStatus] = mapped_column(
         Enum(
             ParsingJobStatus,

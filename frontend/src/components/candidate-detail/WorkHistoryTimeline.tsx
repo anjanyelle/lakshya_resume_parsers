@@ -29,7 +29,7 @@ export default function WorkHistoryTimeline({ items = [] }: WorkHistoryTimelineP
                 {item.job_title || 'Role'} · {item.company_name || 'Company'}
               </p>
               <p className="text-xs text-slate-500">
-                {item.start_date || '—'} → {item.end_date || 'Present'}
+                {item.start_date || '—'} → {item.is_current ? 'Present' : (item.end_date || '—')}
               </p>
               {item.description && (
                 <p className="mt-2 text-xs text-slate-600">{item.description}</p>

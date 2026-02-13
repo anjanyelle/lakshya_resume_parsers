@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 DATE_RANGE_RE = re.compile(
-    r"(?P<start>[\w./\- ]{3,20})\s*[-–—]\s*(?P<end>present|current|expected|[\w./\- ]{3,20})",
+    r"(?P<start>[\w./\- ]{3,20})\s*(?:[-–—]|to)\s*(?P<end>present|current|expected|[\w./\- ]{3,20})",
     re.IGNORECASE,
 )
 YEAR_RE = re.compile(r"\b(19\d{2}|20\d{2})\b")

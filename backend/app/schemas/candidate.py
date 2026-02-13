@@ -12,6 +12,7 @@ from app.models.parsing_job import ParsingJobStatus
 
 class WorkHistoryBase(BaseModel):
     company_name: Optional[str] = None
+    client_name: Optional[str] = None
     job_title: Optional[str] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
@@ -105,6 +106,9 @@ class CandidateSkillRead(CandidateSkillBase):
 class ParsingJobBase(BaseModel):
     filename: str
     file_path: str
+    original_file_copy_path: Optional[str] = None
+    extracted_text_path: Optional[str] = None
+    parsed_json_path: Optional[str] = None
     status: ParsingJobStatus = ParsingJobStatus.PENDING
     task_id: Optional[str] = None
     last_stage: Optional[str] = None
@@ -147,6 +151,19 @@ class CertificationRead(CertificationBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CandidateAchievementBase(BaseModel):
+    title: str
+    year: Optional[int] = None
+    confidence: Optional[float] = None
+
+
+class CandidateAchievementRead(CandidateAchievementBase):
+    id: UUID
+    candidate_id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class CandidateBase(BaseModel):
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
@@ -157,6 +174,7 @@ class CandidateBase(BaseModel):
     github_url: Optional[str] = None
     summary: Optional[str] = None
     years_experience: Optional[float] = None
+    years_experience_confidence: Optional[float] = None
     current_title: Optional[str] = None
     current_company: Optional[str] = None
     status: CandidateStatus = CandidateStatus.PENDING
@@ -178,6 +196,7 @@ class CandidateUpdate(BaseModel):
     github_url: Optional[str] = None
     summary: Optional[str] = None
     years_experience: Optional[float] = None
+    years_experience_confidence: Optional[float] = None
     current_title: Optional[str] = None
     current_company: Optional[str] = None
     status: Optional[CandidateStatus] = None
@@ -199,5 +218,6 @@ class CandidateRead(CandidateBase):
     candidate_skills: List[CandidateSkillRead] = Field(default_factory=list)
     parsing_jobs: List[ParsingJobRead] = Field(default_factory=list)
     certifications: List[CertificationRead] = Field(default_factory=list)
+    achievements: List[CandidateAchievementRead] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)

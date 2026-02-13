@@ -1,5 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { FileText, UploadCloud, Users } from 'lucide-react'
+import {
+  BarChart3,
+  ClipboardCheck,
+  Database,
+  FileText,
+  UploadCloud,
+  Users,
+} from 'lucide-react'
 import Button from '../common/Button'
 import { NAV_ITEMS } from '../../utils/constants'
 import { useAuthStore } from '../../store/authStore'
@@ -8,6 +15,9 @@ const icons = {
   '/': FileText,
   '/upload': UploadCloud,
   '/candidates': Users,
+  '/accuracy': BarChart3,
+  '/corrections': ClipboardCheck,
+  '/taxonomy': Database,
 }
 
 export default function Header() {

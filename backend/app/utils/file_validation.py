@@ -8,6 +8,9 @@ MAGIC_HEADERS = {
     "docx": [b"PK\x03\x04"],
     "doc": [b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"],
     "rtf": [b"{\\rtf"],
+    "png": [b"\x89PNG\r\n\x1a\n"],
+    "jpg": [b"\xFF\xD8\xFF"],
+    "jpeg": [b"\xFF\xD8\xFF"],
     "txt": [],
 }
 
@@ -31,5 +34,7 @@ def validate_magic(data: bytes, extension: str) -> bool:
     if extension == "pdf" and detected == "pdf":
         return True
     if extension == "rtf" and data.startswith(b"{\\rtf"):
+        return True
+    if extension in {"png", "jpg", "jpeg"} and detected in {"png", "jpg", "jpeg"}:
         return True
     return False

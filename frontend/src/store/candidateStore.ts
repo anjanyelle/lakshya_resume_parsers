@@ -3,6 +3,15 @@ import { toast } from 'react-hot-toast'
 import type { Candidate } from '../types/candidate'
 import { fetchCandidates, deleteCandidate } from '../services/api/candidates'
 
+let latestCandidatesRequestId = 0
+
+const isAbortError = (error: unknown) => {
+  if (!error) return false
+  if (typeof error === 'string') return /cancell?ed|aborted/i.test(error)
+  if (error instanceof Error) return /cancell?ed|aborted/i.test(error.message)
+  return false
+}
+
 type SortDirection = 'asc' | 'desc'
 
 type CandidateState = {
@@ -54,11 +63,18 @@ export const useCandidateStore = create<CandidateState>((set, get) => ({
   clearSelected: () => set({ selectedIds: new Set() }),
   selectAll: (ids) => set({ selectedIds: new Set(ids) }),
   loadCandidates: async (signal) => {
+    const requestId = (latestCandidatesRequestId += 1)
     set({ loading: true, error: null })
     try {
       const data = await fetchCandidates(signal)
+      if (requestId !== latestCandidatesRequestId) return
       set({ candidates: data, loading: false })
     } catch (error) {
+      if (requestId !== latestCandidatesRequestId) return
+      if (isAbortError(error)) {
+        set({ loading: false })
+        return
+      }
       set({
         error: error instanceof Error ? error.message : 'Failed to load candidates',
         loading: false,

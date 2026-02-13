@@ -1,0 +1,50 @@
+{
+  "contact": {
+    "name": {
+      "name": "Jane Doe",
+      "confidence": 1.0
+    },
+    "emails": [
+      {
+        "email": "jane.doe@example.com",
+        "confidence": 1.0
+      }
+    ],
+    "phones": [
+      {
+        "phone": "+1 (415) 555-1234",
+        "confidence": 1.0
+      }
+    ],
+    "location": {
+      "city": "Austin",
+      "state": "TX",
+      "country": null,
+      "confidence": 1.0
+    },
+    "urls": {
+      "linkedin": null,
+      "github": null,
+      "websites": []
+    }
+  },
+  "work_experience": [
+    {
+      "company": null,
+      "client": null,
+      "title": null,
+      "start_date": null,
+      "end_date": null,
+      "is_current": false,
+      "location": null,
+      "bullets": [],
+      "description": null
+    }
+  ],
+  "education": [],
+  "skills": [
+    "python",
+    "node.js",
+    "aws"
+  ]
+}

@@ -76,7 +76,8 @@ CERTIFICATION_ALIASES = {
     "red hat system administrator": "Red Hat Certified System Administrator (RHCSA)",
 
     "lpic": "Linux Professional Institute Certification (LPIC-1)",
-    "cka security": "Certified Kubernetes Security Specialist (CKS)"
+    "cka security": "Certified Kubernetes Security Specialist (CKS)",
+    
 }
 
 

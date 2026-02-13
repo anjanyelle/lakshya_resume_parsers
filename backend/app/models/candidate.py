@@ -2,7 +2,7 @@ import enum
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, DateTime, Enum, Index, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, Float, Index, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -53,6 +53,9 @@ class Candidate(Base):
     github_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     years_experience: Mapped[float | None] = mapped_column(nullable=True)
+    years_experience_confidence: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
     current_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
     current_company: Mapped[str | None] = mapped_column(String(200), nullable=True)
     status: Mapped[CandidateStatus] = mapped_column(
@@ -110,4 +113,10 @@ class Candidate(Base):
     )
     certifications = relationship(
         "Certification", back_populates="candidate", cascade="all, delete-orphan"
+    )
+
+    achievements = relationship(
+        "CandidateAchievement",
+        back_populates="candidate",
+        cascade="all, delete-orphan",
     )
