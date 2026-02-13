@@ -1,4 +1,5 @@
 from functools import lru_cache
+import json
 from typing import Any, Iterable
 
 from pydantic import Field, field_validator
@@ -29,7 +30,7 @@ class Settings(BaseSettings):
     STORAGE_DIR: str = "./storage"
     UPLOAD_MAX_SIZE_MB: int = 10
     ALLOWED_UPLOAD_EXTENSIONS: list[str] = Field(
-        default_factory=lambda: ["pdf", "doc", "docx", "txt", "rtf"]
+        default_factory=lambda: ["pdf", "doc", "docx", "txt", "rtf", "png", "jpg", "jpeg"]
     )
 
     S3_ENDPOINT_URL: str | None = None
@@ -50,6 +51,8 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
     CELERY_RESULT_TTL_SECONDS: int = 86400
     PARSING_JOB_RETENTION_DAYS: int = 30
+
+    PARSING_MODE: str = "full"  # full | text_only | deterministic
 
     LLM_PROVIDER: str = "local"  # local | none | openai | anthropic
     OPENAI_API_KEY: str | None = None
@@ -110,7 +113,13 @@ class Settings(BaseSettings):
             if not cleaned:
                 return []
             if cleaned.startswith("["):
-                return [origin.strip() for origin in cleaned.strip("[]").split(",") if origin]
+                try:
+                    parsed = json.loads(cleaned)
+                    if isinstance(parsed, list):
+                        return [str(origin).strip() for origin in parsed if str(origin).strip()]
+                except Exception:  # noqa: BLE001
+                    pass
+                return [origin.strip().strip('"').strip("'") for origin in cleaned.strip("[]").split(",") if origin]
             return [origin.strip() for origin in cleaned.split(",") if origin.strip()]
         if isinstance(value, Iterable):
             return [str(origin).strip() for origin in value if str(origin).strip()]
@@ -120,9 +129,17 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_extensions(cls, value: Any) -> list[str]:
         if isinstance(value, str):
-            return [item.strip().lstrip(".") for item in value.split(",") if item.strip()]
+            cleaned = value.strip()
+            if cleaned.startswith("["):
+                try:
+                    parsed = json.loads(cleaned)
+                    if isinstance(parsed, list):
+                        return [str(item).strip().strip('"').strip("'").lstrip(".") for item in parsed if str(item).strip()]
+                except Exception:  # noqa: BLE001
+                    pass
+            return [item.strip().strip('"').strip("'").lstrip(".") for item in cleaned.split(",") if item.strip()]
         if isinstance(value, Iterable):
-            return [str(item).strip().lstrip(".") for item in value if str(item).strip()]
+            return [str(item).strip().strip('"').strip("'").lstrip(".") for item in value if str(item).strip()]
         raise ValueError("Invalid ALLOWED_UPLOAD_EXTENSIONS format")
 
 

@@ -1,10 +1,21 @@
 import { NavLink } from 'react-router-dom'
-import { FileText, LayoutDashboard, UploadCloud, Users } from 'lucide-react'
+import {
+  BarChart3,
+  ClipboardCheck,
+  Database,
+  FileText,
+  LayoutDashboard,
+  UploadCloud,
+  Users,
+} from 'lucide-react'
 
 const links = [
   { label: 'Overview', path: '/', icon: LayoutDashboard },
   { label: 'Upload Resume', path: '/upload', icon: UploadCloud },
   { label: 'Candidates', path: '/candidates', icon: Users },
+  { label: 'Accuracy', path: '/accuracy', icon: BarChart3 },
+  { label: 'Corrections', path: '/corrections', icon: ClipboardCheck },
+  { label: 'Taxonomy', path: '/taxonomy', icon: Database },
 ]
 
 export default function Sidebar() {

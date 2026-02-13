@@ -23,6 +23,16 @@ class StorageObject:
         return f"s3://{self.bucket}/{self.key}"
 
 
+def _parse_s3_uri(s3_uri: str) -> tuple[str, str]:
+    if not s3_uri.startswith("s3://"):
+        raise ValueError("Invalid S3 URI")
+    _, _, path = s3_uri.partition("s3://")
+    bucket, _, key = path.partition("/")
+    if not bucket or not key:
+        raise ValueError("Invalid S3 URI")
+    return bucket, key
+
+
 def _get_s3_client():
     settings = get_settings()
     if not settings.S3_BUCKET:
@@ -58,10 +68,7 @@ def save_bytes_to_local(data: bytes, key: str) -> str:
 
 
 def download_s3_to_file(s3_uri: str, destination: str) -> None:
-    if not s3_uri.startswith("s3://"):
-        raise ValueError("Invalid S3 URI")
-    _, _, path = s3_uri.partition("s3://")
-    bucket, _, key = path.partition("/")
+    bucket, key = _parse_s3_uri(s3_uri)
     client = _get_s3_client()
     try:
         client.download_file(bucket, key, destination)
@@ -70,11 +77,27 @@ def download_s3_to_file(s3_uri: str, destination: str) -> None:
         raise RuntimeError("Failed to download file") from exc
 
 
+def copy_s3_object(source_s3_uri: str, dest_key: str) -> StorageObject:
+    settings = get_settings()
+    client = _get_s3_client()
+    src_bucket, src_key = _parse_s3_uri(source_s3_uri)
+    try:
+        client.copy(
+            {"Bucket": src_bucket, "Key": src_key},
+            settings.S3_BUCKET,
+            dest_key,
+        )
+    except (BotoCoreError, ClientError) as exc:
+        logger.exception(
+            "Failed to copy S3 object",
+            extra={"source": source_s3_uri, "dest_key": dest_key},
+        )
+        raise RuntimeError("Failed to copy S3 object") from exc
+    return StorageObject(bucket=settings.S3_BUCKET, key=dest_key)
+
+
 def generate_presigned_url(s3_uri: str, expires_in: int = 3600) -> str:
-    if not s3_uri.startswith("s3://"):
-        raise ValueError("Invalid S3 URI")
-    _, _, path = s3_uri.partition("s3://")
-    bucket, _, key = path.partition("/")
+    bucket, key = _parse_s3_uri(s3_uri)
     client = _get_s3_client()
     try:
         return client.generate_presigned_url(

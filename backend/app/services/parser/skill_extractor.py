@@ -20,19 +20,869 @@ logger = logging.getLogger(__name__)
 
 
 SKILL_CONTEXT_KEYWORDS = {
-    "expert": 0.9,
+    # Expert level (0.85-1.0)
+    "expert": 0.95,
+    "mastery": 0.95,
+    "master": 0.9,
+    "specialized": 0.9,
+    "architected": 0.9,
+    "designed": 0.85,
+    
+    # Advanced level (0.75-0.84)
     "advanced": 0.8,
-    "proficient": 0.75,
+    "developed": 0.8,
+    "engineered": 0.8,
+    "implemented": 0.75,
+    "created": 0.75,
+    "led": 0.75,
+    
+    # Proficient level (0.65-0.74)
+    "proficient": 0.7,
     "experienced": 0.7,
-    "led": 0.7,
-    "built": 0.65,
-    "used": 0.6,
+    "built": 0.7,
+    "managed": 0.68,
+    "deployed": 0.68,
+    "optimized": 0.65,
+    "configured": 0.65,
+    
+    # Intermediate level (0.55-0.64)
+    "worked with": 0.6,
+    "utilized": 0.6,
+    "applied": 0.6,
+    "used": 0.55,
+    "integrated": 0.55,
+    
+    # Beginner/Exposure level (0.4-0.54)
+    "familiar": 0.5,
+    "knowledge": 0.5,
+    "exposure": 0.45,
+    "learning": 0.4,
+    "basic": 0.4,
 }
 
 RELATED_SKILLS = {
-    "react": ["javascript", "html", "css"],
-    "node.js": ["javascript"],
-    "aws": ["cloud", "devops"],
+    # Frontend Frameworks
+    "react": ["javascript", "html", "css", "jsx", "redux", "hooks"],
+    "angular": ["javascript", "typescript", "html", "css", "rxjs"],
+    "vue": ["javascript", "html", "css", "vuex"],
+    "next.js": ["react", "javascript", "node.js", "ssr"],
+    "svelte": ["javascript", "html", "css"],
+    
+    # Backend Frameworks
+    "node.js": ["javascript", "express", "npm"],
+    "express": ["node.js", "javascript"],
+    "django": ["python", "orm", "mvc"],
+    "flask": ["python", "web development"],
+    "spring boot": ["java", "spring", "mvc"],
+    "fastapi": ["python", "async", "rest api"],
+    "nest.js": ["node.js", "typescript", "express"],
+    
+    # Programming Languages
+    "typescript": ["javascript"],
+    "javascript": ["html", "css"],
+    "python": ["programming"],
+    "java": ["programming", "oop"],
+    "c#": ["programming", ".net", "oop"],
+    "go": ["programming", "backend"],
+    "rust": ["programming", "systems programming"],
+    "kotlin": ["java", "android"],
+    "swift": ["ios", "xcode"],
+    
+    # Cloud Platforms
+    "aws": ["cloud", "devops", "ec2", "s3", "lambda"],
+    "azure": ["cloud", "devops", "microsoft"],
+    "gcp": ["cloud", "devops", "google cloud"],
+    "heroku": ["cloud", "paas"],
+    "digitalocean": ["cloud", "vps"],
+    
+    # Databases
+    "mongodb": ["nosql", "database", "json"],
+    "postgresql": ["sql", "database", "relational"],
+    "mysql": ["sql", "database", "relational"],
+    "redis": ["cache", "nosql", "in-memory"],
+    "elasticsearch": ["search", "nosql", "indexing"],
+    "dynamodb": ["nosql", "aws", "database"],
+    "cassandra": ["nosql", "distributed database"],
+    "oracle": ["sql", "database", "enterprise"],
+    
+    # DevOps & Tools
+    "docker": ["containerization", "devops", "deployment"],
+    "kubernetes": ["docker", "container orchestration", "devops"],
+    "jenkins": ["ci/cd", "devops", "automation"],
+    "gitlab ci": ["ci/cd", "devops", "git"],
+    "github actions": ["ci/cd", "devops", "git"],
+    "terraform": ["infrastructure as code", "devops", "cloud"],
+    "ansible": ["configuration management", "devops", "automation"],
+    
+    # Version Control
+    "git": ["version control", "github", "gitlab"],
+    "github": ["git", "version control"],
+    "gitlab": ["git", "version control", "ci/cd"],
+    
+    # Mobile Development
+    "react native": ["react", "javascript", "mobile", "ios", "android"],
+    "flutter": ["dart", "mobile", "cross-platform"],
+    "android": ["java", "kotlin", "mobile"],
+    "ios": ["swift", "objective-c", "xcode"],
+    
+    # Testing
+    "jest": ["javascript", "testing", "unit testing"],
+    "pytest": ["python", "testing", "unit testing"],
+    "selenium": ["testing", "automation", "web testing"],
+    "cypress": ["javascript", "testing", "e2e testing"],
+    "junit": ["java", "testing", "unit testing"],
+    
+    # Data & ML
+    "tensorflow": ["machine learning", "python", "deep learning"],
+    "pytorch": ["machine learning", "python", "deep learning"],
+    "scikit-learn": ["machine learning", "python", "data science"],
+    "pandas": ["python", "data analysis", "data science"],
+    "numpy": ["python", "numerical computing", "data science"],
+    "spark": ["big data", "distributed computing", "data processing"],
+    "hadoop": ["big data", "distributed computing", "mapreduce"],
+    
+    # Web Technologies
+    "html": ["web development", "frontend"],
+    "css": ["web development", "frontend", "styling"],
+    "sass": ["css", "preprocessing", "styling"],
+    "graphql": ["api", "query language", "rest"],
+    "rest api": ["api", "web services", "http"],
+    "websocket": ["real-time", "web communication"],
+    
+    # Message Queues
+    "rabbitmq": ["message queue", "amqp", "messaging"],
+    "kafka": ["message queue", "streaming", "distributed"],
+    "redis": ["cache", "message queue", "pub/sub"],
+    
+    # Monitoring & Logging
+    "prometheus": ["monitoring", "metrics", "devops"],
+    "grafana": ["monitoring", "visualization", "dashboards"],
+    "elk": ["elasticsearch", "logging", "kibana"],
+    "datadog": ["monitoring", "apm", "logging"],
+    "newrelic": ["monitoring", "apm", "performance"],
+}
+
+
+
+SOFT_SKILLS = {
+    # Communication Skills
+    "communication",
+    "verbal communication",
+    "written communication",
+    "presentation",
+    "public speaking",
+    "articulation",
+    "active listening",
+    "interpersonal skills",
+    "negotiation",
+    "persuasion",
+    "storytelling",
+    "technical writing",
+    "documentation",
+    
+    # Teamwork & Collaboration
+    "teamwork",
+    "collaboration",
+    "cross-functional collaboration",
+    "team player",
+    "cooperation",
+    "relationship building",
+    "networking",
+    "cultural awareness",
+    "diversity and inclusion",
+    "empathy",
+    "conflict resolution",
+    
+    # Leadership & Management
+    "leadership",
+    "team leadership",
+    "people management",
+    "mentoring",
+    "coaching",
+    "delegation",
+    "motivation",
+    "influence",
+    "decision making",
+    "strategic thinking",
+    "vision",
+    "accountability",
+    "ownership",
+    "stakeholder management",
+    "change management",
+    "project leadership",
+    
+    # Problem Solving & Critical Thinking
+    "problem solving",
+    "problem-solving",
+    "critical thinking",
+    "analytical thinking",
+    "analytical skills",
+    "troubleshooting",
+    "innovation",
+    "creative thinking",
+    "creativity",
+    "research",
+    "data-driven decision making",
+    "root cause analysis",
+    
+    # Time & Project Management
+    "time management",
+    "project management",
+    "organization",
+    "organizational skills",
+    "planning",
+    "prioritization",
+    "multitasking",
+    "task management",
+    "meeting deadlines",
+    "efficiency",
+    "productivity",
+    "attention to detail",
+    "detail-oriented",
+    
+    # Adaptability & Learning
+    "adaptability",
+    "flexibility",
+    "resilience",
+    "learning agility",
+    "continuous learning",
+    "self-learning",
+    "growth mindset",
+    "open-mindedness",
+    "curiosity",
+    "quick learner",
+    "versatility",
+    
+    # Work Ethic & Professionalism
+    "work ethic",
+    "professionalism",
+    "reliability",
+    "dependability",
+    "integrity",
+    "honesty",
+    "dedication",
+    "commitment",
+    "self-motivation",
+    "initiative",
+    "proactive",
+    "self-starter",
+    "driven",
+    "passionate",
+    "excellence",
+    
+    # Customer & Client Focus
+    "customer service",
+    "client management",
+    "customer focus",
+    "client relations",
+    "user empathy",
+    "customer satisfaction",
+    
+    # Business & Strategic Skills
+    "business acumen",
+    "strategic planning",
+    "business strategy",
+    "market analysis",
+    "competitive analysis",
+    "budgeting",
+    "financial acumen",
+    "roi optimization",
+    "risk management",
+    "vendor management",
+    
+    # Technical Soft Skills
+    "technical leadership",
+    "code review",
+    "pair programming",
+    "agile methodology",
+    "scrum",
+    "kanban",
+    "sprint planning",
+    "retrospectives",
+    "requirement gathering",
+    "system design",
+    "architecture design",
+    
+    # Additional Qualities
+    "patience",
+    "positivity",
+    "enthusiasm",
+    "confidence",
+    "humility",
+    "emotional intelligence",
+    "stress management",
+    "work-life balance",
+}
+
+
+SKILL_ALIASES: dict[str, str] = {
+    # React variations
+    "reactjs": "react",
+    "react.js": "react",
+    "react js": "react",
+    "react-js": "react",
+    
+    # Node.js variations
+    "nodejs": "node.js",
+    "node js": "node.js",
+    "node-js": "node.js",
+    "node": "node.js",
+    
+    # TypeScript variations
+    "ts": "typescript",
+    "type script": "typescript",
+    
+    # JavaScript variations
+    "js": "javascript",
+    "java script": "javascript",
+    "ecmascript": "javascript",
+    "es6": "javascript",
+    "es2015": "javascript",
+    
+    # Python variations
+    "py": "python",
+    "python3": "python",
+    "python2": "python",
+    
+    # Angular variations
+    "angularjs": "angular",
+    "angular.js": "angular",
+    "angular js": "angular",
+    
+    # Vue variations
+    "vuejs": "vue",
+    "vue.js": "vue",
+    "vue js": "vue",
+    
+    # Next.js variations
+    "nextjs": "next.js",
+    "next js": "next.js",
+    
+    # Express variations
+    "expressjs": "express",
+    "express.js": "express",
+    "express js": "express",
+    
+    # MongoDB variations
+    "mongo": "mongodb",
+    "mongo db": "mongodb",
+    
+    # PostgreSQL variations
+    "postgres": "postgresql",
+    "psql": "postgresql",
+    "postgre": "postgresql",
+    
+    # MySQL variations
+    "my sql": "mysql",
+    "my-sql": "mysql",
+    
+    # AWS variations
+    "amazon web services": "aws",
+    "amazon aws": "aws",
+    
+    # Azure variations
+    "microsoft azure": "azure",
+    "ms azure": "azure",
+    
+    # GCP variations
+    "google cloud platform": "gcp",
+    "google cloud": "gcp",
+    
+    # Docker variations
+    "docker container": "docker",
+    "docker-compose": "docker",
+    
+    # Kubernetes variations
+    "k8s": "kubernetes",
+    "k8": "kubernetes",
+    "kube": "kubernetes",
+    
+    # Git variations
+    "version control": "git",
+    "git scm": "git",
+    
+    # GitHub variations
+    "github.com": "github",
+    "gh": "github",
+    
+    # GitLab variations
+    "gitlab.com": "gitlab",
+    "git lab": "gitlab",
+    
+    # CI/CD variations
+    "continuous integration": "ci/cd",
+    "continuous deployment": "ci/cd",
+    "cicd": "ci/cd",
+    
+    # REST API variations
+    "rest": "rest api",
+    "restful": "rest api",
+    "restful api": "rest api",
+    "rest-api": "rest api",
+    
+    # GraphQL variations
+    "graph ql": "graphql",
+    "graphql api": "graphql",
+    
+    # HTML variations
+    "html5": "html",
+    "html 5": "html",
+    
+    # CSS variations
+    "css3": "css",
+    "css 3": "css",
+    "cascading style sheets": "css",
+    
+    # SASS variations
+    "scss": "sass",
+    "sass/scss": "sass",
+    
+    # Redux variations
+    "redux.js": "redux",
+    "reduxjs": "redux",
+    
+    # TensorFlow variations
+    "tf": "tensorflow",
+    "tensor flow": "tensorflow",
+    
+    # PyTorch variations
+    "torch": "pytorch",
+    "py torch": "pytorch",
+    
+    # Machine Learning variations
+    "ml": "machine learning",
+    "machine-learning": "machine learning",
+    
+    # Deep Learning variations
+    "dl": "deep learning",
+    "deep-learning": "deep learning",
+    
+    # Artificial Intelligence variations
+    "ai": "artificial intelligence",
+    "a.i.": "artificial intelligence",
+    
+    # Natural Language Processing variations
+    "nlp": "natural language processing",
+    "natural language": "natural language processing",
+    
+    # Computer Vision variations
+    "cv": "computer vision",
+    
+    # Data Science variations
+    "ds": "data science",
+    "data-science": "data science",
+    
+    # SQL variations
+    "structured query language": "sql",
+    "sequel": "sql",
+    
+    # NoSQL variations
+    "nosql": "nosql",
+    "no-sql": "nosql",
+    "non-sql": "nosql",
+    
+    # Java variations
+    "java se": "java",
+    "java ee": "java",
+    "j2ee": "java",
+    
+    # C# variations
+    "c sharp": "c#",
+    "csharp": "c#",
+    "c-sharp": "c#",
+    
+    # C++ variations
+    "c plus plus": "c++",
+    "cplusplus": "c++",
+    "cpp": "c++",
+    
+    # Objective-C variations
+    "objective c": "objective-c",
+    "obj-c": "objective-c",
+    "objc": "objective-c",
+    
+    # React Native variations
+    "react-native": "react native",
+    "reactnative": "react native",
+    "rn": "react native",
+    
+    # iOS variations
+    "ios development": "ios",
+    "iphone": "ios",
+    
+    # Android variations
+    "android development": "android",
+    "android studio": "android",
+    
+    # Spring Boot variations
+    "springboot": "spring boot",
+    "spring-boot": "spring boot",
+    
+    # Django variations
+    "django rest framework": "django",
+    "drf": "django",
+    
+    # Flask variations
+    "flask-rest": "flask",
+    "flask api": "flask",
+    
+    # FastAPI variations
+    "fast api": "fastapi",
+    "fast-api": "fastapi",
+    
+    # Testing variations
+    "unit testing": "testing",
+    "integration testing": "testing",
+    "e2e testing": "testing",
+    "test automation": "testing",
+    
+    # Agile variations
+    "agile development": "agile",
+    "agile methodology": "agile",
+    "agile scrum": "agile",
+    
+    # Scrum variations
+    "scrum master": "scrum",
+    "scrum methodology": "scrum",
+    
+    # DevOps variations
+    "dev ops": "devops",
+    "dev-ops": "devops",
+    
+    # UI/UX variations
+    "ui": "ui/ux",
+    "ux": "ui/ux",
+    "user interface": "ui/ux",
+    "user experience": "ui/ux",
+    
+    # Microservices variations
+    "micro services": "microservices",
+    "micro-services": "microservices",
+    "microservice architecture": "microservices",
+}
+
+
+
+FALLBACK_SKIP_VERBS = {
+    # Development & Creation
+    "developed",
+    "developing",
+    "develop",
+    "built",
+    "building",
+    "build",
+    "implemented",
+    "implementing",
+    "implement",
+    "designed",
+    "designing",
+    "design",
+    "created",
+    "creating",
+    "create",
+    "engineered",
+    "engineering",
+    "engineer",
+    "programmed",
+    "programming",
+    "program",
+    "coded",
+    "coding",
+    "code",
+    "wrote",
+    "writing",
+    "write",
+    "constructed",
+    "constructing",
+    "construct",
+    
+    # Management & Leadership
+    "led",
+    "leading",
+    "lead",
+    "managed",
+    "managing",
+    "manage",
+    "coordinated",
+    "coordinating",
+    "coordinate",
+    "oversaw",
+    "overseeing",
+    "oversee",
+    "supervised",
+    "supervising",
+    "supervise",
+    "directed",
+    "directing",
+    "direct",
+    "organized",
+    "organizing",
+    "organize",
+    "facilitated",
+    "facilitating",
+    "facilitate",
+    
+    # Optimization & Improvement
+    "optimized",
+    "optimizing",
+    "optimize",
+    "improved",
+    "improving",
+    "improve",
+    "enhanced",
+    "enhancing",
+    "enhance",
+    "refined",
+    "refining",
+    "refine",
+    "streamlined",
+    "streamlining",
+    "streamline",
+    "upgraded",
+    "upgrading",
+    "upgrade",
+    "modernized",
+    "modernizing",
+    "modernize",
+    
+    # Deployment & Operations
+    "deployed",
+    "deploying",
+    "deploy",
+    "launched",
+    "launching",
+    "launch",
+    "released",
+    "releasing",
+    "release",
+    "delivered",
+    "delivering",
+    "deliver",
+    "shipped",
+    "shipping",
+    "ship",
+    "migrated",
+    "migrating",
+    "migrate",
+    "integrated",
+    "integrating",
+    "integrate",
+    
+    # Configuration & Setup
+    "configured",
+    "configuring",
+    "configure",
+    "setup",
+    "setting up",
+    "set up",
+    "installed",
+    "installing",
+    "install",
+    "established",
+    "establishing",
+    "establish",
+    "initialized",
+    "initializing",
+    "initialize",
+    
+    # Maintenance & Support
+    "maintained",
+    "maintaining",
+    "maintain",
+    "supported",
+    "supporting",
+    "support",
+    "debugged",
+    "debugging",
+    "debug",
+    "troubleshot",
+    "troubleshooting",
+    "troubleshoot",
+    "fixed",
+    "fixing",
+    "fix",
+    "resolved",
+    "resolving",
+    "resolve",
+    "patched",
+    "patching",
+    "patch",
+    
+    # Analysis & Research
+    "analyzed",
+    "analyzing",
+    "analyze",
+    "evaluated",
+    "evaluating",
+    "evaluate",
+    "assessed",
+    "assessing",
+    "assess",
+    "investigated",
+    "investigating",
+    "investigate",
+    "researched",
+    "researching",
+    "research",
+    "studied",
+    "studying",
+    "study",
+    "reviewed",
+    "reviewing",
+    "review",
+    
+    # Collaboration & Communication
+    "collaborated",
+    "collaborating",
+    "collaborate",
+    "worked",
+    "working",
+    "work",
+    "partnered",
+    "partnering",
+    "partner",
+    "communicated",
+    "communicating",
+    "communicate",
+    "presented",
+    "presenting",
+    "present",
+    "demonstrated",
+    "demonstrating",
+    "demonstrate",
+    
+    # Documentation & Planning
+    "documented",
+    "documenting",
+    "document",
+    "planned",
+    "planning",
+    "plan",
+    "architected",
+    "architecting",
+    "architect",
+    "drafted",
+    "drafting",
+    "draft",
+    "outlined",
+    "outlining",
+    "outline",
+    "specified",
+    "specifying",
+    "specify",
+    
+    # Testing & Quality Assurance
+    "tested",
+    "testing",
+    "test",
+    "validated",
+    "validating",
+    "validate",
+    "verified",
+    "verifying",
+    "verify",
+    "ensured",
+    "ensuring",
+    "ensure",
+    "monitored",
+    "monitoring",
+    "monitor",
+    
+    # Training & Mentoring
+    "trained",
+    "training",
+    "train",
+    "mentored",
+    "mentoring",
+    "mentor",
+    "coached",
+    "coaching",
+    "coach",
+    "taught",
+    "teaching",
+    "teach",
+    "educated",
+    "educating",
+    "educate",
+    "onboarded",
+    "onboarding",
+    "onboard",
+    
+    # Automation & Scripting
+    "automated",
+    "automating",
+    "automate",
+    "scripted",
+    "scripting",
+    "script",
+    "orchestrated",
+    "orchestrating",
+    "orchestrate",
+    
+    # Scaling & Performance
+    "scaled",
+    "scaling",
+    "scale",
+    "accelerated",
+    "accelerating",
+    "accelerate",
+    "boosted",
+    "boosting",
+    "boost",
+    
+    # Data Operations
+    "processed",
+    "processing",
+    "process",
+    "transformed",
+    "transforming",
+    "transform",
+    "extracted",
+    "extracting",
+    "extract",
+    "loaded",
+    "loading",
+    "load",
+    "queried",
+    "querying",
+    "query",
+    
+    # Security
+    "secured",
+    "securing",
+    "secure",
+    "protected",
+    "protecting",
+    "protect",
+    "hardened",
+    "hardening",
+    "harden",
+    
+    # General Actions
+    "utilized",
+    "utilizing",
+    "utilize",
+    "used",
+    "using",
+    "use",
+    "applied",
+    "applying",
+    "apply",
+    "executed",
+    "executing",
+    "execute",
+    "performed",
+    "performing",
+    "perform",
+    "completed",
+    "completing",
+    "complete",
+    "achieved",
+    "achieving",
+    "achieve",
+    "accomplished",
+    "accomplishing",
+    "accomplish",
 }
 
 
@@ -64,7 +914,9 @@ class SkillExtractor:
             self._matcher.add("SKILL", patterns)
 
     def extract_from_skills_section(self, text: str) -> list[SkillMatch]:
-        return self._extract_skills(text, base_confidence=0.85)
+        matches = self._extract_skills(text, base_confidence=0.85)
+        matches.extend(self._extract_freeform_skills(text, base_confidence=0.7))
+        return matches
 
     def extract_from_work_history(self, jobs: Iterable[JobEntry]) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
@@ -141,16 +993,29 @@ class SkillExtractor:
         return related
 
     def extract_all(
-        self, skills_section: str, jobs: Iterable[JobEntry]
+        self,
+        skills_section: str,
+        jobs: Iterable[JobEntry],
+        *,
+        skills_section_confidence: float | None = None,
+        raw_text: str | None = None,
     ) -> list[SkillMatch]:
-        section_matches = self.extract_from_skills_section(skills_section)
+        section_text = skills_section or ""
+        if skills_section_confidence is not None and skills_section_confidence < 0.6:
+            section_text = ""
+
+        section_matches = self.extract_from_skills_section(section_text) if section_text else []
         history_matches = self.extract_from_work_history(jobs)
-        all_matches = self.normalize_skills(section_matches + history_matches)
+        fallback_matches: list[SkillMatch] = []
+        if not section_matches and raw_text:
+            fallback_matches = self.extract_from_raw_text(raw_text)
+
+        all_matches = self.normalize_skills(section_matches + history_matches + fallback_matches)
 
         enriched = []
         for match in all_matches:
             years = self.calculate_skill_years(jobs, match.normalized_name)
-            proficiency = self.infer_proficiency(skills_section, match.normalized_name)
+            proficiency = self.infer_proficiency(section_text or (raw_text or ""), match.normalized_name)
             enriched.append(
                 SkillMatch(
                     name=match.name,
@@ -164,6 +1029,61 @@ class SkillExtractor:
         enriched = self.categorize_skills(enriched)
         enriched.extend(self.infer_related_skills(enriched))
         return self.normalize_skills(enriched)
+
+    def extract_from_raw_text(self, text: str) -> list[SkillMatch]:
+        if not text:
+            return []
+        matches: list[SkillMatch] = []
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for line in lines:
+            if len(line) > 200:
+                continue
+            lowered = line.lower()
+            if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
+                continue
+            if ":" in line:
+                label, _, values = line.partition(":")
+                if "skill" not in label.lower() and "tools" not in label.lower() and "technology" not in label.lower():
+                    continue
+                tokens = self._split_skills(values)
+            else:
+                if sum(int(d in line) for d in (",", "|", "•", "-", ";")) < 2:
+                    continue
+                tokens = self._split_skills(line)
+
+            for token in tokens:
+                name, canonical, category = self._canonicalize_token(token)
+                base = 0.55 if canonical in self.normalized_map else 0.45
+                matches.append(
+                    SkillMatch(
+                        name=name,
+                        normalized_name=canonical,
+                        category=category,
+                        confidence=base,
+                        years_experience=None,
+                        proficiency=None,
+                    )
+                )
+
+        return matches
+
+    def _canonicalize_token(self, token: str) -> tuple[str, str, str | None]:
+        name = re.sub(r"\s+", " ", (token or "").strip())
+        lowered = name.lower()
+        lowered = lowered.replace("(", " ").replace(")", " ")
+        lowered = re.sub(r"\s+", " ", lowered).strip()
+        alias_key = lowered.replace(".", "").replace(" ", "").replace("-", "")
+        canonical = SKILL_ALIASES.get(lowered) or SKILL_ALIASES.get(alias_key) or lowered
+        canonical = self.synonym_map.get(canonical, canonical)
+        canonical = canonical.replace(" ", " ").strip()
+        if canonical in self.normalized_map:
+            taxonomy = self.normalized_map[canonical]
+            return taxonomy["name"], taxonomy["normalized_name"], taxonomy.get("category")
+
+        if lowered in SOFT_SKILLS or alias_key in {s.replace(" ", "").replace("-", "") for s in SOFT_SKILLS}:
+            return name, lowered.replace("-", " "), "Soft Skills"
+
+        return name, lowered, None
 
     def _extract_skills(self, text: str, base_confidence: float) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
@@ -216,6 +1136,62 @@ class SkillExtractor:
                 )
 
         return matches
+
+    def _extract_freeform_skills(
+        self, text: str, base_confidence: float
+    ) -> list[SkillMatch]:
+        matches: list[SkillMatch] = []
+        if not text:
+            return matches
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for line in lines:
+            if ":" in line:
+                label, _, values = line.partition(":")
+                category = label.strip().title()
+                tokens = self._split_skills(values)
+            else:
+                category = None
+                tokens = self._split_skills(line)
+            for token in tokens:
+                _, normalized, category_hint = self._canonicalize_token(token)
+                if normalized in self.normalized_map:
+                    item = self.normalized_map[normalized]
+                    matches.append(
+                        SkillMatch(
+                            name=item["name"],
+                            normalized_name=item["normalized_name"],
+                            category=item.get("category") or category_hint or category,
+                            confidence=base_confidence,
+                            years_experience=None,
+                            proficiency=None,
+                        )
+                    )
+                else:
+                    matches.append(
+                        SkillMatch(
+                            name=token,
+                            normalized_name=normalized,
+                            category=category_hint or category,
+                            confidence=base_confidence - 0.1,
+                            years_experience=None,
+                            proficiency=None,
+                        )
+                    )
+        return matches
+
+    @staticmethod
+    def _split_skills(value: str) -> list[str]:
+        tokens: list[str] = []
+        for part in re.split(r"[,\u2022•;/|]", value):
+            cleaned = part.strip()
+            if not cleaned:
+                continue
+            if len(cleaned) > 40:
+                continue
+            cleaned = cleaned.strip("-•* ")
+            if re.search(r"[A-Za-z]", cleaned):
+                tokens.append(cleaned)
+        return tokens
 
     def _load_taxonomy(self, taxonomy_path: str | None) -> list[dict]:
         path = (

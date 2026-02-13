@@ -53,6 +53,7 @@ export default function CandidateDetailPage() {
     discrepancies: [],
   })
   const [resumeUrl, setResumeUrl] = useState<string | null>(null)
+  const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null)
   const [parsedData, setParsedData] = useState<Record<string, any>>({})
   const [originalData, setOriginalData] = useState<Record<string, any>>({})
   const [compareMode, setCompareMode] = useState(false)
@@ -94,9 +95,29 @@ export default function CandidateDetailPage() {
   useEffect(() => {
     if (!id) return
     downloadResume(id)
-      .then((url) => setResumeUrl(url))
-      .catch(() => setResumeUrl(null))
+      .then(async (url) => {
+        setResumeUrl(url)
+        try {
+          const { fetchFileAsBlobUrl } = await import('../services/api/files')
+          const blobUrl = await fetchFileAsBlobUrl(url)
+          setResumePreviewUrl(blobUrl)
+        } catch {
+          setResumePreviewUrl(null)
+        }
+      })
+      .catch(() => {
+        setResumeUrl(null)
+        setResumePreviewUrl(null)
+      })
   }, [id])
+
+  useEffect(() => {
+    return () => {
+      if (resumePreviewUrl) {
+        URL.revokeObjectURL(resumePreviewUrl)
+      }
+    }
+  }, [resumePreviewUrl])
 
   const onFieldChange = useCallback(
     (path: string, value: string) => {
@@ -304,7 +325,7 @@ export default function CandidateDetailPage() {
           Correction interface
         </h2>
         <CorrectionSplitView
-          resumeUrl={resumeUrl}
+          resumeUrl={resumePreviewUrl ?? resumeUrl}
           parsedData={parsedData}
           originalData={originalData}
           flaggedFields={reviewFlags.flagged_fields}

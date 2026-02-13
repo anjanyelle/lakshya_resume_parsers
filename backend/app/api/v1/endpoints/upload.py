@@ -1,4 +1,5 @@
 import logging
+import shutil
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -14,7 +15,7 @@ from app.core.config import get_settings
 from app.models.candidate import Candidate, CandidateStatus
 from app.models.parsing_job import ParsingJob, ParsingJobStatus
 from app.schemas.upload import BatchUploadResponse, UploadJobResponse
-from app.services.storage import save_bytes_to_local, upload_bytes_to_s3
+from app.services.storage import copy_s3_object, save_bytes_to_local, upload_bytes_to_s3
 from app.utils.file_validation import validate_magic
 from app.utils.audit import log_audit
 from app.utils.virus_scan import scan_file
@@ -114,7 +115,33 @@ async def _process_uploads(
         db.commit()
         db.refresh(job)
 
-        background_tasks.add_task(start_parsing_workflow, str(job.id))
+        try:
+            base_key = f"resumes/{candidate.tenant_id}/{candidate.id}/{job.id}"
+            original_key = f"{base_key}/original.{extension}"
+            if file_path.startswith("s3://") and settings.S3_BUCKET:
+                copied = copy_s3_object(file_path, original_key)
+                job.original_file_copy_path = copied.uri
+            else:
+                src = Path(file_path)
+                dst = Path(settings.STORAGE_DIR) / original_key
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                if src.exists():
+                    shutil.copy2(src, dst)
+                    job.original_file_copy_path = str(dst)
+            db.add(job)
+            db.commit()
+            db.refresh(job)
+        except Exception as exc:
+            logger.warning(
+                "Failed to persist canonical resume copy",
+                extra={"job_id": str(job.id), "error": str(exc)},
+            )
+
+        if settings.ENVIRONMENT.lower() in {"development", "local"}:
+            # Run inline in dev to avoid reloads/background task interruptions.
+            background_tasks.add_task(start_parsing_workflow, str(job.id))
+        else:
+            background_tasks.add_task(start_parsing_workflow, str(job.id))
         log_audit(
             db,
             user_id=str(current_user.id) if current_user else None,

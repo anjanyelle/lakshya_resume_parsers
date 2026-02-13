@@ -7,6 +7,7 @@ from typing import Iterable
 
 import phonenumbers
 from email_validator import EmailNotValidError, validate_email
+import unicodedata
 
 try:
     import spacy
@@ -16,82 +17,617 @@ except Exception:  # noqa: BLE001
 logger = logging.getLogger(__name__)
 
 
+# FREE_EMAIL_DOMAINS = {
+#     "gmail.com",
+#     "yahoo.com",
+#     "outlook.com",
+#     "hotmail.com",
+#     "icloud.com",
+#     "aol.com",
+#     "proton.me",
+#     "protonmail.com",
+# }
+
+# INVALID_CITY_TOKENS = {
+#     "team",
+#     "hr",
+#     "project",
+#     "organization",
+#     "institution",
+#     "designation",
+#     "responsibility",
+#     "summary",
+#     "skills",
+#     "experience",
+#     "education",
+#     "declaration",
+# }
+
+# COUNTRY_HINTS = {
+#     "usa": "United States",
+#     "united states": "United States",
+#     "us": "United States",
+#     "india": "India",
+#     "canada": "Canada",
+#     "uk": "United Kingdom",
+#     "united kingdom": "United Kingdom",
+#     "germany": "Germany",
+#     "france": "France",
+#     "spain": "Spain",
+# }
+
+# STATE_ABBREVIATIONS = {
+#     "AL",
+#     "AK",
+#     "AZ",
+#     "AR",
+#     "CA",
+#     "CO",
+#     "CT",
+#     "DE",
+#     "FL",
+#     "GA",
+#     "HI",
+#     "ID",
+#     "IL",
+#     "IN",
+#     "IA",
+#     "KS",
+#     "KY",
+#     "LA",
+#     "ME",
+#     "MD",
+#     "MA",
+#     "MI",
+#     "MN",
+#     "MS",
+#     "MO",
+#     "MT",
+#     "NE",
+#     "NV",
+#     "NH",
+#     "NJ",
+#     "NM",
+#     "NY",
+#     "NC",
+#     "ND",
+#     "OH",
+#     "OK",
+#     "OR",
+#     "PA",
+#     "RI",
+#     "SC",
+#     "SD",
+#     "TN",
+#     "TX",
+#     "UT",
+#     "VT",
+#     "VA",
+#     "WA",
+#     "WV",
+#     "WI",
+#     "WY",
+# }
+
+
+
+
+
+
+
 FREE_EMAIL_DOMAINS = {
+    # Google
     "gmail.com",
-    "yahoo.com",
+    "googlemail.com",
+    
+    # Microsoft
     "outlook.com",
     "hotmail.com",
+    "live.com",
+    "msn.com",
+    "passport.com",
+    
+    # Yahoo
+    "yahoo.com",
+    "yahoo.co.uk",
+    "yahoo.co.in",
+    "yahoo.fr",
+    "yahoo.de",
+    "ymail.com",
+    "rocketmail.com",
+    
+    # Apple
     "icloud.com",
+    "me.com",
+    "mac.com",
+    
+    # AOL
     "aol.com",
+    "aim.com",
+    
+    # Proton
     "proton.me",
     "protonmail.com",
+    "protonmail.ch",
+    "pm.me",
+    
+    # Other Popular Free Services
+    "mail.com",
+    "gmx.com",
+    "gmx.net",
+    "zoho.com",
+    "zohomail.com",
+    "yandex.com",
+    "yandex.ru",
+    "mail.ru",
+    "inbox.com",
+    "fastmail.com",
+    "tutanota.com",
+    "tutanota.de",
+    "tuta.io",
+    "rediffmail.com",
+    "rediff.com",
+    
+    # Regional Services
+    "163.com",
+    "126.com",
+    "qq.com",
+    "sina.com",
+    "sohu.com",
+    "naver.com",
+    "hanmail.net",
+    "daum.net",
+    "libero.it",
+    "virgilio.it",
+    "alice.it",
+    "tiscali.it",
+    "free.fr",
+    "laposte.net",
+    "orange.fr",
+    "web.de",
+    "t-online.de",
+    "arcor.de",
+    
+    # Disposable/Temporary
+    "tempmail.com",
+    "guerrillamail.com",
+    "10minutemail.com",
+    "throwaway.email",
+    "mailinator.com",
+}
+
+INVALID_CITY_TOKENS = {
+    # Resume Section Headers
+    "team",
+    "hr",
+    "human resources",
+    "project",
+    "projects",
+    "organization",
+    "institution",
+    "company",
+    "designation",
+    "position",
+    "role",
+    "responsibility",
+    "responsibilities",
+    "summary",
+    "objective",
+    "profile",
+    "skills",
+    "skill",
+    "technical skills",
+    "experience",
+    "work experience",
+    "professional experience",
+    "education",
+    "educational background",
+    "qualification",
+    "qualifications",
+    "declaration",
+    "references",
+    "achievements",
+    "awards",
+    "certifications",
+    "certification",
+    "publications",
+    "languages",
+    "hobbies",
+    "interests",
+    
+    # Common Resume Keywords
+    "resume",
+    "cv",
+    "curriculum vitae",
+    "portfolio",
+    "contact",
+    "contact information",
+    "personal details",
+    "professional summary",
+    "career objective",
+    "about me",
+    
+    # Job-Related Terms
+    "employee",
+    "employer",
+    "manager",
+    "director",
+    "engineer",
+    "developer",
+    "analyst",
+    "consultant",
+    "intern",
+    "trainee",
+    
+    # Generic Terms
+    "page",
+    "document",
+    "file",
+    "name",
+    "email",
+    "phone",
+    "address",
+    "location",
+    "date",
+    "present",
+    "current",
+    "till",
+    "ongoing",
 }
 
 COUNTRY_HINTS = {
+    # United States
     "usa": "United States",
     "united states": "United States",
     "us": "United States",
+    "u.s.": "United States",
+    "u.s.a.": "United States",
+    "america": "United States",
+    "united states of america": "United States",
+    
+    # India
     "india": "India",
+    "bharat": "India",
+    "in": "India",
+    
+    # Canada
     "canada": "Canada",
+    "ca": "Canada",
+    
+    # United Kingdom
     "uk": "United Kingdom",
     "united kingdom": "United Kingdom",
+    "u.k.": "United Kingdom",
+    "great britain": "United Kingdom",
+    "britain": "United Kingdom",
+    "england": "United Kingdom",
+    "scotland": "United Kingdom",
+    "wales": "United Kingdom",
+    "northern ireland": "United Kingdom",
+    
+    # Germany
     "germany": "Germany",
+    "deutschland": "Germany",
+    "de": "Germany",
+    
+    # France
     "france": "France",
+    "fr": "France",
+    
+    # Spain
     "spain": "Spain",
+    "españa": "Spain",
+    "es": "Spain",
+    
+    # Italy
+    "italy": "Italy",
+    "italia": "Italy",
+    "it": "Italy",
+    
+    # China
+    "china": "China",
+    "prc": "China",
+    "people's republic of china": "China",
+    "cn": "China",
+    
+    # Japan
+    "japan": "Japan",
+    "jp": "Japan",
+    "nippon": "Japan",
+    
+    # Australia
+    "australia": "Australia",
+    "au": "Australia",
+    "aus": "Australia",
+    
+    # Brazil
+    "brazil": "Brazil",
+    "brasil": "Brazil",
+    "br": "Brazil",
+    
+    # Mexico
+    "mexico": "Mexico",
+    "méxico": "Mexico",
+    "mx": "Mexico",
+    
+    # Netherlands
+    "netherlands": "Netherlands",
+    "holland": "Netherlands",
+    "nl": "Netherlands",
+    
+    # Sweden
+    "sweden": "Sweden",
+    "se": "Sweden",
+    
+    # Switzerland
+    "switzerland": "Switzerland",
+    "schweiz": "Switzerland",
+    "suisse": "Switzerland",
+    "ch": "Switzerland",
+    
+    # Singapore
+    "singapore": "Singapore",
+    "sg": "Singapore",
+    
+    # UAE
+    "uae": "United Arab Emirates",
+    "united arab emirates": "United Arab Emirates",
+    "emirates": "United Arab Emirates",
+    
+    # Russia
+    "russia": "Russia",
+    "russian federation": "Russia",
+    "ru": "Russia",
+    
+    # South Korea
+    "south korea": "South Korea",
+    "korea": "South Korea",
+    "kr": "South Korea",
+    
+    # Poland
+    "poland": "Poland",
+    "polska": "Poland",
+    "pl": "Poland",
+    
+    # Ireland
+    "ireland": "Ireland",
+    "eire": "Ireland",
+    "ie": "Ireland",
+    
+    # Pakistan
+    "pakistan": "Pakistan",
+    "pk": "Pakistan",
+    
+    # Bangladesh
+    "bangladesh": "Bangladesh",
+    "bd": "Bangladesh",
+    
+    # South Africa
+    "south africa": "South Africa",
+    "za": "South Africa",
 }
 
 STATE_ABBREVIATIONS = {
-    "AL",
-    "AK",
-    "AZ",
-    "AR",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "ID",
-    "IL",
-    "IN",
-    "IA",
-    "KS",
-    "KY",
-    "LA",
-    "ME",
-    "MD",
-    "MA",
-    "MI",
-    "MN",
-    "MS",
-    "MO",
-    "MT",
-    "NE",
-    "NV",
-    "NH",
-    "NJ",
-    "NM",
-    "NY",
-    "NC",
-    "ND",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VT",
-    "VA",
-    "WA",
-    "WV",
-    "WI",
-    "WY",
+    # US States
+    "AL", "Alabama",
+    "AK", "Alaska",
+    "AZ", "Arizona",
+    "AR", "Arkansas",
+    "CA", "California",
+    "CO", "Colorado",
+    "CT", "Connecticut",
+    "DE", "Delaware",
+    "FL", "Florida",
+    "GA", "Georgia",
+    "HI", "Hawaii",
+    "ID", "Idaho",
+    "IL", "Illinois",
+    "IN", "Indiana",
+    "IA", "Iowa",
+    "KS", "Kansas",
+    "KY", "Kentucky",
+    "LA", "Louisiana",
+    "ME", "Maine",
+    "MD", "Maryland",
+    "MA", "Massachusetts",
+    "MI", "Michigan",
+    "MN", "Minnesota",
+    "MS", "Mississippi",
+    "MO", "Missouri",
+    "MT", "Montana",
+    "NE", "Nebraska",
+    "NV", "Nevada",
+    "NH", "New Hampshire",
+    "NJ", "New Jersey",
+    "NM", "New Mexico",
+    "NY", "New York",
+    "NC", "North Carolina",
+    "ND", "North Dakota",
+    "OH", "Ohio",
+    "OK", "Oklahoma",
+    "OR", "Oregon",
+    "PA", "Pennsylvania",
+    "RI", "Rhode Island",
+    "SC", "South Carolina",
+    "SD", "South Dakota",
+    "TN", "Tennessee",
+    "TX", "Texas",
+    "UT", "Utah",
+    "VT", "Vermont",
+    "VA", "Virginia",
+    "WA", "Washington",
+    "WV", "West Virginia",
+    "WI", "Wisconsin",
+    "WY", "Wyoming",
+    
+    # US Territories
+    "DC", "District of Columbia",
+    "PR", "Puerto Rico",
+    "VI", "Virgin Islands",
+    "GU", "Guam",
+    "AS", "American Samoa",
+    "MP", "Northern Mariana Islands",
+    
+    # Canadian Provinces
+    "AB", "Alberta",
+    "BC", "British Columbia",
+    "MB", "Manitoba",
+    "NB", "New Brunswick",
+    "NL", "Newfoundland and Labrador",
+    "NS", "Nova Scotia",
+    "NT", "Northwest Territories",
+    "NU", "Nunavut",
+    "ON", "Ontario",
+    "PE", "Prince Edward Island",
+    "QC", "Quebec",
+    "SK", "Saskatchewan",
+    "YT", "Yukon",
+    
+    # Australian States
+    "NSW", "New South Wales",
+    "VIC", "Victoria",
+    "QLD", "Queensland",
+    "WA", "Western Australia",
+    "SA", "South Australia",
+    "TAS", "Tasmania",
+    "ACT", "Australian Capital Territory",
+    "NT", "Northern Territory",
 }
+
+NAME_SUFFIXES = {
+    # Generational
+    "jr",
+    "jr.",
+    "junior",
+    "sr",
+    "sr.",
+    "senior",
+    "i",
+    "ii",
+    "iii",
+    "iv",
+    "v",
+    "vi",
+    "1st",
+    "2nd",
+    "3rd",
+    "4th",
+    "5th",
+    
+    # Academic Degrees
+    "phd",
+    "ph.d",
+    "ph.d.",
+    "dphil",
+    "edd",
+    "ed.d",
+    "dsc",
+    "dba",
+    "md",
+    "m.d",
+    "m.d.",
+    "do",
+    "d.o.",
+    "dds",
+    "d.d.s.",
+    "dvm",
+    "d.v.m.",
+    "jd",
+    "j.d",
+    "j.d.",
+    "llm",
+    "ll.m",
+    "scd",
+    "sc.d",
+    
+    # Master's Degrees
+    "mba",
+    "m.b.a",
+    "m.b.a.",
+    "ms",
+    "m.s",
+    "m.s.",
+    "ma",
+    "m.a",
+    "m.a.",
+    "msc",
+    "m.sc",
+    "meng",
+    "m.eng",
+    "mfa",
+    "m.f.a",
+    "mpa",
+    "m.p.a",
+    "mph",
+    "m.p.h",
+    "msw",
+    "m.s.w",
+    "med",
+    "m.ed",
+    
+    # Bachelor's Degrees
+    "ba",
+    "b.a",
+    "b.a.",
+    "bs",
+    "b.s",
+    "b.s.",
+    "bsc",
+    "b.sc",
+    "beng",
+    "b.eng",
+    "bba",
+    "b.b.a",
+    "bfa",
+    "b.f.a",
+    
+    # Professional Titles
+    "esq",
+    "esq.",
+    "esquire",
+    "cpa",
+    "cfa",
+    "pmp",
+    "pe",
+    "p.e.",
+    "rn",
+    "r.n.",
+    "lpn",
+    "l.p.n.",
+    "pa",
+    "p.a.",
+    "aprn",
+    "dds",
+    
+    # Religious/Honorary
+    "rev",
+    "rev.",
+    "reverend",
+    "fr",
+    "fr.",
+    "father",
+    "dr",
+    "dr.",
+    "doctor",
+    "prof",
+    "prof.",
+    "professor",
+    "sir",
+    "dame",
+    "lord",
+    "lady",
+    
+    # Military
+    "ret",
+    "ret.",
+    "retired",
+    "usn",
+    "usaf",
+    "usmc",
+    "usa",
+}
+
+
 
 NAME_SUFFIXES = {"jr", "sr", "phd", "md", "mba", "ii", "iii", "iv"}
 
@@ -111,6 +647,32 @@ GITHUB_REGEX = re.compile(
     r"(https?://)?(www\.)?github\.com/[A-Za-z0-9\-_%]+",
     re.IGNORECASE,
 )
+
+LOCATION_LABEL_REGEX = re.compile(
+    r"\b(location|address|based in)\b\s*[:\-]\s*(?P<value>.+)$",
+    re.IGNORECASE,
+)
+
+NAME_LABEL_REGEX = re.compile(
+    r"\b(name|linkedin)\b\s*[:\-]\s*(?P<value>.+)$",
+    re.IGNORECASE,
+)
+
+SECTION_HINTS = {
+    "summary",
+    "professional summary",
+    "profile",
+    "objective",
+    "experience",
+    "work experience",
+    "education",
+    "skills",
+    "technical skills",
+    "certifications",
+    "projects",
+    "awards",
+    "publications",
+}
 
 
 @dataclass(frozen=True)
@@ -157,7 +719,7 @@ class ContactResult:
 
 
 class ContactExtractor:
-    def __init__(self, default_region: str | None = "US") -> None:
+    def __init__(self, default_region: str | None = "IN") -> None:
         self.default_region = default_region
         self._nlp = None
         if spacy is not None:
@@ -165,6 +727,10 @@ class ContactExtractor:
                 self._nlp = spacy.load("en_core_web_sm")
             except Exception:  # noqa: BLE001
                 self._nlp = spacy.blank("en")
+
+    @staticmethod
+    def _contains_country_hint(text: str, hint: str) -> bool:
+        return re.search(rf"\b{re.escape(hint)}\b", text) is not None
 
     def extract_all(self, raw_text: str) -> ContactResult:
         emails = self.extract_emails(raw_text)
@@ -210,7 +776,8 @@ class ContactExtractor:
     def extract_phones(self, text: str) -> list[PhoneResult]:
         phones: list[PhoneResult] = []
         seen = set()
-        for match in phonenumbers.PhoneNumberMatcher(text, self.default_region):
+        normalized_text = self._normalize_phone_text(text)
+        for match in phonenumbers.PhoneNumberMatcher(normalized_text, self.default_region):
             number = match.number
             if not phonenumbers.is_possible_number(number):
                 continue
@@ -256,6 +823,16 @@ class ContactExtractor:
         confidence = 0.0
 
         for line in top_block:
+            match = LOCATION_LABEL_REGEX.search(line)
+            if match:
+                value = match.group("value").strip()
+                city, state, country, confidence = self._parse_location_string(value)
+                if city or country:
+                    return LocationResult(
+                        city=city, state=state, country=country, confidence=confidence
+                    )
+
+        for line in top_block:
             match = re.search(r"([A-Za-z .]+),\s*([A-Z]{2})\b", line)
             if match and match.group(2) in STATE_ABBREVIATIONS:
                 city = match.group(1).strip()
@@ -265,29 +842,53 @@ class ContactExtractor:
 
         if not city:
             for line in top_block:
+                if self._looks_like_section_header(line):
+                    continue
+                if len(line) > 60:
+                    continue
                 tokens = line.split(",")
                 if len(tokens) >= 2:
-                    city = tokens[0].strip()
+                    candidate_city = tokens[0].strip()
                     country_guess = tokens[-1].strip().lower()
                     country = COUNTRY_HINTS.get(country_guess)
-                    if city and country:
+                    if (
+                        candidate_city
+                        and country
+                        and candidate_city.strip().lower() not in INVALID_CITY_TOKENS
+                    ):
+                        city = candidate_city
                         confidence = 0.6
                         break
 
         if not country:
             for line in top_block:
+                if self._looks_like_section_header(line):
+                    continue
                 lowered = line.lower()
                 for key, value in COUNTRY_HINTS.items():
-                    if key in lowered:
+                    if self._contains_country_hint(lowered, key):
                         country = value
                         confidence = max(confidence, 0.5)
                         break
+
+        if (not country or country == "United States") and re.search(r"\+\s*91\b", text):
+            country = "India"
+            confidence = max(confidence, 0.6)
 
         return LocationResult(city=city, state=state, country=country, confidence=confidence)
 
     def extract_name(self, text: str) -> NameResult:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         top_lines = lines[:8]
+
+        for line in top_lines:
+            match = NAME_LABEL_REGEX.search(line)
+            if match:
+                candidate = match.group("value").strip()
+                if self._is_probable_name(candidate):
+                    return NameResult(
+                        name=self._normalize_name_case(candidate), confidence=0.72
+                    )
 
         if self._nlp:
             doc = self._nlp("\n".join(top_lines))
@@ -298,13 +899,32 @@ class ContactExtractor:
                         return NameResult(name=name, confidence=0.75)
 
         for line in top_lines:
-            if "@" in line or re.search(r"\d", line):
+            if (
+                "@" in line
+                or re.search(r"\d", line)
+                or "http" in line.lower()
+                or "www." in line.lower()
+                or ":" in line
+                or self._looks_like_section_header(line)
+            ):
                 continue
             words = [w for w in re.split(r"\s+", line) if w]
             if 2 <= len(words) <= 4:
-                cleaned = " ".join(words)
+                cleaned = self._normalize_name_case(" ".join(words))
                 cleaned = self._normalize_name_suffix(cleaned)
                 return NameResult(name=cleaned, confidence=0.6)
+
+        if len(top_lines) >= 2:
+            first = top_lines[0]
+            second = top_lines[1]
+            if (
+                re.match(r"^[A-Za-z.'-]{2,}$", first)
+                and re.match(r"^[A-Za-z.'-]{2,}$", second)
+                and (first.isupper() or second.isupper())
+            ):
+                combined = self._normalize_name_case(f"{first} {second}")
+                if self._is_probable_name(combined):
+                    return NameResult(name=combined, confidence=0.62)
 
         return NameResult(name=None, confidence=0.0)
 
@@ -330,3 +950,66 @@ class ContactExtractor:
         if parts and parts[-1].lower().strip(".") in NAME_SUFFIXES:
             parts[-1] = parts[-1].upper()
         return " ".join(parts)
+
+    @staticmethod
+    def _normalize_phone_text(text: str) -> str:
+        cleaned = unicodedata.normalize("NFKC", text)
+        cleaned = re.sub(r"[\u200b\u200c\u200d\u2060\ufeff]", "", cleaned)
+        cleaned = re.sub(r"[\u200e\u200f\u202a-\u202e]", "", cleaned)
+        return cleaned
+
+    @staticmethod
+    def _is_probable_name(value: str) -> bool:
+        if not value or "@" in value:
+            return False
+        if len(value) > 60:
+            return False
+        words = [w for w in re.split(r"\s+", value.strip()) if w]
+        if not (2 <= len(words) <= 4):
+            return False
+        if any(word.lower() in {"linkedin", "github", "email", "phone"} for word in words):
+            return False
+        return all(re.match(r"^[A-Za-z.'-]+$", word) for word in words)
+
+    @staticmethod
+    def _normalize_name_case(value: str) -> str:
+        if value.isupper():
+            return value.title()
+        return value
+
+    @staticmethod
+    def _looks_like_section_header(line: str) -> bool:
+        cleaned = re.sub(r"[^A-Za-z ]+", " ", line).strip().lower()
+        cleaned = " ".join(cleaned.split())
+        return cleaned in SECTION_HINTS
+
+    def _parse_location_string(
+        self, value: str
+    ) -> tuple[str | None, str | None, str | None, float]:
+        city = state = country = None
+        confidence = 0.0
+        if not value:
+            return city, state, country, confidence
+        match = re.search(r"([A-Za-z .]+),\s*([A-Z]{2})\b", value)
+        if match and match.group(2) in STATE_ABBREVIATIONS:
+            city = match.group(1).strip()
+            state = match.group(2)
+            confidence = 0.7
+            return city, state, country, confidence
+        tokens = [token.strip() for token in value.split(",") if token.strip()]
+        if len(tokens) >= 2:
+            city = tokens[0]
+            country_guess = tokens[-1].lower()
+            country = COUNTRY_HINTS.get(country_guess)
+            if country:
+                confidence = 0.6
+                return city, state, country, confidence
+        lowered = value.lower()
+        for key, mapped in COUNTRY_HINTS.items():
+            if self._contains_country_hint(lowered, key):
+                country = mapped
+                confidence = 0.5
+                break
+        if country:
+            return city, state, country, confidence
+        return city, state, country, confidence

@@ -21,6 +21,7 @@ class WorkHistory(Base):
         nullable=False,
     )
     company_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    client_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     job_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
     start_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)

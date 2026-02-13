@@ -4,6 +4,7 @@ from app.models.audit_log import AuditLog
 from app.models.candidate import Candidate, CandidateStatus, ReviewStatus
 from app.models.candidate_skill import CandidateSkill, ProficiencyLevel
 from app.models.certification import Certification
+from app.models.candidate_achievement import CandidateAchievement
 from app.models.education import Education
 from app.models.parsing_job import ParsingJob, ParsingJobStatus
 from app.models.revoked_token import RevokedToken
@@ -23,6 +24,7 @@ __all__ = [
     "CandidateStatus",
     "ReviewStatus",
     "CandidateSkill",
+    "CandidateAchievement",
     "Certification",
     "Education",
     "ParsingJob",

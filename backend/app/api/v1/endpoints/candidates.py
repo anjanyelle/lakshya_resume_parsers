@@ -215,10 +215,10 @@ def reprocess_candidate(
     )
     db.add(new_job)
     db.commit()
-    db.refresh(new_job)
+    job_id = str(new_job.id)
 
-    start_parsing_workflow(str(new_job.id))
-    db.refresh(new_job)
+    start_parsing_workflow(job_id)
+    refreshed = db.execute(select(ParsingJob).where(ParsingJob.id == new_job.id)).scalar_one_or_none()
     log_audit(
         db,
         user_id=str(current_user.id),
@@ -227,7 +227,8 @@ def reprocess_candidate(
         resource_id=str(candidate_id),
         ip_address=None,
     )
-    return {"job_id": str(new_job.id), "status": new_job.status.value}
+    status = refreshed.status.value if refreshed else "processing"
+    return {"job_id": job_id, "status": status}
 
 
 @router.get("/candidates/{candidate_id}/review", response_model=CandidateReviewResponse)

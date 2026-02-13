@@ -144,7 +144,7 @@ export default function CandidatesPage() {
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <Skeleton lines={6} />
             </div>
-          ) : error ? (
+          ) : error && candidates.length === 0 ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-600">
               {error}
             </div>

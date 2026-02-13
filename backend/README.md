@@ -76,4 +76,4 @@ Environment variables available in `.env.example`:
 
 - Uploaded files are stored in `STORAGE_DIR` (default `./storage`).
 - Update `DATABASE_URL` in `.env` to your Postgres instance.
-- `CORS_ORIGINS` accepts a comma-separated list like `http://localhost:3000`.
+ - `CORS_ORIGINS` accepts a comma-separated list like `http://localhost:3000`.
