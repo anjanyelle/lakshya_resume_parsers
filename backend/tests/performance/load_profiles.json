@@ -1,0 +1,6 @@
+{
+  "expected": {"users": 10, "spawn_rate": 2, "duration": "2m"},
+  "10x": {"users": 100, "spawn_rate": 10, "duration": "5m"},
+  "50x": {"users": 500, "spawn_rate": 50, "duration": "10m"},
+  "100x": {"users": 1000, "spawn_rate": 100, "duration": "15m"}
+}

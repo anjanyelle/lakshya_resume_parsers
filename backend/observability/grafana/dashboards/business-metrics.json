@@ -1,0 +1,52 @@
+{
+  "title": "Business Metrics",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Candidates Parsed Today",
+      "targets": [
+        {
+          "expr": "candidates_parsed_today",
+          "legendFormat": "today"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Experience (Years)",
+      "targets": [
+        {
+          "expr": "avg_experience_years",
+          "legendFormat": "avg"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 }
+    },
+    {
+      "type": "bargauge",
+      "title": "Top Skills Extracted",
+      "targets": [
+        {
+          "expr": "top_skills_extracted",
+          "legendFormat": "{{skill}}"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Success Rate by File Type",
+      "targets": [
+        {
+          "expr": "sum(parsing_jobs_by_file_type{status=\"success\"}) by (file_type) / sum(parsing_jobs_by_file_type) by (file_type)",
+          "legendFormat": "{{file_type}}"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 }
+    }
+  ]
+}

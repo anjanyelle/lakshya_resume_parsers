@@ -1,0 +1,49 @@
+groups:
+  - name: resume-parser-alerts
+    rules:
+      - alert: ParsingSuccessRateLow
+        expr: |
+          (sum(rate(parsing_jobs_failed_total[15m])) / sum(rate(parsing_jobs_total[15m]))) > 0.10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Parsing success rate below 90%"
+          description: "Parsing failure rate > 10% for 15 minutes."
+
+      - alert: ApiErrorRateHigh
+        expr: |
+          (sum(rate(api_request_errors_total[10m])) / sum(rate(api_requests_total[10m]))) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API error rate above 5%"
+          description: "API error rate > 5% for 10 minutes."
+
+      - alert: QueueDepthHigh
+        expr: queue_depth > 1000
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue depth high"
+          description: "Celery queue depth > 1000 for 30 minutes."
+
+      - alert: DiskUsageHigh
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes > 0.80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk usage above 80%"
+          description: "Disk usage > 80% for 15 minutes."
+
+      - alert: CriticalErrorsInLogs
+        expr: sum(rate(api_request_errors_total{status=~"5.."}[5m])) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical errors detected"
+          description: "One or more 5xx errors detected in the last 5 minutes."

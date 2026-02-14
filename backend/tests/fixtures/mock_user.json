@@ -1,0 +1,6 @@
+{
+  "email": "tester@example.com",
+  "password": "Secret123",
+  "role": "admin",
+  "tenant_id": "default"
+}
