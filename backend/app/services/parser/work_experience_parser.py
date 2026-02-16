@@ -45,6 +45,13 @@ CLIENT_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bproject\s+for\s+(?P<client>[A-Za-z0-9][A-Za-z0-9 &.,()/-]{2,})", re.IGNORECASE),
 ]
 
+LOCATION_MARKER_RE = re.compile(
+    r"\(?\b(?:location|loc)\b\s*[:\-–—]\s*(?P<loc>[^\n\r\t\)\|\u2022]{2,120})\)?",
+    re.IGNORECASE,
+)
+
+LOCATION_TAG_RE = re.compile(r"^(?P<tag>[A-Za-z]{2,20})\)$")
+
 LABELED_ORG_RE = re.compile(
     r"\b(organization|company|employer)\b\s*[:\-–—]\s*(?P<value>.+)$",
     re.IGNORECASE,
@@ -233,6 +240,8 @@ class WorkExperienceParser:
         header = lines[0] if lines else ""
         company, title, location, start_date, end_date, is_current, body_start = self._parse_header_lines(lines)
 
+        location, company, title = self._extract_and_clean_location(location, company, title, chunk)
+
         labeled_company, labeled_title, labeled_desc = self._parse_labeled_fields(lines[1:])
         if labeled_company and not company:
             company = labeled_company
@@ -276,6 +285,66 @@ class WorkExperienceParser:
             confidence=confidence,
             designation=self.normalize_job_titles(title),
         )
+
+    @staticmethod
+    def _normalize_location_tag(tag: str) -> str:
+        cleaned = re.sub(r"\s+", " ", (tag or "").strip())
+        if len(cleaned) == 2:
+            return cleaned.upper()
+        return cleaned.title()
+
+    def _extract_and_clean_location(
+        self,
+        location: str | None,
+        company: str | None,
+        title: str | None,
+        chunk: str,
+    ) -> tuple[str | None, str | None, str | None]:
+        chunk_loc = None
+        match = LOCATION_MARKER_RE.search(chunk or "")
+        if match:
+            chunk_loc = (match.group("loc") or "").strip().strip("-–—|,;:")
+            chunk_loc = re.split(r"\s{2,}|\||\u2022", chunk_loc)[0].strip()
+            if chunk_loc and len(chunk_loc) > 120:
+                chunk_loc = None
+
+        tag = None
+        title_stripped = (title or "").strip()
+        tag_match = LOCATION_TAG_RE.match(title_stripped)
+        if tag_match:
+            tag = self._normalize_location_tag(tag_match.group("tag"))
+
+        company_clean = (company or "").strip() or None
+        title_clean = (title or "").strip() or None
+
+        def strip_location_marker(value: str | None) -> str | None:
+            if not value:
+                return None
+            next_value = LOCATION_MARKER_RE.sub("", value).strip(" -–—|,;:")
+            next_value = re.sub(r"\s+", " ", next_value).strip()
+            return next_value or None
+
+        company_clean = strip_location_marker(company_clean)
+        title_clean = strip_location_marker(title_clean)
+
+        final_location = (location or "").strip() or None
+        if not final_location:
+            final_location = chunk_loc
+
+        if tag:
+            if final_location:
+                if "," in final_location:
+                    final_location = final_location
+                else:
+                    final_location = f"{final_location}, {tag}"
+            else:
+                final_location = tag
+            title_clean = None
+
+        if company_clean and len(company_clean) <= 4 and company_clean.endswith(")"):
+            company_clean = None
+
+        return final_location, company_clean, title_clean
 
     def _parse_company_title(self, header: str) -> tuple[str | None, str | None]:
         match = COMPANY_LINE_RE.search(header)

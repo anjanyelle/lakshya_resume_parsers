@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
+import * as mammoth from 'mammoth'
 import ProfileHeader from '../components/candidate-detail/ProfileHeader'
 import SummarySection from '../components/candidate-detail/SummarySection'
 import WorkHistoryTimeline from '../components/candidate-detail/WorkHistoryTimeline'
@@ -57,6 +58,10 @@ export default function CandidateDetailPage() {
   const [resumeUrl, setResumeUrl] = useState<string | null>(null)
   const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null)
   const [resumePreviewError, setResumePreviewError] = useState<string | null>(null)
+  const [resumePreviewHtml, setResumePreviewHtml] = useState<string | null>(null)
+  const [resumePreviewType, setResumePreviewType] = useState<'pdf' | 'docx' | null>(
+    null,
+  )
   const [previewOpen, setPreviewOpen] = useState(false)
   const [parsedData, setParsedData] = useState<Record<string, any>>({})
   const [originalData, setOriginalData] = useState<Record<string, any>>({})
@@ -168,9 +173,13 @@ export default function CandidateDetailPage() {
     downloadResume(id)
       .then(async (url) => {
         setResumeUrl(url)
+        setResumePreviewHtml(null)
+        setResumePreviewType(null)
 
-        if (ext === 'doc' || ext === 'docx') {
+        if (ext === 'doc') {
           setResumePreviewUrl(null)
+          setResumePreviewHtml(null)
+          setResumePreviewType(null)
           setResumePreviewError(
             'Preview not supported for this file type. Please download.',
           )
@@ -179,7 +188,9 @@ export default function CandidateDetailPage() {
 
         setResumePreviewError(null)
         try {
-          const { fetchFileAsBlobUrl } = await import('../services/api/files')
+          const { fetchFileAsBlobUrl, fetchFileAsBlob } = await import(
+            '../services/api/files'
+          )
 
           let previewUrl = url
           const apiOrigin = new URL(
@@ -193,10 +204,23 @@ export default function CandidateDetailPage() {
             }
           }
 
+          if (ext === 'docx') {
+            const blob = await fetchFileAsBlob(previewUrl)
+            const buf = await blob.arrayBuffer()
+            const result = await mammoth.convertToHtml({ arrayBuffer: buf })
+            setResumePreviewHtml(result.value)
+            setResumePreviewType('docx')
+            setResumePreviewUrl(null)
+            return
+          }
+
           const blobUrl = await fetchFileAsBlobUrl(previewUrl)
           setResumePreviewUrl(blobUrl)
+          setResumePreviewType('pdf')
         } catch (error) {
           setResumePreviewUrl(null)
+          setResumePreviewHtml(null)
+          setResumePreviewType(null)
           setResumePreviewError(
             error instanceof Error
               ? error.message
@@ -207,6 +231,8 @@ export default function CandidateDetailPage() {
       .catch(() => {
         setResumeUrl(null)
         setResumePreviewUrl(null)
+        setResumePreviewHtml(null)
+        setResumePreviewType(null)
         setResumePreviewError('Resume preview unavailable. Please download.')
       })
   }, [id, candidate])
@@ -396,7 +422,7 @@ export default function CandidateDetailPage() {
   }
 
   const handlePreview = async () => {
-    if (!resumePreviewUrl) {
+    if (!resumePreviewUrl && !resumePreviewHtml) {
       toast.error(resumePreviewError || 'Resume preview unavailable. Please download.')
       return
     }
@@ -424,7 +450,14 @@ export default function CandidateDetailPage() {
       />
 
       <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="Resume preview">
-        {resumePreviewUrl ? (
+        {resumePreviewType === 'docx' && resumePreviewHtml ? (
+          <div className="h-[80vh] w-full overflow-auto rounded-lg border border-slate-200 bg-white p-6">
+            <div
+              className="prose prose-slate max-w-none"
+              dangerouslySetInnerHTML={{ __html: resumePreviewHtml }}
+            />
+          </div>
+        ) : resumePreviewUrl ? (
           <iframe
             src={resumePreviewUrl}
             className="h-[80vh] w-full rounded-lg border border-slate-200"

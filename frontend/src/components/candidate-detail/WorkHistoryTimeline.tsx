@@ -27,6 +27,11 @@ export default function WorkHistoryTimeline({ items = [] }: WorkHistoryTimelineP
             <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
               <p className="text-sm font-semibold text-slate-900">
                 {item.job_title || 'Role'} · {item.company_name || 'Company'}
+                {item.location ? (
+                  <span className="ml-2 whitespace-nowrap text-xs font-medium text-slate-500">
+                    ({item.location})
+                  </span>
+                ) : null}
               </p>
               <p className="text-xs text-slate-500">
                 {item.start_date || '—'} → {item.is_current ? 'Present' : (item.end_date || '—')}
