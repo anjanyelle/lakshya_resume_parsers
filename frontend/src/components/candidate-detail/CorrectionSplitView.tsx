@@ -6,6 +6,7 @@ import { confidenceTone, confidenceLabel } from '../../utils/confidence'
 
 type CorrectionSplitViewProps = {
   resumeUrl?: string | null
+  resumeError?: string | null
   parsedData: Record<string, any>
   originalData: Record<string, any>
   workHistory: Array<any>
@@ -28,6 +29,7 @@ type CorrectionSplitViewProps = {
 
 export default function CorrectionSplitView({
   resumeUrl,
+  resumeError,
   parsedData,
   originalData,
   workHistory,
@@ -108,7 +110,7 @@ export default function CorrectionSplitView({
           />
         ) : (
           <div className="mt-4 rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
-            Resume preview unavailable.
+            {resumeError || 'Resume preview unavailable.'}
           </div>
         )}
       </div>

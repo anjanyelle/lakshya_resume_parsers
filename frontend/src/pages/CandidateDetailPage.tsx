@@ -490,6 +490,7 @@ export default function CandidateDetailPage() {
         </h2>
         <CorrectionSplitView
           resumeUrl={resumePreviewUrl}
+          resumeError={resumePreviewError}
           parsedData={parsedData}
           originalData={originalData}
           workHistory={candidate.work_history || []}
