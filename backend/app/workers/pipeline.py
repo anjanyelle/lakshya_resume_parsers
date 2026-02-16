@@ -44,7 +44,7 @@ from app.data.taxonomy.degree_taxonomy import DEGREE_ALIASES
 from app.services.parser.certification_parser import CertificationParser
 from app.services.parser.contact_extractor import ContactExtractor
 from app.services.parser.education_parser import EducationParser
-from app.services.parser.normalize import normalize_text
+from app.services.parser.normalize import normalize_resume_text
 from app.services.parser.section_parser import SectionParser
 from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
@@ -710,7 +710,7 @@ def task_clean_text(self, job_id: str) -> str:  # noqa: ANN001
         parsed = job.parsed_data or {}
         if parsed.get("text_cleaned"):
             return job_id
-        cleaned = normalize_text(job.raw_text)
+        cleaned = normalize_resume_text(job.raw_text)
         _update_job(
             job_id,
             last_stage="clean_text",

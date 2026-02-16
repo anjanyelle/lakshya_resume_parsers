@@ -8,8 +8,10 @@ from dataclasses import dataclass
 from typing import Any
 
 import httpx
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
 from app.core.config import get_settings
+from app.services.parser.section_parser import SectionParser
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,162 @@ class LLMResponse:
     content: str
     tokens: int | None = None
     model: str | None = None
+
+
+class ContactNameModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str | None
+    confidence: float
+
+
+class ContactEmailModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: str
+    confidence: float
+
+
+class ContactPhoneModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    phone: str
+    confidence: float
+
+
+class ContactLocationModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    city: str | None
+    state: str | None
+    country: str | None
+    confidence: float
+
+
+class ContactUrlsModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    linkedin: str | None
+    github: str | None
+    websites: list[str]
+
+
+class ContactModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: ContactNameModel
+    emails: list[ContactEmailModel]
+    phones: list[ContactPhoneModel]
+    location: ContactLocationModel
+    urls: ContactUrlsModel
+
+
+class WorkExperienceItemModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    company: str | None
+    client: str | None
+    title: str | None
+    start_date: str | None
+    end_date: str | None
+    is_current: bool
+    location: str | None
+    bullets: list[str]
+    description: str | None
+
+
+class EducationEntryModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    institution: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("institution", "university", "college"),
+    )
+    degree: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("degree", "degree_name"),
+    )
+    field_of_study: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("field_of_study", "field", "major"),
+    )
+    start_date: str | None = None
+    end_date: str | None = None
+    gpa: str | None = None
+    honors: str | None = None
+
+
+class StructuredResumeModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    contact: ContactModel
+    work_experience: list[WorkExperienceItemModel]
+    education: list[EducationEntryModel]
+    skills: list[str]
+
+
+class StructuredResumeContactEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    contact: ContactModel
+
+
+class StructuredResumeWorkEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    work_experience: list[WorkExperienceItemModel]
+
+
+class StructuredResumeEducationEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    education: list[EducationEntryModel]
+
+
+class StructuredResumeSkillsEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    skills: list[str]
+
+
+class CertificationEntryModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str | None
+    issuing_organization: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("issuing_organization", "issuer", "issuing_org"),
+    )
+    issue_date: str | None
+    expiry_date: str | None
+    credential_id: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("credential_id", "credential", "credentialid"),
+    )
+    is_active: bool | None
+    confidence: float
+
+
+class WorkExperienceDetailsModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    company_name: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("company_name", "company"),
+    )
+    job_title: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("job_title", "title"),
+    )
+    start_date: str | None
+    end_date: str | None
+    is_current: bool
+    location: str | None
+    technologies: list[str] = Field(default_factory=list)
+    responsibilities: list[str] = Field(
+        default_factory=list,
+        validation_alias=AliasChoices("responsibilities", "bullets"),
+    )
 
 
 class LLMParsingService:
@@ -49,137 +207,163 @@ class LLMParsingService:
             "Output must follow the provided JSON schema exactly.\n\n"
         )
 
-    def extract_resume_intelligence(self, text: str) -> dict[str, Any]:
-        chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._resume_intelligence_prompt(chunks[0])
-            response = self._call_llm(prompt, task="resume_intelligence")
-            data = self._parse_json(response.content, expect_array=False)
-            return data or {}
+    def _structured_resume_default_payload(self) -> dict[str, Any]:
+        return self._structured_resume_defaults()
 
-        partials: list[dict[str, Any]] = []
-        for idx, chunk in enumerate(chunks, start=1):
-            prompt = self._resume_intelligence_prompt(
-                chunk,
-                header=f"Chunk {idx} of {len(chunks)}",
-            )
-            response = self._call_llm(prompt, task=f"resume_intelligence_{idx}")
-            data = self._parse_json(response.content, expect_array=False)
-            if isinstance(data, dict):
-                partials.append(data)
-        return self._merge_resume_intelligence(partials)
+    def _call_llm_validated(
+        self,
+        prompt: str,
+        task: str,
+        *,
+        expect_array: bool,
+        adapter: TypeAdapter,
+        default_payload: Any,
+        max_validation_retries: int = 2,
+    ) -> Any:
+        last_error: str | None = None
+        for attempt in range(max_validation_retries + 1):
+            attempt_task = task if attempt == 0 else f"{task}_validate_retry_{attempt}"
+            attempt_prompt = prompt
+            if attempt > 0 and last_error:
+                attempt_prompt = (
+                    f"{prompt}\n\n"
+                    "The previous output was invalid and did not match the required schema. "
+                    "Fix the output and return ONLY valid JSON.\n\n"
+                    f"Validation errors:\n{last_error}\n"
+                )
+            response = self._call_llm(attempt_prompt, task=attempt_task)
+            parsed = self._parse_json(response.content, expect_array=expect_array)
+            try:
+                return adapter.validate_python(parsed)
+            except ValidationError as exc:
+                last_error = json.dumps(exc.errors(), ensure_ascii=False)
+                logger.warning(
+                    "LLM schema validation failed",
+                    extra={"task": task, "attempt": attempt + 1, "errors": exc.errors()},
+                )
 
-    def classify_resume_type(self, text: str) -> dict[str, Any]:
-        chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._resume_type_prompt(chunks[0])
-            response = self._call_llm(prompt, task="resume_type")
-            data = self._parse_json(response.content, expect_array=False)
-            return data or {"resume_type": None}
-
-        votes: dict[str, int] = {}
-        for idx, chunk in enumerate(chunks, start=1):
-            prompt = self._resume_type_prompt(chunk, header=f"Chunk {idx} of {len(chunks)}")
-            response = self._call_llm(prompt, task=f"resume_type_{idx}")
-            data = self._parse_json(response.content, expect_array=False)
-            resume_type = None
-            if isinstance(data, dict):
-                resume_type = data.get("resume_type")
-            if isinstance(resume_type, str) and resume_type.strip():
-                key = resume_type.strip()
-                votes[key] = votes.get(key, 0) + 1
-
-        if not votes:
-            return {"resume_type": None}
-        winner = max(votes, key=votes.get)
-        return {"resume_type": winner}
-
-    def detect_resume_sections(self, text: str) -> dict[str, Any]:
-        chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._resume_sections_prompt(chunks[0])
-            response = self._call_llm(prompt, task="resume_sections")
-            data = self._parse_json(response.content, expect_array=False)
-            return data or {"sections_detected": []}
-
-        detected: set[str] = set()
-        for idx, chunk in enumerate(chunks, start=1):
-            prompt = self._resume_sections_prompt(
-                chunk, header=f"Chunk {idx} of {len(chunks)}"
-            )
-            response = self._call_llm(prompt, task=f"resume_sections_{idx}")
-            data = self._parse_json(response.content, expect_array=False)
-            if isinstance(data, dict):
-                sections = data.get("sections_detected", [])
-                if isinstance(sections, list):
-                    for section in sections:
-                        if isinstance(section, str) and section.strip():
-                            detected.add(section.strip())
-
-        return {"sections_detected": sorted(detected)}
-
-    def extract_personal_information(self, text: str) -> dict[str, Any]:
-        chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._personal_info_prompt(chunks[0])
-            response = self._call_llm(prompt, task="personal_info")
-            data = self._parse_json(response.content, expect_array=False)
-            return data or {"personal_info": {}}
-
-        merged: dict[str, Any] = {"personal_info": {}}
-        for idx, chunk in enumerate(chunks, start=1):
-            prompt = self._personal_info_prompt(chunk, header=f"Chunk {idx} of {len(chunks)}")
-            response = self._call_llm(prompt, task=f"personal_info_{idx}")
-            data = self._parse_json(response.content, expect_array=False)
-            if not isinstance(data, dict):
-                continue
-            personal = data.get("personal_info")
-            if not isinstance(personal, dict):
-                continue
-            merged["personal_info"] = self._merge_personal_info(
-                merged.get("personal_info", {}), personal
-            )
-        return merged
+        try:
+            return adapter.validate_python(default_payload)
+        except ValidationError:
+            return default_payload
 
     def extract_structured_resume(self, text: str) -> dict[str, Any]:
-        chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._structured_resume_prompt(chunks[0])
-            response = self._call_llm(prompt, task="structured_resume")
-            data = self._parse_json(response.content, expect_array=False)
-            if isinstance(data, dict):
-                return self._enforce_structured_resume_schema(data)
-            return self._enforce_structured_resume_schema({})
+        sections = SectionParser().parse(text)
+        experience_text = sections.get("experience").content if "experience" in sections else ""
+        education_text = sections.get("education").content if "education" in sections else ""
+        skills_text = sections.get("skills").content if "skills" in sections else ""
+        certifications_text = (
+            sections.get("certifications").content if "certifications" in sections else ""
+        )
+        contact_source = (
+            sections.get("contact").content if "contact" in sections else text
+        )
 
-        partials: list[dict[str, Any]] = []
-        for idx, chunk in enumerate(chunks, start=1):
-            prompt = self._structured_resume_prompt(
-                chunk, header=f"Chunk {idx} of {len(chunks)}"
-            )
-            response = self._call_llm(prompt, task=f"structured_resume_{idx}")
-            data = self._parse_json(response.content, expect_array=False)
-            if isinstance(data, dict):
-                partials.append(self._enforce_structured_resume_schema(data))
-        merged = self._merge_structured_resume(partials)
-        return self._enforce_structured_resume_schema(merged)
+        default_payload = self._structured_resume_default_payload()
+        contact_adapter = TypeAdapter(StructuredResumeContactEnvelope)
+        work_adapter = TypeAdapter(StructuredResumeWorkEnvelope)
+        education_adapter = TypeAdapter(StructuredResumeEducationEnvelope)
+        skills_adapter = TypeAdapter(StructuredResumeSkillsEnvelope)
+        resume_adapter = TypeAdapter(StructuredResumeModel)
+
+        contact_env = self._call_llm_validated(
+            self._structured_resume_contact_prompt(contact_source),
+            "structured_resume_contact",
+            expect_array=False,
+            adapter=contact_adapter,
+            default_payload={"contact": default_payload["contact"]},
+        )
+
+        work_env = self._call_llm_validated(
+            self._structured_resume_work_prompt(experience_text or text),
+            "structured_resume_work",
+            expect_array=False,
+            adapter=work_adapter,
+            default_payload={"work_experience": default_payload["work_experience"]},
+        )
+
+        education_env = self._call_llm_validated(
+            self._structured_resume_education_prompt(education_text or text),
+            "structured_resume_education",
+            expect_array=False,
+            adapter=education_adapter,
+            default_payload={"education": default_payload["education"]},
+        )
+
+        skills_env = self._call_llm_validated(
+            self._structured_resume_skills_prompt(skills_text or text),
+            "structured_resume_skills",
+            expect_array=False,
+            adapter=skills_adapter,
+            default_payload={"skills": default_payload["skills"]},
+        )
+
+        def _dump_models(value: Any) -> Any:
+            if isinstance(value, BaseModel):
+                return value.model_dump()
+            if isinstance(value, list):
+                return [_dump_models(item) for item in value]
+            if isinstance(value, dict):
+                return {key: _dump_models(val) for key, val in value.items()}
+            return value
+
+        merged_payload = {
+            "contact": _dump_models(
+                getattr(contact_env, "contact", default_payload["contact"])
+            ),
+            "work_experience": _dump_models(
+                getattr(work_env, "work_experience", default_payload["work_experience"])
+            ),
+            "education": _dump_models(
+                getattr(education_env, "education", default_payload["education"])
+            ),
+            "skills": _dump_models(getattr(skills_env, "skills", default_payload["skills"])),
+        }
+
+        validated = self._call_llm_validated(
+            self._structured_resume_from_parts_prompt(
+                merged_payload,
+                certifications_text=certifications_text,
+            ),
+            "structured_resume_merge_validate",
+            expect_array=False,
+            adapter=resume_adapter,
+            default_payload=default_payload,
+            max_validation_retries=0,
+        )
+        if isinstance(validated, BaseModel):
+            return validated.model_dump()
+        return validated
 
     def normalize_structured_resume(self, payload: dict[str, Any]) -> dict[str, Any]:
-        prompt = self._structured_resume_normalize_prompt(payload)
-        response = self._call_llm(prompt, task="structured_resume_normalize")
-        data = self._parse_json(response.content, expect_array=False)
-        if isinstance(data, dict):
-            return self._enforce_structured_resume_schema(data)
-        return self._enforce_structured_resume_schema({})
+        adapter = TypeAdapter(StructuredResumeModel)
+        default_payload = self._structured_resume_default_payload()
+        data = self._call_llm_validated(
+            self._structured_resume_normalize_prompt(payload),
+            "structured_resume_normalize",
+            expect_array=False,
+            adapter=adapter,
+            default_payload=default_payload,
+        )
+        if isinstance(data, BaseModel):
+            return data.model_dump()
+        return data
 
     def verify_structured_resume(
         self, resume_text: str, payload: dict[str, Any]
     ) -> dict[str, Any]:
-        prompt = self._structured_resume_verify_prompt(resume_text, payload)
-        response = self._call_llm(prompt, task="structured_resume_verify")
-        data = self._parse_json(response.content, expect_array=False)
-        if isinstance(data, dict):
-            return self._enforce_structured_resume_schema(data)
-        return self._enforce_structured_resume_schema({})
+        adapter = TypeAdapter(StructuredResumeModel)
+        default_payload = self._structured_resume_default_payload()
+        data = self._call_llm_validated(
+            self._structured_resume_verify_prompt(resume_text, payload),
+            "structured_resume_verify",
+            expect_array=False,
+            adapter=adapter,
+            default_payload=default_payload,
+        )
+        if isinstance(data, BaseModel):
+            return data.model_dump()
+        return data
 
     def extract_experience_skills(self, text: str) -> dict[str, Any]:
         chunks = self._chunk_text(text)
@@ -265,30 +449,29 @@ class LLMParsingService:
 
     def normalize_education_entries(self, text: str) -> list[dict[str, Any]]:
         chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._education_entries_normalization_prompt(chunks[0])
-            response = self._call_llm(prompt, task="education_entries_normalization")
-            data = self._parse_json(response.content, expect_array=True)
-            if isinstance(data, dict):
-                return [data]
-            return data or []
+        adapter = TypeAdapter(list[EducationEntryModel])
+        default_payload: list[dict[str, Any]] = []
 
         merged: list[dict[str, Any]] = []
         seen: set[str] = set()
         for idx, chunk in enumerate(chunks, start=1):
             prompt = self._education_entries_normalization_prompt(
-                chunk, header=f"Chunk {idx} of {len(chunks)}"
+                chunk, header=None if len(chunks) == 1 else f"Chunk {idx} of {len(chunks)}"
             )
-            response = self._call_llm(
-                prompt, task=f"education_entries_normalization_{idx}"
+            data = self._call_llm_validated(
+                prompt,
+                "education_entries_normalization" if len(chunks) == 1 else f"education_entries_normalization_{idx}",
+                expect_array=True,
+                adapter=adapter,
+                default_payload=default_payload,
             )
-            data = self._parse_json(response.content, expect_array=True)
             items: list[dict[str, Any]] = []
-            if isinstance(data, dict):
-                items = [data]
-            elif isinstance(data, list):
-                items = [item for item in data if isinstance(item, dict)]
-
+            if isinstance(data, list):
+                items = [
+                    item.model_dump() if isinstance(item, BaseModel) else item
+                    for item in data
+                    if isinstance(item, (BaseModel, dict))
+                ]
             for item in items:
                 key = "|".join(
                     [
@@ -308,48 +491,56 @@ class LLMParsingService:
 
     def extract_work_experience_details(self, text: str) -> list[dict[str, Any]]:
         chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._work_experience_prompt(chunks[0])
-            response = self._call_llm(prompt, task="work_experience_details")
-            data = self._parse_json(response.content, expect_array=True)
-            if isinstance(data, dict):
-                return [data]
-            return data or []
+        adapter = TypeAdapter(list[WorkExperienceDetailsModel])
+        default_payload: list[dict[str, Any]] = []
 
         results: list[dict[str, Any]] = []
         for idx, chunk in enumerate(chunks, start=1):
             prompt = self._work_experience_prompt(
-                chunk, header=f"Chunk {idx} of {len(chunks)}"
+                chunk, header=None if len(chunks) == 1 else f"Chunk {idx} of {len(chunks)}"
             )
-            response = self._call_llm(prompt, task=f"work_experience_details_{idx}")
-            data = self._parse_json(response.content, expect_array=True)
-            if isinstance(data, dict):
-                results.append(data)
-            elif isinstance(data, list):
-                results.extend([item for item in data if isinstance(item, dict)])
+            data = self._call_llm_validated(
+                prompt,
+                "work_experience_details" if len(chunks) == 1 else f"work_experience_details_{idx}",
+                expect_array=True,
+                adapter=adapter,
+                default_payload=default_payload,
+            )
+            if isinstance(data, list):
+                results.extend(
+                    [
+                        item.model_dump() if isinstance(item, BaseModel) else item
+                        for item in data
+                        if isinstance(item, (BaseModel, dict))
+                    ]
+                )
         return results
 
     def extract_certifications(self, text: str) -> list[dict[str, Any]]:
         chunks = self._chunk_text(text)
-        if len(chunks) == 1:
-            prompt = self._certifications_extraction_prompt(chunks[0])
-            response = self._call_llm(prompt, task="certifications_extraction")
-            data = self._parse_json(response.content, expect_array=True)
-            if isinstance(data, dict):
-                return [data]
-            return data or []
+        adapter = TypeAdapter(list[CertificationEntryModel])
+        default_payload: list[dict[str, Any]] = []
 
         results: list[dict[str, Any]] = []
         for idx, chunk in enumerate(chunks, start=1):
             prompt = self._certifications_extraction_prompt(
-                chunk, header=f"Chunk {idx} of {len(chunks)}"
+                chunk, header=None if len(chunks) == 1 else f"Chunk {idx} of {len(chunks)}"
             )
-            response = self._call_llm(prompt, task=f"certifications_extraction_{idx}")
-            data = self._parse_json(response.content, expect_array=True)
-            if isinstance(data, dict):
-                results.append(data)
-            elif isinstance(data, list):
-                results.extend([item for item in data if isinstance(item, dict)])
+            data = self._call_llm_validated(
+                prompt,
+                "certifications_extraction" if len(chunks) == 1 else f"certifications_extraction_{idx}",
+                expect_array=True,
+                adapter=adapter,
+                default_payload=default_payload,
+            )
+            if isinstance(data, list):
+                results.extend(
+                    [
+                        item.model_dump() if isinstance(item, BaseModel) else item
+                        for item in data
+                        if isinstance(item, (BaseModel, dict))
+                    ]
+                )
         return results
 
     def calculate_total_experience(self, structured_experience_json: str) -> dict[str, Any]:
@@ -854,6 +1045,97 @@ class LLMParsingService:
 
             "Resume text:\n"
             f"<<<TEXT>>>\n{text}\n<<<TEXT>>>\n"
+        )
+
+    def _structured_resume_contact_prompt(self, text: str) -> str:
+        schema = {"contact": self._structured_resume_defaults()["contact"]}
+        return self._base_system_prompt + (
+            "Extract ONLY the contact section from the provided text and return ONLY JSON.\n\n"
+            "Schema (return exactly this shape; no extra keys):\n"
+            f"{json.dumps(schema, ensure_ascii=False)}\n\n"
+            "Text:\n<<<TEXT>>>\n"
+            f"{text}\n"
+            "<<<TEXT>>>\n"
+        )
+
+    def _structured_resume_work_prompt(self, text: str) -> str:
+        schema = {"work_experience": self._structured_resume_defaults()["work_experience"]}
+        return self._base_system_prompt + (
+            "Extract ONLY work experience from the provided text and return ONLY JSON.\n\n"
+            "Rules:\n"
+            "- Keep each company/role separate.\n"
+            "- Extract client names ONLY if explicitly indicated.\n"
+            "- Do not invent companies/clients.\n\n"
+            "Schema (return exactly this shape; no extra keys):\n"
+            f"{json.dumps(schema, ensure_ascii=False)}\n\n"
+            "Text:\n<<<TEXT>>>\n"
+            f"{text}\n"
+            "<<<TEXT>>>\n"
+        )
+
+    def _structured_resume_education_prompt(self, text: str) -> str:
+        schema = {
+            "education": [
+                {
+                    "institution": None,
+                    "degree": None,
+                    "field_of_study": None,
+                    "start_date": None,
+                    "end_date": None,
+                    "gpa": None,
+                    "honors": None,
+                }
+            ]
+        }
+        return self._base_system_prompt + (
+            "Extract ONLY education entries from the provided text and return ONLY JSON.\n\n"
+            "Rules:\n"
+            "- Do not infer education that is not present.\n\n"
+            "Schema (return exactly this shape; no extra keys):\n"
+            f"{json.dumps(schema, ensure_ascii=False)}\n\n"
+            "Text:\n<<<TEXT>>>\n"
+            f"{text}\n"
+            "<<<TEXT>>>\n"
+        )
+
+    def _structured_resume_skills_prompt(self, text: str) -> str:
+        schema = {"skills": []}
+        return self._base_system_prompt + (
+            "Extract ONLY technical skills from the provided text and return ONLY JSON.\n\n"
+            "Rules:\n"
+            "- Return an array of strings.\n"
+            "- No explanations; no extra keys.\n\n"
+            "Schema (return exactly this shape; no extra keys):\n"
+            f"{json.dumps(schema, ensure_ascii=False)}\n\n"
+            "Text:\n<<<TEXT>>>\n"
+            f"{text}\n"
+            "<<<TEXT>>>\n"
+        )
+
+    def _structured_resume_from_parts_prompt(
+        self,
+        payload: dict[str, Any],
+        *,
+        certifications_text: str = "",
+    ) -> str:
+        schema = self._structured_resume_defaults()
+        extra_context = (
+            f"\n\nCertifications section (for disambiguation only; do not mix into skills):\n<<<CERTS>>>\n{certifications_text}\n<<<CERTS>>>\n"
+            if certifications_text.strip()
+            else ""
+        )
+        return self._base_system_prompt + (
+            "Validate and finalize the structured resume JSON. Return ONLY JSON.\n\n"
+            "Rules:\n"
+            "- Remove keys not in schema.\n"
+            "- Do not invent missing items.\n"
+            "- Ensure types match schema exactly.\n\n"
+            "Schema:\n"
+            f"{json.dumps(schema, ensure_ascii=False)}\n\n"
+            "Input JSON:\n<<<JSON>>>\n"
+            f"{json.dumps(payload, ensure_ascii=False)}\n"
+            "<<<JSON>>>\n"
+            f"{extra_context}"
         )
 
     def _structured_resume_normalize_prompt(self, payload: dict[str, Any]) -> str:

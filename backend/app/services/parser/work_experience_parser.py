@@ -59,7 +59,7 @@ LABELED_RESP_RE = re.compile(
 )
 
 TITLE_NORMALIZATION = {
-    "sr.": "senior",
+    "sr": "senior",
     "swe": "software engineer",
     "dev": "developer",
     "mgr": "manager",
@@ -208,8 +208,11 @@ class WorkExperienceParser:
         if not title:
             return None
         normalized = title.strip().lower()
+        normalized = re.sub(r"[./]", " ", normalized)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
         for short, long in TITLE_NORMALIZATION.items():
             normalized = re.sub(rf"\b{re.escape(short)}\b", long, normalized)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
         return normalized.title()
 
     def calculate_total_experience(self, jobs: Iterable[JobEntry]) -> int:

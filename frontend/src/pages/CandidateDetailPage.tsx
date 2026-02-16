@@ -154,14 +154,46 @@ export default function CandidateDetailPage() {
   )
 
   useEffect(() => {
-    if (!id) return
+    if (!id || !candidate) return
+
+    const jobs = [...(candidate.parsing_jobs || [])].sort((a, b) => {
+      const aTime = a.started_at ? new Date(a.started_at).getTime() : 0
+      const bTime = b.started_at ? new Date(b.started_at).getTime() : 0
+      return bTime - aTime
+    })
+    const latestJob = jobs[0]
+    const filename = latestJob?.filename || ''
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
+
     downloadResume(id)
       .then(async (url) => {
         setResumeUrl(url)
+
+        if (ext === 'doc' || ext === 'docx') {
+          setResumePreviewUrl(null)
+          setResumePreviewError(
+            'Preview not supported for this file type. Please download.',
+          )
+          return
+        }
+
         setResumePreviewError(null)
         try {
           const { fetchFileAsBlobUrl } = await import('../services/api/files')
-          const blobUrl = await fetchFileAsBlobUrl(url)
+
+          let previewUrl = url
+          const apiOrigin = new URL(
+            import.meta.env.VITE_API_URL?.toString() ?? 'http://localhost:8000',
+          ).origin
+          const isAbsolute = /^https?:\/\//i.test(url)
+          if (isAbsolute) {
+            const targetOrigin = new URL(url).origin
+            if (targetOrigin !== apiOrigin && latestJob?.id) {
+              previewUrl = `/api/v1/files/${latestJob.id}`
+            }
+          }
+
+          const blobUrl = await fetchFileAsBlobUrl(previewUrl)
           setResumePreviewUrl(blobUrl)
         } catch (error) {
           setResumePreviewUrl(null)
@@ -177,7 +209,7 @@ export default function CandidateDetailPage() {
         setResumePreviewUrl(null)
         setResumePreviewError('Resume preview unavailable. Please download.')
       })
-  }, [id])
+  }, [id, candidate])
 
   useEffect(() => {
     return () => {

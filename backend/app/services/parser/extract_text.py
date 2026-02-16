@@ -205,7 +205,16 @@ def _group_words_into_lines(words: list[dict[str, object]]) -> list[str]:
 
     lines: list[str] = []
     for bin_words in line_bins:
-        parts = [str(w["text"]) for w in sorted(bin_words, key=lambda w: float(w["x0"]))]
+        sorted_words = sorted(bin_words, key=lambda w: float(w["x0"]))
+        parts: list[str] = []
+        last_x: float | None = None
+        for w in sorted_words:
+            token = str(w["text"])
+            x = float(w["x0"])
+            if last_x is not None and (x - last_x) >= 120:
+                parts.append("|")
+            parts.append(token)
+            last_x = x
         line = " ".join(parts).strip()
         if line:
             lines.append(line)
