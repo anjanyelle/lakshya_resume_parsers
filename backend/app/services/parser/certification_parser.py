@@ -149,6 +149,42 @@ class CertificationParser:
         cleaned = [p.strip() for p in parts if p.strip()]
         return cleaned or [normalized]
 
+    @staticmethod
+    def _looks_like_skill_list(line: str) -> bool:
+        lowered = (line or "").lower().strip()
+        if not lowered:
+            return False
+        if ":" in lowered and re.search(
+            r"\b(languages|frontend|backend|tools|testing|frameworks|databases|cloud|devops|apis|platforms)\b",
+            lowered,
+        ):
+            return True
+        if line.count(",") >= 3 and len(line) <= 140:
+            return True
+        return False
+
+    @staticmethod
+    def _looks_like_section_label(line: str) -> bool:
+        lowered = (line or "").lower().strip().strip(":")
+        if not lowered:
+            return False
+        if lowered in {
+            "certifications",
+            "certification",
+            "licenses",
+            "skills",
+            "technical skills",
+            "technologies",
+            "tools",
+            "education",
+            "experience",
+            "work experience",
+        }:
+            return True
+        if lowered.endswith("skills") or lowered.endswith("technologies"):
+            return True
+        return False
+
     def _is_cert_candidate_line(self, line: str) -> bool:
         lowered = line.lower().strip()
         if not lowered:
@@ -158,6 +194,11 @@ class CertificationParser:
         if len(line.split()) > 20:
             return False
 
+        if self._looks_like_section_label(line):
+            return False
+        if self._looks_like_skill_list(line):
+            return False
+
         if any(marker in lowered for marker in CERT_LINE_MARKERS):
             return True
 
@@ -165,7 +206,8 @@ class CertificationParser:
             if alias in lowered:
                 return True
 
-        if any(keyword in lowered for keyword in KNOWN_CERT_KEYWORDS):
+        keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
+        if keyword_hits >= 1:
             return True
 
         return False
@@ -198,6 +240,11 @@ class CertificationParser:
         if not lowered:
             return None
 
+        if self._looks_like_section_label(line):
+            return None
+        if self._looks_like_skill_list(line):
+            return None
+
         for alias, canonical in CERTIFICATION_ALIASES.items():
             if alias in lowered:
                 return canonical
@@ -218,8 +265,13 @@ class CertificationParser:
         if has_cert_marker:
             return line.strip()
 
-        if any(keyword in lowered for keyword in KNOWN_CERT_KEYWORDS):
-            return line.strip()
+        keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
+        if keyword_hits >= 1:
+            cleaned = line.strip()
+            token_count = len([t for t in cleaned.split() if t])
+            if token_count <= 2:
+                return None
+            return cleaned
 
         return None
 

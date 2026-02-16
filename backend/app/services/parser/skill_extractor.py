@@ -1089,8 +1089,21 @@ class SkillExtractor:
         matches: list[SkillMatch] = []
         lowered = text.lower()
 
+        def _contains_term(term: str) -> bool:
+            if not term:
+                return False
+            term_lower = term.lower()
+            if term_lower.isalnum() and len(term_lower) <= 3:
+                return bool(
+                    re.search(
+                        rf"(?<![A-Za-z0-9.]){re.escape(term_lower)}(?![A-Za-z0-9.])",
+                        lowered,
+                    )
+                )
+            return bool(re.search(rf"\b{re.escape(term_lower)}\b", lowered))
+
         for canonical, item in self.normalized_map.items():
-            if re.search(rf"\b{re.escape(canonical)}\b", lowered):
+            if _contains_term(canonical):
                 matches.append(
                     SkillMatch(
                         name=item["name"],
@@ -1103,7 +1116,7 @@ class SkillExtractor:
                 )
 
         for synonym, canonical in self.synonym_map.items():
-            if re.search(rf"\b{re.escape(synonym)}\b", lowered):
+            if _contains_term(synonym):
                 item = self.normalized_map[canonical]
                 matches.append(
                     SkillMatch(
@@ -1166,13 +1179,13 @@ class SkillExtractor:
                             proficiency=None,
                         )
                     )
-                else:
+                elif category_hint == "Soft Skills":
                     matches.append(
                         SkillMatch(
                             name=token,
                             normalized_name=normalized,
-                            category=category_hint or category,
-                            confidence=base_confidence - 0.1,
+                            category=category_hint,
+                            confidence=base_confidence - 0.2,
                             years_experience=None,
                             proficiency=None,
                         )

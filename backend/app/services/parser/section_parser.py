@@ -2282,6 +2282,7 @@ class SectionParser:
         else:
             sections = self._slice_sections(lines, header_map)
         sections = self._canonicalize_sections(sections)
+        sections = self._postprocess_sections(sections)
         scored = self._score_sections(sections)
         return scored
 
@@ -2369,10 +2370,7 @@ class SectionParser:
         lowered = line.lower().strip()
         if not lowered:
             return None
-        if re.search(r"\d", lowered):
-            return None
-        if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
-            return None
+        has_digits = bool(re.search(r"\d", lowered))
 
         casing_bonus = 0.0
         if self._is_uppercase_header(line) or self._is_titlecase_header(line):
@@ -2389,9 +2387,32 @@ class SectionParser:
             if pattern.match(line):
                 return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus)
 
+        if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
+            return None
+
         normalized_line = self._normalize_header_text(line)
         if not normalized_line:
             return None
+
+        if has_digits:
+            normalized_digitless = self._normalize_header_text(re.sub(r"\d+", " ", line))
+            if not normalized_digitless:
+                return None
+            digitless_haystack = f" {normalized_digitless} "
+            digitless_best: tuple[str, float] | None = None
+            for key, aliases in SECTION_ALIASES.items():
+                for alias in aliases:
+                    alias_norm = self._normalize_header_text(alias)
+                    if not alias_norm:
+                        continue
+                    if normalized_digitless == alias_norm or f" {alias_norm} " in digitless_haystack:
+                        digitless_best = (key, min(1.0, 0.8 + casing_bonus + length_bonus + blank_bonus))
+                        break
+                if digitless_best is not None:
+                    break
+            if digitless_best is None:
+                return None
+            return digitless_best
         haystack = f" {normalized_line} "
 
         best: tuple[str, float] | None = None
@@ -2409,6 +2430,69 @@ class SectionParser:
                         best = candidate
                     continue
         return best
+
+    def _postprocess_sections(self, sections: dict[str, list[str]]) -> dict[str, list[str]]:
+        if not sections:
+            return sections
+
+        certifications = list(sections.get("certifications", []) or [])
+        skills = list(sections.get("skills", []) or [])
+
+        if certifications:
+            kept_certs: list[str] = []
+            moved_to_skills: list[str] = []
+            for line in certifications:
+                if self._looks_like_skill_line(line) and not self._looks_like_cert_line(line):
+                    moved_to_skills.append(line)
+                else:
+                    kept_certs.append(line)
+            certifications = kept_certs
+            skills.extend(moved_to_skills)
+
+        if skills:
+            kept_skills: list[str] = []
+            moved_to_certs: list[str] = []
+            for line in skills:
+                if self._looks_like_cert_line(line) and not self._looks_like_skill_line(line):
+                    moved_to_certs.append(line)
+                else:
+                    kept_skills.append(line)
+            skills = kept_skills
+            certifications.extend(moved_to_certs)
+
+        if certifications or "certifications" in sections:
+            sections["certifications"] = self._dedupe_preserve_order(certifications)
+        if skills or "skills" in sections:
+            sections["skills"] = self._dedupe_preserve_order(skills)
+
+        return sections
+
+    @staticmethod
+    def _dedupe_preserve_order(lines: list[str]) -> list[str]:
+        seen: set[str] = set()
+        output: list[str] = []
+        for line in lines:
+            key = (line or "").strip().lower()
+            if not key:
+                continue
+            if key in seen:
+                continue
+            seen.add(key)
+            output.append(line)
+        return output
+
+    @staticmethod
+    def _looks_like_cert_line(line: str) -> bool:
+        lowered = (line or "").lower()
+        if not lowered:
+            return False
+        if len(lowered) > 220:
+            return False
+        if re.search(r"\b(certified|certification|certificate|license|licen[cs]e|credential|issued by|issuer|expires|expiry|valid until)\b", lowered):
+            return True
+        if re.search(r"\b(aws certified|azure fundamentals|google cloud certified|certified kubernetes|ckad|cka|pmp)\b", lowered):
+            return True
+        return False
 
     @staticmethod
     def _looks_like_bullet(line: str) -> bool:

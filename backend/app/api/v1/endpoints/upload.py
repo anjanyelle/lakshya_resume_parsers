@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 import tempfile
 from datetime import datetime
@@ -7,6 +8,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -16,6 +18,7 @@ from app.models.candidate import Candidate, CandidateStatus
 from app.models.parsing_job import ParsingJob, ParsingJobStatus
 from app.schemas.upload import BatchUploadResponse, UploadJobResponse
 from app.services.storage import copy_s3_object, save_bytes_to_local, upload_bytes_to_s3
+from app.services.storage import download_s3_to_file
 from app.utils.file_validation import validate_magic
 from app.utils.audit import log_audit
 from app.utils.virus_scan import scan_file
@@ -209,7 +212,19 @@ def download_file(
     if not job:
         raise HTTPException(status_code=404, detail="File not found")
     if job.file_path.startswith("s3://"):
-        raise HTTPException(status_code=400, detail="File is stored in S3")
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp_path = Path(temp.name)
+        temp.close()
+        try:
+            download_s3_to_file(job.file_path, str(temp_path))
+        except RuntimeError as exc:
+            temp_path.unlink(missing_ok=True)
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        return FileResponse(
+            temp_path,
+            filename=job.filename,
+            background=BackgroundTask(lambda: os.unlink(str(temp_path))),
+        )
     local_path = Path(job.file_path)
     if not local_path.exists():
         raise HTTPException(status_code=404, detail="File not found")

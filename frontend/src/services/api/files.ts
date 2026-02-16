@@ -35,8 +35,8 @@ const shouldUseApiClient = (url: string) => {
 
 export const fetchFileAsBlobUrl = async (url: string) => {
   const response = shouldUseApiClient(url)
-    ? await apiClient.get<Blob>(url, { responseType: 'blob' })
-    : await axios.get<Blob>(url, { responseType: 'blob' })
+    ? await apiClient.get<Blob>(url, { responseType: 'blob', timeout: 60000 })
+    : await axios.get<Blob>(url, { responseType: 'blob', timeout: 60000 })
 
   const blob = response.data
   const contentType =
@@ -47,6 +47,10 @@ export const fetchFileAsBlobUrl = async (url: string) => {
     const match = text.match(/"detail"\s*:\s*"([^"]+)"/)
     const detail = match?.[1] || 'Preview unavailable'
     throw new Error(detail)
+  }
+
+  if (contentType.startsWith('image/')) {
+    return URL.createObjectURL(blob)
   }
 
   const headerBuf = await blob.slice(0, 4).arrayBuffer()
@@ -76,7 +80,7 @@ export const downloadFile = async (url: string, fallbackFilename: string) => {
     return
   }
 
-  const response = await apiClient.get<Blob>(url, { responseType: 'blob' })
+  const response = await apiClient.get<Blob>(url, { responseType: 'blob', timeout: 60000 })
 
   const blob = response.data
   const contentDisposition = response.headers?.['content-disposition'] as string | undefined
