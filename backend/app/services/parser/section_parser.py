@@ -2281,6 +2281,7 @@ class SectionParser:
             sections = self._infer_sections_no_headers(lines)
         else:
             sections = self._slice_sections(lines, header_map)
+        sections = self._canonicalize_sections(sections)
         scored = self._score_sections(sections)
         return scored
 
@@ -2407,11 +2408,6 @@ class SectionParser:
                     if best is None or candidate[1] > best[1]:
                         best = candidate
                     continue
-                alias_tokens = [t for t in alias_norm.split() if t]
-                if any(f" {token} " in haystack for token in alias_tokens):
-                    candidate = (key, min(1.0, 0.75 + casing_bonus + length_bonus + blank_bonus))
-                    if best is None or candidate[1] > best[1]:
-                        best = candidate
         return best
 
     @staticmethod
@@ -2548,6 +2544,113 @@ class SectionParser:
             content = lines[start:end]
             sections.setdefault(key, []).extend(content)
         return sections
+
+    def _canonicalize_sections(self, sections: dict[str, list[str]]) -> dict[str, list[str]]:
+        if not isinstance(sections, dict) or not sections:
+            return sections
+
+        canonical: dict[str, list[str]] = {}
+        header_conf: dict[str, float] = {}
+        for key, lines in sections.items():
+            canonical_key = self._canonical_section_key(str(key or ""))
+            canonical.setdefault(canonical_key, []).extend(lines or [])
+            if self._last_section_header_confidence:
+                existing = header_conf.get(canonical_key, 0.0)
+                header_conf[canonical_key] = max(
+                    existing,
+                    float(self._last_section_header_confidence.get(key, 0.0) or 0.0),
+                )
+
+        if header_conf:
+            self._last_section_header_confidence = header_conf
+
+        return canonical
+
+    @staticmethod
+    def _canonical_section_key(key: str) -> str:
+        normalized = (key or "").strip().lower()
+        if not normalized:
+            return "unknown"
+
+        if normalized in {
+            "technical_skills",
+            "technical_expertise",
+            "programming_skills",
+            "programming_languages",
+            "software_skills",
+            "software",
+            "tools",
+            "tools_and_technologies",
+            "technologies",
+            "frameworks",
+            "platforms",
+            "tech_stack",
+            "technical_proficiencies",
+            "competencies",
+            "core_competencies",
+            "key_competencies",
+            "strengths",
+            "expertise",
+            "areas_of_expertise",
+            "capabilities",
+        }:
+            return "skills"
+
+        if normalized in {
+            "licenses",
+            "credentials",
+            "accreditations",
+            "security_clearances",
+            "clearances",
+        }:
+            return "certifications"
+
+        if normalized in {
+            "profile",
+            "professional_profile",
+            "career_profile",
+            "executive_summary",
+            "professional_summary",
+            "career_summary",
+            "objective",
+            "career_objective",
+            "professional_objective",
+            "highlights",
+            "career_highlights",
+            "professional_highlights",
+            "qualifications_summary",
+            "summary_of_qualifications",
+            "value_proposition",
+        }:
+            return "summary"
+
+        if normalized in {
+            "employment",
+            "employment_history",
+            "work_history",
+            "career_history",
+            "job_history",
+            "internships",
+            "internship_experience",
+            "consulting_experience",
+            "management_experience",
+            "leadership_experience",
+            "teaching_experience",
+            "research_experience",
+        }:
+            return "experience"
+
+        if normalized in {
+            "training",
+            "courses",
+            "professional_development",
+            "continuing_education",
+            "workshops",
+            "seminars",
+        }:
+            return "education"
+
+        return normalized
 
     def _score_sections(
         self, sections: dict[str, list[str]]

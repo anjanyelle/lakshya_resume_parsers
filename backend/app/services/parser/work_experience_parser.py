@@ -605,7 +605,8 @@ class WorkExperienceParser:
         return company, title, responsibilities
 
     def _llm_fallback(self, chunk: str) -> JobEntry | None:
-        if self.settings.LLM_PROVIDER == "none" or self.settings.PARSING_MODE.lower() == "deterministic":
+        mode = (self.settings.PARSING_MODE or "").lower()
+        if self.settings.LLM_PROVIDER == "none" or mode != "full":
             return None
 
         entries = self.llm.extract_work_experience(chunk)
