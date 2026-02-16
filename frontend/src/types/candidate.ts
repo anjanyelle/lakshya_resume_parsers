@@ -22,6 +22,7 @@ export interface CandidateSkill {
 export interface WorkHistory {
   id: string
   company_name?: string | null
+  client_name?: string | null
   job_title?: string | null
   start_date?: string | null
   end_date?: string | null

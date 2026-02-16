@@ -9,6 +9,7 @@ import SkillsSection from '../components/candidate-detail/SkillsSection'
 import CertificationsSection from '../components/candidate-detail/CertificationsSection'
 import ParsingStatusTimeline from '../components/candidate-detail/ParsingStatusTimeline'
 import CorrectionSplitView from '../components/candidate-detail/CorrectionSplitView'
+import Modal from '../components/common/Modal'
 import Skeleton from '../components/common/Skeleton'
 import type { Candidate, ParsingJob } from '../types'
 import {
@@ -46,6 +47,7 @@ export default function CandidateDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [candidate, setCandidate] = useState<Candidate | null>(null)
+  const [originalCandidate, setOriginalCandidate] = useState<Candidate | null>(null)
   const [latestJob, setLatestJob] = useState<ParsingJob | null>(null)
   const [reviewFlags, setReviewFlags] = useState<ReviewFlags>({
     overall_confidence: null,
@@ -54,6 +56,8 @@ export default function CandidateDetailPage() {
   })
   const [resumeUrl, setResumeUrl] = useState<string | null>(null)
   const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null)
+  const [resumePreviewError, setResumePreviewError] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const [parsedData, setParsedData] = useState<Record<string, any>>({})
   const [originalData, setOriginalData] = useState<Record<string, any>>({})
   const [compareMode, setCompareMode] = useState(false)
@@ -74,6 +78,7 @@ export default function CandidateDetailPage() {
           fetchCandidateReview(id),
         ])
         setCandidate(candidateData)
+        setOriginalCandidate(candidateData)
         setLatestJob(reviewData.latest_job)
         setReviewFlags(reviewData.review_flags)
         setParsedData(clone(reviewData.latest_job?.parsed_data || {}))
@@ -92,22 +97,85 @@ export default function CandidateDetailPage() {
     fetchData()
   }, [id])
 
+  const handleWorkHistoryChange = useCallback(
+    (workHistoryId: string, field: string, value: string) => {
+      setCandidate((prev) => {
+        if (!prev?.work_history) return prev
+        const next = {
+          ...prev,
+          work_history: prev.work_history.map((item) =>
+            item.id === workHistoryId ? { ...item, [field]: value } : item,
+          ),
+        }
+        return next
+      })
+
+      const original =
+        originalCandidate?.work_history?.find((item) => item.id === workHistoryId) as any
+      const originalValue = original?.[field]
+      const path = `work_history.${workHistoryId}.${field}`
+      setPendingChanges((prev) => ({
+        ...prev,
+        [path]: {
+          original: originalValue ? String(originalValue) : null,
+          corrected: value,
+        },
+      }))
+    },
+    [originalCandidate],
+  )
+
+  const handleCertificationChange = useCallback(
+    (certificationId: string, field: string, value: string) => {
+      setCandidate((prev) => {
+        if (!prev?.certifications) return prev
+        const next = {
+          ...prev,
+          certifications: prev.certifications.map((item) =>
+            item.id === certificationId ? { ...item, [field]: value } : item,
+          ),
+        }
+        return next
+      })
+
+      const original =
+        originalCandidate?.certifications?.find((item) => item.id === certificationId) as any
+      const originalValue = original?.[field]
+      const path = `certifications.${certificationId}.${field}`
+      setPendingChanges((prev) => ({
+        ...prev,
+        [path]: {
+          original: originalValue ? String(originalValue) : null,
+          corrected: value,
+        },
+      }))
+    },
+    [originalCandidate],
+  )
+
   useEffect(() => {
     if (!id) return
     downloadResume(id)
       .then(async (url) => {
         setResumeUrl(url)
+        setResumePreviewError(null)
         try {
           const { fetchFileAsBlobUrl } = await import('../services/api/files')
           const blobUrl = await fetchFileAsBlobUrl(url)
           setResumePreviewUrl(blobUrl)
-        } catch {
+        } catch (error) {
           setResumePreviewUrl(null)
+          setResumePreviewError(
+            error instanceof Error
+              ? error.message
+              : 'Resume preview unavailable. Please download.',
+          )
         }
       })
       .catch(() => {
         setResumeUrl(null)
         setResumePreviewUrl(null)
+        setResumePreviewError('Resume preview unavailable. Please download.')
       })
   }, [id])
 
@@ -152,7 +220,7 @@ export default function CandidateDetailPage() {
       return
     }
     try {
-      await submitCorrections(id, corrections)
+      const updatedCandidate = await submitCorrections(id, corrections)
       const nextOriginal = clone(originalData)
       corrections.forEach((item) => {
         if (item.corrected_value) {
@@ -160,6 +228,8 @@ export default function CandidateDetailPage() {
         }
       })
       setOriginalData(nextOriginal)
+      setCandidate(updatedCandidate)
+      setOriginalCandidate(updatedCandidate)
       setPendingChanges({})
       toast.success('Corrections saved')
     } catch (error) {
@@ -287,6 +357,14 @@ export default function CandidateDetailPage() {
     window.open(resumeUrl, '_blank')
   }
 
+  const handlePreview = async () => {
+    if (!resumePreviewUrl) {
+      toast.error(resumePreviewError || 'Resume preview unavailable. Please download.')
+      return
+    }
+    setPreviewOpen(true)
+  }
+
   if (loading || !candidate) {
     return (
       <section className="space-y-6">
@@ -299,12 +377,27 @@ export default function CandidateDetailPage() {
     <section className="space-y-6">
       <ProfileHeader
         candidate={candidate}
+        onPreview={handlePreview}
         onDownload={handleDownload}
         onExportJson={handleExport}
         onReprocess={handleReprocess}
         onApprove={handleApprove}
         onDelete={handleDelete}
       />
+
+      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="Resume preview">
+        {resumePreviewUrl ? (
+          <iframe
+            src={resumePreviewUrl}
+            className="h-[80vh] w-full rounded-lg border border-slate-200"
+            title="Resume preview"
+          />
+        ) : (
+          <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+            Resume preview unavailable.
+          </div>
+        )}
+      </Modal>
 
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
         <SummarySection summary={candidate.summary} onSave={handleSummarySave} />
@@ -325,9 +418,15 @@ export default function CandidateDetailPage() {
           Correction interface
         </h2>
         <CorrectionSplitView
-          resumeUrl={resumePreviewUrl ?? resumeUrl}
+          resumeUrl={resumePreviewUrl}
           parsedData={parsedData}
           originalData={originalData}
+          workHistory={candidate.work_history || []}
+          originalWorkHistory={originalCandidate?.work_history || []}
+          onWorkHistoryChange={handleWorkHistoryChange}
+          certifications={candidate.certifications || []}
+          originalCertifications={originalCandidate?.certifications || []}
+          onCertificationChange={handleCertificationChange}
           flaggedFields={reviewFlags.flagged_fields}
           discrepancies={reviewFlags.discrepancies}
           compareMode={compareMode}

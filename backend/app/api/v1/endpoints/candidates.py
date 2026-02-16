@@ -6,13 +6,14 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+import dateparser
 import structlog
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db, require_role
 from app.core.config import get_settings
-from app.models import Candidate, ParsingJob, ReviewStatus
+from app.models import Candidate, Certification, ParsingJob, ReviewStatus, WorkHistory
 from app.schemas.candidate import CandidateRead, CandidateUpdate, ParsingJobRead
 from app.schemas.review import CandidateReviewResponse, CorrectionRequest
 from app.services.storage import generate_presigned_url
@@ -30,6 +31,26 @@ from app.workers.pipeline import start_parsing_workflow
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _parse_optional_date(value: str | None):
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw).date()
+    except ValueError:
+        parsed = dateparser.parse(raw, settings={"PREFER_DAY_OF_MONTH": "first"})
+        return parsed.date() if parsed else None
+
+
+def _parse_optional_bool(value: str | None):
+    raw = str(value or "").strip().lower()
+    if raw in {"true", "1", "yes", "y"}:
+        return True
+    if raw in {"false", "0", "no", "n"}:
+        return False
+    return None
 
 
 @router.get("/candidates", response_model=list[CandidateRead])
@@ -285,12 +306,127 @@ def submit_corrections(
 
     for correction in payload.corrections:
         field = correction.field_name
+        corrected_value = correction.corrected_value
+
+        if field.startswith("work_history."):
+            parts = field.split(".")
+            if len(parts) != 3:
+                raise HTTPException(status_code=400, detail=f"Invalid correction field: {field}")
+            _, row_id, attr = parts
+            try:
+                row_uuid = UUID(row_id)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid work history id: {row_id}") from exc
+
+            row = (
+                db.query(WorkHistory)
+                .filter(WorkHistory.id == row_uuid, WorkHistory.candidate_id == candidate.id)
+                .first()
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Work history item not found")
+
+            allowed = {
+                "company_name",
+                "client_name",
+                "job_title",
+                "start_date",
+                "end_date",
+                "is_current",
+                "location",
+                "description",
+            }
+            if attr not in allowed:
+                raise HTTPException(status_code=400, detail=f"Unsupported work history field: {attr}")
+
+            current_value = getattr(row, attr)
+            if isinstance(current_value, datetime):
+                original_value = current_value.isoformat()
+            else:
+                original_value = str(current_value) if current_value is not None else None
+
+            parsed_value = corrected_value
+            if attr in {"start_date", "end_date"}:
+                parsed_value = _parse_optional_date(corrected_value)
+            elif attr == "is_current":
+                bool_val = _parse_optional_bool(corrected_value)
+                parsed_value = bool_val if bool_val is not None else row.is_current
+            else:
+                parsed_value = str(corrected_value).strip() if corrected_value is not None else None
+                if parsed_value == "":
+                    parsed_value = None
+
+            record_correction(
+                db,
+                candidate_id=candidate.id,
+                field_name=field,
+                original_value=original_value,
+                corrected_value=str(corrected_value) if corrected_value is not None else None,
+                corrected_by=str(current_user.id),
+            )
+            setattr(row, attr, parsed_value)
+            db.add(row)
+            continue
+
+        if field.startswith("certifications."):
+            parts = field.split(".")
+            if len(parts) != 3:
+                raise HTTPException(status_code=400, detail=f"Invalid correction field: {field}")
+            _, row_id, attr = parts
+            try:
+                row_uuid = UUID(row_id)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid certification id: {row_id}") from exc
+
+            row = (
+                db.query(Certification)
+                .filter(Certification.id == row_uuid, Certification.candidate_id == candidate.id)
+                .first()
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Certification item not found")
+
+            allowed = {
+                "name",
+                "issuing_organization",
+                "issue_date",
+                "expiry_date",
+                "credential_id",
+            }
+            if attr not in allowed:
+                raise HTTPException(status_code=400, detail=f"Unsupported certification field: {attr}")
+
+            current_value = getattr(row, attr)
+            original_value = str(current_value) if current_value is not None else None
+
+            parsed_value = corrected_value
+            if attr in {"issue_date", "expiry_date"}:
+                parsed_value = _parse_optional_date(corrected_value)
+            else:
+                parsed_value = str(corrected_value).strip() if corrected_value is not None else None
+                if parsed_value == "":
+                    parsed_value = None
+
+            record_correction(
+                db,
+                candidate_id=candidate.id,
+                field_name=field,
+                original_value=original_value,
+                corrected_value=str(corrected_value) if corrected_value is not None else None,
+                corrected_by=str(current_user.id),
+            )
+            if attr == "name" and parsed_value is None:
+                raise HTTPException(status_code=400, detail="Certification name is required")
+            setattr(row, attr, parsed_value)
+            db.add(row)
+            continue
+
         if hasattr(candidate, field):
             current_value = getattr(candidate, field)
             original_value = str(current_value) if current_value is not None else None
         else:
             original_value = correction.original_value
-        corrected_value = correction.corrected_value
+
         record_correction(
             db,
             candidate_id=candidate.id,

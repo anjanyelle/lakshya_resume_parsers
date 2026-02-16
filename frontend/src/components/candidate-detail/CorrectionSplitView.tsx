@@ -8,6 +8,12 @@ type CorrectionSplitViewProps = {
   resumeUrl?: string | null
   parsedData: Record<string, any>
   originalData: Record<string, any>
+  workHistory: Array<any>
+  originalWorkHistory: Array<any>
+  onWorkHistoryChange: (workHistoryId: string, field: string, value: string) => void
+  certifications: Array<any>
+  originalCertifications: Array<any>
+  onCertificationChange: (certificationId: string, field: string, value: string) => void
   flaggedFields: Record<string, number>
   discrepancies: string[]
   compareMode: boolean
@@ -24,6 +30,12 @@ export default function CorrectionSplitView({
   resumeUrl,
   parsedData,
   originalData,
+  workHistory,
+  originalWorkHistory,
+  onWorkHistoryChange,
+  certifications,
+  originalCertifications,
+  onCertificationChange,
   flaggedFields,
   discrepancies,
   compareMode,
@@ -76,14 +88,10 @@ export default function CorrectionSplitView({
     [contact, originalContact, compareMode],
   )
 
-  const work = parsedData.work_experience || []
-  const originalWork = originalData.work_experience || []
   const skills = parsedData.skills || []
   const originalSkills = originalData.skills || []
   const education = parsedData.education || []
   const originalEducation = originalData.education || []
-  const certifications = parsedData.certifications || []
-  const originalCertifications = originalData.certifications || []
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr,1.2fr]">
@@ -162,26 +170,73 @@ export default function CorrectionSplitView({
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <h4 className="text-sm font-semibold text-slate-900">Work history</h4>
           <div className="mt-3 space-y-3">
-            {work.map((item: any, index: number) => (
-              <div key={`work-${index}`} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+            {workHistory.map((item: any) => (
+              <div key={item.id} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
                 <EditableField
                   label="Company"
-                  value={item.company || ''}
-                  compareValue={originalWork?.[index]?.company || ''}
+                  value={item.company_name || ''}
+                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.company_name || ''}
                   showComparison={compareMode}
-                  confidence={item.confidence}
+                  confidence={null}
                   flagged={false}
-                  onSave={(next) => onFieldChange(`work_experience.${index}.company`, next)}
+                  onSave={(next) => onWorkHistoryChange(item.id, 'company_name', next)}
                   validator={(value) => (value.trim() ? null : 'Company required')}
                 />
                 <EditableField
                   label="Title"
-                  value={item.title || ''}
-                  compareValue={originalWork?.[index]?.title || ''}
+                  value={item.job_title || ''}
+                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.job_title || ''}
                   showComparison={compareMode}
-                  confidence={item.confidence}
+                  confidence={null}
                   flagged={false}
-                  onSave={(next) => onFieldChange(`work_experience.${index}.title`, next)}
+                  onSave={(next) => onWorkHistoryChange(item.id, 'job_title', next)}
+                />
+                <EditableField
+                  label="Client"
+                  value={item.client_name || ''}
+                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.client_name || ''}
+                  showComparison={compareMode}
+                  confidence={null}
+                  flagged={false}
+                  onSave={(next) => onWorkHistoryChange(item.id, 'client_name', next)}
+                />
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <EditableField
+                    label="Start date"
+                    value={item.start_date || ''}
+                    compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.start_date || ''}
+                    showComparison={compareMode}
+                    confidence={null}
+                    flagged={false}
+                    onSave={(next) => onWorkHistoryChange(item.id, 'start_date', next)}
+                  />
+                  <EditableField
+                    label="End date"
+                    value={item.end_date || ''}
+                    compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.end_date || ''}
+                    showComparison={compareMode}
+                    confidence={null}
+                    flagged={false}
+                    onSave={(next) => onWorkHistoryChange(item.id, 'end_date', next)}
+                  />
+                </div>
+                <EditableField
+                  label="Location"
+                  value={item.location || ''}
+                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.location || ''}
+                  showComparison={compareMode}
+                  confidence={null}
+                  flagged={false}
+                  onSave={(next) => onWorkHistoryChange(item.id, 'location', next)}
+                />
+                <EditableField
+                  label="Description"
+                  value={item.description || ''}
+                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.description || ''}
+                  showComparison={compareMode}
+                  confidence={null}
+                  flagged={false}
+                  onSave={(next) => onWorkHistoryChange(item.id, 'description', next)}
                 />
               </div>
             ))}
@@ -237,25 +292,55 @@ export default function CorrectionSplitView({
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <h4 className="text-sm font-semibold text-slate-900">Certifications</h4>
           <div className="mt-3 space-y-2">
-            {certifications.map((item: any, index: number) => (
-              <div key={`cert-${index}`} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+            {certifications.map((item: any) => (
+              <div key={item.id} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
                 <EditableField
                   label="Certification"
                   value={item.name || ''}
-                  compareValue={originalCertifications?.[index]?.name || ''}
+                  compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.name || ''}
                   showComparison={compareMode}
-                  confidence={item.confidence}
+                  confidence={null}
                   flagged={false}
-                  onSave={(next) => onFieldChange(`certifications.${index}.name`, next)}
+                  onSave={(next) => onCertificationChange(item.id, 'name', next)}
+                  validator={(value) => (value.trim() ? null : 'Name required')}
                 />
                 <EditableField
                   label="Issuer"
                   value={item.issuing_organization || ''}
-                  compareValue={originalCertifications?.[index]?.issuing_organization || ''}
+                  compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.issuing_organization || ''}
                   showComparison={compareMode}
-                  confidence={item.confidence}
+                  confidence={null}
                   flagged={false}
-                  onSave={(next) => onFieldChange(`certifications.${index}.issuing_organization`, next)}
+                  onSave={(next) => onCertificationChange(item.id, 'issuing_organization', next)}
+                />
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <EditableField
+                    label="Issue date"
+                    value={item.issue_date || ''}
+                    compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.issue_date || ''}
+                    showComparison={compareMode}
+                    confidence={null}
+                    flagged={false}
+                    onSave={(next) => onCertificationChange(item.id, 'issue_date', next)}
+                  />
+                  <EditableField
+                    label="Expiry date"
+                    value={item.expiry_date || ''}
+                    compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.expiry_date || ''}
+                    showComparison={compareMode}
+                    confidence={null}
+                    flagged={false}
+                    onSave={(next) => onCertificationChange(item.id, 'expiry_date', next)}
+                  />
+                </div>
+                <EditableField
+                  label="Credential ID"
+                  value={item.credential_id || ''}
+                  compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.credential_id || ''}
+                  showComparison={compareMode}
+                  confidence={null}
+                  flagged={false}
+                  onSave={(next) => onCertificationChange(item.id, 'credential_id', next)}
                 />
               </div>
             ))}

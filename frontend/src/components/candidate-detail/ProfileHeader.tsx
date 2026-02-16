@@ -1,9 +1,10 @@
-import { Mail, MapPin, Phone, Download, RefreshCcw, Trash2, CheckCircle, FileJson } from 'lucide-react'
+import { Mail, MapPin, Phone, Download, RefreshCcw, Trash2, CheckCircle, FileJson, Eye } from 'lucide-react'
 import Button from '../common/Button'
 import type { Candidate } from '../../types/candidate'
 
 type ProfileHeaderProps = {
   candidate: Candidate
+  onPreview: () => void
   onDownload: () => void
   onExportJson: () => void
   onReprocess: () => void
@@ -13,6 +14,7 @@ type ProfileHeaderProps = {
 
 export default function ProfileHeader({
   candidate,
+  onPreview,
   onDownload,
   onExportJson,
   onReprocess,
@@ -54,6 +56,9 @@ export default function ProfileHeader({
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={onPreview} icon={<Eye className="h-4 w-4" />}>
+            Preview
+          </Button>
           <Button variant="secondary" onClick={onDownload} icon={<Download className="h-4 w-4" />}>
             Download
           </Button>
