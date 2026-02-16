@@ -53,15 +53,19 @@ export const fetchFileAsBlobUrl = async (url: string) => {
     return URL.createObjectURL(blob)
   }
 
-  const headerBuf = await blob.slice(0, 4).arrayBuffer()
-  const header = new TextDecoder().decode(headerBuf)
-  if (header !== '%PDF') {
-    if (header.startsWith('PK')) {
+  const sniffBuf = await blob.slice(0, 1024).arrayBuffer()
+  const sniffText = new TextDecoder().decode(sniffBuf)
+  const isPdf = sniffText.includes('%PDF')
+  const isZip = sniffText.startsWith('PK')
+
+  if (!isPdf) {
+    if (isZip) {
       throw new Error('Preview not supported for this file type. Please download.')
     }
-    if (contentType && !contentType.includes('pdf')) {
-      throw new Error('Preview unavailable for this file type. Please download.')
+    if (contentType && contentType.includes('pdf')) {
+      return URL.createObjectURL(blob)
     }
+    throw new Error('Preview unavailable for this file type. Please download.')
   }
 
   return URL.createObjectURL(blob)
