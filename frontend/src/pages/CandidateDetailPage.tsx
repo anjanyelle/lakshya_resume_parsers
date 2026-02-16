@@ -354,7 +354,13 @@ export default function CandidateDetailPage() {
 
   const handleDownload = async () => {
     if (!resumeUrl) return
-    window.open(resumeUrl, '_blank')
+    try {
+      const { downloadFile } = await import('../services/api/files')
+      const fallbackName = `resume-${candidate?.id ?? 'candidate'}.pdf`
+      await downloadFile(resumeUrl, fallbackName)
+    } catch (error) {
+      window.open(resumeUrl, '_blank')
+    }
   }
 
   const handlePreview = async () => {
