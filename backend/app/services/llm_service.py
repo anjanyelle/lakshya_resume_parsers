@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -113,6 +114,7 @@ class StructuredResumeModel(BaseModel):
     work_experience: list[WorkExperienceItemModel]
     education: list[EducationEntryModel]
     skills: list[str]
+    certifications: list[CertificationEntryModel]
 
 
 class StructuredResumeContactEnvelope(BaseModel):
@@ -137,6 +139,12 @@ class StructuredResumeSkillsEnvelope(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     skills: list[str]
+
+
+class StructuredResumeCertificationsEnvelope(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    certifications: list[CertificationEntryModel]
 
 
 class CertificationEntryModel(BaseModel):
@@ -264,6 +272,7 @@ class LLMParsingService:
         work_adapter = TypeAdapter(StructuredResumeWorkEnvelope)
         education_adapter = TypeAdapter(StructuredResumeEducationEnvelope)
         skills_adapter = TypeAdapter(StructuredResumeSkillsEnvelope)
+        certifications_adapter = TypeAdapter(StructuredResumeCertificationsEnvelope)
         resume_adapter = TypeAdapter(StructuredResumeModel)
 
         contact_env = self._call_llm_validated(
@@ -298,6 +307,14 @@ class LLMParsingService:
             default_payload={"skills": default_payload["skills"]},
         )
 
+        certifications_env = self._call_llm_validated(
+            self._structured_resume_certifications_prompt(certifications_text or text),
+            "structured_resume_certifications",
+            expect_array=False,
+            adapter=certifications_adapter,
+            default_payload={"certifications": default_payload["certifications"]},
+        )
+
         def _dump_models(value: Any) -> Any:
             if isinstance(value, BaseModel):
                 return value.model_dump()
@@ -318,7 +335,19 @@ class LLMParsingService:
                 getattr(education_env, "education", default_payload["education"])
             ),
             "skills": _dump_models(getattr(skills_env, "skills", default_payload["skills"])),
+            "certifications": _dump_models(
+                getattr(
+                    certifications_env,
+                    "certifications",
+                    default_payload["certifications"],
+                )
+            ),
         }
+
+        self._fill_structured_work_clients(
+            merged_payload.get("work_experience"),
+            experience_text or text,
+        )
 
         validated = self._call_llm_validated(
             self._structured_resume_from_parts_prompt(
@@ -1058,13 +1087,40 @@ class LLMParsingService:
             "<<<TEXT>>>\n"
         )
 
+    def _structured_resume_certifications_prompt(self, text: str) -> str:
+        schema = {
+            "certifications": [
+                {
+                    "name": None,
+                    "issuing_organization": None,
+                    "issue_date": None,
+                    "expiry_date": None,
+                    "credential_id": None,
+                    "is_active": None,
+                    "confidence": 0.0,
+                }
+            ]
+        }
+        return self._base_system_prompt + (
+            "Extract ONLY certifications from the provided text and return ONLY JSON.\n\n"
+            "Rules:\n"
+            "- Include certifications, licenses, and credentials.\n"
+            "- Do not include courses, workshops, or training sessions unless explicitly a certification/license.\n"
+            "- Do not invent missing dates/ids/providers.\n\n"
+            "Schema (return exactly this shape; no extra keys):\n"
+            f"{json.dumps(schema, ensure_ascii=False)}\n\n"
+            "Text:\n<<<TEXT>>>\n"
+            f"{text}\n"
+            "<<<TEXT>>>\n"
+        )
+
     def _structured_resume_work_prompt(self, text: str) -> str:
         schema = {"work_experience": self._structured_resume_defaults()["work_experience"]}
         return self._base_system_prompt + (
             "Extract ONLY work experience from the provided text and return ONLY JSON.\n\n"
             "Rules:\n"
             "- Keep each company/role separate.\n"
-            "- Extract client names ONLY if explicitly indicated.\n"
+            "- Extract client names ONLY if explicitly indicated (examples: 'Client:', 'End Client:', 'Client -', 'Project for <client>', 'Worked for <client>').\n"
             "- Do not invent companies/clients.\n\n"
             "Schema (return exactly this shape; no extra keys):\n"
             f"{json.dumps(schema, ensure_ascii=False)}\n\n"
@@ -1072,6 +1128,83 @@ class LLMParsingService:
             f"{text}\n"
             "<<<TEXT>>>\n"
         )
+
+    _STRUCTURED_CLIENT_PATTERNS: list[re.Pattern[str]] = [
+        re.compile(r"\b(?:end\s+client|client)\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
+        re.compile(r"\bproject\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
+        re.compile(
+            r"\bworked\s+for\s+(?P<client>[A-Za-z0-9][A-Za-z0-9 &.,()/-]{2,})",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"\bproject\s+for\s+(?P<client>[A-Za-z0-9][A-Za-z0-9 &.,()/-]{2,})",
+            re.IGNORECASE,
+        ),
+    ]
+
+    def _fill_structured_work_clients(self, items: Any, source_text: str) -> None:
+        if not isinstance(items, list) or not source_text:
+            return
+        lines = [line.strip() for line in source_text.splitlines()]
+        lowered_lines = [line.lower() for line in lines]
+
+        def extract_from_block(block: str) -> str | None:
+            if not block:
+                return None
+            for pattern in self._STRUCTURED_CLIENT_PATTERNS:
+                match = pattern.search(block)
+                if not match:
+                    continue
+                raw = (match.group("client") or "").strip().strip("-–—| ")
+                raw = re.split(r"\s{2,}|\||\u2022", raw)[0].strip()
+                raw = re.sub(r"\b\d{4}\b", "", raw).strip(" -–—|,;:")
+                if not raw:
+                    continue
+                if len(raw) > 80:
+                    continue
+                return raw
+            return None
+
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            existing_client = str(item.get("client") or "").strip()
+            if existing_client:
+                continue
+
+            company = str(item.get("company") or "").strip()
+            title = str(item.get("title") or "").strip()
+
+            anchors = [a for a in (company, title) if a]
+            if not anchors:
+                continue
+
+            anchor_idx: int | None = None
+            for idx, line in enumerate(lowered_lines):
+                if company and company.lower() in line:
+                    anchor_idx = idx
+                    if title and title.lower() not in line:
+                        for forward in range(1, 4):
+                            if idx + forward < len(lowered_lines) and title.lower() in lowered_lines[idx + forward]:
+                                anchor_idx = idx
+                                break
+                    break
+                if not company and title and title.lower() in line:
+                    anchor_idx = idx
+                    break
+
+            if anchor_idx is None:
+                continue
+
+            start = anchor_idx
+            end = min(len(lines), anchor_idx + 28)
+            block = "\n".join(lines[start:end])
+            client = extract_from_block(block)
+            if not client:
+                continue
+            if company and client.lower() == company.lower():
+                continue
+            item["client"] = client
 
     def _structured_resume_education_prompt(self, text: str) -> str:
         schema = {
@@ -1120,7 +1253,7 @@ class LLMParsingService:
     ) -> str:
         schema = self._structured_resume_defaults()
         extra_context = (
-            f"\n\nCertifications section (for disambiguation only; do not mix into skills):\n<<<CERTS>>>\n{certifications_text}\n<<<CERTS>>>\n"
+            f"\n\nCertifications section (use only to fill certifications; do not mix into skills):\n<<<CERTS>>>\n{certifications_text}\n<<<CERTS>>>\n"
             if certifications_text.strip()
             else ""
         )
@@ -1206,6 +1339,7 @@ class LLMParsingService:
             ],
             "education": [],
             "skills": [],
+            "certifications": [],
         }
 
     @staticmethod
@@ -1322,12 +1456,18 @@ class LLMParsingService:
 
         education_out = payload.get("education") if isinstance(payload.get("education"), list) else []
         skills_out = payload.get("skills") if isinstance(payload.get("skills"), list) else []
+        certifications_out = (
+            payload.get("certifications")
+            if isinstance(payload.get("certifications"), list)
+            else []
+        )
 
         return {
             "contact": contact_out,
             "work_experience": work_out,
             "education": education_out,
             "skills": skills_out,
+            "certifications": certifications_out,
         }
 
     def _experience_skills_prompt(self, text: str, header: str | None = None) -> str:

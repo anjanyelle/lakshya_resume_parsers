@@ -1567,7 +1567,7 @@ def task_verify_extracted_data(self, job_id: str) -> str:  # noqa: ANN001
             updates["llm_structured"] = structured_verified
             updates["structured_resume"] = structured_verified
 
-            for key in ("contact", "work_experience", "education", "skills"):
+            for key in ("contact", "work_experience", "education", "skills", "certifications"):
                 if key in structured_verified:
                     incoming = structured_verified.get(key)
                     existing = parsed.get(key)

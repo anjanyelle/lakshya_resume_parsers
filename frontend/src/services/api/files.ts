@@ -67,6 +67,25 @@ export const fetchFileAsBlobUrl = async (url: string) => {
   return URL.createObjectURL(blob)
 }
 
+export const fetchFileAsBlob = async (url: string) => {
+  const response = shouldUseApiClient(url)
+    ? await apiClient.get<Blob>(url, { responseType: 'blob', timeout: 60000 })
+    : await axios.get<Blob>(url, { responseType: 'blob', timeout: 60000 })
+
+  const blob = response.data
+  const contentType =
+    (response.headers?.['content-type'] as string | undefined) ?? ''
+
+  if (contentType.includes('application/json') || contentType.includes('text/html')) {
+    const text = await blob.text().catch(() => '')
+    const match = text.match(/"detail"\s*:\s*"([^"]+)"/)
+    const detail = match?.[1] || 'File fetch failed'
+    throw new Error(detail)
+  }
+
+  return blob
+}
+
 const getFilenameFromContentDisposition = (value: string | undefined) => {
   if (!value) return null
   const match = value.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i)
