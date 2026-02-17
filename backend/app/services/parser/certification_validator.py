@@ -10,7 +10,7 @@ _FALSE_POSITIVE_RE = re.compile(
 )
 
 _CERTIFIED_RE = re.compile(
-    r"\b(certified|certification|certificate|certificates|license|licence|licensed|accredited|accreditation)\b",
+    r"\b(certified|certification|certificate|certificates|license|licence|licensed|accredited|accreditation|associate|professional|specialty|expert)\b",
     flags=re.IGNORECASE,
 )
 
