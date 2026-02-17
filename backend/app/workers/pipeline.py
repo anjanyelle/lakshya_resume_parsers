@@ -56,6 +56,7 @@ from app.utils.review import apply_correction_patterns, compute_review_flags, fi
 from app.services.storage import copy_s3_object, save_bytes_to_local, upload_bytes_to_s3
 from app.workers.celery_app import celery_app
 from app.workers.extract_text_task import extract_text_task
+from app.services.parser.section_boundary_extractor import extract_certifications
 
 logger = logging.getLogger(__name__)
 
@@ -2126,6 +2127,7 @@ def task_extract_achievements(self, job_id: str) -> str:  # noqa: ANN001
         observe_stage_duration("extract_achievements", time.perf_counter() - start_time)
 
 
+
 @celery_app.task(
     bind=True,
     autoretry_for=(Exception,),
@@ -2135,65 +2137,148 @@ def task_extract_achievements(self, job_id: str) -> str:  # noqa: ANN001
     max_retries=3,
     name="app.workers.pipeline.task_parse_certifications",
 )
-def task_parse_certifications(self, job_id: str) -> str:  # noqa: ANN001
+def task_parse_certifications(self, job_id: str) -> str:
     start_time = time.perf_counter()
     try:
         job = _load_job(job_id)
         parsed = job.parsed_data or {}
+
+        # Skip if already extracted
         existing_certs = parsed.get("certifications")
         if isinstance(existing_certs, list) and existing_certs:
             return job_id
 
         sections = parsed.get("sections", {})
+        cert_text = ""
         cert_section_conf: float | None = None
-        if isinstance(sections, dict) and isinstance(sections.get("certifications"), dict):
-            try:
-                cert_section_conf = float(sections.get("certifications", {}).get("confidence", 0.0) or 0.0)
-            except (TypeError, ValueError):
-                cert_section_conf = None
-        cert_text = sections.get("certifications", {}).get("content", job.raw_text or "")
+
+        # ====================================================
+        # 1️⃣ STRICT BOUNDARY EXTRACTION (PRIMARY SOURCE)
+        # ====================================================
+        boundary_result = extract_certifications(job.raw_text or "")
+
+        if boundary_result.section_found and boundary_result.extracted_lines:
+            cert_text = boundary_result.content
+            cert_section_conf = boundary_result.confidence
+
+        # ====================================================
+        # 2️⃣ FALLBACK TO SECTION PARSER (SECONDARY)
+        # ====================================================
+        if not cert_text:
+            cert_section = sections.get("certifications") if isinstance(sections, dict) else None
+
+            if isinstance(cert_section, dict):
+                try:
+                    cert_section_conf = float(cert_section.get("confidence", 0.0) or 0.0)
+                except (TypeError, ValueError):
+                    cert_section_conf = None
+
+                content = str(cert_section.get("content") or "").strip()
+
+                # Safety: ignore if too long (likely full resume)
+                if content and len(content) < 3000:
+                    cert_text = content
+
+        # ====================================================
+        # 3️⃣ SAFE RAW TEXT FALLBACK (CONTROLLED)
+        #    NEVER PASS FULL RESUME DIRECTLY
+        # ====================================================
+        if not cert_text:
+            raw_text = job.raw_text or ""
+
+            strong_cert_pattern = re.compile(
+                r"\b(certified|certification|certificate|license|licence|associate|professional|specialty|expert|AZ-\d{2,}|SAA-\w+)\b",
+                re.IGNORECASE,
+            )
+
+            if strong_cert_pattern.search(raw_text):
+                # Use boundary extractor again (NOT raw text directly)
+                boundary_retry = extract_certifications(raw_text)
+
+                if boundary_retry.section_found and boundary_retry.extracted_lines:
+                    cert_text = boundary_retry.content
+                    cert_section_conf = boundary_retry.confidence
+
+        # ====================================================
+        # 4️⃣ STILL NOTHING? → SAVE EMPTY SAFELY
+        # ====================================================
+        if not cert_text:
+            _update_job(
+                job_id,
+                last_stage="parse_certifications",
+                parsed_data=_merge_parsed(
+                    job,
+                    {
+                        "certifications": [],
+                        "certifications_validation": {
+                            "reason": "No certification section detected safely"
+                        },
+                    },
+                ),
+            )
+            return job_id
+
+        # ====================================================
+        # 5️⃣ PARSE USING YOUR HYBRID CERTIFICATION PARSER
+        # ====================================================
         parser = CertificationParser()
         entries = parser.parse(cert_text)
+
         payload = [
             {
                 **entry.__dict__,
-                "issue_date": entry.issue_date.isoformat()
-                if entry.issue_date
-                else None,
-                "expiry_date": entry.expiry_date.isoformat()
-                if entry.expiry_date
-                else None,
+                "issue_date": entry.issue_date.isoformat() if entry.issue_date else None,
+                "expiry_date": entry.expiry_date.isoformat() if entry.expiry_date else None,
             }
             for entry in entries
         ]
 
+        # Remove empty names
+        payload = [
+            item
+            for item in payload
+            if isinstance(item, dict)
+            and str(item.get("name") or "").strip()
+            and len(str(item.get("name"))) <= 200  # 🔒 DB Safety Guard
+        ]
+
+        # ====================================================
+        # 6️⃣ LLM FALLBACK (ONLY IF SAFE + EMPTY)
+        # ====================================================
         if not payload:
             settings = get_settings()
             if (
                 settings.LLM_PROVIDER != "none"
                 and settings.PARSING_MODE.lower() != "deterministic"
-                and cert_text
             ):
                 llm = LLMParsingService()
                 llm_payload = llm.extract_certifications(cert_text)
-                if isinstance(llm_payload, list) and llm_payload:
-                    payload = llm_payload
 
-        if isinstance(payload, list) and payload:
-            payload = [
-                item
-                for item in payload
-                if isinstance(item, dict) and str(item.get("name") or "").strip()
-            ]
+                if isinstance(llm_payload, list):
+                    payload = [
+                        item
+                        for item in llm_payload
+                        if isinstance(item, dict)
+                        and str(item.get("name") or "").strip()
+                        and len(str(item.get("name"))) <= 200
+                    ]
 
+        # ====================================================
+        # 7️⃣ VALIDATION LAYER (SIR STRENGTH RETAINED)
+        # ====================================================
         validator = CertificationValidator()
-        validated = validator.normalize_providers(payload if isinstance(payload, list) else [])
+        validated = validator.normalize_providers(payload)
         validated = validator.remove_false_positives(validated)
         validated = validator.deduplicate_certifications(validated)
+
         validation_info = validator.detect_mismatches(
             section_confidence=cert_section_conf,
             extracted_items=validated,
         )
+
+        # ====================================================
+        # 8️⃣ SAVE
+        # ====================================================
         _update_job(
             job_id,
             last_stage="parse_certifications",
@@ -2205,13 +2290,17 @@ def task_parse_certifications(self, job_id: str) -> str:  # noqa: ANN001
                 },
             ),
         )
+
         return job_id
+
     except Exception as exc:
         _handle_task_error(job_id, exc, "parse_certifications")
         _log_retry_exhausted(self, job_id, "parse_certifications")
         raise
     finally:
         observe_stage_duration("parse_certifications", time.perf_counter() - start_time)
+
+
 
 
 @celery_app.task(
