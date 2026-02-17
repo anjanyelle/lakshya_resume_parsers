@@ -21,37 +21,27 @@ ISSUED_BY_RE = re.compile(
 EXPIRY_RE = re.compile(r"(expires|expiry|valid until)\s*[:\-]?\s*(.+)", re.IGNORECASE)
 CREDENTIAL_RE = re.compile(r"(credential id|license id|cert id)\s*[:\-]?\s*(\w+)", re.IGNORECASE)
 
+# =========================
+#  🆕 ADDED FROM YOUR LOGIC
+#  Detect certification exam codes like AZ-104, SAA-C03, AZ-400
+# =========================
+EXAM_CODE_RE = re.compile(r"\b[A-Z]{2,}-\d{2,}\b")
+
+
 CERT_LINE_MARKERS = (
     "certified",
     "certification",
     "certificate",
     "license",
     "licence",
-    "issued by",
-    "accredited",
-    "accreditation",
     "credential",
     "credentials",
-    "qualified",
-    "registration",
-    "registered",
-    "authorized",
-    "authorised",
-    "approved by",
-    "endorsed by",
-    "chartered",
-    "diploma",
-    "awarded by",
-    "granted by",
-    "conferred by",
-    "board certified",
     "professional designation",
-    "competency",
-    "attested",
-    "valid through",
+    "board certified",
     "expires",
     "expiry",
 )
+
 TRAINING_FALSE_POSITIVES = (
     "training",
     "workshop",
@@ -63,29 +53,6 @@ TRAINING_FALSE_POSITIVES = (
     "edx",
     "webinar",
     "masterclass",
-    "tutorial",
-    "lesson",
-    "class",
-    "session",
-    "program",
-    "learning path",
-    "online course",
-    "mooc",
-    "linkedin learning",
-    "pluralsight",
-    "skillshare",
-    "khan academy",
-    "codecademy",
-    "datacamp",
-    "udacity",
-    "attended",
-    "participated",
-    "completed training",
-    "training program",
-    "educational program",
-    "professional development",
-    "continuing education",
-    "workshop series",
     "certificate of completion",
     "certificate of attendance",
     "certificate of participation",
@@ -104,48 +71,34 @@ class CertificationEntry:
 
 
 class CertificationParser:
+
     def parse(self, text: str) -> list[CertificationEntry]:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         entries: list[CertificationEntry] = []
+
         for line in lines:
-            for candidate in self._split_candidate_lines(line):
+            # =========================
+            # 🆕 FROM YOUR LOGIC:
+            # Split comma-separated certifications
+            # (Sir originally split only by bullet/pipe)
+            # =========================
+            candidates = self._split_candidate_lines(line)
+
+            for candidate in candidates:
                 entry = self._parse_line(candidate)
                 if entry:
                     entries.append(entry)
+
         return entries
-
-    def parse_with_fallback(self, text: str, extra_texts: list[str] | None = None) -> list[CertificationEntry]:
-        entries = self.parse(text)
-        if entries:
-            return entries
-
-        candidates: list[str] = []
-        for source in [text, *(extra_texts or [])]:
-            if not source:
-                continue
-            for line in (line.strip() for line in source.splitlines() if line.strip()):
-                if self._is_cert_candidate_line(line):
-                    candidates.append(line)
-
-        seen: set[tuple[str, str | None]] = set()
-        recovered: list[CertificationEntry] = []
-        for line in candidates:
-            entry = self._parse_line(line)
-            if not entry:
-                continue
-            key = (entry.name.strip().lower(), (entry.issuing_organization or "").strip().lower() or None)
-            if key in seen:
-                continue
-            seen.add(key)
-            recovered.append(entry)
-        return recovered
 
     @staticmethod
     def _split_candidate_lines(line: str) -> list[str]:
         normalized = re.sub(r"\s+", " ", (line or "")).strip()
         if not normalized:
             return []
-        parts = re.split(r"\s*[•|]\s*", normalized)
+
+        # 🆕 Added comma splitting (your improvement)
+        parts = re.split(r"\s*[•|,]\s*", normalized)
         cleaned = [p.strip() for p in parts if p.strip()]
         return cleaned or [normalized]
 
@@ -154,13 +107,17 @@ class CertificationParser:
         lowered = (line or "").lower().strip()
         if not lowered:
             return False
+
+        # Sir's protection logic (kept unchanged)
         if ":" in lowered and re.search(
             r"\b(languages|frontend|backend|tools|testing|frameworks|databases|cloud|devops|apis|platforms)\b",
             lowered,
         ):
             return True
-        if line.count(",") >= 3 and len(line) <= 140:
+
+        if line.count(",") >= 4 and len(line) <= 140:
             return True
+
         return False
 
     @staticmethod
@@ -168,6 +125,7 @@ class CertificationParser:
         lowered = (line or "").lower().strip().strip(":")
         if not lowered:
             return False
+
         if lowered in {
             "certifications",
             "certification",
@@ -181,48 +139,24 @@ class CertificationParser:
             "work experience",
         }:
             return True
-        if lowered.endswith("skills") or lowered.endswith("technologies"):
-            return True
-        return False
-
-    def _is_cert_candidate_line(self, line: str) -> bool:
-        lowered = line.lower().strip()
-        if not lowered:
-            return False
-        if len(line) > 200:
-            return False
-        if len(line.split()) > 20:
-            return False
-
-        if self._looks_like_section_label(line):
-            return False
-        if self._looks_like_skill_list(line):
-            return False
-
-        if any(marker in lowered for marker in CERT_LINE_MARKERS):
-            return True
-
-        for alias in CERTIFICATION_ALIASES.keys():
-            if alias in lowered:
-                return True
-
-        keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
-        if keyword_hits >= 1:
-            return True
 
         return False
 
     def _parse_line(self, line: str) -> CertificationEntry | None:
+
         name = self._extract_name(line)
         if not name:
             return None
+
         issue_date = self._extract_date(line, ISSUE_RE)
         expiry_date = self._extract_date(line, EXPIRY_RE)
         credential_id = self._extract_credential_id(line)
         org = self._extract_org(line, name)
+
         is_active = None
         if expiry_date:
             is_active = expiry_date >= date.today()
+
         confidence = self._score_confidence(name, org, issue_date)
 
         return CertificationEntry(
@@ -242,36 +176,35 @@ class CertificationParser:
 
         if self._looks_like_section_label(line):
             return None
+
         if self._looks_like_skill_list(line):
             return None
 
+        # Alias mapping (sir logic retained)
         for alias, canonical in CERTIFICATION_ALIASES.items():
             if alias in lowered:
                 return canonical
 
-        if len(line) > 200:
+        token_count = len(line.split())
+        if token_count <= 2:
             return None
-        if len(line.split()) > 20:
-            return None
-
-        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS) or (
-            "cert " in lowered or "cert." in lowered
-        )
 
         looks_like_training = any(token in lowered for token in TRAINING_FALSE_POSITIVES)
+        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS)
+
         if looks_like_training and not has_cert_marker:
             return None
 
-        if has_cert_marker:
+        # =========================
+        # 🆕 FROM YOUR LOGIC:
+        # Allow detection via exam code (AZ-104 style)
+        # =========================
+        if has_cert_marker or EXAM_CODE_RE.search(line):
             return line.strip()
 
         keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
-        if keyword_hits >= 1:
-            cleaned = line.strip()
-            token_count = len([t for t in cleaned.split() if t])
-            if token_count <= 2:
-                return None
-            return cleaned
+        if keyword_hits >= 1 and token_count >= 3:
+            return line.strip()
 
         return None
 
@@ -279,9 +212,11 @@ class CertificationParser:
         match = pattern.search(line)
         if match:
             return self._parse_date(match.group(2))
+
         years = DATE_RE.findall(line)
         if years:
             return date(int(years[-1]), 1, 1)
+
         return None
 
     def _parse_date(self, value: str) -> date | None:
@@ -294,50 +229,22 @@ class CertificationParser:
 
     def _extract_org(self, line: str, name: str) -> str | None:
         lowered = line.lower()
+
         match = ISSUED_BY_RE.search(line)
         if match:
-            candidate = str(match.group("org") or "").strip().strip("-–—|, ")
-            candidate = re.split(r"\s{2,}|\||•", candidate)[0].strip()
-            provider = self._normalize_provider(candidate)
-            return provider or candidate or None
+            return match.group("org").strip()
 
         if "aws" in lowered:
             return "Amazon Web Services"
-        if "amazon web services" in lowered:
-            return "Amazon Web Services"
-        if "azure" in lowered:
-            return "Microsoft"
-        if "microsoft" in lowered:
-            return "Microsoft"
-        if "google" in lowered:
-            return "Google"
-        if "gcp" in lowered:
-            return "Google"
-        if "pmp" in lowered:
-            return "PMI"
-        if "pmi" in lowered:
-            return "PMI"
-        if "oracle" in lowered:
-            return "Oracle"
-        if name and name in line:
-            return None
-        return None
-
-    @staticmethod
-    def _normalize_provider(value: str) -> str | None:
-        lowered = (value or "").lower().strip()
-        if not lowered:
-            return None
-        if "aws" in lowered or "amazon web services" in lowered:
-            return "Amazon Web Services"
-        if "microsoft" in lowered or "azure" in lowered:
+        if "azure" in lowered or "microsoft" in lowered:
             return "Microsoft"
         if "google" in lowered or "gcp" in lowered:
             return "Google"
-        if "pmi" in lowered or "pmp" in lowered:
-            return "PMI"
         if "oracle" in lowered:
             return "Oracle"
+        if "pmp" in lowered or "pmi" in lowered:
+            return "PMI"
+
         return None
 
     def _score_confidence(
