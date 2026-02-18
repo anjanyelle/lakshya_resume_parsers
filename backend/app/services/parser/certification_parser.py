@@ -27,6 +27,11 @@ CREDENTIAL_RE = re.compile(r"(credential id|license id|cert id)\s*[:\-]?\s*(\w+)
 # =========================
 EXAM_CODE_RE = re.compile(r"\b[A-Z]{2,}-\d{2,}\b")
 
+ACTION_VERB_RE = re.compile(
+    r"^\s*(managed|developed|deployed|designed|implemented|configured|monitored|supported|created|built|led|optimized|performed|established|executed|administered|guided|troubleshot|provided|maintained|orchestrated|streamlined|architected|enhanced|applied)\b",
+    re.IGNORECASE,
+)
+
 
 CERT_LINE_MARKERS = (
     "certified",
@@ -94,6 +99,10 @@ class CertificationParser:
     @staticmethod
     def _split_candidate_lines(line: str) -> list[str]:
         normalized = re.sub(r"\s+", " ", (line or "")).strip()
+        if not normalized:
+            return []
+
+        normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized).strip()
         if not normalized:
             return []
 
@@ -180,6 +189,11 @@ class CertificationParser:
         if self._looks_like_skill_list(line):
             return None
 
+        verb_check = re.sub(r"^[^A-Za-z0-9]+", "", lowered)
+        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS)
+        if ACTION_VERB_RE.search(verb_check) and not (has_cert_marker or EXAM_CODE_RE.search(line)):
+            return None
+
         # Alias mapping (sir logic retained)
         for alias, canonical in CERTIFICATION_ALIASES.items():
             if alias in lowered:
@@ -190,7 +204,6 @@ class CertificationParser:
             return None
 
         looks_like_training = any(token in lowered for token in TRAINING_FALSE_POSITIVES)
-        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS)
 
         if looks_like_training and not has_cert_marker:
             return None
@@ -203,7 +216,7 @@ class CertificationParser:
             return line.strip()
 
         keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
-        if keyword_hits >= 1 and token_count >= 3:
+        if keyword_hits >= 1 and token_count >= 3 and len(line) <= 120:
             return line.strip()
 
         return None
