@@ -654,7 +654,7 @@ LOCATION_LABEL_REGEX = re.compile(
 )
 
 NAME_LABEL_REGEX = re.compile(
-    r"\b(name|linkedin)\b\s*[:\-]\s*(?P<value>.+)$",
+    r"\bname\b\s*[:\-]\s*(?P<value>.+)$",
     re.IGNORECASE,
 )
 
@@ -747,7 +747,8 @@ class ContactExtractor:
         )
 
     def extract_emails(self, text: str) -> list[EmailResult]:
-        candidates = [m.group("email") for m in EMAIL_REGEX.finditer(text)]
+        repaired = self._repair_common_emails(text)
+        candidates = [m.group("email") for m in EMAIL_REGEX.finditer(repaired)]
         normalized = []
         for email in candidates:
             try:
@@ -879,7 +880,8 @@ class ContactExtractor:
 
     def extract_name(self, text: str) -> NameResult:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
-        top_lines = lines[:8]
+        top_lines = lines[:30]
+        contact_label_re = re.compile(r"\b(?:email|phone|linkedin|github)\b\s*:?", re.IGNORECASE)
 
         for line in top_lines:
             match = NAME_LABEL_REGEX.search(line)
@@ -899,20 +901,42 @@ class ContactExtractor:
                         return NameResult(name=name, confidence=0.75)
 
         for line in top_lines:
-            if (
-                "@" in line
-                or re.search(r"\d", line)
-                or "http" in line.lower()
-                or "www." in line.lower()
-                or ":" in line
-                or self._looks_like_section_header(line)
+            if self._looks_like_section_header(line):
+                continue
+            if line.lstrip().startswith(("-", "•", "*", "|")):
+                continue
+            lowered_line = line.lower()
+            if "http" in lowered_line or "www." in lowered_line:
+                continue
+
+            # PDFs commonly put name + email/phone on the same line. Strip contact parts and
+            # re-evaluate the remaining left segment.
+            candidate_line = line
+            candidate_line = contact_label_re.sub("", candidate_line).strip()
+            candidate_line = EMAIL_REGEX.sub("", candidate_line).strip()
+            candidate_line = re.sub(r"\+?\d[\d\s().-]{6,}", "", candidate_line).strip()
+            candidate_line = re.sub(r"\b(linkedin|github)\b\s*[:\-]?\s*\S+", "", candidate_line, flags=re.IGNORECASE).strip()
+
+            # If the header line contains separators (common in PDFs), attempt to use the left side.
+            if "|" in candidate_line or "·" in candidate_line:
+                split_parts = [p.strip() for p in re.split(r"[|·]", candidate_line) if p.strip()]
+                if split_parts:
+                    candidate_line = split_parts[0]
+            candidate_line = candidate_line.strip(" |-·")
+
+            verb_check = re.sub(r"^[^A-Za-z0-9]+", "", candidate_line.strip().lower())
+            if re.match(
+                r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered)\b",
+                verb_check,
             ):
                 continue
-            words = [w for w in re.split(r"\s+", line) if w]
+
+            words = [w for w in re.split(r"\s+", candidate_line) if w]
             if 2 <= len(words) <= 4:
                 cleaned = self._normalize_name_case(" ".join(words))
                 cleaned = self._normalize_name_suffix(cleaned)
-                return NameResult(name=cleaned, confidence=0.6)
+                if self._is_probable_name(cleaned):
+                    return NameResult(name=cleaned, confidence=0.6)
 
         if len(top_lines) >= 2:
             first = top_lines[0]
@@ -967,9 +991,33 @@ class ContactExtractor:
         words = [w for w in re.split(r"\s+", value.strip()) if w]
         if not (2 <= len(words) <= 4):
             return False
+        lowered = value.lower()
+        if "," in value or "/" in value or "|" in value or "·" in value:
+            return False
+        if re.search(
+            r"\b(engineer|developer|devops|sre|architect|administrator|admin|manager|lead|analyst|consultant|director|specialist|qa|tester|product|data|scientist|intern)\b",
+            lowered,
+        ):
+            return False
+        if re.search(r"\b(and|with|for|to|in|across|optimizing|automating)\b", lowered):
+            return False
+        if re.match(
+            r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered)\b",
+            re.sub(r"^[^A-Za-z0-9]+", "", lowered),
+        ):
+            return False
         if any(word.lower() in {"linkedin", "github", "email", "phone"} for word in words):
             return False
         return all(re.match(r"^[A-Za-z.'-]+$", word) for word in words)
+
+    @staticmethod
+    def _repair_common_emails(text: str) -> str:
+        # PDF text extraction often inserts whitespace around separators.
+        cleaned = str(text or "")
+        cleaned = re.sub(r"\s+@\s+", "@", cleaned)
+        cleaned = re.sub(r"\s+\.\s+", ".", cleaned)
+        cleaned = re.sub(r"\s+\+\s+", "+", cleaned)
+        return cleaned
 
     @staticmethod
     def _normalize_name_case(value: str) -> str:
