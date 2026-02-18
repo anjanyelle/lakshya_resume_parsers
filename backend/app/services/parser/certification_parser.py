@@ -27,6 +27,11 @@ CREDENTIAL_RE = re.compile(r"(credential id|license id|cert id)\s*[:\-]?\s*(\w+)
 # =========================
 EXAM_CODE_RE = re.compile(r"\b[A-Z]{2,}-\d{2,}\b")
 
+ACTION_VERB_RE = re.compile(
+    r"^\s*(managed|developed|deployed|designed|implemented|configured|monitored|supported|created|built|led|optimized|performed|established|executed|administered|guided|troubleshot|provided|maintained|orchestrated|streamlined|architected|enhanced|applied)\b",
+    re.IGNORECASE,
+)
+
 
 CERT_LINE_MARKERS = (
     "certified",
@@ -77,14 +82,34 @@ class CertificationParser:
         entries: list[CertificationEntry] = []
 
         for line in lines:
-            # =========================
-            # 🆕 FROM YOUR LOGIC:
+            
+            line = re.sub(r"\s*[–—]\s*(?=[A-Z])", "\n", line)
+            #Remove bullets / dashes from beginning
+            line = re.sub(r"^[\-\*•\u2022\–\—]+\s*", "", line)
+            #Normalize spacing (VERY IMPORTANT for PDF)
+            line = re.sub(r"\s*-\s*", " - ", line)
+            line = re.sub(r"\s*:\s*", ": ", line)
+            line = re.sub(r"\s+", " ", line).strip()
+
+            if not line:
+                continue
             # Split comma-separated certifications
             # (Sir originally split only by bullet/pipe)
-            # =========================
             candidates = self._split_candidate_lines(line)
 
             for candidate in candidates:
+
+                if not candidate:
+                    continue
+
+                # Skip skill lists accidentally inside section
+                if self._looks_like_skill_list(candidate):
+                    continue
+
+                # Skip section labels accidentally captured
+                if self._looks_like_section_label(candidate):
+                    continue
+
                 entry = self._parse_line(candidate)
                 if entry:
                     entries.append(entry)
@@ -97,10 +122,36 @@ class CertificationParser:
         if not normalized:
             return []
 
-        # 🆕 Added comma splitting (your improvement)
-        parts = re.split(r"\s*[•|,]\s*", normalized)
-        cleaned = [p.strip() for p in parts if p.strip()]
+    # Remove leading bullets
+        normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized).strip()
+        if not normalized:
+            return []
+
+    # Smart dash splitting (ONLY when new cert starts)
+        normalized = re.sub(r"\s*[–—]\s*(?=[A-Z])", "\n", normalized)
+
+    
+    # Split only on safe separators
+        parts = re.split(r"\s*[•|\n]\s*", normalized)
+
+    
+    # Controlled comma split
+    
+        final_parts = []
+        for part in parts:
+            if not part:
+                continue
+
+        # Split comma only if looks like multiple certs
+            if part.count(",") >= 2 and len(part) < 180:
+                sub = re.split(r"\s*,\s*(?=[A-Z])", part)
+                final_parts.extend(sub)
+            else:
+              final_parts.append(part)
+
+        cleaned = [p.strip() for p in final_parts if p.strip()]
         return cleaned or [normalized]
+
 
     @staticmethod
     def _looks_like_skill_list(line: str) -> bool:
@@ -142,8 +193,23 @@ class CertificationParser:
 
         return False
 
-    def _parse_line(self, line: str) -> CertificationEntry | None:
 
+    def _safe_split_camel_case(self, text: str) -> str:
+       if not text:
+           return text
+
+    # Split lowercase → Uppercase
+       text = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', text)
+
+    # Split digit → Uppercase (TOGAF9.2Certified)
+       text = re.sub(r'(?<=\d)(?=[A-Z])', ' ', text)
+
+       return text.strip()
+
+    def _parse_line(self, line: str) -> CertificationEntry | None:
+        
+        line = self._safe_split_camel_case(line)
+        line = re.sub(r"\s+", " ", line).strip()
         name = self._extract_name(line)
         if not name:
             return None
@@ -180,19 +246,23 @@ class CertificationParser:
         if self._looks_like_skill_list(line):
             return None
 
+        verb_check = re.sub(r"^[^A-Za-z0-9]+", "", lowered)
+        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS)
+        if ACTION_VERB_RE.search(verb_check) and not (has_cert_marker or EXAM_CODE_RE.search(line)):
+            return None
+
         # Alias mapping (sir logic retained)
         for alias, canonical in CERTIFICATION_ALIASES.items():
             if alias in lowered:
-                return canonical
+                return line.strip()
 
         token_count = len(line.split())
         if token_count <= 2:
             return None
 
         looks_like_training = any(token in lowered for token in TRAINING_FALSE_POSITIVES)
-        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS)
 
-        if looks_like_training and not has_cert_marker:
+        if looks_like_training and not (has_cert_marker or EXAM_CODE_RE.search(line)):
             return None
 
         # =========================
@@ -203,7 +273,7 @@ class CertificationParser:
             return line.strip()
 
         keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
-        if keyword_hits >= 1 and token_count >= 3:
+        if keyword_hits >= 1 and token_count >= 3 and len(line) <= 120:
             return line.strip()
 
         return None

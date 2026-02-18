@@ -77,6 +77,39 @@ CERTIFICATION_ALIASES = {
 
     "lpic": "Linux Professional Institute Certification (LPIC-1)",
     "cka security": "Certified Kubernetes Security Specialist (CKS)",
+
+    "gicsp": "GIAC Global Industrial Cyber Security Professional (GICSP)",
+    "grid": "GIAC Response and Industrial Defense (GRID)",
+    "cissp-issap": "CISSP-ISSAP",
+    "cssa": "SCADA Security Architect (CSSA)",
+    "isa/iec 62443": "ISA/IEC 62443 Cybersecurity Certification",
+
+        
+    
+    "sap certified application associate": "SAP Certified Application Associate",
+    "sap certified professional": "SAP Certified Professional",
+    "sap certified development associate": "SAP Certified Development Associate",
+    "sap certified technology associate": "SAP Certified Technology Associate",
+    "sap s/4hana": "SAP Certified – S/4HANA",
+    "sap s4hana": "SAP Certified – S/4HANA",
+
+    "pmp": "Project Management Professional (PMP)",
+    "project management professional": "Project Management Professional (PMP)",
+    "pmi": "Project Management Institute (PMI)",
+
+
+    "lean six sigma": "Lean Six Sigma Certification",
+    "lean six sigma black belt": "Lean Six Sigma Black Belt",
+    "lean six sigma green belt": "Lean Six Sigma Green Belt",
+    "six sigma black belt": "Six Sigma Black Belt",
+    "six sigma green belt": "Six Sigma Green Belt",
+
+   
+    "togaf 9.2": "TOGAF 9.2 Certified",
+    "togaf certified": "TOGAF Certified Enterprise Architect",
+    "enterprise architect": "Enterprise Architect Certification",
+
+     "lssbb": "Lean Six Sigma Black Belt",
     
 }
 
@@ -133,6 +166,29 @@ KNOWN_CERT_KEYWORDS = [
     "ai certification",
     "data engineer certification",
     "cloud certification",
-    "architect certification"
+    "architect certification",
+    "lean six sigma",
+    "sigma",
+    "black belt",
+    "giac",
+"gicsp",
+"grid",
+"issap",
+"cssa",
+"isa/iec",
+"62443",
+"industrial cybersecurity",
+"sap certified",
+    "s/4hana",
+    "s4hana",
+    "pmi",
+    "project management professional",
+    "lean",
+    "six",
+    "sigma",
+    "black belt",
+    "green belt",
+    "enterprise architect",
+    "togaf 9.2",
 ]
 
