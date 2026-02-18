@@ -27,6 +27,16 @@ export default function EducationSection({ items = [] }: EducationSectionProps) 
                 <p className="text-xs text-slate-500">
                   {item.start_date || '—'} → {item.end_date || '—'}
                 </p>
+                {item.gpa != null && (
+                  <p className="text-xs text-slate-500">
+                    GPA: <span className="font-medium text-slate-700">{item.gpa}</span>
+                  </p>
+                )}
+                {item.description && (
+                  <p className="text-xs italic text-slate-500 mt-0.5">
+                    {item.description}
+                  </p>
+                )}
               </div>
             </div>
           ))}
