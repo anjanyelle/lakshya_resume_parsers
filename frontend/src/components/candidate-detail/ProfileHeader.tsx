@@ -21,6 +21,18 @@ export default function ProfileHeader({
   onApprove,
   onDelete,
 }: ProfileHeaderProps) {
+  const cleanUrl = (value: string | null | undefined) => {
+    const raw = (value ?? '').trim()
+    if (!raw) return null
+    const lowered = raw.toLowerCase()
+    if (lowered === 'linkedin' || lowered === 'github') return null
+    if (!/^https?:\/\//i.test(raw)) return `https://${raw}`
+    return raw
+  }
+
+  const linkedinUrl = cleanUrl(candidate.linkedin_url)
+  const githubUrl = cleanUrl(candidate.github_url)
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -50,6 +62,26 @@ export default function ProfileHeader({
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="h-3 w-3" /> {candidate.location}
                 </span>
+              )}
+              {linkedinUrl && (
+                <a
+                  className="inline-flex items-center gap-1 underline"
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  LinkedIn
+                </a>
+              )}
+              {githubUrl && (
+                <a
+                  className="inline-flex items-center gap-1 underline"
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
               )}
             </div>
           </div>

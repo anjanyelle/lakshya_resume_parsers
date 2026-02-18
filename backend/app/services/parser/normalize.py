@@ -9,6 +9,28 @@ _MULTILINE_RE = re.compile(r"\n{3,}")
 _ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200d\u2060\ufeff]")
 _RTL_MARKS_RE = re.compile(r"[\u200e\u200f\u202a-\u202e]")
 _MULTISPACE_RUN_RE = re.compile(r"[ \t]{2,}")
+_BULLET_RE = re.compile(r"[\u2022\u2023\u25E6\u2043\u2219\uf0b7\uf0a7\uf0d8\uf0fc▪]")
+
+
+def _repair_common_urls(text: str) -> str:
+    cleaned = text
+    cleaned = re.sub(r"\b(https?)\s*:\s*/\s*/\s*", r"\1://", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\bwww\s*\.\s*", "www.", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(
+        r"\blinkedin\s*\.\s*com\s*/\s*(in|pub)\s*/\s*",
+        r"linkedin.com/\1/",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\bgithub\s*\.\s*com\s*/\s*",
+        "github.com/",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"\b(linkedin\.com|github\.com)\s*/\s*", r"\1/", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\b(https?://|www\.)\s+", r"\1", cleaned, flags=re.IGNORECASE)
+    return cleaned
 
 
 def normalize_text(text: str) -> str:
@@ -16,7 +38,9 @@ def normalize_text(text: str) -> str:
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
     cleaned = _RTL_MARKS_RE.sub("", cleaned)
+    cleaned = _BULLET_RE.sub("- ", cleaned)
     cleaned = cleaned.replace("•", "- ").replace("–", "-").replace("—", "-")
+    cleaned = _repair_common_urls(cleaned)
     cleaned = _MULTISPACE_RE.sub(" ", cleaned)
     cleaned = _MULTILINE_RE.sub("\n\n", cleaned)
     cleaned = cleaned.strip()
@@ -29,7 +53,9 @@ def normalize_resume_text(text: str) -> str:
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
     cleaned = _RTL_MARKS_RE.sub("", cleaned)
+    cleaned = _BULLET_RE.sub("- ", cleaned)
     cleaned = cleaned.replace("•", "- ").replace("–", "-").replace("—", "-")
+    cleaned = _repair_common_urls(cleaned)
     cleaned = cleaned.replace("\t", "    ")
 
     def _preserve_columns(match: re.Match[str]) -> str:
