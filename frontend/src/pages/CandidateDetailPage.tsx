@@ -479,7 +479,10 @@ export default function CandidateDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
         <EducationSection items={candidate.education} />
-        <CertificationsSection items={candidate.certifications} />
+        <CertificationsSection
+          items={candidate.certifications}
+          rawContent={(parsedData as any)?.sections?.certifications?.content as any}
+        />
       </div>
 
       <SkillsSection skills={candidate.skills} candidateSkills={candidate.candidate_skills} />

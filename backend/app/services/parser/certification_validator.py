@@ -14,6 +14,13 @@ _CERTIFIED_RE = re.compile(
     flags=re.IGNORECASE,
 )
 
+_EXAM_CODE_RE = re.compile(r"\b[A-Z]{2,}-\d{2,}\b")
+
+_ACTION_VERB_RE = re.compile(
+    r"^\s*(managed|developed|deployed|designed|implemented|configured|monitored|supported|created|built|led|optimized|performed|established|executed|administered|guided|troubleshot|provided|maintained|orchestrated|streamlined|architected|enhanced|applied)\b",
+    flags=re.IGNORECASE,
+)
+
 
 _PROVIDER_NORMALIZATION: dict[str, str] = {
     # Cloud Providers - AWS
@@ -358,6 +365,19 @@ class CertificationValidator:
             
             # Skip if it contains false positive keywords but no certification keywords
             if _FALSE_POSITIVE_RE.search(text) and not _CERTIFIED_RE.search(text):
+                continue
+
+            # Drop responsibility/bullet sentences unless they contain strong certification markers
+            verb_check = re.sub(r"^[^A-Za-z0-9]+", "", name)
+            if _ACTION_VERB_RE.search(verb_check) and not (
+                _CERTIFIED_RE.search(text) or _EXAM_CODE_RE.search(text)
+            ):
+                continue
+
+            word_count = len(name.split())
+            if word_count >= 12 and not (
+                _CERTIFIED_RE.search(text) or _EXAM_CODE_RE.search(text)
+            ):
                 continue
             
             # Additional validation: skip if name is too short (likely incomplete extraction)

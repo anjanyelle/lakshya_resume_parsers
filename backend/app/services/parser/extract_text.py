@@ -16,9 +16,15 @@ from docx import Document
 from PIL import Image
 
 from app.core.config import get_settings
-from app.services.parser.normalize import normalize_text
+from app.services.parser.normalize import normalize_resume_text, normalize_text
 
 logger = logging.getLogger(__name__)
+
+
+_MONTH_HINT_RE = re.compile(
+    r"^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -110,13 +116,13 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
         logger.info("Low text detected, triggering OCR")
         ocr_text, ocr_conf = _ocr_pdf(file_path)
         return ExtractedText(
-            text=normalize_text(ocr_text),
+            text=normalize_resume_text(ocr_text),
             ocr_confidence=ocr_conf,
             used_ocr=True,
             method="ocr",
         )
 
-    return ExtractedText(text=normalize_text(text), method=method)
+    return ExtractedText(text=normalize_resume_text(text), method=method)
 
 
 def _extract_pdf_page_lines(page: object) -> list[str]:
@@ -168,6 +174,10 @@ def _reconstruct_lines_from_words(words: list[dict], page_width: float) -> list[
         return []
 
     split_x = page_width * 0.5 if page_width else None
+
+    gap_threshold = 120.0
+    if page_width and page_width > 0:
+        gap_threshold = max(60.0, float(page_width) * 0.12)
     two_column = False
     if split_x is not None and page_width > 0:
         left = sum(1 for w in cleaned_words if float(w["x0"]) < page_width * 0.4)
@@ -178,14 +188,41 @@ def _reconstruct_lines_from_words(words: list[dict], page_width: float) -> list[
     if two_column and split_x is not None:
         left_words = [w for w in cleaned_words if float(w["x0"]) < split_x]
         right_words = [w for w in cleaned_words if float(w["x0"]) >= split_x]
-        left_lines = _group_words_into_lines(left_words)
-        right_lines = _group_words_into_lines(right_words)
+
+        # Heuristic: if the "right column" is mostly dates/short tokens, it's likely just
+        # right-aligned metadata (e.g., job dates), not a true second column.
+        if right_words:
+            digitish = 0
+            longish = 0
+            for w in right_words:
+                token = str(w.get("text") or "")
+                if not token:
+                    continue
+                if any(ch.isdigit() for ch in token) or _MONTH_HINT_RE.search(token):
+                    digitish += 1
+                if len(token) >= 8:
+                    longish += 1
+            denom = max(1, len(right_words))
+            digitish_ratio = digitish / denom
+            longish_ratio = longish / denom
+            if digitish_ratio >= 0.55 and longish_ratio <= 0.35:
+                two_column = False
+
+    if two_column and split_x is not None:
+        left_words = [w for w in cleaned_words if float(w["x0"]) < split_x]
+        right_words = [w for w in cleaned_words if float(w["x0"]) >= split_x]
+        left_lines = _group_words_into_lines(left_words, gap_threshold=gap_threshold)
+        right_lines = _group_words_into_lines(right_words, gap_threshold=gap_threshold)
         return left_lines + ([""] if left_lines and right_lines else []) + right_lines
 
-    return _group_words_into_lines(cleaned_words)
+    return _group_words_into_lines(cleaned_words, gap_threshold=gap_threshold)
 
 
-def _group_words_into_lines(words: list[dict[str, object]]) -> list[str]:
+def _group_words_into_lines(
+    words: list[dict[str, object]],
+    *,
+    gap_threshold: float = 120.0,
+) -> list[str]:
     if not words:
         return []
 
@@ -211,7 +248,7 @@ def _group_words_into_lines(words: list[dict[str, object]]) -> list[str]:
         for w in sorted_words:
             token = str(w["text"])
             x = float(w["x0"])
-            if last_x is not None and (x - last_x) >= 120:
+            if last_x is not None and (x - last_x) >= gap_threshold:
                 parts.append("|")
             parts.append(token)
             last_x = x
