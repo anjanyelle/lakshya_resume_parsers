@@ -50,6 +50,7 @@ from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
 from app.services.parser.skill_extractor import SkillExtractor, SkillMatch
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
+from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
 from app.services.llm_service import LLMParsingService
 from app.utils.pii import hash_value
 from app.utils.review import apply_correction_patterns, compute_review_flags, find_date_overlaps
@@ -1729,6 +1730,7 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
 
         parser = SectionParser(use_spacy=True)
         sections = parser.parse(job.raw_text or "")
+        detected_headers = parser.get_detected_headers()
         payload = {
             key: {"content": value.content, "confidence": value.confidence}
             for key, value in sections.items()
@@ -1736,7 +1738,7 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
         _update_job(
             job_id,
             last_stage="detect_sections",
-            parsed_data=_merge_parsed(job, {"sections": payload}),
+            parsed_data=_merge_parsed(job, {"sections": payload, "detected_headers": detected_headers}),
         )
         return job_id
     except Exception as exc:
@@ -1806,19 +1808,71 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             return job_id
 
         sections = parsed.get("sections", {})
-        experience_text = sections.get("experience", {}).get("content", job.raw_text or "")
+        experience_block = sections.get("experience", {}) if isinstance(sections, dict) else {}
+        experience_text = (
+            experience_block.get("content", "")
+            if isinstance(experience_block, dict)
+            else ""
+        )
+        try:
+            exp_conf = float(experience_block.get("confidence", 0.0) or 0.0) if isinstance(experience_block, dict) else 0.0
+        except (TypeError, ValueError):
+            exp_conf = 0.0
+
         parser = WorkExperienceParser()
-        jobs = parser.parse_experience_section(experience_text)
-        payload = [
-            {
-                **job_entry.__dict__,
-                "start_date": job_entry.start_date.isoformat()
-                if job_entry.start_date
-                else None,
-                "end_date": job_entry.end_date.isoformat() if job_entry.end_date else None,
-            }
-            for job_entry in jobs
-        ]
+        raw_text = job.raw_text or ""
+
+        payload: list[dict[str, object]] = []
+        if exp_conf < 0.55 and raw_text.strip():
+            excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5)
+            settings = get_settings()
+            if excerpt and settings.LLM_PROVIDER != "none":
+                llm = LLMParsingService()
+                llm_items = llm.extract_work_experience(excerpt) or []
+                if isinstance(llm_items, list) and llm_items:
+                    for item in llm_items:
+                        if not isinstance(item, dict):
+                            continue
+                        responsibilities = item.get("responsibilities")
+                        bullets: list[str] = []
+                        if isinstance(responsibilities, list):
+                            for r in responsibilities:
+                                rr = str(r or "").strip()
+                                if rr:
+                                    bullets.append(rr)
+                        description = "\n".join(f"- {b}" for b in bullets).strip() if bullets else None
+                        payload.append(
+                            {
+                                "company": item.get("company") or item.get("company_name"),
+                                "title": item.get("title") or item.get("job_title"),
+                                "start_date": item.get("start_date"),
+                                "end_date": item.get("end_date"),
+                                "is_current": bool(item.get("is_current", False)),
+                                "location": item.get("location"),
+                                "description": description,
+                                "bullets": bullets,
+                                "client": item.get("client") or item.get("client_name"),
+                            }
+                        )
+
+        if not payload:
+            if exp_conf < 0.55 and raw_text.strip():
+                excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5)
+                experience_text = excerpt or raw_text
+            else:
+                experience_text = experience_text or raw_text
+
+            jobs = parser.parse_experience_section(experience_text)
+            payload = [
+                {
+                    **job_entry.__dict__,
+                    "start_date": job_entry.start_date.isoformat()
+                    if job_entry.start_date
+                    else None,
+                    "end_date": job_entry.end_date.isoformat() if job_entry.end_date else None,
+                }
+                for job_entry in jobs
+            ]
         _update_job(
             job_id,
             last_stage="parse_work_experience",
@@ -2270,6 +2324,39 @@ def task_parse_certifications(self, job_id: str) -> str:
         validated = validator.normalize_providers(payload)
         validated = validator.remove_false_positives(validated)
         validated = validator.deduplicate_certifications(validated)
+
+        if (
+            (cert_section_conf is not None and float(cert_section_conf) < 0.55)
+            and not validated
+            and (job.raw_text or "").strip()
+        ):
+            candidate_lines = CertificationParser.extract_candidate_lines_from_full_text(
+                job.raw_text or ""
+            )
+            if candidate_lines:
+                fallback_text = "\n".join(candidate_lines).strip()
+                fallback_entries = parser.parse(fallback_text)
+                fallback_payload = [
+                    {
+                        **entry.__dict__,
+                        "issue_date": entry.issue_date.isoformat() if entry.issue_date else None,
+                        "expiry_date": entry.expiry_date.isoformat() if entry.expiry_date else None,
+                    }
+                    for entry in fallback_entries
+                ]
+                fallback_payload = [
+                    item
+                    for item in fallback_payload
+                    if isinstance(item, dict)
+                    and str(item.get("name") or "").strip()
+                    and len(str(item.get("name"))) <= 200
+                ]
+                if fallback_payload:
+                    fallback_validated = validator.normalize_providers(fallback_payload)
+                    fallback_validated = validator.remove_false_positives(fallback_validated)
+                    fallback_validated = validator.deduplicate_certifications(fallback_validated)
+                    if fallback_validated:
+                        validated = fallback_validated
 
         validation_info = validator.detect_mismatches(
             section_confidence=cert_section_conf,
@@ -3064,13 +3151,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
         )
 
-        work_entries = parsed.get("work_experience", [])
+        work_entries = sanitize_work_experience_entries(parsed.get("work_experience", []))
         for entry in work_entries:
-            description = entry.get("description") if isinstance(entry, dict) else None
-            if isinstance(description, str) and description:
-                # Remove PDF column reconstruction artifacts while preserving meaning.
-                description = re.sub(r"(?m)^\|\s*", "", description)
-                description = re.sub(r"\s*\|\s*", " - ", description)
             session.add(
                 WorkHistory(
                     candidate_id=job.candidate_id,
@@ -3081,7 +3163,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     end_date=_parse_date_str(entry.get("end_date")),
                     is_current=entry.get("is_current", False),
                     location=entry.get("location"),
-                    description=description,
+                    description=entry.get("description"),
                     display_order=None,
                 )
             )

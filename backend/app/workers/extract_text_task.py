@@ -60,6 +60,17 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
         extracted = extract_text(local_path)
         job.raw_text = extracted.text
         job.ocr_confidence = extracted.ocr_confidence
+
+        parsed = job.parsed_data or {}
+        meta: dict[str, object] = {
+            "method": extracted.method,
+            "used_ocr": extracted.used_ocr,
+        }
+        debug = getattr(extracted, "debug", None)
+        if isinstance(debug, dict) and debug:
+            meta["debug"] = debug
+        parsed["text_extraction"] = meta
+        job.parsed_data = parsed
         session.commit()
 
         logger.info("Text extraction completed", extra={"job_id": job_id})

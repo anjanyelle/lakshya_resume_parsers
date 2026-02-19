@@ -13,8 +13,22 @@ from app.data.taxonomy.universities_top import TOP_UNIVERSITIES
 logger = logging.getLogger(__name__)
 
 
+MONTH_TOKEN = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+DATE_TOKEN = (
+    r"(?:"
+    r"\d{4}-\d{2}-\d{2}"
+    r"|\d{4}[/-]\d{1,2}"
+    r"|\d{1,2}[/-]\d{2}"
+    r"|\d{1,2}[/-]\d{4}"
+    r"|\d{4}"
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"
+    rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"
+    r")"
+)
+
 DATE_RANGE_RE = re.compile(
-    r"(?P<start>[\w./\- ]{3,20})\s*(?:[-–—]|to)\s*(?P<end>present|current|expected|ongoing|[\w./\- ]{3,20})",
+    rf"(?P<start>{DATE_TOKEN})\s*(?:\s*(?:[-–—]|to|until|thru|through)\s*)\s*(?P<end>present|current|expected|ongoing|{DATE_TOKEN})",
     re.IGNORECASE,
 )
 YEAR_RE = re.compile(r"\b(19\d{2}|20\d{2})\b")
@@ -342,9 +356,39 @@ class EducationParser:
         """Parse a date string into a date object."""
         if not value:
             return None
+
+        raw = str(value).strip().replace("’", "'")
+        m = re.match(r"^(?P<month>\d{1,2})[/-](?P<year>\d{2})$", raw)
+        if m:
+            mo = int(m.group("month"))
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            try:
+                return date(y, mo, 1)
+            except ValueError:
+                return None
+
+        m = re.match(
+            rf"^(?P<mon>{MONTH_TOKEN})\s*[']\s*(?P<year>\d{{2}})$",
+            raw,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            mon_raw = m.group("mon")
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            parsed = dateparser.parse(
+                f"{mon_raw} {y}",
+                settings={
+                    "PREFER_DAY_OF_MONTH": "first",
+                    "PREFER_DATES_FROM": "past",
+                    "RETURN_AS_TIMEZONE_AWARE": False,
+                },
+            )
+            return parsed.date() if parsed else None
             
         parsed = dateparser.parse(
-            value, 
+            raw, 
             settings={
                 "PREFER_DAY_OF_MONTH": "first",
                 "PREFER_DATES_FROM": "past",
