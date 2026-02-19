@@ -29,9 +29,13 @@ CERTIFICATION_HEADINGS = {
     r"^CERTIFICATIONS?\s*[:\-–—]?\s*$",
     r"^CERTIFICATION\s*[:\-–—]?\s*$",
     r"^LICENSES?\s*[:\-–—]?\s*$",
+    r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^TECHNICAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATIONS?\s*(AND|&|/)\s*LICENSES?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
     r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CREDENTIALS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATES\s*&\s*GRANTS\b.*$",
+    r"^CERTIFICATES?\s*(AND|&|/)\s*GRANTS?\s*[:\-–—]?\s*$",
 }
 
 # Stop headings - immediately terminate extraction
@@ -101,6 +105,51 @@ def _is_stop_heading(line: str) -> bool:
     for pattern in STOP_HEADINGS:
         if re.match(pattern, normalized):
             return True
+    return False
+
+def _is_major_section_heading(line: str) -> bool:
+    """
+    Universal heading detector.
+    Detects unknown future headings.
+    """
+
+    if not line:
+        return False
+
+    text = line.strip()
+
+    # Remove special chars
+    clean = re.sub(r"[&/,:;()\-\–\—]", "", text)
+    words = clean.split()
+
+    # 1️⃣ Heading must be short (1–6 words)
+    if not (1 <= len(words) <= 6):
+        return False
+
+    # 2️⃣ Not a sentence
+    if text.endswith("."):
+        return False
+
+    # 3️⃣ No year
+    if re.search(r"\b(19|20)\d{2}\b", text):
+        return False
+
+    # 4️⃣ No action verbs
+    if re.search(
+        r"\b(developed|managed|led|designed|implemented|created|worked|analyzed)\b",
+        text,
+        re.IGNORECASE,
+    ):
+        return False
+
+    # 5️⃣ Accept ALL CAPS
+    if text.isupper():
+        return True
+
+    # 6️⃣ Accept Title Case headings
+    if all(word[:1].isupper() for word in words if word):
+        return True
+
     return False
 
 
@@ -365,9 +414,7 @@ def extract_certifications(text: str) -> ExtractionResult:
             extracted_lines=extracted_lines,
         )
 
-    # =====================================================
     # 2️⃣ STRICT BOUNDARY SECTION DETECTION
-    # =====================================================
     for idx, line in enumerate(lines):
         if _is_heading(line, CERTIFICATION_HEADINGS):
             cert_start_idx = idx
@@ -388,9 +435,11 @@ def extract_certifications(text: str) -> ExtractionResult:
     for idx in range(cert_start_idx + 1, len(lines)):
         line = lines[idx]
 
-        if _is_stop_heading(line):
-            break
-
+        # if _is_stop_heading(line):
+        #     break
+        if _is_stop_heading(line) or _is_major_section_heading(line):
+              break
+        
         clean_line = line.strip()
 
         if re.match(r"^Page\s+\d+", clean_line, re.IGNORECASE):
