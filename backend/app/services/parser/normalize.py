@@ -49,7 +49,6 @@ def _repair_common_urls(text: str) -> str:
     return cleaned
 
 
-
 def normalize_text(text: str) -> str:
     cleaned = unicodedata.normalize("NFKC", text)
     cleaned = split_camel_case(cleaned)
