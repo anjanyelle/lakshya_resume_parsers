@@ -40,7 +40,7 @@ def test_resume_fixture_case_matches_truth(case_dir: Path, monkeypatch):
 
     truth = json.loads(truth_path.read_text(encoding="utf-8"))
 
-    required_keys = {"contact", "work_experience", "education", "skills"}
+    required_keys = {"contact", "work_experience", "education", "skills", "certifications"}
     assert required_keys.issubset(set(truth.keys()))
 
     extracted = extract_text(original_path)

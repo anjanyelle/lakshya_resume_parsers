@@ -21,3 +21,46 @@ def test_parse_date_range():
     start, end, is_current = parser._parse_dates("Jan 2020 - Present")
     assert isinstance(start, date)
     assert is_current is True
+
+
+def test_parse_date_range_mm_yy():
+    parser = WorkExperienceParser()
+    start, end, is_current = parser._parse_dates("03/20 - 11/22")
+    assert start == date(2020, 3, 1)
+    assert end == date(2022, 11, 1)
+    assert is_current is False
+
+
+def test_parse_date_range_month_apostrophe_year():
+    parser = WorkExperienceParser()
+    start, end, is_current = parser._parse_dates("Aug '20 - Present")
+    assert start == date(2020, 8, 1)
+    assert end is None
+    assert is_current is True
+
+
+def test_build_date_anchor_excerpt_merges_overlapping_windows():
+    text = "\n".join(
+        [
+            "Header",
+            "",
+            "Company A - Engineer",
+            "Jan 2020 - Dec 2021",
+            "Did things",
+            "More things",
+            "Feb 2022 - Present",
+            "Company B - Senior Engineer",
+            "Even more",
+        ]
+    )
+    excerpt = WorkExperienceParser.build_date_anchor_excerpt(text, context_lines=5)
+    assert "Jan 2020 - Dec 2021" in excerpt
+    assert "Feb 2022 - Present" in excerpt
+    # Overlapping windows should not introduce extra blank blocks.
+    assert excerpt.count("\n\n\n") == 0
+
+
+def test_looks_like_skillish_header_flags_bulleted_tool_list():
+    assert WorkExperienceParser._looks_like_skillish_header(
+        "Django, Flask • Docker Registry"
+    )
