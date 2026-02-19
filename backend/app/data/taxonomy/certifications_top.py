@@ -191,4 +191,3 @@ KNOWN_CERT_KEYWORDS = [
     "enterprise architect",
     "togaf 9.2",
 ]
-
