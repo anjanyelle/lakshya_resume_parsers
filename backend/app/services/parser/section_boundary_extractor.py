@@ -26,14 +26,34 @@ SUMMARY_HEADINGS = {
 }
 
 CERTIFICATION_HEADINGS = {
+    # Standard
     r"^CERTIFICATIONS?\s*[:\-–—]?\s*$",
     r"^LICENSES?\s*[:\-–—]?\s*$",
+
+    # Professional / Technical variants
     r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
     r"^TECHNICAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+
+    # Combined formats
     r"^CERTIFICATIONS?\s*(AND|&|/)\s*LICENSES?\s*[:\-–—]?\s*$",
+    r"^LICENSES?\s*(AND|&|/)\s*CERTIFICATIONS?\s*[:\-–—]?\s*$",
     r"^CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
+
+    # Credentials
     r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CREDENTIALS?\s*[:\-–—]?\s*$",
+
+    # Education & Certifications (VERY IMPORTANT – from your screenshots)
+    r"^EDUCATION\s*(AND|&|/)\s*CERTIFICATIONS?\s*[:\-–—]?\s*$",
+
+    # Certifications under education block title case
+    r"^Professional\s+Certifications\s*[:\-–—]?\s*$",
+
+    # All caps + underline style cases
+    r"^CERTIFICATIONS\s*$",
+
+    # Edge case: mixed spacing from PDF
+    r"^CERTIFICATION\s+DETAILS\s*[:\-–—]?\s*$",
 }
 # Stop headings - immediately terminate extraction
 STOP_HEADINGS = {
@@ -82,30 +102,96 @@ def _normalize_heading(text: str) -> str:
     return text
 
 
+# def _is_heading(line: str, heading_patterns: set[str]) -> bool:
+#     normalized = _normalize_heading(line)
+
+#     # Only treat as heading if short (1–6 words) and uppercase-like
+#     if len(normalized.split()) > 8:
+#         return False 
+#     # NEW FIX: Handle "Page X - Section Name"
+#     page_match = re.match(r"^PAGE\s+\d+\s*[-–—]\s*(.+)$", normalized)
+#     if page_match:
+#         normalized = page_match.group(1).strip()
+
+#     for pattern in heading_patterns:
+#         if re.search(pattern, normalized):
+#             return True
+#     return False
+
 def _is_heading(line: str, heading_patterns: set[str]) -> bool:
-    normalized = _normalize_heading(line)
+    if not line:
+        return False
 
-    # Only treat as heading if short (1–6 words) and uppercase-like
-    if len(normalized.split()) > 8:
-        return False 
-    # NEW FIX: Handle "Page X - Section Name"
-    page_match = re.match(r"^PAGE\s+\d+\s*[-–—]\s*(.+)$", normalized)
-    if page_match:
-        normalized = page_match.group(1).strip()
+    # Normalize
+    text = line.strip()
 
+    # Remove decorative underline/dash lines
+    text = re.sub(r"[_\-–—]{3,}", "", text)
+
+    # Remove trailing punctuation
+    text = re.sub(r"[:\-–—]+\s*$", "", text)
+
+    # Normalize spaces
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # Uppercase for stable matching
+    normalized = text.upper()
+
+    # Reject long lines (prevents sentence match)
+    if len(normalized.split()) > 6:
+        return False
+
+    # Must not contain year (prevents experience lines)
+    if re.search(r"\b(19|20)\d{2}\b", normalized):
+        return False
+
+    # Strict full-line match
     for pattern in heading_patterns:
-        if re.search(pattern, normalized):
+        if re.match(pattern, normalized):
             return True
+
     return False
 
 
 def _is_stop_heading(line: str) -> bool:
-    """Check if line is a stop heading (should terminate extraction)."""
-    normalized = _normalize_heading(line)
+    if not line:
+        return False
+
+    text = line.strip()
+
+    # Remove decorative lines
+    text = re.sub(r"[_\-–—]{3,}", "", text)
+    text = re.sub(r"[:\-–—]+\s*$", "", text)
+    text = re.sub(r"\s+", " ", text).strip()
+
+    normalized = text.upper()
+
+    # Reject long lines (prevents certification names from triggering stop)
+    if len(normalized.split()) > 6:
+        return False
+
+    # If line contains certification keywords, do NOT treat as stop
+    if re.search(
+        r"\b(CERTIFIED|CERTIFICATION|PROFESSIONAL|ASSOCIATE|EXPERT|SPECIALIST|ARCHITECT|ENGINEER)\b",
+        normalized,
+    ):
+        return False
+
+    # Strong known section stops
     for pattern in STOP_HEADINGS:
         if re.match(pattern, normalized):
             return True
+
     return False
+
+
+# def _is_stop_heading(line: str) -> bool:
+#     """Check if line is a stop heading (should terminate extraction)."""
+#     normalized = _normalize_heading(line)
+#     for pattern in STOP_HEADINGS:
+#         if re.match(pattern, normalized):
+#             return True
+#     return False
 
 def _is_major_section_heading(line: str) -> bool:
     """
@@ -435,10 +521,10 @@ def extract_certifications(text: str) -> ExtractionResult:
     for idx in range(cert_start_idx + 1, len(lines)):
         line = lines[idx]
 
-        # if _is_stop_heading(line):
-        #     break
-        if _is_stop_heading(line) or _is_major_section_heading(line):
-              break
+        if _is_stop_heading(line):
+            break
+        # if _is_stop_heading(line) or _is_major_section_heading(line):
+        #       break
         
         clean_line = line.strip()
 

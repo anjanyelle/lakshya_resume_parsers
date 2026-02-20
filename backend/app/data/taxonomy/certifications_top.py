@@ -190,4 +190,10 @@ KNOWN_CERT_KEYWORDS = [
     "green belt",
     "enterprise architect",
     "togaf 9.2",
+    "scada",
+"isa/iec",
+"62443",
+"cybersecurity expert",
+"industrial cybersecurity",
+"information systems security",
 ]

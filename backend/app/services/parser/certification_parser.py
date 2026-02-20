@@ -83,7 +83,6 @@ class CertificationParser:
 
         for line in lines:
             
-            line = re.sub(r"\s*[–—]\s*(?=[A-Z])", "\n", line)
             #Remove bullets / dashes from beginning
             line = re.sub(r"^[\-\*•\u2022\–\—]+\s*", "", line)
             #Normalize spacing (VERY IMPORTANT for PDF)
@@ -116,51 +115,83 @@ class CertificationParser:
 
         return entries
 
+    # @staticmethod
+    # def _split_candidate_lines(line: str) -> list[str]:
+    #     """
+    #     Enterprise-level multi-cert splitter.
+    #     Handles:
+    #     - Bullet lists
+    #     - Dash-separated certs
+    #     - Colon-based prefixes
+    #     - Inline chained certs
+    #    """
+
+    #     if not line:
+    #        return []
+
+    # # Normalize whitespace
+    #     normalized = re.sub(r"\s+", " ", line).strip()
+
+    # # Remove leading bullets
+    #     normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized)
+
+    #     if not normalized:
+    #         return []
+
+
+    # # --------------------------------------------------
+    # # 2️⃣ Split when new cert starts after colon prefix
+    # # Example:
+    # #   PMP: Project Management Professional LSSBB: Lean Six Sigma
+    # # --------------------------------------------------
+    #     normalized = re.sub(
+    #     r"(?<=\))\s+(?=[A-Z]{2,}[:\-])",
+    #     "\n",
+    #     normalized,
+    # )
+
+    # # --------------------------------------------------
+    # # 3️⃣ Split on bullet or newline
+    # # --------------------------------------------------
+    #     parts = re.split(r"\s*(?:•|\n|\|)\s*", normalized)
+
+    #     final_parts: list[str] = []
+
+    #     for part in parts:
+    #         if not part:
+    #             continue
+
+    #         part = part.strip()
+
+    #     # --------------------------------------------------
+    #     # 4️⃣ Split chained colon prefixes
+    #     # Example:
+    #     #   PMP: Project Management Professional – PMI – LSSBB: ...
+    #     # --------------------------------------------------
+    #         sub_parts = re.split(r"\s+(?=[A-Z]{2,}:\s)", part)
+
+    #         for sub in sub_parts:
+    #             sub = sub.strip()
+    #             if sub:
+    #                 final_parts.append(sub)
+
+    # # Final clean
+    #     cleaned = [p.strip() for p in final_parts if p.strip()]
+    #     return cleaned
+
     @staticmethod
     def _split_candidate_lines(line: str) -> list[str]:
-        """
-        Enterprise-level multi-cert splitter.
-        Handles:
-        - Bullet lists
-        - Dash-separated certs
-        - Colon-based prefixes
-        - Inline chained certs
-       """
-
         if not line:
-           return []
+            return []
 
-    # Normalize whitespace
         normalized = re.sub(r"\s+", " ", line).strip()
-
-    # Remove leading bullets
         normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized)
 
         if not normalized:
             return []
 
-    # --------------------------------------------------
-    # 1️⃣ Split when dash is followed by CAPITAL letter
-    # Example:
-    #   ASCM – LSSBB: Lean Six Sigma
-    # --------------------------------------------------
-        normalized = re.sub(r"\s*[-–—]\s*(?=[A-Z])", "\n", normalized)
-
-    # --------------------------------------------------
-    # 2️⃣ Split when new cert starts after colon prefix
-    # Example:
-    #   PMP: Project Management Professional LSSBB: Lean Six Sigma
-    # --------------------------------------------------
-        normalized = re.sub(
-        r"(?<=\))\s+(?=[A-Z]{2,}[:\-])",
-        "\n",
-        normalized,
-    )
-
-    # --------------------------------------------------
-    # 3️⃣ Split on bullet or newline
-    # --------------------------------------------------
-        parts = re.split(r"\s*(?:•|\n|\|)\s*", normalized)
+    # Only split on bullet or newline (NOT dash)
+        parts = re.split(r"\s*(?:•|\n)\s*", normalized)
 
         final_parts: list[str] = []
 
@@ -168,25 +199,13 @@ class CertificationParser:
             if not part:
                 continue
 
-            part = part.strip()
+        # Split only first pipe — rest treated as metadata
+            main = part.split("|")[0].strip()
 
-        # --------------------------------------------------
-        # 4️⃣ Split chained colon prefixes
-        # Example:
-        #   PMP: Project Management Professional – PMI – LSSBB: ...
-        # --------------------------------------------------
-            sub_parts = re.split(r"\s+(?=[A-Z]{2,}:\s)", part)
+            if main:
+                final_parts.append(main)
 
-            for sub in sub_parts:
-                sub = sub.strip()
-            if sub:
-                final_parts.append(sub)
-
-    # Final clean
-        cleaned = [p.strip() for p in final_parts if p.strip()]
-        return cleaned
-
-
+        return final_parts
 
     @staticmethod
     def _looks_like_skill_list(line: str) -> bool:
@@ -270,74 +289,189 @@ class CertificationParser:
             confidence=confidence,
         )
 
-    def _extract_name(self, line: str) -> str | None:
-        lowered = line.lower().strip()
-        if not lowered:
-            return None
+    # def _extract_name(self, line: str) -> str | None:
+    #     lowered = line.lower().strip()
+    #     if not lowered:
+    #         return None
         
+    #     cleaned = line.strip()
+    #     lowered = cleaned.lower()
+
+    #     #Reject obvious section labels / skill lines
+    #     if self._looks_like_section_label(line):
+    #         return None
+
+        
+    #     if self._looks_like_skill_list(line):
+    #         return None
+    #      # Reject experience bullets (action verbs)
+    #     verb_check = re.sub(r"^[^A-Za-z0-9]+", "", lowered)
+    #     if ACTION_VERB_RE.search(verb_check) and not EXAM_CODE_RE.search(cleaned):
+    #         return None
+        
+
+    #     #  Exam codes (AZ-104, SAA-C03, etc.)
+    #     if EXAM_CODE_RE.search(cleaned):
+    #         return cleaned
+        
+    #     # B) Strong certification markers
+    #     if any(marker in lowered for marker in CERT_LINE_MARKERS):
+    #         return cleaned
+
+    #     # Alias Match (High Confidence)
+    #     for alias in CERTIFICATION_ALIASES:
+    #         if alias in lowered:
+    #             return cleaned
+
+    #     # Known Certification Keywords (AWS, ISTQB, PMP etc.)
+    #     keyword_hits = sum(
+    #         1 for keyword in KNOWN_CERT_KEYWORDS
+    #         if keyword in lowered
+    #     )
+
+    #     if keyword_hits >= 1:
+    #         if 2 <= len(cleaned.split()) <= 12 and len(cleaned) <= 150:
+    #             return cleaned
+
+    # #Short Abbreviation Certifications (CKA, CSM, PMP etc.)
+    #     COMMON_SHORT_CERTS = {
+    #     "cka", "ckad", "cks", "csm",
+    #     "pmp", "cissp", "cism", "cisa",
+    #     "rhce", "rhcsa", "ccna", "ccnp",
+    #     "oscp", "ceh", "gicsp", "grid",
+    #     "cssa", "lssbb"
+    #     }
+
+    #     if lowered in COMMON_SHORT_CERTS:
+    #         return cleaned
+
+    
+    # # Controlled Fallback (Enterprise Guardrail)
+    #     token_count = len(cleaned.split())
+
+    #     if (
+    #         3 <= token_count <= 10
+    #         and len(cleaned) <= 120
+    #         and not ACTION_VERB_RE.search(lowered)
+    #     ):
+    #         return cleaned
+
+    #     return None
+
+    def _extract_name(self, line: str) -> str | None:
+        if not line:
+            return None
+
         cleaned = line.strip()
         lowered = cleaned.lower()
+        token_count = len(cleaned.split())
 
-        #Reject obvious section labels / skill lines
-        if self._looks_like_section_label(line):
+    # -------------------------------------------------
+    # 1️⃣ Reject obvious section labels / skill lists
+    # -------------------------------------------------
+        if self._looks_like_section_label(cleaned):
             return None
 
-        
-        if self._looks_like_skill_list(line):
-            return None
-         # Reject experience bullets (action verbs)
-        verb_check = re.sub(r"^[^A-Za-z0-9]+", "", lowered)
-        if ACTION_VERB_RE.search(verb_check) and not EXAM_CODE_RE.search(cleaned):
+        if self._looks_like_skill_list(cleaned):
             return None
         
+        if any(word in lowered for word in TRAINING_FALSE_POSITIVES):
+            return None
 
-        #  Exam codes (AZ-104, SAA-C03, etc.)
+        if re.search(r"\b(valid through|valid until|license|expires|expiry)\b", lowered):
+            return None
+        if (
+            re.match(r"^(the\s+)?[A-Z][A-Za-z\s&]+$", cleaned)
+            and token_count <= 2
+            and not any(marker in lowered for marker in ["certified", "certification"])
+        ):
+            return None
+
+        # if re.match(r"^(the\s+)?[A-Z][A-Za-z\s&]+$", cleaned) and token_count <= 4:
+            # return None
+
+        
+        # if token_count <= 2:
+        #     return None
+
+        COMMON_SHORT_CERTS = {
+           "pmp", "cism", "cisa", "cissp", "cissp-issap",
+           "ceh", "ccsp", "crisc", "gicsp", "grid",
+           "cssa"
+        }
+
+        if re.match(r"^[A-Z0-9/\-]{2,}:\s+", cleaned):
+            return cleaned
+
+        if any(lowered.startswith(cert) for cert in COMMON_SHORT_CERTS):
+            return cleaned
+        
+        # Reject other short generic lines
+        if token_count <= 2 and not EXAM_CODE_RE.search(cleaned):
+            return None
+
+        if re.match(r"^[A-Z0-9/\-]{2,}\s*[-:]\s+", cleaned):
+            return cleaned
+
         if EXAM_CODE_RE.search(cleaned):
             return cleaned
         
-        # B) Strong certification markers
-        if any(marker in lowered for marker in CERT_LINE_MARKERS):
+        if ":" in cleaned:
+            left_part = cleaned.split(":")[0].strip()
+            left_lower = left_part.lower()
+
+            if (
+                left_lower in COMMON_SHORT_CERTS
+                or left_lower in CERTIFICATION_ALIASES
+                or (len(left_part) <= 12 and left_part.isupper())
+            ):
+                return cleaned
+
+        # if EXAM_CODE_RE.search(cleaned) or ":" in cleaned:
+        #     return cleaned    
+
+    # -------------------------------------------------
+    # 6️⃣ Accept strong certification markers
+    # -------------------------------------------------
+        strong_markers = [
+        "certified",
+        "certification",
+        "professional",
+        "associate",
+        "expert",
+        "specialist",
+        "practitioner",
+        "architect",
+        "engineer",
+        "administrator",
+        "analyst",
+        "security",
+        "manager"
+       ]
+
+        if any(marker in lowered for marker in strong_markers):
             return cleaned
 
-        # Alias Match (High Confidence)
+    # -------------------------------------------------
+    # 7️⃣ Alias Match (High Confidence)
+    # -------------------------------------------------
         for alias in CERTIFICATION_ALIASES:
             if alias in lowered:
                 return cleaned
 
-        # Known Certification Keywords (AWS, ISTQB, PMP etc.)
+    # -------------------------------------------------
+    # 8️⃣ Known Certification Keywords (≥3 tokens required)
+    # -------------------------------------------------
         keyword_hits = sum(
             1 for keyword in KNOWN_CERT_KEYWORDS
             if keyword in lowered
         )
 
-        if keyword_hits >= 1:
-            if 2 <= len(cleaned.split()) <= 12 and len(cleaned) <= 150:
-                return cleaned
-
-    #Short Abbreviation Certifications (CKA, CSM, PMP etc.)
-        COMMON_SHORT_CERTS = {
-        "cka", "ckad", "cks", "csm",
-        "pmp", "cissp", "cism", "cisa",
-        "rhce", "rhcsa", "ccna", "ccnp",
-        "oscp", "ceh", "gicsp", "grid",
-        "cssa", "lssbb"
-        }
-
-        if lowered in COMMON_SHORT_CERTS:
-            return cleaned
-
-    
-    # Controlled Fallback (Enterprise Guardrail)
-        token_count = len(cleaned.split())
-
-        if (
-            3 <= token_count <= 10
-            and len(cleaned) <= 120
-            and not ACTION_VERB_RE.search(lowered)
-        ):
+        if keyword_hits >= 1 and token_count >= 3 and len(cleaned) <= 150:
             return cleaned
 
         return None
+        
 
     def _extract_date(self, line: str, pattern: re.Pattern[str]) -> date | None:
         match = pattern.search(line)
@@ -381,11 +515,38 @@ class CertificationParser:
     def _score_confidence(
         self, name: str | None, org: str | None, issue_date: date | None
     ) -> float:
+        if not name:
+            return 0.0
+
+        lowered = name.lower()
         score = 0.0
-        if name:
-            score += 0.6
+
+    # Alias boost
+        for alias in CERTIFICATION_ALIASES:
+            if alias in lowered:
+                score += 0.5
+                break
+
+    # Exam code boost
+        if EXAM_CODE_RE.search(name):
+            score += 0.4
+
+    # Marker boost
+        if any(marker in lowered for marker in CERT_LINE_MARKERS):
+            score += 0.3
+
+    # Keyword boost
+        if any(keyword in lowered for keyword in KNOWN_CERT_KEYWORDS):
+            score += 0.2
+
         if org:
-            score += 0.2
+            score += 0.1
+
         if issue_date:
-            score += 0.2
-        return min(score, 1.0)
+            score += 0.1
+
+        if score == 0:
+            score = 0.5  # strict fallback floor
+
+        return min(round(score, 2), 1.0)
+        
