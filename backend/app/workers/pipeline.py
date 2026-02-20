@@ -44,7 +44,7 @@ from app.data.taxonomy.degree_taxonomy import DEGREE_ALIASES
 from app.services.parser.certification_parser import CertificationParser
 from app.services.parser.contact_extractor import ContactExtractor
 from app.services.parser.education_parser import EducationParser
-from app.services.parser.normalize import normalize_resume_text
+from app.services.parser.normalize import fix_concatenated_words, normalize_resume_text
 from app.services.parser.section_parser import SectionParser
 from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
@@ -330,6 +330,119 @@ def _normalize_skill_name(value: str) -> str:
     return " ".join(value.lower().strip().split())
 
 
+def _normalize_work_description(description: str | None) -> str | None:
+    """Fix PDF-style run-on text and pipe separators for work history description."""
+    if description is None or not str(description).strip():
+        return None
+    s = str(description).strip()
+    s = fix_concatenated_words(s)
+    s = s.replace(" | ", "\n").replace("|", "\n")
+    s = re.sub(r"\n{3,}", "\n\n", s).strip()
+    return s if s else None
+
+
+def _normalize_work_experience_company_title(work_entries: list[dict[str, Any]]) -> None:
+    """Fix swapped company/title in work entries (PDF/LLM often reverse them)."""
+    for entry in work_entries:
+        if not isinstance(entry, dict):
+            continue
+        company = entry.get("company")
+        title = entry.get("title")
+        if not company or not title:
+            continue
+        c_str = str(company).strip()
+        t_str = str(title).strip()
+        if not c_str or not t_str:
+            continue
+        if WorkExperienceParser._looks_like_title(c_str) and WorkExperienceParser._looks_like_company(t_str):
+            entry["company"] = title
+            entry["title"] = company
+
+
+def _is_raw_text_entry(entry: dict[str, Any]) -> bool:
+    """Treat wrapper like {\"data\": \"raw text\"} as invalid (not a work experience object)."""
+    if not isinstance(entry, dict) or len(entry) != 1:
+        return False
+    data_val = entry.get("data")
+    return isinstance(data_val, str)
+
+
+def _to_canonical_work_entry(entry: dict[str, Any]) -> dict[str, Any]:
+    """Return a single work experience entry in the canonical JSON shape for API/parsed_data."""
+    if not isinstance(entry, dict):
+        return {
+            "title": "",
+            "designation": "",
+            "company": "",
+            "client": None,
+            "location": "",
+            "employment_type": "",
+            "start_date": "",
+            "end_date": "",
+            "is_current": False,
+            "duration_months": 0,
+            "description": "",
+            "bullets": [],
+            "confidence": 0.0,
+        }
+    bullets = entry.get("bullets") or entry.get("responsibilities")
+    if not isinstance(bullets, list):
+        bullets = [b for b in (bullets or "").split("\n") if str(b).strip()] if bullets else []
+    desc = entry.get("description")
+    if desc is None and bullets:
+        desc = "\n".join(str(b) for b in bullets)
+    return {
+        "title": str(entry.get("title") or entry.get("job_title") or "").strip() or "",
+        "designation": str(entry.get("designation") or "").strip() or "",
+        "company": str(entry.get("company") or entry.get("company_name") or "").strip() or "",
+        "client": entry.get("client") if entry.get("client") else None,
+        "location": str(entry.get("location") or "").strip() or "",
+        "employment_type": str(entry.get("employment_type") or "").strip() or "",
+        "start_date": str(entry.get("start_date") or "").strip() or "",
+        "end_date": str(entry.get("end_date") or "").strip() or "",
+        "is_current": bool(entry.get("is_current", False)),
+        "duration_months": int(entry.get("duration_months") or 0),
+        "description": str(desc or "").strip() if desc is not None else "",
+        "bullets": [str(b).strip() for b in bullets if str(b).strip()],
+        "confidence": float(entry.get("confidence") or 0.0),
+    }
+
+
+def _is_valid_work_entry(entry: dict[str, Any]) -> bool:
+    """Reject entries with empty/missing company or title, contamination, or fragment fields."""
+    if not isinstance(entry, dict):
+        return False
+    if _is_raw_text_entry(entry):
+        return False
+    company = str(entry.get("company") or entry.get("company_name") or "").strip()
+    title = str(entry.get("title") or entry.get("job_title") or "").strip()
+    if not company and not title:
+        return False
+    if len(company) > 120 or len(title) > 120:
+        return False
+    contamination = re.compile(
+        r"^(?:keynote\s+speaker|featured\s+speaker|panelist|workshop\s+lead|guest\s+lecturer|"
+        r"selected\s+peer|publications?)\s*[:\|]",
+        re.IGNORECASE,
+    )
+    if contamination.search(company) or contamination.search(title):
+        return False
+    bad_title_company = re.compile(
+        r"^(?:annual\s+revenue|private\s+cloud|\$[\d.]+\s*[bmk]?\)?|\(\s*process\s+excel)\s*$|"
+        r"^\s*&\s*principal(\s*&\s*principal)*\s*$",
+        re.IGNORECASE,
+    )
+    if bad_title_company.search(company) or bad_title_company.search(title):
+        return False
+    c_lower = company.lower().strip()
+    t_lower = title.lower().strip()
+    if c_lower in ("annual revenue", "private cloud") or t_lower in ("annual revenue", "private cloud"):
+        return False
+    if c_lower.startswith("annual revenue") or t_lower.startswith("annual revenue"):
+        return False
+    return True
+
+
 def _get_first(mapping: dict[str, Any], *keys: str) -> Any:
     for key in keys:
         if key in mapping and mapping[key] is not None:
@@ -445,24 +558,65 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
         for entry in _coerce_list(experience):
             if not isinstance(entry, dict):
                 continue
-            responsibilities = entry.get("responsibilities")
+            responsibilities = entry.get("responsibilities") or entry.get("bullets")
             if isinstance(responsibilities, list):
-                description = "; ".join([str(item) for item in responsibilities if item])
+                description = "\n".join([str(item) for item in responsibilities if item])
             else:
                 description = str(responsibilities) if responsibilities else None
-            work_items.append(
-                {
-                    "company": _get_first(entry, "client_name", "company", "client"),
-                    "title": _get_first(entry, "role", "title"),
-                    "start_date": _get_first(entry, "start_date"),
-                    "end_date": _get_first(entry, "end_date"),
-                    "is_current": entry.get("is_current", False),
-                    "location": _get_first(entry, "location"),
-                    "description": description,
-                }
-            )
+            d = {
+                "company": _get_first(entry, "client_name", "company", "client"),
+                "title": _get_first(entry, "role", "title"),
+                "start_date": _get_first(entry, "start_date"),
+                "end_date": _get_first(entry, "end_date"),
+                "is_current": entry.get("is_current", False),
+                "location": _get_first(entry, "location"),
+                "description": _normalize_work_description(description),
+                "bullets": responsibilities if isinstance(responsibilities, list) else [],
+            }
+            if _is_valid_work_entry(d):
+                work_items.append(_to_canonical_work_entry(d))
         if work_items:
             merged["work_experience"] = work_items
+
+    work_llm = parsed.get("work_experience_llm")
+    existing_work = merged.get("work_experience")
+    use_llm = (
+        isinstance(work_llm, list)
+        and work_llm
+        and (not existing_work or len(work_llm) > len(existing_work))
+    )
+    if use_llm:
+        work_items = []
+        for entry in work_llm:
+            if not isinstance(entry, dict):
+                continue
+            responsibilities = entry.get("responsibilities") or entry.get("bullets")
+            if isinstance(responsibilities, list):
+                description = "\n".join([str(i) for i in responsibilities if i])
+            else:
+                description = str(responsibilities) if responsibilities else None
+            description = _normalize_work_description(description or entry.get("description"))
+            d = {
+                "company": entry.get("company_name") or entry.get("company"),
+                "client": entry.get("client"),
+                "title": entry.get("job_title") or entry.get("title"),
+                "start_date": entry.get("start_date"),
+                "end_date": entry.get("end_date"),
+                "is_current": entry.get("is_current", False),
+                "location": entry.get("location"),
+                "description": description,
+                "designation": entry.get("designation"),
+                "employment_type": entry.get("employment_type"),
+                "duration_months": entry.get("duration_months"),
+                "bullets": responsibilities if isinstance(responsibilities, list) else [],
+                "confidence": entry.get("confidence"),
+            }
+            if _is_valid_work_entry(d):
+                work_items.append(_to_canonical_work_entry(d))
+        if work_items:
+            merged["work_experience"] = work_items
+
+    _normalize_work_experience_company_title(merged.get("work_experience") or [])
 
     if "education" not in merged or not merged.get("education"):
         education = llm_resume.get("education") or []
@@ -1219,8 +1373,15 @@ def task_extract_work_experience_details(self, job_id: str) -> str:  # noqa: ANN
             sections.get("experience", {}).get("content", "") if isinstance(sections, dict) else ""
         )
         if not experience_text:
+            experience_text = (job.raw_text or "").strip()
+        else:
+            existing_work = parsed.get("work_experience")
+            if not (isinstance(existing_work, list) and len(existing_work) >= 2):
+                experience_text = (job.raw_text or "").strip()
+        if not experience_text:
             return job_id
 
+        experience_text = normalize_resume_text(experience_text)
         llm = LLMParsingService()
         payload = llm.extract_work_experience_details(experience_text)
         if payload:
@@ -1594,6 +1755,8 @@ def task_verify_extracted_data(self, job_id: str) -> str:  # noqa: ANN001
                         if incoming:
                             updates[key] = incoming
                         elif not existing:
+                            if key == "work_experience" and parsed.get("work_experience_llm"):
+                                continue
                             updates[key] = incoming
                         continue
                     if isinstance(incoming, dict):
@@ -1850,18 +2013,27 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
 
         sections = parsed.get("sections", {})
         experience_text = sections.get("experience", {}).get("content", job.raw_text or "")
+        experience_text = normalize_resume_text(experience_text or "")
         parser = WorkExperienceParser()
         jobs = parser.parse_experience_section(experience_text)
-        payload = [
-            {
+        if not jobs and experience_text and (job.raw_text or "").strip() and experience_text != (job.raw_text or "").strip():
+            jobs = parser.parse_experience_section((job.raw_text or "").strip())
+        payload = []
+        for job_entry in jobs:
+            d = {
                 **job_entry.__dict__,
                 "start_date": job_entry.start_date.isoformat()
                 if job_entry.start_date
                 else None,
                 "end_date": job_entry.end_date.isoformat() if job_entry.end_date else None,
             }
-            for job_entry in jobs
-        ]
+            d_flat = {
+                "company": d.get("company"),
+                "title": d.get("title"),
+                "client": d.get("client"),
+            }
+            if _is_valid_work_entry(d_flat):
+                payload.append(_to_canonical_work_entry(d))
         _update_job(
             job_id,
             last_stage="parse_work_experience",
@@ -2760,6 +2932,17 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                         parsed[key] = value
                     continue
                 parsed[key] = value
+        for entry in parsed.get("work_experience") or []:
+            if isinstance(entry, dict) and entry.get("description") is not None:
+                entry["description"] = _normalize_work_description(entry.get("description"))
+        _normalize_work_experience_company_title(parsed.get("work_experience") or [])
+        work_list = parsed.get("work_experience") or []
+        parsed["work_experience"] = [
+            _to_canonical_work_entry(e)
+            for e in work_list
+            if isinstance(e, dict) and _is_valid_work_entry(e)
+        ]
+        job.parsed_data = parsed
         contact = parsed.get("contact", {})
         name = contact.get("name", {}).get("name")
         emails = contact.get("emails", [])
@@ -2857,8 +3040,12 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
         )
 
-        work_entries = parsed.get("work_experience", [])
+        work_entries = [e for e in (parsed.get("work_experience") or []) if _is_valid_work_entry(e)]
         for entry in work_entries:
+            desc = entry.get("description")
+            if not (desc and str(desc).strip()):
+                bullets = entry.get("bullets") or []
+                desc = "\n".join(str(b).strip() for b in bullets if str(b).strip()) if bullets else None
             session.add(
                 WorkHistory(
                     candidate_id=job.candidate_id,
@@ -2869,7 +3056,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     end_date=_parse_date_str(entry.get("end_date")),
                     is_current=entry.get("is_current", False),
                     location=entry.get("location"),
-                    description=entry.get("description"),
+                    description=_normalize_work_description(desc),
                     display_order=None,
                 )
             )
