@@ -2283,6 +2283,7 @@ class SectionParser:
             sections = self._slice_sections(lines, header_map)
         sections = self._canonicalize_sections(sections)
         sections = self._postprocess_sections(sections)
+        sections = self._truncate_sections_by_stop_headings(sections)
         scored = self._score_sections(sections)
         return scored
 
@@ -2408,6 +2409,14 @@ class SectionParser:
             length_bonus = 0.02
         blank_bonus = 0.05 if blank_surrounded else 0.0
 
+        normalized_compact = normalized_line.replace(" ", "") if normalized_line else ""
+        allow_compact_header_match = (
+            bool(normalized_compact)
+            and token_count == 1
+            and 8 <= len(normalized_compact) <= 40
+            and (self._is_uppercase_header(line) or self._is_titlecase_header(line))
+        )
+
         for key, pattern in SECTION_REGEX.items():
             if pattern.match(line):
                 return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus)
@@ -2433,6 +2442,14 @@ class SectionParser:
                     alias_norm = self._normalize_header_text(alias)
                     if not alias_norm:
                         continue
+                    if allow_compact_header_match:
+                        alias_compact = alias_norm.replace(" ", "")
+                        if alias_compact and normalized_compact == alias_compact:
+                            digitless_best = (
+                                key,
+                                min(1.0, 0.86 + casing_bonus + length_bonus + blank_bonus),
+                            )
+                            break
                     if normalized_digitless == alias_norm or f" {alias_norm} " in digitless_haystack:
                         digitless_best = (key, min(1.0, 0.8 + casing_bonus + length_bonus + blank_bonus))
                         break
@@ -2449,6 +2466,11 @@ class SectionParser:
                 alias_norm = self._normalize_header_text(alias)
                 if not alias_norm:
                     continue
+                if allow_compact_header_match:
+                    alias_compact = alias_norm.replace(" ", "")
+                    if alias_compact and normalized_compact == alias_compact:
+                        base = 0.86 + casing_bonus + length_bonus + blank_bonus
+                        return key, min(1.0, base)
                 if normalized_line == alias_norm:
                     base = 0.85 + casing_bonus + length_bonus + blank_bonus
                     return key, min(1.0, base)
@@ -2494,6 +2516,59 @@ class SectionParser:
             sections["skills"] = self._dedupe_preserve_order(skills)
 
         return sections
+
+    def _truncate_sections_by_stop_headings(
+        self, sections: dict[str, list[str]]
+    ) -> dict[str, list[str]]:
+        if not isinstance(sections, dict) or not sections:
+            return sections
+
+        def _stop_heading_for(section_key: str) -> set[str]:
+            if section_key == "experience":
+                return {"education", "skills", "certifications", "projects", "achievements"}
+            if section_key == "education":
+                return {"experience", "skills", "certifications", "projects", "achievements"}
+            if section_key == "skills":
+                return {"experience", "education", "certifications", "projects", "achievements"}
+            if section_key == "certifications":
+                return {"experience", "education", "skills", "projects", "achievements"}
+            if section_key == "projects":
+                return {"experience", "education", "skills", "certifications", "achievements"}
+            return set()
+
+        truncated: dict[str, list[str]] = {}
+        for key, lines in sections.items():
+            if not isinstance(lines, list) or not lines:
+                truncated[key] = lines
+                continue
+
+            stop_targets = _stop_heading_for(key)
+            if not stop_targets:
+                truncated[key] = lines
+                continue
+
+            cut_idx: int | None = None
+            for i, ln in enumerate(lines):
+                if not isinstance(ln, str):
+                    continue
+                candidate = ln.strip()
+                if not candidate or len(candidate) > 80:
+                    continue
+                match = self._match_header_line(candidate, blank_surrounded=False)
+                if match is None:
+                    continue
+                stop_key, conf = match
+                stop_key = self._canonical_section_key(stop_key)
+                if stop_key in stop_targets and conf >= 0.9:
+                    cut_idx = i
+                    break
+
+            if cut_idx is not None and cut_idx >= 2:
+                truncated[key] = lines[:cut_idx]
+            else:
+                truncated[key] = lines
+
+        return truncated
 
     @staticmethod
     def _dedupe_preserve_order(lines: list[str]) -> list[str]:
@@ -2773,6 +2848,8 @@ class SectionParser:
             header_confidence = float(self._last_section_header_confidence.get(key, 0.0) or 0.0)
             confidence = max(self._base_confidence(key), header_confidence)
             confidence += self._keyword_boost(key, text)
+            confidence += self._keyword_density_boost(key, content_lines)
+            confidence += self._length_heuristic_boost(key, content_lines)
             confidence = min(confidence, 1.0)
             results[key] = SectionResult(content=text, confidence=confidence)
         return results
@@ -2788,3 +2865,72 @@ class SectionParser:
             return 0.0
         hits = sum(1 for hint in hints if hint.lower() in text.lower())
         return min(0.1 * hits, 0.3)
+
+    def _keyword_density_boost(self, key: str, lines: list[str]) -> float:
+        hints = KEYWORD_HINTS.get(key, [])
+        if not hints or not lines:
+            return 0.0
+
+        joined = " ".join(lines).lower()
+        tokens = [t for t in re.split(r"\s+", re.sub(r"[^a-z0-9 ]+", " ", joined)) if t]
+        token_count = len(tokens)
+        if token_count <= 20:
+            return 0.0
+
+        hit_tokens = 0
+        for hint in hints:
+            hint_l = hint.lower().strip()
+            if not hint_l:
+                continue
+            if hint_l in joined:
+                hit_tokens += max(1, len(hint_l.split()))
+
+        density = hit_tokens / max(1, token_count)
+        if density >= 0.08:
+            return 0.18
+        if density >= 0.05:
+            return 0.12
+        if density >= 0.03:
+            return 0.06
+        return 0.0
+
+    def _length_heuristic_boost(self, key: str, lines: list[str]) -> float:
+        if not lines:
+            return -0.35
+
+        nonempty = [ln for ln in lines if isinstance(ln, str) and ln.strip()]
+        line_count = len(nonempty)
+        char_count = sum(len(ln) for ln in nonempty)
+
+        if key == "experience":
+            if char_count < 220:
+                return -0.12
+            if line_count >= 90:
+                return -0.10
+            return 0.05
+
+        if key == "skills":
+            if char_count < 80:
+                return -0.08
+            if line_count >= 80:
+                return -0.08
+            return 0.04
+
+        if key == "education":
+            if char_count < 60:
+                return -0.06
+            return 0.03
+
+        if key == "certifications":
+            if char_count < 40:
+                return -0.06
+            return 0.03
+
+        if key == "summary":
+            if char_count < 60:
+                return -0.05
+            if char_count > 1200:
+                return -0.06
+            return 0.03
+
+        return 0.0

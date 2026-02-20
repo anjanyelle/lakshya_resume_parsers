@@ -51,6 +51,12 @@ from app.services.parser.certification_validator import CertificationValidator
 from app.services.parser.skill_extractor import SkillExtractor, SkillMatch
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
 from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+from app.services.parser.quality_scoring import score_certifications, score_work_experience_jobs
+from app.services.parser.structured_sanitizers import (
+    sanitize_certifications_entries,
+    sanitize_education_entries,
+    sanitize_skill_entries,
+)
 from app.services.llm_service import LLMParsingService
 from app.utils.pii import hash_value
 from app.utils.review import apply_correction_patterns, compute_review_flags, find_date_overlaps
@@ -897,14 +903,84 @@ def task_detect_resume_sections(self, job_id: str) -> str:  # noqa: ANN001
         settings = get_settings()
         if settings.LLM_PROVIDER == "none":
             return job_id
+
+        sections = parsed.get("sections") if isinstance(parsed.get("sections"), dict) else {}
+        detected_headers = parsed.get("detected_headers") if isinstance(parsed.get("detected_headers"), list) else []
+
+        max_header_conf = 0.0
+        for h in detected_headers:
+            if not isinstance(h, dict):
+                continue
+            try:
+                max_header_conf = max(max_header_conf, float(h.get("confidence", 0.0) or 0.0))
+            except (TypeError, ValueError):
+                continue
+
+        def _sec_conf(key: str) -> float:
+            block = sections.get(key) if isinstance(sections, dict) else None
+            if not isinstance(block, dict):
+                return 0.0
+            try:
+                return float(block.get("confidence", 0.0) or 0.0)
+            except (TypeError, ValueError):
+                return 0.0
+
+        exp_conf = _sec_conf("experience")
+        skills_conf = _sec_conf("skills")
+        edu_conf = _sec_conf("education")
+        cert_conf = _sec_conf("certifications")
+
+        deterministic_ok = (
+            max_header_conf >= 0.9
+            and exp_conf >= 0.6
+            and (skills_conf >= 0.6 or edu_conf >= 0.6 or cert_conf >= 0.55)
+        )
+        if deterministic_ok:
+            return job_id
+
+        def _llm_excerpt(text: str) -> str:
+            lines = [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
+            head = lines[:220]
+            # Include a focused experience anchor window to help section inference on messy PDFs.
+            exp_excerpt = WorkExperienceParser.build_date_anchor_excerpt(text or "", context_lines=3)
+            chunks: list[str] = []
+            if head:
+                chunks.append("\n".join(head))
+            if exp_excerpt:
+                chunks.append(exp_excerpt)
+            merged = "\n\n".join([c for c in chunks if c]).strip()
+            if len(merged) > 12000:
+                merged = merged[:12000]
+            return merged
+
         llm = LLMParsingService()
-        payload = llm.detect_resume_sections(job.raw_text)
+        excerpt = _llm_excerpt(job.raw_text)
+        payload = llm.detect_resume_sections(excerpt)
         if isinstance(payload, dict):
+            debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+            debug_bundle = dict(debug_bundle)
+            debug_bundle["section_boundary_llm"] = {
+                "triggered": True,
+                "reason": {
+                    "max_header_confidence": max_header_conf,
+                    "experience_confidence": exp_conf,
+                    "skills_confidence": skills_conf,
+                    "education_confidence": edu_conf,
+                    "certifications_confidence": cert_conf,
+                },
+                "excerpt_chars": len(excerpt),
+            }
             _update_job(
                 job_id,
                 last_stage="detect_resume_sections",
                 parsed_data=_merge_parsed(
-                    job, {"sections_detected": payload.get("sections_detected", [])}
+                    job,
+                    {
+                        "sections_detected": payload.get("sections_detected", []),
+                        "sections_detected_excerpt_chars": len(excerpt),
+                        "sections_detected_deterministic_max_header_conf": max_header_conf,
+                        "debug": debug_bundle,
+                    },
                 ),
             )
         return job_id
@@ -1735,10 +1811,38 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
             key: {"content": value.content, "confidence": value.confidence}
             for key, value in sections.items()
         }
+
+        max_header_conf = 0.0
+        for h in detected_headers:
+            if not isinstance(h, dict):
+                continue
+            try:
+                max_header_conf = max(max_header_conf, float(h.get("confidence", 0.0) or 0.0))
+            except (TypeError, ValueError):
+                continue
+
+        debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+        debug_bundle = dict(debug_bundle)
+        debug_bundle["sections"] = {
+            "detected_headers_count": len(detected_headers) if isinstance(detected_headers, list) else 0,
+            "max_header_confidence": max_header_conf,
+            "section_confidences": {
+                key: float(val.get("confidence", 0.0) or 0.0)
+                for key, val in payload.items()
+                if isinstance(val, dict)
+            },
+        }
         _update_job(
             job_id,
             last_stage="detect_sections",
-            parsed_data=_merge_parsed(job, {"sections": payload, "detected_headers": detected_headers}),
+            parsed_data=_merge_parsed(
+                job,
+                {
+                    "sections": payload,
+                    "detected_headers": detected_headers,
+                    "debug": debug_bundle,
+                },
+            ),
         )
         return job_id
     except Exception as exc:
@@ -1814,6 +1918,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             if isinstance(experience_block, dict)
             else ""
         )
+        has_experience_section = bool(str(experience_text or "").strip())
         try:
             exp_conf = float(experience_block.get("confidence", 0.0) or 0.0) if isinstance(experience_block, dict) else 0.0
         except (TypeError, ValueError):
@@ -1822,14 +1927,89 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         parser = WorkExperienceParser()
         raw_text = job.raw_text or ""
 
+        def _parse_deterministic(text: str) -> list[JobEntry]:
+            if not text.strip():
+                return []
+            # Avoid calling the LLM inside parse_experience_section for this quality probe.
+            try:
+                original_llm_fallback = getattr(parser, "_llm_fallback", None)
+                setattr(parser, "_llm_fallback", lambda chunk: None)
+                return parser.parse_experience_section(text)
+            finally:
+                if original_llm_fallback is not None:
+                    setattr(parser, "_llm_fallback", original_llm_fallback)
+
         payload: list[dict[str, object]] = []
-        if exp_conf < 0.55 and raw_text.strip():
-            excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5)
+
+        excerpt = ""
+        if raw_text.strip():
+            excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5) or ""
+
+        chosen_experience_text = experience_text if has_experience_section else raw_text
+        primary_jobs = _parse_deterministic(experience_text) if has_experience_section else _parse_deterministic(raw_text)
+        primary_score = score_work_experience_jobs(primary_jobs)
+
+        ambiguous_headers = 0
+        for j in primary_jobs:
+            company = str(j.company or "").strip().lower()
+            title = str(j.title or "").strip().lower()
+            if not company or not title:
+                ambiguous_headers += 1
+                continue
+            if company in {"usa", "u.s.a", "united states", "united states of america"}:
+                ambiguous_headers += 1
+                continue
+            if title in {"usa", "u.s.a"}:
+                ambiguous_headers += 1
+                continue
+
+        excerpt_score: float | None = None
+        if excerpt.strip():
+            excerpt_jobs = _parse_deterministic(excerpt)
+            excerpt_score = score_work_experience_jobs(excerpt_jobs)
+
+        # Prefer the excerpt when:
+        # - we had a section slice (otherwise raw_text is already the widest input), and
+        # - the section slice is borderline confidence, or
+        # - the primary parse quality is low (even if confidence was high)
+        if excerpt_score is not None:
+            borderline = 0.45 <= exp_conf <= 0.72
+            low_quality = primary_score < 1.6
+            if has_experience_section and (borderline or low_quality) and excerpt_score > primary_score:
+                chosen_experience_text = excerpt
+
+        chosen_source = "section" if has_experience_section else "raw_text"
+        if chosen_experience_text == excerpt and excerpt.strip():
+            chosen_source = "date_anchor_excerpt"
+
+        def _cap_llm_text(value: str) -> str:
+            lines = [ln for ln in (value or "").splitlines()]
+            value2 = "\n".join(lines[:220]).strip()
+            if len(value2) > 8000:
+                value2 = value2[:8000]
+            return value2
+
+        debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+        debug_bundle = dict(debug_bundle)
+        llm_triggered = False
+        llm_reason: list[str] = []
+        llm_input_chars: int | None = None
+        if exp_conf < 0.55:
+            llm_reason.append("low_section_confidence")
+        if primary_score < 1.2:
+            llm_reason.append("low_quality_score")
+        if ambiguous_headers >= 2:
+            llm_reason.append("ambiguous_headers")
+
+        if (exp_conf < 0.55 or primary_score < 1.2 or ambiguous_headers >= 2) and raw_text.strip():
             settings = get_settings()
-            if excerpt and settings.LLM_PROVIDER != "none":
+            llm_source = _cap_llm_text(chosen_experience_text or excerpt)
+            if llm_source and settings.LLM_PROVIDER != "none":
+                llm_input_chars = len(llm_source)
                 llm = LLMParsingService()
-                llm_items = llm.extract_work_experience(excerpt) or []
+                llm_items = llm.extract_work_experience(llm_source) or []
                 if isinstance(llm_items, list) and llm_items:
+                    llm_triggered = True
                     for item in llm_items:
                         if not isinstance(item, dict):
                             continue
@@ -1855,12 +2035,29 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                             }
                         )
 
+        debug_bundle["work_experience"] = {
+            "chosen_source": chosen_source,
+            "has_experience_section": has_experience_section,
+            "experience_section_confidence": exp_conf,
+            "experience_section_chars": len(experience_text or ""),
+            "raw_text_chars": len(raw_text or ""),
+            "excerpt_chars": len(excerpt or ""),
+            "primary_quality_score": primary_score,
+            "excerpt_quality_score": excerpt_score,
+            "ambiguous_headers": ambiguous_headers,
+            "llm_triggered": llm_triggered,
+            "llm_reason": llm_reason,
+            "llm_input_chars": llm_input_chars,
+            "method": "llm" if llm_triggered else "deterministic",
+        }
+
         if not payload:
-            if exp_conf < 0.55 and raw_text.strip():
-                excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5)
-                experience_text = excerpt or raw_text
+            if not has_experience_section and raw_text.strip():
+                experience_text = raw_text
+            elif exp_conf < 0.55 and raw_text.strip():
+                experience_text = chosen_experience_text or excerpt or raw_text
             else:
-                experience_text = experience_text or raw_text
+                experience_text = chosen_experience_text or experience_text or raw_text
 
             jobs = parser.parse_experience_section(experience_text)
             payload = [
@@ -1876,7 +2073,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         _update_job(
             job_id,
             last_stage="parse_work_experience",
-            parsed_data=_merge_parsed(job, {"work_experience": payload}),
+            parsed_data=_merge_parsed(job, {"work_experience": payload, "debug": debug_bundle}),
         )
         return job_id
     except Exception as exc:
@@ -2211,9 +2408,12 @@ def task_parse_certifications(self, job_id: str) -> str:
         # ====================================================
         boundary_result = extract_certifications(job.raw_text or "")
 
+        cert_source: str | None = None
+
         if boundary_result.section_found and boundary_result.extracted_lines:
             cert_text = boundary_result.content
             cert_section_conf = boundary_result.confidence
+            cert_source = "boundary"
 
         # ====================================================
         # 2️⃣ FALLBACK TO SECTION PARSER (SECONDARY)
@@ -2232,6 +2432,7 @@ def task_parse_certifications(self, job_id: str) -> str:
                 # Safety: ignore if too long (likely full resume)
                 if content and len(content) < 3000:
                     cert_text = content
+                    cert_source = "section_parser"
 
         # ====================================================
         # 3️⃣ SAFE RAW TEXT FALLBACK (CONTROLLED)
@@ -2252,11 +2453,27 @@ def task_parse_certifications(self, job_id: str) -> str:
                 if boundary_retry.section_found and boundary_retry.extracted_lines:
                     cert_text = boundary_retry.content
                     cert_section_conf = boundary_retry.confidence
+                    cert_source = "boundary_retry"
 
         # ====================================================
         # 4️⃣ STILL NOTHING? → SAVE EMPTY SAFELY
         # ====================================================
         if not cert_text:
+            debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+            debug_bundle = dict(debug_bundle)
+            debug_bundle["certifications"] = {
+                "method": "none",
+                "source": cert_source,
+                "section_confidence": cert_section_conf,
+                "cert_text_chars": 0,
+                "initial_quality_score": None,
+                "final_quality_score": None,
+                "candidate_lines_quality_score": None,
+                "llm_quality_score": None,
+                "improved_from_candidate_lines": False,
+                "improved_from_llm": False,
+                "reason": "no_safe_section",
+            }
             _update_job(
                 job_id,
                 last_stage="parse_certifications",
@@ -2267,6 +2484,7 @@ def task_parse_certifications(self, job_id: str) -> str:
                         "certifications_validation": {
                             "reason": "No certification section detected safely"
                         },
+                        "debug": debug_bundle,
                     },
                 ),
             )
@@ -2325,11 +2543,18 @@ def task_parse_certifications(self, job_id: str) -> str:
         validated = validator.remove_false_positives(validated)
         validated = validator.deduplicate_certifications(validated)
 
-        if (
-            (cert_section_conf is not None and float(cert_section_conf) < 0.55)
-            and not validated
-            and (job.raw_text or "").strip()
-        ):
+        best_validated = validated
+        best_score = score_certifications(validated)
+
+        initial_quality_score = best_score
+        candidate_lines_quality_score: float | None = None
+        llm_quality_score: float | None = None
+        improved_from_candidate_lines = False
+        improved_from_llm = False
+
+        # If quality is low, attempt safer fallbacks and choose best by quality.
+        # This is more reliable than section confidence alone.
+        if best_score < 1.0 and (job.raw_text or "").strip():
             candidate_lines = CertificationParser.extract_candidate_lines_from_full_text(
                 job.raw_text or ""
             )
@@ -2351,17 +2576,64 @@ def task_parse_certifications(self, job_id: str) -> str:
                     and str(item.get("name") or "").strip()
                     and len(str(item.get("name"))) <= 200
                 ]
-                if fallback_payload:
-                    fallback_validated = validator.normalize_providers(fallback_payload)
-                    fallback_validated = validator.remove_false_positives(fallback_validated)
-                    fallback_validated = validator.deduplicate_certifications(fallback_validated)
-                    if fallback_validated:
-                        validated = fallback_validated
+                fallback_validated = validator.normalize_providers(fallback_payload)
+                fallback_validated = validator.remove_false_positives(fallback_validated)
+                fallback_validated = validator.deduplicate_certifications(fallback_validated)
+                fallback_score = score_certifications(fallback_validated)
+                candidate_lines_quality_score = fallback_score
+                if fallback_score > best_score:
+                    best_score = fallback_score
+                    best_validated = fallback_validated
+                    improved_from_candidate_lines = True
+
+            settings = get_settings()
+            if (
+                best_score < 1.0
+                and settings.LLM_PROVIDER != "none"
+                and settings.PARSING_MODE.lower() != "deterministic"
+            ):
+                llm = LLMParsingService()
+                llm_payload = llm.extract_certifications(cert_text)
+                if isinstance(llm_payload, list):
+                    llm_payload = [
+                        item
+                        for item in llm_payload
+                        if isinstance(item, dict)
+                        and str(item.get("name") or "").strip()
+                        and len(str(item.get("name"))) <= 200
+                    ]
+                    llm_validated = validator.normalize_providers(llm_payload)
+                    llm_validated = validator.remove_false_positives(llm_validated)
+                    llm_validated = validator.deduplicate_certifications(llm_validated)
+                    llm_score = score_certifications(llm_validated)
+                    llm_quality_score = llm_score
+                    if llm_score > best_score:
+                        best_score = llm_score
+                        best_validated = llm_validated
+                        improved_from_llm = True
+
+        validated = best_validated
 
         validation_info = validator.detect_mismatches(
             section_confidence=cert_section_conf,
             extracted_items=validated,
         )
+
+        debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+        debug_bundle = dict(debug_bundle)
+        debug_bundle["certifications"] = {
+            "method": "parser",
+            "source": cert_source,
+            "section_confidence": cert_section_conf,
+            "cert_text_chars": len(cert_text or ""),
+            "initial_quality_score": initial_quality_score,
+            "final_quality_score": best_score,
+            "candidate_lines_quality_score": candidate_lines_quality_score,
+            "llm_quality_score": llm_quality_score,
+            "improved_from_candidate_lines": improved_from_candidate_lines,
+            "improved_from_llm": improved_from_llm,
+            "reason": None,
+        }
 
         # ====================================================
         # 8️⃣ SAVE
@@ -2374,6 +2646,7 @@ def task_parse_certifications(self, job_id: str) -> str:
                 {
                     "certifications": validated,
                     "certifications_validation": validation_info,
+                    "debug": debug_bundle,
                 },
             ),
         )
@@ -3190,7 +3463,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 if (not candidate.current_company or not _is_plausible_headline(candidate.current_company)) and _is_plausible_headline(next_company):
                     candidate.current_company = next_company
 
-        for entry in parsed.get("education", []):
+        education_entries = sanitize_education_entries(parsed.get("education", []))
+        for entry in education_entries:
             session.add(
                 Education(
                     candidate_id=job.candidate_id,
@@ -3204,10 +3478,9 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 )
             )
 
-        for entry in parsed.get("certifications", []):
+        certifications_entries = sanitize_certifications_entries(parsed.get("certifications", []))
+        for entry in certifications_entries:
             cert_name = entry.get("name") if isinstance(entry, dict) else None
-            if not str(cert_name or "").strip():
-                continue
             session.add(
                 Certification(
                     candidate_id=job.candidate_id,
@@ -3220,7 +3493,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
 
         seen_skill_ids: set[str] = set()
-        for entry in parsed.get("skills", []):
+        skill_entries = sanitize_skill_entries(parsed.get("skills", []))
+        for entry in skill_entries:
             if not isinstance(entry, dict):
                 continue
 

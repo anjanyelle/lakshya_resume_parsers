@@ -61,6 +61,7 @@ def test_sanitize_work_experience_merges_duplicates_and_dedupes_bullets():
     entries = [
         {
             "company": "Acme  Corp ",
+            "client": "Client A",
             "title": "Software   Engineer",
             "start_date": "2020-01",
             "end_date": "2021-01",
@@ -70,6 +71,7 @@ def test_sanitize_work_experience_merges_duplicates_and_dedupes_bullets():
         },
         {
             "company": "Acme Corp",
+            "client": "Client A",
             "title": "Software Engineer",
             "start_date": "2020-01",
             "end_date": "2021-01",

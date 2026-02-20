@@ -64,3 +64,41 @@ def test_looks_like_skillish_header_flags_bulleted_tool_list():
     assert WorkExperienceParser._looks_like_skillish_header(
         "Django, Flask • Docker Registry"
     )
+
+
+def test_parse_experience_section_splits_on_client_headers_and_promotes_client_to_company():
+    text = "\n".join(
+        [
+            "PROFESSIONALEXPERIENCE:",
+            "Client: MedHOK, Tampa, FL Nov 2024 to Till Date",
+            "Role: Sr. Site Reliability Engineer",
+            " Built Jenkins automation",
+            "Client: Walgreens, Deerfield, IL July 2023 to Oct 2024",
+            "Role: Site Reliability Engineer",
+            " Designed AWS VPC architectures",
+        ]
+    )
+    parser = WorkExperienceParser()
+    jobs = parser.parse_experience_section(text)
+    assert len(jobs) >= 2
+
+    companies = [str(j.company or "") for j in jobs]
+    assert any("MedHOK" in c for c in companies)
+    assert any("Walgreens" in c for c in companies)
+
+
+def test_parse_experience_section_ignores_environment_lines_and_prefers_dated_company_line():
+    text = "\n".join(
+        [
+            "PROFESSIONALEXPERIENCE:",
+            "Environments: Lambda, Jenkins, Airflow",
+            "Delta Airlines: December 2017 - September 2020 (Location: Atlanta, GA)",
+            "Role: Data Engineer / Data Analyst",
+            "Responsibilities:",
+            "- Built pipelines",
+        ]
+    )
+    parser = WorkExperienceParser()
+    jobs = parser.parse_experience_section(text)
+    assert any((j.company or "").lower().startswith("delta airlines") for j in jobs)
+    assert any("data engineer" in (j.title or "").lower() for j in jobs)

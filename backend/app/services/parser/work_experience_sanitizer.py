@@ -178,13 +178,14 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         cleaned.append(normalized)
 
-    deduped: dict[tuple[str, str, str, str, bool], dict[str, Any]] = {}
-    order: list[tuple[str, str, str, str, bool]] = []
+    deduped: dict[tuple[str, str, str, str, str, bool], dict[str, Any]] = {}
+    order: list[tuple[str, str, str, str, str, bool]] = []
 
     for entry in cleaned:
         key = (
             _normalize_text(entry.get("company")).lower(),
             _normalize_text(entry.get("title")).lower(),
+            _normalize_text(entry.get("client")).lower(),
             _normalize_date_token(entry.get("start_date")).lower(),
             _normalize_date_token(entry.get("end_date")).lower(),
             bool(entry.get("is_current")),
