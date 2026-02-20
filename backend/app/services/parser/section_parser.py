@@ -2361,16 +2361,41 @@ class SectionParser:
     ) -> tuple[str, float] | None:
         if not line:
             return None
-        if len(line) > 80:
-            return None
         if self._looks_like_bullet(line):
-            return None
-        if self._looks_like_sentence(line):
             return None
         lowered = line.lower().strip()
         if not lowered:
             return None
         has_digits = bool(re.search(r"\d", lowered))
+
+        prefix_match: tuple[str, float] | None = None
+        normalized_line = self._normalize_header_text(line)
+        if normalized_line:
+            for key, aliases in SECTION_ALIASES.items():
+                for alias in aliases:
+                    m = re.match(
+                        rf"^\s*[^A-Za-z0-9]*?{re.escape(alias)}(?P<rest>.*)$",
+                        line,
+                        flags=re.IGNORECASE,
+                    )
+                    if not m:
+                        continue
+                    rest = m.group("rest") or ""
+                    if not re.match(r"^\s*[:|/\\\-–—]", rest):
+                        continue
+                    alias_norm = self._normalize_header_text(alias)
+                    if not alias_norm:
+                        continue
+                    if normalized_line == alias_norm or normalized_line.startswith(f"{alias_norm} "):
+                        prefix_match = (key, 0.92)
+                        break
+                if prefix_match is not None:
+                    break
+
+        if len(line) > 80 and prefix_match is None:
+            return None
+        if self._looks_like_sentence(line) and prefix_match is None:
+            return None
 
         casing_bonus = 0.0
         if self._is_uppercase_header(line) or self._is_titlecase_header(line):
@@ -2390,9 +2415,12 @@ class SectionParser:
         if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
             return None
 
-        normalized_line = self._normalize_header_text(line)
         if not normalized_line:
             return None
+
+        if prefix_match is not None:
+            key, base_conf = prefix_match
+            return key, base_conf
 
         if has_digits:
             normalized_digitless = self._normalize_header_text(re.sub(r"\d+", " ", line))

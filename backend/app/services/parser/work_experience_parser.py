@@ -18,14 +18,17 @@ DATE_TOKEN = (
     r"(?:"
     r"\d{4}-\d{2}-\d{2}"  # YYYY-MM-DD
     r"|\d{4}[/-]\d{1,2}"  # YYYY-MM or YYYY/MM
+    r"|\d{1,2}[/-]\d{2}"  # MM/YY
     r"|\d{1,2}[/-]\d{4}"  # MM/YYYY
     r"|\d{4}"  # YYYY
-    rf"|{MONTH_TOKEN}\s+\d{{4}}"  # MMM YYYY
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"  # MMM YYYY
+    rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"  # MMM 'YY
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"  # MMM YY
     r")"
 )
 
 DATE_RANGE_RE = re.compile(
-    rf"(?P<start>{DATE_TOKEN})\s*(?:[-–—→]|to)\s*(?P<end>present|current|till\s+date|now|{DATE_TOKEN})",
+    rf"(?P<start>{DATE_TOKEN})\s*(?:\s*(?:[-–—→]|to|until|thru|through)\s*)\s*(?P<end>present|current|till\s+date|now|{DATE_TOKEN})",
     re.IGNORECASE,
 )
 
@@ -119,18 +122,70 @@ class WorkExperienceParser:
         self.llm = LLMParsingService()
 
     @staticmethod
+    def build_date_anchor_excerpt(text: str, *, context_lines: int = 5) -> str:
+        raw_lines = [ln.rstrip() for ln in (text or "").splitlines()]
+        if not raw_lines:
+            return ""
+
+        anchor_indexes: list[int] = []
+        for idx, ln in enumerate(raw_lines):
+            if not ln.strip():
+                continue
+            if DATE_RANGE_RE.search(ln):
+                anchor_indexes.append(idx)
+                continue
+            if PRESENT_RE.search(ln) and DATE_ANCHOR_RE.search(ln):
+                anchor_indexes.append(idx)
+                continue
+            if DATE_ANCHOR_RE.search(ln) and re.search(r"(?:[-–—→]|\bto\b)", ln, flags=re.IGNORECASE):
+                anchor_indexes.append(idx)
+
+        if not anchor_indexes:
+            return ""
+
+        windows: list[tuple[int, int]] = []
+        n = len(raw_lines)
+        for idx in sorted(set(anchor_indexes)):
+            start = max(0, idx - context_lines)
+            end = min(n, idx + context_lines + 1)
+            windows.append((start, end))
+
+        windows.sort(key=lambda t: (t[0], t[1]))
+        merged: list[tuple[int, int]] = []
+        cur_start, cur_end = windows[0]
+        for start, end in windows[1:]:
+            if start <= cur_end:
+                cur_end = max(cur_end, end)
+                continue
+            merged.append((cur_start, cur_end))
+            cur_start, cur_end = start, end
+        merged.append((cur_start, cur_end))
+
+        chunks: list[str] = []
+        for start, end in merged:
+            block_lines = [ln for ln in raw_lines[start:end] if ln.strip()]
+            if not block_lines:
+                continue
+            chunks.append("\n".join(block_lines).strip())
+
+        return "\n\n".join([c for c in chunks if c]).strip()
+
+    @staticmethod
     def _looks_like_skillish_header(value: str | None) -> bool:
         cleaned = str(value or "").strip()
         if not cleaned:
             return False
         lowered = cleaned.lower()
 
+        if re.match(r"^(environment|env|technologies|tools)\s*[:\-–—]", lowered):
+            return True
+
         if re.fullmatch(
             r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
             lowered,
         ) and len(cleaned) <= 40:
             return True
-        if "·" in cleaned and len(cleaned) <= 140:
+        if ("·" in cleaned or "•" in cleaned) and len(cleaned) <= 160:
             return True
         if cleaned.count(",") >= 2 and len(cleaned) <= 160:
             return True
@@ -138,7 +193,11 @@ class WorkExperienceParser:
             r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
             lowered,
         ):
-            parts = [p.strip() for p in re.split(r"[,/|·]", lowered) if p.strip()]
+            parts = [
+                p.strip()
+                for p in re.split(r"[,/|·•\u2022]", lowered)
+                if p.strip()
+            ]
             if len(parts) >= 3 and len(cleaned) <= 180:
                 return True
         return False
@@ -505,6 +564,7 @@ class WorkExperienceParser:
         if not raw:
             return None
         raw = re.sub(r"\s+", " ", raw)
+        raw = raw.replace("’", "'")
 
         m = re.match(r"^(?P<year>\d{4})-(?P<month>\d{2})(?:-(?P<day>\d{2}))?$", raw)
         if m:
@@ -533,6 +593,34 @@ class WorkExperienceParser:
                 return date(y, mo, 1)
             except ValueError:
                 return None
+
+        m = re.match(r"^(?P<month>\d{1,2})[/-](?P<year>\d{2})$", raw)
+        if m:
+            mo = int(m.group("month"))
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            try:
+                return date(y, mo, 1)
+            except ValueError:
+                return None
+
+        m = re.match(
+            rf"^(?P<mon>{MONTH_TOKEN})\s*[']\s*(?P<year>\d{{2}})$",
+            raw,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            mon_raw = m.group("mon")
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            parsed = dateparser.parse(
+                f"{mon_raw} {y}",
+                settings={
+                    "PREFER_DAY_OF_MONTH": "first",
+                    "PREFER_DATES_FROM": "past",
+                },
+            )
+            return parsed.date() if parsed else None
 
         m = re.match(r"^(?P<year>\d{4})$", raw)
         if m:
