@@ -57,6 +57,21 @@ from app.services.storage import copy_s3_object, save_bytes_to_local, upload_byt
 from app.workers.celery_app import celery_app
 from app.workers.extract_text_task import extract_text_task
 from app.services.parser.section_boundary_extractor import extract_certifications
+from app.services.parser.section_boundary_extractor import _clean_summary_text
+
+_EXAM_CODE_PATTERN = re.compile(
+    r"\b("
+    r"(AZ|DP|SC|PL|AI|MB)-\d{2,3}"
+    r"|SAA-[A-Z0-9]+"
+    r"|DVA-[A-Z0-9]+"
+    r"|SOA-[A-Z0-9]+"
+    r"|1Z0-\d{2,4}"
+    r"|SY0-\d{3}"
+    r"|200-\d{3}"
+    r"|CKA|CKAD|PMP|CISA|CISM|CISSP"
+    r")\b",
+    re.IGNORECASE,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1615,6 +1630,34 @@ def _normalize_degree_name(name: str | None) -> str | None:
     key = " ".join(name.lower().replace(".", "").split())
     return DEGREE_ALIASES.get(key, name)
 
+def _compute_certification_taxonomy_score(name: str | None) -> float:
+    """
+    Score certification strength based on taxonomy aliases.
+    Boost confidence if it matches known enterprise certifications.
+    """
+    if not name:
+        return 0.0
+
+    key = " ".join(name.lower().split())
+
+    # Strong match in certification alias taxonomy
+    if key in CERTIFICATION_ALIASES:
+        return 1.0
+
+    # Partial match
+    for alias in CERTIFICATION_ALIASES.keys():
+        if alias in key:
+            return 0.8
+
+    # Weak keyword fallback
+    if re.search(
+        r"\b(certified|certification|professional|associate|expert|architect|specialist)\b",
+        key,
+    ):
+        return 0.6
+
+    return 0.3
+
 
 def _normalize_skills(payload: list[dict[str, Any]]) -> list[dict[str, Any]]:
     extractor = SkillExtractor()
@@ -2179,25 +2222,7 @@ def task_parse_certifications(self, job_id: str) -> str:
                 if content and len(content) < 3000:
                     cert_text = content
 
-        # ====================================================
-        # 3️⃣ SAFE RAW TEXT FALLBACK (CONTROLLED)
-        #    NEVER PASS FULL RESUME DIRECTLY
-        # ====================================================
-        if not cert_text:
-            raw_text = job.raw_text or ""
-
-            strong_cert_pattern = re.compile(
-                r"\b(certified|certification|certificate|license|licence|associate|professional|specialty|expert|AZ-\d{2,}|SAA-\w+)\b",
-                re.IGNORECASE,
-            )
-
-            if strong_cert_pattern.search(raw_text):
-                # Use boundary extractor again (NOT raw text directly)
-                boundary_retry = extract_certifications(raw_text)
-
-                if boundary_retry.section_found and boundary_retry.extracted_lines:
-                    cert_text = boundary_retry.content
-                    cert_section_conf = boundary_retry.confidence
+        
 
         # ====================================================
         # 4️⃣ STILL NOTHING? → SAVE EMPTY SAFELY
@@ -2275,6 +2300,52 @@ def task_parse_certifications(self, job_id: str) -> str:
             section_confidence=cert_section_conf,
             extracted_items=validated,
         )
+
+
+
+        for item in validated:
+            if not isinstance(item, dict):
+                continue
+
+            name = item.get("name")
+            if not name:
+                continue
+
+            lowered = " ".join(name.lower().split())
+            taxonomy_score = _compute_certification_taxonomy_score(name)
+            
+
+            alias_matched = False
+            for alias_key in CERTIFICATION_ALIASES.keys():
+                if alias_key in lowered:
+                   alias_matched = True
+                   taxonomy_score = 1.0  # Full strength if alias matched
+                   break
+
+            # EXAM CODE BOOST
+            exam_code_detected = False
+            if _EXAM_CODE_PATTERN.search(name):
+                exam_code_detected = True
+                taxonomy_score = max(taxonomy_score, 0.95)    
+
+            #base conifdence
+            try:
+                base_conf = float(item.get("confidence", 0.7))
+            except (TypeError, ValueError):
+                base_conf = 0.7
+    
+            #FINAL CONFIDENCE CALCULATION
+            boosted_conf = min(
+                1.0,
+                round((base_conf * 0.6) + (taxonomy_score * 0.4), 3)
+            )
+            
+            if alias_matched:
+               boosted_conf = min(1.0, round(boosted_conf + 0.1, 3))
+
+            item["taxonomy_score"] = taxonomy_score
+            item["alias_matched"] = alias_matched
+            item["confidence"] = boosted_conf
 
         # ====================================================
         # 8️⃣ SAVE
@@ -2696,11 +2767,12 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         location = contact.get("location", {}).get("city") or contact.get("location", {}).get("country")
         linkedin = contact.get("urls", {}).get("linkedin")
         github = contact.get("urls", {}).get("github")
-        summary_section = (
+        raw_summary = (
             parsed.get("sections", {}).get("summary", {}).get("content")
             if isinstance(parsed.get("sections"), dict)
             else None
         )
+        summary_section = _clean_summary_text(raw_summary) if raw_summary else None
 
         candidate = session.execute(
             select(Candidate).where(Candidate.id == job.candidate_id)
