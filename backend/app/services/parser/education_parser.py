@@ -9,6 +9,7 @@ import dateparser
 
 from app.data.taxonomy.degree_taxonomy import DEGREE_ALIASES, DEGREE_KEYWORDS
 from app.data.taxonomy.universities_top import TOP_UNIVERSITIES
+from app.services.parser.normalize import fix_concatenated_words
 
 logger = logging.getLogger(__name__)
 
@@ -118,57 +119,6 @@ class EducationEntry:
     confidence: float
 
 
-def _restore_spaces_in_concatenated_text(s: str) -> str:
-    """Insert spaces in concatenated words (e.g. IndianInstituteofTechnology -> Indian Institute of Technology).
-    Handles PDF/OCR output or pipeline text that lost spaces between words."""
-    if not s or len(s) < 3:
-        return s
-    # "of" or "at" followed by uppercase -> insert space (e.g. "InstituteofTechnology" -> "Institute of Technology")
-    s = re.sub(r"\b(of|at)([A-Z])", r"\1 \2", s, flags=re.IGNORECASE)
-    # lowercase letter + "of" + uppercase (e.g. "InstituteofTechnology", "CollegeofBusiness")
-    s = re.sub(r"([a-z])of([A-Z])", r"\1 of \2", s)
-    # lowercase letter + "in" + uppercase (e.g. "Sciencein", "Excellencein", "Allocationin")
-    s = re.sub(r"([a-z])in([A-Z])", r"\1 in \2", s)
-    # lowercase letter + "in" + space + uppercase (e.g. "Sciencein Computer" -> "Science in Computer")
-    s = re.sub(r"([a-z])in(\s+)([A-Z])", r"\1 in \2\3", s)
-    # lowercase letter + "at" + uppercase (e.g. "Texasat" -> "Texas at")
-    s = re.sub(r"([a-z])at([A-Z])", r"\1 at \2", s)
-    # lowercase letter + "at" + space + uppercase (e.g. "Texasat Austin" -> "Texas at Austin")
-    s = re.sub(r"([a-z])at(\s+)([A-Z])", r"\1 at \2\3", s)
-    # lowercase letter + "of" + space + uppercase (e.g. "Instituteof Technology", "Collegeof Business")
-    s = re.sub(r"([a-z])of(\s+)([A-Z])", r"\1 of \3", s)
-    # "of" + "the" with no space (e.g. "Recipientofthe", "Presidentofthe")
-    s = re.sub(r"of(the)\b", r" of \1", s, flags=re.IGNORECASE)
-    # lowercase letter + "for" + uppercase (e.g. "Fellowshipfor" -> "Fellowship for")
-    s = re.sub(r"([a-z])for([A-Z])", r"\1 for \2", s)
-    s = re.sub(r"([a-z])for(\s+)([A-Z])", r"\1 for \2\3", s)
-    # semicolon without space before capital (e.g. "Summa Cum Laude;President" -> "; President")
-    s = re.sub(r";([A-Z])", r"; \1", s)
-    # comma without space before capital (e.g. "Cambridge,MA", "Washington,Seattle,WA"); avoid double space
-    s = re.sub(r",(?=[A-Z])(?!\s)", r", ", s)
-    # short abbreviation (2–4 caps) + word (e.g. "UWComputer", "UTComputer", "CMUExcellence", "MITPresidential"); avoid breaking "University"
-    s = re.sub(r"\b(UW|UT|CMU|MIT|USC|NYU|UCLA|UNC)([A-Z][a-z])", r"\1 \2", s)
-    # period + caps + word (e.g. ".NETMicroservices" -> ".NET Microservices")
-    s = re.sub(r"(\.)([A-Z]{2,})([A-Z][a-z]+)", r"\1\2 \3", s)
-    # letter + "&" + letter (e.g. "Management&Operations" -> "Management & Operations")
-    s = re.sub(r"([A-Za-z])(&)([A-Za-z])", r"\1 \2 \3", s)
-    # ")%" or ")letter" without space after comma (e.g. "Business),At" -> "Business), At")
-    s = re.sub(r"(\))\s*,([A-Za-z])", r"\1, \2", s)
-    # All-caps compound institution names (e.g. "MYUNIVERSITY" -> "MY UNIVERSITY")
-    s = re.sub(r"\bMYUNIVERSITY\b", "MY UNIVERSITY", s, flags=re.IGNORECASE)
-    # "Top5%" / "Top10%" etc.
-    s = re.sub(r"([A-Za-z])(\d%?)", r"\1 \2", s)
-    # lowercase followed by uppercase -> insert space (e.g. "IndianInstitute" -> "Indian Institute")
-    s = re.sub(r"([a-z])([A-Z])", r"\1 \2", s)
-    # letter followed by ( -> insert space (e.g. "Technology(IIT)" -> "Technology (IIT)")
-    s = re.sub(r"([a-zA-Z])(\()", r"\1 \2", s)
-    # ) followed by letter -> insert space (e.g. "IIT),Bombay" -> "IIT) , Bombay")
-    s = re.sub(r"(\))([A-Za-z])", r"\1 \2", s)
-    # digit followed by uppercase word (e.g. "2015TestCase" -> "2015 TestCase") so noise can be stripped
-    s = re.sub(r"(\d)([A-Z][a-z])", r"\1 \2", s)
-    return s
-
-
 def _strip_delimiter_artifacts(s: str) -> str:
     """Remove pipe and delimiter artifacts from extracted strings (e.g. trailing ' |', '| ')."""
     if not s:
@@ -201,7 +151,7 @@ def _normalize_text_for_display(s: str | None) -> str | None:
     """Restore spaces in concatenated text, strip delimiters and noise. Use for all string outputs."""
     if not s or not s.strip():
         return s
-    t = _restore_spaces_in_concatenated_text(s.strip())
+    t = fix_concatenated_words(s.strip())
     t = _strip_delimiter_artifacts(t)
     t = _strip_noise_from_field(t)
     t = _apply_typo_fixes(t)
@@ -215,7 +165,7 @@ class EducationParser:
         # Normalize bullet/symbol before institution (½, ·, •) to a single space so "2020 ½ Karpagam" is parseable
         text = re.sub(r"([\d\s\-–—])\s*[½·•]\s*", r"\1 ", text)
         # Normalize input: restore spaces in concatenated words (PDF/OCR often strip spaces)
-        text = _restore_spaces_in_concatenated_text(text)
+        text = fix_concatenated_words(text)
         blocks = self._split_blocks(text)
         entries: list[EducationEntry] = []
         for block in blocks:
