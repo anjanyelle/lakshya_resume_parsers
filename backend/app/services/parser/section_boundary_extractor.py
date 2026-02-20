@@ -27,7 +27,6 @@ SUMMARY_HEADINGS = {
 
 CERTIFICATION_HEADINGS = {
     r"^CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATION\s*[:\-–—]?\s*$",
     r"^LICENSES?\s*[:\-–—]?\s*$",
     r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
     r"^TECHNICAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
@@ -35,9 +34,7 @@ CERTIFICATION_HEADINGS = {
     r"^CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
     r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CREDENTIALS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATES?\s*(AND|&|/)\s*GRANTS?\s*[:\-–—]?\s*$",
 }
-
 # Stop headings - immediately terminate extraction
 STOP_HEADINGS = {
     r"^TECHNICAL\s+SKILLS?",
@@ -88,13 +85,16 @@ def _normalize_heading(text: str) -> str:
 def _is_heading(line: str, heading_patterns: set[str]) -> bool:
     normalized = _normalize_heading(line)
 
-    # 🔥 NEW FIX: Handle "Page X - Section Name"
+    # Only treat as heading if short (1–6 words) and uppercase-like
+    if len(normalized.split()) > 8:
+        return False 
+    # NEW FIX: Handle "Page X - Section Name"
     page_match = re.match(r"^PAGE\s+\d+\s*[-–—]\s*(.+)$", normalized)
     if page_match:
         normalized = page_match.group(1).strip()
 
     for pattern in heading_patterns:
-        if re.match(pattern, normalized):
+        if re.search(pattern, normalized):
             return True
     return False
 

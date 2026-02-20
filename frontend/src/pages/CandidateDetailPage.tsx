@@ -493,6 +493,8 @@ export default function CandidateDetailPage() {
         </h2>
         <CorrectionSplitView
           resumeUrl={resumePreviewUrl}
+          resumeHtml={resumePreviewHtml}
+          resumeType={resumePreviewType}
           resumeError={resumePreviewError}
           parsedData={parsedData}
           originalData={originalData}

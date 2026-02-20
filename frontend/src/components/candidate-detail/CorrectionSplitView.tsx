@@ -6,6 +6,8 @@ import { confidenceTone, confidenceLabel } from '../../utils/confidence'
 
 type CorrectionSplitViewProps = {
   resumeUrl?: string | null
+  resumeHtml?: string | null
+  resumeType?: 'pdf' | 'docx' | null
   resumeError?: string | null
   parsedData: Record<string, any>
   originalData: Record<string, any>
@@ -29,6 +31,8 @@ type CorrectionSplitViewProps = {
 
 export default function CorrectionSplitView({
   resumeUrl,
+  resumeHtml,
+  resumeType,
   resumeError,
   parsedData,
   originalData,
@@ -102,17 +106,24 @@ export default function CorrectionSplitView({
           <h3 className="text-sm font-semibold text-slate-900">Original resume</h3>
           <span className="text-xs text-slate-400">PDF view</span>
         </div>
-        {resumeUrl ? (
-          <iframe
-            src={resumeUrl}
-            className="mt-3 h-[640px] w-full rounded-lg border border-slate-200"
-            title="Resume preview"
-          />
-        ) : (
-          <div className="mt-4 rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
-            {resumeError || 'Resume preview unavailable.'}
-          </div>
-        )}
+        {resumeType === 'docx' && resumeHtml ? (
+  <div className="mt-3 h-[640px] w-full overflow-auto rounded-lg border border-slate-200 bg-white p-4">
+    <div
+      className="prose prose-slate max-w-none"
+      dangerouslySetInnerHTML={{ __html: resumeHtml }}
+    />
+  </div>
+) : resumeUrl ? (
+  <iframe
+    src={resumeUrl}
+    className="mt-3 h-[640px] w-full rounded-lg border border-slate-200"
+    title="Resume preview"
+  />
+) : (
+  <div className="mt-4 rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+    {resumeError || 'Resume preview unavailable.'}
+  </div>
+)}
       </div>
 
       <div className="space-y-4">
