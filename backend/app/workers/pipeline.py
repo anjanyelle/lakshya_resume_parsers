@@ -50,6 +50,7 @@ from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
 from app.services.parser.skill_extractor import SkillExtractor, SkillMatch
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
+from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
 from app.services.llm_service import LLMParsingService
 from app.utils.pii import hash_value
 from app.utils.review import apply_correction_patterns, compute_review_flags, find_date_overlaps
@@ -1935,6 +1936,7 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
 
         parser = SectionParser(use_spacy=True)
         sections = parser.parse(job.raw_text or "")
+        detected_headers = parser.get_detected_headers()
         payload = {
             key: {"content": value.content, "confidence": value.confidence}
             for key, value in sections.items()
@@ -1942,7 +1944,7 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
         _update_job(
             job_id,
             last_stage="detect_sections",
-            parsed_data=_merge_parsed(job, {"sections": payload}),
+            parsed_data=_merge_parsed(job, {"sections": payload, "detected_headers": detected_headers}),
         )
         return job_id
     except Exception as exc:
@@ -2013,27 +2015,18 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
 
         sections = parsed.get("sections", {})
         experience_text = sections.get("experience", {}).get("content", job.raw_text or "")
-        experience_text = normalize_resume_text(experience_text or "")
         parser = WorkExperienceParser()
         jobs = parser.parse_experience_section(experience_text)
-        if not jobs and experience_text and (job.raw_text or "").strip() and experience_text != (job.raw_text or "").strip():
-            jobs = parser.parse_experience_section((job.raw_text or "").strip())
-        payload = []
-        for job_entry in jobs:
-            d = {
+        payload = [
+            {
                 **job_entry.__dict__,
                 "start_date": job_entry.start_date.isoformat()
                 if job_entry.start_date
                 else None,
                 "end_date": job_entry.end_date.isoformat() if job_entry.end_date else None,
             }
-            d_flat = {
-                "company": d.get("company"),
-                "title": d.get("title"),
-                "client": d.get("client"),
-            }
-            if _is_valid_work_entry(d_flat):
-                payload.append(_to_canonical_work_entry(d))
+            for job_entry in jobs
+        ]
         _update_job(
             job_id,
             last_stage="parse_work_experience",
@@ -2467,6 +2460,39 @@ def task_parse_certifications(self, job_id: str) -> str:
         validated = validator.normalize_providers(payload)
         validated = validator.remove_false_positives(validated)
         validated = validator.deduplicate_certifications(validated)
+
+        if (
+            (cert_section_conf is not None and float(cert_section_conf) < 0.55)
+            and not validated
+            and (job.raw_text or "").strip()
+        ):
+            candidate_lines = CertificationParser.extract_candidate_lines_from_full_text(
+                job.raw_text or ""
+            )
+            if candidate_lines:
+                fallback_text = "\n".join(candidate_lines).strip()
+                fallback_entries = parser.parse(fallback_text)
+                fallback_payload = [
+                    {
+                        **entry.__dict__,
+                        "issue_date": entry.issue_date.isoformat() if entry.issue_date else None,
+                        "expiry_date": entry.expiry_date.isoformat() if entry.expiry_date else None,
+                    }
+                    for entry in fallback_entries
+                ]
+                fallback_payload = [
+                    item
+                    for item in fallback_payload
+                    if isinstance(item, dict)
+                    and str(item.get("name") or "").strip()
+                    and len(str(item.get("name"))) <= 200
+                ]
+                if fallback_payload:
+                    fallback_validated = validator.normalize_providers(fallback_payload)
+                    fallback_validated = validator.remove_false_positives(fallback_validated)
+                    fallback_validated = validator.deduplicate_certifications(fallback_validated)
+                    if fallback_validated:
+                        validated = fallback_validated
 
         validation_info = validator.detect_mismatches(
             section_confidence=cert_section_conf,
@@ -2905,6 +2931,61 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             or parsed_data.get("llm_structured")
         )
         parsed = _apply_llm_resume(parsed_data)
+
+        def _looks_like_skillish_header(value: str | None) -> bool:
+            cleaned = str(value or "").strip()
+            if not cleaned:
+                return False
+            lowered = cleaned.lower()
+            if re.fullmatch(
+                r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
+                lowered,
+            ) and len(cleaned) <= 24:
+                return True
+            if "·" in cleaned and len(cleaned) <= 120:
+                return True
+            if cleaned.count(",") >= 2 and len(cleaned) <= 140:
+                return True
+            if re.search(
+                r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
+                lowered,
+            ):
+                parts = [p.strip() for p in re.split(r"[,/|·]", lowered) if p.strip()]
+                if len(parts) >= 3 and len(cleaned) <= 140:
+                    return True
+            return False
+
+        def _looks_like_placeholder_org(value: str | None) -> bool:
+            cleaned = str(value or "").strip().lower()
+            if not cleaned:
+                return False
+            return bool(
+                re.match(
+                    r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+                    cleaned,
+                )
+            )
+
+        def _work_experience_is_low_quality(value: Any) -> bool:
+            if not isinstance(value, list) or not value:
+                return True
+            good = 0
+            for item in value:
+                if not isinstance(item, dict):
+                    continue
+                company = str(item.get("company") or "").strip()
+                title = str(item.get("title") or "").strip()
+                if not company and not title:
+                    continue
+                if _looks_like_placeholder_org(company) or _looks_like_placeholder_org(title):
+                    continue
+                if _looks_like_skillish_header(company) or _looks_like_skillish_header(title):
+                    continue
+                if len(company) > 180 or len(title) > 180:
+                    continue
+                good += 1
+            return good == 0
+
         if isinstance(structured, dict):
             for key in ("contact", "work_experience", "education", "skills"):
                 value = structured.get(key)
@@ -2917,11 +2998,23 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     else:
                         merged_contact = dict(existing)
                         for subkey, incoming in value.items():
-                            if subkey not in merged_contact or merged_contact.get(subkey) in (None, "", [], {}):
+                            if subkey not in merged_contact or merged_contact.get(subkey) in (
+                                None,
+                                "",
+                                [],
+                                {},
+                            ):
                                 merged_contact[subkey] = incoming
                         parsed[key] = merged_contact
                     continue
                 if isinstance(value, list):
+                    if key == "work_experience":
+                        incoming_ok = not _work_experience_is_low_quality(value)
+                        if _work_experience_is_low_quality(existing) and value and incoming_ok:
+                            parsed[key] = value
+                        elif existing is None and incoming_ok:
+                            parsed[key] = value
+                        continue
                     if value:
                         parsed[key] = value
                     elif not existing:
@@ -2932,6 +3025,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                         parsed[key] = value
                     continue
                 parsed[key] = value
+
         for entry in parsed.get("work_experience") or []:
             if isinstance(entry, dict) and entry.get("description") is not None:
                 entry["description"] = _normalize_work_description(entry.get("description"))
@@ -2943,11 +3037,16 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             if isinstance(e, dict) and _is_valid_work_entry(e)
         ]
         job.parsed_data = parsed
+
+
+
         contact = parsed.get("contact", {})
         name = contact.get("name", {}).get("name")
         emails = contact.get("emails", [])
         phones = contact.get("phones", [])
-        location = contact.get("location", {}).get("city") or contact.get("location", {}).get("country")
+        location = contact.get("location", {}).get("city") or contact.get("location", {}).get(
+            "country"
+        )
         linkedin = contact.get("urls", {}).get("linkedin")
         github = contact.get("urls", {}).get("github")
         raw_summary = (
@@ -2964,6 +3063,207 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             set_current_tenant(candidate.tenant_id)
             settings = get_settings()
 
+            def _looks_like_tool_list(value: str) -> bool:
+                cleaned = str(value or "").strip()
+                lowered = cleaned.lower()
+                job_hint_re = re.compile(
+                    r"\b(engineer|developer|devops|sre|architect|administrator|admin|manager|lead|analyst|consultant|director|specialist|qa|tester|product|data|scientist|intern)\b",
+                    re.IGNORECASE,
+                )
+
+                tokens = [t.strip() for t in re.split(r"[,/|·]", lowered) if t.strip()]
+                if len(tokens) < 2:
+                    return False
+
+                if not job_hint_re.search(cleaned):
+                    short_tokens = sum(1 for t in tokens if 1 <= len(t) <= 18)
+                    if short_tokens / max(1, len(tokens)) >= 0.75:
+                        return True
+
+                hits = 0
+                for tok in tokens:
+                    if tok in {
+                        "sonarqube",
+                        "checkmarx",
+                        "jenkins",
+                        "git",
+                        "github",
+                        "gitlab",
+                        "docker",
+                        "kubernetes",
+                        "terraform",
+                        "ansible",
+                        "aws",
+                        "azure",
+                        "gcp",
+                        "sql",
+                        "django",
+                        "flask",
+                        "fastapi",
+                        "spring",
+                        "react",
+                        "node",
+                        "postgres",
+                        "postgresql",
+                        "mysql",
+                        "redis",
+                        "kafka",
+                    }:
+                        hits += 1
+                return hits >= 2
+
+            def _is_plausible_person_name(value: str | None) -> bool:
+                if not value:
+                    return False
+                cleaned = str(value).strip()
+                if cleaned.lstrip().startswith(("-", "•", "*", "|")):
+                    return False
+                if _looks_like_tool_list(cleaned):
+                    return False
+                if len(cleaned) < 3 or len(cleaned) > 150:
+                    return False
+                if "@" in cleaned or "http" in cleaned.lower() or "www." in cleaned.lower():
+                    return False
+                if re.search(r"\d", cleaned):
+                    return False
+                if "," in cleaned or "/" in cleaned or "|" in cleaned:
+                    return False
+                if re.search(
+                    r"\b(engineer|developer|devops|sre|architect|administrator|admin|manager|lead|analyst|consultant|director|specialist|qa|tester|product|data|scientist|intern)\b",
+                    cleaned,
+                    re.IGNORECASE,
+                ):
+                    return False
+                verb_check = re.sub(r"^[^A-Za-z0-9]+", "", cleaned.lower())
+                if re.match(
+                    r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered)\b",
+                    verb_check,
+                ):
+                    return False
+                parts = [p for p in cleaned.split() if p]
+                if not (2 <= len(parts) <= 6):
+                    return False
+                lowered = cleaned.lower()
+                if re.search(r"\b(and|with|for|to|in|across|optimizing|automating)\b", lowered) and len(parts) >= 5:
+                    return False
+                if len(parts) == 1 and len(parts[0]) <= 2:
+                    return False
+                return True
+
+            def _is_plausible_headline(value: str | None) -> bool:
+                if not value:
+                    return False
+                cleaned = str(value).strip()
+                if len(cleaned) < 2 or len(cleaned) > 200:
+                    return False
+                if "@" in cleaned or "http" in cleaned.lower() or "www." in cleaned.lower():
+                    return False
+                if cleaned.lstrip().startswith(("-", "•", "*", "|")):
+                    return False
+                verb_check = re.sub(r"^[^A-Za-z0-9]+", "", cleaned.lower())
+                if re.match(
+                    r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered)\b",
+                    verb_check,
+                ):
+                    return False
+                if _looks_like_tool_list(cleaned):
+                    return False
+                return True
+
+            def _guess_name_from_raw_text(raw_text: str | None) -> str | None:
+                if not raw_text or not str(raw_text).strip():
+                    return None
+                lines = [ln.strip() for ln in str(raw_text).splitlines() if ln.strip()]
+                if not lines:
+                    return None
+                headings = {
+                    "summary",
+                    "professional summary",
+                    "profile",
+                    "experience",
+                    "work experience",
+                    "employment",
+                    "skills",
+                    "technical skills",
+                    "projects",
+                    "education",
+                    "certifications",
+                }
+                for line in lines[:15]:
+                    lowered = line.lower().strip(":- ")
+                    if lowered in headings:
+                        continue
+                    if "@" in line or "http" in lowered or "www." in lowered:
+                        continue
+                    if line.lstrip().startswith(("-", "•", "*", "|")):
+                        continue
+                    if "," in line or "/" in line or "|" in line:
+                        continue
+                    if re.search(r"\d", line):
+                        continue
+                    if _looks_like_tool_list(line):
+                        continue
+                    if _looks_like_skillish_header(line):
+                        continue
+                    parts = [p for p in re.split(r"\s+", line) if p]
+                    if not (2 <= len(parts) <= 4):
+                        continue
+                    alpha_ratio = sum(1 for ch in line if ch.isalpha()) / max(1, len(line))
+                    if alpha_ratio < 0.6:
+                        continue
+                    return line
+                return None
+
+            def _guess_summary_from_raw_text(raw_text: str | None) -> str | None:
+                if not raw_text or not str(raw_text).strip():
+                    return None
+                lines = [ln.strip() for ln in str(raw_text).splitlines()]
+                headings = {
+                    "summary",
+                    "professional summary",
+                    "profile",
+                    "objective",
+                    "experience",
+                    "work experience",
+                    "employment",
+                    "skills",
+                    "technical skills",
+                    "projects",
+                    "education",
+                    "certifications",
+                }
+
+                collected: list[str] = []
+                for line in lines[:60]:
+                    if not line.strip():
+                        if collected:
+                            break
+                        continue
+                    lowered = line.lower().strip(":- ")
+                    if lowered in headings:
+                        if collected:
+                            break
+                        continue
+                    if re.search(r"\b(19\d{2}|20\d{2})\b", line):
+                        if collected:
+                            break
+                        continue
+                    if _looks_like_skillish_header(line):
+                        if collected:
+                            break
+                        continue
+                    if line.lstrip().startswith(("-", "•", "*", "|")):
+                        if collected:
+                            break
+                        continue
+                    collected.append(line.strip())
+                    if len(" ".join(collected).split()) >= 40:
+                        break
+
+                summary = " ".join(collected).strip()
+                if len(summary.split()) < 10:
+                    return None
+                return summary
             total_experience = parsed.get("total_experience") if isinstance(parsed, dict) else None
             det_years: float | None = None
             det_conf: float | None = None
@@ -3016,7 +3316,14 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     candidate.years_experience_confidence = max(
                         0.0, min(1.0, float(final_conf))
                     )
-            candidate.full_name = name or candidate.full_name
+            existing_name = (candidate.full_name or "").strip() if candidate.full_name else ""
+            incoming_name = name or _guess_name_from_raw_text(job.raw_text)
+            if _is_plausible_person_name(incoming_name) and (
+                not existing_name
+                or not _is_plausible_person_name(existing_name)
+                or _looks_like_tool_list(existing_name)
+            ):
+                candidate.full_name = str(incoming_name).strip()
             if emails:
                 candidate.email = emails[0].get("email")
                 if candidate.email:
@@ -3026,8 +3333,9 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             candidate.location = location or candidate.location
             candidate.linkedin_url = linkedin or candidate.linkedin_url
             candidate.github_url = github or candidate.github_url
-            if summary_section and not candidate.summary:
-                candidate.summary = summary_section
+            inferred_summary = summary_section or _guess_summary_from_raw_text(job.raw_text)
+            if inferred_summary and not candidate.summary:
+                candidate.summary = inferred_summary
             candidate.status = CandidateStatus.SUCCESS
 
         session.execute(delete(WorkHistory).where(WorkHistory.candidate_id == job.candidate_id))
@@ -3040,12 +3348,13 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
         )
 
-        work_entries = [e for e in (parsed.get("work_experience") or []) if _is_valid_work_entry(e)]
+        work_entries = parsed.get("work_experience", [])
         for entry in work_entries:
-            desc = entry.get("description")
-            if not (desc and str(desc).strip()):
-                bullets = entry.get("bullets") or []
-                desc = "\n".join(str(b).strip() for b in bullets if str(b).strip()) if bullets else None
+            description = entry.get("description") if isinstance(entry, dict) else None
+            if isinstance(description, str) and description:
+                # Remove PDF column reconstruction artifacts while preserving meaning.
+                description = re.sub(r"(?m)^\|\s*", "", description)
+                description = re.sub(r"\s*\|\s*", " - ", description)
             session.add(
                 WorkHistory(
                     candidate_id=job.candidate_id,
@@ -3056,18 +3365,32 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     end_date=_parse_date_str(entry.get("end_date")),
                     is_current=entry.get("is_current", False),
                     location=entry.get("location"),
-                    description=_normalize_work_description(desc),
+                    description=description,
                     display_order=None,
                 )
             )
 
         if candidate and work_entries:
             first = work_entries[0] if isinstance(work_entries, list) else None
-            if isinstance(first, dict):
-                if not candidate.current_title:
-                    candidate.current_title = first.get("title")
-                if not candidate.current_company:
-                    candidate.current_company = first.get("company")
+            chosen = None
+            if isinstance(work_entries, list):
+                for item in work_entries:
+                    if not isinstance(item, dict):
+                        continue
+                    title_val = item.get("title")
+                    company_val = item.get("company")
+                    if title_val and company_val and _is_plausible_headline(title_val) and _is_plausible_headline(company_val):
+                        chosen = item
+                        break
+            if not chosen and isinstance(first, dict):
+                chosen = first
+            if isinstance(chosen, dict):
+                next_title = chosen.get("title")
+                next_company = chosen.get("company")
+                if (not candidate.current_title or not _is_plausible_headline(candidate.current_title)) and _is_plausible_headline(next_title):
+                    candidate.current_title = next_title
+                if (not candidate.current_company or not _is_plausible_headline(candidate.current_company)) and _is_plausible_headline(next_company):
+                    candidate.current_company = next_company
 
         for entry in parsed.get("education", []):
             session.add(
