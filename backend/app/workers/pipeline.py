@@ -348,13 +348,17 @@ def _normalize_work_experience_company_title(work_entries: list[dict[str, Any]])
             continue
         company = entry.get("company")
         title = entry.get("title")
-        if not company or not title:
+        if not company:
             continue
         c_str = str(company).strip()
-        t_str = str(title).strip()
-        if not c_str or not t_str:
+        t_str = str(title or "").strip()
+        if c_str and t_str and c_str == t_str:
+            # Same string in both (e.g. "Nexus Fin Tech Systems" twice): keep company, clear title
+            entry["title"] = ""
             continue
-        if WorkExperienceParser._looks_like_title(c_str) and WorkExperienceParser._looks_like_company(t_str):
+        if not t_str:
+            continue
+        if WorkExperienceParser._looks_like_title_strict(c_str) and WorkExperienceParser._looks_like_company(t_str):
             entry["company"] = title
             entry["title"] = company
 
@@ -439,6 +443,23 @@ def _is_valid_work_entry(entry: dict[str, Any]) -> bool:
     if c_lower in ("annual revenue", "private cloud") or t_lower in ("annual revenue", "private cloud"):
         return False
     if c_lower.startswith("annual revenue") or t_lower.startswith("annual revenue"):
+        return False
+    # Reject sentence fragments mistaken for company/title (split/parse errors)
+    if re.match(r"^(for|and)\s+\d", company, re.IGNORECASE) or re.match(r"^(for|and)\s+\d", title, re.IGNORECASE):
+        return False
+    if c_lower in ("high", "over", "for") and len(company) <= 6:
+        return False
+    if company and ":" in company and (len(company) > 40 or re.search(r"\b(compliance|mentorship|speaker|panelist|keynote|workshop):", company, re.IGNORECASE)):
+        return False
+    if title and ":" in title and (len(title) > 40 or re.search(r"\b(compliance|mentorship|speaker|panelist|keynote|workshop):", title, re.IGNORECASE)):
+        return False
+    # Reject tech/skill fragments mistaken for job title or company
+    tech_fragment = re.compile(
+        r"\b(postgre\s*sql|citus|sharding|mon\s*-?\s*go|entity\s+framework|runtime\s+mastery|"
+        r"minimal\s+apis|data\s+access|source\s+generators|blazor|web\s+assembly)\b",
+        re.IGNORECASE,
+    )
+    if tech_fragment.search(company) or tech_fragment.search(title):
         return False
     return True
 
@@ -2016,8 +2037,14 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         experience_text = normalize_resume_text(experience_text or "")
         parser = WorkExperienceParser()
         jobs = parser.parse_experience_section(experience_text)
+        # If no jobs, try full raw text (section might be missing or empty)
         if not jobs and experience_text and (job.raw_text or "").strip() and experience_text != (job.raw_text or "").strip():
-            jobs = parser.parse_experience_section((job.raw_text or "").strip())
+            jobs = parser.parse_experience_section(normalize_resume_text((job.raw_text or "").strip()))
+        # If only one job but experience block is long, section may have been truncated; try full raw text for more
+        if len(jobs) <= 1 and len(experience_text) > 1200 and (job.raw_text or "").strip():
+            jobs_full = parser.parse_experience_section(normalize_resume_text((job.raw_text or "").strip()))
+            if len(jobs_full) > len(jobs):
+                jobs = jobs_full
         payload = []
         for job_entry in jobs:
             d = {
@@ -2034,6 +2061,16 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             }
             if _is_valid_work_entry(d_flat):
                 payload.append(_to_canonical_work_entry(d))
+        _normalize_work_experience_company_title(payload)
+        # Date-wise order: Present (current) first, then past jobs by end_date descending
+        def _work_sort_key(entry: dict[str, Any]) -> tuple[int, int]:
+            if entry.get("is_current"):
+                return (0, 0)
+            end = (entry.get("end_date") or "")[:4]
+            year = int(end) if end.isdigit() else 0
+            return (1, -year)
+
+        payload.sort(key=_work_sort_key)
         _update_job(
             job_id,
             last_stage="parse_work_experience",

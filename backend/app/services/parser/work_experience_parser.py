@@ -35,9 +35,18 @@ COMPANY_LINE_RE = re.compile(
     r"(?P<company>.+?)\s*(?:[-–—|,])\s*(?P<title>.+)"
 )
 LOCATION_RE = re.compile(r"\b([A-Za-z .]+,\s*[A-Z]{2})\b")
-TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist)\b", re.IGNORECASE)
+TITLE_HINT_RE = re.compile(
+    r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist|"
+    r"officer|executive|vp|vice\s+president|principal)\b",
+    re.IGNORECASE,
+)
 RESPONSIBILITY_MARKERS = {"responsibilities", "key responsibilities", "responsibility"}
-COMPANY_HINT_RE = re.compile(r"\b(inc|llc|ltd|corp|corporation|company|technologies|systems|health|bank|solutions|services)\b", re.IGNORECASE)
+COMPANY_HINT_RE = re.compile(
+    r"\b(inc|llc|ltd|corp|corporation|company|technologies|systems|health|bank|solutions|services|logistics|global)\b",
+    re.IGNORECASE,
+)
+# Trailing date fragment often left when header is "Title | Company | YYYY -"
+TRAILING_DATE_FRAGMENT_RE = re.compile(r"\s*[|]\s*\d{4}\s*(?:[-–—]\s*)?$")
 CLIENT_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:end\s+client|client)\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
     re.compile(r"\bproject\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
@@ -141,6 +150,32 @@ class WorkExperienceParser:
             return False
         if title and len(title) > 120:
             return False
+        # Reject description-like or label-like fragments (e.g. "Mentorship: Formally...", "SOC 2 Compliance: Co...")
+        if company and ":" in company and (
+            len(company) > 40 or re.search(r"\b(compliance|mentorship|speaker|panelist|keynote|workshop|due\s+diligence):", company, re.IGNORECASE)
+        ):
+            return False
+        if title and ":" in title and (
+            len(title) > 40 or re.search(r"\b(compliance|mentorship|speaker|panelist|keynote|workshop):", title, re.IGNORECASE)
+        ):
+            return False
+        # Reject single-word or number-like company/title that look like split errors
+        if company and len(company) <= 4 and not COMPANY_HINT_RE.search(company) and company.isdigit():
+            return False
+        if title and len(title) <= 4 and title.replace(",", "").replace(".", "").isdigit():
+            return False
+        # Reject sentence fragments mistaken for company (e.g. "for 18", "and 45")
+        if company and re.match(r"^(for|and)\s+\d", company, re.IGNORECASE):
+            return False
+        if company and len(company) <= 6 and company.lower() in ("high", "over", "for"):
+            return False
+        # Reject tech/skill fragments (e.g. "Postgre Sql (Citus Sharding), Mon - as")
+        tech_fragment = re.compile(
+            r"\b(postgre\s*sql|citus|sharding|mon\s*-?\s*go|entity\s+framework|runtime\s+mastery)\b",
+            re.IGNORECASE,
+        )
+        if tech_fragment.search(company) or tech_fragment.search(title):
+            return False
 
         has_dates = bool(job.start_date) or bool(job.end_date)
         has_body = bool(job.bullets) or bool(str(job.description or "").strip())
@@ -153,36 +188,106 @@ class WorkExperienceParser:
         if not lines:
             return []
 
+        # Date-wise split only: boundaries = lines that are clearly job date lines (not body/skills).
+        # Logic: 1) Find experience section (caller gives us that). 2) Split only by date ranges. 3) Present first, then past.
+        MAX_HEADER_LINE_LEN = 125
+        MAX_HEADER_WITH_PIPE_LEN = 130
+        DATE_ONLY_MAX_LEN = 45  # "Jan 2020 - Dec 2023" or "2017 – 2021"
+        DATE_AT_EDGE_MAX_EXTRA = 35  # date at start/end of line: allow this many chars before/after
+        seen: set[int] = set()
         boundaries: list[int] = []
+
+        def add_boundary(i: int, ln: str) -> None:
+            if i in seen or not ln:
+                return
+            if self._line_looks_like_body_or_skills(ln):
+                return
+            if len(ln) > MAX_HEADER_WITH_PIPE_LEN:
+                return
+            seen.add(i)
+            boundaries.append(i)
+
         for idx, line in enumerate(lines):
+            if self._line_looks_like_body_or_skills(line):
+                continue
+            # "YYYY –" on this line and "Present" on next (date range split across lines)
             if DATE_ANCHOR_RE.search(line) and idx + 1 < len(lines) and PRESENT_RE.search(lines[idx + 1]):
-                boundaries.append(idx)
+                if len(line) <= MAX_HEADER_WITH_PIPE_LEN:
+                    add_boundary(idx, line)
                 continue
             if PRESENT_RE.search(line) and idx > 0 and DATE_ANCHOR_RE.search(lines[idx - 1]):
-                boundaries.append(idx - 1)
+                prev_idx = idx - 1
+                if len(lines[prev_idx]) <= MAX_HEADER_WITH_PIPE_LEN:
+                    add_boundary(prev_idx, lines[prev_idx])
                 continue
-            if self._has_date_anchor(line):
-                boundaries.append(idx)
+            if not self._has_date_anchor(line):
+                continue
+            # Date-only line = strong boundary
+            if len(line) <= DATE_ONLY_MAX_LEN and DATE_RANGE_RE.search(line):
+                add_boundary(idx, line)
+                continue
+            # "Title | Company | Date" (date at end)
+            m = DATE_RANGE_RE.search(line)
+            if m and "|" in line and m.end() >= len(line) - DATE_AT_EDGE_MAX_EXTRA:
+                if len(line) <= MAX_HEADER_WITH_PIPE_LEN:
+                    add_boundary(idx, line)
+                continue
+            # Date at start of line (e.g. "2021 – Present" or "Jan 2020 - Dec 2022")
+            if m and m.start() <= DATE_AT_EDGE_MAX_EXTRA and len(line) <= MAX_HEADER_LINE_LEN:
+                add_boundary(idx, line)
+                continue
+            # Short line with date anchor (no body/skills already ruled out above)
+            if len(line) <= MAX_HEADER_LINE_LEN:
+                add_boundary(idx, line)
+
+        # Gentle fallback only when 0 or 1 boundary: add only lines that are clearly date-only or date-at-edge
+        if len(boundaries) <= 1:
+            for idx, line in enumerate(lines):
+                if idx in seen or self._line_looks_like_body_or_skills(line):
+                    continue
+                m = DATE_RANGE_RE.search(line)
+                if not m:
+                    continue
+                # Only add if line is short (date-only) or date is at very start/end
+                if len(line) <= DATE_ONLY_MAX_LEN:
+                    add_boundary(idx, line)
+                elif m.start() <= 25 or m.end() >= len(line) - 30:
+                    if len(line) <= MAX_HEADER_LINE_LEN:
+                        add_boundary(idx, line)
+
+        boundaries = sorted(set(boundaries))
 
         if not boundaries:
             return ["\n".join(lines)]
 
         starts: list[int] = []
         last_start = -1
-        for idx in boundaries:
-            start = idx
-            for back in range(1, 4):
-                j = idx - back
-                if j < 0:
-                    break
-                prev = lines[j]
-                if DATE_RANGE_RE.search(prev):
-                    break
-                if prev.startswith(("-", "•", "*")):
-                    break
-                if len(prev) > 120:
-                    break
-                start = j
+        for i, idx in enumerate(boundaries):
+            line_at = lines[idx]
+            prev_boundary = boundaries[i - 1] if i > 0 else -1
+            # Full "Title | Company | Date" on one line: chunk starts here, don't walk back
+            if "|" in line_at and DATE_RANGE_RE.search(line_at):
+                start = idx
+            # Date-only line (e.g. "2017 – 2021" on its own): include at most 2 lines above (title, company)
+            elif len(line_at) <= DATE_ONLY_MAX_LEN and DATE_RANGE_RE.search(line_at):
+                start = max(idx - 2, 0)
+                start = max(start, prev_boundary + 1)  # don't go past previous job
+            else:
+                start = idx
+                for back in range(1, 4):
+                    j = idx - back
+                    if j <= prev_boundary:
+                        break
+                    if j < 0:
+                        break
+                    prev = lines[j]
+                    if DATE_RANGE_RE.search(prev):
+                        break
+                    if prev.startswith(("-", "•", "*", "·", "▪")):
+                        break
+                    if len(prev) > 120:
+                        break
+                    start = j
             if start <= last_start:
                 start = idx
             starts.append(start)
@@ -203,6 +308,29 @@ class WorkExperienceParser:
             return True
         if DATE_ANCHOR_RE.search(line) and re.search(r"(?:[-–—→]|\bto\b)", line, flags=re.IGNORECASE):
             return True
+        return False
+
+    @staticmethod
+    def _line_looks_like_body_or_skills(line: str) -> bool:
+        """True if line looks like description/skills, not a job header. Avoid splitting on these."""
+        if not line or len(line) > 140:
+            return True
+        lower = line.lower()
+        # Skill-list / tech-list patterns (many commas or colons)
+        if line.count(",") >= 3 or line.count(":") >= 2:
+            return True
+        # Common body/section phrases that are not job titles
+        body_phrases = (
+            r"expert\s+level|advanced\s+level|runtime\s+mastery|data\s+access|messaging:",
+            r"pipeline|ci/cd|devops|infrastructure|source\s+generators",
+            r"entity\s+framework|minimal\s+apis|web\s+assembly|blazor",
+            r"postgre\s*sql|citus|sharding|mon\s*-?\s*go|redis",
+            r"key\s+measurable|role\s+overview|strategic\s+mandate",
+            r"regulatory\s+&\s+compliance|modeling\s+platforms|requirement\s+management",
+        )
+        for pat in body_phrases:
+            if re.search(pat, lower):
+                return True
         return False
 
     def normalize_company_names(self, name: str | None) -> str | None:
@@ -346,11 +474,44 @@ class WorkExperienceParser:
 
         return final_location, company_clean, title_clean
 
+    @staticmethod
+    def _strip_trailing_date_fragment(value: str | None) -> str | None:
+        """Remove trailing ' | YYYY' or ' | YYYY -' from header parts (e.g. 'Company | 2021 -')."""
+        if not value or not value.strip():
+            return value
+        cleaned = TRAILING_DATE_FRAGMENT_RE.sub("", value.strip()).strip()
+        return cleaned or None
+
     def _parse_company_title(self, header: str) -> tuple[str | None, str | None]:
+        header = (header or "").strip()
+        if not header:
+            return None, None
+        # Three-part "Title | Company | Date" header: parts[0]=title, parts[1]=company; return (company, title)
+        if "|" in header:
+            parts = [p.strip() for p in header.split("|") if p.strip()]
+            if len(parts) >= 3:
+                title_part = self._strip_trailing_date_fragment(parts[0]) or parts[0]
+                company_part = self._strip_trailing_date_fragment(parts[1]) or parts[1]
+                if title_part and company_part:
+                    return company_part, title_part
+            if len(parts) == 2:
+                first = self._strip_trailing_date_fragment(parts[0]) or parts[0]
+                second = self._strip_trailing_date_fragment(parts[1]) or parts[1]
+                if first and second:
+                    # If clearly "Title | Company", return (company, title)
+                    if TITLE_HINT_RE.search(first) and (
+                        COMPANY_HINT_RE.search(second)
+                        or re.search(r",\s*[A-Z]{2}\b", second)
+                        or len(second.split()) >= 2
+                    ):
+                        return second, first
+                    return first, second
         match = COMPANY_LINE_RE.search(header)
         if match:
-            return match.group("company").strip(), match.group("title").strip()
-        return None, header.strip() if header else None
+            company = self._strip_trailing_date_fragment(match.group("company")) or match.group("company").strip()
+            title = self._strip_trailing_date_fragment(match.group("title")) or match.group("title").strip()
+            return company, title
+        return None, self._strip_trailing_date_fragment(header) or header
 
     def _parse_header_lines(
         self, lines: list[str]
@@ -373,6 +534,15 @@ class WorkExperienceParser:
         is_current = False
         for i, line in enumerate(header_window):
             sd, ed, cur = self._parse_dates(line)
+            if not (sd or ed or cur) and i + 1 < len(header_window):
+                # Date range may span lines (e.g. "2021 -\nPresent"); try joining with next line
+                if re.search(r"[-–—]\s*$", line) or re.search(r"\bto\s*$", line, re.IGNORECASE):
+                    combined = re.sub(r"\s+", " ", (line + " " + header_window[i + 1]).strip())
+                    sd, ed, cur = self._parse_dates(combined)
+                    if sd or ed or cur:
+                        date_idx = i
+                        start_date, end_date, is_current = sd, ed, cur
+                        break
             if sd or ed or cur:
                 date_idx = i
                 start_date, end_date, is_current = sd, ed, cur
@@ -416,8 +586,14 @@ class WorkExperienceParser:
             if not title and (TITLE_HINT_RE.search(candidate) or candidate.istitle()) and len(candidate.split()) <= 10:
                 title = candidate
 
-        if company and title and self._looks_like_title(company) and not self._looks_like_company(company):
-            company = None
+        if company and title:
+            # Only swap when company clearly has job-title keywords (avoid swapping e.g. "Summit Global Logistics")
+            company_has_title_keywords = bool(TITLE_HINT_RE.search(company or ""))
+            title_looks_like_company = self._looks_like_company(title)
+            if company_has_title_keywords and title_looks_like_company:
+                company, title = title, company
+            elif company_has_title_keywords and not self._looks_like_company(company):
+                company = None
 
         if company and date_idx is not None:
             body_start = max(body_start, date_idx + 1)
@@ -447,8 +623,17 @@ class WorkExperienceParser:
             return False
         return bool(TITLE_HINT_RE.search(text)) or len(text.split()) <= 5
 
+    @staticmethod
+    def _looks_like_title_strict(text: str) -> bool:
+        """True only if text contains job-title keywords (for swap detection). Avoids false swaps on e.g. 'Summit Global Logistics'."""
+        if not text:
+            return False
+        return bool(TITLE_HINT_RE.search(text))
+
     def _parse_dates(self, text: str) -> tuple[date | None, date | None, bool]:
-        match = DATE_RANGE_RE.search(text)
+        # Normalize whitespace so "2021 -\nPresent" matches as "2021 - Present"
+        normalized = re.sub(r"\s+", " ", (text or "").strip())
+        match = DATE_RANGE_RE.search(normalized)
         if not match:
             return None, None, False
 
@@ -546,8 +731,9 @@ class WorkExperienceParser:
     def _extract_bullets(self, lines: list[str]) -> list[str]:
         bullets = []
         for line in lines:
-            if line.startswith(("-", "•", "*")):
-                bullets.append(line.lstrip("-•* ").strip())
+            stripped = line.lstrip()
+            if stripped.startswith(("-", "•", "*", "·", "▪")):
+                bullets.append(stripped.lstrip("-•*·▪ ").strip())
         return bullets
 
     def _extract_client(self, text: str) -> str | None:
