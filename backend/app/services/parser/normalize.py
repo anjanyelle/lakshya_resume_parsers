@@ -11,6 +11,22 @@ _RTL_MARKS_RE = re.compile(r"[\u200e\u200f\u202a-\u202e]")
 _MULTISPACE_RUN_RE = re.compile(r"[ \t]{2,}")
 _BULLET_RE = re.compile(r"[\u2022\u2023\u25E6\u2043\u2219\uf0b7\uf0a7\uf0d8\uf0fc▪]")
 
+# Split CamelCase like:
+# AWSCertifiedSolutionsArchitect -> AWS Certified Solutions Architect
+_CAMEL_CASE_SPLIT_RE = re.compile(
+    r"""
+    (?<=[a-z])(?=[A-Z])|
+    (?<=[A-Z])(?=[A-Z][a-z])|
+    (?<=[A-Za-z])(?=\d)|
+    (?<=\d)(?=[A-Za-z])
+    """,
+    re.VERBOSE,
+)
+
+def split_camel_case(text: str) -> str:
+    if not text:
+        return text
+    return _CAMEL_CASE_SPLIT_RE.sub(" ", text)
 
 def _repair_common_urls(text: str) -> str:
     cleaned = text
@@ -35,6 +51,7 @@ def _repair_common_urls(text: str) -> str:
 
 def normalize_text(text: str) -> str:
     cleaned = unicodedata.normalize("NFKC", text)
+    cleaned = split_camel_case(cleaned)
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
     cleaned = _RTL_MARKS_RE.sub("", cleaned)
@@ -71,6 +88,8 @@ def normalize_resume_text(text: str) -> str:
     cleaned = "\n".join(line.rstrip() for line in cleaned.split("\n"))
     cleaned = cleaned.strip()
     cleaned = fix_ocr_errors(cleaned)
+    #Enterprise Upgrade: Split CamelCase Certifications
+    cleaned = split_camel_case(cleaned)
     return cleaned
 
 

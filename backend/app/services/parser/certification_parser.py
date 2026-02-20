@@ -82,14 +82,34 @@ class CertificationParser:
         entries: list[CertificationEntry] = []
 
         for line in lines:
-            # =========================
-            # 🆕 FROM YOUR LOGIC:
+            
+            line = re.sub(r"\s*[–—]\s*(?=[A-Z])", "\n", line)
+            #Remove bullets / dashes from beginning
+            line = re.sub(r"^[\-\*•\u2022\–\—]+\s*", "", line)
+            #Normalize spacing (VERY IMPORTANT for PDF)
+            line = re.sub(r"\s*-\s*", " - ", line)
+            line = re.sub(r"\s*:\s*", ": ", line)
+            line = re.sub(r"\s+", " ", line).strip()
+
+            if not line:
+                continue
             # Split comma-separated certifications
             # (Sir originally split only by bullet/pipe)
-            # =========================
             candidates = self._split_candidate_lines(line)
 
             for candidate in candidates:
+
+                if not candidate:
+                    continue
+
+                # Skip skill lists accidentally inside section
+                if self._looks_like_skill_list(candidate):
+                    continue
+
+                # Skip section labels accidentally captured
+                if self._looks_like_section_label(candidate):
+                    continue
+
                 entry = self._parse_line(candidate)
                 if entry:
                     entries.append(entry)
@@ -98,18 +118,75 @@ class CertificationParser:
 
     @staticmethod
     def _split_candidate_lines(line: str) -> list[str]:
-        normalized = re.sub(r"\s+", " ", (line or "")).strip()
+        """
+        Enterprise-level multi-cert splitter.
+        Handles:
+        - Bullet lists
+        - Dash-separated certs
+        - Colon-based prefixes
+        - Inline chained certs
+       """
+
+        if not line:
+           return []
+
+    # Normalize whitespace
+        normalized = re.sub(r"\s+", " ", line).strip()
+
+    # Remove leading bullets
+        normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized)
+
         if not normalized:
             return []
 
-        normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized).strip()
-        if not normalized:
-            return []
+    # --------------------------------------------------
+    # 1️⃣ Split when dash is followed by CAPITAL letter
+    # Example:
+    #   ASCM – LSSBB: Lean Six Sigma
+    # --------------------------------------------------
+        normalized = re.sub(r"\s*[-–—]\s*(?=[A-Z])", "\n", normalized)
 
-        # 🆕 Added comma splitting (your improvement)
-        parts = re.split(r"\s*[•|,]\s*", normalized)
-        cleaned = [p.strip() for p in parts if p.strip()]
-        return cleaned or [normalized]
+    # --------------------------------------------------
+    # 2️⃣ Split when new cert starts after colon prefix
+    # Example:
+    #   PMP: Project Management Professional LSSBB: Lean Six Sigma
+    # --------------------------------------------------
+        normalized = re.sub(
+        r"(?<=\))\s+(?=[A-Z]{2,}[:\-])",
+        "\n",
+        normalized,
+    )
+
+    # --------------------------------------------------
+    # 3️⃣ Split on bullet or newline
+    # --------------------------------------------------
+        parts = re.split(r"\s*(?:•|\n|\|)\s*", normalized)
+
+        final_parts: list[str] = []
+
+        for part in parts:
+            if not part:
+                continue
+
+            part = part.strip()
+
+        # --------------------------------------------------
+        # 4️⃣ Split chained colon prefixes
+        # Example:
+        #   PMP: Project Management Professional – PMI – LSSBB: ...
+        # --------------------------------------------------
+            sub_parts = re.split(r"\s+(?=[A-Z]{2,}:\s)", part)
+
+            for sub in sub_parts:
+                sub = sub.strip()
+            if sub:
+                final_parts.append(sub)
+
+    # Final clean
+        cleaned = [p.strip() for p in final_parts if p.strip()]
+        return cleaned
+
+
 
     @staticmethod
     def _looks_like_skill_list(line: str) -> bool:
@@ -151,8 +228,23 @@ class CertificationParser:
 
         return False
 
-    def _parse_line(self, line: str) -> CertificationEntry | None:
 
+    def _safe_split_camel_case(self, text: str) -> str:
+       if not text:
+           return text
+
+    # Split lowercase → Uppercase
+       text = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', text)
+
+    # Split digit → Uppercase (TOGAF9.2Certified)
+       text = re.sub(r'(?<=\d)(?=[A-Z])', ' ', text)
+
+       return text.strip()
+
+    def _parse_line(self, line: str) -> CertificationEntry | None:
+        
+        line = self._safe_split_camel_case(line)
+        line = re.sub(r"\s+", " ", line).strip()
         name = self._extract_name(line)
         if not name:
             return None
@@ -182,42 +274,68 @@ class CertificationParser:
         lowered = line.lower().strip()
         if not lowered:
             return None
+        
+        cleaned = line.strip()
+        lowered = cleaned.lower()
 
+        #Reject obvious section labels / skill lines
         if self._looks_like_section_label(line):
             return None
 
+        
         if self._looks_like_skill_list(line):
             return None
-
+         # Reject experience bullets (action verbs)
         verb_check = re.sub(r"^[^A-Za-z0-9]+", "", lowered)
-        has_cert_marker = any(marker in lowered for marker in CERT_LINE_MARKERS)
-        if ACTION_VERB_RE.search(verb_check) and not (has_cert_marker or EXAM_CODE_RE.search(line)):
+        if ACTION_VERB_RE.search(verb_check) and not EXAM_CODE_RE.search(cleaned):
             return None
+        
 
-        # Alias mapping (sir logic retained)
-        for alias, canonical in CERTIFICATION_ALIASES.items():
+        #  Exam codes (AZ-104, SAA-C03, etc.)
+        if EXAM_CODE_RE.search(cleaned):
+            return cleaned
+        
+        # B) Strong certification markers
+        if any(marker in lowered for marker in CERT_LINE_MARKERS):
+            return cleaned
+
+        # Alias Match (High Confidence)
+        for alias in CERTIFICATION_ALIASES:
             if alias in lowered:
-                return canonical
+                return cleaned
 
-        token_count = len(line.split())
-        if token_count <= 2:
-            return None
+        # Known Certification Keywords (AWS, ISTQB, PMP etc.)
+        keyword_hits = sum(
+            1 for keyword in KNOWN_CERT_KEYWORDS
+            if keyword in lowered
+        )
 
-        looks_like_training = any(token in lowered for token in TRAINING_FALSE_POSITIVES)
+        if keyword_hits >= 1:
+            if 2 <= len(cleaned.split()) <= 12 and len(cleaned) <= 150:
+                return cleaned
 
-        if looks_like_training and not has_cert_marker:
-            return None
+    #Short Abbreviation Certifications (CKA, CSM, PMP etc.)
+        COMMON_SHORT_CERTS = {
+        "cka", "ckad", "cks", "csm",
+        "pmp", "cissp", "cism", "cisa",
+        "rhce", "rhcsa", "ccna", "ccnp",
+        "oscp", "ceh", "gicsp", "grid",
+        "cssa", "lssbb"
+        }
 
-        # =========================
-        # 🆕 FROM YOUR LOGIC:
-        # Allow detection via exam code (AZ-104 style)
-        # =========================
-        if has_cert_marker or EXAM_CODE_RE.search(line):
-            return line.strip()
+        if lowered in COMMON_SHORT_CERTS:
+            return cleaned
 
-        keyword_hits = sum(1 for keyword in KNOWN_CERT_KEYWORDS if keyword in lowered)
-        if keyword_hits >= 1 and token_count >= 3 and len(line) <= 120:
-            return line.strip()
+    
+    # Controlled Fallback (Enterprise Guardrail)
+        token_count = len(cleaned.split())
+
+        if (
+            3 <= token_count <= 10
+            and len(cleaned) <= 120
+            and not ACTION_VERB_RE.search(lowered)
+        ):
+            return cleaned
 
         return None
 
