@@ -162,6 +162,11 @@ class EducationParser:
     def parse(self, text: str) -> list[EducationEntry]:
         # Strip PDF (cid:NN) artifacts so e.g. "(cid:17) Karpagam College" -> " Karpagam College"
         text = _CID_RE.sub(" ", text)
+       # VERY IMPORTANT: Fix PDF hyphen line breaks
+        text = re.sub(r"(\w)-\s*\n\s*(\w)", r"\1\2", text)
+
+        # Normalize newlines
+        text = re.sub(r"\r\n?", "\n", text)
         # Normalize bullet/symbol before institution (½, ·, •) to a single space so "2020 ½ Karpagam" is parseable
         text = re.sub(r"([\d\s\-–—])\s*[½·•]\s*", r"\1 ", text)
         # Normalize input: restore spaces in concatenated words (PDF/OCR often strip spaces)
@@ -803,11 +808,14 @@ class EducationParser:
             if re.match(r"^(?:MBA|B\.?Tech|M\.?Tech|B\.?E|M\.?E|B\.?S|M\.?S|B\.?A|M\.?A|Ph\.?D|B\.?Sc|M\.?Sc|LLB|LLM|MBBS|JNTUH|IIT|AIIMS)$", f, re.IGNORECASE):
                 continue
             # Reject institution-style paren (e.g. "Scheller College of Business")
-            if re.search(r"\b(?:College|School|Institute|University|Academy)\s+of\b", f, re.IGNORECASE):
+            if re.search(r"\b(?:College|School|Institute|University|Academy|Tech\s+of)\b", f, re.IGNORECASE):                continue
+
+            if any(kw in f.lower() for kw in _INSTITUTION_KEYWORDS):
                 continue
-            if len(f) > 2 and not re.match(r"^[-–—]?\s*\w\s*$", f):
-                if re.search(r"\b(?:computer|science|engineering|arts|commerce|technology|mathematics|statistics)\b", f, re.IGNORECASE) or len(f.split()) <= 6:
-                    return f
+
+            # if len(f) > 2 and not re.match(r"^[-–—]?\s*\w\s*$", f):
+            if re.search(r"\b(?:computer|science|engineering|arts|commerce|technology|mathematics|statistics)\b", f, re.IGNORECASE) or len(f.split()) <= 6:
+                return f
         # "BACHELOR OF SCIENCE IN X WITH MINORS IN Y" or "Minor in X" — capture main field and append minors to honors later
         with_minors = re.search(
             r"\b(?:bachelor|master|b\.?s|m\.?s|b\.?a|m\.?a)\s+(?:of\s+)?\w+\s+in\s+([A-Za-z\s&,]+?)\s+with\s+minors?\s+in\s+([A-Za-z\s,&]+?)(?=\s*Expected|\s*\d{4}|\s*$|\n)",

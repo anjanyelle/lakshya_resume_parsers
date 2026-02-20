@@ -55,6 +55,23 @@ CERTIFICATION_HEADINGS = {
     # Edge case: mixed spacing from PDF
     r"^CERTIFICATION\s+DETAILS\s*[:\-–—]?\s*$",
 }
+
+EDUCATION_HEADINGS = {
+    r"^EDUCATION\s*[:\-–—]?\s*$",
+    r"^ACADEMIC\s+BACKGROUND\s*[:\-–—]?\s*$",
+    r"^ACADEMIC\s+QUALIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^ACADEMIC\s+PROFILE\s*[:\-–—]?\s*$",
+    r"^EDUCATIONAL\s+BACKGROUND\s*[:\-–—]?\s*$",
+    r"^EDUCATIONAL\s+QUALIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^ACADEMICS?\s*[:\-–—]?\s*$",
+    r"^DEGREES?\s*[:\-–—]?\s*$",
+    r"^QUALIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^POST-SECONDARY\s+EDUCATION\s*[:\-–—]?\s*$",
+    r"^HIGHER\s+EDUCATION\s*[:\-–—]?\s*$",
+    r"^EDUCATION\s*(AND|&|/)\s*(TRAINING|CERTIFICATIONS|PROFESSIONAL\s+DEVELOPMENT)\s*[:\-–—]?\s*$",
+}
+
+
 # Stop headings - immediately terminate extraction
 STOP_HEADINGS = {
     r"^TECHNICAL\s+SKILLS?",
@@ -82,6 +99,8 @@ STOP_HEADINGS = {
     r"^BOARD\b",
     r"^PAGE\s+\d+",
 }
+
+
 
 
 @dataclass
@@ -449,6 +468,100 @@ def _clean_summary_text(text: str) -> str:
 
     return text.strip()
 
+def extract_education(text: str) -> ExtractionResult:
+    """
+    Strict boundary-based education section extraction.
+    Extracts only the EDUCATION block safely.
+    """
+
+    if not text or not isinstance(text, str):
+        return ExtractionResult(
+            content="",
+            confidence=0.0,
+            section_found=False,
+            extracted_lines=[],
+        )
+
+    lines = text.splitlines()
+    edu_start_idx = -1
+
+    # 1️⃣ Find EDUCATION heading
+    for idx, line in enumerate(lines):
+        if _is_heading(line, EDUCATION_HEADINGS):
+            edu_start_idx = idx
+            logger.debug(f"Education section found at line {idx}")
+            break
+
+    # If no education heading found
+    if edu_start_idx == -1:
+        return ExtractionResult(
+            content="",
+            confidence=0.0,
+            section_found=False,
+            extracted_lines=[],
+        )
+
+    extracted_lines: list[str] = []
+
+    # 2️⃣ Extract lines until next section
+    for idx in range(edu_start_idx + 1, len(lines)):
+        line = lines[idx]
+
+        # Stop at known stop headings
+        if _is_stop_heading(line):
+            break
+
+        # Stop at major unknown heading
+        if _is_major_section_heading(line):
+            break
+
+        clean_line = line.strip()
+
+        # Skip blank lines
+        if not clean_line:
+            continue
+
+        # Remove bullet styles (PDF safe)
+        clean_line = re.sub(
+            r"^[\-\u2013\u2014•\*\u2022\u25CF\u25E6\u2043]+\s*",
+            "",
+            clean_line,
+        )
+
+        # Skip page numbers
+        if re.match(r"^Page\s+\d+", clean_line, re.IGNORECASE):
+            break
+
+        # Skip environment/skills bleed
+        if _is_environment_line(clean_line):
+            break
+
+        if _is_skills_line(clean_line):
+            break
+
+        # Prevent experience bleeding (job titles with dates)
+        if _is_job_title_with_dates(clean_line):
+            break
+
+        extracted_lines.append(clean_line)
+
+    # Remove duplicates
+    extracted_lines = list(dict.fromkeys(extracted_lines))
+
+    if not extracted_lines:
+        return ExtractionResult(
+            content="",
+            confidence=0.5,
+            section_found=True,
+            extracted_lines=[],
+        )
+
+    return ExtractionResult(
+        content="\n".join(extracted_lines),
+        confidence=1.0,
+        section_found=True,
+        extracted_lines=extracted_lines,
+    )
 
 
 def extract_certifications(text: str) -> ExtractionResult:
