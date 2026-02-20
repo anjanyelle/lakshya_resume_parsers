@@ -48,3 +48,30 @@ def test_section_parser_non_english_headers():
     assert "contact" in sections
     assert "experience" in sections
     assert "education" in sections
+
+
+def test_section_parser_truncates_experience_at_stop_heading():
+    text = """
+    John Doe
+    Work Experience
+    Example Corp - Software Engineer
+    Jan 2020 - Feb 2022
+    - Built APIs
+    - Improved latency
+
+    Skills
+    Python, SQL, AWS
+
+    Education
+    State University
+    """
+    parser = SectionParser(use_spacy=False)
+    sections = parser.parse(text)
+
+    assert "experience" in sections
+    exp = sections["experience"].content
+    assert "Example Corp" in exp
+    assert "- Built APIs" in exp
+    assert "Skills" not in exp
+    assert "Python, SQL, AWS" not in exp
+    assert sections["experience"].confidence >= 0.6

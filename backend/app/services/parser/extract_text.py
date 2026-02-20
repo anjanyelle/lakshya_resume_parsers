@@ -28,6 +28,11 @@ _MONTH_HINT_RE = re.compile(
 )
 
 
+_BULLET_PREFIX_RE = re.compile(
+    r"^(\s*)(?:[\-\*•●○\u2022\u2023\u25E6\u25CF\u25CB\u2043\u2219\uf0b7\uf0a7\uf0d8\uf0fc▪·–—])\s+"
+)
+
+
 @dataclass(frozen=True)
 class ExtractedText:
     text: str
@@ -56,6 +61,39 @@ class LayoutBlock:
     @property
     def height(self) -> float:
         return self.y1 - self.y0
+
+
+def _normalize_bullet_prefix(line: str) -> str:
+    if not line:
+        return line
+    return _BULLET_PREFIX_RE.sub(r"\1- ", line)
+
+
+def _normalize_bullets_in_pages(pages_lines: list[list[str]]) -> list[list[str]]:
+    out: list[list[str]] = []
+    for lines in pages_lines:
+        out.append([_normalize_bullet_prefix(ln) for ln in lines])
+    return out
+
+
+def _page_boundaries_from_pages_lines(pages_lines: list[list[str]]) -> list[dict[str, int]]:
+    boundaries: list[dict[str, int]] = []
+    line_cursor = 1
+    for i, lines in enumerate(pages_lines):
+        start_line = line_cursor
+        line_cursor += len(lines)
+        end_line = line_cursor - 1 if lines else start_line - 1
+        boundaries.append(
+            {
+                "page_index": i,
+                "start_line": start_line,
+                "end_line": end_line,
+                "line_count": len(lines),
+            }
+        )
+        if i < (len(pages_lines) - 1):
+            line_cursor += 1
+    return boundaries
 
 
 def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
@@ -102,6 +140,26 @@ def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
         denom = max(1, len(tokens))
         return digitish / denom, longish / denom
 
+    def _looks_like_date_cell(value: str) -> bool:
+        cleaned = (value or "").strip()
+        if not cleaned:
+            return False
+        if len(cleaned) > 35:
+            return False
+        lowered = cleaned.lower()
+        if not (
+            any(ch.isdigit() for ch in cleaned)
+            or _MONTH_HINT_RE.search(lowered)
+            or "present" in lowered
+            or "current" in lowered
+        ):
+            return False
+        letters = sum(1 for ch in cleaned if ch.isalpha())
+        digits = sum(1 for ch in cleaned if ch.isdigit())
+        if digits == 0:
+            return False
+        return letters <= max(6, int(digits * 0.6))
+
     full_width = [b for b in blocks if _is_full_width(b)]
     non_full = [b for b in blocks if not _is_full_width(b)]
 
@@ -120,11 +178,26 @@ def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
         right_x1 = max((b.x1 for b in right_sorted), default=max_x1)
         right_width_ratio = max(0.0, (right_x1 - right_x0) / page_width)
 
+        def _columns_look_row_aligned() -> bool:
+            if len(left_sorted) < 2 or len(right_sorted) < 2:
+                return False
+            n = min(len(left_sorted), len(right_sorted), 8)
+            if n < 2:
+                return False
+            aligned = 0
+            tol = y_tol * 2.0
+            for i in range(n):
+                if abs(left_sorted[i].y0 - right_sorted[i].y0) <= tol:
+                    aligned += 1
+            return (aligned / n) >= 0.7
+
         row_merge_mode = (
             digitish_ratio >= 0.45
             and longish_ratio <= 0.45
             and right_width_ratio >= 0.25
         )
+        if not row_merge_mode and _columns_look_row_aligned():
+            row_merge_mode = True
         if not row_merge_mode:
             main_blocks = sorted(full_width_sorted + left_sorted, key=lambda b: (b.y0, b.x0))
             side_blocks = right_sorted
@@ -213,7 +286,17 @@ def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
     avg_row_h = (sum(row_heights) / len(row_heights)) if row_heights else typical_h
     gap_threshold = max(10.0, avg_row_h * 1.5)
     for i, (y0, y1, row_blocks) in enumerate(rows):
-        line = " | ".join(b.text.strip() for b in row_blocks if b.text.strip()).strip()
+        filtered_blocks = row_blocks
+        if len(row_blocks) >= 2:
+            row_texts = [b.text.strip() for b in row_blocks if b.text.strip()]
+            if row_texts and any(_is_bullet_line(t) for t in row_texts):
+                filtered_blocks = [
+                    b
+                    for b in row_blocks
+                    if not (_looks_like_date_cell(b.text.strip()) and not _is_bullet_line(b.text.strip()))
+                ]
+
+        line = " | ".join(b.text.strip() for b in filtered_blocks if b.text.strip()).strip()
         if line:
             out_lines.append(line)
         if i < (len(rows) - 1):
@@ -291,7 +374,7 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
     debug: dict[str, object] = {}
 
     try:
-        pymupdf_text = extract_text_from_pdf_pymupdf_layout(file_path)
+        pymupdf_text = extract_text_from_pdf_pymupdf_layout(file_path, debug=debug)
         if len(pymupdf_text) >= settings.OCR_MIN_TEXT_CHARS:
             text = pymupdf_text
             method = "pymupdf"
@@ -320,6 +403,8 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
                     "line_count": int(total_nonempty_lines),
                 }
             pages_lines = _strip_repeated_headers_footers(pages_lines)
+            pages_lines = _normalize_bullets_in_pages(pages_lines)
+            debug["pdfplumber_page_boundaries"] = _page_boundaries_from_pages_lines(pages_lines)
             text = "\n\n".join("\n".join(lines).strip() for lines in pages_lines).strip()
         except Exception as exc:  # noqa: BLE001
             logger.warning("pdfplumber failed, falling back to pypdf", exc_info=exc)
@@ -338,14 +423,19 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
 
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
         logger.info("Low text detected, triggering OCR")
-        ocr_text, ocr_conf = _ocr_pdf(file_path)
-        return ExtractedText(
-             text=normalize_resume_text(ocr_text),
-            ocr_confidence=ocr_conf,
-            used_ocr=True,
-            method="ocr",
-            debug=debug or None,
-        )
+        try:
+            ocr_text, ocr_conf = _ocr_pdf(file_path)
+            return ExtractedText(
+                text=normalize_resume_text(ocr_text),
+                ocr_confidence=ocr_conf,
+                used_ocr=True,
+                method="ocr",
+                debug=debug or None,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("OCR failed; returning best-effort extracted text", exc_info=exc)
+            debug["ocr_failed"] = True
+            debug["ocr_error"] = str(exc)
 
     return ExtractedText(text=normalize_resume_text(text), method=method, debug=debug or None)
 
@@ -386,7 +476,11 @@ def _extract_pdf_pymupdf_blocks(file_path: Path) -> str:
     return "\n\n".join([b for b in blocks_out if b]).strip()
 
 
-def extract_text_from_pdf_pymupdf_layout(file_path: Path) -> str:
+def extract_text_from_pdf_pymupdf_layout(
+    file_path: Path,
+    *,
+    debug: dict[str, object] | None = None,
+) -> str:
     try:
         import fitz  # type: ignore
     except Exception as exc:  # noqa: BLE001
@@ -421,7 +515,7 @@ def extract_text_from_pdf_pymupdf_layout(file_path: Path) -> str:
                     if not isinstance(spans, list):
                         continue
                     raw = "".join(str(span.get("text") or "") for span in spans if isinstance(span, dict))
-                    cleaned = _clean_fragment(raw)
+                    cleaned = _normalize_bullet_prefix(_clean_fragment(raw))
                     if not cleaned:
                         continue
                     items.append(LayoutBlock(x0=x0, y0=y0, x1=x1, y1=y1, text=cleaned))
@@ -442,6 +536,9 @@ def extract_text_from_pdf_pymupdf_layout(file_path: Path) -> str:
     for p in pages_out:
         pages_lines.append(p.split("\n"))
     pages_lines = _strip_repeated_headers_footers(pages_lines)
+    pages_lines = _normalize_bullets_in_pages(pages_lines)
+    if debug is not None:
+        debug["pymupdf_page_boundaries"] = _page_boundaries_from_pages_lines(pages_lines)
     return "\n\n".join("\n".join(lines).strip() for lines in pages_lines).strip()
 
 
@@ -554,140 +651,87 @@ def _reconstruct_lines_from_words_with_layout(
         cleaned = (value or "").lstrip()
         return bool(re.match(r"^[A-Z]", cleaned))
 
-    split_x = page_width * 0.5 if page_width else None
     gap_threshold = 120.0
     if page_width and page_width > 0:
         gap_threshold = max(60.0, float(page_width) * 0.12)
 
-    two_column = False
-    if split_x is not None and page_width > 0:
-        left = sum(1 for w in cleaned_words if float(w["x0"]) < page_width * 0.4)
-        right = sum(1 for w in cleaned_words if float(w["x0"]) > page_width * 0.6)
-        total = len(cleaned_words)
-        two_column = total > 0 and (left / total) > 0.15 and (right / total) > 0.15
+    ws_sorted = sorted(cleaned_words, key=lambda w: (float(w["top"]), float(w["x0"])))
+    line_bins: list[dict[str, object]] = []
+    for w in ws_sorted:
+        y0 = float(w["top"])
+        y1 = float(w["bottom"])
+        if not line_bins:
+            line_bins.append({"y0": y0, "y1": y1, "words": [w]})
+            continue
+        last = line_bins[-1]
+        by0 = float(last["y0"])
+        by1 = float(last["y1"])
+        overlap = min(y1, by1) - max(y0, by0)
+        if overlap >= 0.0 or abs(y0 - by0) <= y_tol:
+            last["y0"] = min(by0, y0)
+            last["y1"] = max(by1, y1)
+            cast_words = last["words"]
+            if isinstance(cast_words, list):
+                cast_words.append(w)
+        else:
+            line_bins.append({"y0": y0, "y1": y1, "words": [w]})
 
-    if two_column and split_x is not None:
-        right_words = [w for w in cleaned_words if float(w["x0"]) >= split_x]
-        if right_words:
-            digitish = 0
-            longish = 0
-            for w in right_words:
-                token = str(w.get("text") or "")
-                if not token:
-                    continue
-                if any(ch.isdigit() for ch in token) or _MONTH_HINT_RE.search(token):
-                    digitish += 1
-                if len(token) >= 8:
-                    longish += 1
-            denom = max(1, len(right_words))
-            digitish_ratio = digitish / denom
-            longish_ratio = longish / denom
-            if digitish_ratio >= 0.55 and longish_ratio <= 0.35:
-                two_column = False
-
-    def _words_to_lines(ws: list[dict[str, object]]) -> list[tuple[float, float, str]]:
-        if not ws:
-            return []
-        ws_sorted = sorted(ws, key=lambda w: (float(w["top"]), float(w["x0"])))
-        bins: list[dict[str, object]] = []
-        for w in ws_sorted:
-            y0 = float(w["top"])
-            y1 = float(w["bottom"])
-            if not bins:
-                bins.append({"y0": y0, "y1": y1, "words": [w]})
+    blocks: list[LayoutBlock] = []
+    for b in line_bins:
+        b_words = b.get("words", [])
+        if not isinstance(b_words, list) or not b_words:
+            continue
+        sorted_words = sorted(b_words, key=lambda ww: float(ww["x0"]))
+        parts: list[str] = []
+        last_x1: float | None = None
+        min_x0 = float("inf")
+        max_x1 = 0.0
+        for ww in sorted_words:
+            token = str(ww.get("text") or "")
+            if not token:
                 continue
-            last = bins[-1]
-            by0 = float(last["y0"])
-            by1 = float(last["y1"])
-            overlap = min(y1, by1) - max(y0, by0)
-            if overlap >= 0.0 or abs(y0 - by0) <= y_tol:
-                last["y0"] = min(by0, y0)
-                last["y1"] = max(by1, y1)
-                cast_words = last["words"]
-                if isinstance(cast_words, list):
-                    cast_words.append(w)
-            else:
-                bins.append({"y0": y0, "y1": y1, "words": [w]})
-
-        out: list[tuple[float, float, str]] = []
-        for b in bins:
-            b_words = b.get("words", [])
-            if not isinstance(b_words, list) or not b_words:
-                continue
-            sorted_words = sorted(b_words, key=lambda w: float(w["x0"]))
-            parts: list[str] = []
-            last_x1: float | None = None
-            for ww in sorted_words:
-                token = str(ww.get("text") or "")
-                if not token:
-                    continue
-                x0 = float(ww.get("x0") or 0.0)
-                x1 = float(ww.get("x1") or x0)
-                if last_x1 is not None and (x0 - last_x1) >= gap_threshold:
-                    parts.append("|")
-                parts.append(token)
-                last_x1 = x1
-            line = " ".join(parts).strip()
-            if line:
-                out.append((float(b["y0"]), float(b["y1"]), line))
-        return out
-
-    if two_column and split_x is not None:
-        left_words = [w for w in cleaned_words if float(w["x0"]) < split_x]
-        right_words = [w for w in cleaned_words if float(w["x0"]) >= split_x]
-        left_bins = _words_to_lines(left_words)
-        right_bins = _words_to_lines(right_words)
-
-        def _with_paragraphs(bins: list[tuple[float, float, str]]) -> list[str]:
-            out_lines: list[str] = []
-            heights2 = [(y1 - y0) for (y0, y1, _) in bins if (y1 - y0) > 0]
-            avg_h2 = (sum(heights2) / len(heights2)) if heights2 else typical_h
-            gap_threshold2 = max(10.0, avg_h2 * 1.5)
-            for i, (y0, y1, ln) in enumerate(bins):
-                out_lines.append(ln)
-                if i < (len(bins) - 1):
-                    next_y0 = bins[i + 1][0]
-                    gap = next_y0 - y1
-                    next_ln = bins[i + 1][2]
-                    break_by_gap = gap > gap_threshold2
-                    break_by_punct = (
-                        ln.rstrip().endswith((".", "!", "?", ":", ";"))
-                        and _starts_upper(next_ln)
-                    )
-                    if _is_bullet_line(ln) or _is_bullet_line(next_ln):
-                        break_by_punct = False
-                    if break_by_gap or break_by_punct:
-                        out_lines.append("")
-            return out_lines
-
-        left_lines = _with_paragraphs(left_bins)
-        right_lines = _with_paragraphs(right_bins)
-        lines = left_lines + ([""] if left_lines and right_lines else []) + right_lines
-        nonempty = sum(1 for ln in lines if ln.strip())
-        return lines, {"detected_columns": 2, "line_count": int(nonempty)}
-
-    bins = _words_to_lines(cleaned_words)
-    out_lines2: list[str] = []
-    heights3 = [(y1 - y0) for (y0, y1, _) in bins if (y1 - y0) > 0]
-    avg_h3 = (sum(heights3) / len(heights3)) if heights3 else typical_h
-    gap_threshold3 = max(10.0, avg_h3 * 1.5)
-    for i, (y0, y1, ln) in enumerate(bins):
-        out_lines2.append(ln)
-        if i < (len(bins) - 1):
-            next_y0 = bins[i + 1][0]
-            gap = next_y0 - y1
-            next_ln = bins[i + 1][2]
-            break_by_gap = gap > gap_threshold3
-            break_by_punct = (
-                ln.rstrip().endswith((".", "!", "?", ":", ";"))
-                and _starts_upper(next_ln)
+            x0 = float(ww.get("x0") or 0.0)
+            x1 = float(ww.get("x1") or x0)
+            min_x0 = min(min_x0, x0)
+            max_x1 = max(max_x1, x1)
+            if last_x1 is not None and (x0 - last_x1) >= gap_threshold:
+                parts.append("|")
+            parts.append(token)
+            last_x1 = x1
+        line = " ".join(parts).strip()
+        if not line or min_x0 == float("inf"):
+            continue
+        blocks.append(
+            LayoutBlock(
+                x0=float(min_x0),
+                y0=float(b["y0"]),
+                x1=float(max_x1),
+                y1=float(b["y1"]),
+                text=_normalize_bullet_prefix(line),
             )
-            if _is_bullet_line(ln) or _is_bullet_line(next_ln):
-                break_by_punct = False
-            if break_by_gap or break_by_punct:
-                out_lines2.append("")
-    nonempty2 = sum(1 for ln in out_lines2 if ln.strip())
-    return out_lines2, {"detected_columns": 1, "line_count": int(nonempty2)}
+        )
+
+    if not blocks:
+        return [], {"detected_columns": 1, "line_count": 0}
+
+    layout_text = reconstruct_two_column_layout(blocks).strip()
+    out_lines = [ln for ln in layout_text.split("\n")]
+    nonempty = sum(1 for ln in out_lines if ln.strip())
+
+    detected_columns = 1
+    if page_width and page_width > 0:
+        min_x0b = min(b.x0 for b in blocks)
+        max_x1b = max(b.x1 for b in blocks)
+        page_w = max(1.0, max_x1b - min_x0b)
+        midpoint = min_x0b + (page_w * 0.5)
+        full_width = [b for b in blocks if b.width >= (page_w * 0.85)]
+        non_full = [b for b in blocks if b not in full_width]
+        left = [b for b in non_full if b.x_center < midpoint]
+        right = [b for b in non_full if b.x_center >= midpoint]
+        if left and right:
+            detected_columns = 2
+
+    return out_lines, {"detected_columns": detected_columns, "line_count": int(nonempty)}
 
 
 def _group_words_into_lines(
@@ -741,25 +785,38 @@ def _strip_repeated_headers_footers(pages_lines: list[list[str]]) -> list[list[s
         cleaned = re.sub(r"\b\d+\b", "", cleaned)
         return cleaned.strip()
 
+    heading_re = re.compile(
+        r"^(experience|work\s*experience|professional\s*experience|education|skills|projects|summary|certifications?)$",
+        re.IGNORECASE,
+    )
+
     header_candidates: list[str] = []
     footer_candidates: list[str] = []
     for lines in pages_lines:
         non_empty = [l for l in lines if l.strip()]
-        header_candidates.extend(non_empty[:2])
-        footer_candidates.extend(non_empty[-2:])
+        header_candidates.extend(non_empty[:3])
+        footer_candidates.extend(non_empty[-3:])
 
-    header_counts = Counter(norm(l) for l in header_candidates if norm(l))
-    footer_counts = Counter(norm(l) for l in footer_candidates if norm(l))
+    header_counts = Counter(
+        norm(l)
+        for l in header_candidates
+        if norm(l) and not heading_re.match(norm(l))
+    )
+    footer_counts = Counter(
+        norm(l)
+        for l in footer_candidates
+        if norm(l) and not heading_re.match(norm(l))
+    )
     page_count = len(pages_lines)
     header_remove = {
         k
         for k, v in header_counts.items()
-        if v >= max(2, int(page_count * 0.6)) and 0 < len(k) <= 80
+        if v >= max(2, int(page_count * 0.55)) and 0 < len(k) <= 100
     }
     footer_remove = {
         k
         for k, v in footer_counts.items()
-        if v >= max(2, int(page_count * 0.6)) and 0 < len(k) <= 80
+        if v >= max(2, int(page_count * 0.55)) and 0 < len(k) <= 100
     }
     if not header_remove and not footer_remove:
         return pages_lines
