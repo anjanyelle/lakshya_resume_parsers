@@ -305,6 +305,10 @@ class EducationParser:
         )
 
     def _parse_block(self, block: str) -> EducationEntry | None:
+
+        # Extract only first line for degree/field parsing
+        core_line = block.split("\n")[0]
+
         institution = self._extract_institution(block)
         degree = self._extract_degree(block)
         field = self._extract_field(block)
@@ -618,6 +622,12 @@ class EducationParser:
         cleaned = re.sub(r"\s+\d{4}\s*[-–—]\s*\d{4}\s*$", "", cleaned).strip()
         # Remove trailing standalone years (e.g., "2014")
         cleaned = re.sub(r"\s+\d{4}\s*\.?\s*$", "", cleaned).strip()
+        cleaned = re.sub(
+            r"\s*[-–—]\s*(Bachelor|Master|B\.?Tech|M\.?Tech|B\.?E|M\.?E|MBA|B\.?S|M\.?S).*",
+            "",
+            cleaned,
+            flags=re.IGNORECASE,
+        ).strip()
         # Remove trailing month-year date patterns (e.g., "Aug 2010 – May 2014")
         cleaned = re.sub(
             r"\s*,?\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\s+\d{4}"
@@ -787,7 +797,7 @@ class EducationParser:
 
     def _extract_field(self, text: str) -> str | None:
         """Extract field of study from text. Strips trailing date fragments and month names."""
-        # Parenthetical field e.g. "B.Tech (Computer Science)" — prefer field-like content over institution abbrev (JNTUH) or institution name (Scheller College of Business)
+        # Parenthetical field e.g. "B.Tech (Computer Science)" — prefer field-like content over institution abbrev (JNTUH) or institution name (Scheller College of Business),
         for paren_match in re.finditer(r"\(\s*([A-Za-z][A-Za-z\s&/\-]{2,50})\s*\)", text):
             f = paren_match.group(1).strip()
             if re.match(r"^(?:MBA|B\.?Tech|M\.?Tech|B\.?E|M\.?E|B\.?S|M\.?S|B\.?A|M\.?A|Ph\.?D|B\.?Sc|M\.?Sc|LLB|LLM|MBBS|JNTUH|IIT|AIIMS)$", f, re.IGNORECASE):
@@ -832,7 +842,7 @@ class EducationParser:
                 return field
         field_patterns = [
             r"\b(?:in|major in|specialization in|concentration in|focus in|emphasis in)\s+([A-Za-z &/\-]+)",
-            r"\b(?:degree|bachelor|master|diploma)\s+(?:of|in)\s+([A-Za-z &/\-]+)",
+            r"\b(?:degree|bachelor|master|diploma)\s+(?:of|in)\s+([A-Za-z][A-Za-z\s&/\-]{2,40}?)(?=\s+(?:19\d{2}|20\d{2}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|\s*$)",
             r"\b(?:b\.?tech|b\.?e|m\.?tech|m\.?e)\s+[.\s\-–—]*([A-Za-z][A-Za-z\s&/\-]{2,40})",  # avoid capturing "B" from "– B.Tech"
         ]
         for pattern in field_patterns:

@@ -59,12 +59,15 @@ CERTIFICATION_HEADINGS = {
 STOP_HEADINGS = {
     r"^TECHNICAL\s+SKILLS?",
     r"^SKILLS?\s*$",
+    r"^TOOLS?\b",
+    r"^TOOLS?\s*&\s*TECHNOLOGIES",
+    r"^TECHNOLOGIES?\b",
+    r"^TECH\s+STACK",
     r"^PROFESSIONAL\s+EXPERIENCE",
     r"^WORK\s+EXPERIENCE",
     r"^EXPERIENCE\s*$",
     r"^EMPLOYMENT\s+HISTORY",
     r"^JOBS?\s*$",
-    r"^EDUCATION",
     r"^ACADEMIC",
     r"^AWARDS?",
     r"^ACHIEVEMENTS?",
@@ -76,6 +79,7 @@ STOP_HEADINGS = {
     r"^REFERENCES?",
     r"^PORTFOLIO",
     r"^VOLUNTEER",
+    r"^BOARD\b",
     r"^PAGE\s+\d+",
 }
 
@@ -475,30 +479,30 @@ def extract_certifications(text: str) -> ExtractionResult:
     # =====================================================
     # 1️⃣ INLINE DETECTION (WORKS EVEN INSIDE SUMMARY)
     # =====================================================
-    inline_pattern = re.compile(
-        r"(?i)certifications?\s*[:\-–—]\s*(.+)"
-    )
+    # inline_pattern = re.compile(
+    #     r"(?i)certifications?\s*[:\-–—]\s*(.+)"
+    # )
 
-    for line in lines:
-        match = inline_pattern.search(line)
-        if match:
-            inline_content = match.group(1).strip()
+    # for line in lines:
+    #     match = inline_pattern.search(line)
+    #     if match:
+    #         inline_content = match.group(1).strip()
 
-            # Split multiple certifications separated by comma
-            parts = re.split(r"\s*,\s*", inline_content)
-            for part in parts:
-                if part and len(part) < 200:
-                    extracted_lines.append(part.strip())
+    #         # Split multiple certifications separated by comma
+    #         parts = re.split(r"\s*,\s*", inline_content)
+    #         for part in parts:
+    #             if part and len(part) < 200:
+    #                 extracted_lines.append(part.strip())
 
-    # If inline found → return immediately
-    if extracted_lines:
-        extracted_lines = list(dict.fromkeys(extracted_lines))
-        return ExtractionResult(
-            content="\n".join(extracted_lines),
-            confidence=0.9,   # slightly lower than strict boundary
-            section_found=True,
-            extracted_lines=extracted_lines,
-        )
+    # # If inline found → return immediately
+    # if extracted_lines:
+    #     extracted_lines = list(dict.fromkeys(extracted_lines))
+    #     return ExtractionResult(
+    #         content="\n".join(extracted_lines),
+    #         confidence=0.9,   # slightly lower than strict boundary
+    #         section_found=True,
+    #         extracted_lines=extracted_lines,
+    #     )
 
     # 2️⃣ STRICT BOUNDARY SECTION DETECTION
     for idx, line in enumerate(lines):
@@ -528,13 +532,13 @@ def extract_certifications(text: str) -> ExtractionResult:
         
         clean_line = line.strip()
 
-        if re.match(r"^Page\s+\d+", clean_line, re.IGNORECASE):
-            break
+        # if re.match(r"^Page\s+\d+", clean_line, re.IGNORECASE):
+        #     break
 
         if not clean_line:
             continue
          # handles PDF bullet types
-        clean_line = re.sub(r"^[\-\u2013\u2014•\*\u2022\u25CF\u25E6\u2043]+\s*", "", clean_line)
+        clean_line = re.sub(r"^[\-\u2013\u2014•\*\u2022\u25CF\u25E6\u2043]+\s*", "", clean_line,)
 
         if _is_environment_line(clean_line):
             break
@@ -554,6 +558,24 @@ def extract_certifications(text: str) -> ExtractionResult:
         # Prevent paragraph bleeding
         if len(clean_line) > 200:
             continue
+
+        if re.search(
+            r"\b(bachelor|master|ph\.?d|b\.?tech|m\.?tech|b\.?s|m\.?s)\b",
+            clean_line,
+            re.IGNORECASE,
+        ):
+            continue
+
+        if re.search(
+            r"\b(docker|kubernetes|vault|nginx|traefik|helm|istio|terraform|jenkins|ansible)\b",
+            clean_line,
+            re.IGNORECASE,
+        ):
+            if not re.search(r"\bcertified\b", clean_line, re.IGNORECASE):
+                continue
+
+        if len(clean_line.split()) > 20:
+            continue    
 
         extracted_lines.append(clean_line)
 

@@ -426,7 +426,7 @@ class CertificationParser:
                 or (len(left_part) <= 12 and left_part.isupper())
             ):
                 return cleaned
-
+ 
         # if EXAM_CODE_RE.search(cleaned) or ":" in cleaned:
         #     return cleaned    
 
