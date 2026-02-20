@@ -45,6 +45,14 @@ ENVIRONMENT_LINE_RE = re.compile(
     r"^(?:environments?|environment|tools?|technologies|tech\s*stack)\s*[:\-–—]",
     re.IGNORECASE,
 )
+PHONE_RE = re.compile(r"\+?\d[\d\s().-]{7,}\d")
+EMAIL_RE = re.compile(r"\b[^\s@]+@[^\s@]+\b")
+SOCIAL_RE = re.compile(r"\b(linkedin|github|portfolio)\b", re.IGNORECASE)
+EDU_KEYWORD_RE = re.compile(
+    r"\b(bachelor|master|ph\s*d|b\.?tech|m\.?tech|b\.?sc|m\.?sc|degree|university|college|school)\b",
+    re.IGNORECASE,
+)
+CERT_KEYWORD_RE = re.compile(r"\b(certified|certification|certificate)\b", re.IGNORECASE)
 PLACEHOLDER_ORG_RE = re.compile(
     r"^(company|client|organization|employer|designation|title|role)\b",
     re.IGNORECASE,
@@ -232,6 +240,16 @@ class WorkExperienceParser:
             return False
         if PLACEHOLDER_ORG_RE.match(company) or PLACEHOLDER_ORG_RE.match(title):
             return False
+        if PHONE_RE.search(company) or PHONE_RE.search(title):
+            return False
+        if EMAIL_RE.search(company) or EMAIL_RE.search(title):
+            return False
+        if SOCIAL_RE.search(company) or SOCIAL_RE.search(title):
+            return False
+        if EDU_KEYWORD_RE.search(company) or EDU_KEYWORD_RE.search(title):
+            return False
+        if CERT_KEYWORD_RE.search(company) or CERT_KEYWORD_RE.search(title):
+            return False
         if "@" in company or "@" in title:
             return False
         if "http" in company.lower() or "http" in title.lower():
@@ -249,6 +267,14 @@ class WorkExperienceParser:
         has_body = bool(job.bullets) or bool(str(job.description or "").strip())
         if not has_dates and not has_body:
             return False
+
+        # Jobs without dates are extremely noisy in PDF extractions (contact/summary/skills). Only allow
+        # them if we have a strong header signal.
+        if not has_dates:
+            if not company or not title:
+                return False
+            if not job.bullets or len(job.bullets) < 2:
+                return False
         return job.confidence >= 0.5
 
     def extract_individual_jobs(self, text: str) -> list[str]:

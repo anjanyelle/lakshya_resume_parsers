@@ -102,3 +102,26 @@ def test_parse_experience_section_ignores_environment_lines_and_prefers_dated_co
     jobs = parser.parse_experience_section(text)
     assert any((j.company or "").lower().startswith("delta airlines") for j in jobs)
     assert any("data engineer" in (j.title or "").lower() for j in jobs)
+
+
+def test_parse_experience_section_does_not_turn_contact_education_or_certs_into_jobs():
+    text = "\n".join(
+        [
+            "Work history",
+            "+1 (404)-445-8754 · Linkedin",
+            "— → —",
+            "Processed and transformed large-scale data using Snowflake, SnowSQL, and Snowpipe",
+            "Computer Science · Bachelor of Technology (BTech)",
+            "2010-08-01 → 2014-03-01",
+            "Salesforce Certified Sales Cloud Consultant",
+            "Marketo Certified Solutions Architect (MCSA)",
+            "Acme Corp - Data Engineer",
+            "Jan 2020 - Dec 2021",
+            "- Built ETL pipelines",
+            "- Improved data quality",
+        ]
+    )
+    parser = WorkExperienceParser()
+    jobs = parser.parse_experience_section(text)
+    assert any("acme" in (j.company or "").lower() for j in jobs)
+    assert all("bachelor" not in (j.company or "").lower() for j in jobs)
