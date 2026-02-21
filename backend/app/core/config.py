@@ -81,6 +81,8 @@ class Settings(BaseSettings):
     REDIS_URL: str | None = None
     CSRF_ENABLED: bool = False
 
+    ADMIN_API_KEY: str | None = None
+
     ENCRYPTION_KEY: str | None = None
     ENCRYPTION_KEYS_JSON: str | None = None
     DEFAULT_TENANT_ID: str = "default"

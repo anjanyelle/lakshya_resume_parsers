@@ -2267,6 +2267,11 @@ class SectionParser:
         self._last_header_matches: list[dict[str, object]] = []
         self._last_header_confidence: dict[int, float] = {}
         self._last_section_header_confidence: dict[str, float] = {}
+        self._last_section_meta: dict[str, dict[str, object]] = {}
+        self._last_section_map: list[dict[str, object]] = []
+        self._last_line_number_map: dict[int, int] = {}
+        self._last_raw_line_count: int = 0
+        self._last_inferred_starts: dict[str, int] = {}
         if self.use_spacy:
             self._nlp = spacy.blank("xx")
             self._matcher = PhraseMatcher(self._nlp.vocab, attr="LOWER")
@@ -2275,8 +2280,10 @@ class SectionParser:
                 self._matcher.add(key, patterns)
 
     def parse(self, raw_text: str) -> dict[str, SectionResult]:
-        lines, blank_context = self._prepare_lines(raw_text)
-        header_map = self._detect_headers(lines, blank_context)
+        lines, blank_context, line_number_map, raw_line_count = self._prepare_lines(raw_text)
+        self._last_line_number_map = dict(line_number_map)
+        self._last_raw_line_count = int(raw_line_count)
+        header_map = self._detect_headers(lines, blank_context, line_number_map, raw_line_count)
         if not header_map:
             sections = self._infer_sections_no_headers(lines)
         else:
@@ -2285,12 +2292,19 @@ class SectionParser:
         sections = self._postprocess_sections(sections)
         sections = self._truncate_sections_by_stop_headings(sections)
         scored = self._score_sections(sections)
+        self._build_section_metadata(lines, scored, header_map, line_number_map, raw_line_count)
         return scored
 
     def get_detected_headers(self) -> list[dict[str, object]]:
         return list(self._last_header_matches)
 
-    def _prepare_lines(self, text: str) -> tuple[list[str], dict[int, bool]]:
+    def get_section_metadata(self) -> dict[str, dict[str, object]]:
+        return dict(self._last_section_meta)
+
+    def get_section_map(self) -> list[dict[str, object]]:
+        return list(self._last_section_map)
+
+    def _prepare_lines(self, text: str) -> tuple[list[str], dict[int, bool], dict[int, int], int]:
         cleaned = text.replace("\r\n", "\n").replace("\r", "\n")
         raw_lines = [line.strip() for line in cleaned.split("\n")]
         kept_raw_indexes: list[int] = []
@@ -2301,13 +2315,17 @@ class SectionParser:
             kept_raw_indexes.append(idx)
             lines.append(self._normalize_table_row(line))
 
+        line_number_map: dict[int, int] = {}
+        for j, raw_idx in enumerate(kept_raw_indexes):
+            line_number_map[j] = int(raw_idx) + 1
+
         blank_context: dict[int, bool] = {}
         for j, raw_idx in enumerate(kept_raw_indexes):
             before_blank = raw_idx > 0 and not raw_lines[raw_idx - 1]
             after_blank = raw_idx + 1 < len(raw_lines) and not raw_lines[raw_idx + 1]
             blank_context[j] = bool(before_blank and after_blank)
 
-        return lines, blank_context
+        return lines, blank_context, line_number_map, len(raw_lines)
 
     @staticmethod
     def _normalize_table_row(line: str) -> str:
@@ -2317,20 +2335,36 @@ class SectionParser:
                 return " | ".join(parts)
         return line
 
-    def _detect_headers(self, lines: list[str], blank_context: dict[int, bool]) -> dict[int, str]:
+    def _detect_headers(
+        self,
+        lines: list[str],
+        blank_context: dict[int, bool],
+        line_number_map: dict[int, int],
+        raw_line_count: int,
+    ) -> dict[int, str]:
         self._last_header_matches = []
         self._last_header_confidence = {}
         self._last_section_header_confidence = {}
+        self._last_section_meta = {}
+        self._last_section_map = []
+        self._last_inferred_starts = {}
 
         header_map: dict[int, str] = {}
         for idx, line in enumerate(lines):
             match = self._match_header_line(line, blank_context.get(idx, False))
             if match is None:
                 continue
-            key, confidence = match
+            key, confidence, method, evidence_heading = match
             header_map[idx] = key
             self._last_header_matches.append(
-                {"section": key, "line_index": idx, "confidence": confidence}
+                {
+                    "section": key,
+                    "line_index": idx,
+                    "line_number": int(line_number_map.get(idx, idx + 1)),
+                    "confidence": confidence,
+                    "evidence_heading": evidence_heading,
+                    "method": method,
+                }
             )
             self._last_header_confidence[idx] = confidence
             current_best = self._last_section_header_confidence.get(key, 0.0)
@@ -2349,7 +2383,14 @@ class SectionParser:
                             header_map[idx] = key
                             confidence = 1.0
                             self._last_header_matches.append(
-                                {"section": key, "line_index": idx, "confidence": confidence}
+                                {
+                                    "section": key,
+                                    "line_index": idx,
+                                    "line_number": int(line_number_map.get(idx, idx + 1)),
+                                    "confidence": confidence,
+                                    "evidence_heading": match_text,
+                                    "method": "spacy_ner",
+                                }
                             )
                             self._last_header_confidence[idx] = confidence
                             current_best = self._last_section_header_confidence.get(key, 0.0)
@@ -2359,9 +2400,17 @@ class SectionParser:
 
     def _match_header_line(
         self, line: str, blank_surrounded: bool
-    ) -> tuple[str, float] | None:
+    ) -> tuple[str, float, str, str] | None:
         if not line:
             return None
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            candidate = stripped[3:].strip()
+            if candidate and not self._looks_like_bullet(candidate):
+                match = self._match_header_line(candidate, blank_surrounded)
+                if match is not None:
+                    key, confidence, _, evidence = match
+                    return key, min(1.0, float(confidence) + 0.06), "style_heading", evidence or candidate
         if self._looks_like_bullet(line):
             return None
         lowered = line.lower().strip()
@@ -2419,7 +2468,7 @@ class SectionParser:
 
         for key, pattern in SECTION_REGEX.items():
             if pattern.match(line):
-                return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus)
+                return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
 
         if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
             return None
@@ -2429,7 +2478,7 @@ class SectionParser:
 
         if prefix_match is not None:
             key, base_conf = prefix_match
-            return key, base_conf
+            return key, base_conf, "dict_match", stripped
 
         if has_digits:
             normalized_digitless = self._normalize_header_text(re.sub(r"\d+", " ", line))
@@ -2457,7 +2506,7 @@ class SectionParser:
                     break
             if digitless_best is None:
                 return None
-            return digitless_best
+            return digitless_best[0], digitless_best[1], "dict_match", stripped
         haystack = f" {normalized_line} "
 
         best: tuple[str, float] | None = None
@@ -2470,16 +2519,91 @@ class SectionParser:
                     alias_compact = alias_norm.replace(" ", "")
                     if alias_compact and normalized_compact == alias_compact:
                         base = 0.86 + casing_bonus + length_bonus + blank_bonus
-                        return key, min(1.0, base)
+                        return key, min(1.0, base), "dict_match", stripped
                 if normalized_line == alias_norm:
                     base = 0.85 + casing_bonus + length_bonus + blank_bonus
-                    return key, min(1.0, base)
+                    return key, min(1.0, base), "dict_match", stripped
                 if f" {alias_norm} " in haystack:
                     candidate = (key, min(1.0, 0.85 + casing_bonus + length_bonus + blank_bonus))
                     if best is None or candidate[1] > best[1]:
                         best = candidate
                     continue
-        return best
+        if best is None:
+            return None
+        return best[0], best[1], "dict_match", stripped
+
+    def _build_section_metadata(
+        self,
+        lines: list[str],
+        scored: dict[str, SectionResult],
+        header_map: dict[int, str],
+        line_number_map: dict[int, int],
+        raw_line_count: int,
+    ) -> None:
+        self._last_section_meta = {}
+        self._last_section_map = []
+
+        header_index_to_record: dict[int, dict[str, object]] = {}
+        for h in self._last_header_matches:
+            if not isinstance(h, dict):
+                continue
+            idx = h.get("line_index")
+            if isinstance(idx, int):
+                header_index_to_record[idx] = h
+
+        def _push_block(section_key: str, start_line: int, end_line: int, evidence: str, method: str) -> None:
+            canonical = self._canonical_section_key(section_key)
+            self._last_section_map.append(
+                {"section_key": canonical, "start_line": int(start_line), "end_line": int(end_line)}
+            )
+            existing = self._last_section_meta.get(canonical)
+            if not isinstance(existing, dict):
+                self._last_section_meta[canonical] = {
+                    "start_line": int(start_line),
+                    "end_line": int(end_line),
+                    "evidence_heading": str(evidence or ""),
+                    "method": str(method or ""),
+                }
+                return
+            prev_start = int(existing.get("start_line", start_line) or start_line)
+            prev_end = int(existing.get("end_line", end_line) or end_line)
+            existing["start_line"] = min(prev_start, int(start_line))
+            existing["end_line"] = max(prev_end, int(end_line))
+            if not str(existing.get("evidence_heading") or "").strip() and str(evidence or "").strip():
+                existing["evidence_heading"] = str(evidence)
+            if not str(existing.get("method") or "").strip() and str(method or "").strip():
+                existing["method"] = str(method)
+
+        if header_map:
+            sorted_headers = sorted(header_map.items(), key=lambda item: item[0])
+            for i, (idx, key) in enumerate(sorted_headers):
+                start_line = int(line_number_map.get(idx, idx + 1))
+                next_idx = sorted_headers[i + 1][0] if i + 1 < len(sorted_headers) else None
+                next_line = int(line_number_map.get(next_idx, next_idx + 1)) if next_idx is not None else (raw_line_count + 1)
+                end_line = max(start_line, next_line - 1)
+                header_rec = header_index_to_record.get(idx, {})
+                evidence = str(header_rec.get("evidence_heading") or "")
+                method = str(header_rec.get("method") or "dict_match")
+                _push_block(key, start_line, end_line, evidence, method)
+        elif self._last_inferred_starts:
+            ordered = sorted(self._last_inferred_starts.items(), key=lambda it: it[1])
+            for pos, (key, idx) in enumerate(ordered):
+                start_line = int(line_number_map.get(idx, idx + 1))
+                next_idx = ordered[pos + 1][1] if pos + 1 < len(ordered) else None
+                next_line = int(line_number_map.get(next_idx, next_idx + 1)) if next_idx is not None else (raw_line_count + 1)
+                end_line = max(start_line, next_line - 1)
+                evidence = lines[idx].strip() if 0 <= idx < len(lines) else ""
+                _push_block(key, start_line, end_line, evidence, "heuristic")
+
+        for key in scored.keys():
+            canonical = self._canonical_section_key(key)
+            if canonical not in self._last_section_meta:
+                self._last_section_meta[canonical] = {
+                    "start_line": 1,
+                    "end_line": int(raw_line_count) if raw_line_count else 0,
+                    "evidence_heading": "",
+                    "method": "heuristic",
+                }
 
     def _postprocess_sections(self, sections: dict[str, list[str]]) -> dict[str, list[str]]:
         if not sections:
@@ -2557,7 +2681,7 @@ class SectionParser:
                 match = self._match_header_line(candidate, blank_surrounded=False)
                 if match is None:
                     continue
-                stop_key, conf = match
+                stop_key, conf, _, _ = match
                 stop_key = self._canonical_section_key(stop_key)
                 if stop_key in stop_targets and conf >= 0.9:
                     cut_idx = i
@@ -2675,6 +2799,8 @@ class SectionParser:
             if remaining:
                 sections["unknown"] = remaining
             return sections
+
+        self._last_inferred_starts = dict(markers)
 
         last_cursor = start_idx
         for pos, (idx, key) in enumerate(ordered):

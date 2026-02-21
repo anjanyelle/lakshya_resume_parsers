@@ -11,6 +11,8 @@ import structlog
 from sqlalchemy import text
 
 from app.core.database import engine, SessionLocal
+from app.models.candidate import Candidate
+from app.models.parsing_job import ParsingJob
 from app.core.observability import (
     bind_request_context,
     clear_request_context,
@@ -18,6 +20,7 @@ from app.core.observability import (
     instrument_db,
     observe_request,
     setup_logging,
+    start_queue_metrics_poller,
     update_business_metrics,
     update_db_pool_metrics,
     update_queue_metrics,
@@ -90,6 +93,7 @@ async def request_observability(request: Request, call_next):
 async def startup() -> None:
     Path(settings.STORAGE_DIR).mkdir(parents=True, exist_ok=True)
     logger.info("Storage directory ready at %s", settings.STORAGE_DIR)
+    start_queue_metrics_poller(interval_seconds=30)
 
 
 @app.exception_handler(HTTPException)
@@ -117,6 +121,93 @@ async def metrics() -> Response:
     finally:
         db.close()
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/metrics/summary", include_in_schema=False)
+async def metrics_summary() -> dict:
+    db = SessionLocal()
+    try:
+        jobs = (
+            db.query(ParsingJob)
+            .order_by(ParsingJob.started_at.desc())
+            .limit(1000)
+            .all()
+        )
+
+        conf_by_type: dict[str, list[float]] = {}
+        exp_quality: list[float] = []
+        section_success: dict[str, dict[str, int]] = {}
+        flag_freq: dict[str, int] = {}
+
+        candidate_ids = [j.candidate_id for j in jobs if getattr(j, "candidate_id", None) is not None]
+        candidates: dict = {}
+        if candidate_ids:
+            rows = db.query(Candidate).filter(Candidate.id.in_(candidate_ids)).all()
+            candidates = {c.id: c for c in rows}
+
+        for job in jobs:
+            filename = getattr(job, "filename", "") or ""
+            ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "unknown"
+            conf = getattr(job, "confidence_score", None)
+            if isinstance(conf, (int, float)):
+                conf_by_type.setdefault(ext, []).append(float(conf))
+
+            parsed = getattr(job, "parsed_data", None) or {}
+            debug = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+            we_debug = debug.get("work_experience") if isinstance(debug.get("work_experience"), dict) else {}
+            q = we_debug.get("primary_quality_score")
+            try:
+                if q is not None:
+                    exp_quality.append(float(q))
+            except (TypeError, ValueError):
+                pass
+
+            sections = parsed.get("sections") if isinstance(parsed.get("sections"), dict) else {}
+            for sec_name, sec_block in sections.items():
+                bucket = section_success.setdefault(str(sec_name), {"present": 0, "success": 0})
+                bucket["present"] += 1
+                ok = False
+                if isinstance(sec_block, dict):
+                    content = str(sec_block.get("content") or "").strip()
+                    try:
+                        sec_conf = float(sec_block.get("confidence", 0.0) or 0.0)
+                    except (TypeError, ValueError):
+                        sec_conf = 0.0
+                    ok = bool(content) and sec_conf >= 0.6
+                if ok:
+                    bucket["success"] += 1
+
+            cand = candidates.get(getattr(job, "candidate_id", None))
+            review_flags = getattr(cand, "review_flags", None) if cand is not None else None
+            if isinstance(review_flags, dict):
+                for flag in review_flags.get("rule_flags") or []:
+                    key = str(flag)
+                    flag_freq[key] = flag_freq.get(key, 0) + 1
+                flagged_fields = review_flags.get("flagged_fields")
+                if isinstance(flagged_fields, dict):
+                    for field_name in flagged_fields.keys():
+                        key = str(field_name)
+                        flag_freq[key] = flag_freq.get(key, 0) + 1
+
+        avg_conf_by_type = {
+            ft: (sum(vals) / len(vals)) if vals else None for ft, vals in conf_by_type.items()
+        }
+        avg_exp_quality = (sum(exp_quality) / len(exp_quality)) if exp_quality else None
+
+        section_success_rate = {
+            name: (bucket["success"] / bucket["present"]) if bucket["present"] else 0.0
+            for name, bucket in section_success.items()
+        }
+
+        return {
+            "window": 1000,
+            "avg_confidence_by_file_type": avg_conf_by_type,
+            "avg_experience_quality_score": avg_exp_quality,
+            "section_detection_success_rate": section_success_rate,
+            "review_flag_frequency": dict(sorted(flag_freq.items(), key=lambda it: it[1], reverse=True)),
+        }
+    finally:
+        db.close()
 
 
 @app.get("/health", include_in_schema=False)

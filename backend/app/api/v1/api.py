@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     accuracy,
+    admin,
     analytics,
     auth,
     candidates,
@@ -32,3 +33,4 @@ api_router.include_router(review.router, tags=["review"])
 api_router.include_router(taxonomy.router, tags=["taxonomy"])
 api_router.include_router(corrections.router, tags=["corrections"])
 api_router.include_router(accuracy.router, tags=["accuracy"])
+api_router.include_router(admin.router, tags=["admin"])
