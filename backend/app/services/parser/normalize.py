@@ -11,6 +11,22 @@ _RTL_MARKS_RE = re.compile(r"[\u200e\u200f\u202a-\u202e]")
 _MULTISPACE_RUN_RE = re.compile(r"[ \t]{2,}")
 _BULLET_RE = re.compile(r"[\u2022\u2023\u25E6\u2043\u2219\uf0b7\uf0a7\uf0d8\uf0fc▪]")
 
+# Split CamelCase like:
+# AWSCertifiedSolutionsArchitect -> AWS Certified Solutions Architect
+_CAMEL_CASE_SPLIT_RE = re.compile(
+    r"""
+    (?<=[a-z])(?=[A-Z])|
+    (?<=[A-Z])(?=[A-Z][a-z])|
+    (?<=[A-Za-z])(?=\d)|
+    (?<=\d)(?=[A-Za-z])
+    """,
+    re.VERBOSE,
+)
+
+def split_camel_case(text: str) -> str:
+    if not text:
+        return text
+    return _CAMEL_CASE_SPLIT_RE.sub(" ", text)
 
 def _repair_common_urls(text: str) -> str:
     cleaned = text
@@ -35,6 +51,7 @@ def _repair_common_urls(text: str) -> str:
 
 def normalize_text(text: str) -> str:
     cleaned = unicodedata.normalize("NFKC", text)
+    cleaned = split_camel_case(cleaned)
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
     cleaned = _RTL_MARKS_RE.sub("", cleaned)
@@ -71,7 +88,60 @@ def normalize_resume_text(text: str) -> str:
     cleaned = "\n".join(line.rstrip() for line in cleaned.split("\n"))
     cleaned = cleaned.strip()
     cleaned = fix_ocr_errors(cleaned)
+    #Enterprise Upgrade: Split CamelCase Certifications
+    cleaned = split_camel_case(cleaned)
     return cleaned
+
+
+def fix_concatenated_words(s: str) -> str:
+    """Insert spaces in concatenated words (e.g. IndianInstituteofTechnology -> Indian Institute of Technology).
+    Handles PDF/OCR output or pipeline text that lost spaces between words."""
+    if not s or len(s) < 3:
+        return s
+    # "of" or "at" followed by uppercase -> insert space (e.g. "InstituteofTechnology" -> "Institute of Technology")
+    s = re.sub(r"\b(of|at)([A-Z])", r"\1 \2", s, flags=re.IGNORECASE)
+    # lowercase letter + "of" + uppercase (e.g. "InstituteofTechnology", "CollegeofBusiness")
+    s = re.sub(r"([a-z])of([A-Z])", r"\1 of \2", s)
+    # lowercase letter + "in" + uppercase (e.g. "Sciencein", "Excellencein", "Allocationin")
+    s = re.sub(r"([a-z])in([A-Z])", r"\1 in \2", s)
+    # lowercase letter + "in" + space + uppercase (e.g. "Sciencein Computer" -> "Science in Computer")
+    s = re.sub(r"([a-z])in(\s+)([A-Z])", r"\1 in \2\3", s)
+    # lowercase letter + "at" + uppercase (e.g. "Texasat" -> "Texas at")
+    s = re.sub(r"([a-z])at([A-Z])", r"\1 at \2", s)
+    # lowercase letter + "at" + space + uppercase (e.g. "Texasat Austin" -> "Texas at Austin")
+    s = re.sub(r"([a-z])at(\s+)([A-Z])", r"\1 at \2\3", s)
+    # lowercase letter + "of" + space + uppercase (e.g. "Instituteof Technology", "Collegeof Business")
+    s = re.sub(r"([a-z])of(\s+)([A-Z])", r"\1 of \3", s)
+    # "of" + "the" with no space (e.g. "Recipientofthe", "Presidentofthe")
+    s = re.sub(r"of(the)\b", r" of \1", s, flags=re.IGNORECASE)
+    # lowercase letter + "for" + uppercase (e.g. "Fellowshipfor" -> "Fellowship for")
+    s = re.sub(r"([a-z])for([A-Z])", r"\1 for \2", s)
+    s = re.sub(r"([a-z])for(\s+)([A-Z])", r"\1 for \2\3", s)
+    # semicolon without space before capital (e.g. "Summa Cum Laude;President" -> "; President")
+    s = re.sub(r";([A-Z])", r"; \1", s)
+    # comma without space before capital (e.g. "Cambridge,MA", "Washington,Seattle,WA"); avoid double space
+    s = re.sub(r",(?=[A-Z])(?!\s)", r", ", s)
+    # short abbreviation (2–4 caps) + word (e.g. "UWComputer", "UTComputer", "CMUExcellence", "MITPresidential"); avoid breaking "University"
+    s = re.sub(r"\b(UW|UT|CMU|MIT|USC|NYU|UCLA|UNC)([A-Z][a-z])", r"\1 \2", s)
+    # period + caps + word (e.g. ".NETMicroservices" -> ".NET Microservices")
+    s = re.sub(r"(\.)([A-Z]{2,})([A-Z][a-z]+)", r"\1\2 \3", s)
+    # letter + "&" + letter (e.g. "Management&Operations" -> "Management & Operations")
+    s = re.sub(r"([A-Za-z])(&)([A-Za-z])", r"\1 \2 \3", s)
+    # ")%" or ")letter" without space after comma (e.g. "Business),At" -> "Business), At")
+    s = re.sub(r"(\))\s*,([A-Za-z])", r"\1, \2", s)
+    # All-caps compound institution names (e.g. "MYUNIVERSITY" -> "MY UNIVERSITY")
+    s = re.sub(r"\bMYUNIVERSITY\b", "MY UNIVERSITY", s, flags=re.IGNORECASE)
+    # "Top5%" / "Top10%" etc.
+    s = re.sub(r"([A-Za-z])(\d%?)", r"\1 \2", s)
+    # lowercase followed by uppercase -> insert space (e.g. "IndianInstitute" -> "Indian Institute")
+    s = re.sub(r"([a-z])([A-Z])", r"\1 \2", s)
+    # letter followed by ( -> insert space (e.g. "Technology(IIT)" -> "Technology (IIT)")
+    s = re.sub(r"([a-zA-Z])(\()", r"\1 \2", s)
+    # ) followed by letter -> insert space (e.g. "IIT),Bombay" -> "IIT) , Bombay")
+    s = re.sub(r"(\))([A-Za-z])", r"\1 \2", s)
+    # digit followed by uppercase word (e.g. "2015TestCase" -> "2015 TestCase") so noise can be stripped
+    s = re.sub(r"(\d)([A-Z][a-z])", r"\1 \2", s)
+    return s
 
 
 def fix_ocr_errors(text: str) -> str:
