@@ -61,6 +61,12 @@ QUEUE_DEPTH = Gauge(
     "Celery queue depth",
     ["queue"],
 )
+
+CELERY_QUEUE_DEPTH = Gauge(
+    "celery_queue_depth",
+    "Celery queue depth by queue",
+    ["queue"],
+)
 WORKER_UTILIZATION = Gauge(
     "worker_utilization",
     "Celery worker utilization ratio",
@@ -93,6 +99,84 @@ PARSING_JOBS_BY_FILETYPE = Gauge(
     "parsing_jobs_by_file_type",
     "Parsing jobs by file type and status",
     ["file_type", "status"],
+)
+
+RESUME_FILE_TYPE_TOTAL = Counter(
+    "resume_file_type_total",
+    "Total resumes processed by file type",
+    ["file_type"],
+)
+
+RESUME_PARSE_QUALITY_SCORE = Histogram(
+    "resume_parse_quality_score",
+    "Overall resume parse confidence score",
+    ["file_type"],
+    buckets=(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0),
+)
+
+EXPERIENCE_PARSE_QUALITY_SCORE = Histogram(
+    "experience_parse_quality_score",
+    "Work experience parse quality score",
+    buckets=(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0),
+)
+
+SECTION_DETECTION_CONFIDENCE = Histogram(
+    "section_detection_confidence",
+    "Section detection confidence by section",
+    ["section"],
+    buckets=(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0),
+)
+
+OCR_TRIGGER_TOTAL = Counter(
+    "ocr_trigger_total",
+    "Total OCR fallbacks triggered",
+)
+
+DOC_CONVERSIONS_TOTAL = Counter(
+    "doc_conversions_total",
+    "Total DOC to DOCX conversions attempted",
+)
+DOC_CONVERSION_FAILURES_TOTAL = Counter(
+    "doc_conversion_failures_total",
+    "Total DOC to DOCX conversion failures",
+)
+DOC_CONVERSION_DURATION_SECONDS = Histogram(
+    "doc_conversion_duration_seconds",
+    "DOC to DOCX conversion duration in seconds",
+)
+
+CLIENT_EXTRACTIONS_TOTAL = Counter(
+    "client_extractions_total",
+    "Total client extraction attempts",
+    ["method"],
+)
+
+CLIENT_EXTRACTION_TOTAL = Counter(
+    "client_extraction_total",
+    "Total client extraction attempts by method",
+    ["method"],
+)
+
+REVIEW_FLAG_TOTAL = Counter(
+    "review_flag_total",
+    "Total review flags emitted",
+    ["flag_name"],
+)
+
+FALLBACK_SEGMENTER_TOTAL = Counter(
+    "fallback_segmenter_total",
+    "Total times fallback segmenter was executed",
+)
+
+DB_UPSERT_CONFLICTS_TOTAL = Counter(
+    "db_upsert_conflicts_total",
+    "Total database upsert conflicts",
+    ["table"],
+)
+
+SECTION_DETECTION_FALLBACK_TOTAL = Counter(
+    "section_detection_fallback_total",
+    "Total times deterministic section detection fallback segmenter activated",
 )
 
 
@@ -260,6 +344,29 @@ def update_db_pool_metrics(engine: Engine) -> None:
         return
 
 
+_queue_poller_started = False
+
+
+def start_queue_metrics_poller(*, interval_seconds: int = 30) -> None:
+    global _queue_poller_started
+    if _queue_poller_started:
+        return
+    _queue_poller_started = True
+
+    import threading
+
+    def _loop() -> None:
+        while True:
+            try:
+                update_queue_metrics()
+            except Exception:
+                pass
+            time.sleep(max(5, int(interval_seconds)))
+
+    t = threading.Thread(target=_loop, name="queue-metrics-poller", daemon=True)
+    t.start()
+
+
 def update_business_metrics(db: Session) -> None:
     today = date.today()
     start = datetime.combine(today, datetime.min.time()).replace(tzinfo=timezone.utc)
@@ -320,8 +427,22 @@ def update_queue_metrics() -> None:
             import redis
 
             client = redis.Redis.from_url(broker)
-            queue_len = client.llen("celery")
-            QUEUE_DEPTH.labels(queue="celery").set(queue_len)
+            queues = [
+                "doc_convert",
+                "ocr",
+                "extract",
+                "parse",
+                "llm",
+                "persist",
+                "celery",
+            ]
+            for q in queues:
+                try:
+                    queue_len = int(client.llen(q))
+                except Exception:
+                    queue_len = 0
+                QUEUE_DEPTH.labels(queue=q).set(queue_len)
+                CELERY_QUEUE_DEPTH.labels(queue=q).set(queue_len)
         except Exception:
             return
 

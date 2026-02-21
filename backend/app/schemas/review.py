@@ -39,6 +39,7 @@ class ReviewFlags(BaseModel):
     overall_confidence: float | None = None
     flagged_fields: dict[str, float]
     discrepancies: list[str]
+    rule_flags: list[str] = []
 
 
 class CandidateReviewResponse(BaseModel):

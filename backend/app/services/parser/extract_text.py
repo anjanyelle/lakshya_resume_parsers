@@ -17,6 +17,7 @@ from docx import Document
 from PIL import Image
 
 from app.core.config import get_settings
+from app.core.observability import OCR_TRIGGER_TOTAL
 from app.services.parser.normalize import normalize_resume_text, normalize_text
 
 logger = logging.getLogger(__name__)
@@ -423,6 +424,7 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
 
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
         logger.info("Low text detected, triggering OCR")
+        OCR_TRIGGER_TOTAL.inc()
         try:
             ocr_text, ocr_conf = _ocr_pdf(file_path)
             return ExtractedText(
@@ -862,21 +864,231 @@ def _ocr_pdf(file_path: Path) -> tuple[str, float | None]:
 
 def _extract_docx(file_path: Path) -> ExtractedText:
     document = Document(str(file_path))
-    chunks: list[str] = []
 
-    for paragraph in document.paragraphs:
-        text = paragraph.text.strip()
-        if text:
-            chunks.append(text)
+    def _style_name(paragraph: object) -> str:
+        style = getattr(paragraph, "style", None)
+        name = getattr(style, "name", "") if style is not None else ""
+        return str(name or "")
 
-    for table in document.tables:
-        for row in table.rows:
-            cells = [cell.text.strip() for cell in row.cells]
-            if any(cells):
-                chunks.append(" | ".join(cells))
+    def _is_list_paragraph(paragraph: object) -> bool:
+        try:
+            p = getattr(paragraph, "_p", None)
+            ppr = getattr(p, "pPr", None) if p is not None else None
+            numpr = getattr(ppr, "numPr", None) if ppr is not None else None
+            if numpr is not None:
+                return True
+        except Exception:  # noqa: BLE001
+            pass
 
-    text = "\n".join(chunks).strip()
-    return ExtractedText(text=normalize_text(text), method="docx")
+        name = _style_name(paragraph)
+        return "list" in name.lower()
+
+    def _is_heading_paragraph(paragraph: object) -> bool:
+        name = _style_name(paragraph)
+        return bool(name) and name.startswith("Heading")
+
+    def _emit_paragraph_lines(paragraph: object) -> list[str]:
+        raw = str(getattr(paragraph, "text", "") or "")
+        text = raw.strip()
+        if not text:
+            return []
+
+        is_heading = _is_heading_paragraph(paragraph)
+        is_bullet = _is_list_paragraph(paragraph)
+        if is_heading:
+            return [f"## {text}"]
+        if is_bullet:
+            return [f"- {text}"]
+        return [text]
+
+    def _cell_lines(cell: object) -> list[str]:
+        lines: list[str] = []
+        paragraphs = getattr(cell, "paragraphs", [])
+        if isinstance(paragraphs, list):
+            for p in paragraphs:
+                lines.extend(_emit_paragraph_lines(p))
+        return [ln for ln in lines if ln.strip()]
+
+    def _looks_like_data_table(table: object) -> bool:
+        rows = getattr(table, "rows", [])
+        if not isinstance(rows, list) or not rows:
+            return False
+        if len(rows) < 2:
+            return False
+        try:
+            max_cols = max(len(getattr(r, "cells", []) or []) for r in rows)
+        except Exception:  # noqa: BLE001
+            return False
+        if max_cols < 2:
+            return False
+
+        non_empty_cells_per_row: list[int] = []
+        for r in rows[:12]:
+            cells = getattr(r, "cells", [])
+            if not isinstance(cells, list) or not cells:
+                continue
+            count = 0
+            for c in cells:
+                value = " ".join(_cell_lines(c)).strip()
+                if value:
+                    count += 1
+            non_empty_cells_per_row.append(count)
+
+        if not non_empty_cells_per_row:
+            return False
+
+        avg_non_empty = sum(non_empty_cells_per_row) / max(1, len(non_empty_cells_per_row))
+        if avg_non_empty < 1.7:
+            return False
+
+        return True
+
+    def _table_to_lines(table: object) -> list[str]:
+        out_lines: list[str] = []
+        rows = getattr(table, "rows", [])
+        if not isinstance(rows, list) or not rows:
+            return out_lines
+
+        is_data_table = _looks_like_data_table(table)
+
+        for row in rows:
+            cells = getattr(row, "cells", [])
+            if not isinstance(cells, list) or not cells:
+                continue
+
+            if is_data_table:
+                rendered_cells: list[str] = []
+                for cell in cells:
+                    cell_text = " ".join(_cell_lines(cell)).strip()
+                    rendered_cells.append(cell_text)
+                if any(c.strip() for c in rendered_cells):
+                    out_lines.append(" | ".join(c.strip() for c in rendered_cells))
+            else:
+                for cell in cells:
+                    cell_block = _cell_lines(cell)
+                    if cell_block:
+                        out_lines.extend(cell_block)
+                        out_lines.append("")
+
+        while out_lines and not out_lines[-1].strip():
+            out_lines.pop()
+        return out_lines
+
+    def _extract_headers_footers() -> tuple[str, str]:
+        header_lines: list[str] = []
+        footer_lines: list[str] = []
+        for section in getattr(document, "sections", []):
+            header = getattr(section, "header", None)
+            footer = getattr(section, "footer", None)
+            if header is not None:
+                for p in getattr(header, "paragraphs", []) or []:
+                    header_lines.extend(_emit_paragraph_lines(p))
+            if footer is not None:
+                for p in getattr(footer, "paragraphs", []) or []:
+                    footer_lines.extend(_emit_paragraph_lines(p))
+
+        header_text = "\n".join([ln for ln in header_lines if ln.strip()]).strip()
+        footer_text = "\n".join([ln for ln in footer_lines if ln.strip()]).strip()
+        return header_text, footer_text
+
+    def _extract_textboxes() -> list[list[str]]:
+        try:
+            from docx.oxml.ns import nsmap  # type: ignore
+        except Exception:  # noqa: BLE001
+            return []
+
+        blocks: list[list[str]] = []
+        try:
+            txbx_nodes = document.element.body.xpath(
+                ".//w:txbxContent",
+                namespaces=nsmap,
+            )
+        except Exception:  # noqa: BLE001
+            return []
+
+        for node in txbx_nodes or []:
+            lines: list[str] = []
+            try:
+                paragraphs = node.xpath(".//w:p", namespaces=nsmap)
+            except Exception:  # noqa: BLE001
+                paragraphs = []
+            for p in paragraphs or []:
+                try:
+                    texts = p.xpath(".//w:t", namespaces=nsmap)
+                except Exception:  # noqa: BLE001
+                    texts = []
+                line = "".join((t.text or "") for t in texts if getattr(t, "text", None))
+                line = str(line or "").strip()
+                if line:
+                    lines.append(line)
+            if lines:
+                blocks.append(lines)
+        return blocks
+
+    para_map = {id(p._p): p for p in document.paragraphs}
+    table_map = {id(t._tbl): t for t in document.tables}
+
+    total_paragraphs = 0
+    heading_paragraphs_count = 0
+    bullet_paragraphs_count = 0
+    table_count = 0
+    body_lines: list[str] = []
+
+    for child in document.element.body.iterchildren():
+        tag = getattr(child, "tag", "") or ""
+        if tag.endswith("}p"):
+            paragraph = para_map.get(id(child))
+            if paragraph is None:
+                continue
+            total_paragraphs += 1
+            if _is_heading_paragraph(paragraph):
+                heading_paragraphs_count += 1
+            if _is_list_paragraph(paragraph) and not _is_heading_paragraph(paragraph):
+                bullet_paragraphs_count += 1
+            body_lines.extend(_emit_paragraph_lines(paragraph))
+        elif tag.endswith("}tbl"):
+            table = table_map.get(id(child))
+            if table is None:
+                continue
+            table_count += 1
+
+            cell_paragraphs = 0
+            for row in getattr(table, "rows", []) or []:
+                for cell in getattr(row, "cells", []) or []:
+                    cell_paragraphs += len(getattr(cell, "paragraphs", []) or [])
+            total_paragraphs += cell_paragraphs
+
+            body_lines.append("")
+            body_lines.extend(_table_to_lines(table))
+            body_lines.append("")
+
+    textboxes = _extract_textboxes()
+    textbox_count = len(textboxes)
+
+    if textboxes:
+        body_lines.append("")
+        for tb in textboxes:
+            body_lines.append("# [TEXTBOX]")
+            body_lines.extend(tb)
+            body_lines.append("")
+
+    text = "\n".join(body_lines).strip()
+
+    header_text, footer_text = _extract_headers_footers()
+    had_header_footer = bool(header_text or footer_text)
+
+    debug: dict[str, object] = {
+        "docx_header": header_text,
+        "docx_footer": footer_text,
+        "total_paragraphs": int(total_paragraphs),
+        "heading_paragraphs_count": int(heading_paragraphs_count),
+        "bullet_paragraphs_count": int(bullet_paragraphs_count),
+        "table_count": int(table_count),
+        "textbox_count": int(textbox_count),
+        "had_header_footer": bool(had_header_footer),
+    }
+
+    return ExtractedText(text=normalize_text(text), method="docx", debug=debug)
 
 
 def _extract_plain_text(file_path: Path, extension: str) -> ExtractedText:

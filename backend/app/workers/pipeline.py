@@ -58,12 +58,25 @@ from app.services.parser.structured_sanitizers import (
     sanitize_skill_entries,
 )
 from app.services.llm_service import LLMParsingService
+from app.services.parser.normalize import clean_summary_and_skills_sections
 from app.utils.pii import hash_value
 from app.utils.review import apply_correction_patterns, compute_review_flags, find_date_overlaps
 from app.services.storage import copy_s3_object, save_bytes_to_local, upload_bytes_to_s3
+from app.services.parser.fallback_segmenter import FallbackSegmenter
 from app.workers.celery_app import celery_app
+from app.workers.doc_convert_task import convert_doc_to_docx_task
+from app.workers.extract_clients_task import task_extract_clients
 from app.workers.extract_text_task import extract_text_task
 from app.services.parser.section_boundary_extractor import extract_certifications
+from app.core.observability import SECTION_DETECTION_FALLBACK_TOTAL
+from app.core.observability import (
+    EXPERIENCE_PARSE_QUALITY_SCORE,
+    FALLBACK_SEGMENTER_TOTAL,
+    RESUME_PARSE_QUALITY_SCORE,
+    REVIEW_FLAG_TOTAL,
+    SECTION_DETECTION_CONFIDENCE,
+)
+from app.workers.task_calculate_confidence import build_per_field_confidence, record_quality_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -79,60 +92,89 @@ def start_parsing_workflow(job_id: str) -> str:
     increment_jobs_total()
     settings = get_settings()
 
+    job_for_path = None
+    try:
+        job_for_path = _load_job(job_id)
+    except Exception:
+        job_for_path = None
+
+    source_path = getattr(job_for_path, "file_path", None) if job_for_path is not None else None
+    is_doc_upload = bool(source_path) and str(source_path).lower().endswith(".doc")
+
     if settings.PARSING_MODE.lower() == "text_only":
+        first = task_extract_text.si(job_id).set(queue="extract")
+        if is_doc_upload and source_path:
+            first = chain(
+                convert_doc_to_docx_task.si(job_id, str(source_path)).set(queue="doc_convert"),
+                task_extract_text.si(job_id).set(queue="extract"),
+            )
         workflow = chain(
-            task_extract_text.s(job_id),
-            task_clean_text.s(),
-            task_finalize_text_only.s(),
+            first,
+            task_clean_text.s().set(queue="parse"),
+            task_finalize_text_only.s().set(queue="persist"),
         )
     elif settings.PARSING_MODE.lower() == "deterministic":
+        first = task_extract_text.si(job_id).set(queue="extract")
+        if is_doc_upload and source_path:
+            first = chain(
+                convert_doc_to_docx_task.si(job_id, str(source_path)).set(queue="doc_convert"),
+                task_extract_text.si(job_id).set(queue="extract"),
+            )
         workflow = chain(
-            task_extract_text.s(job_id),
-            task_clean_text.s(),
-            task_detect_sections.s(),
-            task_extract_contact_info.s(),
-            task_parse_work_experience.s(),
-            task_parse_education.s(),
-            task_parse_certifications.s(),
-            task_extract_achievements.s(),
-            task_extract_skills.s(),
-            task_taxonomy_mapping.s(),
-            task_calculate_confidence.s(),
-            task_save_to_database.s(),
+            first,
+            task_clean_text.s().set(queue="parse"),
+            task_detect_sections.s().set(queue="parse"),
+            task_extract_contact_info.s().set(queue="parse"),
+            task_parse_work_experience.s().set(queue="parse"),
+            task_extract_clients.s().set(queue="parse"),
+            task_parse_education.s().set(queue="parse"),
+            task_parse_certifications.s().set(queue="parse"),
+            task_extract_achievements.s().set(queue="parse"),
+            task_extract_skills.s().set(queue="parse"),
+            task_taxonomy_mapping.s().set(queue="parse"),
+            task_calculate_confidence.s().set(queue="parse"),
+            task_save_to_database.s().set(queue="persist"),
         )
     else:
+        first = task_extract_text.si(job_id).set(queue="extract")
+        if is_doc_upload and source_path:
+            first = chain(
+                convert_doc_to_docx_task.si(job_id, str(source_path)).set(queue="doc_convert"),
+                task_extract_text.si(job_id).set(queue="extract"),
+            )
         workflow = chain(
-            task_extract_text.s(job_id),
-            task_clean_text.s(),
+            first,
+            task_clean_text.s().set(queue="parse"),
             # Pass 1 → Section Detection
-            task_detect_sections.s(),
-            task_detect_resume_sections.s(),
+            task_detect_sections.s().set(queue="parse"),
+            task_detect_resume_sections.s().set(queue="llm"),
             # Pass 2 → Entity Extraction
-            task_extract_contact_info.s(),
-            task_parse_work_experience.s(),
-            task_parse_education.s(),
-            task_parse_certifications.s(),
-            task_extract_achievements.s(),
-            task_extract_personal_info.s(),
-            task_extract_structured_resume.s(),
-            task_normalize_structured_resume.s(),
-            task_extract_work_experience_details.s(),
-            task_llm_resume_parse.s(),
-            task_classify_resume_type.s(),
+            task_extract_contact_info.s().set(queue="parse"),
+            task_parse_work_experience.s().set(queue="parse"),
+            task_extract_clients.s().set(queue="parse"),
+            task_parse_education.s().set(queue="parse"),
+            task_parse_certifications.s().set(queue="parse"),
+            task_extract_achievements.s().set(queue="parse"),
+            task_extract_personal_info.s().set(queue="llm"),
+            task_extract_structured_resume.s().set(queue="llm"),
+            task_normalize_structured_resume.s().set(queue="llm"),
+            task_extract_work_experience_details.s().set(queue="llm"),
+            task_llm_resume_parse.s().set(queue="llm"),
+            task_classify_resume_type.s().set(queue="llm"),
             # Pass 3 → Skill Inference
-            task_extract_skills.s(),
-            task_extract_experience_skills.s(),
+            task_extract_skills.s().set(queue="parse"),
+            task_extract_experience_skills.s().set(queue="llm"),
             # Pass 4 → Normalization
-            task_normalize_education_details.s(),
-            task_normalize_skills_llm.s(),
-            task_taxonomy_mapping.s(),
+            task_normalize_education_details.s().set(queue="parse"),
+            task_normalize_skills_llm.s().set(queue="llm"),
+            task_taxonomy_mapping.s().set(queue="parse"),
             # Pass 5 → Confidence Scoring
-            task_calculate_total_experience.s(),
-            task_evaluate_extraction_confidence.s(),
-            task_calculate_confidence.s(),
+            task_calculate_total_experience.s().set(queue="parse"),
+            task_evaluate_extraction_confidence.s().set(queue="llm"),
+            task_calculate_confidence.s().set(queue="parse"),
             # Pass 6 → Validation
-            task_verify_extracted_data.s(),
-            task_save_to_database.s(),
+            task_verify_extracted_data.s().set(queue="llm"),
+            task_save_to_database.s().set(queue="persist"),
         )
 
     force_local = settings.ENVIRONMENT.lower() in {"development", "local"}
@@ -158,6 +200,8 @@ def start_parsing_workflow(job_id: str) -> str:
 
     def _run_local() -> str:
         current_job_id = job_id
+        if is_doc_upload and source_path:
+            convert_doc_to_docx_task.apply(args=[job_id, str(source_path)])
         tasks = [task_extract_text, task_clean_text]
         if settings.PARSING_MODE.lower() == "text_only":
             tasks.append(task_finalize_text_only)
@@ -167,6 +211,7 @@ def start_parsing_workflow(job_id: str) -> str:
                     task_detect_sections,
                     task_extract_contact_info,
                     task_parse_work_experience,
+                    task_extract_clients,
                     task_parse_education,
                     task_parse_certifications,
                     task_extract_achievements,
@@ -185,6 +230,7 @@ def start_parsing_workflow(job_id: str) -> str:
                     # Pass 2 → Entity Extraction
                     task_extract_contact_info,
                     task_parse_work_experience,
+                    task_extract_clients,
                     task_parse_education,
                     task_parse_certifications,
                     task_extract_achievements,
@@ -1807,8 +1853,14 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
         parser = SectionParser(use_spacy=True)
         sections = parser.parse(job.raw_text or "")
         detected_headers = parser.get_detected_headers()
+        section_meta = parser.get_section_metadata()
+        section_map = parser.get_section_map()
         payload = {
-            key: {"content": value.content, "confidence": value.confidence}
+            key: {
+                "content": value.content,
+                "confidence": value.confidence,
+                **(section_meta.get(key) if isinstance(section_meta.get(key), dict) else {}),
+            }
             for key, value in sections.items()
         }
 
@@ -1821,17 +1873,123 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
             except (TypeError, ValueError):
                 continue
 
+        avg_sec_conf = 0.0
+        try:
+            sec_confs = [
+                float(val.get("confidence", 0.0) or 0.0)
+                for val in payload.values()
+                if isinstance(val, dict)
+            ]
+            avg_sec_conf = (sum(sec_confs) / len(sec_confs)) if sec_confs else 0.0
+        except Exception:  # noqa: BLE001
+            avg_sec_conf = 0.0
+
+        settings = get_settings()
+        fallback_activated = False
+        fallback_method: str | None = None
+
+        if settings.LLM_PROVIDER == "none" and avg_sec_conf < 0.6 and job.raw_text:
+            fb = FallbackSegmenter()
+            fb_sections = fb.segment(job.raw_text)
+            if isinstance(fb_sections, dict) and fb_sections:
+                fallback_activated = True
+                SECTION_DETECTION_FALLBACK_TOTAL.inc()
+                FALLBACK_SEGMENTER_TOTAL.inc()
+
+                try:
+                    methods = [
+                        str(v.get("method") or "")
+                        for v in fb_sections.values()
+                        if isinstance(v, dict)
+                    ]
+                    fallback_method = methods[0] if methods else None
+                except Exception:  # noqa: BLE001
+                    fallback_method = None
+
+                merged: dict[str, dict[str, object]] = {}
+                for k, v in payload.items():
+                    if not isinstance(v, dict):
+                        continue
+                    try:
+                        conf = float(v.get("confidence", 0.0) or 0.0)
+                    except (TypeError, ValueError):
+                        conf = 0.0
+                    if conf >= 0.6:
+                        merged[k] = v
+
+                for k, v in fb_sections.items():
+                    if not isinstance(v, dict):
+                        continue
+                    if k not in merged:
+                        merged[k] = v
+
+                payload = merged
+                section_map = [
+                    {
+                        "section_key": key,
+                        "start_line": int(block.get("start_line", 0) or 0),
+                        "end_line": int(block.get("end_line", 0) or 0),
+                    }
+                    for key, block in merged.items()
+                    if isinstance(block, dict)
+                ]
+                section_map = sorted(
+                    section_map,
+                    key=lambda x: (
+                        int(x.get("start_line", 0) or 0),
+                        str(x.get("section_key") or ""),
+                    ),
+                )
+
+        cleaned_counts = {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+        try:
+            cleaned_sections, cleaned_counts = clean_summary_and_skills_sections(payload)
+            if isinstance(cleaned_sections, dict):
+                payload = cleaned_sections
+        except Exception:  # noqa: BLE001
+            cleaned_counts = {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+
+        for section_key, block in payload.items():
+            if not isinstance(block, dict):
+                continue
+            try:
+                conf_val = float(block.get("confidence", 0.0) or 0.0)
+            except (TypeError, ValueError):
+                conf_val = 0.0
+            SECTION_DETECTION_CONFIDENCE.labels(section=str(section_key)).observe(
+                max(0.0, min(1.0, conf_val))
+            )
+
         debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
         debug_bundle = dict(debug_bundle)
         debug_bundle["sections"] = {
             "detected_headers_count": len(detected_headers) if isinstance(detected_headers, list) else 0,
             "max_header_confidence": max_header_conf,
+            "avg_section_confidence": float(avg_sec_conf),
+            "fallback_segmenter_activated": bool(fallback_activated),
+            "fallback_segmenter_method": fallback_method,
+            "moved_summary_to_skills": int(cleaned_counts.get("moved_summary_to_skills", 0) or 0),
+            "moved_skills_to_summary": int(cleaned_counts.get("moved_skills_to_summary", 0) or 0),
+            "section_map": section_map if isinstance(section_map, list) else [],
+            "detected_headers": detected_headers if isinstance(detected_headers, list) else [],
             "section_confidences": {
                 key: float(val.get("confidence", 0.0) or 0.0)
                 for key, val in payload.items()
                 if isinstance(val, dict)
             },
         }
+
+        logger.info(
+            "Section detection completed",
+            extra={
+                "job_id": job_id,
+                "avg_section_confidence": float(avg_sec_conf),
+                "fallback_segmenter_activated": bool(fallback_activated),
+                "fallback_segmenter_method": fallback_method,
+                "moved_summary_to_skills": int(cleaned_counts.get("moved_summary_to_skills", 0) or 0),
+                "moved_skills_to_summary": int(cleaned_counts.get("moved_skills_to_summary", 0) or 0),
+            },
+        )
         _update_job(
             job_id,
             last_stage="detect_sections",
@@ -1840,6 +1998,7 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
                 {
                     "sections": payload,
                     "detected_headers": detected_headers,
+                    "section_map": section_map,
                     "debug": debug_bundle,
                 },
             ),
@@ -2070,10 +2229,174 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                 }
                 for job_entry in jobs
             ]
+
+        today = date.today()
+
+        def _parse_entry_date(value: object) -> date | None:
+            if value is None:
+                return None
+            if isinstance(value, date):
+                return value
+            raw = str(value).strip()
+            if not raw:
+                return None
+            try:
+                return _parse_date_str(raw)
+            except Exception:
+                return None
+
+        def _company_is_suspicious(value: object) -> bool:
+            cleaned = str(value or "").strip()
+            if not cleaned:
+                return True
+            lowered = cleaned.lower()
+            if lowered in {"present", "current", "till", "to", "till date", "now"}:
+                return True
+            if len(cleaned) <= 1:
+                return True
+            if any(tok in lowered for tok in ("present", "current", "till", "to")) and len(cleaned) <= 18:
+                return True
+            if any(ch.isdigit() for ch in cleaned):
+                return True
+            if re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b", lowered):
+                return True
+            return False
+
+        def _month_range_for(entry: dict[str, object]) -> tuple[int, int] | None:
+            start = _parse_entry_date(entry.get("start_date") or entry.get("from") or entry.get("start"))
+            if not start:
+                return None
+            end_raw = entry.get("end_date") or entry.get("to") or entry.get("end")
+            is_current = bool(entry.get("is_current"))
+            end: date | None
+            if is_current or _looks_like_present(str(end_raw) if end_raw else None):
+                end = today
+            elif end_raw:
+                end = _parse_entry_date(end_raw)
+            else:
+                end = today
+            if not end:
+                return None
+            if end < start:
+                return None
+            return _month_index(start), _month_index(end)
+
+        validation: dict[str, Any] = {
+            "date_order_errors": 0,
+            "date_overlap_flags": 0,
+            "suspicious_company_flags": 0,
+            "sorted": True,
+        }
+
+        parsed_entries: list[dict[str, object]] = []
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            entry = dict(item)
+            start = _parse_entry_date(entry.get("start_date"))
+            end_raw = entry.get("end_date")
+            end = _parse_entry_date(end_raw)
+            if bool(entry.get("is_current")) or _looks_like_present(str(end_raw) if end_raw else None):
+                end = today
+            entry["_start_date_parsed"] = start
+            entry["_end_date_parsed"] = end
+
+            if start is not None and end is not None and end < start:
+                entry["date_order_error"] = True
+                validation["date_order_errors"] = int(validation.get("date_order_errors", 0)) + 1
+
+            company_val = entry.get("company")
+            if _company_is_suspicious(company_val):
+                entry["company_flag_error"] = True
+                validation["suspicious_company_flags"] = int(validation.get("suspicious_company_flags", 0)) + 1
+
+            parsed_entries.append(entry)
+
+        def _sort_key(e: dict[str, object]) -> tuple[int, int]:
+            start = e.get("_start_date_parsed")
+            if isinstance(start, date):
+                return 0, -_month_index(start)
+            return 1, 0
+
+        parsed_entries.sort(key=_sort_key)
+
+        def _company_key(e: dict[str, object]) -> str:
+            return str(e.get("company") or "").strip().lower()
+
+        def _months_overlap(a: tuple[int, int], b: tuple[int, int]) -> int:
+            start = max(a[0], b[0])
+            end = min(a[1], b[1])
+            if end < start:
+                return 0
+            return (end - start) + 1
+
+        overlap_pairs: list[dict[str, object]] = []
+        for i in range(len(parsed_entries)):
+            a = parsed_entries[i]
+            a_range = _month_range_for(a)
+            if not a_range:
+                continue
+            a_company = _company_key(a)
+            for j in range(i + 1, len(parsed_entries)):
+                b = parsed_entries[j]
+                b_range = _month_range_for(b)
+                if not b_range:
+                    continue
+                b_company = _company_key(b)
+                if not a_company or not b_company or a_company == b_company:
+                    continue
+                overlap = _months_overlap(a_range, b_range)
+                if overlap > 3:
+                    a["date_overlap_flag"] = True
+                    b["date_overlap_flag"] = True
+                    overlap_pairs.append(
+                        {
+                            "company_a": a.get("company"),
+                            "company_b": b.get("company"),
+                            "overlap_months": int(overlap),
+                        }
+                    )
+
+        if overlap_pairs:
+            validation["date_overlap_flags"] = len(overlap_pairs)
+
+        ranges: list[tuple[int, int]] = []
+        for entry in parsed_entries:
+            r = _month_range_for(entry)
+            if r:
+                ranges.append(r)
+        merged = _merge_month_ranges(ranges)
+        total_months = int(sum((end_i - start_i) + 1 for start_i, end_i in merged))
+        total_years = round(total_months / 12.0, 1)
+        validation["total_experience_months"] = total_months
+        validation["total_experience_years"] = total_years
+        if overlap_pairs:
+            validation["overlap_pairs"] = overlap_pairs[:25]
+
+        for entry in parsed_entries:
+            entry.pop("_start_date_parsed", None)
+            entry.pop("_end_date_parsed", None)
+
+        payload = parsed_entries
+
         _update_job(
             job_id,
             last_stage="parse_work_experience",
-            parsed_data=_merge_parsed(job, {"work_experience": payload, "debug": debug_bundle}),
+            parsed_data=_merge_parsed(
+                job,
+                {
+                    "work_experience": payload,
+                    "total_experience_years": total_years,
+                    "total_experience_months": total_months,
+                    "debug": {
+                        **debug_bundle,
+                        "work_experience": {
+                            **(debug_bundle.get("work_experience") if isinstance(debug_bundle.get("work_experience"), dict) else {}),
+                            "validation": validation,
+                        },
+                    },
+                },
+            ),
         )
         return job_id
     except Exception as exc:
@@ -2968,11 +3291,16 @@ def task_calculate_confidence(self, job_id: str) -> str:  # noqa: ANN001
         )
         score = _clamp(round(score, 4))
 
+        per_field, weakest_fields = build_per_field_confidence(parsed)
         breakdown: dict[str, Any] = {
             "weights": weights,
-            "fields": fields,
+            "signals": fields,
+            "fields": per_field,
+            "weakest_fields": weakest_fields,
             "overall": score,
         }
+
+        record_quality_metrics(filename=getattr(job, "filename", None), parsed=parsed, overall_score=score)
 
         _update_job(
             job_id,
@@ -3600,6 +3928,13 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 settings.REVIEW_FIELD_THRESHOLD,
                 discrepancies,
             )
+            if isinstance(review_flags, dict):
+                for flag in review_flags.get("rule_flags") or []:
+                    REVIEW_FLAG_TOTAL.labels(flag_name=str(flag)).inc()
+                flagged_fields = review_flags.get("flagged_fields")
+                if isinstance(flagged_fields, dict):
+                    for field_name in flagged_fields.keys():
+                        REVIEW_FLAG_TOTAL.labels(flag_name=str(field_name)).inc()
             candidate.review_flags = review_flags
             if (
                 job.confidence_score is not None

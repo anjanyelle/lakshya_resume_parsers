@@ -73,10 +73,45 @@ def compute_review_flags(
         for field, confidence in field_confidences.items()
         if confidence < field_threshold
     }
+
+    rule_flags: list[str] = []
+    if parsed_data:
+        confidence_breakdown = (
+            parsed_data.get("confidence_breakdown")
+            if isinstance(parsed_data.get("confidence_breakdown"), dict)
+            else {}
+        )
+        weakest_fields = (
+            confidence_breakdown.get("weakest_fields")
+            if isinstance(confidence_breakdown.get("weakest_fields"), list)
+            else []
+        )
+        critical = {"name", "email", "work_experience"}
+        if any(str(f or "") in critical for f in weakest_fields):
+            rule_flags.append("critical_field_low_confidence")
+
+        work_items = parsed_data.get("work_experience")
+        if isinstance(work_items, list):
+            for item in work_items:
+                if not isinstance(item, dict):
+                    continue
+                if item.get("date_overlap_flag") or item.get("date_order_error"):
+                    rule_flags.append("experience_date_anomaly")
+                    break
+
+        years = parsed_data.get("total_experience_years")
+        try:
+            years_val = float(years) if years is not None else None
+        except (TypeError, ValueError):
+            years_val = None
+        if years_val is not None and years_val > 40:
+            rule_flags.append("experience_years_suspicious")
+
     return {
         "overall_confidence": overall_confidence,
         "flagged_fields": flagged_fields,
         "discrepancies": discrepancies or [],
+        "rule_flags": rule_flags,
     }
 
 

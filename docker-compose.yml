@@ -31,6 +31,90 @@ services:
     environment:
       STORAGE_DIR: /var/uploads
 
+  worker_doc_convert:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads:/var/uploads
+    environment:
+      STORAGE_DIR: /var/uploads
+    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "doc_convert", "-c", "2"]
+
+  worker_ocr:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads:/var/uploads
+    environment:
+      STORAGE_DIR: /var/uploads
+    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "ocr", "-c", "4"]
+
+  worker_extract:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads:/var/uploads
+    environment:
+      STORAGE_DIR: /var/uploads
+    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "extract", "-c", "8"]
+
+  worker_parse:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads:/var/uploads
+    environment:
+      STORAGE_DIR: /var/uploads
+    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "parse", "-c", "8"]
+
+  worker_llm:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads:/var/uploads
+    environment:
+      STORAGE_DIR: /var/uploads
+    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "llm", "-c", "4"]
+
+  worker_persist:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - uploads:/var/uploads
+    environment:
+      STORAGE_DIR: /var/uploads
+    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "persist", "-c", "6"]
+
   frontend:
     build:
       context: ./frontend
