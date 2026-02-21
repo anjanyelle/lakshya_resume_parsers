@@ -28,20 +28,8 @@ DATE_TOKEN = (
     r")"
 )
 
-# PDF artifact: (cid:NN) often replaces bullets/symbols; strip so following text (e.g. "Karpagam College") is used
-_CID_RE = re.compile(r"\(cid:\d+\)", re.IGNORECASE)
-# Full date range: "July-2010 to June 2014", "Aug. 2018 – May 2021", "Expected Dec 2019"; allow month with period (Aug., Dec.)
-_DATE_RANGE_FULL_RE = re.compile(
-    r"(?P<start>(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z.]*[\s\-/.]*\d{2,4}|\d{4})\s*(?:to|[-–—])\s*(?P<end>present|current|expected|ongoing|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z.]*[\s\-/.]*\d{2,4}|\d{4})",
-    re.IGNORECASE,
-)
-# "Expected Dec 2019" or "Expected December 2019" -> end date + in_progress
-_EXPECTED_DATE_RE = re.compile(
-    r"expected\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z.]*[\s\-/.]*(\d{2,4})",
-    re.IGNORECASE,
-)
 DATE_RANGE_RE = re.compile(
-    r"(?P<start>[\w./\- ]{3,20})\s*(?:[-–—]|to)\s*(?P<end>present|current|expected|ongoing|[\w./\- ]{3,20})",
+    rf"(?P<start>{DATE_TOKEN})\s*(?:\s*(?:[-–—]|to|until|thru|through)\s*)\s*(?P<end>present|current|expected|ongoing|{DATE_TOKEN})",
     re.IGNORECASE,
 )
 # "Graduated: 2017", "Graduated: 2019"
@@ -926,9 +914,39 @@ class EducationParser:
         """Parse a date string into a date object."""
         if not value:
             return None
+
+        raw = str(value).strip().replace("’", "'")
+        m = re.match(r"^(?P<month>\d{1,2})[/-](?P<year>\d{2})$", raw)
+        if m:
+            mo = int(m.group("month"))
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            try:
+                return date(y, mo, 1)
+            except ValueError:
+                return None
+
+        m = re.match(
+            rf"^(?P<mon>{MONTH_TOKEN})\s*[']\s*(?P<year>\d{{2}})$",
+            raw,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            mon_raw = m.group("mon")
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            parsed = dateparser.parse(
+                f"{mon_raw} {y}",
+                settings={
+                    "PREFER_DAY_OF_MONTH": "first",
+                    "PREFER_DATES_FROM": "past",
+                    "RETURN_AS_TIMEZONE_AWARE": False,
+                },
+            )
+            return parsed.date() if parsed else None
             
         parsed = dateparser.parse(
-            value, 
+            raw, 
             settings={
                 "PREFER_DAY_OF_MONTH": "first",
                 "PREFER_DATES_FROM": "past",

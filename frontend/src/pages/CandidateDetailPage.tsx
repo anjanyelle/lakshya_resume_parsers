@@ -10,6 +10,7 @@ import SkillsSection from '../components/candidate-detail/SkillsSection'
 import CertificationsSection from '../components/candidate-detail/CertificationsSection'
 import ParsingStatusTimeline from '../components/candidate-detail/ParsingStatusTimeline'
 import CorrectionSplitView from '../components/candidate-detail/CorrectionSplitView'
+import DebugPanel from '../components/candidate-detail/DebugPanel'
 import Modal from '../components/common/Modal'
 import Skeleton from '../components/common/Skeleton'
 import type { Candidate, ParsingJob } from '../types'
@@ -486,6 +487,8 @@ export default function CandidateDetailPage() {
       </div>
 
       <SkillsSection skills={candidate.skills} candidateSkills={candidate.candidate_skills} />
+
+      <DebugPanel debug={(parsedData as any)?.debug} />
 
       <div className="space-y-3">
         <h2 className="text-xl font-semibold text-slate-900">
