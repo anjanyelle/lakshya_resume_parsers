@@ -41,6 +41,18 @@ LOCATION_RE = re.compile(r"\b([A-Za-z .]+,\s*[A-Z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist)\b", re.IGNORECASE)
 RESPONSIBILITY_MARKERS = {"responsibilities", "key responsibilities", "responsibility"}
 COMPANY_HINT_RE = re.compile(r"\b(inc|llc|ltd|corp|corporation|company|technologies|systems|health|bank|solutions|services)\b", re.IGNORECASE)
+ENVIRONMENT_LINE_RE = re.compile(
+    r"^(?:environments?|environment|tools?|technologies|tech\s*stack)\s*[:\-–—]",
+    re.IGNORECASE,
+)
+PHONE_RE = re.compile(r"\+?\d[\d\s().-]{7,}\d")
+EMAIL_RE = re.compile(r"\b[^\s@]+@[^\s@]+\b")
+SOCIAL_RE = re.compile(r"\b(linkedin|github|portfolio)\b", re.IGNORECASE)
+EDU_KEYWORD_RE = re.compile(
+    r"\b(bachelor|master|ph\s*d|b\.?tech|m\.?tech|b\.?sc|m\.?sc|degree|university|college|school)\b",
+    re.IGNORECASE,
+)
+CERT_KEYWORD_RE = re.compile(r"\b(certified|certification|certificate)\b", re.IGNORECASE)
 PLACEHOLDER_ORG_RE = re.compile(
     r"^(company|client|organization|employer|designation|title|role)\b",
     re.IGNORECASE,
@@ -51,6 +63,11 @@ CLIENT_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\bworked\s+for\s+(?P<client>[A-Za-z0-9][A-Za-z0-9 &.,()/-]{2,})", re.IGNORECASE),
     re.compile(r"\bproject\s+for\s+(?P<client>[A-Za-z0-9][A-Za-z0-9 &.,()/-]{2,})", re.IGNORECASE),
 ]
+
+CLIENT_HEADER_RE = re.compile(
+    r"^(?:end\s+client|client|project)\s*[:\-–—]",
+    re.IGNORECASE,
+)
 
 LOCATION_MARKER_RE = re.compile(
     r"\(?\b(?:location|loc)\b\s*[:\-–—]\s*(?P<loc>[^\n\r\t\)\|\u2022]{2,120})\)?",
@@ -223,6 +240,16 @@ class WorkExperienceParser:
             return False
         if PLACEHOLDER_ORG_RE.match(company) or PLACEHOLDER_ORG_RE.match(title):
             return False
+        if PHONE_RE.search(company) or PHONE_RE.search(title):
+            return False
+        if EMAIL_RE.search(company) or EMAIL_RE.search(title):
+            return False
+        if SOCIAL_RE.search(company) or SOCIAL_RE.search(title):
+            return False
+        if EDU_KEYWORD_RE.search(company) or EDU_KEYWORD_RE.search(title):
+            return False
+        if CERT_KEYWORD_RE.search(company) or CERT_KEYWORD_RE.search(title):
+            return False
         if "@" in company or "@" in title:
             return False
         if "http" in company.lower() or "http" in title.lower():
@@ -240,6 +267,14 @@ class WorkExperienceParser:
         has_body = bool(job.bullets) or bool(str(job.description or "").strip())
         if not has_dates and not has_body:
             return False
+
+        # Jobs without dates are extremely noisy in PDF extractions (contact/summary/skills). Only allow
+        # them if we have a strong header signal.
+        if not has_dates:
+            if not company or not title:
+                return False
+            if not job.bullets or len(job.bullets) < 2:
+                return False
         return job.confidence >= 0.5
 
     def extract_individual_jobs(self, text: str) -> list[str]:
@@ -249,6 +284,9 @@ class WorkExperienceParser:
 
         boundaries: list[int] = []
         for idx, line in enumerate(lines):
+            if CLIENT_HEADER_RE.match(line):
+                boundaries.append(idx)
+                continue
             if DATE_ANCHOR_RE.search(line) and idx + 1 < len(lines) and PRESENT_RE.search(lines[idx + 1]):
                 boundaries.append(idx)
                 continue
@@ -265,20 +303,29 @@ class WorkExperienceParser:
         last_start = -1
         for idx in boundaries:
             start = idx
+            if CLIENT_HEADER_RE.match(lines[idx]):
+                if start <= last_start:
+                    start = idx
+                starts.append(start)
+                last_start = start
+                continue
             for back in range(1, 4):
                 j = idx - back
                 if j < 0:
                     break
                 prev = lines[j]
+                if ENVIRONMENT_LINE_RE.match(prev) or prev.strip().lower() in RESPONSIBILITY_MARKERS:
+                    break
                 if DATE_RANGE_RE.search(prev):
                     break
                 if prev.startswith(("-", "•", "*")):
                     break
                 if self._looks_like_skillish_header(prev):
-                    continue
-                if len(prev) > 120:
                     break
-                start = j
+                if self._looks_like_title(prev) and not self._looks_like_company(prev):
+                    continue
+                if self._looks_like_company(prev):
+                    start = j
             if start <= last_start:
                 start = idx
             starts.append(start)
@@ -341,8 +388,18 @@ class WorkExperienceParser:
         labeled_company, labeled_title, labeled_desc = self._parse_labeled_fields(lines[1:])
         if labeled_company and not company:
             company = labeled_company
-        if labeled_title and (not title or title.lower() in {"organization", "designation"}):
-            title = labeled_title
+        if labeled_title:
+            title_clean = str(title or "").strip()
+            title_is_locationish = bool(self._parse_location(title_clean))
+            should_override = (
+                (not title_clean)
+                or title_clean.lower() in {"organization", "designation"}
+                or PLACEHOLDER_ORG_RE.match(title_clean)
+                or title_is_locationish
+                or not self._looks_like_title(title_clean)
+            )
+            if should_override:
+                title = labeled_title
         if labeled_desc:
             body_start = max(body_start, 1)
 
@@ -357,6 +414,14 @@ class WorkExperienceParser:
         description = "\n".join(description_source)
         duration_months = self._calc_duration_months(start_date, end_date, is_current)
         client = self._extract_client(chunk)
+        if client:
+            company_clean = str(company or "").strip()
+            if not company_clean:
+                company = client
+            else:
+                company_l = company_clean.lower().strip(":").strip()
+                if PLACEHOLDER_ORG_RE.match(company_l) or company_l.startswith("client") or company_l.startswith("end client"):
+                    company = client
         if client and company and self._client_looks_embedded_in_company(company, client):
             cleaned = self._remove_embedded_client(company, client)
             company = cleaned or company
@@ -483,13 +548,67 @@ class WorkExperienceParser:
         company: str | None = None
 
         pre_lines = header_window[:date_idx] if date_idx is not None else header_window[:3]
-        pre_lines = [ln for ln in pre_lines if ln and not ln.startswith(("-", "•", "*"))]
+        pre_lines = [
+            ln
+            for ln in pre_lines
+            if ln
+            and not ln.startswith(("-", "•", "*"))
+            and not ENVIRONMENT_LINE_RE.match(ln)
+            and ln.strip().lower().rstrip(":") not in RESPONSIBILITY_MARKERS
+        ]
         post_lines = header_window[(date_idx + 1) : (date_idx + 3)] if date_idx is not None else header_window[1:3]
-        post_lines = [ln for ln in post_lines if ln and not ln.startswith(("-", "•", "*"))]
+        post_lines = [
+            ln
+            for ln in post_lines
+            if ln
+            and not ln.startswith(("-", "•", "*"))
+            and not ENVIRONMENT_LINE_RE.match(ln)
+            and ln.strip().lower().rstrip(":") not in RESPONSIBILITY_MARKERS
+        ]
 
         header_line = pre_lines[0] if pre_lines else lines[0]
-        company, fallback_title = self._parse_company_title(self._strip_dates(header_line))
-        title = fallback_title
+        date_line = header_window[date_idx] if date_idx is not None else None
+
+        # Prefer extracting org/title from the line that contains the dates.
+        if date_line:
+            title_from_role = None
+            role_match = LABELED_TITLE_RE.search(date_line)
+            if role_match:
+                title_from_role = (role_match.group("value") or "").strip()
+
+            company_from_date = None
+            date_span = DATE_RANGE_RE.search(date_line)
+            if date_span:
+                prefix_raw = date_line[: date_span.start()]
+            else:
+                anchor = DATE_ANCHOR_RE.search(date_line)
+                prefix_raw = date_line[: anchor.start()] if anchor else ""
+
+            if prefix_raw:
+                prefix = prefix_raw.strip().strip(" -–—|,·")
+                prefix = re.sub(r"\s+", " ", prefix).strip()
+                prefix = prefix.rstrip(":").strip()
+                if prefix and not ENVIRONMENT_LINE_RE.match(prefix) and self._looks_like_company(prefix):
+                    company_from_date = prefix
+
+            if company_from_date:
+                company = company_from_date
+                if title_from_role and self._looks_like_title(title_from_role):
+                    title = title_from_role
+                else:
+                    title = None
+            else:
+                company, fallback_title = self._parse_company_title(self._strip_dates(header_line))
+                title = fallback_title
+
+            # If we successfully extracted a labeled role anywhere on the date line, prefer it over
+            # any placeholder-ish title produced by generic splitting.
+            if title_from_role and self._looks_like_title(title_from_role):
+                if not title or PLACEHOLDER_ORG_RE.match(str(title).strip()):
+                    title = title_from_role
+        else:
+            company, fallback_title = self._parse_company_title(self._strip_dates(header_line))
+            title = fallback_title
 
         if pre_lines:
             for candidate in pre_lines:
@@ -511,6 +630,9 @@ class WorkExperienceParser:
                 continue
             if not title and (TITLE_HINT_RE.search(candidate) or candidate.istitle()) and len(candidate.split()) <= 10:
                 title = candidate
+
+        if company and ENVIRONMENT_LINE_RE.match(company):
+            company = None
 
         if company and title and self._looks_like_title(company) and not self._looks_like_company(company):
             company = None
@@ -687,23 +809,38 @@ class WorkExperienceParser:
     def _extract_bullets(self, lines: list[str]) -> list[str]:
         bullets = []
         for line in lines:
-            if line.startswith(("-", "•", "*")):
-                bullets.append(line.lstrip("-•* ").strip())
+            if line.startswith(("-", "•", "*", "")):
+                bullets.append(line.lstrip("-•* ").strip())
         return bullets
 
     def _extract_client(self, text: str) -> str | None:
-        for pattern in CLIENT_PATTERNS:
-            match = pattern.search(text)
-            if not match:
-                continue
-            raw = (match.group("client") or "").strip().strip("-–—| ")
-            raw = re.split(r"\s{2,}|\||\u2022", raw)[0].strip()
-            raw = DATE_RANGE_RE.sub("", raw).strip(" -–—|,:")
-            if not raw:
-                continue
-            if len(raw) > 120:
-                continue
-            return raw
+        lines = [line.strip() for line in (text or "").splitlines() if line.strip()]
+        if not lines:
+            return None
+
+        for i, line in enumerate(lines[:8]):
+            for pattern in CLIENT_PATTERNS:
+                match = pattern.search(line)
+                if not match:
+                    continue
+                raw = (match.group("client") or "").strip().strip("-–—| ")
+                raw = re.split(r"\s{2,}|\||\u2022", raw)[0].strip()
+
+                date_anchor = DATE_ANCHOR_RE.search(raw)
+                if date_anchor:
+                    raw = raw[: date_anchor.start()].strip().strip(" -–—|,:")
+                raw = DATE_RANGE_RE.sub("", raw).strip(" -–—|,:")
+
+                loc_match = LOCATION_RE.search(raw)
+                if loc_match:
+                    raw = raw.replace(loc_match.group(1), "").strip(" -–—|,:")
+                    raw = re.sub(r"\s+", " ", raw).strip()
+
+                if not raw:
+                    continue
+                if len(raw) > 120:
+                    continue
+                return raw
         return None
 
     def _detect_employment_type(self, text: str) -> str | None:

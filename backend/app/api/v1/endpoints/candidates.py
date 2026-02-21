@@ -15,6 +15,7 @@ from app.api.deps import enforce_rate_limit, get_current_user, get_db, require_r
 from app.core.config import get_settings
 from app.models import Candidate, Certification, ParsingJob, ReviewStatus, WorkHistory
 from app.schemas.candidate import CandidateRead, CandidateUpdate, ParsingJobRead
+from app.schemas.public import CandidatePublicRead
 from app.schemas.review import CandidateReviewResponse, CorrectionRequest
 from app.services.storage import generate_presigned_url
 from app.utils.audit import log_audit
@@ -53,7 +54,7 @@ def _parse_optional_bool(value: str | None):
     return None
 
 
-@router.get("/candidates", response_model=list[CandidateRead])
+@router.get("/candidates", response_model=list[CandidatePublicRead])
 def list_candidates(
     q: Optional[str] = Query(default=None),
     status: Optional[str] = Query(default=None),
@@ -61,7 +62,7 @@ def list_candidates(
     limit: int = Query(default=50, ge=1, le=200),
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
-) -> list[CandidateRead]:
+) -> list[CandidatePublicRead]:
     enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
     query = db.query(Candidate).filter(Candidate.tenant_id == current_user.tenant_id)
     if status:
@@ -78,15 +79,15 @@ def list_candidates(
             filters.append(Candidate.email_hash == hash_value(q))
         query = query.filter(or_(*filters))
     candidates = query.offset(skip).limit(limit).all()
-    return [CandidateRead.model_validate(c) for c in candidates]
+    return [CandidatePublicRead.model_validate(c) for c in candidates]
 
 
-@router.get("/candidates/{candidate_id}", response_model=CandidateRead)
+@router.get("/candidates/{candidate_id}", response_model=CandidatePublicRead)
 def get_candidate(
     candidate_id: UUID,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
-) -> CandidateRead:
+) -> CandidatePublicRead:
     structlog.contextvars.bind_contextvars(candidate_id=str(candidate_id))
     enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
     candidate = (
@@ -96,16 +97,16 @@ def get_candidate(
     )
     if not candidate:
         raise HTTPException(status_code=404, detail="Candidate not found")
-    return CandidateRead.model_validate(candidate)
+    return CandidatePublicRead.model_validate(candidate)
 
 
-@router.put("/candidates/{candidate_id}", response_model=CandidateRead)
+@router.put("/candidates/{candidate_id}", response_model=CandidatePublicRead)
 def update_candidate(
     candidate_id: UUID,
     payload: CandidateUpdate,
     current_user=Depends(require_role("admin", "recruiter")),
     db: Session = Depends(get_db),
-) -> CandidateRead:
+) -> CandidatePublicRead:
     structlog.contextvars.bind_contextvars(candidate_id=str(candidate_id))
     enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
     candidate = (
@@ -134,7 +135,7 @@ def update_candidate(
         resource_id=str(candidate.id),
         ip_address=None,
     )
-    return CandidateRead.model_validate(candidate)
+    return CandidatePublicRead.model_validate(candidate)
 
 
 @router.delete("/candidates/{candidate_id}")
@@ -287,13 +288,13 @@ def get_candidate_review(
     )
 
 
-@router.put("/candidates/{candidate_id}/corrections", response_model=CandidateRead)
+@router.put("/candidates/{candidate_id}/corrections", response_model=CandidatePublicRead)
 def submit_corrections(
     candidate_id: UUID,
     payload: CorrectionRequest,
     current_user=Depends(require_role("admin", "recruiter")),
     db: Session = Depends(get_db),
-) -> CandidateRead:
+) -> CandidatePublicRead:
     structlog.contextvars.bind_contextvars(candidate_id=str(candidate_id))
     enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
     candidate = (
@@ -471,15 +472,15 @@ def submit_corrections(
         ip_address=None,
         details={"corrections": [c.field_name for c in payload.corrections]},
     )
-    return CandidateRead.model_validate(candidate)
+    return CandidatePublicRead.model_validate(candidate)
 
 
-@router.post("/candidates/{candidate_id}/approve", response_model=CandidateRead)
+@router.post("/candidates/{candidate_id}/approve", response_model=CandidatePublicRead)
 def approve_candidate(
     candidate_id: UUID,
     current_user=Depends(require_role("admin", "recruiter")),
     db: Session = Depends(get_db),
-) -> CandidateRead:
+) -> CandidatePublicRead:
     structlog.contextvars.bind_contextvars(candidate_id=str(candidate_id))
     enforce_rate_limit(current_user.email, limit=20, per_seconds=60)
     candidate = (
@@ -504,4 +505,4 @@ def approve_candidate(
         resource_id=str(candidate.id),
         ip_address=None,
     )
-    return CandidateRead.model_validate(candidate)
+    return CandidatePublicRead.model_validate(candidate)

@@ -70,6 +70,14 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
         if isinstance(debug, dict) and debug:
             meta["debug"] = debug
         parsed["text_extraction"] = meta
+
+        debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
+        debug_bundle = dict(debug_bundle)
+        debug_bundle["text_extraction"] = {
+            **meta,
+            "ocr_confidence": extracted.ocr_confidence,
+        }
+        parsed["debug"] = debug_bundle
         job.parsed_data = parsed
         session.commit()
 
