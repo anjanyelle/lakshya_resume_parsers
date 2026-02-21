@@ -77,6 +77,78 @@ class CertificationEntry:
 
 class CertificationParser:
 
+    @classmethod
+    def extract_candidate_lines_from_full_text(cls, text: str) -> list[str]:
+        lines = [ln.strip() for ln in (text or "").splitlines()]
+        if not lines:
+            return []
+
+        keyword_re = re.compile(
+            r"\b(?:certified|certification|certificate|certificates|license|licence|credentials?|aws|azure|google\s+cloud|gcp|scrum|pmp|project\s+management\s+professional)\b",
+            re.IGNORECASE,
+        )
+
+        out: list[str] = []
+        seen: set[str] = set()
+
+        for line in lines:
+            if not line:
+                continue
+
+            normalized = re.sub(r"\s+", " ", line).strip()
+            if not normalized:
+                continue
+
+            stripped = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized).strip()
+            if not stripped:
+                continue
+
+            lowered = stripped.lower()
+
+            if re.match(r"^(skills?|technical\s+skills?)\s*[:\-–—]", lowered):
+                continue
+
+            labeled_cert = bool(
+                re.match(
+                    r"^(certifications?|certification|licenses?|licence|credentials?)\s*[:\-–—]",
+                    lowered,
+                )
+            )
+            has_strong_marker = labeled_cert or any(
+                marker in lowered for marker in CERT_LINE_MARKERS
+            )
+            has_exam_code = bool(EXAM_CODE_RE.search(stripped))
+
+            if cls._looks_like_section_label(stripped):
+                continue
+            if not (has_strong_marker or has_exam_code) and cls._looks_like_skill_list(stripped):
+                continue
+
+            if not (keyword_re.search(stripped) or EXAM_CODE_RE.search(stripped)):
+                continue
+
+            if stripped.endswith(".") and not (has_strong_marker or has_exam_code):
+                continue
+
+            if len(stripped.split()) > 24 and not (has_strong_marker or has_exam_code):
+                continue
+
+            if len(stripped) > 220:
+                continue
+
+            if any(token in lowered for token in TRAINING_FALSE_POSITIVES) and not any(
+                marker in lowered for marker in CERT_LINE_MARKERS
+            ):
+                continue
+
+            if stripped not in seen:
+                out.append(stripped)
+                seen.add(stripped)
+            if len(out) >= 60:
+                break
+
+        return out
+
     def parse(self, text: str) -> list[CertificationEntry]:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         entries: list[CertificationEntry] = []

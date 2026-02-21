@@ -14,6 +14,20 @@ from app.services.parser.normalize import fix_concatenated_words
 logger = logging.getLogger(__name__)
 
 
+MONTH_TOKEN = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+DATE_TOKEN = (
+    r"(?:"
+    r"\d{4}-\d{2}-\d{2}"
+    r"|\d{4}[/-]\d{1,2}"
+    r"|\d{1,2}[/-]\d{2}"
+    r"|\d{1,2}[/-]\d{4}"
+    r"|\d{4}"
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"
+    rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"
+    r")"
+)
+
 # PDF artifact: (cid:NN) often replaces bullets/symbols; strip so following text (e.g. "Karpagam College") is used
 _CID_RE = re.compile(r"\(cid:\d+\)", re.IGNORECASE)
 # Full date range: "July-2010 to June 2014", "Aug. 2018 – May 2021", "Expected Dec 2019"; allow month with period (Aug., Dec.)
@@ -27,7 +41,7 @@ _EXPECTED_DATE_RE = re.compile(
     re.IGNORECASE,
 )
 DATE_RANGE_RE = re.compile(
-    r"(?P<start>[\w./\- ]{3,25})\s*(?:[-–—]|to)\s*(?P<end>present|current|expected|ongoing|[\w./\- ]{3,25})",
+    r"(?P<start>[\w./\- ]{3,20})\s*(?:[-–—]|to)\s*(?P<end>present|current|expected|ongoing|[\w./\- ]{3,20})",
     re.IGNORECASE,
 )
 # "Graduated: 2017", "Graduated: 2019"
@@ -912,9 +926,9 @@ class EducationParser:
         """Parse a date string into a date object."""
         if not value:
             return None
-        value = value.strip()
+            
         parsed = dateparser.parse(
-            value,
+            value, 
             settings={
                 "PREFER_DAY_OF_MONTH": "first",
                 "PREFER_DATES_FROM": "past",

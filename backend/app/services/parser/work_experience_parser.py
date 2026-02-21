@@ -18,14 +18,17 @@ DATE_TOKEN = (
     r"(?:"
     r"\d{4}-\d{2}-\d{2}"  # YYYY-MM-DD
     r"|\d{4}[/-]\d{1,2}"  # YYYY-MM or YYYY/MM
+    r"|\d{1,2}[/-]\d{2}"  # MM/YY
     r"|\d{1,2}[/-]\d{4}"  # MM/YYYY
     r"|\d{4}"  # YYYY
-    rf"|{MONTH_TOKEN}\s+\d{{4}}"  # MMM YYYY
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"  # MMM YYYY
+    rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"  # MMM 'YY
+    rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"  # MMM YY
     r")"
 )
 
 DATE_RANGE_RE = re.compile(
-    rf"(?P<start>{DATE_TOKEN})\s*(?:[-–—→]|to)\s*(?P<end>present|current|till\s+date|now|{DATE_TOKEN})",
+    rf"(?P<start>{DATE_TOKEN})\s*(?:\s*(?:[-–—→]|to|until|thru|through)\s*)\s*(?P<end>present|current|till\s+date|now|{DATE_TOKEN})",
     re.IGNORECASE,
 )
 
@@ -47,6 +50,11 @@ COMPANY_HINT_RE = re.compile(
 )
 # Trailing date fragment often left when header is "Title | Company | YYYY -"
 TRAILING_DATE_FRAGMENT_RE = re.compile(r"\s*[|]\s*\d{4}\s*(?:[-–—]\s*)?$")
+COMPANY_HINT_RE = re.compile(r"\b(inc|llc|ltd|corp|corporation|company|technologies|systems|health|bank|solutions|services)\b", re.IGNORECASE)
+PLACEHOLDER_ORG_RE = re.compile(
+    r"^(company|client|organization|employer|designation|title|role)\b",
+    re.IGNORECASE,
+)
 CLIENT_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:end\s+client|client)\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
     re.compile(r"\bproject\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
@@ -123,6 +131,87 @@ class WorkExperienceParser:
         self.settings = get_settings()
         self.llm = LLMParsingService()
 
+    @staticmethod
+    def build_date_anchor_excerpt(text: str, *, context_lines: int = 5) -> str:
+        raw_lines = [ln.rstrip() for ln in (text or "").splitlines()]
+        if not raw_lines:
+            return ""
+
+        anchor_indexes: list[int] = []
+        for idx, ln in enumerate(raw_lines):
+            if not ln.strip():
+                continue
+            if DATE_RANGE_RE.search(ln):
+                anchor_indexes.append(idx)
+                continue
+            if PRESENT_RE.search(ln) and DATE_ANCHOR_RE.search(ln):
+                anchor_indexes.append(idx)
+                continue
+            if DATE_ANCHOR_RE.search(ln) and re.search(r"(?:[-–—→]|\bto\b)", ln, flags=re.IGNORECASE):
+                anchor_indexes.append(idx)
+
+        if not anchor_indexes:
+            return ""
+
+        windows: list[tuple[int, int]] = []
+        n = len(raw_lines)
+        for idx in sorted(set(anchor_indexes)):
+            start = max(0, idx - context_lines)
+            end = min(n, idx + context_lines + 1)
+            windows.append((start, end))
+
+        windows.sort(key=lambda t: (t[0], t[1]))
+        merged: list[tuple[int, int]] = []
+        cur_start, cur_end = windows[0]
+        for start, end in windows[1:]:
+            if start <= cur_end:
+                cur_end = max(cur_end, end)
+                continue
+            merged.append((cur_start, cur_end))
+            cur_start, cur_end = start, end
+        merged.append((cur_start, cur_end))
+
+        chunks: list[str] = []
+        for start, end in merged:
+            block_lines = [ln for ln in raw_lines[start:end] if ln.strip()]
+            if not block_lines:
+                continue
+            chunks.append("\n".join(block_lines).strip())
+
+        return "\n\n".join([c for c in chunks if c]).strip()
+
+    @staticmethod
+    def _looks_like_skillish_header(value: str | None) -> bool:
+        cleaned = str(value or "").strip()
+        if not cleaned:
+            return False
+        lowered = cleaned.lower()
+
+        if re.match(r"^(environment|env|technologies|tools)\s*[:\-–—]", lowered):
+            return True
+
+        if re.fullmatch(
+            r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
+            lowered,
+        ) and len(cleaned) <= 40:
+            return True
+        if ("·" in cleaned or "•" in cleaned) and len(cleaned) <= 160:
+            return True
+        if cleaned.count(",") >= 2 and len(cleaned) <= 160:
+            return True
+        if re.search(
+            r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
+            lowered,
+        ):
+            parts = [
+                p.strip()
+                for p in re.split(r"[,/|·•\u2022]", lowered)
+                if p.strip()
+            ]
+            if len(parts) >= 3 and len(cleaned) <= 180:
+                return True
+        return False
+
     def parse_experience_section(self, text: str) -> list[JobEntry]:
         chunks = self.extract_individual_jobs(text)
         jobs: list[JobEntry] = []
@@ -141,6 +230,8 @@ class WorkExperienceParser:
         company = str(job.company or "").strip()
         title = str(job.title or "").strip()
         if not company and not title:
+            return False
+        if PLACEHOLDER_ORG_RE.match(company) or PLACEHOLDER_ORG_RE.match(title):
             return False
         if "@" in company or "@" in title:
             return False
@@ -175,6 +266,10 @@ class WorkExperienceParser:
             re.IGNORECASE,
         )
         if tech_fragment.search(company) or tech_fragment.search(title):
+            return False
+
+        # Reject skill/tool lists accidentally promoted into a "job" header (common PDF failure mode).
+        if WorkExperienceParser._looks_like_skillish_header(company) or WorkExperienceParser._looks_like_skillish_header(title):
             return False
 
         has_dates = bool(job.start_date) or bool(job.end_date)
@@ -288,6 +383,22 @@ class WorkExperienceParser:
                     if len(prev) > 120:
                         break
                     start = j
+        for idx in boundaries:
+            start = idx
+            for back in range(1, 4):
+                j = idx - back
+                if j < 0:
+                    break
+                prev = lines[j]
+                if DATE_RANGE_RE.search(prev):
+                    break
+                if prev.startswith(("-", "•", "*")):
+                    break
+                if self._looks_like_skillish_header(prev):
+                    continue
+                if len(prev) > 120:
+                    break
+                start = j
             if start <= last_start:
                 start = idx
             starts.append(start)
@@ -609,6 +720,8 @@ class WorkExperienceParser:
         if not text:
             return False
         cleaned = text.strip()
+        if WorkExperienceParser._looks_like_skillish_header(cleaned):
+            return False
         if 2 <= len(cleaned) <= 40 and cleaned.isupper() and not TITLE_HINT_RE.search(cleaned):
             return True
         if cleaned.istitle() and len(cleaned.split()) <= 4 and not TITLE_HINT_RE.search(cleaned):
@@ -651,6 +764,7 @@ class WorkExperienceParser:
         if not raw:
             return None
         raw = re.sub(r"\s+", " ", raw)
+        raw = raw.replace("’", "'")
 
         m = re.match(r"^(?P<year>\d{4})-(?P<month>\d{2})(?:-(?P<day>\d{2}))?$", raw)
         if m:
@@ -680,6 +794,34 @@ class WorkExperienceParser:
             except ValueError:
                 return None
 
+        m = re.match(r"^(?P<month>\d{1,2})[/-](?P<year>\d{2})$", raw)
+        if m:
+            mo = int(m.group("month"))
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            try:
+                return date(y, mo, 1)
+            except ValueError:
+                return None
+
+        m = re.match(
+            rf"^(?P<mon>{MONTH_TOKEN})\s*[']\s*(?P<year>\d{{2}})$",
+            raw,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            mon_raw = m.group("mon")
+            yy = int(m.group("year"))
+            y = 2000 + yy if yy <= 49 else 1900 + yy
+            parsed = dateparser.parse(
+                f"{mon_raw} {y}",
+                settings={
+                    "PREFER_DAY_OF_MONTH": "first",
+                    "PREFER_DATES_FROM": "past",
+                },
+            )
+            return parsed.date() if parsed else None
+
         m = re.match(r"^(?P<year>\d{4})$", raw)
         if m:
             return date(int(m.group("year")), 1, 1)
@@ -706,10 +848,24 @@ class WorkExperienceParser:
             parts = [p.strip() for p in cleaned.split("|") if p.strip()]
             if len(parts) >= 2:
                 left, right = parts[0], parts[1]
+                right_l = right.lower().strip(":")
+                left_l = left.lower()
+                if PLACEHOLDER_ORG_RE.match(right_l) or right_l in {"role", "client"}:
+                    if "," in left or "/" in left or (left_l and not TITLE_HINT_RE.search(left)):
+                        return None, None
+                    return None, None
                 return left, right
         match = COMPANY_LINE_RE.search(cleaned)
         if match:
-            return match.group("company").strip(), match.group("title").strip()
+            company = match.group("company").strip()
+            title = match.group("title").strip()
+            title_l = title.lower().strip(":")
+            if title_l in {"company", "role", "title", "designation", "client"}:
+                if PLACEHOLDER_ORG_RE.match(title_l):
+                    return company, None
+                if "," in company or "/" in company or (company.lower() and not TITLE_HINT_RE.search(company)):
+                    return None, None
+            return company, title
         return None, None
 
     @staticmethod
