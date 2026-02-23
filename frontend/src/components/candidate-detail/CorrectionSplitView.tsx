@@ -25,6 +25,7 @@ type CorrectionSplitViewProps = {
   onSave: () => void
   canUndo: boolean
   canRedo: boolean
+  readOnly?: boolean
 }
 
 export default function CorrectionSplitView({
@@ -48,6 +49,7 @@ export default function CorrectionSplitView({
   onSave,
   canUndo,
   canRedo,
+  readOnly = false,
 }: CorrectionSplitViewProps) {
   const contact = parsedData.contact || {}
   const originalContact = originalData.contact || {}
@@ -116,26 +118,28 @@ export default function CorrectionSplitView({
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={onToggleCompare}
-              icon={compareMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            >
-              {compareMode ? 'Hide comparison' : 'Compare original'}
-            </Button>
-            <Button variant="secondary" onClick={onUndo} disabled={!canUndo} icon={<Undo2 className="h-4 w-4" />}>
-              Undo
-            </Button>
-            <Button variant="secondary" onClick={onRedo} disabled={!canRedo} icon={<Redo2 className="h-4 w-4" />}>
-              Redo
+        {!readOnly && (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                onClick={onToggleCompare}
+                icon={compareMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              >
+                {compareMode ? 'Hide comparison' : 'Compare original'}
+              </Button>
+              <Button variant="secondary" onClick={onUndo} disabled={!canUndo} icon={<Undo2 className="h-4 w-4" />}>
+                Undo
+              </Button>
+              <Button variant="secondary" onClick={onRedo} disabled={!canRedo} icon={<Redo2 className="h-4 w-4" />}>
+                Redo
+              </Button>
+            </div>
+            <Button onClick={onSave} icon={<Save className="h-4 w-4" />}>
+              Save corrections
             </Button>
           </div>
-          <Button onClick={onSave} icon={<Save className="h-4 w-4" />}>
-            Save corrections
-          </Button>
-        </div>
+        )}
 
         {discrepancies.length > 0 && (
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
@@ -165,6 +169,7 @@ export default function CorrectionSplitView({
               )}
               onSave={(next) => onFieldChange(field.path, next)}
               validator={(value) => (value.trim() ? null : 'Value cannot be empty')}
+              readOnly={readOnly}
             />
           ))}
         </div>
@@ -183,6 +188,7 @@ export default function CorrectionSplitView({
                   flagged={false}
                   onSave={(next) => onWorkHistoryChange(item.id, 'company_name', next)}
                   validator={(value) => (value.trim() ? null : 'Company required')}
+                  readOnly={readOnly}
                 />
                 <EditableField
                   label="Title"
@@ -192,6 +198,7 @@ export default function CorrectionSplitView({
                   confidence={null}
                   flagged={false}
                   onSave={(next) => onWorkHistoryChange(item.id, 'job_title', next)}
+                  readOnly={readOnly}
                 />
                 <EditableField
                   label="Client"
@@ -201,6 +208,7 @@ export default function CorrectionSplitView({
                   confidence={null}
                   flagged={false}
                   onSave={(next) => onWorkHistoryChange(item.id, 'client_name', next)}
+                  readOnly={readOnly}
                 />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <EditableField
@@ -211,6 +219,7 @@ export default function CorrectionSplitView({
                     confidence={null}
                     flagged={false}
                     onSave={(next) => onWorkHistoryChange(item.id, 'start_date', next)}
+                    readOnly={readOnly}
                   />
                   <EditableField
                     label="End date"
@@ -220,6 +229,7 @@ export default function CorrectionSplitView({
                     confidence={null}
                     flagged={false}
                     onSave={(next) => onWorkHistoryChange(item.id, 'end_date', next)}
+                    readOnly={readOnly}
                   />
                 </div>
                 <EditableField
@@ -230,6 +240,7 @@ export default function CorrectionSplitView({
                   confidence={null}
                   flagged={false}
                   onSave={(next) => onWorkHistoryChange(item.id, 'location', next)}
+                  readOnly={readOnly}
                 />
                 <EditableField
                   label="Description"
@@ -239,6 +250,7 @@ export default function CorrectionSplitView({
                   confidence={null}
                   flagged={false}
                   onSave={(next) => onWorkHistoryChange(item.id, 'description', next)}
+                  readOnly={readOnly}
                 />
               </div>
             ))}
@@ -258,6 +270,7 @@ export default function CorrectionSplitView({
                 confidence={item.confidence}
                 flagged={false}
                 onSave={(next) => onFieldChange(`skills.${index}.name`, next)}
+                readOnly={readOnly}
               />
             ))}
           </div>
@@ -276,6 +289,7 @@ export default function CorrectionSplitView({
                   confidence={item.confidence}
                   flagged={false}
                   onSave={(next) => onFieldChange(`education.${index}.institution`, next)}
+                  readOnly={readOnly}
                 />
                 <EditableField
                   label="Degree"
@@ -285,6 +299,7 @@ export default function CorrectionSplitView({
                   confidence={item.confidence}
                   flagged={false}
                   onSave={(next) => onFieldChange(`education.${index}.degree`, next)}
+                  readOnly={readOnly}
                 />
               </div>
             ))}
@@ -305,6 +320,7 @@ export default function CorrectionSplitView({
                   flagged={false}
                   onSave={(next) => onCertificationChange(item.id, 'name', next)}
                   validator={(value) => (value.trim() ? null : 'Name required')}
+                  readOnly={readOnly}
                 />
                 <EditableField
                   label="Issuer"
@@ -314,6 +330,7 @@ export default function CorrectionSplitView({
                   confidence={null}
                   flagged={false}
                   onSave={(next) => onCertificationChange(item.id, 'issuing_organization', next)}
+                  readOnly={readOnly}
                 />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <EditableField
@@ -324,6 +341,7 @@ export default function CorrectionSplitView({
                     confidence={null}
                     flagged={false}
                     onSave={(next) => onCertificationChange(item.id, 'issue_date', next)}
+                    readOnly={readOnly}
                   />
                   <EditableField
                     label="Expiry date"
@@ -333,6 +351,7 @@ export default function CorrectionSplitView({
                     confidence={null}
                     flagged={false}
                     onSave={(next) => onCertificationChange(item.id, 'expiry_date', next)}
+                    readOnly={readOnly}
                   />
                 </div>
                 <EditableField
@@ -343,6 +362,7 @@ export default function CorrectionSplitView({
                   confidence={null}
                   flagged={false}
                   onSave={(next) => onCertificationChange(item.id, 'credential_id', next)}
+                  readOnly={readOnly}
                 />
               </div>
             ))}

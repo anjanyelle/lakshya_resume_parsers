@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
 from app.services.parser.work_experience_parser import WorkExperienceParser
+
+logger = logging.getLogger(__name__)
 
 
 _PLACEHOLDER_RE = re.compile(
@@ -127,6 +130,57 @@ def _merge_entries(primary: dict[str, Any], incoming: dict[str, Any]) -> dict[st
     return out
 
 
+def _count_filled_fields(entry: dict[str, Any]) -> int:
+    """Score entry by number of filled fields (prefer description/bullets)."""
+    score = 0
+    if _normalize_description(entry.get("description")):
+        score += 10
+    bullets = entry.get("bullets")
+    if isinstance(bullets, list):
+        score += len([b for b in bullets if isinstance(b, str) and _clean_bullet(b)])
+    if _normalize_date_token(entry.get("end_date")):
+        score += 2
+    if _normalize_text(entry.get("client")):
+        score += 1
+    if _normalize_text(entry.get("location")):
+        score += 1
+    if _normalize_text(entry.get("employment_type")):
+        score += 1
+    return score
+
+
+def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Remove duplicate work entries. Two entries are duplicates if
+    company + job_title + start_date match. Keep the entry with more filled fields.
+    """
+    if not isinstance(entries, list) or not entries:
+        return list(entries) if isinstance(entries, list) else []
+
+    seen: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        company = _normalize_text(entry.get("company")).lower()
+        title = _normalize_text(entry.get("title")).lower()
+        start_date = _normalize_date_token(entry.get("start_date")).lower()
+        key = (company, title, start_date)
+
+        if key not in seen:
+            seen[key] = entry
+            continue
+
+        existing = seen[key]
+        if _count_filled_fields(entry) > _count_filled_fields(existing):
+            seen[key] = entry
+
+    result = list(seen.values())
+    removed = len(entries) - len(result)
+    if removed > 0:
+        logger.info("deduplicate_work_entries removed %d duplicate(s)", removed)
+    return result
+
+
 def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
     if not isinstance(entries, list) or not entries:
         return []
@@ -210,4 +264,5 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         deduped[key] = _merge_entries(deduped[key], entry)
 
-    return [deduped[k] for k in order]
+    merged_list = [deduped[k] for k in order]
+    return deduplicate_work_entries(merged_list)

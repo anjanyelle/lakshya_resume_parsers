@@ -49,10 +49,16 @@ from app.services.parser.education_parser import EducationParser
 from app.services.parser.normalize import normalize_resume_text
 from app.services.parser.section_parser import SectionParser
 from app.services.parser.achievements_extractor import AchievementsExtractor
-from app.services.parser.certification_validator import CertificationValidator
+from app.services.parser.certification_validator import (
+    CertificationValidator,
+    deduplicate_certificates,
+)
 from app.services.parser.skill_extractor import SkillExtractor, SkillMatch
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
-from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+from app.services.parser.work_experience_sanitizer import (
+    deduplicate_work_entries,
+    sanitize_work_experience_entries,
+)
 from app.services.parser.quality_scoring import score_certifications, score_work_experience_jobs
 from app.services.parser.structured_sanitizers import (
     sanitize_certifications_entries,
@@ -83,20 +89,146 @@ from app.workers.task_calculate_confidence import build_per_field_confidence, re
 logger = logging.getLogger(__name__)
 
 
+def clean_summary(text: str) -> str:
+    """
+    Clean summary text: remove duplicate lines/paragraphs and sentences,
+    trim to 800 chars / 3 sentences if needed. Call before saving.
+    """
+    return _dedup_text_lines(text or "")
+
+
 def _dedup_text_lines(text: str) -> str:
-    """Remove duplicate lines (case-insensitive) while preserving blank lines as spacing."""
+    """
+    Remove duplicate lines and sentences from summary text.
+    Deduplicates at paragraph level (lines) and sentence level.
+    Trims to first 3 sentences if result exceeds 800 characters.
+    """
     if not text:
         return text
-    seen = set()
-    result = []
+
+    # 1. Paragraph-level dedup (by line, strip + compare)
+    seen_lines: set[str] = set()
+    lines_out: list[str] = []
     for line in text.splitlines():
         key = line.strip().lower()
-        if key and key not in seen:
-            seen.add(key)
-            result.append(line)
+        if key and key not in seen_lines:
+            seen_lines.add(key)
+            lines_out.append(line)
         elif not key:
-            result.append(line)  # keep blank lines as spacing
-    return "\n".join(result)
+            lines_out.append(line)
+    paragraph_deduped = "\n".join(lines_out)
+
+    # 2. Sentence-level dedup (split by ". ")
+    flat = paragraph_deduped.replace("\n", " ").strip()
+    if not flat:
+        return paragraph_deduped
+
+    parts = flat.split(". ")
+    seen_sentences: set[str] = set()
+    sentences: list[str] = []
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        key = part.lower()
+        if key not in seen_sentences:
+            seen_sentences.add(key)
+            sentences.append(part)
+
+    result = ". ".join(sentences)
+
+    # 3. Trim to first 3 sentences if exceeds 800 chars
+    if len(result) > 800 and len(sentences) > 3:
+        result = ". ".join(sentences[:3])
+
+    return result
+
+
+def sanitize_final_output(parsed_data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Pipeline dedup guard: run at the very end before saving.
+    Ensures no duplicates reach the database regardless of which parser ran.
+    """
+    if not parsed_data:
+        return parsed_data or {}
+
+    # 1. Deduplicate work entries
+    work_exp = parsed_data.get("work_experience", [])
+    work_before = len(work_exp) if isinstance(work_exp, list) else 0
+    if isinstance(work_exp, list):
+        parsed_data["work_experience"] = deduplicate_work_entries(work_exp)
+    work_after = len(parsed_data.get("work_experience") or [])
+    if work_before > 0 and work_after < work_before:
+        dropped = work_before - work_after
+        logger.warning(
+            "sanitize_final_output: work_experience reduced by %d (before=%d, after=%d)",
+            dropped,
+            work_before,
+            work_after,
+        )
+
+    # 2. Clean summary (dedup lines/sentences, trim)
+    sections = parsed_data.get("sections") or {}
+    if isinstance(sections, dict):
+        summary_block = sections.get("summary") or {}
+        if isinstance(summary_block, dict):
+            content = summary_block.get("content")
+            if content and isinstance(content, str):
+                sections["summary"] = {**summary_block, "content": clean_summary(content)}
+                parsed_data["sections"] = sections
+
+    # 3. Deduplicate certificates
+    certs = parsed_data.get("certifications", [])
+    cert_before = len(certs) if isinstance(certs, list) else 0
+    if isinstance(certs, list):
+        parsed_data["certifications"] = deduplicate_certificates(certs)
+    cert_after = len(parsed_data.get("certifications") or [])
+    if cert_before > 0 and cert_after < cert_before:
+        dropped = cert_before - cert_after
+        logger.warning(
+            "sanitize_final_output: certifications reduced by %d (before=%d, after=%d)",
+            dropped,
+            cert_before,
+            cert_after,
+        )
+
+    # 4. Validate name is not None or empty
+    contact = parsed_data.get("contact") or {}
+    if isinstance(contact, dict):
+        name_obj = contact.get("name")
+        name_val = (
+            name_obj.get("name") if isinstance(name_obj, dict) else name_obj
+        )
+        if name_val is None:
+            contact.setdefault("name", {})
+            if isinstance(contact["name"], dict) and "name" not in contact["name"]:
+                contact["name"] = {"name": "", "confidence": 0.0}
+            parsed_data["contact"] = contact
+
+    # 5. Log summary; warn if name empty after parsing
+    jobs_count = len(parsed_data.get("work_experience") or [])
+    certs_count = len(parsed_data.get("certifications") or [])
+    contact_for_log = parsed_data.get("contact") or {}
+    name_val = ""
+    if isinstance(contact_for_log, dict):
+        no = contact_for_log.get("name")
+        name_val = (no.get("name") if isinstance(no, dict) else no) or ""
+    if not (name_val or "").strip():
+        logger.warning("Name empty after parsing — validation rule: do not overwrite with empty from LLM")
+    summary_content = (
+        (sections.get("summary") or {}).get("content")
+        if isinstance(sections, dict) else ""
+    )
+    summary_len = len(summary_content) if isinstance(summary_content, str) else 0
+    logger.info(
+        "Final output: %d jobs, %d certs, name=%r, summary_len=%d",
+        jobs_count,
+        certs_count,
+        name_val or "(empty)",
+        summary_len,
+    )
+
+    return parsed_data
 
 
 def start_parsing_workflow(job_id: str) -> str:
@@ -2009,7 +2141,8 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
                         conf = float(v.get("confidence", 0.0) or 0.0)
                     except (TypeError, ValueError):
                         conf = 0.0
-                    if conf >= 0.6:
+                    # Keep sections with conf >= 0.45 (lowered from 0.6 to avoid discarding valid content)
+                    if conf >= 0.45:
                         merged[k] = v
 
                 for k, v in fb_sections.items():
@@ -2074,6 +2207,14 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
             },
         }
 
+        exp_block = payload.get("experience") or {}
+        exp_conf = float(exp_block.get("confidence") or 0)
+        logger.info(
+            "Sections detected: keys=%s, experience_conf=%.2f",
+            list(payload.keys()),
+            exp_conf,
+            extra={"job_id": job_id},
+        )
         logger.info(
             "Section detection completed",
             extra={
@@ -2085,12 +2226,11 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
                 "moved_skills_to_summary": int(cleaned_counts.get("moved_skills_to_summary", 0) or 0),
             },
         )
-        exp_block = payload.get("experience") or {}
         logger.info(
             "DIAG sections keys=%s exp_len=%d exp_conf=%.2f",
             list(payload.keys()),
             len(str(exp_block.get("content", "") or "")),
-            float(exp_block.get("confidence") or 0),
+            exp_conf,
         )
         _update_job(
             job_id,
@@ -2140,6 +2280,14 @@ def task_extract_contact_info(self, job_id: str) -> str:  # noqa: ANN001
             "location": contact.location.__dict__,
             "name": contact.name.__dict__,
         }
+        name_val = (contact.name.name or "").strip() or "(empty)"
+        logger.info(
+            "Contact extracted: name=%s, emails=%d, phones=%d",
+            name_val,
+            len(contact.emails),
+            len(contact.phones),
+            extra={"job_id": job_id},
+        )
         _update_job(
             job_id,
             last_stage="extract_contact_info",
@@ -2175,6 +2323,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         sections = parsed.get("sections", {})
 
         EXPERIENCE_KEYS = [
+            # Standard
             "experience",
             "work_experience",
             "professional_experience",
@@ -2183,6 +2332,55 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "employment_history",
             "career_history",
             "positions_held",
+            "relevant_experience",
+            # Variations
+            "professional_background",
+            "career_profile",
+            "career_summary",
+            "employment_record",
+            "job_history",
+            "work_background",
+            "industry_experience",
+            "technical_experience",
+            "corporate_experience",
+            "consulting_experience",
+            # Internship related
+            "internship",
+            "internships",
+            "internship_experience",
+            "industrial_training",
+            "inplant_training",
+            "summer_internship",
+            "apprenticeship",
+            "apprenticeships",
+            "traineeship",
+            # Project-based (important for freshers)
+            "projects",
+            "project_experience",
+            "academic_projects",
+            "professional_projects",
+            "key_projects",
+            "live_projects",
+            "client_projects",
+            "research_projects",
+            "freelance_projects",
+            # Contract / freelance
+            "freelance_experience",
+            "contract_experience",
+            "consultant_experience",
+            "independent_projects",
+            # Military / Govt
+            "military_service",
+            "armed_forces_experience",
+            "government_service",
+            # Other real resume headers
+            "assignments",
+            "engagements",
+            "roles_and_responsibilities",
+            "professional_assignments",
+            "career_overview",
+            "employment_details",
+            "work_details",
         ]
 
         experience_text = ""
@@ -2205,6 +2403,10 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         parser = WorkExperienceParser()
         raw_text = job.raw_text or ""
 
+        source_format = _source_format_from_path(
+            getattr(job, "file_path", None) or getattr(job, "extracted_text_path", None)
+        )
+
         def _parse_deterministic(text: str) -> list[JobEntry]:
             if not text.strip():
                 return []
@@ -2212,7 +2414,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             try:
                 original_llm_fallback = getattr(parser, "_llm_fallback", None)
                 setattr(parser, "_llm_fallback", lambda chunk: None)
-                return parser.parse_experience_section(text)
+                return parser.parse_experience_section(text, source_format=source_format)
             finally:
                 if original_llm_fallback is not None:
                     setattr(parser, "_llm_fallback", original_llm_fallback)
@@ -2342,7 +2544,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             else:
                 experience_text = chosen_experience_text or experience_text or raw_text
 
-            jobs = parser.parse_experience_section(experience_text)
+            jobs = parser.parse_experience_section(experience_text, source_format=source_format)
             payload = [
                 {
                     **job_entry.__dict__,
@@ -3474,6 +3676,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             or parsed_data.get("llm_structured")
         )
         parsed = _apply_llm_resume(parsed_data)
+        parsed = sanitize_final_output(parsed)
 
         def _looks_like_skillish_header(value: str | None) -> bool:
             cleaned = str(value or "").strip()
@@ -3547,6 +3750,14 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                                 [],
                                 {},
                             ):
+                                # Never overwrite non-empty name with empty LLM name
+                                if subkey == "name" and isinstance(incoming, dict):
+                                    incoming_name = str(incoming.get("name") or "").strip()
+                                    existing_name = ""
+                                    if isinstance(merged_contact.get("name"), dict):
+                                        existing_name = str(merged_contact["name"].get("name") or "").strip()
+                                    if not incoming_name and existing_name:
+                                        continue
                                 merged_contact[subkey] = incoming
                         parsed[key] = merged_contact
                     continue
@@ -3564,6 +3775,12 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                         if not existing_ok and incoming_ok:
                             parsed[key] = incoming  # Only use LLM if deterministic failed
                         continue
+                    # education, skills: don't overwrite non-empty deterministic with empty LLM
+                    if key in ("education", "skills"):
+                        existing_ok = existing and len(existing) > 0
+                        incoming_ok = value and len(value) > 0
+                        if existing_ok and not incoming_ok:
+                            continue
                     if value:
                         parsed[key] = value
                     elif not existing:
@@ -3717,7 +3934,12 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 headings = {
                     "summary",
                     "professional summary",
+                    "executive summary",
+                    "career summary",
+                    "career overview",
                     "profile",
+                    "professional profile",
+                    "objective",
                     "experience",
                     "work experience",
                     "employment",
@@ -3759,7 +3981,11 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 headings = {
                     "summary",
                     "professional summary",
+                    "executive summary",
+                    "career summary",
+                    "career overview",
                     "profile",
+                    "professional profile",
                     "objective",
                     "experience",
                     "work experience",
@@ -3873,7 +4099,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             candidate.github_url = github or candidate.github_url
             inferred_summary = summary_section or _guess_summary_from_raw_text(job.raw_text)
             if inferred_summary and not candidate.summary:
-                inferred_summary = _dedup_text_lines(inferred_summary)
+                inferred_summary = clean_summary(inferred_summary)
                 candidate.summary = inferred_summary
             candidate.status = CandidateStatus.SUCCESS
 
@@ -3888,6 +4114,15 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         )
 
         raw_we = parsed.get("work_experience", [])
+        raw_certs = parsed.get("certifications", [])
+        raw_edu = parsed.get("education", [])
+        logger.info(
+            "Saving to DB: work_experience=%d, certifications=%d, education=%d",
+            len(raw_we) if isinstance(raw_we, list) else 0,
+            len(raw_certs) if isinstance(raw_certs, list) else 0,
+            len(raw_edu) if isinstance(raw_edu, list) else 0,
+            extra={"job_id": job_id, "candidate_id": str(job.candidate_id) if job.candidate_id else None},
+        )
         logger.info(
             "DIAG pre-sanitize count=%d entries=%s",
             len(raw_we) if isinstance(raw_we, list) else 0,
@@ -3905,10 +4140,11 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             (len(raw_we) if isinstance(raw_we, list) else 0) - len(work_entries),
         )
         for entry in work_entries:
+            company = entry.get("company") or entry.get("client")
             session.add(
                 WorkHistory(
                     candidate_id=job.candidate_id,
-                    company_name=entry.get("company"),
+                    company_name=company,
                     client_name=entry.get("client"),
                     job_title=entry.get("title"),
                     start_date=_parse_date_str(entry.get("start_date")),
@@ -3995,6 +4231,10 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             if not skill:
                 skill = session.execute(select(Skill).where(Skill.name == raw_name)).scalar_one_or_none()
 
+            if not skill and normalized:
+                skill = session.execute(
+                    select(Skill).where(Skill.normalized_name == normalized)
+                ).scalar_one_or_none()
             if not skill:
                 stmt = (
                     pg_insert(Skill)
@@ -4233,5 +4473,32 @@ def cleanup_old_jobs() -> None:
 
 
 @celery_app.task(name="app.workers.pipeline.generate_accuracy_report")
-def generate_accuracy_report() -> None:
-    logger.info("Generating accuracy report (placeholder)")
+def generate_accuracy_report() -> dict[str, Any]:
+    """Generate accuracy report by evaluating parser against ground truth fixtures."""
+    from pathlib import Path
+
+    from app.services.accuracy_report import generate_accuracy_report as run_report
+
+    fixtures_dir = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "resumes"
+    output_path = Path(__file__).resolve().parents[2] / "tests" / "reports" / "accuracy_report.json"
+
+    report = run_report(fixtures_dir=fixtures_dir, output_path=output_path)
+
+    summary = {
+        "case_count": report.case_count,
+        "overall": round(report.overall, 4),
+        "contact_accuracy": round(report.contact_accuracy, 4),
+        "work_accuracy": round(report.work_accuracy, 4),
+        "skills_f1": round(report.skills_f1.f1, 4),
+        "education_f1": round(report.education_f1.f1, 4),
+        "certifications_f1": round(report.certifications_f1.f1, 4),
+    }
+    logger.info(
+        "Accuracy report generated: %d cases, overall=%.3f, contact=%.3f, work=%.3f, skills=%.3f",
+        report.case_count,
+        report.overall,
+        report.contact_accuracy,
+        report.work_accuracy,
+        report.skills_f1.f1,
+    )
+    return summary

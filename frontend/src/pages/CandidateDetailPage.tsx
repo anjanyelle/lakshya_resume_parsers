@@ -24,6 +24,15 @@ import {
   reprocessCandidate,
   submitCorrections,
 } from '../services/api/candidates'
+import {
+  workHistoryFromParsed,
+  educationFromParsed,
+  certificationsFromParsed,
+  skillsFromParsed,
+  contactFromParsed,
+  summaryFromParsed,
+  shouldUseParsedDataFallback,
+} from '../utils/parsedDataFallback'
 
 type ReviewFlags = {
   overall_confidence: number | null
@@ -442,13 +451,65 @@ export default function CandidateDetailPage() {
     ? latestJob.parsed_data.work_experience
     : []
   const dbHistory = candidate.work_history ?? []
+
+  const useParsedDataFallback = shouldUseParsedDataFallback(candidate, parsedData)
+  const fallbackWorkHistory = workHistoryFromParsed(parsedData.work_experience)
+  const fallbackEducation = educationFromParsed(parsedData.education)
+  const fallbackCertifications = certificationsFromParsed(parsedData.certifications)
+  const { skills: fallbackSkills, candidateSkills: fallbackCandidateSkills } =
+    skillsFromParsed(parsedData.skills)
+  const fallbackContact = contactFromParsed(parsedData.contact)
+  const fallbackSummary = summaryFromParsed(parsedData)
+
+  const displayWorkHistory = useParsedDataFallback ? fallbackWorkHistory : dbHistory
+  const displayEducation = useParsedDataFallback ? fallbackEducation : (candidate.education ?? [])
+  const displayCertifications = useParsedDataFallback
+    ? fallbackCertifications
+    : (candidate.certifications ?? [])
+  const displaySkills = useParsedDataFallback ? fallbackSkills : (candidate.skills ?? [])
+  const displayCandidateSkills = useParsedDataFallback
+    ? fallbackCandidateSkills
+    : (candidate.candidate_skills ?? [])
+  const displaySummary = useParsedDataFallback
+    ? (fallbackSummary ?? candidate.summary ?? '')
+    : (candidate.summary ?? '')
+  const displayCandidate: Candidate = useParsedDataFallback
+    ? {
+        ...candidate,
+        full_name: fallbackContact.full_name ?? candidate.full_name,
+        email: fallbackContact.email ?? candidate.email,
+        phone: fallbackContact.phone ?? candidate.phone,
+        location: fallbackContact.location ?? candidate.location,
+      }
+    : candidate
+
   const showMismatchBanner =
-    dbHistory.length === 0 && parsedExperience.length > 0
+    dbHistory.length === 0 && parsedExperience.length > 0 && !useParsedDataFallback
+
+  // Debug: log data availability for troubleshooting missing UI data
+  if (import.meta.env.DEV) {
+    console.log('[CandidateDetail] Data loaded:', {
+      candidateId: id,
+      name: candidate?.full_name || '(empty)',
+      summaryLen: candidate?.summary?.length ?? 0,
+      workHistoryCount: dbHistory.length,
+      parsedExperienceCount: parsedExperience.length,
+      educationCount: candidate?.education?.length ?? 0,
+      certificationsCount: candidate?.certifications?.length ?? 0,
+      skillsCount: candidate?.candidate_skills?.length ?? 0,
+      mismatch: showMismatchBanner,
+    })
+  }
 
   return (
     <section className="space-y-6">
+      {useParsedDataFallback && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+          Showing parsed data (not yet saved to database). Reprocess or save corrections to persist.
+        </div>
+      )}
       <ProfileHeader
-        candidate={candidate}
+        candidate={displayCandidate}
         onPreview={handlePreview}
         onDownload={handleDownload}
         onExportJson={handleExport}
@@ -479,7 +540,11 @@ export default function CandidateDetailPage() {
       </Modal>
 
       <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-        <SummarySection summary={candidate.summary} onSave={handleSummarySave} />
+        <SummarySection
+          summary={displaySummary}
+          onSave={handleSummarySave}
+          readOnly={useParsedDataFallback}
+        />
         <ParsingStatusTimeline job={latestJob} onRetry={handleReprocess} />
       </div>
 
@@ -490,17 +555,17 @@ export default function CandidateDetailPage() {
           support.
         </div>
       )}
-      <WorkHistoryTimeline items={dbHistory} />
+      <WorkHistoryTimeline items={displayWorkHistory} />
 
       <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
-        <EducationSection items={candidate.education} />
+        <EducationSection items={displayEducation} />
         <CertificationsSection
-          items={candidate.certifications}
+          items={displayCertifications}
           rawContent={(parsedData as any)?.sections?.certifications?.content as any}
         />
       </div>
 
-      <SkillsSection skills={candidate.skills} candidateSkills={candidate.candidate_skills} />
+      <SkillsSection skills={displaySkills} candidateSkills={displayCandidateSkills} />
 
       <DebugPanel debug={(parsedData as any)?.debug} />
 
@@ -513,11 +578,15 @@ export default function CandidateDetailPage() {
           resumeError={resumePreviewError}
           parsedData={parsedData}
           originalData={originalData}
-          workHistory={candidate.work_history || []}
-          originalWorkHistory={originalCandidate?.work_history || []}
+          workHistory={displayWorkHistory}
+          originalWorkHistory={
+            useParsedDataFallback ? fallbackWorkHistory : (originalCandidate?.work_history || [])
+          }
           onWorkHistoryChange={handleWorkHistoryChange}
-          certifications={candidate.certifications || []}
-          originalCertifications={originalCandidate?.certifications || []}
+          certifications={displayCertifications}
+          originalCertifications={
+            useParsedDataFallback ? fallbackCertifications : (originalCandidate?.certifications || [])
+          }
           onCertificationChange={handleCertificationChange}
           flaggedFields={reviewFlags.flagged_fields}
           discrepancies={reviewFlags.discrepancies}
@@ -529,6 +598,7 @@ export default function CandidateDetailPage() {
           onSave={handleSaveCorrections}
           canUndo={history.length > 0}
           canRedo={future.length > 0}
+          readOnly={useParsedDataFallback}
         />
       </div>
     </section>

@@ -663,6 +663,8 @@ FIRST_LINE_NAME_RE = re.compile(
     r"([A-Z][a-z]{1,20}(?:\s+[A-Z][a-z]{1,20}){1,4})$",
 )
 
+FIRSTNAME_LASTNAME_RE = re.compile(r"^[A-Z][a-z]+\s+([A-Z][a-z]+\s*)+$")
+
 SECTION_HINTS = {
     "summary",
     "professional summary",
@@ -888,14 +890,27 @@ class ContactExtractor:
         top_lines = lines[:50]
         contact_label_re = re.compile(r"\b(?:email|phone|linkedin|github)\b\s*:?", re.IGNORECASE)
 
-        first_line = (lines[0] if lines else "").strip()
-        if first_line and FIRST_LINE_NAME_RE.match(first_line):
-            not_name_words = {
-                "resume", "curriculum", "vitae", "cv", "profile",
-                "summary", "experience", "skills", "education",
-            }
-            if first_line.lower() not in not_name_words:
-                return NameResult(name=first_line, confidence=0.9)
+        first_five = lines[:5]
+        logger.debug("extract_name input first 5 lines: %s", first_five)
+
+        not_name_words = {
+            "resume", "curriculum", "vitae", "cv", "profile",
+            "summary", "experience", "skills", "education",
+        }
+
+        for idx, line in enumerate(lines[:4]):
+            if not line or self._looks_like_contact_line(line):
+                continue
+            if line.lower() in not_name_words:
+                continue
+            if FIRST_LINE_NAME_RE.match(line):
+                return NameResult(name=line, confidence=0.9)
+            words = line.split()
+            if 2 <= len(words) <= 4:
+                if line.isupper():
+                    return NameResult(name=self._normalize_name_case(line), confidence=0.82)
+                if not re.search(r"\d", line) and "@" not in line and FIRSTNAME_LASTNAME_RE.match(line):
+                    return NameResult(name=self._normalize_name_case(line), confidence=0.8)
 
         for line in top_lines:
             match = NAME_LABEL_REGEX.search(line)
@@ -964,7 +979,15 @@ class ContactExtractor:
                 if self._is_probable_name(combined):
                     return NameResult(name=combined, confidence=0.62)
 
-        return NameResult(name=None, confidence=0.0)
+        for line in lines[:5]:
+            if not line or self._looks_like_contact_line(line):
+                continue
+            cleaned = re.sub(r"[^A-Za-z ]", "", line).strip()
+            if re.match(r"^[A-Z][a-z]+\s+([A-Z][a-z]+\s*)+$", cleaned) and 2 <= len(cleaned.split()) <= 5:
+                return NameResult(name=self._normalize_name_case(cleaned), confidence=0.55)
+
+        logger.warning("extract_name could not extract name from resume (first 5 lines: %s)", first_five)
+        return NameResult(name="", confidence=0.0)
 
     @staticmethod
     def _normalize_url(url: str) -> str:
@@ -1044,6 +1067,22 @@ class ContactExtractor:
         cleaned = re.sub(r"[^A-Za-z ]+", " ", line).strip().lower()
         cleaned = " ".join(cleaned.split())
         return cleaned in SECTION_HINTS
+
+    @staticmethod
+    def _looks_like_contact_line(line: str) -> bool:
+        """Skip lines that look like email, phone, or address."""
+        stripped = (line or "").strip()
+        if not stripped:
+            return True
+        if "@" in stripped:
+            return True
+        if re.search(r"\+?\d[\d\s().-]{7,}", stripped):
+            return True
+        if "http" in stripped.lower() or "www." in stripped.lower():
+            return True
+        if stripped.count(",") >= 2 and re.search(r"\d", stripped):
+            return True
+        return False
 
     def _parse_location_string(
         self, value: str

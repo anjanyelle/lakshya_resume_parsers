@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     CLAMAV_PATH: str = "clamscan"
 
     OCR_MIN_TEXT_CHARS: int = 100
+    OCR_MAX_PAGES: int = 15  # Limit OCR to first N pages (safety for very long PDFs)
+    PDF_MAX_PAGES: int = 50  # Limit non-OCR PDF extraction (memory/speed for large resumes)
     TESSERACT_CMD: str | None = None
     TESSERACT_LANG: str = "eng"
 
