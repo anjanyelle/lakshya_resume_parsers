@@ -19,46 +19,23 @@ from app.services.parser.work_experience_parser import JobEntry
 logger = logging.getLogger(__name__)
 
 
-SKILL_CONTEXT_KEYWORDS = {
-    # Expert level (0.85-1.0)
-    "expert": 0.95,
-    "mastery": 0.95,
-    "master": 0.9,
-    "specialized": 0.9,
-    "architected": 0.9,
-    "designed": 0.85,
-    
-    # Advanced level (0.75-0.84)
-    "advanced": 0.8,
-    "developed": 0.8,
-    "engineered": 0.8,
-    "implemented": 0.75,
-    "created": 0.75,
-    "led": 0.75,
-    
-    # Proficient level (0.65-0.74)
-    "proficient": 0.7,
-    "experienced": 0.7,
-    "built": 0.7,
-    "managed": 0.68,
-    "deployed": 0.68,
-    "optimized": 0.65,
-    "configured": 0.65,
-    
-    # Intermediate level (0.55-0.64)
-    "worked with": 0.6,
-    "utilized": 0.6,
-    "applied": 0.6,
-    "used": 0.55,
-    "integrated": 0.55,
-    
-    # Beginner/Exposure level (0.4-0.54)
-    "familiar": 0.5,
-    "knowledge": 0.5,
-    "exposure": 0.45,
-    "learning": 0.4,
-    "basic": 0.4,
+# Only these explicit words set proficiency; no inference from verbs like "developed"/"built".
+EXPLICIT_PROFICIENCY_KEYWORDS = {
+    "expert": "expert",
+    "mastery": "expert",
+    "master": "expert",
+    "advanced": "advanced",
+    "proficient": "advanced",
+    "intermediate": "intermediate",
+    "beginner": "beginner",
+    "familiar": "beginner",
+    "knowledge": "intermediate",
+    "exposure": "beginner",
+    "basic": "beginner",
 }
+
+# Version pattern: 11g, 10g, 2014, 5.6, 10.x, 9.6
+VERSION_PATTERN = re.compile(r"\b(\d+(?:\.\d+)?[a-zA-Z]*)\b")
 
 RELATED_SKILLS = {
     # Frontend Frameworks
@@ -886,6 +863,265 @@ FALLBACK_SKIP_VERBS = {
 }
 
 
+# Industry-standard fixed categories. Never allow dynamic/LLM-invented categories.
+MASTER_SKILL_CATEGORIES = frozenset({
+    "Programming Languages",
+    "Databases",
+    "Cloud Platforms",
+    "Cloud Services",
+    "Data Warehousing",
+    "Big Data Technologies",
+    "ETL & Data Integration",
+    "Data Governance",
+    "Machine Learning",
+    "Visualization Tools",
+    "DevOps & Containers",
+    "Methodologies",
+    "Project Tools",
+    "Soft Skills",
+    "AWS Compute",
+    "AWS Serverless",
+    "GCP Data Warehouse",
+    "Cloud Data Warehouse",
+    "Cloud Data Platform",
+    "AWS Data Warehouse",
+    "ML Frameworks",
+    "LLM Models",
+    "Cloud Storage",
+    "Cloud ML",
+})
+
+# Map legacy or variant category names to master taxonomy (no random categories).
+CATEGORY_MAP = {
+    "programming languages": "Programming Languages",
+    "databases": "Databases",
+    "cloud platforms": "Cloud Platforms",
+    "cloud services": "Cloud Services",
+    "data warehousing": "Data Warehousing",
+    "big data technologies": "Big Data Technologies",
+    "big data": "Big Data Technologies",
+    "etl & data integration": "ETL & Data Integration",
+    "etl": "ETL & Data Integration",
+    "data governance": "Data Governance",
+    "machine learning": "Machine Learning",
+    "data & ml": "Machine Learning",
+    "visualization tools": "Visualization Tools",
+    "devops & containers": "DevOps & Containers",
+    "devops": "DevOps & Containers",
+    "methodologies": "Methodologies",
+    "project tools": "Project Tools",
+    "soft skills": "Soft Skills",
+    "frameworks": "Programming Languages",
+    "tools": "DevOps & Containers",
+    "web technologies": "Programming Languages",
+    "mobile development": "Programming Languages",
+    "testing": "Project Tools",
+    "message queues": "Big Data Technologies",
+    "monitoring & logging": "DevOps & Containers",
+    "architecture": "Methodologies",
+    "backend": "Programming Languages",
+    "security": "Project Tools",
+    "emerging tech": "Project Tools",
+    "aws compute": "AWS Compute",
+    "aws serverless": "AWS Serverless",
+    "gcp data warehouse": "GCP Data Warehouse",
+    "cloud data warehouse": "Cloud Data Warehouse",
+    "cloud data platform": "Cloud Data Platform",
+    "aws data warehouse": "AWS Data Warehouse",
+    "ml frameworks": "ML Frameworks",
+    "llm models": "LLM Models",
+    "cloud storage": "Cloud Storage",
+    "cloud ml": "Cloud ML",
+}
+
+# Finer category mapping: normalized skill -> specific category (overrides taxonomy when present).
+FINE_CATEGORY_MAP = {
+    "ec2": "AWS Compute",
+    "lambda": "AWS Serverless",
+    "bigquery": "GCP Data Warehouse",
+    "snowflake": "Cloud Data Warehouse",
+    "databricks": "Cloud Data Platform",
+    "redshift": "AWS Data Warehouse",
+    "pytorch": "ML Frameworks",
+    "tensorflow": "ML Frameworks",
+    "bert": "LLM Models",
+    "gpt": "LLM Models",
+    "t5": "LLM Models",
+    "aws": "Cloud Platforms",
+    "s3": "Cloud Storage",
+    "vertex ai": "Cloud ML",
+    "docker": "DevOps & Containers",
+    "kubernetes": "DevOps & Containers",
+}
+
+# --- 4-Layer quality filter: atomic validation, sentence fragment rejection, canonical map, category sanitization ---
+
+# Skills must not start with these (sentence fragments / conjunctions).
+REJECT_STARTS_WITH = (
+    "and ", "then ", "leveraging ", "processing ", "transforming ", "utilizing ",
+    "constructed ", "loading ", "driving ", "building ", "designing ", "developing ",
+    "or ", "with ", "for ", "from ", "using ", "via ", "including ", "such as ",
+)
+# Reject if skill string contains these verbs (sentence fragment).
+REJECT_VERBS = (
+    "leveraging", "transforming", "loading", "processing", "utilizing", "constructed",
+    "driving", "building", "designing", "developing", "proficient", "across", "modern",
+    "tools", "scalable", "then loading", "and data",
+)
+MAX_WORDS_ATOMIC = 4   # Valid skill: at most 4 words.
+MAX_WORDS_REJECT = 6   # Reject as sentence fragment if more than 6 words.
+
+# Punctuation that indicates sentence fragment (not a single skill token).
+PUNCTUATION_REJECT = re.compile(r"[.,;:]")
+# Broken token: truncated parenthetical e.g. "Google Kubernetes Engine (GKE"
+BROKEN_PAREN_REJECT = re.compile(r"\([^)]*$")
+
+# Canonical normalization: variant -> single canonical normalized_name (no duplicates).
+CANONICAL_SKILL_MAP = {
+    "amazon redshift": "redshift",
+    "aws redshift": "redshift",
+    "google bigquery": "bigquery",
+    "bigquery": "bigquery",
+    "aws s3": "s3",
+    "amazon s3": "s3",
+    "s3 glacier": "s3",
+    "amazon s3 glacier": "s3",
+    "gcp pub/sub": "pubsub",
+    "pub/sub": "pubsub",
+    "azure event hubs": "event hubs",
+    "google kubernetes engine": "kubernetes",
+    "gke": "kubernetes",
+    "amazon ec2": "ec2",
+    "aws ec2": "ec2",
+    "aws lambda": "lambda",
+    "amazon web services": "aws",
+    "microsoft azure": "azure",
+    "google cloud platform": "gcp",
+    "amazon forecast": "aws",
+    "amazon timestream": "aws",
+    "amazon cloudwatch": "aws",
+    "cloudwatch": "aws",
+}
+
+# Tech pattern: PascalCase word, or 2–5 char uppercase acronym, or known tech suffix.
+_TECH_ACRONYM_RE = re.compile(r"^[A-Z]{2,5}$")
+_KNOWN_ACRONYMS_LOWER = frozenset({"aws", "gcp", "sql", "api", "sdk", "ml", "ai", "etl", "gke", "k8s", "ec2", "nlp", "cicd", "ssr", "orm", "mvc", "rest", "grpc", "tls", "ssl", "csv", "json", "xml", "html", "css", "rds", "iam", "vpc", "vllm", "llm", "rag", "onnx", "cuda"})
+_TECH_KEYWORDS = frozenset({"db", "sql", "cloud", "lake", "spark", "data", "api", "sdk", "ml", "ai", "etl", "s3", "ec2", "gke", "k8s", "llm", "rag", "vector", "embedding", "vllm", "tensor", "bert", "gpt", "transformer"})
+
+# Generic/umbrella terms — never store as skills (not atomic technologies).
+REJECT_GENERIC_SKILLS = frozenset({"cloud", "backend", "security", "frontend", "web development"})
+
+
+def is_sentence_fragment(text: str) -> bool:
+    """Reject if looks like a sentence fragment, not an atomic skill."""
+    if not text or not isinstance(text, str):
+        return True
+    s = text.strip()
+    if not s:
+        return True
+    words = s.split()
+    if len(words) > MAX_WORDS_REJECT:
+        return True
+    lower = s.lower()
+    for verb in REJECT_VERBS:
+        if verb in lower:
+            return True
+    if PUNCTUATION_REJECT.search(s):
+        return True
+    if BROKEN_PAREN_REJECT.search(s) or s.rstrip().endswith("("):
+        return True
+    for bad in REJECT_STARTS_WITH:
+        if lower.startswith(bad.strip()) or lower.startswith(bad):
+            return True
+    return False
+
+
+def is_atomic_skill(text: str, known_normalized: set[str] | None = None) -> bool:
+    """Skill is valid only if: in dictionary, or matches tech pattern; and <= 4 words; and not fragment."""
+    if not text or not isinstance(text, str):
+        return False
+    s = text.strip()
+    if not s:
+        return False
+    words = s.split()
+    if len(words) > MAX_WORDS_ATOMIC:
+        return False
+    lower = s.lower()
+    for bad in REJECT_STARTS_WITH:
+        if lower.startswith(bad.strip()) or lower.startswith(bad):
+            return False
+    known_normalized = known_normalized or set()
+    norm = normalize_skill_name(s)
+    if norm in known_normalized:
+        return True
+    # Title Case (e.g. Snowflake, BigQuery, Flet, Solidity, Ray, Python)
+    if len(s) >= 2 and s[0].isupper() and len(words) == 1:
+        return True
+    # CamelCase or mixed case (e.g. vLLM, jQuery, iPhone)
+    if len(s) >= 3 and any(c.isupper() for c in s[1:]):
+        # Basic check to ensure it's a technical-looking token
+        if re.match(r"^[A-Za-z0-9-]+$", s):
+            return True
+    # Uppercase acronym 2–5 chars
+    if _TECH_ACRONYM_RE.match(s):
+        return True
+    # Known acronym in lowercase (e.g. gke, aws)
+    if norm in _KNOWN_ACRONYMS_LOWER:
+        return True
+    # Contains known tech keyword
+    for kw in _TECH_KEYWORDS:
+        if kw in norm:
+            return True
+    return False
+
+
+def normalize_to_canonical(skill_name: str) -> str:
+    """Map variant to canonical normalized name; return normalized string either way."""
+    norm = normalize_skill_name(skill_name)
+    return CANONICAL_SKILL_MAP.get(norm, norm)
+
+
+def is_broken_or_fragment(skill_name: str) -> bool:
+    """True if skill should be rejected (sentence fragment or broken token)."""
+    return is_sentence_fragment(skill_name)
+
+
+def is_generic_skill(normalized_name: str) -> bool:
+    """True if skill is a generic/umbrella term that must not be stored."""
+    if not normalized_name:
+        return True
+    return normalize_skill_name(normalized_name) in REJECT_GENERIC_SKILLS
+
+
+def sanitize_category(category: str | None) -> str | None:
+    """Reject corrupted category (e.g. comma-separated tech list); return clean or None."""
+    if not category or not isinstance(category, str):
+        return None
+    s = category.strip()
+    if not s:
+        return None
+    # Corrupted: contains comma or multiple words that look like tech names (e.g. "Wrangler, Amazon Forecast")
+    if "," in s:
+        return None
+    if len(s.split()) > 4:
+        return None
+    # Must be one of allowed
+    return map_category_to_master(s)
+
+
+def normalize_skill_name(skill: str) -> str:
+    """Normalize for deduplication: lowercase, strip, single spaces."""
+    return " ".join((skill or "").strip().lower().split())
+
+
+def map_category_to_master(category: str | None) -> str | None:
+    """Map any category to master taxonomy; return None if unknown."""
+    if not category:
+        return None
+    key = category.strip().lower()
+    return CATEGORY_MAP.get(key) or (category if category in MASTER_SKILL_CATEGORIES else "Project Tools")
+
+
 @dataclass(frozen=True)
 class SkillMatch:
     name: str
@@ -894,6 +1130,8 @@ class SkillMatch:
     confidence: float
     years_experience: int | None
     proficiency: str | None
+    source: str | None = None
+    version: list[str] | None = None
 
 
 def _build_known_skills_set(
@@ -922,21 +1160,34 @@ class SkillExtractor:
         self._nlp = None
         self._matcher = None
         if self.use_spacy:
-            self._nlp = spacy.blank("xx")
+            try:
+                self._nlp = spacy.load("en_core_web_sm")
+            except Exception:  # noqa: BLE001
+                self._nlp = spacy.blank("xx")
             self._matcher = PhraseMatcher(self._nlp.vocab, attr="LOWER")
             patterns = [self._nlp.make_doc(item["name"]) for item in self.taxonomy]
             patterns += [self._nlp.make_doc(syn) for syn in self.synonym_map.keys()]
             self._matcher.add("SKILL", patterns)
 
+    def get_known_normalized_skills(self) -> set[str]:
+        """Return set of known normalized skill names for atomic validation."""
+        return set(self._known_skills)
+
+    def get_canonical_normalized_names(self) -> set[str]:
+        """Return set of canonical skill names from master taxonomy (for strict dictionary validation)."""
+        return set(self.normalized_map.keys())
+
     def extract_from_skills_section(self, text: str) -> list[SkillMatch]:
-        matches = self._extract_skills(text, base_confidence=0.85)
-        matches.extend(self._extract_freeform_skills(text, base_confidence=0.7))
+        source = "technical_skills_section"
+        matches = self._extract_skills(text, base_confidence=0.85, source=source)
+        matches.extend(self._extract_freeform_skills(text, base_confidence=0.7, source=source))
         return matches
 
     def extract_from_work_history(self, jobs: Iterable[JobEntry]) -> list[SkillMatch]:
+        source = "experience"
         matches: list[SkillMatch] = []
         for job in jobs:
-            matches.extend(self._extract_skills(job.description, base_confidence=0.6))
+            matches.extend(self._extract_skills(job.description, base_confidence=0.6, source=source))
         return matches
 
     def normalize_skills(self, matches: Iterable[SkillMatch]) -> list[SkillMatch]:
@@ -944,15 +1195,40 @@ class SkillExtractor:
         for match in matches:
             key = match.normalized_name
             existing = merged.get(key)
-            if not existing or match.confidence > existing.confidence:
+            if not existing:
                 merged[key] = match
+                continue
+            # Keep higher confidence; merge version lists (dedupe, preserve order)
+            keep = match if match.confidence > existing.confidence else existing
+            other = existing if keep is match else match
+            versions = list(keep.version) if keep.version else []
+            if other.version:
+                for v in other.version:
+                    if v not in versions:
+                        versions.append(v)
+            merged[key] = SkillMatch(
+                name=keep.name,
+                normalized_name=keep.normalized_name,
+                category=keep.category,
+                confidence=keep.confidence,
+                years_experience=keep.years_experience,
+                proficiency=keep.proficiency,
+                source=keep.source,
+                version=versions if versions else None,
+            )
         return list(merged.values())
 
     def categorize_skills(self, matches: Iterable[SkillMatch]) -> list[SkillMatch]:
         categorized = []
         for match in matches:
-            taxonomy = self.normalized_map.get(match.normalized_name)
-            category = taxonomy.get("category") if taxonomy else match.category
+            # Prefer finer category (e.g. EC2 -> AWS Compute) over taxonomy
+            fine = FINE_CATEGORY_MAP.get(match.normalized_name)
+            if fine:
+                category = fine
+            else:
+                taxonomy = self.normalized_map.get(match.normalized_name)
+                raw_category = taxonomy.get("category") if taxonomy else match.category
+                category = map_category_to_master(raw_category) or map_category_to_master(match.category)
             categorized.append(
                 SkillMatch(
                     name=match.name,
@@ -961,19 +1237,20 @@ class SkillExtractor:
                     confidence=match.confidence,
                     years_experience=match.years_experience,
                     proficiency=match.proficiency,
+                    source=match.source,
+                    version=match.version,
                 )
             )
         return categorized
 
     def infer_proficiency(self, text: str, skill: str) -> str | None:
-        lowered = text.lower()
-        for keyword, score in SKILL_CONTEXT_KEYWORDS.items():
-            if keyword in lowered and skill in lowered:
-                if score >= 0.8:
-                    return "expert"
-                if score >= 0.7:
-                    return "advanced"
-                return "intermediate"
+        """Return proficiency only when resume explicitly states it next to the skill (Advanced/Expert/etc)."""
+        # Look for patterns like "Skill (Advanced)" or "Skill: Advanced"
+        pattern = rf"{re.escape(skill)}\s*\(?(Advanced|Intermediate|Beginner|Expert|Expertise)\)?"
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            val = match.group(1).lower()
+            return EXPLICIT_PROFICIENCY_KEYWORDS.get(val, val)
         return None
 
     def calculate_skill_years(
@@ -1014,22 +1291,28 @@ class SkillExtractor:
         *,
         skills_section_confidence: float | None = None,
         raw_text: str | None = None,
+        section_only: bool = True,
     ) -> list[SkillMatch]:
+        """Extract skills. When section_only=True, use only the Technical Skills section (no work exp/summary)."""
         section_text = skills_section or ""
         if skills_section_confidence is not None and skills_section_confidence < 0.6:
             section_text = ""
 
         section_matches = self.extract_from_skills_section(section_text) if section_text else []
-        history_matches = self.extract_from_work_history(jobs)
-        fallback_matches: list[SkillMatch] = []
-        if not section_matches and raw_text:
-            fallback_matches = self.extract_from_raw_text(raw_text)
+        if section_only:
+            history_matches = []
+            fallback_matches = []
+        else:
+            history_matches = self.extract_from_work_history(jobs)
+            fallback_matches = []
+            if not section_matches and raw_text:
+                fallback_matches = self.extract_from_raw_text(raw_text)
 
         all_matches = self.normalize_skills(section_matches + history_matches + fallback_matches)
 
+        # Do not guess years of experience; only explicit mention or timeline would set it (handled elsewhere).
         enriched = []
         for match in all_matches:
-            years = self.calculate_skill_years(jobs, match.normalized_name)
             proficiency = self.infer_proficiency(section_text or (raw_text or ""), match.normalized_name)
             enriched.append(
                 SkillMatch(
@@ -1037,12 +1320,15 @@ class SkillExtractor:
                     normalized_name=match.normalized_name,
                     category=match.category,
                     confidence=match.confidence,
-                    years_experience=years,
+                    years_experience=None,
                     proficiency=proficiency,
+                    source=match.source,
+                    version=match.version,
                 )
             )
         enriched = self.categorize_skills(enriched)
-        enriched.extend(self.infer_related_skills(enriched))
+        # No enrichment: do not inject related skills; only return extracted skills.
+        # enriched.extend(self.infer_related_skills(enriched))
         return self.normalize_skills(enriched)
 
     def extract_from_raw_text(self, text: str) -> list[SkillMatch]:
@@ -1058,7 +1344,11 @@ class SkillExtractor:
                 if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
                     continue
                 label, _, values = line.partition(":")
-                if "skill" not in label.lower() and "tools" not in label.lower() and "technology" not in label.lower():
+                label_lower = label.lower()
+                if not any(
+                    k in label_lower
+                    for k in ("skill", "tools", "technology", "technologies", "tech stack", "expertise", "competencies")
+                ):
                     continue
                 tokens = self._split_skills(values)
             else:
@@ -1075,6 +1365,7 @@ class SkillExtractor:
                         continue
                     tokens = self._split_skills(line)
 
+            raw_text_source = "raw_text"
             for token in tokens:
                 for name, canonical, category in self._expand_and_canonicalize(token):
                     base = 0.55 if canonical in self.normalized_map else 0.45
@@ -1086,6 +1377,7 @@ class SkillExtractor:
                             confidence=base,
                             years_experience=None,
                             proficiency=None,
+                            source=raw_text_source,
                         )
                     )
 
@@ -1119,7 +1411,9 @@ class SkillExtractor:
 
         return name, canonical, None
 
-    def _extract_skills(self, text: str, base_confidence: float) -> list[SkillMatch]:
+    def _extract_skills(
+        self, text: str, base_confidence: float, source: str | None = None
+    ) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
         lowered = text.lower()
 
@@ -1146,6 +1440,7 @@ class SkillExtractor:
                         confidence=base_confidence,
                         years_experience=None,
                         proficiency=None,
+                        source=source,
                     )
                 )
 
@@ -1160,6 +1455,7 @@ class SkillExtractor:
                         confidence=base_confidence - 0.1,
                         years_experience=None,
                         proficiency=None,
+                        source=source,
                     )
                 )
 
@@ -1179,13 +1475,14 @@ class SkillExtractor:
                         confidence=base_confidence,
                         years_experience=None,
                         proficiency=None,
+                        source=source,
                     )
                 )
 
         return matches
 
     def _extract_freeform_skills(
-        self, text: str, base_confidence: float
+        self, text: str, base_confidence: float, source: str | None = None
     ) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
         if not text:
@@ -1195,22 +1492,38 @@ class SkillExtractor:
             if ":" in line:
                 label, _, values = line.partition(":")
                 category = label.strip().title()
-                tokens = self._split_skills(values)
+                # If label looks too long, it's not a category label
+                if len(category.split()) > 4:
+                    category = None
+                    tokens = self._split_skills(line)
+                else:
+                    tokens = self._split_skills(values)
             else:
                 category = None
                 tokens = self._split_skills(line)
+            
             for token in tokens:
-                for name, normalized, category_hint in self._expand_and_canonicalize(token):
+                base_name, versions = self._extract_versions_from_token(token)
+                canonicalize_input = (base_name if base_name else token).strip()
+                for name, normalized, category_hint in self._expand_and_canonicalize(canonicalize_input or token):
+                    vers = versions if versions else None
+                    # Normalize category
+                    final_cat = category_hint or category
+                    if final_cat:
+                        final_cat = map_category_to_master(final_cat)
+
                     if normalized in self.normalized_map:
                         item = self.normalized_map[normalized]
                         matches.append(
                             SkillMatch(
                                 name=item["name"],
                                 normalized_name=item["normalized_name"],
-                                category=item.get("category") or category_hint or category,
+                                category=item.get("category") or final_cat,
                                 confidence=base_confidence,
                                 years_experience=None,
                                 proficiency=None,
+                                source=source,
+                                version=vers,
                             )
                         )
                     elif category_hint == "Soft Skills":
@@ -1222,17 +1535,22 @@ class SkillExtractor:
                                 confidence=base_confidence - 0.2,
                                 years_experience=None,
                                 proficiency=None,
+                                source=source,
+                                version=vers,
                             )
                         )
-                    elif self._expand_compound_skill(token) != [token]:
+                    elif is_atomic_skill(name, self.get_known_normalized_skills()):
+                        # Check internal compound expansion again (just in case)
                         matches.append(
                             SkillMatch(
                                 name=name,
                                 normalized_name=normalized,
-                                category=category_hint or category,
-                                confidence=base_confidence - 0.15,
+                                category=final_cat or "Technical Skills",
+                                confidence=base_confidence - 0.1,
                                 years_experience=None,
                                 proficiency=None,
+                                source=source,
+                                version=vers,
                             )
                         )
         return matches
@@ -1256,33 +1574,52 @@ class SkillExtractor:
         return skills
 
     @staticmethod
+    def _extract_versions_from_token(token: str) -> tuple[str, list[str]]:
+        """Extract version tokens (e.g. 11g, 10g, 2014, 5.6) from string; return (name_without_versions, versions)."""
+        if not token or not token.strip():
+            return token, []
+        versions = VERSION_PATTERN.findall(token)
+        name_clean = VERSION_PATTERN.sub("", token).strip()
+        name_clean = re.sub(r"\s+", " ", name_clean).strip(" /,-")
+        return name_clean or token, versions
+
+    @staticmethod
     def _split_skills(value: str) -> list[str]:
-        tokens: list[str] = []
-        current: list[str] = []
-        depth = 0
-        for c in value:
-            if c in "([{":
-                depth += 1
-                current.append(c)
-            elif c in ")]}":
-                depth -= 1
-                current.append(c)
-            elif c in ",\u2022•;/|" and depth == 0:
-                cleaned = "".join(current).strip()
-                if cleaned and len(cleaned) <= 40:
-                    cleaned = cleaned.strip("-•* ")
-                    if re.search(r"[A-Za-z]", cleaned):
-                        tokens.append(cleaned)
-                current = []
-            else:
-                current.append(c)
-        if current:
-            cleaned = "".join(current).strip()
-            if cleaned and len(cleaned) <= 40:
-                cleaned = cleaned.strip("-•* ")
-                if re.search(r"[A-Za-z]", cleaned):
-                    tokens.append(cleaned)
-        return tokens
+        """Industry level tokenizer: split by newline, comma, parentheses, slash, and bullets."""
+        if not value:
+            return []
+        # Replace common delimiters with commas for easier splitting
+        # Split on commas, newlines, parentheses, slashes, pipes, semicolons, bullets
+        # We also want to treat "Skill (Subskill1, Subskill2)" as 3 individual skills
+        import re
+        
+        # Step 1: Clean bullets and special characters
+        text = value.replace("\u2022", ",").replace("•", ",").replace("|", ",").replace(";", ",")
+        
+        # Step 2: Use regex to split on delimiters including parentheses and slashes
+        tokens = re.split(r'[,\n()/\t]', text)
+        
+        # Step 3: Cleanup and filter
+        result: list[str] = []
+        for t in tokens:
+            cleaned = t.strip("-* ")
+            if not cleaned:
+                continue
+                
+            # Filter proficiency keywords from being tokens themselves
+            lowered = cleaned.lower()
+            if lowered in {"advanced", "intermediate", "beginner", "expert", "expertise", "proficient", "familiar"}:
+                continue
+                
+            # Filter short/garbage tokens
+            if len(cleaned) < 2 and not cleaned.isalnum():
+                continue
+            
+            # Final atomic-ish check for garbage
+            if re.search(r"[A-Za-z]", cleaned):
+                result.append(cleaned)
+                
+        return result
 
     def _is_known_skill(self, token: str) -> bool:
         """Check if token (unigram or bigram) is a known skill from taxonomy or aliases."""
