@@ -342,7 +342,7 @@ class EducationParser:
             end_date = self._parse_date(end_raw)
             return start_date, end_date, False
 
-        # Fallback: look for single year or year range
+        # Fallback: look for single year or year range (handles table layout: dates in separate columns)
         years = YEAR_RE.findall(text)
         if len(years) >= 2:
             # If we have multiple years, assume first is start, last is end

@@ -936,7 +936,12 @@ class SkillExtractor:
     def extract_from_work_history(self, jobs: Iterable[JobEntry]) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
         for job in jobs:
-            matches.extend(self._extract_skills(job.description, base_confidence=0.6))
+            text = job.description or ""
+            if job.bullets:
+                text = text + "\n" + "\n".join(job.bullets) if text else "\n".join(job.bullets)
+            if text.strip():
+                matches.extend(self._extract_skills(text, base_confidence=0.6))
+                matches.extend(self._extract_freeform_skills(text, base_confidence=0.55))
         return matches
 
     def normalize_skills(self, matches: Iterable[SkillMatch]) -> list[SkillMatch]:
@@ -1016,7 +1021,8 @@ class SkillExtractor:
         raw_text: str | None = None,
     ) -> list[SkillMatch]:
         section_text = skills_section or ""
-        if skills_section_confidence is not None and skills_section_confidence < 0.6:
+        # Use section content when conf >= 0.45 (lowered from 0.6 to avoid discarding valid skills)
+        if skills_section_confidence is not None and skills_section_confidence < 0.45:
             section_text = ""
 
         section_matches = self.extract_from_skills_section(section_text) if section_text else []
@@ -1027,8 +1033,25 @@ class SkillExtractor:
 
         all_matches = self.normalize_skills(section_matches + history_matches + fallback_matches)
 
-        enriched = []
+        # Require 2+ mentions for low-confidence skills (industry standard)
+        combined_text = (section_text or "") + "\n" + (raw_text or "")
+        for job in jobs:
+            combined_text += "\n" + (job.description or "")
+            combined_text += "\n" + "\n".join(job.bullets or [])
+
+        def _mention_count(skill: str) -> int:
+            pattern = re.compile(rf"\b{re.escape(skill)}\b", re.IGNORECASE)
+            return len(pattern.findall(combined_text))
+
+        filtered: list[SkillMatch] = []
         for match in all_matches:
+            if match.confidence >= 0.6:
+                filtered.append(match)
+            elif _mention_count(match.normalized_name) >= 2 or _mention_count(match.name) >= 2:
+                filtered.append(match)
+
+        enriched = []
+        for match in filtered:
             years = self.calculate_skill_years(jobs, match.normalized_name)
             proficiency = self.infer_proficiency(section_text or (raw_text or ""), match.normalized_name)
             enriched.append(

@@ -97,6 +97,12 @@ def get_candidate(
     )
     if not candidate:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    wh_count = len(candidate.work_history) if candidate.work_history else 0
+    logger.info(
+        "Candidate %s: work_history_count=%d",
+        str(candidate_id),
+        wh_count,
+    )
     return CandidatePublicRead.model_validate(candidate)
 
 

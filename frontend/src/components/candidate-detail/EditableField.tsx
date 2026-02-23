@@ -11,6 +11,7 @@ type EditableFieldProps = {
   showComparison?: boolean
   onSave: (value: string) => void
   validator?: (value: string) => string | null
+  readOnly?: boolean
 }
 
 export default function EditableField({
@@ -22,6 +23,7 @@ export default function EditableField({
   showComparison = false,
   onSave,
   validator,
+  readOnly = false,
 }: EditableFieldProps) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(value)
@@ -66,7 +68,7 @@ export default function EditableField({
           >
             {confidenceLabel(confidence)}
           </span>
-          {!editing ? (
+          {!readOnly && !editing ? (
             <button
               onClick={() => setEditing(true)}
               className="rounded-lg border border-slate-200 p-1 text-slate-500 hover:text-slate-700"
@@ -74,7 +76,7 @@ export default function EditableField({
             >
               <Edit2 className="h-4 w-4" />
             </button>
-          ) : (
+          ) : !readOnly ? (
             <>
               <button
                 onClick={handleSave}
@@ -95,7 +97,7 @@ export default function EditableField({
                 <X className="h-4 w-4" />
               </button>
             </>
-          )}
+          ) : null}
         </div>
       </div>
       {editing ? (
@@ -116,7 +118,7 @@ export default function EditableField({
       ) : (
         <div className="mt-2 text-sm text-slate-700">
           {value || <span className="text-slate-400">Not provided</span>}
-          {showComparison && compareValue && (
+          {!readOnly && showComparison && compareValue && (
             <button
               onClick={() => onSave(compareValue)}
               className="ml-2 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600"

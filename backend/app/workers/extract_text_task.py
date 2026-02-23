@@ -61,6 +61,13 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
                 raise FileNotFoundError(f"File not found: {local_path}")
 
         extracted = extract_text(local_path)
+        logger.info(
+            "Extracted text: %d chars, method=%s, ocr=%s",
+            len(extracted.text or ""),
+            extracted.method,
+            extracted.used_ocr,
+            extra={"job_id": job_id},
+        )
         source_ext = ""
         try:
             if job.filename and "." in job.filename:

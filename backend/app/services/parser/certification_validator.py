@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import logging
 import re
+from difflib import SequenceMatcher
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 _FALSE_POSITIVE_RE = re.compile(
@@ -21,6 +25,27 @@ _ACTION_VERB_RE = re.compile(
     flags=re.IGNORECASE,
 )
 
+
+# Abbreviations in cert names for normalization before comparison
+_CERT_NAME_ABBREVIATIONS: dict[str, str] = {
+    "aws": "amazon web services",
+    "amazon web services": "amazon web services",
+    "gcp": "google cloud",
+    "google cloud": "google cloud",
+    "azure": "microsoft azure",
+    "microsoft azure": "microsoft azure",
+    "pmp": "project management professional",
+    "cissp": "certified information systems security professional",
+    "cisa": "certified information systems auditor",
+    "cism": "certified information security manager",
+    "cka": "certified kubernetes administrator",
+    "ckad": "certified kubernetes application developer",
+    "rhcsa": "red hat certified system administrator",
+    "rhce": "red hat certified engineer",
+    "ccna": "cisco certified network associate",
+    "ccnp": "cisco certified network professional",
+    "saa": "solutions architect associate",
+}
 
 _PROVIDER_NORMALIZATION: dict[str, str] = {
     # Cloud Providers - AWS
@@ -418,47 +443,109 @@ class CertificationValidator:
 
     def deduplicate_certifications(self, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
-        Remove duplicate certifications, keeping the one with highest confidence.
-        
-        Args:
-            items: List of certification dictionaries
-            
-        Returns:
-            Deduplicated list
+        Remove duplicate certifications using exact match (name+issuer) and fuzzy
+        similarity (>90%). Keeps the entry with more fields filled (e.g., has date vs no date).
         """
-        merged: dict[str, dict[str, Any]] = {}
-        
+        kept: list[dict[str, Any]] = []
+
         for item in items:
             if not isinstance(item, dict):
                 continue
-                
             name = str(item.get("name") or "").strip()
             if not name:
                 continue
-                
+
             provider = str(item.get("issuing_organization") or "").strip()
-            key = self._dedupe_key(name, provider)
-            
-            existing = merged.get(key)
-            if not existing:
-                merged[key] = item
-                continue
-            
-            # Compare confidence scores
-            existing_conf = self._to_float(existing.get("confidence"), default=0.0)
-            incoming_conf = self._to_float(item.get("confidence"), default=0.0)
-            
-            # Keep the one with higher confidence
-            if incoming_conf > existing_conf:
-                merged[key] = item
-            # If confidence is equal, prefer the one with more complete data
-            elif incoming_conf == existing_conf:
-                existing_fields = sum(1 for v in existing.values() if v)
-                incoming_fields = sum(1 for v in item.values() if v)
-                if incoming_fields > existing_fields:
-                    merged[key] = item
-                    
-        return list(merged.values())
+            is_dup = False
+
+            for i, k in enumerate(kept):
+                if self._are_duplicate_certs(item, k):
+                    is_dup = True
+                    if self._cert_better(item, k):
+                        kept[i] = item
+                        logger.info(
+                            "Removed duplicate cert (kept better): %r",
+                            name,
+                        )
+                    else:
+                        logger.info(
+                            "Removed duplicate cert: %r (kept existing: %r)",
+                            name,
+                            str(k.get("name") or "").strip(),
+                        )
+                    break
+
+            if not is_dup:
+                kept.append(item)
+
+        return kept
+
+    def _are_duplicate_certs(self, a: dict[str, Any], b: dict[str, Any]) -> bool:
+        """Two certs are duplicates if name+issuer match exactly or cert names are >90% similar."""
+        name_a = str(a.get("name") or "").strip()
+        name_b = str(b.get("name") or "").strip()
+        prov_a = str(a.get("issuing_organization") or "").strip()
+        prov_b = str(b.get("issuing_organization") or "").strip()
+
+        key_a = self._dedupe_key(name_a, prov_a)
+        key_b = self._dedupe_key(name_b, prov_b)
+        if key_a == key_b:
+            return True
+
+        norm_a = self._normalize_cert_name_for_comparison(name_a)
+        norm_b = self._normalize_cert_name_for_comparison(name_b)
+        if not norm_a or not norm_b:
+            return False
+
+        # Fuzzy: cert names >95% similar (raised from 90% to reduce over-merge of distinct certs)
+        if self._cert_name_similarity(norm_a, norm_b) >= 0.95:
+            # Same issuer or one empty
+            if not prov_a or not prov_b or self._norm_for_compare(prov_a) == self._norm_for_compare(prov_b):
+                return True
+
+        return False
+
+    def _cert_better(self, incoming: dict[str, Any], existing: dict[str, Any]) -> bool:
+        """Prefer incoming if it has more filled fields (e.g., has date vs no date)."""
+        inc_fields = self._count_filled_fields(incoming)
+        ex_fields = self._count_filled_fields(existing)
+        if inc_fields > ex_fields:
+            return True
+        if inc_fields < ex_fields:
+            return False
+        inc_conf = self._to_float(incoming.get("confidence"), default=0.0)
+        ex_conf = self._to_float(existing.get("confidence"), default=0.0)
+        return inc_conf >= ex_conf
+
+    @staticmethod
+    def _count_filled_fields(cert: dict[str, Any]) -> int:
+        """Count non-empty fields."""
+        fields = ["name", "issuing_organization", "issue_date", "expiry_date", "credential_id"]
+        return sum(1 for f in fields if str(cert.get(f) or "").strip())
+
+    @staticmethod
+    def _normalize_cert_name_for_comparison(name: str) -> str:
+        """Lowercase, remove punctuation, expand abbreviations."""
+        s = (name or "").lower().strip()
+        s = re.sub(r"\s+", " ", s)
+        s = re.sub(r"[^a-z0-9 ]+", "", s)
+        s = s.strip()
+        for abbr, expanded in _CERT_NAME_ABBREVIATIONS.items():
+            s = re.sub(rf"\b{re.escape(abbr)}\b", expanded, s)
+        return re.sub(r"\s+", " ", s).strip()
+
+    @staticmethod
+    def _norm_for_compare(s: str) -> str:
+        s = (s or "").lower().strip()
+        s = re.sub(r"\s+", " ", s)
+        return re.sub(r"[^a-z0-9 ]+", "", s).strip()
+
+    @staticmethod
+    def _cert_name_similarity(a: str, b: str) -> float:
+        """Ratio of similarity between two strings (0-1)."""
+        if not a or not b:
+            return 0.0
+        return SequenceMatcher(None, a, b).ratio()
 
     def detect_mismatches(
         self,
@@ -591,24 +678,22 @@ class CertificationValidator:
             return float(value)
         except (TypeError, ValueError):
             return float(default)
-    
+
     def validate_and_clean(self, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Complete validation pipeline: remove false positives, normalize, and deduplicate.
-        
-        Args:
-            items: Raw certification items
-            
-        Returns:
-            Cleaned and validated certification items
         """
-        # Step 1: Remove false positives
         cleaned = self.remove_false_positives(items)
-        
-        # Step 2: Normalize provider names
         normalized = self.normalize_providers(cleaned)
-        
-        # Step 3: Deduplicate
-        deduplicated = self.deduplicate_certifications(normalized)
-        
-        return deduplicated
+        return self.deduplicate_certifications(normalized)
+
+
+def deduplicate_certificates(certs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Remove duplicate certificates. Two certs are duplicates if:
+    - cert_name + issuer match exactly, or
+    - cert_name similarity > 90% (fuzzy match).
+    Keeps the entry with more fields filled (e.g., has date vs no date).
+    """
+    validator = CertificationValidator()
+    return validator.deduplicate_certifications(certs)

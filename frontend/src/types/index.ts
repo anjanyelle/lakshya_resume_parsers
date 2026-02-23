@@ -1,5 +1,6 @@
 export type {
   Candidate,
+  CandidateSkill,
   CandidateStatus,
   ReviewStatus,
   Skill,

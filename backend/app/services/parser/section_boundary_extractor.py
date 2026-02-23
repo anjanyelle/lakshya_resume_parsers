@@ -23,6 +23,12 @@ SUMMARY_HEADINGS = {
     r"^SUMMARY\s*$",
     r"^OBJECTIVE\s*$",
     r"^CAREER\s+SUMMARY\s*$",
+    r"^CAREER\s+OVERVIEW\s*$",
+    r"^PROFILE\s*$",
+    r"^ABOUT\s+ME\s*$",
+    r"^PERSONAL\s+STATEMENT\s*$",
+    r"^INTRODUCTION\s*$",
+    r"^OVERVIEW\s*$",
 }
 
 CERTIFICATION_HEADINGS = {
@@ -32,6 +38,9 @@ CERTIFICATION_HEADINGS = {
     r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CERTIFICATES\s*&\s*GRANTS\b.*$",
+    r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^LICENSES?\s+AND\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^PROFESSIONAL\s+QUALIFICATIONS?\s*[:\-–—]?\s*$",
 }
 
 # Stop headings - immediately terminate extraction
