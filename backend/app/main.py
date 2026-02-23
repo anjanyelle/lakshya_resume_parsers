@@ -48,8 +48,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 @app.middleware("http")
 async def csrf_protect(request: Request, call_next):
     if settings.CSRF_ENABLED and request.method in {"POST", "PUT", "PATCH", "DELETE"}:
