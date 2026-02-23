@@ -41,6 +41,20 @@ def test_normalize_resume_text_pdf_repairs_hyphenation():
     assert "soft-\nware" not in result
 
 
+def test_clean_summary_skills_deduplicates_identical_lines():
+    """Summary section with two identical lines outputs the line only once."""
+    line = "I am an experienced software engineer with over five years building scalable systems."
+    sections = {
+        "summary": {"content": f"{line}\n{line}"},
+        "skills": {"content": ""},
+    }
+    out, _ = clean_summary_and_skills_sections(sections)
+    content = out["summary"].get("content") or ""
+    lines = [ln.strip() for ln in content.splitlines() if ln.strip()]
+    assert len(lines) == 1
+    assert lines[0] == line
+
+
 def test_clean_summary_skills_i_led_sentence_is_sentence_like():
     """'I led a team of 10 engineers' should be sentence-like and moved to summary."""
     sections = {

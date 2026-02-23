@@ -85,6 +85,29 @@ def _iter_text_sources(item: dict[str, object]) -> list[str]:
     return sources
 
 
+def _extract_all_clients(text: str) -> list[tuple[str, str]]:
+    """Return list of (client_name, confidence) for all clients in text."""
+    results = []
+    seen = set()
+
+    for m in _STRONG_CLIENT_RE.finditer(text):
+        raw = m.group("name").strip().title()
+        name = _clean_client_name(raw)
+        if name and name.lower() not in seen and len(name) >= 3:
+            seen.add(name.lower())
+            results.append((name, "high"))
+
+    for pattern in _MEDIUM_CLIENT_RES:
+        for m in pattern.finditer(text):
+            raw = m.group("name").strip().title()
+            name = _clean_client_name(raw)
+            if name and name.lower() not in seen and len(name) >= 3:
+                seen.add(name.lower())
+                results.append((name, "medium"))
+
+    return results
+
+
 def _extract_first_client(text: str) -> tuple[str, str] | None:
     for line in (text or "").splitlines() or [text]:
         line2 = str(line or "").strip()
@@ -138,63 +161,78 @@ def task_extract_clients(self, job_id: str) -> str:  # noqa: ANN001
             session.commit()
             return job_id
 
-        all_clients: list[str] = []
-        all_clients_set: set[str] = set()
-
+        all_found_clients: list[tuple[str, str]] = []
         updated_work: list[dict[str, object]] = []
+
         for item in work_items:
             if not isinstance(item, dict):
                 continue
 
             item2: dict[str, object] = dict(item)
-            existing_client = _clean_client_name(str(item2.get("client") or ""))
-            existing_conf = str(item2.get("client_confidence") or "").strip().lower()
+            parts = [
+                item2.get("description", "") or "",
+                "\n".join(item2.get("bullets", []) or []),
+                item2.get("company", "") or "",
+            ]
+            item_text = "\n".join(p for p in parts if p)
 
-            best: tuple[str, str] | None = None
-            for src in _iter_text_sources(item2):
-                match = _extract_first_client(src)
-                if not match:
-                    continue
-                if best is None:
-                    best = match
-                    if match[1] == "high":
-                        break
-
-            if best and (not existing_client or existing_conf not in {"high", "medium"}):
-                item2["client"] = best[0]
-                item2["client_confidence"] = best[1]
-                existing_client = best[0]
-
-            if existing_client:
-                key = existing_client.lower()
-                if key not in all_clients_set:
-                    all_clients_set.add(key)
-                    all_clients.append(existing_client)
+            clients = _extract_all_clients(item_text)
+            if clients:
+                item2["client"] = clients[0][0]
+                item2["client_confidence"] = clients[0][1]
+                all_found_clients.extend(clients)
+            else:
+                existing_client = _clean_client_name(str(item2.get("client") or ""))
+                if existing_client:
+                    all_found_clients.append((
+                        existing_client,
+                        str(item2.get("client_confidence") or "medium").strip().lower(),
+                    ))
 
             updated_work.append(item2)
 
+        final_clients = list(dict.fromkeys(name for name, _ in all_found_clients))
+
         sections = parsed.get("sections")
+        experience_section = sections.get("experience") if isinstance(sections, dict) else None
+        experience_text = ""
+        if isinstance(experience_section, dict):
+            experience_text = str(experience_section.get("content") or "")
+        elif experience_section is not None and hasattr(experience_section, "content"):
+            experience_text = str(getattr(experience_section, "content", "") or "")
+        if not experience_text and work_items:
+            experience_text = "\n".join(
+                p
+                for item in work_items
+                for p in [
+                    item.get("description", "") or "",
+                    "\n".join(item.get("bullets", []) or []),
+                    item.get("company", "") or "",
+                ]
+                if p
+            )
+        if experience_text:
+            for name, _ in _extract_all_clients(experience_text):
+                if name not in final_clients:
+                    final_clients.append(name)
+
         if isinstance(sections, dict):
             projects = sections.get("projects")
             if isinstance(projects, dict):
                 proj_text = projects.get("content")
                 if isinstance(proj_text, str) and proj_text.strip():
-                    proj_match = _extract_first_client(proj_text)
-                    if proj_match:
-                        candidate = proj_match[0]
-                        key = candidate.lower()
-                        if key not in all_clients_set:
-                            all_clients_set.add(key)
-                            all_clients.append(candidate)
+                    for name, _ in _extract_all_clients(proj_text):
+                        if name not in final_clients:
+                            final_clients.append(name)
 
         parsed["work_experience"] = updated_work
-        parsed["clients"] = all_clients
+        parsed["clients"] = final_clients
 
         debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
         debug_bundle = dict(debug_bundle)
         debug_bundle["clients"] = {
-            "count": len(all_clients),
-            "unique_clients": all_clients[:50],
+            "count": len(final_clients),
+            "unique_clients": final_clients[:50],
             "duration_seconds": time.perf_counter() - start_time,
         }
         parsed["debug"] = debug_bundle
@@ -206,7 +244,7 @@ def task_extract_clients(self, job_id: str) -> str:  # noqa: ANN001
 
         logger.info(
             "Deterministic client extraction completed",
-            extra={"job_id": job_id, "client_count": len(all_clients)},
+            extra={"job_id": job_id, "client_count": len(final_clients)},
         )
         return job_id
     finally:

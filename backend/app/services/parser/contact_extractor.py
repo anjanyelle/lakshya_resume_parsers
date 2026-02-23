@@ -658,6 +658,11 @@ NAME_LABEL_REGEX = re.compile(
     re.IGNORECASE,
 )
 
+FIRST_LINE_NAME_RE = re.compile(
+    r"^(?:Dr\.?\s+|Mr\.?\s+|Ms\.?\s+|Mrs\.?\s+|Prof\.?\s+)?"
+    r"([A-Z][a-z]{1,20}(?:\s+[A-Z][a-z]{1,20}){1,4})$",
+)
+
 SECTION_HINTS = {
     "summary",
     "professional summary",
@@ -880,8 +885,17 @@ class ContactExtractor:
 
     def extract_name(self, text: str) -> NameResult:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
-        top_lines = lines[:30]
+        top_lines = lines[:50]
         contact_label_re = re.compile(r"\b(?:email|phone|linkedin|github)\b\s*:?", re.IGNORECASE)
+
+        first_line = (lines[0] if lines else "").strip()
+        if first_line and FIRST_LINE_NAME_RE.match(first_line):
+            not_name_words = {
+                "resume", "curriculum", "vitae", "cv", "profile",
+                "summary", "experience", "skills", "education",
+            }
+            if first_line.lower() not in not_name_words:
+                return NameResult(name=first_line, confidence=0.9)
 
         for line in top_lines:
             match = NAME_LABEL_REGEX.search(line)

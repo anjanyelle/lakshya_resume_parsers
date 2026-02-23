@@ -83,6 +83,22 @@ from app.workers.task_calculate_confidence import build_per_field_confidence, re
 logger = logging.getLogger(__name__)
 
 
+def _dedup_text_lines(text: str) -> str:
+    """Remove duplicate lines (case-insensitive) while preserving blank lines as spacing."""
+    if not text:
+        return text
+    seen = set()
+    result = []
+    for line in text.splitlines():
+        key = line.strip().lower()
+        if key and key not in seen:
+            seen.add(key)
+            result.append(line)
+        elif not key:
+            result.append(line)  # keep blank lines as spacing
+    return "\n".join(result)
+
+
 def start_parsing_workflow(job_id: str) -> str:
     structlog.contextvars.bind_contextvars(job_id=job_id)
     try:
@@ -567,7 +583,61 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
 def _parse_date_str(value: str | None) -> date | None:
     if not value:
         return None
-    parsed = dateparser.parse(value, settings={"PREFER_DAY_OF_MONTH": "first"})
+    raw = str(value).strip()
+    if not raw:
+        return None
+
+    # Fallbacks for formats dateparser may not handle well
+    q_match = re.match(r"Q([1-4])\s+(\d{4})", raw, re.IGNORECASE)
+    if q_match:
+        q, year = int(q_match.group(1)), int(q_match.group(2))
+        month = (q - 1) * 3 + 1
+        return date(year, month, 1)
+
+    season_match = re.match(
+        r"(Spring|Summer|Fall|Winter)\s+(\d{4})", raw, re.IGNORECASE
+    )
+    if season_match:
+        season, year = season_match.group(1).lower(), int(season_match.group(2))
+        month = {"spring": 3, "summer": 6, "fall": 9, "winter": 12}.get(season, 1)
+        return date(year, month, 1)
+
+    # MMM 'YY or MMM 'YY -> normalize to MMM 20YY for dateparser
+    apostrophe_match = re.match(
+        r"([A-Za-z]{3,})\s*['\u2019\u2018]\s*(\d{2})\b", raw
+    )
+    if apostrophe_match:
+        raw = f"{apostrophe_match.group(1)} 20{apostrophe_match.group(2)}"
+
+    # DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY (day first)
+    dmy_match = re.match(r"(\d{1,2})[./\-](\d{1,2})[./\-](\d{2,4})\b", raw)
+    if dmy_match:
+        d, m, y = int(dmy_match.group(1)), int(dmy_match.group(2)), int(dmy_match.group(3))
+        if y < 100:
+            y += 2000 if y < 50 else 1900
+        if 1 <= d <= 31 and 1 <= m <= 12:
+            try:
+                return date(y, m, d)
+            except ValueError:
+                pass
+
+    # YYYY.MM or YYYY/MM (year first)
+    ym_match = re.match(r"(\d{4})[./\-](\d{1,2})\b", raw)
+    if ym_match:
+        y, m = int(ym_match.group(1)), int(ym_match.group(2))
+        if 1 <= m <= 12:
+            try:
+                return date(y, m, 1)
+            except ValueError:
+                pass
+
+    parsed = dateparser.parse(
+        raw,
+        settings={
+            "PREFER_DAY_OF_MONTH": "first",
+            "PREFER_DATES_FROM": "past",
+        },
+    )
     return parsed.date() if parsed else None
 
 
@@ -2015,6 +2085,13 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
                 "moved_skills_to_summary": int(cleaned_counts.get("moved_skills_to_summary", 0) or 0),
             },
         )
+        exp_block = payload.get("experience") or {}
+        logger.info(
+            "DIAG sections keys=%s exp_len=%d exp_conf=%.2f",
+            list(payload.keys()),
+            len(str(exp_block.get("content", "") or "")),
+            float(exp_block.get("confidence") or 0),
+        )
         _update_job(
             job_id,
             last_stage="detect_sections",
@@ -2096,17 +2173,34 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             return job_id
 
         sections = parsed.get("sections", {})
-        experience_block = sections.get("experience", {}) if isinstance(sections, dict) else {}
-        experience_text = (
-            experience_block.get("content", "")
-            if isinstance(experience_block, dict)
-            else ""
-        )
-        has_experience_section = bool(str(experience_text or "").strip())
+
+        EXPERIENCE_KEYS = [
+            "experience",
+            "work_experience",
+            "professional_experience",
+            "employment",
+            "work_history",
+            "employment_history",
+            "career_history",
+            "positions_held",
+        ]
+
+        experience_text = ""
+        experience_block = {}
+        for key in EXPERIENCE_KEYS:
+            block = sections.get(key, {}) if isinstance(sections, dict) else {}
+            if not isinstance(block, dict):
+                continue
+            content = str(block.get("content", "") or "").strip()
+            if len(content) > len(experience_text):
+                experience_text = content
+                experience_block = block
+
         try:
-            exp_conf = float(experience_block.get("confidence", 0.0) or 0.0) if isinstance(experience_block, dict) else 0.0
+            exp_conf = float(experience_block.get("confidence", 0.0) or 0.0) if experience_block else 0.0
         except (TypeError, ValueError):
             exp_conf = 0.0
+        has_experience_section = bool(experience_text.strip())
 
         parser = WorkExperienceParser()
         raw_text = job.raw_text or ""
@@ -2132,6 +2226,11 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         chosen_experience_text = experience_text if has_experience_section else raw_text
         primary_jobs = _parse_deterministic(experience_text) if has_experience_section else _parse_deterministic(raw_text)
         primary_score = score_work_experience_jobs(primary_jobs)
+        logger.info(
+            "DIAG primary_jobs count=%d first=%s",
+            len(primary_jobs),
+            str(primary_jobs[0])[:120] if primary_jobs else "NONE",
+        )
 
         ambiguous_headers = 0
         for j in primary_jobs:
@@ -3453,11 +3552,17 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     continue
                 if isinstance(value, list):
                     if key == "work_experience":
-                        incoming_ok = not _work_experience_is_low_quality(value)
-                        if _work_experience_is_low_quality(existing) and value and incoming_ok:
-                            parsed[key] = value
-                        elif existing is None and incoming_ok:
-                            parsed[key] = value
+                        existing = parsed.get("work_experience")
+                        incoming = value  # from LLM
+                        existing_ok = existing and not _work_experience_is_low_quality(existing)
+                        incoming_ok = incoming and not _work_experience_is_low_quality(incoming)
+
+                        if existing_ok and not incoming_ok:
+                            continue  # Keep deterministic, reject empty/bad LLM data
+                        if existing_ok and incoming_ok:
+                            continue  # Keep deterministic (it ran first, trust it)
+                        if not existing_ok and incoming_ok:
+                            parsed[key] = incoming  # Only use LLM if deterministic failed
                         continue
                     if value:
                         parsed[key] = value
@@ -3570,6 +3675,10 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 ):
                     return False
                 parts = [p for p in cleaned.split() if p]
+                if len(parts) == 1 and parts[0][0].isupper() and len(parts[0]) >= 3:
+                    return True
+                if any(cleaned.startswith(p) for p in ["Dr.", "Mr.", "Ms.", "Prof."]):
+                    return True
                 if not (2 <= len(parts) <= 6):
                     return False
                 lowered = cleaned.lower()
@@ -3764,6 +3873,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             candidate.github_url = github or candidate.github_url
             inferred_summary = summary_section or _guess_summary_from_raw_text(job.raw_text)
             if inferred_summary and not candidate.summary:
+                inferred_summary = _dedup_text_lines(inferred_summary)
                 candidate.summary = inferred_summary
             candidate.status = CandidateStatus.SUCCESS
 
@@ -3777,7 +3887,23 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
         )
 
-        work_entries = sanitize_work_experience_entries(parsed.get("work_experience", []))
+        raw_we = parsed.get("work_experience", [])
+        logger.info(
+            "DIAG pre-sanitize count=%d entries=%s",
+            len(raw_we) if isinstance(raw_we, list) else 0,
+            str(
+                [
+                    {k: e.get(k) for k in ["company", "title", "start_date", "end_date"]}
+                    for e in (raw_we[:3] if isinstance(raw_we, list) else [])
+                ]
+            ),
+        )
+        work_entries = sanitize_work_experience_entries(raw_we)
+        logger.info(
+            "DIAG post-sanitize count=%d dropped=%d",
+            len(work_entries),
+            (len(raw_we) if isinstance(raw_we, list) else 0) - len(work_entries),
+        )
         for entry in work_entries:
             session.add(
                 WorkHistory(

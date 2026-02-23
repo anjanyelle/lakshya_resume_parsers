@@ -438,6 +438,13 @@ export default function CandidateDetailPage() {
     )
   }
 
+  const parsedExperience = Array.isArray(latestJob?.parsed_data?.work_experience)
+    ? latestJob.parsed_data.work_experience
+    : []
+  const dbHistory = candidate.work_history ?? []
+  const showMismatchBanner =
+    dbHistory.length === 0 && parsedExperience.length > 0
+
   return (
     <section className="space-y-6">
       <ProfileHeader
@@ -476,7 +483,14 @@ export default function CandidateDetailPage() {
         <ParsingStatusTimeline job={latestJob} onRetry={handleReprocess} />
       </div>
 
-      <WorkHistoryTimeline items={candidate.work_history} />
+      {showMismatchBanner && (
+        <div className="mb-4 rounded border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+          ⚠️ Work history was parsed ({parsedExperience.length} entries) but
+          not saved to the database. Try re-processing this resume or contact
+          support.
+        </div>
+      )}
+      <WorkHistoryTimeline items={dbHistory} />
 
       <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
         <EducationSection items={candidate.education} />

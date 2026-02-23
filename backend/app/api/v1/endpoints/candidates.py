@@ -253,6 +253,66 @@ def reprocess_candidate(
     return {"job_id": job_id, "status": status}
 
 
+@router.get("/candidates/{candidate_id}/parsing-debug")
+def get_parsing_debug(
+    candidate_id: UUID,
+    current_user=Depends(require_role("admin")),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Return parsing debug info for diagnosing wrong or missing UI data."""
+    structlog.contextvars.bind_contextvars(candidate_id=str(candidate_id))
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+
+    latest_job = (
+        db.execute(
+            select(ParsingJob)
+            .join(Candidate, Candidate.id == ParsingJob.candidate_id)
+            .where(
+                ParsingJob.candidate_id == candidate_id,
+                Candidate.tenant_id == current_user.tenant_id,
+            )
+            .order_by(ParsingJob.started_at.desc())
+            .limit(1)
+        )
+        .scalars()
+        .first()
+    )
+
+    parsed_we = []
+    if latest_job and latest_job.parsed_data:
+        parsed_we = latest_job.parsed_data.get("work_experience", [])
+
+    db_we = [
+        {
+            "company_name": wh.company_name,
+            "job_title": wh.job_title,
+            "start_date": str(wh.start_date) if wh.start_date else None,
+            "end_date": str(wh.end_date) if wh.end_date else None,
+        }
+        for wh in candidate.work_history
+    ]
+
+    sections = (latest_job.parsed_data or {}).get("sections", {})
+    sections_detected = list(sections.keys()) if isinstance(sections, dict) else []
+
+    return {
+        "candidate_id": str(candidate_id),
+        "parsed_work_experience_count": len(parsed_we),
+        "db_work_history_count": len(db_we),
+        "parsed_work_experience": parsed_we[:5],
+        "db_work_history": db_we[:5],
+        "mismatch": len(parsed_we) != len(db_we),
+        "sections_detected": sections_detected,
+    }
+
+
 @router.get("/candidates/{candidate_id}/review", response_model=CandidateReviewResponse)
 def get_candidate_review(
     candidate_id: UUID,
