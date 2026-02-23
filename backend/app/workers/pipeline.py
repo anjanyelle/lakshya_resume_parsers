@@ -50,7 +50,17 @@ from app.services.parser.normalize import normalize_resume_text
 from app.services.parser.section_parser import SectionParser
 from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
-from app.services.parser.skill_extractor import SkillExtractor, SkillMatch
+from app.services.parser.skill_extractor import (
+    SkillExtractor,
+    SkillMatch,
+    is_atomic_skill,
+    is_generic_skill,
+    is_sentence_fragment,
+    map_category_to_master,
+    normalize_skill_name as normalize_skill_name_for_dedup,
+    normalize_to_canonical,
+    sanitize_category,
+)
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
 from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
 from app.services.parser.quality_scoring import score_certifications, score_work_experience_jobs
@@ -400,6 +410,26 @@ def _coerce_list(value: Any) -> list[Any]:
 
 def _normalize_skill_name(value: str) -> str:
     return " ".join(value.lower().strip().split())
+
+
+def filter_skills_by_resume_text(
+    extracted_skills: list[dict[str, Any]], resume_text: str | None
+) -> list[dict[str, Any]]:
+    """Only allow skills that actually appear in the resume text (no prediction)."""
+    resume_text_lower = (resume_text or "").lower()
+    if not resume_text_lower.strip():
+        return list(extracted_skills)
+    clean_skills: list[dict[str, Any]] = []
+    for skill in extracted_skills:
+        if not isinstance(skill, dict):
+            continue
+        name = (skill.get("name") or "").strip().lower()
+        norm = (skill.get("normalized_name") or "").strip().lower()
+        if not name and not norm:
+            continue
+        if name in resume_text_lower or (norm and norm in resume_text_lower):
+            clean_skills.append(skill)
+    return clean_skills
 
 
 def _get_first(mapping: dict[str, Any], *keys: str) -> Any:
@@ -1591,7 +1621,9 @@ def task_normalize_skills_llm(self, job_id: str) -> str:  # noqa: ANN001
         if settings.LLM_PROVIDER == "none":
             return job_id
 
-        skills = parsed.get("experience_skills") or parsed.get("skills") or []
+        exp_skills = _coerce_list(parsed.get("experience_skills"))
+        direct_skills = _coerce_list(parsed.get("skills"))
+        skills = exp_skills + direct_skills
         if not isinstance(skills, list) or not skills:
             return job_id
 
@@ -1601,7 +1633,13 @@ def task_normalize_skills_llm(self, job_id: str) -> str:  # noqa: ANN001
             _update_job(
                 job_id,
                 last_stage="normalize_skills_llm",
-                parsed_data=_merge_parsed(job, {"skills_normalized": result.get("normalized_skills", [])}),
+                parsed_data=_merge_parsed(
+                    job,
+                    {
+                        "skills_normalized": result.get("normalized_skills", []),
+                        "skills": result.get("normalized_skills", []),
+                    },
+                ),
             )
         return job_id
     except Exception as exc:
@@ -1848,6 +1886,7 @@ def _normalize_skills(payload: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 confidence=entry.get("confidence", 0.5),
                 years_experience=entry.get("years_experience"),
                 proficiency=entry.get("proficiency"),
+                version=entry.get("version"),
             )
         )
 
@@ -1860,6 +1899,7 @@ def _normalize_skills(payload: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "confidence": match.confidence,
             "years_experience": match.years_experience,
             "proficiency": match.proficiency,
+            "version": match.version,
         }
         for match in mapped
     ]
@@ -2597,11 +2637,23 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
 
         sections = parsed.get("sections", {})
         skills_block = sections.get("skills") if isinstance(sections, dict) else None
-        skills_section = (
+        raw_skills_content = (
             skills_block.get("content", "")
             if isinstance(skills_block, dict)
             else ""
         )
+        
+        # Step 1: Industry-level section isolation via regex
+        def _refine_skills_section(text: str) -> str:
+            if not text:
+                return ""
+            # Focus on Skills/Competencies markers and stop at the next obvious header (TitleCase followed by colon)
+            pattern = r"(?:Core Competencies|Technical Skills|Relevant Skills|Key Skills|Additional Skills|Skills).*?(?=\n[A-Z][A-Za-z ]+:|\Z)"
+            match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+            return match.group(0) if match else text
+
+        skills_section = _refine_skills_section(raw_skills_content)
+        
         skills_section_conf: float | None = None
         if isinstance(skills_block, dict):
             try:
@@ -2632,45 +2684,53 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
         fallback_guard = bool(
             skills_section_conf is not None and skills_section_conf < 0.6
         )
+        # Use section-only when we have a real skills section; otherwise extract from full resume (still taxonomy-validated)
+        skills_section_stripped = (skills_section or "").strip()
+        section_only = len(skills_section_stripped) >= 80 and len(skills_section_stripped.split()) >= 3
         matches = extractor.extract_all(
             skills_section,
             jobs,
             skills_section_confidence=skills_section_conf,
             raw_text=job.raw_text or None,
+            section_only=section_only,
         )
         payload = [match.__dict__ for match in matches]
 
-        if not payload:
-            settings = get_settings()
-            if settings.LLM_PROVIDER != "none" and settings.PARSING_MODE.lower() != "deterministic":
-                llm = LLMParsingService()
-                grouped = llm.extract_all_skills_grouped(job.raw_text or "")
-                grouped_skills = grouped.get("skills") if isinstance(grouped, dict) else None
-                if isinstance(grouped_skills, dict):
-                    flattened: dict[str, dict[str, Any]] = {}
-                    for category, values in grouped_skills.items():
-                        if not isinstance(values, list):
-                            continue
-                        for value in values:
-                            if not isinstance(value, str):
-                                continue
-                            name = value.strip()
-                            if not name:
-                                continue
-                            lowered = name.lower()
-                            if re.search(r"\b(developed|built|designed)\b", lowered):
-                                continue
-                            normalized = _normalize_skill_name(name)
-                            flattened[normalized] = {
-                                "name": name,
-                                "normalized_name": normalized,
-                                "category": str(category),
-                                "confidence": 0.7,
-                                "years_experience": None,
-                                "proficiency": None,
-                            }
-                    if flattened:
-                        payload = list(flattened.values())
+        # --- 4-Layer quality filter: canonical norm, sentence fragment drop, atomic validation, category sanitization ---
+        known_normalized = extractor.get_known_normalized_skills()
+        filtered_payload: list[dict[str, Any]] = []
+        for item in payload if isinstance(payload, list) else []:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name") or "").strip()
+            normalized = str(item.get("normalized_name") or "").strip()
+            if not name and not normalized:
+                continue
+            # STEP 3: Canonical normalization (e.g. Amazon Redshift, AWS Redshift -> redshift)
+            canonical_norm = normalize_to_canonical(normalized or name)
+            item = {**item, "normalized_name": canonical_norm}
+            if not name:
+                item["name"] = canonical_norm.title()
+            skill_label = name or canonical_norm
+            # STEP 2: Sentence fragment cleaner
+            if is_sentence_fragment(skill_label):
+                continue
+            # STEP 1: Atomic skill validation
+            if not is_atomic_skill(skill_label, known_normalized):
+                continue
+            # STEP 4: Category validation (reject corrupted comma-separated or tech-list categories)
+            sane_cat = sanitize_category(item.get("category"))
+            item["category"] = sane_cat if sane_cat else map_category_to_master(item.get("category")) or "Project Tools"
+            # Relaxed master dictionary: allow atomic skills even if not in seed taxonomy
+            canonical_names = extractor.get_canonical_normalized_names()
+            if canonical_norm not in canonical_names and not is_atomic_skill(skill_label, known_normalized):
+                continue
+            # Never store generic/umbrella terms (Cloud, Backend, Security, Frontend)
+            if is_generic_skill(canonical_norm):
+                continue
+            filtered_payload.append(item)
+
+        payload = filtered_payload
 
         alias_map = {
             "reactjs": "react",
@@ -2703,12 +2763,12 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
 
         merged: dict[str, dict[str, Any]] = {}
         for item in cleaned_payload:
-            key = str(item.get("normalized_name") or "").strip().lower()
+            key = normalize_skill_name_for_dedup(item.get("normalized_name") or item.get("name") or "")
             if not key:
                 continue
             existing = merged.get(key)
             if not existing:
-                merged[key] = item
+                merged[key] = dict(item)
                 continue
             try:
                 existing_conf = float(existing.get("confidence", 0.0) or 0.0)
@@ -2718,10 +2778,45 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
                 incoming_conf = float(item.get("confidence", 0.0) or 0.0)
             except (TypeError, ValueError):
                 incoming_conf = 0.0
+            # Merge version lists when deduping (keep higher confidence, merge versions)
+            ev = existing.get("version") or []
+            iv = item.get("version") or []
+            if not isinstance(ev, list):
+                ev = []
+            if not isinstance(iv, list):
+                iv = []
+            combined = list(ev)
+            for v in iv:
+                if v not in combined:
+                    combined.append(v)
+            version_merged = combined if combined else None
             if incoming_conf > existing_conf:
-                merged[key] = item
+                merged[key] = {**dict(item), "version": version_merged}
+            else:
+                merged[key] = {**existing, "version": version_merged}
 
         payload = list(merged.values())
+        payload = filter_skills_by_resume_text(payload, job.raw_text or "")
+        # Industry standard: default confidence 0.75, master category only, ensure source, never guessed years
+        default_confidence = 0.75
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            try:
+                c = float(item.get("confidence") or 0)
+                if c < default_confidence:
+                    item["confidence"] = default_confidence
+            except (TypeError, ValueError):
+                item["confidence"] = default_confidence
+            raw_cat = item.get("category")
+            if raw_cat is not None:
+                mapped = map_category_to_master(raw_cat)
+                if mapped:
+                    item["category"] = mapped
+            if item.get("source") is None or item.get("source") == "":
+                item["source"] = "technical_skills_section"
+            # Do not guess years of experience; only explicit mention should set it
+            item["years_experience"] = None
         fallback_used = fallback_guard or (not skills_section.strip() and bool(job.raw_text))
         avg_conf = 0.0
         if payload:
