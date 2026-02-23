@@ -33,6 +33,14 @@ def test_extract_location_city_state():
     assert location.state == "TX"
 
 
+def test_extract_name_first_line_no_label():
+    """Resume where line 1 is 'John Smith' (no 'Name:' label) returns 'John Smith'."""
+    text = "John Smith\nSoftware Engineer\njohn@example.com"
+    extractor = ContactExtractor(default_region="US")
+    result = extractor.extract_name(text)
+    assert result.name == "John Smith"
+
+
 def test_extract_name_fallback():
     text = "Jane Doe\nSoftware Engineer\njane@example.com"
     extractor = ContactExtractor(default_region="US")

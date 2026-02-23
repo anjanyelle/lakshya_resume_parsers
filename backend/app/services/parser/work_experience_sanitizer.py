@@ -173,8 +173,20 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
                     bullets_out.append(bb)
         normalized["bullets"] = bullets_out
 
-        if not _has_any_date(normalized) and not _has_any_body(normalized):
+        company = str(normalized.get("company") or "").strip()
+        title = str(normalized.get("title") or "").strip()
+        has_date = _has_any_date(normalized)
+        has_body = _has_any_body(normalized)
+
+        # Drop only if we have nothing at all
+        if not company and not title and not has_date and not has_body:
             continue
+
+        # Allow through if company+title exist, even without date/body
+        if not has_date and not has_body:
+            if not company or not title:
+                continue
+            normalized["_needs_review"] = True  # flag for QA but keep it
 
         cleaned.append(normalized)
 

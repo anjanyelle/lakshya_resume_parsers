@@ -394,11 +394,28 @@ def clean_summary_and_skills_sections(
     out_summary = dict(summary_block)
     out_skills = dict(skills_block)
 
+    all_summary_lines = [*kept_summary, *moved_to_summary]
+    seen = set()
+    deduped = []
+    for line in all_summary_lines:
+        key = line.strip().lower()
+        if key and key not in seen:
+            seen.add(key)
+            deduped.append(line)
+    out_summary["content"] = "\n".join(deduped).strip()
     if moved_skills_to_summary:
-        out_summary["content"] = "\n".join([*kept_summary, *moved_to_summary]).strip()
         out_summary["content_corrected"] = True
+
+    all_skill_lines = [*kept_skills, *moved_to_skills]
+    seen = set()
+    deduped = []
+    for line in all_skill_lines:
+        key = line.strip().lower()
+        if key and key not in seen:
+            seen.add(key)
+            deduped.append(line)
+    out_skills["content"] = "\n".join(deduped).strip()
     if moved_summary_to_skills:
-        out_skills["content"] = "\n".join([*kept_skills, *moved_to_skills]).strip()
         out_skills["content_corrected"] = True
 
     out_sections["summary"] = out_summary

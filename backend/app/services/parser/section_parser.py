@@ -2924,22 +2924,47 @@ class SectionParser:
         if not isinstance(sections, dict) or not sections:
             return sections
 
-        canonical: dict[str, list[str]] = {}
+        canonical: dict[str, dict[str, object]] = {}
         header_conf: dict[str, float] = {}
         for key, lines in sections.items():
             canonical_key = self._canonical_section_key(str(key or ""))
-            canonical.setdefault(canonical_key, []).extend(lines or [])
+            conf = float(self._last_section_header_confidence.get(key, 0.0) or 0.0) if self._last_section_header_confidence else 0.0
+
+            if canonical_key not in canonical:
+                canonical[canonical_key] = {
+                    "content": "",
+                    "confidence": 0.0,
+                    "_lines": [],
+                    "_seen": set(),
+                }
+
+            section_block = canonical[canonical_key]
+            for line in lines or []:
+                normalized = (line or "").strip().lower()
+                if normalized and normalized not in section_block["_seen"]:
+                    section_block["_seen"].add(normalized)
+                    section_block["_lines"].append(line)
+
+            if conf > section_block.get("confidence", 0.0):
+                section_block["confidence"] = conf
+
             if self._last_section_header_confidence:
                 existing = header_conf.get(canonical_key, 0.0)
-                header_conf[canonical_key] = max(
-                    existing,
-                    float(self._last_section_header_confidence.get(key, 0.0) or 0.0),
-                )
+                header_conf[canonical_key] = max(existing, conf)
+
+        result: dict[str, list[str]] = {}
+        for key, block in canonical.items():
+            if "_lines" in block:
+                result[key] = list(block["_lines"])
+                del block["_lines"]
+                del block["_seen"]
+            else:
+                result[key] = []
 
         if header_conf:
             self._last_section_header_confidence = header_conf
 
-        return canonical
+        return result
 
     @staticmethod
     def _canonical_section_key(key: str) -> str:

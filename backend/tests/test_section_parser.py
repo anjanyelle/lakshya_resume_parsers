@@ -98,6 +98,21 @@ def test_section_parser_inline_section_summary():
     assert "8 years" in sections["summary"].content
 
 
+def test_canonicalize_sections_deduplicates_merged_summary_profile():
+    """Summary and Profile sections with overlapping lines merge into summary with no duplicates."""
+    parser = SectionParser(use_spacy=False)
+    sections = {
+        "Summary": ["Line A", "Line B", "Line C"],
+        "Profile": ["Line B", "Line C", "Line D"],
+    }
+    result = parser._canonicalize_sections(sections)
+    assert "summary" in result
+    merged = result["summary"]
+    assert merged == ["Line A", "Line B", "Line C", "Line D"]
+    normalized = [ln.strip().lower() for ln in merged if ln.strip()]
+    assert len(normalized) == len(set(normalized)), "Merged section has duplicate lines"
+
+
 def test_section_parser_emits_start_line_end_line_evidence_heading():
     text = """
     John Doe
