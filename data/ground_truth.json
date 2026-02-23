@@ -1,0 +1,1116 @@
+[
+  {
+    "file": "Alistair Caldwell .NET Engineering Resume.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "Technically formidable and results-oriented Software Engineering Executive with over 12 years\nof specialized experience in architecting, developing, and scaling mission-critical enterprise systems\nwithin the Microsoft .NET ecosystem. Renowned for orchestrating the digital transformation of global\nfinancial and healthcare institutions by transitioning monolithic legacy infrastructures into high-performance,\ncloud-native microservices architectures. Distinguished for leading the engineering efforts at *Nexus\nFinTech Systems*, where I directed the development of a unified digital banking platform processing\nover $12B in annual transactions with 99.999% availability.\nExpert in the deployment of modern .NET 8/9 frameworks, Azure cloud services, and distributed\nsystems architecture. A strategic leader who has successfully managed engineering organizations of\n130+ professionals across global time zones, bridging the gap between low-level performance optimization (CLR, memory management) and high-level commercial growth objectives. A champion of\nDevOps culture, Domain-Driven Design (DDD), and secure-by-design principles, Alistair possesses\na unique ability to navigate complex regulatory landscapes including PCI-DSS, HIPAA, and GDPR.\nHis leadership philosophy is built on the pillars of technical mentorship, radical architectural transparency, and the pursuit of engineering excellence through automated quality gates and rigorous\npeer review.\nPrimary technical lead for the ”Omni-Channel” analytics engine, utilized by 15 of\nthe Fortune 50 retailers. Focused on large-scale data processing and real-time inventory forecasting\nusing the .NET stack.\nCreate a real-time inventory view across 5,000 stores and 10 distribution centers for a\nglobal retailer.\n- Strategy: Deployed a global Redis cluster as a write-through cache for the SQL Server backend.\nUsed Azure Event Grid to broadcast inventory changes to the e-commerce storefront in real-time.\n- Outcome: Enabled ”Buy Online, Pick Up In Store” (BOPIS) with 100% inventory accuracy. Increased\nretail revenue for the primary client by $45M in the first quarter post-launch.\nProject Green-Build: Sustainable Engineering Automation\nRole: Engineering Director | Outcome: Saved 10,000+ developer hours annually.\n- Strategy: Automated the generation of client libraries and documentation from OpenAPI specifications. Implemented a self-healing CI/CD pipeline that automatically reverted deployments if\nhealth checks failed.\n- Innovation: Introduced ”Ephemeral Environments” for every Pull Request using Azure Container\nInstances, allowing for isolated stakeholder testing before merging.\nLEADERSHIP & TEAM MANAGEMENT\n- Scaling Engineering Organizations: Successfully grew the .NET engineering organization at Nexus\nfrom 25 to 135 professionals across 4 global technical hubs (Austin, Krakow, Berlin, Bangalore).\n- The ”Caldwell” Engineering Framework: Authored a 200-page internal standard for .NET development, covering everything from asynchronous programming best practices to standardized C#\ncoding styles and EF Core performance guidelines.\n- OKR-Driven Strategy: Implemented a ”Value-Stream” focused OKR framework that aligned engineering outputs with direct commercial revenue targets, resulting in a 40% increase in feature\nvelocity.\n- Crisis Management Leadership: Managed the technical response to a major industry-wide zeroday exploit in 2021. Successfully patched 5,000+ production services within 4 hours with zero data\nexposure.\n- Executive Presence: Provide bi-weekly technical briefings to the CEO, CTO, and Board members\non system health, risk mitigation, and the ROI of technical debt remediation.\n- Diversity & Inclusion in Tech: Spearheaded a ”Women in Engineering” recruitment initiative,\nincreasing female representation in the technical organization by 45% over 3 years.\n- Cultural Transformation: Introduced a ”DevSecOps” mindset where security is integrated into\nthe earliest stages of the SDLC, reducing security-related release delays by 70%.\nPROCESS IMPROVEMENTS & AUTOMATION\n- Automated Load Testing (k6 + Azure): Built a platform that automatically runs load tests for\nevery major release. Identified 20+ performance regressions before they reached production,\nsaving an estimated $5M in potential downtime.\n- RPA for Financial Reconciliation: Developed a C#-based robotic process automation tool to handle manual data entry for international currency adjustments. Reduced human error by 99% and\nsaved 500 man-hours monthly.\n- Self-Healing Cloud Operators: Built a custom Kubernetes Operator in Go/C# that monitors microservice health and automatically adjusts memory limits and connection pools based on realtime traffic anomalies.\n- Automated Compliance Documentation: Created a tool that automatically generates HIPAA and\nSOC2 compliance evidence from Azure DevOps logs and GitHub audit trails. Reduced manual audit\nprep time by 90%.\n- Shadow Traffic Deployment: Implemented a ”Dark Launch” proxy that duplicates production\ntraffic to a testing environment, allowing for the verification of performance and logic on live data\nwithout impacting users.\n- Centralized Log Aggregation: Standardized logging via a custom NuGet package that automatically enriches logs with trace IDs, user context, and machine data, reducing troubleshooting time\nby 60%.\nSTRATEGIC VISION: THE FUTURE OF .NET ENGINEERING\nThe Era of AI-Augmented Development\nI believe the next decade of software engineering will be defined by the transition from ”Manual\nCoding” to ”AI-Augmented Architecture.” I am positioning my teams to use AI (GitHub Copilot, Azure\nOpenAI) not just for code completion, but for automated unit testing, architectural pattern detection,\nand proactive security hardening. My mission is to build the infrastructure that allows developers to\nfocus on high-value business logic while AI handles the ”Cognitive Drudgery” of the SDLC.\nSustainability in Software\nIn an age of increasing environmental awareness, ”Green Coding” is a commercial necessity. My\nstrategy involves leveraging .NET 9’s performance enhancements and container density to reduce the\ncarbon footprint of our cloud infrastructure. By optimizing the code-to-compute ratio, we improve\nboth corporate sustainability and shareholder value.\nData Sovereignty & Multi-Cloud Resiliency\nAs geopolitical volatility increases, technical resiliency must include data sovereignty. I champion a\n”Cloud-Agnostic” .NET architecture where the business logic is strictly separated from the underlying\ncloud provider via the Sidecar and Service Mesh patterns. This ensures that our platforms can pivot\nbetween Azure, AWS, or local data centers with minimal downtime.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "- Architectural Leadership: Enterprise Microservices, Event-Driven Architecture (EDA), Hexagonal/Clean Architecture, Distributed Systems Design, CQRS, SAGA Patterns, Actor Model.\n- .NET Ecosystem Mastery: C# 12/13, ASP.NET Core 8/9, Entity Framework Core, SignalR, gRPC,\nBlazor WebAssembly, ML.NET, MAUI, SIMD Intrinsics.\n- Cloud & Infrastructure: Microsoft Azure (AKS, Functions, Service Bus, Cosmos DB, Key Vault),\nAWS (EC2, S3, EKS), Kubernetes, Docker, Terraform (IaC), Bicep.\n- Engineering Leadership: Agile/Scrum Transformation, Engineering OKR Setting, Technical Roadmap\nDevelopment, P&L Responsibility ($150M+), Global Team Scaling.\n- Data Engineering: SQL Server Optimization (Performance Tuning, Sharding), PostgreSQL (Citus),\nMongoDB, Cassandra, Redis Caching, Elasticsearch/ELK.\n- Messaging & Streaming: Apache Kafka, Azure Service Bus, RabbitMQ, MassTransit, NServiceBus,\nEventStoreDB, KEDA for autoscaling.\n- Security & Compliance: OAuth2/OpenID Connect, JWT, mTLS, OWASP Top 10 Mitigation, HIPAA,\nPCI-DSS, SOC2 Compliance, Zero-Trust Architecture.\n- Quality & Testing: Test-Driven Development (TDD), Consumer-Driven Contract Testing (Pact),\nChaos Engineering, Playwright Automation, BenchmarkDotNet.\nIDEs & Dev Tools: Visual Studio 2022 Enterprise, VS Code, JetBrains Rider, JProfiler, BenchmarkDotNet.\nCore Frameworks: .NET 8/9, .NET Core 3.1, .NET Framework 4.8, Blazor, SignalR, gRPC, ML.NET, Maui.\nCloud & DevOps: Azure Kubernetes Service (AKS), Azure DevOps, Terraform, Bicep, Helm, ArgoCD,\nJenkins.\nPersistence: SQL Server, Cosmos DB, PostgreSQL, MongoDB, ScyllaDB, Redis, Elasticsearch.\nMessaging: Azure Service Bus, Kafka, RabbitMQ, MassTransit, NServiceBus, Google Pub/Sub.\nObservability: Application Insights, Datadog, Grafana, Prometheus, OpenTelemetry, ELK Stack.\nCompliance: Vanta, Drata, OneTrust, Burp Suite, Snyk, SonarQube, Prisma Cloud.\n- ISTQB-CTEL: Test Automation Strategy Specialist\n- Lean Six Sigma Black Belt (Process Optimization focus)",
+          "confidence": 1.0
+        },
+        "languages": {
+          "content": "- Languages: C# (Expert), F# (Functional Patterns), TypeScript, JavaScript, Go, SQL, PowerShell,\nBash, Python, Rust (FFI Integration).\n- Backend Frameworks: .NET 8/9, ASP.NET Core (Minimal APIs, SignalR), Entity Framework Core\n(Source Generators), Dapper, Akka.NET, Microsoft Orleans.\n- Frontend Integration: Blazor (WASM/Server), React 18 (Hooks, Suspense), Angular 17+, Next.js\n(BFF Patterns), Tailwind CSS, Framer Motion.\n- Architecture Tools: MediatR, FluentValidation, Serilog (Structured Logging), AutoFixture, Moq,\nxUnit, Bogus (Data Generation), Polly (Resilience).\nInfrastructure, Cloud & DevOps\n- Microsoft Azure Stack: Azure Kubernetes Service (AKS), Azure App Service, Azure Functions (Serverless), Azure DevOps (YAML Pipelines), Bicep, Azure Front Door.\n- DevOps & Automation: GitHub Actions, Jenkins (Groovy DSL), Azure Pipelines, Octopus Deploy,\nArgoCD (GitOps), FluxCD.\n- Containerization: Docker Desktop, Podman, Helm Charts, KEDA, Service Mesh (Linkerd, Istio,\nCilium), Container Security (Trivy).\n- IaC & Configuration: Terraform, ARM Templates, Pulumi, Ansible, Azure Key Vault, HashiCorp\nVault.\nDatabase & Messaging Platforms\n- Persistence: SQL Server 2022 (In-Memory OLTP, Temporal Tables), Azure SQL DB, Cosmos DB,\nPostgreSQL (PostGIS), MariaDB.\n- Messaging: Azure Service Bus, Kafka (Confluent), RabbitMQ, NServiceBus, MassTransit (Azure/RabbitMQ Transports), SignalR Backplane.\n- Cache & Search: Redis (Cluster, Redlock), Memcached, Elasticsearch 8.x, Meilisearch, Algolia, Vector Databases (Pinecone).\nArchitectural Standards & Monitoring\n- Observability: Application Insights, Datadog (APM), Prometheus, Grafana, OpenTelemetry, Splunk,\nLoki, Jaeger (Distributed Tracing).\n- Methodologies: Domain-Driven Design (DDD), SOLID, DRY, YAGNI, Lean Software Development,\nSAFE (Scaled Agile), Agile/Kanban.\n- Design Documentation: Swagger/OpenAPI 3.1, Mermaid.js, Lucidchart (C4 Modeling), Confluence, Architecture Decision Records (ADR).\n- English: Native Proficiency.\n- German: Professional Working Proficiency (C1).\n- Spanish: Conversational.\n- Technical Contexts: Expert in navigating international technical cultures and labor laws for engineering recruitment in the EU, APAC, and North America.\n- Global Footprint: Directly managed distributed teams in: USA, Canada, UK, Germany, Poland,\nIndia, and Singapore.",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Global Director of Engineering & Principal .NET Architect | Nexus FinTech Systems |\n2021 - Present\nAustin, TX / Remote (Global Digital Banking Infrastructure | Annual Revenue: $4.2B)\nStrategic Mandate & Executive Leadership: Appointed as the primary technical authority for\nthe ”Core Ledger & Payments” division, managing a multi-regional engineering organization of 135\nSoftware Engineers and SDETs. Accountable for the architectural integrity and scalability of a platform handling $1B+ in daily transaction volume. Manage a $160M annual budget covering global\nheadcount, cloud infrastructure, and R&D investments.\n- Keynote Speaker: ”The Death of the Monolith: Scaling .NET into the 2030s,” .NET Conf 2023.\n- Featured Speaker: ”High-Frequency .NET: Lessons from a $10B FinTech Engine,” Microsoft Ignite\n2022.\n- Panelist: ”Microservices vs. Modulith: The Practical Middle Ground,” QCon San Francisco 2021.\n- Workshop Lead: ”Performance Tuning the CLR for Low Latency,” NDC London 2020.\n- Guest Lecturer: ”Advanced Distributed Systems,” The University of Texas at Austin - McCombs School\nof Business.\nSelected Peer-Reviewed Publications\n- ”Predictive Resource Scaling in Kubernetes using Machine Learning and .NET”\nIEEE Journal of Software Systems, 2023.\n- ”Beyond REST: Comparing gRPC and RSocket for High-Frequency C# Services”\nThe Journal of High Performance Systems, 2022.\n- ”The Cost of Complexity: Quantifying Architectural Debt in Enterprise .NET Systems”\nInternational Software Engineering Journal, 2021.\n- ”Shift-Left Security: Automating Vulnerability Detection in .NET CI/CD Pipelines”\nCybersecurity Digest, 2020.",
+          "confidence": 1.0
+        },
+        "awards": {
+          "content": "- Enterprise .NET Transformation: Led the massive migration from a monolithic ASP.NET 4.8 framework to a containerized .NET 8 microservices ecosystem on Azure. Achieved a 65% reduction in\ninfrastructure costs while increasing transaction throughput by 400%.\n- Global Payments Architecture: Architected a distributed, event-driven payment engine utilizing Azure Service Bus and MassTransit. Implemented the SAGA pattern for complex transaction\ncoordination, resulting in a 99.9% successful settlement rate across 22 currencies.\n- Performance Engineering: Identified and remediated critical memory leaks in the .NET Garbage\nCollector for high-traffic services.\nOptimized Entity Framework Core queries using ”Compiled\nQueries” and ”NoTracking,” reducing SQL Server CPU utilization by 45% during peak hours.\n- Identity & Security Modernization: Directed the deployment of a unified identity provider using\nIdentityServer6 and Azure AD B2C. Implemented multi-factor authentication (MFA) and biometric\nauth for 12M+ end-users, ensuring 100% compliance with PCI-DSS 4.0.\n- Productivity Automation: Developed an internal ”Developer Portal” using Backstage.io and C#-\nbased scaffolding tools. Reduced the ”New Service Provisioning” time from 2 weeks to 10 minutes,\nincluding automated CI/CD and monitoring setup.\n- Talent Acquisition & Mentorship: Re-engineered the technical interviewing process, focusing on\nsystems design and behavioral competencies. Successfully hired 60+ top-tier .NET engineers and\nestablished a mentorship program that resulted in a 95% engineering retention rate over 3 years.\n- Cost Optimization: Leveraged Azure Spot Instances for non-critical processing workloads and\ntransitioned 80% of background tasks to Azure Functions (Serverless), saving the company $6.2M\nin annual cloud spend.\n- Technical Due Diligence: Conducted architectural audits for 4 strategic acquisitions, identifying\nover $8M in technical debt and leading the integration of diverse .NET stacks into the core Nexus\nframework.\nSenior Principal Software Architect | Lumina Healthcare Digital | 2017 - 2021\nAustin, TX (AI-Driven Healthtech Platform | 15M+ Patients)\nOperational Leadership: Served as the lead architect for the ”Lumina-Connect” platform, focusing on real-time clinical data interoperability and AI-assisted diagnostics. Directed a team of 45 senior\ndevelopers and 15 data engineers across 3 geographic hubs.\n- Real-Time Telemetry Engine: Architected a high-frequency telemetry ingestion engine using SignalR and .NET Core. Processed 2.5 billion data points daily from wearable medical devices with\nsub-100ms latency to clinician dashboards.\n- Healthcare Compliance (HIPAA): Implemented a zero-trust data access model using mTLS and\nAzure Key Vault for encryption at rest and in transit. Successfully navigated 3 major federal audits\nwith zero citations.\n- FHIR Interoperability: Developed a C#-based FHIR (Fast Healthcare Interoperability Resources)\nmiddleware that integrated 400+ disparate hospital EMR systems. Became the industry benchmark for healthcare data exchange in the South-Central region.\n- Database Scalability: Directed the transition from a single Oracle instance to a sharded PostgreSQL architecture using Citus. Improved data retrieval speeds for patient histories by 350%\nwhile handling a 10x increase in data volume.\n- CI/CD Excellence: Replaced a manual build process with fully automated YAML-based Azure DevOps pipelines. Integrated SonarQube for static analysis and mandatory code coverage gates of\n85%, reducing post-release defect density by 50%.\n- Cloud Strategy: Led the ”Lift and Reshape” strategy for Lumina, moving legacy components to\nAzure App Service while implementing Azure Front Door for global load balancing and WAF protection.\n- Executive Advising: Acted as the primary technical liaison to the Board of Directors, providing\nquarterly reports on system resilience, scalability projections, and the ROI of the $12M annual\nR&D budget.\nTechnical Lead / Senior Architect | Vertex Retail Analytics | 2014 - 2017\nDallas, TX (Big Data Solutions for Global Retailers)\n- Inventory Forecasting Engine: Developed a multi-threaded forecasting engine in C# utilizing\nTask Parallel Library (TPL) and PLINQ. Reduced processing time for national inventory resets from\n12 hours to 45 minutes.\n- Micro-frontend Architecture: Spearheaded the transition of a massive retail dashboard to a\nmicro-frontend architecture using Blazor WebAssembly and C#. Enabled autonomous deployment cycles for 6 different product teams.\n- Messaging Reliability: Implemented RabbitMQ with ”Guaranteed Delivery” patterns and DLQ\n(Dead Letter Queue) processing. Eliminated data loss during high-volume retail events like Black\nFriday and Cyber Monday.\n- Cloud Migration Lead: Directed the migration of the core platform from a private data center\nto Microsoft Azure. Implemented a cloud-first disaster recovery strategy that reduced theoretical\nRTO from 24 hours to 15 minutes.\n- Performance Tuning: Reduced P95 response times for analytical queries by 60% through the\nimplementation of materialized views in SQL Server and Redis-level caching for hot data.\n- Mentorship: Formally mentored 12 junior developers, 8 of whom were promoted to Senior or\nLead positions within 24 months of my coaching.\nSenior .NET Developer | CloudBridge Solutions | 2011 - 2014\nSan Antonio, TX (Custom Software Development Agency)\n- Legacy Modernization: Acted as the primary developer for the modernization of a legacy ASP.NET\nWeb Forms application to ASP.NET MVC for a Tier-1 insurance client (Fictional: *Lone Star Insurance*).\n- API Ecosystem: Built a suite of RESTful APIs for mobile application integration. Implemented\ncustom OAuth2 filters and response caching, resulting in a 40% improvement in mobile app responsiveness.\n- Unit Testing Advocate: Introduced the first automated unit testing framework (NUnit) to the\nagency. Increased test coverage across client projects from 0% to an average of 70% using Moq\nand TDD practices.\n- Client Engagement: Led technical discovery sessions for 15+ small-to-medium enterprise clients,\nproducing detailed SRS documents and high-level architectural designs.",
+          "confidence": 1.0
+        },
+        "projects": {
+          "content": "Project IronGrid: The Distributed Ledger Resilience Initiative\nRole: Executive Project Sponsor & Lead Architect | Duration: 24 Months\nComplexity: Transitioned a COBOL-based banking core to a modern .NET 8 distributed ledger for a\ntop 10 global bank.\n- Strategy: Utilized the ”Strangler Fig” pattern to incrementally migrate monolithic components.\nImplemented the Outbox pattern to ensure data consistency between SQL Server and Kafka.\n- Action: Developed a custom ”Verification Engine” in C# that performed real-time double-entry\nauditing of all migrated records during the transition phase.\n- Outcome: Successfully migrated 500M+ accounts without a single localized outage. Achieved\nsub-second reconciliation for global inter-bank transfers.\nProject Lumina-Health: AI-Augmented Patient Monitoring\nRole: Principal Architect | Duration: 18 Months\nComplexity: Integrated ML.NET models into a high-frequency telemetry pipeline for critical care environments.\n- Strategy: Built a hybrid cloud-edge architecture. Used C# on the edge (Windows IoT) for initial\ndata filtering and Azure Functions for complex inference.\n- Action: Developed a custom SignalR backplane to ensure real-time alert delivery to clinician mobile devices with 99.999% reliability.\n- Outcome: Reduced ”False Positive” medical alerts by 35%, significantly decreasing clinician fatigue\nand improving patient outcomes in critical care units.\nProject Omni-Channel: Retail Data Fabric\nRole: Technical Strategy Lead | Duration: 12 Months",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Master of Science in Software Engineering & Cloud Architecture\nCarnegie Mellon University, Pittsburgh, PA\n- Focus Areas: Reliability Engineering, Distributed Computing, Statistical Defect Prediction.\n- Honors: CMU Excellence in Graduate Research Award.\n- Thesis: ”Dynamic Resource Allocation in Large-Scale .NET Microservices.”\nBachelor of Science in Computer Science & Mathematics\nThe University of Texas at Austin, Austin, TX\n- Honors: Summa Cum Laude; President of the UT Computer Science Honor Society.\n- Recipient of the Engineering Dean’s Excellence Scholarship.",
+          "confidence": 1.0
+        },
+        "certifications": {
+          "content": "- Microsoft Certified: Azure Solutions Architect Expert\n- Microsoft Certified: DevOps Engineer Expert\n- CKA: Certified Kubernetes Administrator (Cloud Native Computing Foundation)\n- CISSP: Certified Information Systems Security Professional (ISC2)\n- Pragmatic Institute: Certified Product Manager (Level VI)",
+          "confidence": 1.0
+        },
+        "publications": {
+          "content": "",
+          "confidence": 0.6000000000000001
+        }
+      },
+      "contact": {
+        "full_name": "Alistair H. Caldwell",
+        "email": "a.caldwell.dotnet@enterprise-solutions.net",
+        "phone": "+915125550942",
+        "linkedin_url": null,
+        "location": "Austin, TX, India"
+      },
+      "work_history": [
+        {
+          "company_name": "Nexus FinTech Systems",
+          "client_name": null,
+          "job_title": "Nexus Fintech Systems",
+          "start_date": "2021-01",
+          "end_date": null,
+          "is_current": true,
+          "location": "Austin, TX",
+          "bullets": [],
+          "description": "Austin, TX / Remote (Global Digital Banking Infrastructure | Annual Revenue: $4.2B)\nStrategic Mandate & Executive Leadership: Appointed as the primary technical authority for\nthe ”Core Ledger & Payments” division, managing a multi-regional engineering organization of 135\nSoftware Engineers and SDETs. Accountable for the architectural integrity and scalability of a platform handling $1B+ in daily transaction volume. Manage a $160M annual budget covering global\nheadcount, cloud infrastructure, and R&D investments.",
+          "confidence": 0.9
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Master",
+          "field_of_study": "Software Engineering & Cloud Architecture",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": "Carnegie Mellon University, Pittsburgh, PA",
+          "degree": "Bachelor of Science",
+          "field_of_study": "Graduate Research Award",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.7
+        },
+        {
+          "institution": "The University of Texas at Austin, Austin, TX",
+          "degree": "Dean",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.7
+        }
+      ],
+      "certifications": [
+        {
+          "name": "Microsoft Certified: Azure Solutions Architect Expert",
+          "issuing_organization": "Microsoft",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "CISSP: Certified Information Systems Security Professional (ISC2)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "ISTQB Certified Tester – Foundation Level",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Pragmatic Institute: Certified Product Manager (Level VI)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Messaging: Azure Service Bus",
+          "issuing_organization": "Microsoft",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        }
+      ],
+      "skills": [
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "EC2",
+          "normalized_name": "ec2",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "S3",
+          "normalized_name": "s3",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "EKS",
+          "normalized_name": "eks",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Terraform (IaC)",
+          "normalized_name": "terraform iac",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Citus",
+          "normalized_name": "citus",
+          "category": "- Data Engineering",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "Alistair Sterling Comprehensive Resume (1).pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "Visionary Operations Executive with over 12 years of high-impact experience orchestrating\nmulti-billion dollar supply chain transformations within the Aerospace, Defense, and Advanced\nManufacturing sectors. Renowned for architecting resilient global logistics frameworks that\nthrive in volatile geopolitical climates. Expert in the deployment of Industry 4.0 technologies,\nincluding AI-driven demand sensing, blockchain-enabled traceability, and large-scale robotic\nautomation.\nDistinguished for managing annual P&L responsibilities exceeding $1.4B and leading diverse, cross-functional teams of 500+ professionals across four continents. Strategic architect of\n”Agile-Lean” methodologies that have consistently reduced operational overhead by 22%+ while\nmaintaining 99.8%+ on-time delivery (OTD) performance for Tier-1 aerospace OEMs. Proven\nexpertise in navigating the complexities of ITAR, EAR, and global trade compliance, ensuring\nseamless operations across international borders. A champion of digital transformation who\nbridges the gap between legacy industrial processes and cutting-edge autonomous technologies.\nOperational Philosophy\nIn the modern industrial landscape, ”Efficiency” is no longer the sole metric of success. My\nleadership philosophy is built on the pillar of Resilient Efficiency. This approach acknowledges\nthat while cost-optimization is vital for shareholder value, a supply chain that cannot withstand\na Tier-3 supplier failure or a sudden geopolitical shift is a liability, not an asset. By integrating\ndigital twins and real-time visibility tools, I empower my teams to foresee disruptions before\nthey impact the P&L.\nFuture Outlook\nThe next decade of aerospace operations will be defined by the convergence of sustainable\npropulsion and autonomous logistics. My mission is to position Apex Aerospace Systems as\nthe global leader in this transition, ensuring that our logistics network is as innovative as the\npropulsion systems we manufacture.\nCommitment to Excellence\nWhether leading a $60M warehouse automation project or negotiating a complex ITAR compliance framework, my commitment remains the same: total operational integrity, unwavering\nsafety standards, and the relentless pursuit of perfection in every component we ship.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "- Global Strategic Leadership: Multi-site Operations Management, Executive Stakeholder\nEngagement, Organizational Restructuring, M&A Integration.\n- Supply Chain Excellence: End-to-End Visibility, Tier-1/Tier-2 Supplier Risk Mitigation, Global\nSourcing Strategy, Strategic Partnering.\n- Operational Efficiency: Lean Six Sigma Black Belt, Kaizen Blitz Methodology, Total Quality\nManagement (TQM), Just-In-Time (JIT) Manufacturing.\n- Financial Stewardship: Budgeting & Forecasting ($1B+), Cost Reduction Strategies, Capex\nPlanning, Working Capital Optimization.\n- Digital & Technical Innovation: ERP Implementation (SAP S/4HANA), Warehouse Management Systems (WMS), Predictive Analytics, Robotics/AGVs.\n- Compliance & Governance: ITAR/EAR Regulatory Frameworks, ESG Strategy, Global Trade\nCompliance, ISO 9001/AS9100 Quality Standards.\n- Risk Management: Business Continuity Planning, Geopolitical Risk Modeling, Insurance &\nLiability Management, Supplier Diversification.\nEnterprise Architecture:\n- ERP: SAP S/4HANA (Expert), Oracle Cloud EPM, Microsoft Dynamics 365.\n- WMS/TMS: Manhattan Active WM, Blue Yonder TMS, SAP EWM, Kuehne+Nagel Control Tower.\n- Advanced Planning: Kinaxis RapidResponse, Blue Yonder Demand Planning, OMP.\nData & Analytics:\n- BI Tools: Tableau, Power BI, QlikView, Looker.\n- Programming/Modeling: Python (Data Science libraries), SQL, R, AnyLogistix (Supply Chain\nDigital Twins).\n- Automation: UiPath (RPA Architect), Blue Prism, ServiceNow.\nMethodologies & Standards:\n- Frameworks: SCOR Model, APICS Dictionary, ITIL, Agile/Scrum.\n- Compliance: ITAR, EAR, REACH, RoHS, C-TPAT, AEO Certification.\n- Production: Toyota Production System (TPS), TPM, OEE Optimization, SMED.\nSTRATEGIC COMPLIANCE & GOVERNANCE\n- ITAR/EAR Compliance Officer: Served as the designated executive lead for export controls\nat Horizon Dynamics. Successfully navigated 3 major federal audits with zero citations.\n- Global Trade Strategy: Designed a ”Duty Drawback” program that recovered $5.5M in overpaid tariffs for international shipments.\n- Sustainability Governance: Lead the ”Green Supply Chain” council, setting science-based\ntargets (SBTi) for Scope 3 emission reductions across the Tier-1 supplier base.\n- Ethics & Diversity: Implemented a ”Supplier Diversity Program” that redirected $150M in\nannual spend toward minority-owned and small business enterprises, exceeding corporate\nsocial responsibility goals by 20%.\n- LSSBB: Lean Six Sigma Black Belt - American Society for Quality (ASQ)",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "VP of Global Supply Chain Operations | Apex Aerospace Systems | 2020 - Present\nSan Francisco, CA / Global (Leading Aerospace Components Manufacturer | Annual Revenue: $8B)\nStrategic Mandate: Directed the comprehensive supply chain strategy for 14 primary manufacturing facilities and 32 regional distribution centers. Accountable for a global procurement\nspend of $2.2B and a direct workforce of 450+ logistics, procurement, and quality assurance\nspecialists.\nKey Strategic Initiatives:\n- Supply Chain Resilience (The ”Iron-Clad” Initiative): In response to the 2021 global logistics crisis, redesigned the supplier network to reduce dependence on single-source components from 45% to 12%. This shift mitigated over $450M in potential revenue loss during\npeak disruption periods.\n- Digital Transformation (Industry 4.0): Spearheaded a $120M digital overhaul, integrating IoT sensors across the manufacturing floor and syncing data with a central ”Command\nCenter” in SAP S/4HANA. Resulted in a 30% improvement in real-time inventory accuracy.\n- Global Procurement Consolidation: Merged fragmented procurement departments from\n4 acquired entities into a unified Global Sourcing Hub. Leveraged aggregated volume to\nnegotiate $85M in annual savings across raw materials (Titanium, Composites) and electronics.\nOperational & Financial Outcomes:\n- Profitability: Improved overall gross margins by 420 basis points through a combination\nof strategic sourcing and automated warehouse throughput.\n- Inventory Velocity: Optimized ”Days Sales of Inventory” (DSI) from 78 days to 54 days,\nfreeing up $115M in cash flow for reinvestment into R&D.\n- Supplier Performance: Implemented an AI-based Supplier Scorecard system that automatically penalizes/rewards vendors based on quality (DPPM) and lead-time adherence; improved average vendor quality by 18%.\n- Sustainability Excellence: Successfully transitioned the North American logistics fleet to\n40% renewable fuel and achieved a 15% reduction in packaging waste through circular economy initiatives.\nLeadership & Culture:\n- Reorganized the global operations structure into ”Center of Excellence” (CoE) units, increasing employee engagement scores by 25% over two years.\n- Established the ”Sterling Leadership Fellowship,” a high-potential track that has successfully\npromoted 12 internal candidates to Director-level roles.\nDirector of Operations & Logistics | Horizon Dynamics | 2016 - 2020\nSeattle, WA (Advanced Robotics and Defense Systems Integrator)\nStrategic Mandate: Oversaw end-to-end operational lifecycles for complex defense contracts, including the production and deployment of autonomous reconnaissance units for the\nU.S. Department of Defense (DoD) and international allies (UK MoD, Australian ADF).\nOperational Leadership:\n- Contract Fulfillment: Managed the logistics for a $1.2B multi-year contract for ”Vanguard”\nrobotic units. Ensured 100% delivery compliance across sensitive international borders under ITAR restrictions.\n- Cost Optimization: Conducted a comprehensive audit of international freight lanes, identifying $12M in annual redundancies. Renegotiated ocean and air contracts to achieve an\n18% reduction in Total Landed Cost (TLC).\n- Quality Control: Implemented a ”Zero-Defect” culture in the Seattle assembly plant, utilizing Six Sigma DMAIC processes to reduce rework costs by $4.5M annually.\nTechnology & Innovation:\n- WMS Implementation: Led the ground-up deployment of Manhattan Associates WMS across\n3 new high-security warehouses. System integration reduced picking errors to < 0.01%.\n- Predictive Maintenance: Developed a predictive maintenance model for the manufacturing line that reduced unplanned downtime by 34%, saving an estimated $2.1M in labor productivity.\nCompliance & Risk:\n- Served as the primary point of contact for government audits (DCMA/DCAA), achieving ”Gold\nStatus” ratings for logistics and inventory management for four consecutive years.\n- Established a ”Restricted Party Screening” automation that cut compliance review times\nfrom 4 hours to 10 minutes per shipment.\nSenior Logistics Manager | Vertex Industrial Solutions | 2013 - 2016\nChicago, IL (Precision Machinery and Industrial Tooling)\nOperational Mandate: Directed the North American distribution network, supporting 5 regional hubs and a network of 42 localized service centers. Focused on the ”Last-Mile” delivery\nof critical precision parts for the automotive and energy sectors.",
+          "confidence": 1.0
+        },
+        "awards": {
+          "content": "- Dock-to-Stock Revolution: Led a Kaizen event that redesigned the inbound receiving process. Reduced average processing time from 48 hours to 4.5 hours through the use of\ncross-docking and mobile scanning technology.\n- Reverse Logistics: Created a ”Circular Supply Chain” for high-value motor components. The\nprogram recovered $12M in usable materials in its first year and reduced environmental\nfootprint by 20%.\n- Carrier Management: Managed a portfolio of 65 trucking and air-freight partners. Implemented a ”Carrier Quality Index” (CQI) that resulted in a 15% improvement in on-time\nperformance and a 5% reduction in transit damage rates.\n- Facility Expansion: Project managed the commissioning of a $45M, 500, 000 sq. ft. distribution center in Dallas, TX. Delivered the facility 3 weeks ahead of schedule and 10% under\nbudget.\nSupply Chain Analyst | Omni-Global Logistics | 2011 - 2013\nDallas, TX (3PL Provider for High-Tech Electronics)\nCore Responsibilities:\n- Utilized advanced linear programming to optimize route density for a fleet of 200+ delivery\nvehicles.\n- Conducted ”What-If” scenario modeling for major clients like Zephyr Electronics and Apex\nGlobal.\n- Assisted in the implementation of Oracle Transportation Management (OTM) modules.\n- Result: Identified $4M in obsolete inventory for a Tier-1 client, enabling a successful liquidation that recovered $1.2M in capital.",
+          "confidence": 1.0
+        },
+        "projects": {
+          "content": "Project Alpha: Global ERP Consolidation (SAP S/4HANA)\nRole: Executive Sponsor & Functional Lead\nBudget: $115M\nDuration: 24 Months\nComplexity: Consolidated 12 legacy ERP systems (Oracle, Microsoft, Sage, and proprietary) into\na single global instance for 15,000 users.\n- Challenge: Fragmented data hindered real-time decision-making, leading to a $50M inventory variance across global sites.\n- Action: Defined the ”Global Process Template” for all supply chain modules. Led a change\nmanagement initiative involving 500+ training sessions.\n- Outcome: Achieved a ”Single Source of Truth” for data. Reduced monthly financial closing\ntime by 6 days and eliminated $35M in redundant software licensing and maintenance costs.\nProject Beta: ”Lights-Out” Warehouse Automation\nRole: Project Director\nBudget: $60M\nLocation: Frankfurt, Germany\nTechnology: Autonomous Mobile Robots (AMRs), Automated Storage and Retrieval Systems\n(AS/RS).\n- Challenge: High labor costs and a 12% error rate in the European distribution hub were\nimpacting margins on high-volume aerospace fasteners.\n- Action: Integrated 45 AMRs with the existing WMS. Implemented a ”Good-to-Person” picking strategy.\n- Outcome: Increased warehouse throughput by 300%. Reduced labor dependency by 65%\nand achieved an unprecedented 99.995% picking accuracy. The site now serves as the global\nbenchmark for automation.\nProject Gamma: Blockchain Traceability for Critical Components\nRole: Innovation Lead\nPartners: IBM Food Trust (adapted), Ethereum Enterprise Alliance.\n- Challenge: Preventing ”Counterfeit, Fraudulent, and Suspect Items” (CFSI) from entering\nthe aerospace supply chain.\n- Action: Developed a blockchain ledger that tracks a component from raw ore to final installation. Secured participation from 50+ critical suppliers.\n- Outcome: Reduced FAA audit response time from 10 days to 2 minutes. Eliminated the risk\nof uncertified parts entering the production line, protecting multi-billion dollar airworthiness certifications.\nProject Delta: Sustainable Aviation Fuel (SAF) Logistics Bridge\nRole: Executive Lead\nOutcome: Secured a long-term supply of SAF for Apex’s internal testing fleet, reducing corporate carbon emissions by 18%. Negotiated first-of-their-kind logistics contracts for specialized\nSAF handling and storage.\nPROCESS IMPROVEMENT CASE STUDIES\nCase Study 1: Lead Time Reduction in Specialty Composites\n- Problem: Procurement lead times for high-grade carbon fiber reached an all-time high of\n42 weeks, threatening the launch of the ”Aero-X” program.\n- Intervention: Initiated a ”Supplier Development Program.” Co-invested with a Tier-2 supplier to upgrade their manufacturing capacity in exchange for guaranteed volume and price\ncaps.\n- Result: Reduced lead time to 16 weeks (a 62% reduction). Saved the program from a projected $20M late-delivery penalty.\nCase Study 2: Working Capital Optimization (The ”Cash-is-King” Project)\n- Problem: Apex Aerospace had $1.1B tied up in raw material inventory, exceeding industry\nbenchmarks by 25%.\n- Intervention: Transitioned top 20 suppliers to a Vendor Managed Inventory (VMI) model\nwith ”Consignment Stock” triggers.\n- Result: Improved ”Days Payable Outstanding” (DPO) by 15 days and reduced on-hand inventory value by $210M without affecting production uptime.\nCase Study 3: Global Freight Lane Re-Architecture\n- Problem: Fragmented air-freight usage resulted in $45M annual spend with localized premiums and inconsistent reliability across APAC-NA lanes.\n- Intervention: Consolidated 14 carriers into a primary ”Strategic Alliance” model with 3 key\npartners. Implemented a ”Fixed Capacity” agreement for peak seasons.\n- Result: Secured a $9.2M annual reduction in freight spend while improving transit time\nconsistency by 34%.\nLEADERSHIP & TEAM MANAGEMENT\n- The ”Extreme Ownership” Model: Cultivate a culture where team leaders are empowered\nto make localized decisions while remaining aligned with global strategic objectives.\n- Talent Development: Managed a personal mentorship portfolio of 15 high-potential executives. Developed a ”Supply Chain Academy” internal training program that has certified\n200+ employees in Lean methodologies.\n- Global Collaboration: Expertise in managing multi-cultural teams across the US, EU, and\nAPAC. Fluent in navigating different labor laws, cultural norms, and business ethics.\n- Cross-Functional Integration: Proven ability to break down silos between Engineering,\nFinance, Sales, and Operations to ensure a ”Total Business” approach to supply chain management.",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Master of Business Administration (MBA) in Global Operations & Finance\nStanford Graduate School of Business, Palo Alto, CA\n- Focus: Global Macroeconomics, Supply Chain Risk Modeling, Venture Capital.\n- Leadership: President of the Operations & Technology Club.\nBachelor of Science in Industrial & Systems Engineering\nGeorgia Institute of Technology (Georgia Tech), Atlanta, GA\n- Concentration: Supply Chain Engineering, Stochastic Modeling.\n- Honors: Summa Cum Laude, President’s Undergraduate Research Award.",
+          "confidence": 1.0
+        },
+        "certifications": {
+          "content": "- CSCP: Certified Supply Chain Professional - ASCM (APICS)\n- PMP: Project Management Professional - Project Management Institute (PMI)\n- CTL: Certified in Transportation and Logistics - AST&L\n- Executive Certificate: Digital Transformation in Supply Chain - MIT Sloan\n- CPSM: Certified Professional in Supply Management - ISM\n- Strategic Negotiations: Advanced Certification - Harvard Law Program on Negotiation",
+          "confidence": 1.0
+        },
+        "additional": {
+          "content": "- Board Member: Council of Supply Chain Management Professionals (CSCMP) - NorCal\nChapter (2021 - Present).\n- Advisory Board: Silicon Valley Robotics (Focus on Industrial Automation Standards).\n- Volunteer Mentor: ”Veterans in Tech” - Providing career transition coaching for military\nlogistics officers.\n- Guest Lecturer: UC Berkeley Haas School of Business - ”Advanced Global Logistics & Geopolitical Risk.”\n- Industry Advisor: Stanford Smart Logistics Lab - Collaborative research on AI-driven warehouse pick-path optimization.",
+          "confidence": 0.92
+        },
+        "publications": {
+          "content": "- ”The Resilience Index: Measuring Supply Chain Stability in the Age of Geopolitical\nVolatility”\nSupply Chain Management Review (SCMR), Issue 4, 2023.\n- ”Beyond the Hype: Practical Applications of Blockchain in Aerospace Logistics”\nJournal of Advanced Manufacturing Technology, 2022.\n- ”Digital Twins: The Final Frontier of Inventory Optimization”\nLogistics Quarterly, 2021.\n- ”The Future of ITAR: Managing Compliance in a Cloud-Native World”\nDefense Logistics Journal, Spring Edition, 2020.\nKeynote Presentations\n- Keynote: ”Autonomous Supply Chains: From Vision to Reality,” Gartner Supply Chain Symposium/Xpo, 2023.\n- Featured Speaker: ”Decarbonizing the Aerospace Value Chain,” World Economic Forum (Davos\n- Satellite Event), 2022.\n- Panelist: ”Navigating the New Normal: Trade Compliance in a Bipolar World,” Global Trade\nProfessionals Alliance (GTPA), 2021.\n- Workshop Lead: ”Lean Six Sigma for Defense Contractors,” Aero-Defense Manufacturing\nExpo, 2019.",
+          "confidence": 1.0
+        },
+        "languages": {
+          "content": "- English: Native Proficiency.\n- German: Professional Working Proficiency (C1 Level) - Developed during Frankfurt DC Project.\n- Spanish: Conversational.\n- Global Footprint: Managed operations/suppliers in: USA, Mexico, Germany, UK, France,\nSingapore, China, India, and Australia.",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Executive Profile",
+        "email": "alistair.sterling.exec@protonmail.com",
+        "phone": "+914155550192",
+        "linkedin_url": null,
+        "location": "San Francisco, CA, India"
+      },
+      "work_history": [
+        {
+          "company_name": "VP of Global Supply Chain Operations | Apex Aerospace Systems",
+          "client_name": null,
+          "job_title": null,
+          "start_date": "2020-01",
+          "end_date": null,
+          "is_current": true,
+          "location": "San Francisco, CA",
+          "bullets": [],
+          "description": "San Francisco, CA / Global (Leading Aerospace Components Manufacturer | Annual Revenue: $8B)\nStrategic Mandate: Directed the comprehensive supply chain strategy for 14 primary manufacturing facilities and 32 regional distribution centers. Accountable for a global procurement\nspend of $2.2B and a direct workforce of 450+ logistics, procurement, and quality assurance\nspecialists.",
+          "confidence": 0.68
+        },
+        {
+          "company_name": "Director of Operations & Logistics | Horizon Dynamics",
+          "client_name": null,
+          "job_title": "Level Roles",
+          "start_date": "2016-01",
+          "end_date": "2020-01",
+          "is_current": false,
+          "location": "Seattle, WA",
+          "bullets": [
+            "Contract Fulfillment: Managed the logistics for a $1.2B multi-year contract for ”Vanguard”",
+            "Cost Optimization: Conducted a comprehensive audit of international freight lanes, identifying $12M in annual redundancies. Renegotiated ocean and air contracts to achieve an",
+            "Quality Control: Implemented a ”Zero-Defect” culture in the Seattle assembly plant, utilizing Six Sigma DMAIC processes to reduce rework costs by $4.5M annually.",
+            "WMS Implementation: Led the ground-up deployment of Manhattan Associates WMS across",
+            "Predictive Maintenance: Developed a predictive maintenance model for the manufacturing line that reduced unplanned downtime by 34%, saving an estimated $2.1M in labor productivity.",
+            "Served as the primary point of contact for government audits (DCMA/DCAA), achieving ”Gold",
+            "Established a ”Restricted Party Screening” automation that cut compliance review times"
+          ],
+          "description": "Contract Fulfillment: Managed the logistics for a $1.2B multi-year contract for ”Vanguard”\nCost Optimization: Conducted a comprehensive audit of international freight lanes, identifying $12M in annual redundancies. Renegotiated ocean and air contracts to achieve an\nQuality Control: Implemented a ”Zero-Defect” culture in the Seattle assembly plant, utilizing Six Sigma DMAIC processes to reduce rework costs by $4.5M annually.\nWMS Implementation: Led the ground-up deployment of Manhattan Associates WMS across\nPredictive Maintenance: Developed a predictive maintenance model for the manufacturing line that reduced unplanned downtime by 34%, saving an estimated $2.1M in labor productivity.\nServed as the primary point of contact for government audits (DCMA/DCAA), achieving ”Gold\nEstablished a ”Restricted Party Screening” automation that cut compliance review times",
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company_name": "Senior Logistics Manager | Vertex Industrial Solutions",
+          "client_name": null,
+          "job_title": null,
+          "start_date": "2013-01",
+          "end_date": "2016-01",
+          "is_current": false,
+          "location": "Chicago, IL",
+          "bullets": [],
+          "description": "Chicago, IL (Precision Machinery and Industrial Tooling)\nOperational Mandate: Directed the North American distribution network, supporting 5 regional hubs and a network of 42 localized service centers. Focused on the ”Last-Mile” delivery\nof critical precision parts for the automotive and energy sectors.",
+          "confidence": 0.68
+        }
+      ],
+      "education": [
+        {
+          "institution": "Stanford Graduate School of Business, Palo Alto, CA",
+          "degree": "Bachelor of Science",
+          "field_of_study": "Global Operations & Finance",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.7
+        },
+        {
+          "institution": "Georgia Institute of Technology (Georgia Tech), Atlanta, GA",
+          "degree": "Undergraduate",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.7
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Management (TQM)",
+          "normalized_name": "management tqm",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Planning",
+          "normalized_name": "planning",
+          "category": "Soft Skills",
+          "confidence": 0.49999999999999994,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "ERP Implementation (SAP S/4HANA)",
+          "normalized_name": "erp implementation sap s/4hana",
+          "category": "- Digital & Technical Innovation",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "4HANA (Expert)",
+          "normalized_name": "4hana expert",
+          "category": "- Erp",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Data Science libraries",
+          "normalized_name": "data science libraries",
+          "category": "- Programming/Modeling",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "UiPath (RPA Architect)",
+          "normalized_name": "uipath rpa architect",
+          "category": "- Automation",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Scrum.",
+          "normalized_name": "scrum.",
+          "category": "Soft Skills",
+          "confidence": 0.49999999999999994,
+          "years_experience": null,
+          "proficiency": "expert"
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "CHANDRA SHYAM7.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "Designed and deployed production-grade agentic retrieval systems using Python and DSPy to build intelligent agents that\nautomatically pull PR metadata, commit history, and diffs from Git repositories, integrating LLM-driven evaluation\nframeworks while implementing prompt chaining and context packing techniques for accurate CES metric computation.\nBuilt and maintained robust data orchestration pipelines using Dagster and Apache Airflow on AWS, leveraging ECS,\nEventBridge, Lambda, and S3 to ingest PR metadata, commit records, and branch tracking information, implementing\nbackfill procedures, retries, and monitoring systems to ensure high reliability and data quality across engineering\nworkflows.\nImplemented advanced LLM prompt optimization frameworks using DSPy to develop eval set creation, execution, and\nfeedback-driven correction systems, integrating automated score correction mechanisms and structured dataset\npreparation pipelines while managing LLM call performance through batching strategies and caching layers for costefficient CES scoring.\nDeveloped data modeling architectures for PR and commit linking systems using Python and AWS Glue, establishing epiclevel associations, branch merges, and work-type classification, implementing anomaly detection algorithms to identify\ndata quality issues while ensuring backend services compute CES metrics accurately across distributed engineering teams.\nCreated backend integration services using Python, AWS Glue, Lambda, and S3 to ingest PR and commit metadata,\ncompute LLM-driven code quality metrics, and expose results via APIs and UI endpoints, implementing observability layers\nwith metrics, traces, and logs to maintain real-time pipeline health visibility.\nEngineered eval and feedback loop systems with DSPy frameworks, designing evaluation set structures, automated score\ncorrection workflows, and training data pipelines that transform feedback into structured datasets, integrating backend\nservices to close the loop between PR-level scoring, context retrieval, and CES metric computation.\nOptimized LLM prompting and context retrieval using DSPy, implementing prompt chaining architectures and context\npacking algorithms for Git diffs, commit history, and PR metadata, measuring prompt effectiveness through cost and\nquality tradeoff analysis, and integrating agentic retrieval agents to support CES Phase 3 scoring improvements.\nBuilt scalable AWS-native data pipelines using ECS, EventBridge, Lambda, S3, Glue, and Dagster to handle PR ingestion,\ncommit tracking, and branch merge monitoring, implementing robust backfill procedures, retries, and high-throughput\nmetadata processing to support distributed engineering teams at scale.\nDesigned metadata classification systems using Python, Jira, and Git, assigning role labels and work-type categories to PRs\nand commits, developing filter and explorer features to query CES metrics, and implementing graph-based linking\nalgorithms to improve epic-level tracking and engineering productivity visibility.\nEstablished observability and monitoring frameworks using AWS CloudWatch and Dagster, implementing metrics\ncollection, distributed tracing, centralized logging, and data quality alerting systems to detect anomalies in PR ingestion,\ncommit tracking, and CES metric computation, providing real-time dashboards for operational excellence.\nIntegrated SonarQube with backend services to enrich PR scoring models, ingesting static analysis metrics, Git metadata,\nand commit history via Dagster pipelines on AWS, implementing classification algorithms to assess technical debt and\nquality degradation patterns for comprehensive engineering insights.\nOptimized LLM call performance using DSPy frameworks, implementing batching strategies, response caching, and\nevaluation frameworks to reduce operational cost, developing backend services for intelligent request routing between\nLLM providers, while monitoring token usage, latency, and prediction quality across large-scale PR pipelines.\nDeveloped graph-based artifact linking systems using Python, Jira, and GitHub, establishing relationships across epics, PRs,\ncommits, and branches, implementing backend services to compute aggregated CES metrics and quality scores, supporting\ncomplex queries across linked artifacts for engineering productivity and code quality analysis.\nImplemented historical context retrieval agents with DSPy, Python, and Git, automatically extracting code evolution\nhistory, past PR discussions, and commit patterns to enhance LLM-driven scoring, building backend services and pipelines\nthat prepare context for prompt engineering and improve CES metric accuracy.\nName: Chandra Shyam\nCreated training data preparation workflows using Dagster, Python, and S3, transforming user feedback, manual score\ncorrections, and eval set results into structured datasets for LLM fine-tuning, maintaining versioned datasets while\ntracking feedback provenance and quality labels for continuous improvement of agentic retrieval systems.\nBuilt end-to-end data pipelines in Dagster, orchestrating PR ingestion, commit linking, and branch-to-main tracking,\nimplementing backfill strategies, retry logic, and monitoring dashboards, integrating data quality alerts for schema\nviolations and missing commit linkages, while migrating legacy Apache Airflow DAGs for improved orchestration efficiency.\nDeveloped DSPy-based prompt optimization workflows to tune LLM strategies for CES scoring, creating eval sets from\nproduction PRs, running iterative prompt tuning experiments, integrating signature-based prompt chaining and context\npacking, measuring effectiveness, and closing feedback loops to improve scoring accuracy while reducing inference costs.\nEngineered observability infrastructure using Python, Dagster, and AWS Lambda, emitting metrics, traces, and logs to\ncentralized platforms, building data quality alerts for schema drift and pipeline failures, and collaborating with SRE teams\nto establish runbooks, ensuring rapid incident response and sustained reliability across production-grade pipelines.\nEnhanced metadata classification and explorer features using Python, Jira, and Git, developing role and work-type models,\napplying rule-based and ML-driven logic to tag PRs, integrating graph-based linking for exploration, and backfilling\nhistorical PR and commit datasets, enabling CES scoring, quality metrics, and productivity dashboards across engineering\nteams.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "Databases & Tools: Teradata 15/14, MySQL, Oracle 11g/10g, MS SQL Server 2014/2012, Erwin 8/9\nCloud Environment: GCP (Cloud storage, Bigquery, DataProc, GKE, Spanner, Functions), AWS (S3, Glue, EMR, Redshift,\nLambda, Athena, EC2, Snowflake, RDS, Cloud Watch, VPC, SQS, Jenkins), Azure (Data factory, Databricks, SQL, Data lake,\nBlob storage, HDInsight, CosmosDB, Fabric)\nData Warehousing & BI: Splunk, Star and Snowflake schema, Cloudera, Facts and Dimensions tables, SSIS\nBig Data Ecosystem: Kafka, Spark, Airflow, Hive, HDFS, NiFi, Spark Streaming, Zookeeper, Sqoop, Flume, MapReduce, Yarn\nReporting Tools: Tableau, Semarchy, PowerBI, EHR\nETL: AWS Glue, Informatica Power Center 10.x/9.6, Semarchy xDM, Talend 5.6, SSIS\nSoftware Life Cycle/ Methodologies: Agile models, Waterfall, SDLC\nPython Libraries / Machine Learning Algorithms: NumPy, Pandas, Scikit-Learn, Matplotlib, Gradient Boosting, Random\nForest, Logistic Regression, Decision Tree\nContainerization and Orchestration Tools: Kubernetes, Docker Hub, Jenkins, Docker",
+          "confidence": 1.0
+        },
+        "languages": {
+          "content": "Scala, Python, Java, Pyspark, SQL, Spring boot, T-SQL, Unix",
+          "confidence": 0.9
+        },
+        "certifications": {
+          "content": "Tableau certified, Azure DP-203, ServiceNow CAD and SaaS Analyst, Azure AZ-900",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Humana: August 2023 - Current (Location: Louisville, KY)\nRole: Sr. Big Data Engineer\nResponsibilities:\nDesigned and deployed agentic retrieval workflows using Python, LangChain, and LangGraph to build context-aware\nagents ingesting PR metadata, commit metadata, and GitHub history, enabling automated CES scoring and quality metric\ncomputation for healthcare pipelines while ensuring HIPAA-compliant audit trails and HL7 interoperability across AWS S3,\nAWS Lambda, and AWS Glue.\nMigrated legacy orchestration from Apache Airflow to Dagster across 40+ production pipelines processing healthcare\nclaims, clinical records, and patient data on AWS ECS and AWS EKS, implementing retries, backfills, scheduling, and data\nquality alerts while exposing metrics, traces, and logs through Power BI and Collibra frameworks.\nBuilt production-grade LLM-driven scoring systems using DSPy, integrating prompt optimization, chaining, and context\npacking to automate healthcare PR-level scoring and quality metrics, leveraging GPT-4, Claude, AWS Sagemaker, and\nMLflow for model versioning, eval set generation, and feedback loops under HIPAA-compliant governance.\nEngineered backend services using Python, AWS Lambda, AWS EventBridge, and AWS CDK to ingest PR and commit\nmetadata from GitHub and Jenkins, linking artifacts to compute CES metrics, quality signals, and anomalies while exposing\nresults through RESTful APIs and Power BI dashboards under HIPAA compliance.\nDeveloped data modeling frameworks using Pandas, Numpy, and MLLIB to link PRs, commits, branches, and epics for\nhealthcare software delivery metrics, building graph-based relationships across Jira, GitHub, and AWS S3, implementing\nanomaly detection, role classification, and effort estimation for HIPAA-compliant reporting.\nOrchestrated large-scale backfills and historical corrections using Dagster and AWS Glue, processing over 10 million\ncommits and clinical record deltas with batching, caching, and DSPy-based score optimization, ensuring data quality alerts,\nmetrics, traces, and logs captured in AWS CloudWatch and Collibra lineage tracking.\nImplemented SonarQube integration for code-quality scoring, linking static analysis results with GitHub PR metadata and\ncommit history to enrich CES metrics, while building Jira-integrated workflows for epic/work-type classification and\nautomated tagging, ensuring HIPAA-compliant metadata governance across AWS ECS, AWS Lambda, and AWS S3.\nDesigned eval and feedback loops using Python, DSPy, and MLflow for LLM-driven prompt optimization, creating\nversioned evaluation datasets, collecting feedback from healthcare engineers via Power BI and Jira, closing loops to\nimprove CES scoring accuracy and model explainability under HIPAA and HITECH mandates.\nBuilt observability and monitoring solutions using AWS CloudWatch, AWS Lambda, and Dagster asset sensors to track\nmetrics, traces, logs, and data quality alerts across healthcare ETL pipelines, enabling automated alerting for failures,\nanomaly detection, SLA breaches, and ensuring regulatory audit readiness with Collibra and ERWIN lineage tracking.\nDeveloped agentic coding frameworks using LangChain, LangGraph, and DSPy to build retrieval agents that processed Git\ndiffs, code context, and commit metadata, integrating with AWS S3, AWS Glue, and AWS Lambda to improve CES scoring,\nreduce LLM latency, and maintain HIPAA-compliant healthcare data processing.\nConstructed end-to-end data pipelines using Dagster, AWS Glue, AWS S3, and AWS RDS to ingest, transform, and load\nhealthcare claims, clinical records, and patient data from HL7 FHIR sources, implementing retries, scheduling, backfills, and\ndata quality alerts with AWS EventBridge triggers and HIPAA-compliant logging.\nOptimized LLM performance using batching, caching, and DSPy-based prompt optimization for healthcare code quality\nscoring, leveraging AWS Sagemaker and MLflow to tune prompt chaining, context packing, and eval execution workflows,\nbalancing cost/quality tradeoffs while maintaining HIPAA-compliant model governance and HL7 interoperability.\nIntegrated GitHub, Jenkins, Jira, and SonarQube metadata into unified data models using Python, Pandas, AWS Glue, and\nERWIN for entity-relationship design, building graph-based linking across PRs, commits, branches, and epics to support\nrole/work-type classification, epic linking, anomaly detection, and HIPAA-compliant analytics exposure via Power BI.\nDeployed AWS CDK infrastructure for pipelines and backend services on AWS EC2, AWS EKS, AWS Lambda, and AWS S3,\nautomating provisioning, monitoring, and scaling of Dagster orchestrators, LLM inference endpoints, and AWS Glue jobs\nwith metrics, traces, logs, and data quality alerts ensuring HIPAA and HITECH compliance.\nCollaborated with healthcare engineering teams to define CES metrics, quality scoring models, and eval sets using Python,\nDagster, AWS Lambda, AWS S3, Power BI, and Collibra, translating PR metadata ingestion, commit tracking, and anomaly\ndetection requirements into compliant backend integration, analytics, and data modeling solutions aligned with HIPAA,\nHITECH, and HL7 standards.\nDeveloped and deployed AI/ML pipelines using MLLIB and Numpy to predict patient readmission risk, orchestrated with\nAirflow for ingestion, transformation, and model retraining, ensuring HIPAA-compliant data handling, HL7 interoperability,\nand audit trails in alignment with HITECH Act regulations for healthcare systems.\nEngineered AI/ML clinical decision support using LLMs and MLLIB, processing unstructured EHR data, identifying high-risk\npatients, and deploying inference infrastructure on AWS EC2 with encryption, role-based access, and logging to meet\nHIPAA and HITECH security requirements for real-time healthcare workflows.\nDesigned and optimized relational schemas using E/R Studio for patient demographics, encounters, and lab results,\nensuring normalization and HL7 FHIR compliance, generating data dictionaries and impact analysis reports for HIPAA audit\nreadiness, enabling collaboration across clinical informatics teams while maintaining secure data exchange practices.\nBuilt predictive models for disease progression using MLLIB and Numpy, processing large patient datasets for feature\nengineering, statistical analysis, and evidence-based treatment plans, implementing de-identification, secure access\npolicies, and documentation to meet HIPAA and HITECH standards while supporting clinical quality improvement\ninitiatives.\nImplemented conversational AI chatbots using LLMs and AWS EC2 to automate patient triage and scheduling, integrating\nwith EHR systems, ensuring HIPAA privacy and HITECH compliance through secure API gateways, encryption, and access\nlogging while enabling real-time healthcare interaction workflows across multi-site hospital networks.\nMigrated legacy workloads to AWS EC2, configuring VPCs, security groups, and identity policies to meet HIPAA technical\nsafeguards, encrypt patient data, enforce access controls, maintain audit logs, implement VPN tunnels, multi-factor\nauthentication, and intrusion detection systems while ensuring HITECH breach notification and distributed healthcare\ncompliance.\nStandardized hospital analytics data modeling using E/R Studio, creating entity-relationship diagrams, documenting\nnormalization rules and referential constraints to support HL7 message exchanges, HIPAA compliance audits, onboarding,\nand future enhancements for population health management and quality reporting across healthcare IT systems.\nPerformed numerical computation and statistical validation using Numpy on clinical trial data, supporting biostatisticians\nin patient outcome analysis, treatment efficacy, and adverse event reporting, ensuring HIPAA compliance, documenting\nmethods, validating outputs, and aligning processes with FDA, HITECH, and institutional review board regulations for\nprotected health information.\nEnvironment:AWS Sagemaker, AWS Lambda, Dagster, Jira, Collibra, Numpy, ERWIN, Pandas, MLflow, MLLIB, AWS EC2, AWS\nRDS, S3, Lambda, DSPy, Jenkins, EventBridge, Git, AWS, AWS S3, LangGraph, AWS CDK, Github, Power BI, AWS EKS, langChain,\nGlue, Airflow, ECS, SonarQube, Python\nMorgan Stanley: October 2020 - July 2023 (Location: New York, NY)\nRole: Sr Data Engineer\nResponsibilities:\nDesigned and deployed production-grade data pipelines using Python and Dagster on AWS, ingesting PR metadata,\ncommit metadata, and code quality telemetry from GitHub and Jenkins, integrating AWS Lambda, AWS S3, AWS Glue,\nand AWS ECS to ensure PCI-DSS-compliant financial workflows, automated retries, backfills, and observability with\nmetrics, traces, and logs.\nBuilt retrieval agents using Python and DSPy to extract historical code context, diffs, and commit histories from GitHub,\nimplementing prompt chaining and context packing for LLM optimization, automating score correction workflows,\nexposing CES and quality metrics via REST APIs, and ensuring SOX and GLBA-compliant secure audit trails across financial\npipelines.\nMigrated orchestration from Apache Airflow to Dagster, enhancing PR/commit linking, branch tracking, and epic linking\nacross Jira, GitHub, and banking systems, integrating AWS EventBridge, AWS SQS, and AWS Lambda to expose CES\nmetrics and quality metrics to Power BI dashboards while maintaining PCI-DSS and SOX compliance.\nDeveloped anomaly detection and data quality monitoring using Python, AWS Glue, and AWS CloudWatch, identifying\ndeviations in commit metadata, PR metadata, and code quality signals from SonarQube and PMD, triggering automated\nalerts, implementing DSPy-based score correction, and maintaining GLBA-compliant secure audit workflows for financial\ncode review processes.\nEngineered AWS-native pipelines using AWS ECS, AWS Lambda, AWS S3, AWS RDS, and AWS CDK to automate backfills,\nretries, and scheduling for high-volume financial data ingestion, integrating GitHub webhooks and Jenkins CI/CD pipelines,\nstoring datasets securely in AWS S3 and AWS RDS with PCI-DSS encryption and IAM access controls.\nImplemented observability and monitoring frameworks using AWS CloudWatch, AWS X-Ray, and Python scripts, tracking\nmetrics, traces, and logs across pipelines, triggering automated notifications through AWS SQS and Slack, ensuring PCIDSS, SOX, and GLBA compliance while maintaining anomaly detection and continuous reliability of financial data\nworkflows.\nBuilt backend services using Python, AWS Lambda, and AWS EKS to ingest PR metadata, commit metadata, and code\nquality signals from GitHub, Jenkins, SonarQube, and PMD, computing CES and quality metrics, exposing results via REST\nAPIs with JWT authentication and TLS 1.2+, supporting PCI-DSS and SOX compliance.\nDesigned and executed DSPy-based eval sets and feedback loops, collecting user feedback on scoring accuracy, retraining\nLLM/prompt optimization models stored in AWS S3 and AWS RDS, implementing batching and caching to optimize\nperformance and cost while ensuring GLBA and SOX-compliant secure financial code review workflows.\nOrchestrated data modeling and analytics workflows using Python, AWS Glue, ERWIN, and E/R Studio to design\nnormalized schemas for PR/commit linking, branch tracking, and epic linking across Jira, GitHub, and banking systems,\nenabling quality metrics computation, engineering effort analysis, and PCI-DSS-compliant audit-ready reporting for\nexecutives via Power BI.\nIntegrated SonarQube and PMD results with Python backend services to compute CES and quality metrics, linking findings\nto PR metadata, commit metadata, and Jira epics, deploying AWS Lambda functions triggered by AWS EventBridge,\nstoring results in AWS S3 and AWS RDS, ensuring PCI-DSS, SOX, and GLBA compliance.\nDeveloped retrieval agent workflows using Python and DSPy to pull code context, diffs, and commit history from GitHub,\nintegrating pipelines with Dagster orchestration, enabling backfills and retries for historical data, exposing CES and quality\nmetrics via JWT-secured APIs, ensuring SOX and GLBA-compliant secure audit logging.\nBuilt orchestration and reliability frameworks using Dagster and AWS ECS, implementing AWS Lambda and AWS\nEventBridge for event-driven ingestion of PR and commit metadata from GitHub and Jenkins, linking artifacts to Jira epics,\nenabling anomaly detection, data quality alerts, and PCI-DSS, SOX, and GLBA-compliant banking workflows.\nEngineered LLM/prompt optimization pipelines using DSPy and Python, creating eval sets from historical PR and commit\nmetadata, automating score corrections via DSPy prompt tuning, optimizing LLM call performance through batching,\ncaching, and prompt compression, ensuring secure, auditable, and compliant workflows aligned with GLBA and SOX\nstandards.\nDesigned data quality and observability frameworks using Python, AWS CloudWatch, AWS X-Ray, and Dagster, monitoring\nmetrics, traces, and logs, integrating backend services with SonarQube, PMD, and GitHub, generating enriched datasets\nfor Power BI dashboards, maintaining PCI-DSS, SOX, and GLBA compliance with secure storage in AWS S3 and AWS RDS.\nAutomated artifact linking using Python and AWS Lambda, connecting Jira, GitHub, PR metadata, and commit metadata\nfor epic linking, work-type classification, and traceability, orchestrating pipelines in Dagster, storing datasets in AWS S3\nand AWS RDS, implementing anomaly detection, and ensuring PCI-DSS, SOX, and GLBA-compliant financial code review\nprocesses.\nDesigned and deployed PCI-DSS-compliant data ingestion frameworks using AWS EKS, orchestrating containerized\nmicroservices with Airflow for ETL workflows that processed sensitive cardholder data, implementing end-to-end\nencryption, audit logging, RBAC, and autoscaling policies to enhance reliability and security for high-volume banking\noperations.\nImplemented AWS WAF rules and security policies for AWS EC2-hosted banking applications, mitigating SQL injection, XSS,\nand DDoS attacks, integrating CloudWatch monitoring, geo-blocking, and rate-limiting configurations, ensuring GLBA\ncompliance, secure customer authentication workflows, and reduced exposure to vulnerabilities across digital banking\nplatforms.\nDeveloped infrastructure-as-code templates using AWS CDK in TypeScript to provision AWS EC2, VPCs, security groups,\nIAM roles, and backup policies for loan origination systems, automating deployments, enforcing least-privilege access, and\nensuring PCI-DSS and SOX compliance with version-controlled, repeatable provisioning pipelines.\nMaintained version control and collaborative workflows using Git and ERWIN, managing database schema changes,\nbranch strategies, CI/CD integration, and schema validation, ensuring audit trail consistency, peer-reviewed modifications,\nand GLBA-compliant governance across customer account, transaction, and mortgage data models in production banking\nenvironments.\nConfigured Airflow DAGs to automate inter-bank settlement reconciliations, orchestrating validation, anomaly detection,\nand report generation processes, enhancing task retries and dependencies, ensuring timely delivery of regulatory reports,\nSOX compliance, and SLA adherence, improving reliability for financial data processing and internal audit requirements.\nCollaborated with data architects using E/R Studio to reverse-engineer banking databases, producing entity-relationship\ndiagrams and data dictionaries, identifying PII and sensitive data elements, assessing downstream dependencies, and\nsupporting GLBA and PCI-DSS protections during schema migrations and core banking modernization initiatives.\nProvisioned and managed AWS EC2 instances for batch processing of interest calculations, fee assessments, and statement\ngeneration, implementing multi-AZ deployments, automated snapshots, CloudWatch alarms, auto-recovery, and capacity\nplanning to ensure high availability, disaster recovery readiness, and regulatory compliance for retail banking operations.\nIntegrated ERWIN metadata repositories with Git, centralizing logical and physical data models across mortgage, credit\ncard, and commercial lending domains, automating model exports to Git, enforcing naming conventions, version control,\nand change management to ensure GLBA-compliant governance and auditable production deployments in regulated\nfinancial services environments.\nEnvironments: Lambda, Jenkins, Airflow, S3, AWS Lambda, SonarQube, Dagster, ERWIN, JWT, E/R studio, ECS, AWS EC2, AWS\nRDS, Power BI, AWS EKS, AWS WAF, Jira, AWS CDK, DSPy, Python, Glue, AWS S3, Git, AWS, PMD, GIthub, EventBridge, AWS SQS\nDelta Airlines: December 2017 - September 2020 (Location: Atlanta, GA)\nRole: Data Engineer / Data Analyst\nResponsibilities:\nDesigned and deployed production-grade data pipelines using Python and Apache Airflow to ingest commit metadata and\nPR metadata from GitHub, integrating AWS Lambda and AWS EventBridge for real-time processing, exposing quality\nmetrics via REST APIs, ensuring SOC 2 audit trails and FAA/IATA compliance across aviation engineering workflows.\nBuilt end-to-end data modeling frameworks using Python to link PRs and commits, tracking branch merges to main\nrepositories, integrating AWS Glue and Dagster pipelines for historical backfills, implementing Prometheus and Grafana\ndashboards for anomaly detection and IOSA-compliant aviation software quality monitoring.\nEngineered retrieval agents using Python to extract contextual metadata from GitHub, integrating SonarQube outputs\ninto AWS S3 data lakes, computing technical debt and maintainability metrics, and exposing metrics via Power BI, ensuring\nobservability through Prometheus and logs for continuous FAA-compliant quality improvement.\nOrchestrated migration of legacy workflows using Dagster and Airflow on AWS ECS and AWS EKS, implementing retry\nlogic, scheduling policies, and monitoring frameworks, triggering AWS Lambda via AWS EventBridge, integrating Grafana\nand AWS SNS notifications to maintain 99.9% pipeline uptime aligned with SOC 2 and IATA standards.\nDeveloped analytics platforms using Python, AWS RDS, and Power BI to generate CES metrics, correlating PR and commit\nmetadata with Jira epics, designing schemas in ERWIN and E/R Studio to support graph-like linking, enabling epic-level\nreporting aligned with FAA documentation and safety-critical software audit readiness.\nImplemented backend services using Python on AWS Lambda and AWS EC2, processing thousands of daily PRs and\ncommits, integrating Jenkins CI/CD pipelines with PMD static analysis, storing data in AWS S3, ensuring IOSA-compliant\ntraceability, FAA version control governance, and safety-critical code quality monitoring.\nBuilt observability frameworks using Prometheus, Grafana, and AWS CloudWatch, tracking Airflow DAG execution times,\nAWS Glue job success rates, and Lambda invocation patterns, implementing Python scripts and S3 pipelines for audit trail\nlogging, enabling SOC 2 compliance and root-cause analysis of aviation software pipelines.\nOrchestrated backfills of historical GitHub repository data using Dagster and AWS Glue, reconstructing branch/main\ntracking histories, implementing Python-based incremental processing, defining Prometheus-based data quality alerts,\ndetecting duplicate PRs, timestamp inconsistencies, and ensuring FAA-compliant anomaly detection for safety-critical\naviation releases.\nDeveloped eval set creation workflows using Python, integrating Jira and GitHub APIs for feedback-driven quality\nvalidation, implementing AWS ElastiCache caching and Lambda batching optimizations, improving pipeline efficiency while\nmaintaining observability in Grafana, supporting IATA-compliant quality scoring and engineering metrics.\nDesigned normalized data schemas for PR/commit linking and epic metadata using ERWIN and E/R Studio, deploying\nPython services on AWS ECS, storing data in AWS RDS and AWS S3, maintaining FAA-compliant audit trails, supporting\naircraft program-specific quality metrics and work-type classification for aviation engineering teams.\nEstablished observability standards using Prometheus, Grafana, and AWS CloudWatch, implementing Python scripts to\ndetect anomalies in commit ingestion, backfill failures, or pipeline delays, configuring AWS SNS notifications to ensure\nrapid alerting, maintaining operational reliability standards for IATA-compliant flight operations and maintenance systems.\nIntegrated SonarQube with Airflow and AWS Glue, ingesting static analysis metrics into AWS S3, mapping code severity to\nFAA DAL levels, implementing Python logic to generate automated risk scoring, and visualizing defect densities, technical\ndebt, and maintainability indices via Power BI for aviation software compliance.\nDesigned backend services using Python, AWS Lambda, AWS SQS, and AWS EventBridge, implementing asynchronous\nPR/commit processing, configuring AWS CDK to provision AWS ECS, AWS RDS, and AWS S3, enforcing AWS WAF security\npolicies, and integrating Prometheus alerts for ingestion lag, anomaly detection, and aviation quality monitoring.\nBuilt analytics dashboards in Power BI connected to AWS RDS and AWS S3, computing trends in code review turnaround,\ndefect escape rates, and test coverage, aggregating data using Python and AWS Glue, maintaining FAA-compliant\ndocumentation, integrating Collibra for data catalog governance and audit readiness for safety-critical systems.\nEstablished governance frameworks using Collibra, documenting PR/commit ingestion workflows, data modeling schemas,\nand quality metric calculations, automating Python scripts integrated with Jenkins CI/CD pipelines to enforce anomaly\ndetection thresholds, trigger AWS SNS alerts, and maintain SOC 2-compliant aviation software engineering metrics.\nDeveloped flight operations platforms using DSPy, integrating AWS SQS for asynchronous messaging between\nmicroservices handling flight updates, maintenance alerts, and crew notifications, implementing batching strategies for\nthroughput optimization, ensuring FAA Part 121 operational integrity and IATA-compliant timely dissemination of safetycritical information.\nBuilt scalable infrastructure-as-code solutions using AWS CDK to provision AWS EKS clusters for aviation safety\napplications, integrating Git version control, branch protection strategies, and AWS WAF with custom rules to safeguard\nflight planning APIs, ensuring SOC 2 Type II and IOSA compliance for sensitive operational data.\nImplemented distributed caching architecture using AWS ElastiCache, optimizing frequently accessed aircraft\nmaintenance records, integrating PMD static analysis in CI/CD pipelines for Java-based aviation systems, ensuring FAA\nmaintenance approval compliance, and improving response times for pre-flight inspections while maintaining safetycritical coding standards.\nConfigured AWS EC2 Auto Scaling groups to run flight analysis workloads, leveraging DSPy NLP frameworks to process pilot\nand maintenance reports, deploying multi-AZ instances for failover, supporting FAA SWIM real-time data exchange\nrequirements, and maintaining IATA-compliant operational tracking across flight and baggage systems.\nEnvironments: AWS CDK, Python, ERWIN, AWS EC2, EventBridge, github, SonarQube, PMD, AWS Lambda, Prometheus, AWS\nEKS, Dagster, Airflow, AWS, DSPy, AWS WAF, AWS S3, ECS, Glue, Jenkins, Lambda, AWS RDS, AWS Glue, S3, E/R studio, Grafana,\nPower BI, Git, AWS SQS, Collibra, AWS SNS, Jira\nCisco: February 2016 - November 2017 (Location: San Jose, CA)\nRole: Data Engineer / Migration Specialist\nResponsibilities:\nBuilt a Network Data Integration platform using Azure Cloud, improving enterprise data integration efficiency while\nenabling seamless data flow across global networking systems by consolidating monitoring telemetry from thousands of\ndevices deployed in international data centers.\nDeveloped scalable data ingestion pipelines using Talend ETL and Azure Data Factory, efficiently processing large volumes\nof network monitoring and security appliance data while ensuring reliable ingestion, transformation, and availability for\ndownstream operational analytics.\nExecuted data migration initiatives transferring configuration data from legacy network management systems to modern\nSDN platforms, maintaining configuration accuracy and uninterrupted network services throughout the transition to\nsoftware defined infrastructure.\nBuilt complex orchestration workflows using Apache Airflow, coordinating ETL processes across distributed network\nmonitoring systems in multiple global regions while aligning execution schedules with regional compliance and operational\ntime zone requirements.\nImplemented Azure SQL Database to store structured network performance metrics, optimizing data models and query\nexecution to support rapid access to critical network health indicators for operations and engineering teams.\nConfigured Azure Data Lake Storage for scalable retention of semi structured and unstructured network traffic data,\nsupporting long term security analysis, capacity planning, and cost efficient storage of historical traffic patterns.\nIntegrated diverse network data sources including router logs, switch telemetry, and security appliance alerts into unified\nmonitoring solutions, enabling cross layer correlation and faster troubleshooting across complex global network\nenvironments.\nImplemented data security and privacy controls aligned with international regulations, applying encryption, role based\naccess controls, and data anonymization techniques while handling sensitive network configuration and traffic analysis\ndatasets.\nExecuted migration of legacy network management platforms to modern cloud based monitoring solutions, ensuring\nadherence to industry standards while improving observability and reducing operational overhead for network operations\nteams.\nDeveloped predictive capacity forecasting models using Azure Databricks, analyzing historical traffic trends to improve\nbandwidth planning accuracy and support proactive decision making for global network growth requirements.\nCreated real time network anomaly detection solutions using streaming analytics, enabling early identification of security\nthreats and performance degradation by processing high volume network event streams continuously.\nDesigned and implemented data quality frameworks validating global network configuration data, ensuring consistency\nand correctness of configuration changes prior to deployment across distributed infrastructure environments.\nBuilt custom integration APIs enabling connectivity between network management platforms and IT Service Management\nsystems, supporting automated incident creation, updates, and resolution workflows across operational teams.\nDeveloped interactive dashboards visualizing global network performance and security posture using business intelligence\ntools, providing leadership with real time visibility into service levels and infrastructure health.\nImplemented automated network capacity planning solutions leveraging historical traffic analysis and growth projections,\noptimizing equipment utilization and supporting informed infrastructure investment decisions across global operations.\nEnvironments: Azure Cloud, Talend ETL, Azure Data Factory (ADF), Apache Airflow, Azure SQL Database, Azure Data Lake\nStorage, Azure Databricks, Python, Streaming Analytics, SDN Platforms\nFlipkart: August 2014 - December 2015 (Location: Bangalore, India)\nRole: ETL Developer\nResponsibilities:\nBuilt a scalable ETL pipeline using AWS Services, Informatica, and Talend, integrating data from e commerce platforms,\ninventory systems, and customer databases to create a unified data flow supporting high volume daily transaction\nprocessing across multiple online retail channels.\nConfigured Amazon S3 for secure storage of raw, staging, and transformed product catalog datasets, enabling reliable\ningestion workflows for large SKU volumes while applying versioning and lifecycle policies to balance accessibility with\nlong term storage cost optimization.\nUtilized Informatica PowerCenter to extract data from MySQL, PostgreSQL, and MongoDB sources containing customer\nprofiles and purchase history, ensuring accurate extraction, preserved relationships, and consistent processing of high\nvolume customer records.\nDeveloped optimized Talend jobs processing CSV and JSON based vendor feeds and marketplace listings, improving data\nprocessing efficiency and supporting timely product catalog updates across web and mobile commerce platforms.\nImplemented complex data transformations using Informatica, performing data cleansing, validation, and standardization\non product metadata to improve search accuracy and ensure consistent product taxonomy across multiple vendor sources.\nConfigured Talend Open Studio to perform data integrations between order management and fulfillment systems,\nstreamlining ETL workflows and synchronizing inventory levels across distributed warehouse and fulfillment center\noperations.\nDesigned AWS Glue jobs to catalog, transform, and load curated sales and inventory data into Amazon Redshift,\noptimizing storage layouts and enabling efficient analytical queries supporting sales performance and category level\ninsights.\nAutomated ETL job scheduling using AWS Lambda and Amazon CloudWatch Events, improving reliability of time sensitive\nprocesses such as daily sales reporting and inventory refreshes through managed execution and dependency handling.\nMonitored ETL pipeline performance using Amazon CloudWatch, configuring alerts for failures and latency issues in\ncritical data flows supporting order processing and financial reconciliation activities.\nConnected Tableau to Amazon Redshift to deliver interactive dashboards for real time analysis of sales trends, inventory\npositions, and customer behavior, enabling merchandising teams to make informed decisions on product placement and\npromotions strategies.\nEnvironments: AWS (S3, Glue, Lambda, CloudWatch, Redshift), Informatica PowerCenter, Talend, Talend Open Studio, MySQL,\nPostgreSQL, MongoDB, CSV/JSON files, Tableau",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Bachelor of Technology in Computer Science & Engineering at Koneru Lakshmaiah University 2010-2014",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": null,
+        "email": "shyamchandra1912@gmail.com",
+        "phone": "+13412035403",
+        "linkedin_url": null,
+        "location": "India"
+      },
+      "work_history": [
+        {
+          "company_name": "Humana",
+          "client_name": null,
+          "job_title": "Based Access, And Logging To Meet",
+          "start_date": "2023-08",
+          "end_date": null,
+          "is_current": true,
+          "location": "Louisville, KY",
+          "bullets": [],
+          "description": "Designed and deployed agentic retrieval workflows using Python, LangChain, and LangGraph to build context-aware\nagents ingesting PR metadata, commit metadata, and GitHub history, enabling automated CES scoring and quality metric\ncomputation for healthcare pipelines while ensuring HIPAA-compliant audit trails and HL7 interoperability across AWS S3,\nAWS Lambda, and AWS Glue.\nMigrated legacy orchestration from Apache Airflow to Dagster across 40+ production pipelines processing healthcare\nclaims, clinical records, and patient data on AWS ECS and AWS EKS, implementing retries, backfills, scheduling, and data\nquality alerts while exposing metrics, traces, and logs through Power BI and Collibra frameworks.\nBuilt production-grade LLM-driven scoring systems using DSPy, integrating prompt optimization, chaining, and context\npacking to automate healthcare PR-level scoring and quality metrics, leveraging GPT-4, Claude, AWS Sagemaker, and\nMLflow for model versioning, eval set generation, and feedback loops under HIPAA-compliant governance.\nEngineered backend services using Python, AWS Lambda, AWS EventBridge, and AWS CDK to ingest PR and commit\nmetadata from GitHub and Jenkins, linking artifacts to compute CES metrics, quality signals, and anomalies while exposing\nresults through RESTful APIs and Power BI dashboards under HIPAA compliance.\nDeveloped data modeling frameworks using Pandas, Numpy, and MLLIB to link PRs, commits, branches, and epics for\nhealthcare software delivery metrics, building graph-based relationships across Jira, GitHub, and AWS S3, implementing\nanomaly detection, role classification, and effort estimation for HIPAA-compliant reporting.\nOrchestrated large-scale backfills and historical corrections using Dagster and AWS Glue, processing over 10 million\ncommits and clinical record deltas with batching, caching, and DSPy-based score optimization, ensuring data quality alerts,\nmetrics, traces, and logs captured in AWS CloudWatch and Collibra lineage tracking.\nImplemented SonarQube integration for code-quality scoring, linking static analysis results with GitHub PR metadata and\ncommit history to enrich CES metrics, while building Jira-integrated workflows for epic/work-type classification and\nautomated tagging, ensuring HIPAA-compliant metadata governance across AWS ECS, AWS Lambda, and AWS S3.\nDesigned eval and feedback loops using Python, DSPy, and MLflow for LLM-driven prompt optimization, creating\nversioned evaluation datasets, collecting feedback from healthcare engineers via Power BI and Jira, closing loops to\nimprove CES scoring accuracy and model explainability under HIPAA and HITECH mandates.\nBuilt observability and monitoring solutions using AWS CloudWatch, AWS Lambda, and Dagster asset sensors to track\nmetrics, traces, logs, and data quality alerts across healthcare ETL pipelines, enabling automated alerting for failures,\nanomaly detection, SLA breaches, and ensuring regulatory audit readiness with Collibra and ERWIN lineage tracking.\nDeveloped agentic coding frameworks using LangChain, LangGraph, and DSPy to build retrieval agents that processed Git\ndiffs, code context, and commit metadata, integrating with AWS S3, AWS Glue, and AWS Lambda to improve CES scoring,\nreduce LLM latency, and maintain HIPAA-compliant healthcare data processing.\nConstructed end-to-end data pipelines using Dagster, AWS Glue, AWS S3, and AWS RDS to ingest, transform, and load\nhealthcare claims, clinical records, and patient data from HL7 FHIR sources, implementing retries, scheduling, backfills, and\ndata quality alerts with AWS EventBridge triggers and HIPAA-compliant logging.\nOptimized LLM performance using batching, caching, and DSPy-based prompt optimization for healthcare code quality\nscoring, leveraging AWS Sagemaker and MLflow to tune prompt chaining, context packing, and eval execution workflows,\nbalancing cost/quality tradeoffs while maintaining HIPAA-compliant model governance and HL7 interoperability.\nIntegrated GitHub, Jenkins, Jira, and SonarQube metadata into unified data models using Python, Pandas, AWS Glue, and\nERWIN for entity-relationship design, building graph-based linking across PRs, commits, branches, and epics to support\nrole/work-type classification, epic linking, anomaly detection, and HIPAA-compliant analytics exposure via Power BI.\nDeployed AWS CDK infrastructure for pipelines and backend services on AWS EC2, AWS EKS, AWS Lambda, and AWS S3,\nautomating provisioning, monitoring, and scaling of Dagster orchestrators, LLM inference endpoints, and AWS Glue jobs\nwith metrics, traces, logs, and data quality alerts ensuring HIPAA and HITECH compliance.\nCollaborated with healthcare engineering teams to define CES metrics, quality scoring models, and eval sets using Python,\nDagster, AWS Lambda, AWS S3, Power BI, and Collibra, translating PR metadata ingestion, commit tracking, and anomaly\ndetection requirements into compliant backend integration, analytics, and data modeling solutions aligned with HIPAA,\nHITECH, and HL7 standards.\nDeveloped and deployed AI/ML pipelines using MLLIB and Numpy to predict patient readmission risk, orchestrated with\nAirflow for ingestion, transformation, and model retraining, ensuring HIPAA-compliant data handling, HL7 interoperability,\nand audit trails in alignment with HITECH Act regulations for healthcare systems.\nEngineered AI/ML clinical decision support using LLMs and MLLIB, processing unstructured EHR data, identifying high-risk",
+          "confidence": 0.9
+        },
+        {
+          "company_name": "Morgan Stanley",
+          "client_name": null,
+          "job_title": "Senior Data Engineer",
+          "start_date": "2020-10",
+          "end_date": "2023-07",
+          "is_current": false,
+          "location": "New York, NY",
+          "bullets": [],
+          "description": "Designed and deployed production-grade data pipelines using Python and Dagster on AWS, ingesting PR metadata,\ncommit metadata, and code quality telemetry from GitHub and Jenkins, integrating AWS Lambda, AWS S3, AWS Glue,\nand AWS ECS to ensure PCI-DSS-compliant financial workflows, automated retries, backfills, and observability with\nmetrics, traces, and logs.\nBuilt retrieval agents using Python and DSPy to extract historical code context, diffs, and commit histories from GitHub,\nimplementing prompt chaining and context packing for LLM optimization, automating score correction workflows,\nexposing CES and quality metrics via REST APIs, and ensuring SOX and GLBA-compliant secure audit trails across financial\npipelines.\nMigrated orchestration from Apache Airflow to Dagster, enhancing PR/commit linking, branch tracking, and epic linking\nacross Jira, GitHub, and banking systems, integrating AWS EventBridge, AWS SQS, and AWS Lambda to expose CES\nmetrics and quality metrics to Power BI dashboards while maintaining PCI-DSS and SOX compliance.\nDeveloped anomaly detection and data quality monitoring using Python, AWS Glue, and AWS CloudWatch, identifying\ndeviations in commit metadata, PR metadata, and code quality signals from SonarQube and PMD, triggering automated\nalerts, implementing DSPy-based score correction, and maintaining GLBA-compliant secure audit workflows for financial\ncode review processes.\nEngineered AWS-native pipelines using AWS ECS, AWS Lambda, AWS S3, AWS RDS, and AWS CDK to automate backfills,\nretries, and scheduling for high-volume financial data ingestion, integrating GitHub webhooks and Jenkins CI/CD pipelines,\nstoring datasets securely in AWS S3 and AWS RDS with PCI-DSS encryption and IAM access controls.\nImplemented observability and monitoring frameworks using AWS CloudWatch, AWS X-Ray, and Python scripts, tracking\nmetrics, traces, and logs across pipelines, triggering automated notifications through AWS SQS and Slack, ensuring PCIDSS, SOX, and GLBA compliance while maintaining anomaly detection and continuous reliability of financial data\nworkflows.\nBuilt backend services using Python, AWS Lambda, and AWS EKS to ingest PR metadata, commit metadata, and code\nquality signals from GitHub, Jenkins, SonarQube, and PMD, computing CES and quality metrics, exposing results via REST\nAPIs with JWT authentication and TLS 1.2+, supporting PCI-DSS and SOX compliance.\nDesigned and executed DSPy-based eval sets and feedback loops, collecting user feedback on scoring accuracy, retraining\nLLM/prompt optimization models stored in AWS S3 and AWS RDS, implementing batching and caching to optimize\nperformance and cost while ensuring GLBA and SOX-compliant secure financial code review workflows.\nOrchestrated data modeling and analytics workflows using Python, AWS Glue, ERWIN, and E/R Studio to design\nnormalized schemas for PR/commit linking, branch tracking, and epic linking across Jira, GitHub, and banking systems,\nenabling quality metrics computation, engineering effort analysis, and PCI-DSS-compliant audit-ready reporting for\nexecutives via Power BI.\nIntegrated SonarQube and PMD results with Python backend services to compute CES and quality metrics, linking findings\nto PR metadata, commit metadata, and Jira epics, deploying AWS Lambda functions triggered by AWS EventBridge,\nstoring results in AWS S3 and AWS RDS, ensuring PCI-DSS, SOX, and GLBA compliance.\nDeveloped retrieval agent workflows using Python and DSPy to pull code context, diffs, and commit history from GitHub,\nintegrating pipelines with Dagster orchestration, enabling backfills and retries for historical data, exposing CES and quality\nmetrics via JWT-secured APIs, ensuring SOX and GLBA-compliant secure audit logging.\nBuilt orchestration and reliability frameworks using Dagster and AWS ECS, implementing AWS Lambda and AWS\nEventBridge for event-driven ingestion of PR and commit metadata from GitHub and Jenkins, linking artifacts to Jira epics,\nenabling anomaly detection, data quality alerts, and PCI-DSS, SOX, and GLBA-compliant banking workflows.\nEngineered LLM/prompt optimization pipelines using DSPy and Python, creating eval sets from historical PR and commit\nmetadata, automating score corrections via DSPy prompt tuning, optimizing LLM call performance through batching,\ncaching, and prompt compression, ensuring secure, auditable, and compliant workflows aligned with GLBA and SOX\nstandards.\nDesigned data quality and observability frameworks using Python, AWS CloudWatch, AWS X-Ray, and Dagster, monitoring\nmetrics, traces, and logs, integrating backend services with SonarQube, PMD, and GitHub, generating enriched datasets\nfor Power BI dashboards, maintaining PCI-DSS, SOX, and GLBA compliance with secure storage in AWS S3 and AWS RDS.\nAutomated artifact linking using Python and AWS Lambda, connecting Jira, GitHub, PR metadata, and commit metadata\nfor epic linking, work-type classification, and traceability, orchestrating pipelines in Dagster, storing datasets in AWS S3\nand AWS RDS, implementing anomaly detection, and ensuring PCI-DSS, SOX, and GLBA-compliant financial code review\nprocesses.\nDesigned and deployed PCI-DSS-compliant data ingestion frameworks using AWS EKS, orchestrating containerized\nmicroservices with Airflow for ETL workflows that processed sensitive cardholder data, implementing end-to-end\nencryption, audit logging, RBAC, and autoscaling policies to enhance reliability and security for high-volume banking\noperations.\nImplemented AWS WAF rules and security policies for AWS EC2-hosted banking applications, mitigating SQL injection, XSS,\nand DDoS attacks, integrating CloudWatch monitoring, geo-blocking, and rate-limiting configurations, ensuring GLBA\ncompliance, secure customer authentication workflows, and reduced exposure to vulnerabilities across digital banking\nplatforms.\nDeveloped infrastructure-as-code templates using AWS CDK in TypeScript to provision AWS EC2, VPCs, security groups,\nIAM roles, and backup policies for loan origination systems, automating deployments, enforcing least-privilege access, and\nensuring PCI-DSS and SOX compliance with version-controlled, repeatable provisioning pipelines.\nMaintained version control and collaborative workflows using Git and ERWIN, managing database schema changes,\nbranch strategies, CI/CD integration, and schema validation, ensuring audit trail consistency, peer-reviewed modifications,\nand GLBA-compliant governance across customer account, transaction, and mortgage data models in production banking\nenvironments.\nConfigured Airflow DAGs to automate inter-bank settlement reconciliations, orchestrating validation, anomaly detection,\nand report generation processes, enhancing task retries and dependencies, ensuring timely delivery of regulatory reports,\nSOX compliance, and SLA adherence, improving reliability for financial data processing and internal audit requirements.\nCollaborated with data architects using E/R Studio to reverse-engineer banking databases, producing entity-relationship\ndiagrams and data dictionaries, identifying PII and sensitive data elements, assessing downstream dependencies, and\nsupporting GLBA and PCI-DSS protections during schema migrations and core banking modernization initiatives.\nProvisioned and managed AWS EC2 instances for batch processing of interest calculations, fee assessments, and statement\ngeneration, implementing multi-AZ deployments, automated snapshots, CloudWatch alarms, auto-recovery, and capacity\nplanning to ensure high availability, disaster recovery readiness, and regulatory compliance for retail banking operations.\nIntegrated ERWIN metadata repositories with Git, centralizing logical and physical data models across mortgage, credit\ncard, and commercial lending domains, automating model exports to Git, enforcing naming conventions, version control,\nand change management to ensure GLBA-compliant governance and auditable production deployments in regulated\nfinancial services environments.\nEnvironments: Lambda, Jenkins, Airflow, S3, AWS Lambda, SonarQube, Dagster, ERWIN, JWT, E/R studio, ECS, AWS EC2, AWS\nRDS, Power BI, AWS EKS, AWS WAF, Jira, AWS CDK, DSPy, Python, Glue, AWS S3, Git, AWS, PMD, GIthub, EventBridge, AWS SQS",
+          "confidence": 0.9
+        },
+        {
+          "company_name": "Delta Airlines",
+          "client_name": null,
+          "job_title": "Data Engineer Data Analyst",
+          "start_date": "2017-12",
+          "end_date": "2020-09",
+          "is_current": false,
+          "location": "Atlanta, GA",
+          "bullets": [],
+          "description": "Designed and deployed production-grade data pipelines using Python and Apache Airflow to ingest commit metadata and\nPR metadata from GitHub, integrating AWS Lambda and AWS EventBridge for real-time processing, exposing quality\nmetrics via REST APIs, ensuring SOC 2 audit trails and FAA/IATA compliance across aviation engineering workflows.\nBuilt end-to-end data modeling frameworks using Python to link PRs and commits, tracking branch merges to main\nrepositories, integrating AWS Glue and Dagster pipelines for historical backfills, implementing Prometheus and Grafana\ndashboards for anomaly detection and IOSA-compliant aviation software quality monitoring.\nEngineered retrieval agents using Python to extract contextual metadata from GitHub, integrating SonarQube outputs\ninto AWS S3 data lakes, computing technical debt and maintainability metrics, and exposing metrics via Power BI, ensuring\nobservability through Prometheus and logs for continuous FAA-compliant quality improvement.\nOrchestrated migration of legacy workflows using Dagster and Airflow on AWS ECS and AWS EKS, implementing retry\nlogic, scheduling policies, and monitoring frameworks, triggering AWS Lambda via AWS EventBridge, integrating Grafana\nand AWS SNS notifications to maintain 99.9% pipeline uptime aligned with SOC 2 and IATA standards.\nDeveloped analytics platforms using Python, AWS RDS, and Power BI to generate CES metrics, correlating PR and commit\nmetadata with Jira epics, designing schemas in ERWIN and E/R Studio to support graph-like linking, enabling epic-level\nreporting aligned with FAA documentation and safety-critical software audit readiness.\nImplemented backend services using Python on AWS Lambda and AWS EC2, processing thousands of daily PRs and\ncommits, integrating Jenkins CI/CD pipelines with PMD static analysis, storing data in AWS S3, ensuring IOSA-compliant\ntraceability, FAA version control governance, and safety-critical code quality monitoring.\nBuilt observability frameworks using Prometheus, Grafana, and AWS CloudWatch, tracking Airflow DAG execution times,\nAWS Glue job success rates, and Lambda invocation patterns, implementing Python scripts and S3 pipelines for audit trail\nlogging, enabling SOC 2 compliance and root-cause analysis of aviation software pipelines.\nOrchestrated backfills of historical GitHub repository data using Dagster and AWS Glue, reconstructing branch/main\ntracking histories, implementing Python-based incremental processing, defining Prometheus-based data quality alerts,\ndetecting duplicate PRs, timestamp inconsistencies, and ensuring FAA-compliant anomaly detection for safety-critical\naviation releases.\nDeveloped eval set creation workflows using Python, integrating Jira and GitHub APIs for feedback-driven quality\nvalidation, implementing AWS ElastiCache caching and Lambda batching optimizations, improving pipeline efficiency while\nmaintaining observability in Grafana, supporting IATA-compliant quality scoring and engineering metrics.\nDesigned normalized data schemas for PR/commit linking and epic metadata using ERWIN and E/R Studio, deploying\nPython services on AWS ECS, storing data in AWS RDS and AWS S3, maintaining FAA-compliant audit trails, supporting\naircraft program-specific quality metrics and work-type classification for aviation engineering teams.\nEstablished observability standards using Prometheus, Grafana, and AWS CloudWatch, implementing Python scripts to\ndetect anomalies in commit ingestion, backfill failures, or pipeline delays, configuring AWS SNS notifications to ensure\nrapid alerting, maintaining operational reliability standards for IATA-compliant flight operations and maintenance systems.\nIntegrated SonarQube with Airflow and AWS Glue, ingesting static analysis metrics into AWS S3, mapping code severity to\nFAA DAL levels, implementing Python logic to generate automated risk scoring, and visualizing defect densities, technical\ndebt, and maintainability indices via Power BI for aviation software compliance.\nDesigned backend services using Python, AWS Lambda, AWS SQS, and AWS EventBridge, implementing asynchronous\nPR/commit processing, configuring AWS CDK to provision AWS ECS, AWS RDS, and AWS S3, enforcing AWS WAF security\npolicies, and integrating Prometheus alerts for ingestion lag, anomaly detection, and aviation quality monitoring.\nBuilt analytics dashboards in Power BI connected to AWS RDS and AWS S3, computing trends in code review turnaround,\ndefect escape rates, and test coverage, aggregating data using Python and AWS Glue, maintaining FAA-compliant\ndocumentation, integrating Collibra for data catalog governance and audit readiness for safety-critical systems.\nEstablished governance frameworks using Collibra, documenting PR/commit ingestion workflows, data modeling schemas,\nand quality metric calculations, automating Python scripts integrated with Jenkins CI/CD pipelines to enforce anomaly\ndetection thresholds, trigger AWS SNS alerts, and maintain SOC 2-compliant aviation software engineering metrics.\nDeveloped flight operations platforms using DSPy, integrating AWS SQS for asynchronous messaging between\nmicroservices handling flight updates, maintenance alerts, and crew notifications, implementing batching strategies for\nthroughput optimization, ensuring FAA Part 121 operational integrity and IATA-compliant timely dissemination of safetycritical information.\nBuilt scalable infrastructure-as-code solutions using AWS CDK to provision AWS EKS clusters for aviation safety\napplications, integrating Git version control, branch protection strategies, and AWS WAF with custom rules to safeguard\nflight planning APIs, ensuring SOC 2 Type II and IOSA compliance for sensitive operational data.\nImplemented distributed caching architecture using AWS ElastiCache, optimizing frequently accessed aircraft\nmaintenance records, integrating PMD static analysis in CI/CD pipelines for Java-based aviation systems, ensuring FAA\nmaintenance approval compliance, and improving response times for pre-flight inspections while maintaining safetycritical coding standards.\nConfigured AWS EC2 Auto Scaling groups to run flight analysis workloads, leveraging DSPy NLP frameworks to process pilot\nand maintenance reports, deploying multi-AZ instances for failover, supporting FAA SWIM real-time data exchange\nrequirements, and maintaining IATA-compliant operational tracking across flight and baggage systems.\nEnvironments: AWS CDK, Python, ERWIN, AWS EC2, EventBridge, github, SonarQube, PMD, AWS Lambda, Prometheus, AWS\nEKS, Dagster, Airflow, AWS, DSPy, AWS WAF, AWS S3, ECS, Glue, Jenkins, Lambda, AWS RDS, AWS Glue, S3, E/R studio, Grafana,\nPower BI, Git, AWS SQS, Collibra, AWS SNS, Jira",
+          "confidence": 0.9
+        },
+        {
+          "company_name": "Cisco",
+          "client_name": null,
+          "job_title": "Data Engineer Migration Specialist",
+          "start_date": "2016-02",
+          "end_date": "2017-11",
+          "is_current": false,
+          "location": "San Jose, CA",
+          "bullets": [],
+          "description": "Built a Network Data Integration platform using Azure Cloud, improving enterprise data integration efficiency while\nenabling seamless data flow across global networking systems by consolidating monitoring telemetry from thousands of\ndevices deployed in international data centers.\nDeveloped scalable data ingestion pipelines using Talend ETL and Azure Data Factory, efficiently processing large volumes\nof network monitoring and security appliance data while ensuring reliable ingestion, transformation, and availability for\ndownstream operational analytics.\nExecuted data migration initiatives transferring configuration data from legacy network management systems to modern\nSDN platforms, maintaining configuration accuracy and uninterrupted network services throughout the transition to\nsoftware defined infrastructure.\nBuilt complex orchestration workflows using Apache Airflow, coordinating ETL processes across distributed network\nmonitoring systems in multiple global regions while aligning execution schedules with regional compliance and operational\ntime zone requirements.\nImplemented Azure SQL Database to store structured network performance metrics, optimizing data models and query\nexecution to support rapid access to critical network health indicators for operations and engineering teams.\nConfigured Azure Data Lake Storage for scalable retention of semi structured and unstructured network traffic data,\nsupporting long term security analysis, capacity planning, and cost efficient storage of historical traffic patterns.\nIntegrated diverse network data sources including router logs, switch telemetry, and security appliance alerts into unified\nmonitoring solutions, enabling cross layer correlation and faster troubleshooting across complex global network\nenvironments.\nImplemented data security and privacy controls aligned with international regulations, applying encryption, role based\naccess controls, and data anonymization techniques while handling sensitive network configuration and traffic analysis\ndatasets.\nExecuted migration of legacy network management platforms to modern cloud based monitoring solutions, ensuring\nadherence to industry standards while improving observability and reducing operational overhead for network operations\nteams.\nDeveloped predictive capacity forecasting models using Azure Databricks, analyzing historical traffic trends to improve\nbandwidth planning accuracy and support proactive decision making for global network growth requirements.\nCreated real time network anomaly detection solutions using streaming analytics, enabling early identification of security\nthreats and performance degradation by processing high volume network event streams continuously.\nDesigned and implemented data quality frameworks validating global network configuration data, ensuring consistency\nand correctness of configuration changes prior to deployment across distributed infrastructure environments.\nBuilt custom integration APIs enabling connectivity between network management platforms and IT Service Management\nsystems, supporting automated incident creation, updates, and resolution workflows across operational teams.\nDeveloped interactive dashboards visualizing global network performance and security posture using business intelligence\ntools, providing leadership with real time visibility into service levels and infrastructure health.\nImplemented automated network capacity planning solutions leveraging historical traffic analysis and growth projections,\noptimizing equipment utilization and supporting informed infrastructure investment decisions across global operations.\nEnvironments: Azure Cloud, Talend ETL, Azure Data Factory (ADF), Apache Airflow, Azure SQL Database, Azure Data Lake\nStorage, Azure Databricks, Python, Streaming Analytics, SDN Platforms",
+          "confidence": 0.9
+        },
+        {
+          "company_name": "Flipkart",
+          "client_name": null,
+          "job_title": "Etl Developer",
+          "start_date": "2014-08",
+          "end_date": "2015-12",
+          "is_current": false,
+          "location": "Bangalore, India",
+          "bullets": [],
+          "description": "Built a scalable ETL pipeline using AWS Services, Informatica, and Talend, integrating data from e commerce platforms,\ninventory systems, and customer databases to create a unified data flow supporting high volume daily transaction\nprocessing across multiple online retail channels.\nConfigured Amazon S3 for secure storage of raw, staging, and transformed product catalog datasets, enabling reliable\ningestion workflows for large SKU volumes while applying versioning and lifecycle policies to balance accessibility with\nlong term storage cost optimization.\nUtilized Informatica PowerCenter to extract data from MySQL, PostgreSQL, and MongoDB sources containing customer\nprofiles and purchase history, ensuring accurate extraction, preserved relationships, and consistent processing of high\nvolume customer records.\nDeveloped optimized Talend jobs processing CSV and JSON based vendor feeds and marketplace listings, improving data\nprocessing efficiency and supporting timely product catalog updates across web and mobile commerce platforms.\nImplemented complex data transformations using Informatica, performing data cleansing, validation, and standardization\non product metadata to improve search accuracy and ensure consistent product taxonomy across multiple vendor sources.\nConfigured Talend Open Studio to perform data integrations between order management and fulfillment systems,\nstreamlining ETL workflows and synchronizing inventory levels across distributed warehouse and fulfillment center\noperations.\nDesigned AWS Glue jobs to catalog, transform, and load curated sales and inventory data into Amazon Redshift,\noptimizing storage layouts and enabling efficient analytical queries supporting sales performance and category level\ninsights.\nAutomated ETL job scheduling using AWS Lambda and Amazon CloudWatch Events, improving reliability of time sensitive\nprocesses such as daily sales reporting and inventory refreshes through managed execution and dependency handling.\nMonitored ETL pipeline performance using Amazon CloudWatch, configuring alerts for failures and latency issues in\ncritical data flows supporting order processing and financial reconciliation activities.\nConnected Tableau to Amazon Redshift to deliver interactive dashboards for real time analysis of sales trends, inventory\npositions, and customer behavior, enabling merchandising teams to make informed decisions on product placement and\npromotions strategies.\nEnvironments: AWS (S3, Glue, Lambda, CloudWatch, Redshift), Informatica PowerCenter, Talend, Talend Open Studio, MySQL,\nPostgreSQL, MongoDB, CSV/JSON files, Tableau",
+          "confidence": 0.9
+        }
+      ],
+      "education": [
+        {
+          "institution": "Bachelor of Technology in Computer Science & Engineering at Koneru Lakshmaiah University 2010-2014",
+          "degree": "Bachelor of Technology",
+          "field_of_study": "Computer Science & Engineering at Koneru Lakshmaiah University",
+          "start_date": "2010-02",
+          "end_date": "2014-02",
+          "in_progress": false,
+          "confidence": 1.0
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": 10,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": 9,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "TypeScript",
+          "normalized_name": "typescript",
+          "category": "Programming Languages",
+          "confidence": 0.6,
+          "years_experience": 2,
+          "proficiency": null
+        },
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.6,
+          "years_experience": 1,
+          "proficiency": null
+        },
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.4,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "Dominic Thorne Executive Resume.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "High-impact Revenue Executive with 12+ years of experience engineering hyper-growth for\nglobal technology leaders and high-valuation startups. Expert in the orchestration of integrated\nSales, Marketing, and Customer Success ecosystems, specializing in transitioning organizations\nfrom transactional models to high-velocity, solution-based Enterprise engines. Distinguished for\narchitecting the ”Revenue Velocity Engine” at *OmniStream Global*, which generated a 450% increase in Year-over-Year (YoY) pipeline and secured $320M in new market capitalization.\nDominic possesses a rare duality of technical mastery in MarTech stack optimization and visionary leadership in global brand positioning. Proven track record of managing marketing and\nsales budgets exceeding $180M while directing cross-functional global teams of 200+ professionals. A strategic architect who bridges the gap between AI-driven demand generation and humancentric executive sales cycles. Expert in navigating complex, multi-regional regulatory landscapes\nfor Fintech and Healthtech sectors, ensuring 100% brand consistency and operational excellence\nacross 15+ international markets. Recognized for a unique ability to translate quantitative data\ninto actionable growth strategies for Board-level stakeholders.\nPrimary leader for the Institutional Sales and Strategic Accounts division. Focused on high-value contract negotiation and the development of the ”Solution Selling” methodology.\nConsolidate Sales, Marketing, and Success data into a single source of truth to eliminate churn and maximize expansion opportunities.\n- Strategy: Mapped the end-to-end customer journey for 2,000+ accounts. Developed a custom ”Health Score” in Gainsight that integrated telemetry from the product with marketing\nengagement data.\n- Action: Unified the lead-to-cash process across 3 different ERP and CRM systems. Launched\nan automated ”Expansion Alert” system for account managers when a customer reached a\n90% usage threshold.\n- Outcome: Reduced churn from 12% to 4% in one fiscal year. Recovered an estimated $45M\nin ”at-risk” revenue and identified $60M in untapped expansion pipeline.\nProject Sentinel: AI-Driven Growth Ecosystem\nRole: Technical Architect | Duration: 12 Months\nCreate a fully automated, AI-optimized demand generation engine that requires minimal manual intervention.\n- Strategy: Leveraged OpenAI API integrations with Marketo and 6sense to generate personalized, multi-stage nurture emails based on specific account behavior and industry trends.\n- Action: Developed a dynamic ”Landing Page Forge” that used programmatic SEO to create\n3,000 industry-specific pages. Integrated a real-time ”ROI Calculator” that captured lead data.\n- Outcome: Increased organic traffic by 400% and reduced the cost-per-SQL by 65%. The system currently generates 50% of all enterprise leads with a 4:1 ROI.\nOperation Global Nexus: Sales Force Automation (SFA) 2.0\nRole: Strategy Lead | Investment: $7M\nUse Revenue Intelligence to eliminate ”forecast fluff” and improve sales productivity.\n- Strategy: Integrated Gong.io with Salesforce to automatically track keyword mentions and\nsentiment in sales calls. Built custom dashboards that flagged ”stalled” deals based on behavioral patterns.\n- Outcome: Improved forecast accuracy to 98% (within $500k on a $500M target). Recovered\n10 hours of administrative time per rep per week, resulting in a 20% increase in outbound\nactivity.\nProject Blue Ocean: Vertical Expansion into Public Sector\nRole: GTM Architect | Outcome: Secured $55M in first-year government contracts.\n- Strategy: Led the effort to achieve FedRAMP High certification. Recruited a specialized public\nsector sales squad and launched a targeted lobbying and marketing campaign in Washington\nD.C.\nLEADERSHIP & TEAM MANAGEMENT\n- The ”Thorne Excellence” Culture: Implemented a ”Radical Candor” feedback model across\nthe global organization, resulting in a Top 5% ranking in employee engagement on CultureAmp\nfor 3 consecutive years.\n- Talent Development Pipeline: Founded the ”Growth Leaders Fellowship,” an internal mentorship program for high-potential directors. 15 graduates have since been promoted to VP-level\nroles within the company or at major startups.\n- Diversity, Equity & Inclusion (DEI): Spearheaded a ”Blind Recruitment” initiative for all sales\nand marketing roles, increasing the representation of underrepresented groups in management by 55% in 2 years.\n- Global Remote Strategy: Architected the ”Work-from-Anywhere” policy for the growth organization, utilizing asynchronous workflows and quarterly ”Connection Summits” to maintain\nhigh morale and 24/7 global coverage.\n- Crisis Management Leadership: Led the global communication and retention strategy during the 2022 market volatility, managing to keep NRR above 115% while competitors saw massive churn.\nPROCESS IMPROVEMENTS & AUTOMATION\n- Automated Compliance Engine: Built an automated legal review tool for marketing assets\nusing AI, reducing the ”Creation-to-Approval” time from 10 days to 2 hours.\n- RPA for Lead Routing: Deployed robotic process automation to handle complex global lead\ndistribution based on a 15-point criteria system (geography, vertical, intent score, etc.). Eliminated manual routing errors and reduced response time to 2 minutes.\n- Digital Content Governance: Standardized the global digital asset management (DAM) system using Bynder, ensuring 100% brand compliance across 22 countries and saving $1.5M in\nredundant creative work.\n- Self-Service Sales Portal: Developed a ”Partner Enablement Hub” that automatically generates customized sales decks and contracts for Tier-2 partners, reducing the load on the internal sales ops team by 60%.\nSTRATEGIC GROWTH ANALYSIS & MARKET INSIGHTS\nThe Future of the CMO/CRO Convergence\nIn my 12 years of executive leadership, I have observed the total erosion of the boundary between Marketing and Sales. My philosophy is built on the concept of **”Seamless Revenue.”** A\ncustomer does not care about the internal distinction between a Marketing-led touchpoint and\na Sales-led interaction. Therefore, I build organizations where data is the connective tissue, ensuring that a prospect’s transition from a digital ad to a discovery call feels like a single, evolving\nconversation.\nThe Role of AI in Revenue Operations\nI am a firm believer that AI should be used to **augment human empathy**, not replace it. My\nstrategy involves deploying AI to handle the ”Cognitive Drudgery”-data entry, lead qualification,\nand basic content generation-thereby freeing up my sales and marketing teams to focus on\nhigh-value creative strategy and deep relationship building.\nGrowth in Volatile Markets\nDuring economic downturns, I pivot my organizations toward **”Efficiency-First Growth.”**\nThis involves a hyper-focus on Customer Acquisition Cost (CAC) payback periods and Net Revenue\nRetention (NRR). I believe that the strongest companies are built during periods of constraint, as\nthey are forced to innovate their way into better unit economics.\nBOARD ENGAGEMENT & INVESTOR RELATIONS\n- Reporting Mastery: Developed the ”Revenue Dashboard for Directors,” a high-level reporting\nframework that tracks CAC, LTV, NRR, and Pipeline Velocity in real-time.\n- Fundraising Support: Acted as a key member of the executive team during Series C and D\nfunding rounds, directly securing $250M in investment through rigorous GTM defense and\ngrowth modeling.\n- Executive Coaching: Provide regular coaching to Founder/CEOs on GTM strategy and revenue leadership as part of my commitment to the Nashville tech ecosystem.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "- Growth Architecture: GTM Strategy, RevOps Leadership, Pricing Optimization, Unit Economics\n(LTV/CAC).\n- Global Sales Leadership: Enterprise Solution Selling, Channel Partnership Development, Sales\nEnablement, CRM Strategy.\n- Advanced Marketing: Account-Based Marketing (ABM), Performance Marketing, ProductLed Growth (PLG), Viral Growth Loops.\n- Digital Transformation: MarTech Stack Integration, AI-Driven Lead Scoring, Automated Nurture Cycles, Data Orchestration.\n- Organizational Design: Talent Acquisition Strategy, Incentive Alignment, Cross-Functional\nTeam Synergy, Culture Transformation.\n- Financial Stewardship: P&L Responsibility ($200M+), Capex/Opex Budgeting, ROI Modeling,\nM&A Due Diligence.\n- Communication: Public Relations, Investor Relations, Crisis Management, Global Thought\nLeadership.\nSales & Revenue Operations (RevOps)\n- CRM Ecosystems: Salesforce (Advanced Architect), HubSpot Enterprise, Microsoft Dynamics\n365, Oracle Sales Cloud.\n- Sales Enablement: Gong.io, Chorus.ai, Highspot, Outreach, Salesloft, Seismic.\n- Pipeline Intelligence: Clari, InsightSquared, 6sense, Demandbase, ZoomInfo.\nAdvanced Marketing Technology (MarTech)\n- Automation & Lifecycle: Marketo Engage, Pardot, Braze, Iterable, Klaviyo.\n- Performance & Search: Google Ads Manager, LinkedIn Campaign Manager, Meta Ads, SEMrush, Ahrefs, Moz.\n- Content & Web: WordPress (Headless), Webflow, Contentful, Adobe Experience Manager.\nAnalytics, Data & AI\n- Visualization: Tableau, Power BI, Google Data Studio, Looker.\n- Data Infrastructure: GA4, Segment (CDP), Mixpanel, Amplitude, Heap, BigQuery.\n- Attribution Modeling: Bizible, Dreamdata, Rockerbox, CaliberMind.\nProject & Team Management\n- Agile Frameworks: Jira (Agile Sales/Marketing), Asana, Monday.com, Trello.\n- Collaborative Tools: Slack Enterprise, Miro, Microsoft Teams, Notion.\nGrowth & CRM: Salesforce, HubSpot, Microsoft Dynamics, 6sense, Terminus, Demandbase,\nGainsight.\nAdvertising: Google Ads, LinkedIn Ads, The Trade Desk, RollWorks, AdRoll, StackAdapt.\nAnalytics: GA4, Adobe Analytics, Tableau, Bizible, Mixpanel, Hotjar, Optimizely, FullStory.\nSales Enablement: Gong, Chorus, Outreach, Salesloft, ZoomInfo, Clearbit, Highspot, Seismic.\nContent & Web: WordPress (Headless), Contentful, SEMrush, Ahrefs, Canva, Bynder, Adobe Creative Cloud.\nCompliance & Governance: OneTrust (GDPR/CCPA), Vanta, Drata (Sales-Led Compliance), HIPAAAudit Ready.",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Chief Revenue Officer | OmniStream Global | 2021 - Present\nNashville, TN / Remote (Enterprise Cloud Solutions | Annual Revenue: $1.5B)\nStrategic Mandate & Executive Oversight: Directly responsible for the global P&L across\nSales, Marketing, and Partner Channels for an organization of 1,200 employees. Oversee an integrated Revenue Organization (RevOrg) of 250+ professionals. Report directly to the CEO and\nBoard of Directors on all growth metrics, pipeline health, and GTM execution.\n- Keynote Speaker: ”The Death of the Funnel: Why Revenue is a Loop,” SaaStr Annual 2023.\n- Featured Panelist: ”Scaling Global Growth in the Age of Volatility,” Money20/20 Europe 2022.\n- Workshop Lead: ”AI & The Future of Revenue Operations,” Dreamforce 2021.\n- Guest Lecturer: ”Advanced GTM Strategy,” The University of Texas at Austin (McCombs School of\nBusiness).",
+          "confidence": 1.0
+        },
+        "awards": {
+          "content": "- Revenue Transformation: Engineered a strategic pivot to a ”Land and Expand” model, increasing Net Revenue Retention (NRR) from 94% to 122% within 24 months.\n- Pipeline Acceleration: Architected a multi-tier ABM framework targeting Fortune 500 accounts, resulting in a $400M incremental pipeline and a 35% increase in Enterprise win rates.\n- Global Expansion: Spearheaded the company’s entry into the EMEA and LATAM markets, establishing regional hubs in London and São Paulo. Contributed $85M in new ARR in the first\n18 months.\n- MarTech Unification: Led a $12M digital overhaul, consolidating 45 disparate tools into a\nunified Salesforce/Marketo/Segment ecosystem. Reduced data latency by 90% and improved\nlead-to-opportunity conversion by 22%.\n- Incentive Alignment: Redesigned the global commission and bonus structures to align with\nlong-term retention goals, reducing sales turnover by 40% and increasing average quota attainment from 68% to 89%.\n- Strategic M&A: Managed the commercial integration for the $450M acquisition of *CloudCore\nTechnologies*. Unified the sales forces and cross-sold the new solution to 30% of the existing\ncustomer base in 6 months.\n- Brand Authority: Launched the ”Omni-Future” thought leadership initiative, securing 12 keynote\nslots at major industry conferences and increasing brand share-of-voice (SOV) by 60%.\nVP of Global Marketing & Demand Generation | NexaHealth Tech | 2017 - 2021\nAustin, TX (AI-Driven Healthtech Platform)\nOperational Leadership: Directed the global marketing function for a high-growth Healthtech\nfirm. Led a team of 95 specialists across brand, demand generation, product marketing, and field\noperations. Managed an annual marketing budget of $110M.\n- Growth Modeling: Developed a proprietary ”Predictive Demand Model” that forecasted pipeline\nwithin 5% accuracy, allowing for aggressive but safe capital allocation.\n- Lead Generation Revolution: Scaled monthly MQL volume from 1,500 to 12,000 through an\nintegrated performance marketing strategy. Optimized blended CAC by 45% through highintent SEO and organic content.\n- Product-Led Growth (PLG): Partnered with Engineering to launch a ”Free-to-Premium” version of the platform. Successfully converted 15% of free users to paid subscriptions within the\nfirst 12 months, adding $20M to the ARR.\n- Compliance Leadership: Built a specialized HIPAA-compliant marketing framework, allowing\nfor the use of patient data in personalized nurture tracks without regulatory risk.\n- Sales Enablement Excellence: Deployed Highspot across the global sales force and created\n500+ localized sales assets. Improved content usage among reps by 300% and reduced the\ncontent creation cycle by 50%.\n- Channel Marketing Initiative: Launched the ”Nexa-Partner” program, recruiting 150+ VARs\nand medical consultants. Partner-sourced revenue grew from 5% to 38% of total business\nduring my tenure.\nSenior Director of Sales & Strategic Accounts | BlueVest Finance | 2013 - 2017\nNew York, NY (Fintech SaaS for Institutional Investors)\n- Deal Closing Mastery: Personally led the negotiation for the company’s 3 largest contracts\n(including fictional client *Global Asset Management*), totaling $75M in total contract value\n(TCV).\n- Sales Methodology Deployment: Authored and trained the sales team on the ”BlueVest\nStrategic Sales Playbook,” resulting in a 25% reduction in the average sales cycle (from 14\nmonths to 10.5 months).\n- Account Expansion: Implemented a structured ”Strategic Account Management” program\nthat grew top 50 accounts by an average of 40% YoY through cross-sell and up-sell initiatives.\n- CRM Optimization: Acted as the business lead for the migration from a legacy CRM to Salesforce, ensuring 100% data integrity and building executive dashboards for real-time visibility.\nMarketing Manager (High-Growth) | Catalyst Agency | 2011 - 2013\nSan Francisco, CA (Premier Digital Growth Agency)\n- Client Success: Led growth strategy for high-profile clients (e.g., Fictional Client *Summit Peak\nResorts*), increasing their direct bookings by 180% in 12 months.\n- Team Scaling: Scaled the performance marketing team from 4 to 25 professionals while maintaining a 95% employee retention rate.\n- Process Innovation: Standardized the ”Client GTM Roadmap,” which reduced the time-tolaunch for new campaigns by 40% and became the agency’s primary selling point.",
+          "confidence": 1.0
+        },
+        "projects": {
+          "content": "Project Apex: The ”Total Revenue Unification” (TRU) Initiative\nRole: Executive Project Lead | Investment: $15M | Duration: 18 Months",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Master of Business Administration (MBA) in Strategic Management & Marketing\nThe University of Chicago Booth School of Business, Chicago, IL\n- Focus: Behavioral Economics, Market Microstructure, Advanced Data Analytics.\n- Honors: Graduated with High Honors; Recipient of the Chicago Booth Growth Scholarship.\nBachelor of Science in Mathematical Economics & Data Science\nVanderbilt University, Nashville, TN\n- Honors: Summa Cum Laude; President of the Vanderbilt Finance & Growth Club.",
+          "confidence": 1.0
+        },
+        "certifications": {
+          "content": "- Salesforce Certified Sales Cloud Consultant\n- Marketo Certified Solutions Architect (MCSA)\n- HubSpot RevOps Professional Certification\n- Pragmatic Institute: Certified Product Marketing Executive (Level VI)\n- Section4: Certified Growth & Brand Strategist\n- Google Ads: Search, Video & Display Professional Certification",
+          "confidence": 1.0
+        },
+        "publications": {
+          "content": "- ”The Revenue Architect: Building Sustainable Growth in Saturated Markets”\nHarvard Business Review (Executive Perspectives), 2023.\n- ”Beyond the Lead: The Growth Metrics that Actually Matter for the Board”\nChief Revenue Officer (CRO) Insights Quarterly, 2022.\n- ”The Omni-Channel Trap: Why Focus is the Secret to GTM Excellence”\nAdWeek (Executive Contributor), 2021.\n- ”Engineering Growth: A Data-Science Approach to B2B Demand Gen”\nJournal of Revenue Operations, 2020.",
+          "confidence": 1.0
+        },
+        "languages": {
+          "content": "- English: Native Proficiency.\n- Spanish: Professional Working Proficiency (C1).\n- German: Conversational.\n- Global Footprint: Managed operations and GTM teams in: USA, Canada, UK, Germany, Spain,\nBrazil, Singapore, and Australia.\nSTRATEGIC VISION: THE NEXT DECADE OF GROWTH\nThe Hyper-Personalization of Enterprise Sales\nThe next ten years will see the total automation of the ”Top of Funnel” (ToFu) activities. As AI\nbecomes indistinguishable from human researchers, the differentiator for Enterprise organizations will be **Hyper-Personalization**. I am positioning my teams to use AI as a research tool\nto understand a prospect’s specific business pain points at a granular level before the first human\ntouchpoint occurs.\nCommunity-Led Growth (CLG)\nWhile PLG has dominated the last decade, I believe the next frontier is **Community-Led\nGrowth**. We are building ecosystems where our customers are our primary advocates. By fostering a peer-to-peer learning environment, we reduce the friction of the sales cycle and create a\nself-sustaining referral engine that is immune to changes in advertising algorithms.\nEthical Growth & Data Sovereignty\nIn an era of increasing data regulation, I champion a philosophy of **”Radical Privacy.”** We\nview data sovereignty not as a hurdle, but as a competitive advantage. By building trust through\ntransparent data usage and ethical acquisition strategies, we ensure the long-term viability of our\nbrand in a world that is rightfully demanding more accountability from tech leaders.",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Dominic R. Thorne",
+        "email": "d.thorne.revenue@growth-nexus.com",
+        "phone": "+916155550144",
+        "linkedin_url": null,
+        "location": "Nashville, TN, India"
+      },
+      "work_history": [
+        {
+          "company_name": "Chief Revenue Officer | OmniStream Global",
+          "client_name": null,
+          "job_title": null,
+          "start_date": "2021-01",
+          "end_date": null,
+          "is_current": true,
+          "location": "Nashville, TN",
+          "bullets": [],
+          "description": "Nashville, TN / Remote (Enterprise Cloud Solutions | Annual Revenue: $1.5B)\nStrategic Mandate & Executive Oversight: Directly responsible for the global P&L across\nSales, Marketing, and Partner Channels for an organization of 1,200 employees. Oversee an integrated Revenue Organization (RevOrg) of 250+ professionals. Report directly to the CEO and\nBoard of Directors on all growth metrics, pipeline health, and GTM execution.",
+          "confidence": 0.68
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Master",
+          "field_of_study": "Strategic Management & Marketing",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": "The University of Chicago Booth School of Business, Chicago, IL",
+          "degree": "Bachelor of Science",
+          "field_of_study": "Mathematical Economics & Data Science",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.7
+        },
+        {
+          "institution": "Vanderbilt University, Nashville, TN",
+          "degree": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.4
+        }
+      ],
+      "certifications": [
+        {
+          "name": "Salesforce Certified Sales Cloud Consultant",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Marketo Certified Solutions Architect (MCSA)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "HubSpot RevOps Professional Certification",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Pragmatic Institute: Certified Product Marketing Executive (Level VI)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Section4: Certified Growth & Brand Strategist",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Video & Display Professional Certification",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Growth & CRM: Salesforce",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        }
+      ],
+      "skills": [
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Communication",
+          "normalized_name": "communication",
+          "category": "Soft Skills",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "(LTV/CAC).",
+          "normalized_name": "ltv/cac .",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Leadership.",
+          "normalized_name": "leadership.",
+          "category": "Soft Skills",
+          "confidence": 0.49999999999999994,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Salesforce (Advanced Architect)",
+          "normalized_name": "salesforce advanced architect",
+          "category": "- Crm Ecosystems",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "WordPress (Headless)",
+          "normalized_name": "wordpress headless",
+          "category": "- Content & Web",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Segment (CDP)",
+          "normalized_name": "segment cdp",
+          "category": "- Data Infrastructure",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Jira (Agile Sales/Marketing)",
+          "normalized_name": "jira agile sales/marketing",
+          "category": "- Agile Frameworks",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "OneTrust (GDPR/CCPA)",
+          "normalized_name": "onetrust gdpr/ccpa",
+          "category": "Compliance & Governance",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Drata (Sales-Led Compliance)",
+          "normalized_name": "drata sales-led compliance",
+          "category": "Compliance & Governance",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "ELIAS THORNE.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "Distinguished Principal Cloud Architect with over 12 years of specialized experience in orchestrating\nlarge-scale digital transformations, hybrid-cloud migrations, and enterprise-grade infrastructure\noptimization. Proven track record of guiding Fortune 500 financial and technology firms through\ncomplex modernization initiatives, managing budgets exceeding $15M annually, and leading crossfunctional teams of 30+ engineers.\nExpert in bridging the gap between high-level business strategy and granular technical execution.\nRenowned for designing self-healing, highly available distributed systems that reduce operational\noverhead while maximizing security posture. Deeply experienced in regulatory compliance (SOC2, PCIDSS, HIPAA) within highly regulated industries. A champion of DevOps culture, automation, and\n\"Infrastructure as Code\" (IaC), consistently delivering double-digit efficiency gains and multi-million\ndollar cost reductions through architectural excellence.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "- Strategic Planning: Enterprise Cloud Strategy, Digital Transformation Roadmaps, Disaster\nRecovery & Business Continuity (DRBC), Vendor Rationalization, Capital Expenditure (CAPEX)\nvs. Operational Expenditure (OPEX) Modeling.\n- Architecture & Design: Microservices Architecture, Serverless Computing, Event-Driven\nArchitecture, Multi-Cloud & Hybrid-Cloud Design, Zero Trust Security Frameworks.\n- Operational Excellence: Site Reliability Engineering (SRE), Root Cause Analysis (RCA),\nSLA/SLO Management, Capacity Planning, Performance Tuning.\n- Leadership: Technical Mentorship, Agile/Scrum Leadership, Stakeholder Management, CLevel Presentations, Cross-functional Team Building.\n- Compliance & Governance: Cloud Center of Excellence (CCoE) Establishment, Policy as\nCode, GDPR/CCPA Compliance, Identity & Access Management (IAM).\n- Cloud Platforms: AWS (EC2, Lambda, S3, RDS, EKS, VPC, Route53), Microsoft Azure (AKS,\nCosmosDB, Azure Functions, VNet), Google Cloud Platform (GKE, BigQuery, Pub/Sub).\n- Containerization & Orchestration: Docker, Kubernetes (K8s), Helm, Istio Service Mesh,\nOpenShift, Rancher.\n- Infrastructure as Code (IaC): Terraform, AWS CloudFormation, Azure Resource Manager\n(ARM), Ansible, Packer, Pulumi.\n- CI/CD & DevOps: Jenkins, GitLab CI, GitHub Actions, Azure DevOps, CircleCI, ArgoCD,\nSpinnaker.\n- Databases & Storage: PostgreSQL, MongoDB, Cassandra, DynamoDB, Redis, Elasticsearch,\nSnowflake.\n- Monitoring & Observability: Prometheus, Grafana, Datadog, New Relic, ELK Stack\n(Elasticsearch, Logstash, Kibana), Splunk.\n- Scripting & Languages: Python, Go (Golang), Bash/Shell, PowerShell, Node.js, Java.\n- Security Tools: HashiCorp Vault, SonarQube, Aqua Security, Palo Alto Prisma Cloud, AWS\nShield.\n- Cloud: AWS, Azure, GCP, VMware vSphere, OpenStack\n- Operating Systems: RHEL/CentOS, Ubuntu, Debian, Windows Server 2016/2019/2022\n- Networking: VPC Design, VPN, Direct Connect, ExpressRoute, BGP, DNS, Load Balancing\n(ALB/NLB/F5)\n- Web Servers: Nginx, Apache, IIS, Tomcat\n- Version Control: Git, Subversion (Legacy knowledge)\n- Project Management: Jira, Confluence, Trello, Asana, Microsoft Project",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "APEX ZENITH FINANCIAL | Denver, CO\nPrincipal Cloud Architect (Director Level) January 2021 - Present\nLead architect for a global financial services firm, overseeing the cloud center of excellence and the\nmigration of mission-critical banking applications from on-premise mainframes to a hybrid AWS/Azure\nenvironment.",
+          "confidence": 1.0
+        },
+        "awards": {
+          "content": "- Enterprise Cloud Migration: Spearheaded the \"Project Stratosphere\" initiative, migrating 450+\nmonolithic applications to a microservices-based architecture on AWS EKS.\n- Result: Reduced annual infrastructure licensing costs by 42% ($3.2M savings) and\nimproved application deployment frequency from monthly to daily.\n- Availability & Resilience: Architected a multi-region Active-Active disaster recovery solution\nspanning AWS US-East and US-West regions.\n- Result: Achieved 99.999% uptime for core transaction processing systems, handling\npeak loads of 15,000 transactions per second (TPS).\n- FinOps & Cost Optimization: Established a FinOps governing body and implemented\nautomated cost-control policies using Terraform Sentinel and AWS Budgets.\n- Result: Identified and eliminated $850,000 in annualized waste (orphaned snapshots,\nover-provisioned instances) within the first 6 months.\n- Security Governance: Led the implementation of a Zero Trust network architecture using Istio\nService Mesh and OPA (Open Policy Agent) for 35 engineering squads.\n- Result: Passed SOC2 Type II and PCI-DSS audits with zero critical non-conformities\nfor three consecutive years.\n- Team Leadership: Directly managed a team of 12 Senior Architects and functionally led a\nbroader organization of 50+ DevOps engineers. Conducted performance reviews, established\ncareer ladders, and increased team retention by 25%.\nNEBULA SYSTEMS INTEGRATORS | Chicago, IL\nSenior Solutions Architect June 2018 - December 2020\nServed as a lead technical consultant for Fortune 500 clients in retail and logistics, designing bespoke\ncloud-native solutions and guiding modernization efforts.\n- Client: Global Logistics Giant: Designed an IoT data ingestion platform on Azure using Event\nHubs and Stream Analytics to track 50,000+ shipping containers in real-time.\n- Result: Reduced supply chain latency by 60%, enabling the client to offer premium\n\"instant-track\" services that generated $8M in new revenue.\n- Client: National Retail Chain: Re-platformed a legacy e-commerce site to a serverless\narchitecture using AWS Lambda and API Gateway prior to Black Friday.\n- Result: Successfully handled a 400% traffic spike (2M concurrent users) with zero\ndowntime, while reducing compute costs by 70% compared to the previous EC2-based\nsolution.\n- DevOps Transformation: Introduced GitOps methodologies using ArgoCD and Kubernetes to\na client’s development organization comprising 200+ developers.\n- Result: Reduced Mean Time to Recovery (MTTR) from 4 hours to 15 minutes and\nincreased deployment velocity by 300%.\n- Sales Engineering: Partnered with the sales team to draft technical proposals and Statements\nof Work (SOWs) for complex enterprise deals.\n- Result: Instrumental in closing $12M in consulting contracts over two years.\nVECTOR STREAM CORP | Austin, TX\nDevOps Tech Lead March 2016 - May 2018\nLed the transition from manual infrastructure management to full automation for a high-growth SaaS\nplatform provider.\n- Infrastructure Automation: Built the company’s first fully automated infrastructure provisioning\npipeline using Terraform and Ansible.\n- Result: Reduced server provisioning time from 3 days to 45 minutes, eliminating human\nerror and configuration drift.\n- Container Adoption: Led the \"Container First\" strategy, dockerizing 40+ Java and Python\napplications and orchestrating them via an early adoption of Kubernetes (v1.6).\n- Result: Improved resource utilization efficiency by 50%, delaying the need for a data\ncenter expansion for 18 months.\n- Monitoring Overhaul: Replaced a fragmented monitoring landscape (Nagios/Cacti) with a\nunified ELK Stack and Prometheus solution.\n- Result: Reduced false-positive alerts by 85%, allowing the operations team to focus on\ngenuine performance incidents.\n- Database Scaling: Managed the sharding and replication strategy for a multi-terabyte\nMongoDB cluster supporting high-velocity user data.\n- Result: Decreased query latency by 200ms at the 99th percentile (p99).\nIRONCLAD NETWORKS | Austin, TX\nSystems Engineer June 2014 - February 2016\nManaged on-premise Linux infrastructure and virtualization for a regional telecommunications provider.\n- Virtualization: Executed the P2V (Physical to Virtual) migration of 500+ RHEL servers into a\nVMware vSphere environment.\n- Result: Reduced data center footprint by 40 racks, significantly lowering power and\ncooling costs.\n- Automation Scripting: Developed comprehensive Python and Bash scripts to automate\nroutine system patching, user provisioning, and log rotation.\n- Result: Saved approximately 20 engineering hours per week, repurposing that time for\nstrategic upgrades.\n- Storage Management: Administered a NetApp SAN environment, implementing data\ndeduplication and snapshot retention policies.\n- Result: Reclaimed 40TB of storage capacity, deferring hardware purchases by 12\nmonths.\nKEY PROJECTS & CASE STUDIES\nProject: \"Titan\" - Mainframe Offloading Engine\n- Client/Employer: Apex Zenith Financial\n- Role: Chief Architect\n- Budget: $5.5M\n- Description: Designed a solution to offload read-heavy traffic from a legacy IBM Mainframe to\na cloud-native caching layer.\n- Architecture: Utilized AWS DMS (Database Migration Service) to replicate DB2 data to\nAmazon Aurora PostgreSQL. Implemented a Redis write-through cache for API consumption.\n- Outcome: Reduced mainframe MIPS (Million Instructions Per Second) usage by 35%, saving\nthe company $2.1M annually in IBM licensing fees.\nProject: \"Nebula\" - Multi-Cloud Kubernetes Federation\n- Client/Employer: Nebula Systems Integrators (Confidential Pharmaceutical Client)\n- Role: Lead Architect\n- Budget: $3M\n- Description: Created a unified container platform spanning AWS, Azure, and on-premise data\ncenters to support drug discovery computation.\n- Architecture: Deployed Red Hat OpenShift across three environments. Implemented a\ncentralized image registry with Aqua Security scanning to ensure no vulnerabilities were\nintroduced into the research pipeline.\n- Outcome: Allowed researchers to burst compute workloads to the public cloud during peak\nanalysis times, accelerating drug trial simulations by 4x.\nProject: \"Shield\" - Automated Compliance Framework\n- Client/Employer: Apex Zenith Financial\n- Role: Technical Lead\n- Description: Automated the enforcement of regulatory controls across 150+ AWS accounts.\n- Architecture: Developed a library of 80+ custom AWS Config rules and Lambda autoremediation functions. Integrated with ServiceNow for audit trail generation.\n- Outcome: Reduced manual audit preparation time from 6 weeks to 3 days per quarter.\nLEADERSHIP & TEAM MANAGEMENT EXPERIENCE\n- Cloud Center of Excellence (CCoE) Chair: Founded and currently chair the CCoE at Apex\nZenith, a governing body of 12 senior technologists responsible for setting cloud standards,\napproving architectural patterns, and managing vendor relationships.\n- Mentorship Program: Established a formal mentorship program pairing Senior Architects with\nJunior DevOps Engineers. Successfully graduated 15 engineers to Senior levels over 3 years.\n- Hiring & Recruitment: Redesigned the technical interview process to focus on practical,\nscenario-based assessments rather than whiteboard coding. Reduced \"bad hire\" rate to near\nzero and decreased time-to-hire by 20%.\n- Agile Transformation: Transitioned infrastructure teams from Waterfall to Kanban/Scrum\nmethodologies. Acts as Release Train Engineer (RTE) for large-scale quarterly planning events\n(PI Planning).\n- \"One-Click\" Environment Provisioning: Created a self-service internal developer platform\n(IDP) using Backstage.io. Developers can now spin up ephemeral test environments in 10\nminutes without filing IT tickets.\n- Impact: Increased developer productivity by approximately 15%.\n- Automated Disaster Recovery Testing: Replaced annual, manual DR drills with continuous\nchaos engineering experiments using Gremlin.\n- Impact: Uncovered and fixed 12 critical failover vulnerabilities that manual testing\nmissed.\n- Secret Management Overhaul: Eliminated hardcoded credentials across 200+ repositories by\nimplementing HashiCorp Vault with dynamic secret injection.\n- Impact: Eliminated security incidents related to credential leakage.",
+          "confidence": 1.0
+        },
+        "certifications": {
+          "content": "- AWS Certified Solutions Architect - Professional (SAP-C01) | Valid through 2026\n- Microsoft Certified: Azure Solutions Architect Expert | Valid through 2025\n- Certified Kubernetes Administrator (CKA) | The Linux Foundation\n- Certified Kubernetes Security Specialist (CKS) | The Linux Foundation\n- HashiCorp Certified: Terraform Associate\n- CISSP - Certified Information Systems Security Professional (Associate)",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Master of Business Administration (MBA) Emphasis in Technology Management University of\nColorado Boulder - Leeds School of Business Graduated: 2019\nBachelor of Science in Computer Engineering University of Texas at Austin Graduated: 2014\nGraduated Cum Laude",
+          "confidence": 1.0
+        },
+        "publications": {
+          "content": "- Speaker, KubeCon North America 2023: Session: \"Scaling Stateful Sets: Lessons from\nFintech.\"\n- Panelist, Denver Cloud Summit 2022: Topic: \"The Reality of Hybrid Cloud Economics.\"\n- Article: \"Why Your Lift-and-Shift Strategy Will Fail: A Guide to Modernization\" - Published on\nCloudComputingInsider.com (2021).\n- Whitepaper: \"Zero Trust in a Legacy World\" - Internal publication for Nebula Systems,\ndistributed to 50+ enterprise clients.",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Elias Thorne",
+        "email": "elias.thorne.architect@nexus-mail.com",
+        "phone": "+917205550198",
+        "linkedin_url": null,
+        "location": "Denver"
+      },
+      "work_history": [
+        {
+          "company_name": "Principal Cloud Architect (Director Level)",
+          "client_name": null,
+          "job_title": "Denver, Co",
+          "start_date": "2021-01",
+          "end_date": null,
+          "is_current": true,
+          "location": "Denver, CO",
+          "bullets": [],
+          "description": "Lead architect for a global financial services firm, overseeing the cloud center of excellence and the\nmigration of mission-critical banking applications from on-premise mainframes to a hybrid AWS/Azure\nenvironment.",
+          "confidence": 0.9
+        }
+      ],
+      "education": [
+        {
+          "institution": "Master of Business Administration (MBA) Emphasis in Technology Management University of",
+          "degree": "Master",
+          "field_of_study": "Technology Management University of",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.7
+        },
+        {
+          "institution": "Colorado Boulder - Leeds School of Business Graduated: 2019",
+          "degree": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": "2019-01",
+          "in_progress": false,
+          "confidence": 0.7
+        },
+        {
+          "institution": "Bachelor of Science in Computer Engineering University of Texas at Austin Graduated: 2014",
+          "degree": "Bachelor of Science",
+          "field_of_study": "Computer Engineering University of Texas at Austin Graduated",
+          "start_date": null,
+          "end_date": "2014-01",
+          "in_progress": false,
+          "confidence": 1.0
+        }
+      ],
+      "certifications": [
+        {
+          "name": "AWS Certified Solutions Architect - Professional (SAP-C01)",
+          "issuing_organization": "Amazon Web Services",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "Microsoft Certified: Azure Solutions Architect Expert",
+          "issuing_organization": "Microsoft",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "Certified Kubernetes Administrator (CKA)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Certified Kubernetes Security Specialist (CKS)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "HashiCorp Certified: Terraform Associate",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "CISSP - Certified Information Systems Security Professional (Associate)",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        }
+      ],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Node.js",
+          "normalized_name": "node.js",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": 5,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Stakeholder Management",
+          "normalized_name": "stakeholder management",
+          "category": "Soft Skills",
+          "confidence": 0.49999999999999994,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Go (Golang)",
+          "normalized_name": "go golang",
+          "category": "- Scripting & Languages",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "(ALB/NLB/F5)",
+          "normalized_name": "alb/nlb/f5",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "advanced"
+        },
+        {
+          "name": "Subversion (Legacy knowledge)",
+          "normalized_name": "subversion legacy knowledge",
+          "category": "- Version Control",
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.4,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  }
+]

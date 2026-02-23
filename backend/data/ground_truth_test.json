@@ -1,0 +1,1364 @@
+[
+  {
+    "file": "Untitled document-7.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "visa_status": {
+          "content": "H1B",
+          "confidence": 0.9
+        },
+        "summary": {
+          "content": "DevOps Engineer with 10+ years of experience in designing, automating, and optimizing\nmission-critical deployments in AWS, Azure, and on-premise environments. Expertise in CI/CD,\nInfrastructure as Code, containerization, Kubernetes orchestration, and cloud security. Proven\nability to reduce deployment time by 70% and improve system reliability.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "Cloud Platforms: AWS, Azure, GCP\nDevOps Tools: Jenkins, GitLab CI, GitHub Actions, Bamboo\nContainers: Docker, Kubernetes, OpenShift\nIaC: Terraform, CloudFormation, ARM Templates\nMonitoring: Prometheus, Grafana, ELK, Datadog, Splunk\nScripting: Bash, Python, Shell, PowerShell\nConfig Mgmt: Ansible, Chef, Puppet\nVersion Control: Git, Bitbucket, SVN\nSecurity: IAM, Secrets Manager, Vault, Snyk\nOS: Linux, Ubuntu, RHEL, CentOS, Windows\n2014 - 2017\n● Managed build automation.\n● Created Maven & Gradle pipelines.\n● Supported 50+ dev teams.\nSystem Engineer\nTCS\n2013 - 2014\n● Linux server administration.\n● Patch management.\n● Backup automation.\nDocker - | Kubernetes - | Helm - | ArgoCD - | Istio - | Nginx - | Apache - | Redis - | Kafka\n● AWS Solutions Architect - Professional\n● Azure DevOps Engineer Expert\n● Terraform Associate",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Senior DevOps Engineer\nTechNova Solutions - USA\n2020 - Present\nResponsibilities\n● Designed Kubernetes clusters handling 200+ microservices.\n● Built CI/CD pipelines using Jenkins & GitHub Actions.\n● Implemented blue-green and canary deployments.\n● Automated infra provisioning via Terraform.\n● Reduced infra cost by 35% using auto-scaling.",
+          "confidence": 1.0
+        },
+        "projects": {
+          "content": "1. Enterprise Banking Cloud Migration\n● Migrated 120+ apps to AWS.\n● Implemented VPC, ALB, RDS, EKS.\n● Built DR strategy using multi-AZ.\n● Achieved 99.99% uptime.\n2. DevSecOps Implementation\n● Integrated SonarQube, Snyk.\n● Automated vulnerability scans.\n● Reduced security risks by 60%.\nDevOps Engineer\nCigna Healthcare - USA\n2017 - 2020\n● Built Docker images for healthcare apps.\n● Automated Jenkins pipelines.\n● Implemented ELK monitoring.\n● Managed HIPAA compliant infra.\nProject: Claims Processing Platform\n● Handled 10M+ transactions/day.\n● Built HA Kubernetes clusters.\n● Implemented log auditing.\nBuild & Release Engineer",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "B.Tech - Computer Science",
+          "confidence": 1.0
+        },
+        "certifications": {
+          "content": "● Certified Kubernetes Administrator",
+          "confidence": 1.0
+        },
+        "awards": {
+          "content": "● Automated 90% manual deployments.\n● Awarded “Cloud Transformation Champion”.",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Arvind Narayanan",
+        "email": "arvind.narayanan.devops@gmail.com",
+        "phone": "+16465557821",
+        "linkedin_url": null,
+        "location": "Dallas, United States"
+      },
+      "work_history": [
+        {
+          "company_name": "TechNova Solutions",
+          "client_name": null,
+          "job_title": "Usa",
+          "start_date": "2020-01",
+          "end_date": null,
+          "is_current": true,
+          "location": null,
+          "bullets": [],
+          "description": "● Designed Kubernetes clusters handling 200+ microservices.\n● Built CI/CD pipelines using Jenkins & GitHub Actions.\n● Implemented blue-green and canary deployments.\n● Automated infra provisioning via Terraform.\n● Reduced infra cost by 35% using auto-scaling.",
+          "confidence": 0.9
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "B.Tech",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        }
+      ],
+      "certifications": [
+        {
+          "name": "● AWS Solutions Architect - Professional",
+          "issuing_organization": "Amazon Web Services",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "● Certified Kubernetes Administrator",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        },
+        {
+          "name": "Microsoft Certified: DevOps Engineer Expert",
+          "issuing_organization": "Microsoft",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "HashiCorp Certified: Terraform Associate",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        }
+      ],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": "expert"
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "Untitled document-8.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "Full Stack Developer with 10 years of experience building scalable web applications using\nReact, Node.js, Java, and microservices. Strong expertise in UI architecture, API development,\ndatabase design, and cloud deployment.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "Frontend: React, Next.js, Angular, Vue\nBackend: Node.js, Java Spring Boot, Express\nMobile: React Native\nDatabases: MySQL, PostgreSQL, MongoDB\nCloud: AWS, Firebase\nState Mgmt: Redux, Context API\nStyling: Tailwind, Bootstrap, SCSS\nTesting: Jest, Cypress\nAPIs: REST, GraphQL\nReact - | Node - | Java - | Spring - | Docker - | AWS - | GraphQL - | Redis\n● AWS Developer Associate",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Lead Full Stack Engineer\nWalmart Labs - USA\n2020 - Present\n● Led 12-member dev team.\n● Built eCommerce microservices.\n● Developed React dashboards.\n● Improved checkout speed by 40%.\nProject: Omni-Channel Retail Platform\n● React + Node architecture.\n● Real-time inventory sync.\n● Payment gateway integration.\nSenior Software Engineer\nAmazon - USA\n2017 - 2020\n● Developed seller management portal.\n● Built scalable APIs.\n● Implemented SSR using Next.js.\nProject: Vendor Analytics System\n● Handled 5M records/day.\n● Built analytics dashboards.\nSoftware Engineer\nTCS\n2014 - 2017\n● Banking web apps.\n● Loan processing portals.\n● REST API integrations.\nJunior Developer\nInfosys\n2013 - 2014\n● UI development.\n● Bug fixing.\n● Feature enhancements.",
+          "confidence": 1.0
+        },
+        "projects": {
+          "content": "1. LMS Platform\n● React + Spring Boot.\n● Video streaming.\n● Role-based access.\n2. HRMS System\n● Payroll automation.\n● Attendance tracking.\n3. CRM Application\n● Lead management.\n● Sales forecasting.",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "",
+          "confidence": 0.65
+        },
+        "contact": {
+          "content": "JNTU Hyderabad - 2013",
+          "confidence": 0.9500000000000001
+        },
+        "certifications": {
+          "content": "",
+          "confidence": 0.65
+        },
+        "awards": {
+          "content": "● Delivered 25+ enterprise apps.\n● Reduced API latency by 55%.",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Rahul Mehta",
+        "email": "rahul.mehta.fullstack@gmail.com",
+        "phone": "+19175559044",
+        "linkedin_url": null,
+        "location": "New Jersey, United States"
+      },
+      "work_history": [
+        {
+          "company_name": "Walmart Labs",
+          "client_name": null,
+          "job_title": "Usa",
+          "start_date": "2020-01",
+          "end_date": null,
+          "is_current": true,
+          "location": null,
+          "bullets": [],
+          "description": "● Led 12-member dev team.\n● Built eCommerce microservices.\n● Developed React dashboards.\n● Improved checkout speed by 40%.",
+          "confidence": 0.9
+        },
+        {
+          "company_name": "Amazon",
+          "client_name": null,
+          "job_title": "Usa",
+          "start_date": "2017-01",
+          "end_date": "2020-01",
+          "is_current": false,
+          "location": null,
+          "bullets": [],
+          "description": "● Developed seller management portal.\n● Built scalable APIs.\n● Implemented SSR using Next.js.",
+          "confidence": 0.9
+        },
+        {
+          "company_name": null,
+          "client_name": null,
+          "job_title": "● Built Analytics Dashboards",
+          "start_date": "2014-01",
+          "end_date": "2017-01",
+          "is_current": false,
+          "location": null,
+          "bullets": [],
+          "description": "TCS\n2014 - 2017\n● Banking web apps.\n● Loan processing portals.",
+          "confidence": 0.62
+        },
+        {
+          "company_name": null,
+          "client_name": null,
+          "job_title": "● Rest Api Integrations",
+          "start_date": "2013-01",
+          "end_date": "2014-01",
+          "is_current": false,
+          "location": null,
+          "bullets": [],
+          "description": "Infosys\n2013 - 2014\n● UI development.\n● Bug fixing.\n● Feature enhancements.",
+          "confidence": 0.62
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Mehta",
+          "field_of_study": "UI architecture",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": null,
+          "degree": "Dev",
+          "field_of_study": null,
+          "start_date": "2020-02",
+          "end_date": null,
+          "in_progress": true,
+          "confidence": 0.6
+        },
+        {
+          "institution": null,
+          "degree": "Built",
+          "field_of_study": null,
+          "start_date": "2017-02",
+          "end_date": "2020-02",
+          "in_progress": false,
+          "confidence": 0.6
+        },
+        {
+          "institution": null,
+          "degree": null,
+          "field_of_study": null,
+          "start_date": "2014-02",
+          "end_date": "2017-02",
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": null,
+          "degree": "Ug",
+          "field_of_study": null,
+          "start_date": "2013-02",
+          "end_date": "2014-02",
+          "in_progress": false,
+          "confidence": 0.6
+        },
+        {
+          "institution": null,
+          "degree": "Associate",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": "2013-01",
+          "in_progress": false,
+          "confidence": 0.6
+        }
+      ],
+      "certifications": [
+        {
+          "name": "● AWS Developer Associate",
+          "issuing_organization": "Amazon Web Services",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "● Oracle Java Certification",
+          "issuing_organization": "Oracle",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        }
+      ],
+      "skills": [
+        {
+          "name": "React",
+          "normalized_name": "react",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": null
+        },
+        {
+          "name": "Node.js",
+          "normalized_name": "node.js",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.4,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "Untitled document-9.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "visa_status": {
+          "content": "H1B",
+          "confidence": 0.9
+        },
+        "summary": {
+          "content": "Senior Full Stack Developer with 10+ years of experience in designing, developing, and\ndeploying scalable enterprise and product-based web applications. Expertise in React.js,\nNode.js, Java Spring Boot, Microservices, and Cloud platforms. Strong experience in UI\narchitecture, API design, performance optimization, and DevOps integration. Proven track\nrecord of delivering high-impact digital solutions across Retail, Banking, Healthcare, and SaaS\ndomains.\n1. Learning Management System (LMS)\n● Multi-tenant SaaS platform.\n● Video streaming integration.\n● Role-based access control.\n● Payment subscription modules.\n2. Hospital Management System\n● Patient records management.\n● Appointment scheduling.\n● Insurance claim processing.\n3. CRM Application\n● Lead lifecycle tracking.\n● Sales forecasting dashboards.\n● Email automation workflows.\n4. HRMS & Payroll Platform\n● Attendance tracking.\n● Payroll automation.\n● Compliance reporting.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "● Full Stack Web Development\n● Microservices Architecture\n● Cloud Application Deployment\n● REST & GraphQL API Design\n● UI/UX Engineering\n● Performance Optimization\n● Secure Coding Practices\n● Agile & Scrum Delivery\nFrontend\nReact.js, Next.js, Angular, Vue.js, TypeScript, JavaScript (ES6+), HTML5, CSS3, SCSS,\nTailwind CSS, Bootstrap, Material UI\nBackend\nNode.js, Express.js, Java, Spring Boot, Spring MVC, Hibernate, REST APIs, GraphQL\nMobile\nReact Native, Expo\nDatabases\nMySQL, PostgreSQL, MongoDB, Oracle, DynamoDB\nCloud & DevOps\nAWS (EC2, S3, RDS, Lambda, CloudFront), Azure, Docker, Kubernetes, Jenkins, GitHub\nActions, Terraform\nTools\nGit, Bitbucket, Jira, Confluence, Postman, Swagger, SonarQube\nTesting\nJest, Mocha, Chai, Cypress, Selenium\nReact, Node.js, MongoDB, AWS\n● Built unified shopping experience.\n● Implemented real-time inventory sync.\n● Integrated Stripe & PayPal payments.\n● Designed order tracking dashboards.\nProject: Supply Chain Analytics System\n● Developed analytics UI using React + D3.js.\n● Created APIs handling 2M records/day.\n● Implemented predictive stock modules.\nSenior Software Engineer\nAmazon - USA\nDuration: Mar 2017 - Dec 2019\nResponsibilities\n● Developed seller central modules.\n● Built high-scale REST APIs.\n● Implemented server-side rendering.\nProject: Vendor Management Portal\nTech: React, Spring Boot, MySQL\n● Managed 500K+ vendors.\n● Built onboarding workflows.\n● Automated document verification.\nProject: Product Recommendation Engine UI\n● Built dynamic React components.\n● Integrated ML recommendation APIs.\n● Increased upsell conversion by 22%.\nSoftware Engineer\nTCS - India / USA\nDuration: Jun 2014 - Feb 2017\n● Banking web application development.\n● Loan processing systems.\n● KYC verification modules.\nProject: Digital Loan Origination System\nTech: Angular, Java, Oracle\n● Automated loan approvals.\n● Integrated credit score APIs.\n● Reduced approval time by 35%.\nProject: Internet Banking Portal Revamp\n● Rebuilt UI for 2M users.\n● Added fund transfer workflows.\n● Implemented OTP security layers.\nJunior Developer\nInfosys - India\nDuration: Jul 2013 - May 2014\n● UI development.\n● Bug fixing.\n● Production support.\n● Technical Leadership\n● Client Communication\n● Agile Delivery\n● Mentoring Juniors\n● Problem Solving",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Lead Full Stack Developer\nWalmart Global Tech - USA\nDuration: Jan 2020 - Present\nResponsibilities\n● Leading a team of 15 developers.\n● Designing scalable microservices.\n● Architecting React enterprise dashboards.\n● Implementing CI/CD pipelines.\n● Managing AWS cloud infrastructure.\n● Designed 120+ REST services.\n● Implemented API Gateway.\n● JWT & OAuth authentication.\n● Rate limiting & caching.\n● Swagger documentation.\nCLOUD & DEVOPS IMPLEMENTATIONS\n● Dockerized 40+ applications.\n● Kubernetes cluster deployments.\n● Auto-scaling infra setup.\n● Terraform infra automation.\n● CI/CD via Jenkins & GitHub Actions.\nDATABASE DESIGN EXPERIENCE\n● ER modeling.\n● Query optimization.\n● Index tuning.\n● Data sharding.\n● Replication setup.\nSECURITY IMPLEMENTATIONS\n● OWASP compliance.\n● XSS / CSRF prevention.\n● Data encryption.\n● Secure API gateways.",
+          "confidence": 1.0
+        },
+        "awards": {
+          "content": "● Improved application performance by 45%.\n● Reduced page load time from 6s → 1.8s.\n● Migrated monolith to microservices.\nProject: Omni-Channel Retail Platform\n● Employee of the Year - Walmart (2022)\n● Star Performer - Amazon (2019)\n● Delivery Excellence Award - TCS",
+          "confidence": 1.0
+        },
+        "certifications": {
+          "content": "● AWS Certified Solutions Architect\n● Oracle Certified Java Professional\n● Certified Kubernetes Application Developer",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "B.Tech - Computer Science Engineering\nJNTU Hyderabad - 2013",
+          "confidence": 1.0
+        },
+        "publications": {
+          "content": "● Authored internal microservices framework.\n● Conducted React performance workshops.\nTOOLS & TECHNOLOGY MATRIX\nReact - | Node - | Java - | Spring Boot - | AWS - | Docker - | Kubernetes - | MySQL - | MongoDB -\nGraphQL - | Redis - | Kafka - | Jenkins",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Karthik Reddy Vemula",
+        "email": "karthik.reddy.fs@gmail.com",
+        "phone": "+17325551184",
+        "linkedin_url": null,
+        "location": "Austin, United States"
+      },
+      "work_history": [
+        {
+          "company_name": "Duration",
+          "client_name": null,
+          "job_title": "Usa",
+          "start_date": "2020-01",
+          "end_date": null,
+          "is_current": true,
+          "location": null,
+          "bullets": [],
+          "description": "● Leading a team of 15 developers.\n● Designing scalable microservices.\n● Architecting React enterprise dashboards.\n● Implementing CI/CD pipelines.\n● Managing AWS cloud infrastructure.\n● Designed 120+ REST services.\n● Implemented API Gateway.\n● JWT & OAuth authentication.\n● Rate limiting & caching.\n● Swagger documentation.\nCLOUD & DEVOPS IMPLEMENTATIONS\n● Dockerized 40+ applications.\n● Kubernetes cluster deployments.\n● Auto-scaling infra setup.\n● Terraform infra automation.\n● CI/CD via Jenkins & GitHub Actions.\nDATABASE DESIGN EXPERIENCE\n● ER modeling.\n● Query optimization.\n● Index tuning.\n● Data sharding.\n● Replication setup.\nSECURITY IMPLEMENTATIONS\n● OWASP compliance.\n● XSS / CSRF prevention.\n● Data encryption.\n● Secure API gateways.",
+          "confidence": 0.9
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "B.Tech",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": null,
+          "degree": null,
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": "2013-01",
+          "in_progress": false,
+          "confidence": 0.3
+        }
+      ],
+      "certifications": [
+        {
+          "name": "● AWS Certified Solutions Architect",
+          "issuing_organization": "Amazon Web Services",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "● Oracle Certified Java Professional",
+          "issuing_organization": "Oracle",
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.8
+        },
+        {
+          "name": "● Certified Kubernetes Application Developer",
+          "issuing_organization": null,
+          "issue_date": null,
+          "expiry_date": null,
+          "credential_id": null,
+          "credential_url": null,
+          "confidence": 0.6
+        }
+      ],
+      "skills": [
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "TypeScript",
+          "normalized_name": "typescript",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "React",
+          "normalized_name": "react",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Node.js",
+          "normalized_name": "node.js",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Communication",
+          "normalized_name": "communication",
+          "category": "Soft Skills",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "ES6+",
+          "normalized_name": "es6+",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "EC2",
+          "normalized_name": "ec2",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "S3",
+          "normalized_name": "s3",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "RDS",
+          "normalized_name": "rds",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": 6,
+          "proficiency": "expert"
+        },
+        {
+          "name": "Lambda",
+          "normalized_name": "lambda",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        },
+        {
+          "name": "CloudFront",
+          "normalized_name": "cloudfront",
+          "category": null,
+          "confidence": 0.5499999999999999,
+          "years_experience": null,
+          "proficiency": "expert"
+        }
+      ],
+      "raw_text_debug": {
+        "method": "pymupdf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "sample_resume.pdf",
+    "format": "pdf",
+    "parsed": {
+      "sections": {
+        "unknown": {
+          "content": "Resume",
+          "confidence": 0.3
+        }
+      },
+      "contact": {
+        "full_name": null,
+        "email": null,
+        "phone": null,
+        "linkedin_url": null,
+        "location": null
+      },
+      "work_history": [],
+      "education": [],
+      "certifications": [],
+      "skills": [],
+      "raw_text_debug": {
+        "method": "pdfplumber",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "Abhilash_resume_skeleton12345111.docx",
+    "format": "docx",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "- Built a 10+ year career delivering DevSecOps and SRE solutions by embedding security, reliability, and automation into cloud-native platforms, aligning CI/CD pipelines, infrastructure provisioning, and operational monitoring with enterprise security standards and real-time production reliability requirements.\n- Established comprehensive observability frameworks across large-scale distributed systems utilizing Dynatrace, Newrelic, Datadog, Prometheus, and Grafana to monitor Azure cloud infrastructure, implementing automated alerting mechanisms and detailed runbooks that ensured rapid incident detection and resolution with minimal downtime.\n- Designed disaster recovery architectures and failover mechanisms on Azure cloud platforms by creating automated backup strategies, configuring multi-region replication systems, and developing business continuity plans integrated with ITSM processes for incident and problem management while maintaining strict recovery objectives.\n- Developed advanced automation solutions using Terraform and Ansible to provision and manage Azure cloud infrastructure at scale, implementing GitOps workflows and CI/CD pipelines that enabled consistent, repeatable deployments across development, staging, and production environments, reducing manual intervention significantly.\n- Guided cross-functional engineering teams in adopting site reliability engineering best practices by conducting technical workshops, performing architecture reviews, and establishing service level objectives aligned with business requirements while mentoring members on Dynatrace, Prometheus, and Grafana observability tools.\n- Troubleshot complex production issues in large-scale distributed systems on Azure by writing sophisticated Python and Shell scripts that automated diagnostic procedures, analyzed system logs from Dynatrace and Newrelic monitoring platforms, and implemented permanent fixes addressing root causes identified.\n- Managed ITSM processes including incident, problem, and change management by establishing streamlined workflows integrating Datadog, Prometheus, and Grafana, coordinating cross-functional incident response teams during critical outages, conducting thorough post-incident reviews, and implementing preventive measures reducing mean time to recovery.\n- Built and maintained CI/CD pipelines using GitOps methodologies that automated deployment processes for Azure cloud infrastructure, integrating Terraform for infrastructure provisioning and Ansible for configuration management while implementing comprehensive testing frameworks and deployment gates validating system health through Dynatrace dashboards.\n- Developed Python and Shell automation scripts enhancing operational efficiency across Azure cloud operations by creating self-healing mechanisms, automating routine maintenance tasks, and building custom integrations between ITSM platforms and Newrelic and Prometheus observability tools for real-time visibility.\n- Collaborated with client stakeholders and cross-functional teams to define service level agreements and reliability targets for distributed systems running on Azure infrastructure, presenting technical solutions through clear communication and conducting regular review meetings discussing incident trends from Dynatrace and Datadog monitoring.\n- Implemented comprehensive monitoring and alerting strategies using Prometheus and Grafana that provided deep visibility into Azure cloud infrastructure and distributed system performance, configuring custom metrics collection, building interactive dashboards tracking key reliability indicators, and integrating alert routing through ITSM incident management processes.\n- Maintained backup strategies and data protection policies across Azure cloud environments by automating snapshot schedules using Terraform and Ansible, implementing encryption at rest and in transit, validating restore procedures through regular disaster recovery drills, and integrating backup monitoring into Dynatrace observability platforms.\n- Executed change management processes by coordinating deployment activities across large-scale Azure distributed systems, conducting risk assessments for infrastructure modifications provisioned through Terraform automation, scheduling maintenance windows minimizing business impact, and utilizing GitOps workflows monitoring rollout success through Newrelic and Prometheus metrics.\n- Provided technical leadership in troubleshooting distributed system failures by analyzing telemetry data from Dynatrace, Datadog, and Grafana monitoring platforms, writing diagnostic Python scripts correlating events across multiple Azure cloud services, identifying performance bottlenecks, and implementing optimization strategies improving system resilience.\n- Optimized Azure cloud infrastructure costs and performance by analyzing resource utilization metrics collected through Prometheus and Grafana, implementing automated scaling policies using Terraform and Ansible configuration management, refining CI/CD pipeline efficiency, and conducting capacity planning exercises balancing reliability requirements with operational expenses.\n- Established GitOps practices and version control workflows for managing Azure cloud infrastructure as code, implementing automated validation checks within CI/CD pipelines, integrating Terraform state management with collaborative review processes, and ensuring configuration consistency across environments while maintaining audit trails.\n- Orchestrated site reliability engineering initiatives by deploying multi-layered monitoring solutions using Datadog, Newrelic, and Grafana across Azure distributed systems, creating custom dashboards tracking service health metrics, and automating incident escalation workflows through Python scripts integrated with ITSM platforms for faster resolution.\n- Architected high-availability solutions on Azure cloud infrastructure leveraging Terraform for declarative resource provisioning and Ansible for configuration drift prevention, implementing automated health checks monitored through Prometheus and Dynatrace, while maintaining comprehensive runbooks documenting recovery procedures for critical services.\n- Streamlined operational workflows by integrating Grafana visualization dashboards with Datadog and Newrelic telemetry data sources, developing Shell automation scripts for log aggregation and analysis, and establishing site reliability engineering practices across Azure cloud environments that reduced incident response times through proactive alerting.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "- Cloud Platforms: AWS, Azure, GCP.\n- Build Tools: Ant, Maven, Gradle.\n- Version Control Tools: Git, Bit Bucket, Azure Repos\n- CI/CD Tools: Jenkins, Azure DevOps Pipelines, Gitlab.\n- Configuration & Automation Tools: Terraform, Ansible, Chef, Puppet, Cloud Formation.\n- Container Platforms: Docker, Kubernetes, OpenShift.\n- Monitoring Tools: Splunk, Prometheus, Grafana, Kibana, Datadog, CloudWatch.\n- APM Tools: AppDynamics, ELK, New Relic, Dynatrace. Web Servers: Nginx, Tomcat, WebSphere, IIS. Documentation: Confluence, SharePoint\n- Operating Systems: Red Hat Linux, Ubuntu, CentOS, Windows, UNIX.\n- Databases: Cosmos DB, MySQL, Oracle, PostgreSQL, RDS, Dynamo DB, Mongo DB.\n- Tracking Tools: Azure Boards, Jira, ServiceNow.\n- Code Scanning: SonarQube, Jfrog X-ray, ECR Inspector. Languages: Python, Shell, Java, PowerShell, YAML, Perl, Ruby. Artifactory: JFrog, Nexus, Registry Hub.\n- Networking/ Protocol’s, DHCP, NFS, WAN, SMTP, LAN, FTP/TFTP, TCP/IP, ICMP, SSH.",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Client: United Airlines Location: Chicago, IL\nRole: Sr Site Reliability Engineer July 2024 - Current\n- Designed and implemented SRE frameworks for airline reservation and flight management systems on Azure Cloud using Azure AKS, Azure Virtual Machines, Azure App Service, and Azure Functions serving millions of passengers daily.\n- Ensured SLI/SLO/SLA compliance aligned with IATA and SOC 2 operational safety controls across multi-region deployments for large-scale distributed airline systems handling critical booking and flight operations.\n- Established observability strategy using Dynatrace for application performance monitoring, Grafana for real-time metrics visualization, and Azure Monitor integrated with Azure Application Insights for tracking critical airline workflows.\n- Monitored airline booking workflows, flight scheduling systems, and passenger data processing pipelines ensuring comprehensive visibility into Azure AKS clusters and Azure Service Fabric microservices performance across distributed environments.\n- Implemented disaster recovery and failover mechanisms using Azure Site Recovery, Azure SQL Geo-Replication, and Azure Automation Runbooks to maintain business continuity for flight operations systems and passenger service platforms.\n- Achieved IOSA-compliant recovery time objectives for crew management applications while conducting quarterly disaster recovery drills and runbook validation ensuring operational readiness during critical airline operational disruptions and failures.\n- Managed ITSM processes through Jira and Azure Boards for incident, problem, and change management workflows coordinating cross-functional collaboration between airline operations, development, and infrastructure teams for production issues.\n- Resolved complex production issues impacting flight booking systems, baggage handling integrations, and real-time flight status updates while maintaining SOC 2 audit trails and compliance with airline operational standards.\n- Developed automation tooling using Terraform and ARM Templates for infrastructure provisioning, Ansible for configuration management, and GitOps practices through Azure Repos and Azure DevOps for airline-specific workloads deployment.\n- Deployed reservation systems, loyalty program platforms, and crew scheduling applications implementing CI/CD pipelines integrated with SonarQube for code quality gates ensuring secure and reliable software delivery processes.\n- Executed troubleshooting of complex production issues using Python and Shell Scripting combined with Kusto Query Language queries against Azure Log Analytics to diagnose performance bottlenecks in flight search APIs.\n- Reduced mean time to resolution for critical airline operational incidents impacting customer experience and revenue generation by analyzing payment processing gateways and check-in systems using advanced diagnostic techniques.\n- Configured Azure Application Gateway with Istio Service Mesh for secure traffic management and load balancing across airline booking microservices deployed on Kubernetes clusters within Azure AKS environments.\n- Implemented Microsoft Defender for Cloud security policies and Azure Key Vault integration for secrets management to protect sensitive passenger data and payment information in compliance with PCI-DSS requirements.\n- Established SLI/SLO/SLA definitions and monitoring frameworks for airline critical systems using Azure Dashboards, Grafana, and Azure Monitor tracking availability, latency, and error rates for flight booking APIs and mobile backends.\n- Generated executive reports demonstrating compliance with FAA operational reliability standards while monitoring partner integration endpoints and ensuring service level agreements were consistently met across all airline systems.\n- Built CI/CD pipelines in Azure DevOps incorporating automated testing, security scanning with SonarQube, and deployment orchestration using GitOps principles for airline reservation systems and ancillary revenue platforms.\n- Administered Azure cloud operations including capacity planning, cost optimization using Azure Advisor, and performance tuning for Linux-based workloads running airline operational databases and Azure Service Fabric message queuing systems.\n- Guided development teams on SRE best practices including error budgets, blameless postmortems, and reliability engineering principles using Confluence and Azure Wikis for knowledge management and incident retrospectives.\n- Deployed observability tools including NewRelic APM alongside Dynatrace for distributed tracing across airline microservices architectures, Prometheus for Kubernetes cluster monitoring, and custom Python scripts for log aggregation.\n- Performed troubleshooting of large-scale distributed systems issues affecting airline APIs using Azure SDK, Kusto Query Language, and Shell Scripting combined with Dynatrace transaction profiling during peak travel periods.\nEnvironment: Azure Cloud, Azure AKS, Azure Virtual Machines, Azure App Service, Azure Functions, IATA, SOC 2, Dynatrace, Grafana, Azure Monitor, Azure Application Insights, Azure Service Fabric, Azure Site Recovery, Azure SQL Geo-Replication, Azure Automation Runbooks, Jira, Azure Boards, Terraform, ARM Templates, Ansible, Azure Repos, Azure DevOps, SonarQube, Python, Shell Scripting, Kusto Query Language, Azure Log Analytics, Azure Application Gateway, Istio Service Mesh, Kubernetes, Microsoft Defender for Cloud, Azure Key Vault, PCI-DSS, Azure Dashboards, FAA, Azure Advisor, Linux, Azure Container Registry, Confluence, Azure Wikis, NewRelic APM, Prometheus, Azure SDK, Git\nClient: Dignity Health Location: San Francisco, CA\nRole: Site Reliability Engineer September 2021 - June 2024\n- Served as Site Reliability Engineer for healthcare platform on Azure cloud, ensuring HIPAA-compliant infrastructure operations across Azure AKS, Azure Web Apps, and Azure Functions using Kubernetes orchestration and Helm chart deployments for patient data security.\n- Implemented comprehensive observability strategy using Dynatrace, Newrelic, and Datadog for real-time monitoring, establishing SLI/SLO/SLA frameworks aligned with HIPAA compliance requirements and integrated Azure Service Health alerts with Prometheus and Grafana dashboards for system health visibility.\n- Designed disaster recovery implementations using Azure Recovery Services Vault for automated backup strategies, configured geo-redundant failover using Azure Traffic Manager and Azure Load Balancer, and maintained RPO/RTO targets through quarterly DR drills using Azure Bicep templates and Azure CLI automation.\n- Developed automation tooling using Terraform and Azure Bicep for infrastructure-as-code deployments, implemented GitOps workflows with Flux CD for continuous deployment to Azure AKS clusters, and established CI/CD pipelines using Jenkins integrated with Trivy security scanning and Nexus Artifact repository management.\n- Managed ITSM processes including incident, problem, and change management workflows using Trello and Notion for tracking, coordinated with cross-functional teams to resolve production issues following ITIL best practices, and ensured proper change control reviews with documented rollback procedures before production deployment.\n- Applied scripting expertise in Python and Shell to automate routine operational tasks, developed custom troubleshooting scripts for production issues including healthcare data processing failures, and created Python-based monitoring solutions integrated with Newrelic APIs and Datadog webhooks for automated incident triage and root cause analysis.\n- Mentored teams in adopting SRE principles including error budgets and toil reduction while providing guidance on Azure cloud operations best practices, conducted knowledge transfer sessions on Prometheus and Grafana, and facilitated postmortem reviews for major incidents to drive continuous improvement in system reliability across healthcare platform services.\n- Implemented Azure Policy controls and Azure RBAC for role-based access management ensuring HIPAA compliance, configured Managed Identities for secure authentication across Azure AKS workloads and Azure Functions, and established security baselines using Trivy vulnerability scanning integrated into CI/CD pipelines with automated remediation workflows for patient data security standards.\n- Maintained Kubernetes cluster operations on Azure AKS including node pool scaling, version upgrades, and Linkerd service mesh implementation for enhanced observability, utilized Helm for standardized application deployments, and configured Azure Automation runbooks using Azure PowerShell and Azure CLI to automate cluster maintenance tasks while minimizing disruption to healthcare applications.\n- Established backup strategies using Azure Recovery Services Vault for application data and configuration backups, implemented automated backup validation using Shell scripting and Azure CLI commands, and maintained disaster recovery documentation including failover procedures, recovery playbooks, and compliance audit trails required for HIPAA regulatory reviews.\n- Deployed Newrelic and Datadog APM agents across Azure Web Apps, Azure Functions, and Azure AKS workloads to capture distributed traces, created custom Grafana dashboards visualizing SLI/SLO adherence for critical healthcare services, and integrated Prometheus exporters with Linkerd service mesh to monitor service-to-service communication patterns and latency distributions.\n- Managed CI/CD automation using Jenkins pipelines integrated with Git repositories, implemented GitOps deployment strategies using Flux CD for declarative infrastructure management on Azure AKS, and configured Chef for configuration management of Unix systems ensuring consistent security hardening and HIPAA-compliant baseline configurations across healthcare infrastructure components.\n- Coordinated critical incident response scenarios with cross-functional collaboration between development, security, and operations teams following agile and Kanban methodologies, maintained client-facing communication during outages by delivering transparent status updates and technical explanations that managed stakeholder expectations for healthcare system availability demonstrating strong communication skills.\n- Configured Azure Load Balancer and Azure Traffic Manager for high availability and traffic distribution across regional deployments, implemented health probes and automatic failover rules for Azure Web Apps and Azure AKS ingress endpoints, and validated disaster recovery procedures through chaos engineering experiments using Shell scripts to simulate failure scenarios.\n- Performed troubleshooting of complex production issues across large-scale distributed systems using Dynatrace distributed tracing, Newrelic error analytics, and custom Python diagnostic tools, resolved performance bottlenecks in healthcare data processing pipelines involving Azure Functions, and documented root cause analysis findings within ITSM problem management workflows to prevent recurrence.\n- Implemented compliance reporting automation using Python scripts that queried Azure Policy compliance states, Azure RBAC role assignments, and Azure Service Health incident histories, generated automated HIPAA audit reports for security reviews, and integrated compliance checks into CI/CD pipelines using Terraform validation and Azure Bicep what-if analysis.\n- Maintained Ansible playbooks for configuration management and orchestration tasks across Unix servers supporting healthcare backend services, integrated Ansible automation with Jenkins CI/CD workflows for consistent deployment practices, and utilized Azure Automation for scheduled maintenance activities including patching, log rotation, and certificate renewal tasks.\n- Collaborated with security teams to implement Trivy container scanning in CI/CD pipelines, addressed vulnerabilities in Helm charts and container images before deployment to Azure AKS, and maintained Nexus Artifact repository governance policies ensuring only approved and scanned artifacts were promoted to production environments in compliance with HIPAA security controls.\nEnvironment: Azure, Azure AKS, Azure Web Apps, Azure Functions, Kubernetes, Helm, Dynatrace, Newrelic, Datadog, Azure Service Health, Prometheus, Grafana, Azure Recovery Services Vault, Azure Traffic Manager, Azure Load Balancer, Azure Bicep, Azure CLI, Terraform, Flux CD, Jenkins, Trivy, Nexus Artifact, CI/CD, Trello, Notion, ITIL, Python, Shell, Newrelic APIs, Datadog webhooks, Azure Policy, Azure RBAC, Managed Identities, Linkerd, Azure Automation, Azure PowerShell, Git, Chef, Unix, Ansible, HIPAA, HITECH, ITSM, SLI/SLO/SLA, RPO/RTO, GitOps, APM, Kanban, Agile.\nClient: TransUnion Location: Chicago, IL\nRole: DevOps Engineer November 2018 - August 2021\n- Led SRE transformation across banking platforms by defining service level objectives using Azure Managed Prometheus and Azure Managed Grafana, integrated Prometheus exporters with Kubernetes microservices monitoring financial transactions, and established incident response frameworks aligned with PCI-DSS and SOX compliance requirements.\n- Operated large-scale Azure infrastructure supporting banking applications by managing Azure App Service, Azure Functions, and AKS clusters with Azure Front Door for load balancing, Azure Traffic Manager for failover, and Azure Backup for disaster recovery ensuring 99.95% availability.\n- Implemented observability using Prometheus, Grafana, and Azure Managed Grafana by designing dashboards for banking transaction pipelines, configured Prometheus alerting for latency and error rates, and integrated Envoy service mesh telemetry providing end-to-end microservices visibility across payment processing workflows.\n- Developed Python and Shell scripting frameworks for automated incident remediation including log aggregation from Azure services, health checks for Docker containers and Kubernetes pods, transaction failure analysis, and certificate rotation integrated with Azure Key Vault supporting PCI-DSS encryption.\n- Designed CI/CD pipelines using GitHub Actions, Terraform, and Argo CD automating infrastructure provisioning across Azure environments, implemented GitOps workflows with Terraform modules, integrated Snyk security scanning, and maintained JFrog Artifact repository for regulated banking application releases.\n- Managed ITSM processes through ServiceNow by creating automated incident workflows, defined problem management procedures for root cause analysis, implemented change management controls with SOX approval gates, and coordinated response using Slack and Microsoft Teams during critical banking outages.\n- Built Terraform infrastructure-as-code modules provisioning Azure resources including AKS clusters, Azure App Service, Azure Functions, Azure Front Door, and Azure Traffic Manager, enforced compliance using Azure Policy and Azure Blueprints, and implemented state management with remote backends supporting collaboration.\n- Established disaster recovery and failover mechanisms for banking applications implementing active-passive Azure configurations using Azure Traffic Manager for DNS failover, designed backup strategies with Azure Backup meeting retention requirements, conducted quarterly drills validating recovery objectives aligned with business continuity planning.\n- Configured Kubernetes orchestration on AKS supporting banking microservices by implementing security policies, network policies using Envoy service mesh, integrated Docker image scanning with Snyk in CI/CD pipelines, and optimized Kubernetes resource allocation handling variable transaction volumes cost-efficiently.\n- Implemented automation using Ansible, Puppet, and Terraform for configuration management across Azure environments, developed Ansible playbooks for OS hardening on banking workloads, utilized Puppet enforcing PCI-DSS compliance configurations, and maintained version-controlled code in Git with markdown documentation.\n- Enhanced security using Azure Security Center and Azure Policy by defining custom policies for encryption and network isolation meeting banking regulations, implemented continuous PCI-DSS and SOX compliance monitoring, configured security alerts for unauthorized access, and maintained audit logs for regulatory examinations.\n- Deployed GitOps workflows using Argo CD for Kubernetes applications by implementing declarative definitions in Git repositories, configured synchronization policies for AKS clusters, integrated Argo CD with GitHub Actions for end-to-end CI/CD automation, and established rollback procedures for banking deployments.\n- Performed production incident troubleshooting by analyzing logs from Azure services, Kubernetes pods, and Envoy proxies using Python scripts, utilized Prometheus metrics and Grafana dashboards identifying banking API bottlenecks, documented root cause analysis in ServiceNow problem management tickets implementing preventive Shell automation.\n- Provided SRE technical leadership conducting training on Prometheus and Grafana observability practices, facilitated incident management postmortems using agile retrospectives, communicated reliability status through Microsoft Teams and Slack, and mentored engineers on Azure operations, Terraform standards, and banking compliance.\n- Managed CI/CD security configuring JFrog Artifact repository with access controls for banking binaries and Docker images, integrated Snyk vulnerability scanning in GitHub Actions blocking deployments, implemented container signing verification processes, and maintained PCI-DSS compliance for payment processing delivery.\n- Designed SLO monitoring frameworks using Azure Managed Prometheus and Azure Managed Grafana defining service level indicators for banking APIs including latency and error rates, configured Prometheus recording rules, created Grafana executive dashboards, and established error budget policies balancing feature velocity with stability.\nEnvironment: CI/CD, Azure Policy, Grafana, puppet, Azure Functions, Azure Managed Grafana, Azure Backup, Azure Managed Prometheus, Prometheus, Kubernetes, Terraform, Azure, Azure Blueprints, GitHub Actions, Docker, envoy, Snyk, Shell, Python, jfrog artifact, git, Azure App Service, Azure Security Center, Azure Front Door, Azure Traffic Manager, Argo CD.\nClient: ADP Location: Roseland, NJ\nRole: DevOps Engineer January 2016 - October 2018\n- Set up CI/CD pipelines using Jenkins, Git, and Bitbucket to streamline integration and deployment cycles while automating AWS delivery workflows for faster and more reliable releases.\n- Managed Kubernetes clusters using Helm to standardize deployments, improve scalability, and ensure consistent microservices performance across environments.\n- Developed infrastructure provisioning using Terraform and automated configuration management with Ansible, ensuring consistent AWS environments and reducing manual setup time.\n- Deployed containerized applications on Amazon EKS using AWS CloudFormation templates, enabling automated infrastructure setup and seamless scaling.\n- Designed and enforced AWS IAM policies with least-privilege access, strengthening security posture and ensuring governance compliance.\n- Implemented automated deployment workflows for web applications using AWS Elastic Beanstalk, integrating AWS CloudTrail for real-time deployment tracking.\n- Configured AWS CloudTrail for API monitoring and audit trails, ensuring compliance and maintaining visibility into EKS and AWS operations.\n- Managed artifact repositories using JFrog and Nexus, optimizing build storage, dependency management, and cross-team artifact distribution.\n- Monitored infrastructure health using AWS CloudWatch and Nagios, creating automation scripts in Python and Shell to optimize resource utilization.\n- Supported agile project management using Jira, enhancing sprint planning, progress tracking, and collaboration across DevOps and development teams.\n- Deployed and managed Docker containerized applications orchestrated via Kubernetes, ensuring configuration consistency and reliable performance across environments.\n- Created build automation pipelines for Java applications using Ant, improving build efficiency and accelerating continuous integration cycles.\n- Developed Shell and Python scripts for deployment automation, integrating AWS CloudWatch for real-time monitoring and faster issue resolution.\n- Implemented Infrastructure as Code (IaC) using Terraform and automated configuration with Ansible, reducing configuration drift across AWS environments.\n- Enhanced AWS environment security through IAM roles and security group configurations, enforcing strict access controls to maintain data protection and compliance.\nEnvironment: AWS,Jenkins,Bitbucket, Git, SVN,Docker, Kubernetes, Helm,Ant,Terrraform,Ansible,AWSCloudWatch,Nagios,Ora cle, Linux, Jira, Python, Shell,Perl,Jfrog.\nClient: Flipkart Location: Bangalore, India\nRole: Linux System Administrator September 2014 - November 2015\n- Demonstrated expertise in creating software depots for patch management and package installation using HP-UX depot systems, and developed RPM packages using RPMBuild in Linux environments to streamline software deployment.\n- Applied strong knowledge of system installation, configuration, file system administration, and RAID setup to manage high-availability storage environments supporting critical e-commerce operations.\n- Implemented and maintained storage solutions using VXVM in Solaris, Solaris Volume Manager (SVM), and Logical Volume Manager (LVM) in Linux and HP-UX to ensure reliable and efficient storage utilization.\n- Performed advanced Linux/Unix optimization, including custom kernel builds and performance tuning, to meet scalability demands of high-traffic enterprise platforms.\n- Configured and managed ZFS (Zettabyte File System) in Solaris 10, creating storage pools, snapshots, and clones to ensure data integrity and enable rapid recovery.\n- Managed core infrastructure services such as DNS and NTP configurations, ensuring stable system synchronization and reliable name resolution across distributed environments.\n- Installed and configured Nagios for end-to-end monitoring of systems and networks, enabling proactive detection of performance and availability issues.\n- Configured and optimized PostgreSQL and MySQL databases to support internal tools and applications, improving query performance and ensuring high availability.\n- Developed Shell scripts to automate system patching, log management, performance checks, and other administrative tasks, reducing manual effort and improving operational efficiency.\n- Compiled, built, and deployed custom software on SUSE Linux servers to support internal testing ecosystems, accelerating application validation and deployment readiness.\nEnvironment: Linux, Solaris and HP-UX, WebLogic, WebSphere, Solaris 10, DNS & NTP, MySQL, Nagios, PostgreSQL database 8.3.1, IPMI, JBoss",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Bachelor's in computer science at Vignan institue of tech and science\nJune 2010 - April 2014",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Abhilash Reddy",
+        "email": "abhilashr1710@gmail.com",
+        "phone": "+17204731129",
+        "linkedin_url": null,
+        "location": "India"
+      },
+      "work_history": [],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Bachelor",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": null,
+          "degree": null,
+          "field_of_study": null,
+          "start_date": "2010-06",
+          "end_date": "2014-04",
+          "in_progress": false,
+          "confidence": 0.3
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Networking",
+          "normalized_name": "networking",
+          "category": "Soft Skills",
+          "confidence": 0.49999999999999994,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "docx",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "Ram Subash -skeleton25 (1).docx",
+    "format": "docx",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "- Built and shaped of progressive data engineering expertise by designing scalable data architectures, constructing resilient ETL frameworks, and enabling reliable analytics using Snowflake, Matillion, SQL, and cloud-native services aligned with enterprise data governance and availability expectations.\n- Devised enterprise-grade data pipeline strategies that integrated complex relational sources into modern warehouses, applying strong data modeling, ETL orchestration, and SQL optimization practices to support business-critical reporting, operational analytics, and data-driven decision-making at scale.\n- Established robust data warehousing foundations by mapping out dimensional and normalized schemas in Snowflake, Redshift, and BigQuery, ensuring consistency, historical tracking, and query performance while supporting evolving analytical requirements across multiple business domains.\n- Developed the blueprint for cloud-based data platforms across AWS, Azure, and Google Cloud, aligning storage, compute, security, and orchestration services to deliver scalable, fault-tolerant, and cost-aware data solutions supporting both batch and near-real-time workloads.\n- Crafted automated ELT workflows using Matillion ETL, SQL, and Python, reducing manual data handling, improving reliability, and enabling repeatable ingestion patterns that supported high data volumes while maintaining strong data quality, lineage, and auditability controls.\n- Constructed optimized relational data integrations leveraging MySQL and PostgreSQL, applying indexing, query tuning, and schema refinement techniques that improved downstream warehouse performance and ensured dependable data availability for analytics and business intelligence consumers.\n- Planned and structured end-to-end data lifecycle management processes covering ingestion, transformation, validation, storage, and consumption, ensuring datasets remained trusted, discoverable, and aligned with organizational standards for governance, security, and operational excellence.\n- Applied deep expertise in data architecture design to translate business requirements into scalable technical solutions, balancing performance, flexibility, and maintainability while supporting analytics teams, data scientists, and operational stakeholders with consistent, high-quality datasets.\n- Deployed cloud-native data solutions using infrastructure services, managed databases, and orchestration tools, ensuring high availability, disaster recovery readiness, and predictable performance across geographically distributed teams and data consumers.\n- Executed complex SQL transformation logic within Snowflake and other warehouses, implementing reusable views, incremental models, and performance-tuned queries that supported enterprise reporting, ad hoc analysis, and executive dashboards with minimal latency.\n- Streamlined data ingestion pipelines by standardizing Matillion job frameworks, parameterization, and error-handling patterns, enabling faster onboarding of new data sources while reducing operational overhead and simplifying long-term pipeline maintenance.\n- Improved data reliability by implementing validation checks, reconciliation logic, and monitoring mechanisms that quickly identified anomalies, supported root-cause analysis, and safeguarded business users from incomplete or inconsistent analytical outputs.\n- Guided cross-functional collaboration between data engineers, analysts, architects, and business stakeholders, ensuring shared understanding of requirements, transparent delivery timelines, and solutions that aligned technical design with real operational and analytical needs.\n- Managed and oversaw data engineering deliverables through iterative development methodologies, balancing new feature delivery with platform stability, performance optimization, and technical debt reduction across long-running data programs.\n- Mentored junior and mid-level engineers on SQL best practices, Matillion ETL design, and cloud data architecture concepts, strengthening team capability, improving code quality, and fostering a culture of ownership and continuous improvement.\n- Partnered with governance and security teams to apply access controls, role-based permissions, and secure data handling practices across warehouses and pipelines, ensuring compliance with organizational and regulatory data management standards.\n- Championed data-driven decision-making by enabling timely, trustworthy analytics through well-architected pipelines, optimized warehouses, and clear data models that empowered stakeholders to confidently act on insights.\n- Took ownership of complex data platforms from initial concept through production rollout, ongoing optimization, and enhancement, consistently delivering scalable, maintainable solutions that supported long-term business growth and analytical maturity.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "- ETL: Informatica Power Center 10.x/9.6, AWS Glue, Talend 5.6, SSIS, Semarchy xDM\n- Databases & Tools: MS SQL Server 2014/2012, Teradata 15/14, Oracle 11g/10g, Erwin 8/9, MySQL\n- Cloud Environment: AWS (Snowflake, RDS, Redshift, EC2, EMR, S3, Lambda, Glue, Athena, SQS, VPC, Cloud Watch, Jenkins), Azure (HDInsight, CosmosDB, Fabric, Blob storage, Data lake, Data factory, SQL, Databricks), GCP (DataProc, Bigquery, Cloud storage, GKE, Functions, Spanner)\n- Reporting Tools: Tableau, PowerBI, EHR, Semarchy\n- Big Data Ecosystem: HDFS, Hive, MapReduce, Sqoop, Flume, Spark, Spark Streaming, NiFi, Yarn, Zookeeper, Airflow, Kafka\n- Programming languages: Unix, SQL, Python, T-SQL, Java, Pyspark, Spring boot, Scala\n- Software Life Cycle/ Methodologies: SDLC, Waterfall, and Agile models\n- Containerization and Orchestration Tools: Kubernetes, Docker, Jenkins, Docker Hub\n- Python Libraries / Machine Learning Algorithms: Pandas, NumPy, Matplotlib, Scikit-Learn, Decision Tree, Random Forest, Logistic Regression, Gradient Boosting\n- Data Warehousing & BI: Star and Snowflake schema, Facts and Dimensions tables, SSIS, Splunk, Cloudera",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Client: State Farm Location: Bloomington, IL\nRole: SR. BIG DATA ENGINEER October 2022 - Current\nResponsibilities:\n- Initiated detailed requirements analysis with underwriting and claims teams to understand policy, loss, and exposure data flows, translating insurance-specific business rules into scalable AWS-based data architectures supporting enterprise analytics and regulatory reporting needs.\n- Developed the blueprint for an AWS Snowflake data platform by designing layered ingestion, transformation, and consumption zones that balanced raw data retention with curated analytical models optimized for actuarial analysis and operational dashboards.\n- Built automated ELT pipelines using Matillion ETL on AWS, orchestrating secure ingestion from policy administration systems into Snowflake, ensuring reliable daily loads, restartability, and consistent schema evolution handling across multiple insurance product lines.\n- Crafted complex SQL transformations implementing slowly changing dimensions and historical snapshots, enabling accurate trend analysis for claims severity, loss ratios, and policy lifecycle metrics critical to insurance risk assessment.\n- Constructed scalable data ingestion workflows using Amazon S3, AWS Lambda, and AWS Glue, ensuring efficient landing of high-volume transactional datasets while maintaining metadata consistency and traceability throughout downstream processing layers.\n- Executed performance tuning initiatives within Snowflake, refining clustering strategies, query patterns, and warehouse sizing to support concurrent actuarial workloads without compromising cost controls or service-level expectations.\n- Applied Python for data validation, reconciliation scripts, and pipeline utilities, improving data quality checks and enabling proactive detection of anomalies before curated datasets reached business intelligence consumers.\n- Deployed secure access controls leveraging AWS IAM and Snowflake roles, ensuring sensitive customer and claims data remained protected while enabling appropriate analyst and reporting access across multiple internal teams.\n- Streamlined pipeline operations by standardizing Matillion job templates, parameterization, and logging practices, reducing onboarding time for new data sources and simplifying long-term operational support for the insurance analytics platform.\n- Integrated relational source systems hosted on PostgreSQL into the warehouse, applying schema mapping, data type normalization, and incremental loading strategies suited to policy and endorsement change patterns.\n- Implemented monitoring and alerting using Amazon CloudWatch, enabling timely detection of pipeline failures, load delays, and resource constraints impacting daily reporting and regulatory data delivery commitments.\n- Coordinated closely with data governance teams to enforce naming standards, data catalog alignment, and lineage documentation, improving dataset discoverability and trust across underwriting, finance, and compliance stakeholders.\n- Improved scalability by leveraging AWS EC2 and managed services for transformation workloads, ensuring consistent performance during peak processing windows tied to monthly and quarterly insurance reporting cycles.\n- Guided junior engineers through AWS, Snowflake, and Matillion best practices, conducting code reviews and design walkthroughs that improved overall pipeline reliability and maintainability.\n- Executed end-to-end testing strategies validating source-to-target reconciliation, business rule accuracy, and downstream report consistency prior to production releases impacting executive insurance dashboards.\n- Reduced manual operational effort by digitizing legacy file-based ingestion processes, replacing them with automated, event-driven AWS workflows supporting more timely and predictable data availability.\n- Enhanced data architecture resilience by implementing retry logic, idempotent loads, and failure isolation within Matillion, minimizing the business impact of upstream system disruptions.\n- Partnered with analytics and actuarial teams to refine data models supporting predictive analysis and trend evaluation, ensuring technical implementations aligned closely with insurance domain interpretation needs.\n- Oversaw production deployments and release coordination, ensuring minimal downtime and clear communication during changes affecting critical underwriting and claims analytics pipelines.\n- Introduced continuous optimization practices by regularly reviewing query performance, storage utilization, and pipeline runtimes, maintaining a balance between analytical responsiveness and controlled cloud expenditure.\n- Achieved stable, scalable data delivery by aligning architectural decisions with insurance compliance requirements, operational realities, and long-term platform evolution goals.\nEnvironment: AWS, Amazon S3, AWS Glue, AWS Lambda, AWS EC2, Amazon CloudWatch, Snowflake, Matillion ETL, SQL, Python, PostgreSQL, AWS IAM, Snowflake Roles, Data Modeling, ETL Frameworks, Cloud Security, Batch Processing, Metadata Management.\nClient: Delta Airlines Location: Atlanta, GA\nRole: SR DATA ENGINEER December 2019 - September 2022\nResponsibilities:\n- Laid the foundation for an aviation analytics platform by collaborating with operations and revenue teams to capture flight, booking, and customer data requirements, translating them into scalable Azure-based data engineering solutions.\n- Developed cloud-native data pipelines using Azure Data Factory to orchestrate ingestion from operational airline systems into analytical stores, supporting on-time performance analysis, capacity planning, and revenue optimization initiatives.\n- Crafted ELT workflows integrating Matillion ETL with Snowflake on Azure, enabling consistent transformation logic and reducing dependency on bespoke scripts across expanding airline data domains.\n- Constructed relational staging layers using Azure SQL Database and MySQL, applying indexing and query optimization techniques to support reliable incremental data movement into analytical warehouses.\n- Applied advanced SQL transformations to model flight schedules, delays, and passenger flows, enabling analytics teams to identify operational bottlenecks and improve customer experience planning.\n- Implemented Python utilities for data profiling, validation, and schema drift detection, ensuring analytical datasets remained trustworthy despite frequent changes in upstream airline operational systems.\n- Deployed secure data access controls using Azure Active Directory integration, aligning role-based permissions with organizational policies governing sensitive passenger and operational information.\n- Optimized warehouse performance by tuning Snowflake virtual warehouses and transformation logic to support concurrent analytics workloads during peak operational reporting windows.\n- Integrated semi-structured data sources using Azure Data Lake Storage Gen2, enabling scalable storage of flight event logs and operational telemetry for downstream analytical processing.\n- Streamlined pipeline development by standardizing Azure DevOps CI/CD practices for data engineering artifacts, improving deployment consistency and reducing release-related risks.\n- Introduced monitoring using Azure Monitor and pipeline logging, providing visibility into data freshness, load failures, and performance trends impacting airline operational dashboards.\n- Partnered with business analysts to refine data models supporting route profitability, aircraft utilization, and passenger demand forecasting use cases.\n- Guided junior engineers on Azure, SQL, and Matillion design patterns, fostering consistent engineering practices across geographically distributed data teams.\n- Improved data availability by implementing incremental loading and partitioning strategies aligned with flight departure and arrival time dimensions.\n- Executed comprehensive testing cycles validating transformations against operational source systems, ensuring analytical outputs aligned with airline operational realities.\n- Coordinated cross-team efforts between operations, IT, and analytics to prioritize data enhancements supporting evolving airline business strategies.\n- Enhanced data reliability by introducing automated reconciliation checks between operational systems and analytical outputs used by leadership teams.\n- Supported production rollouts by managing cutover activities and post-deployment validation for data pipelines tied to critical airline performance metrics.\n- Demonstrated technical growth by expanding responsibilities across ingestion, transformation, optimization, and stakeholder engagement within a complex aviation data ecosystem.\nEnvironment: Azure, Azure Data Factory, Azure Data Lake Storage Gen2, Azure SQL Database, Azure Active Directory, Azure Monitor, Snowflake, Matillion , ETL, SQL, Python, MySQL, Azure DevOps, Data Modeling, ELT Pipelines, CI/CD, Cloud Security, Batch Processing, Operational Analytics.\nClient: UPS Location: Atlanta, GA\nRole: DATA ENGINEER / DATA ANALYST February 2017 - November 2019\nResponsibilities:\n- Started a foundational data engineering role supporting banking analytics by ingesting and transforming transactional and customer datasets using Google Cloud Platform, ensuring reliable availability of financial data for downstream reporting and regulatory analysis use cases.\n- Developed batch ingestion pipelines leveraging Cloud Storage and Cloud Dataflow, enabling consistent movement of structured financial records into analytical platforms while maintaining data integrity required for compliance-driven banking reporting workflows.\n- Constructed analytical datasets in BigQuery, applying normalized and dimensional data modeling techniques to support account activity tracking, customer behavior analysis, risk evaluation, and mandatory regulatory reporting processes.\n- Crafted transformation logic using SQL and early Python scripts to aggregate, cleanse, and enrich high-volume banking transaction data, ensuring accuracy and consistency across analytics consumed by finance and risk teams.\n- Implemented secure access patterns using Cloud IAM, aligning dataset permissions with banking governance policies, audit requirements, and internal controls to protect sensitive financial and customer information.\n- Designed data schemas supporting historical tracking and slowly changing attributes, enabling long-term trend analysis across customer profiles, account lifecycles, and financial product usage within regulated banking environments.\n- Supported ETL orchestration using Cloud Composer, enabling scheduled and repeatable workflows that aligned with daily banking processing cycles and ensured dependable refresh of analytical datasets.\n- Applied performance optimization techniques in BigQuery, refining table partitioning and query structures to support increasing analytical workloads while controlling compute usage and operational costs.\n- Collaborated with data analysts to translate regulatory and compliance reporting requirements into reliable technical data models that accurately reflected banking rules and supported audit-ready analytical outputs.\n- Introduced basic data quality checks and reconciliation processes to validate source-to-target accuracy, improving trust in datasets consumed by finance, compliance, and risk management teams.\n- Assisted in documenting data pipelines, schemas, and dependencies, improving knowledge sharing, operational transparency, and onboarding efficiency for expanding data engineering teams.\n- Participated in testing and validation activities, ensuring source-to-target accuracy and transformation correctness across critical banking datasets prior to production releases.\n- Supported production deployments and monitored batch job execution, addressing pipeline failures and performance issues in coordination with senior engineers to maintain stable banking analytics operations.\n- Gained hands-on experience with cloud-based data warehousing concepts using BigQuery, building a strong foundation for later enterprise-scale data engineering and analytics platform implementations.\n- Enhanced pipeline reliability by applying retry logic and idempotent load strategies within batch ETL pipelines, reducing the impact of transient failures during daily banking data processing.\n- Coordinated with infrastructure teams to align data processing workloads with available cloud resources, balancing performance, stability, and cost considerations within a regulated financial environment.\n- Built a strong foundation in data engineering best practices, cloud services, and analytical modeling while operating within strict banking compliance, security, and governance constraints.\nEnvironment: Google Cloud Platform, Cloud Storage, Cloud Dataflow, BigQuery, Cloud Composer, Cloud IAM, SQL, Python, Data Modeling, ETL Pipelines, Batch Processing, Data Quality Checks, Access Control, Regulatory Reporting, Workflow Orchestration, Cloud Security, Analytical Warehousing.\nClient: ADP Location: Roseland, NJ\nRole: DATA ENGINEER / MIGRATION SPECIALIST January 2016 - January 2017\nResponsibilities:\n- Developed comprehensive Payroll Data Integration platform using Azure Cloud, improving data flow between time-tracking, benefits, and payroll processing modules while streamlining employee information management across multiple HR systems.\n- Created data ingestion pipelines using Talend ETL and Azure Data Factory to process employee data from various corporate clients, implementing validation rules that ensured payroll accuracy for thousands of employees.\n- Executed data migration projects transferring employee records from legacy payroll systems to modern cloud-based platforms, preserving historical payroll information while enabling new functionality through comprehensive data mapping.\n- Built complex workflows with Apache Airflow to coordinate ETL processes across distributed payroll systems, orchestrating time-sensitive operations including pre-payroll validation and post-processing tax calculations.\n- Implemented Azure SQL Database for structured employee records and Azure Data Lake Storage for semi-structured HR documents, reducing processing response times by 40% through strategic indexing and query optimization.\n- Established data security protocols meeting SOX compliance and regulatory requirements for sensitive payroll data, implementing encryption, access controls, and audit logging to protect personally identifiable information.\n- Created predictive models using Azure Databricks, improving workforce planning accuracy through machine learning techniques applied to historical employment data for optimized resource allocation.\n- Built interactive Tableau dashboards visualizing payroll metrics and labor cost analytics, providing actionable insights into compensation trends and identifying cost-saving opportunities across departments.\n- Developed custom APIs using .NET Core for secure data exchange between payroll systems and third-party benefits providers, enabling real-time updates while maintaining strict data security protocols.\n- Created automated tax filing and reporting systems with data quality monitoring frameworks, ensuring timely submission of payroll tax documents while validating calculations against latest regulatory requirements.\nEnvironment: Azure Cloud, Talend ETL, Azure Data Factory (ADF), Azure Databricks, Azure Data Lake Storage, Tableau, Epic, FHIR\nClient: Inno Minds Location: Pune, India\nRole: ETL DEVELOPER May 2014 - November 2015\nResponsibilities:\n- Developed scalable ETL pipeline using Oracle Data Integrator (ODI) and SQL Server Integration Services (SSIS), integrating data from client's legacy systems and third-party applications while maintaining consistent processing times during peak retail seasons.\n- Set up SQL Server data warehouse with partitioning strategies and incremental loading techniques for secure management of raw, staging, and transformed retail transaction data, reducing processing windows for nightly batch operations.\n- Used Microsoft SQL Server Integration Services to extract data from Oracle, DB2, and MySQL databases, implementing change data capture mechanisms that minimized system impact on production databases during business hours.\n- Created SSIS packages processing XML and Excel file formats from point-of-sale systems, incorporating error handling routines and logging frameworks that improved troubleshooting capabilities while reducing data processing time by 40%.\n- Built detailed data transformations with Oracle Data Integrator, focusing on product hierarchy normalization and customer data cleansing, standardizing product classifications across multiple retail brands and eliminating duplicate customer records.\n- Set up Microsoft SQL Server Analysis Services for multidimensional data modeling with optimized aggregation designs, improving query performance for common retail KPI calculations and reducing report generation time by 30%.\n- Developed stored procedures and SQL scripts to move transformed data into the enterprise data warehouse, implementing efficient bulk loading techniques while maintaining referential integrity across fact and dimension tables.\n- Created automated ETL job scheduling systems using SQL Server Agent and Windows Task Scheduler, implementing dependency management and notification systems that ensured proper execution sequence while reducing manual intervention by 65%.\n- Tracked ETL job performance through custom monitoring dashboards with alert systems for processing failures, providing real-time visibility into processing bottlenecks and reducing data availability issues by 45%.\n- Built Microsoft Power BI connection to the SQL Server data warehouse, creating interactive dashboards enabling real-time analysis of store performance and inventory metrics that provided actionable insights for store managers.\nEnvironment: AWS, Informatica, Talend, AWS S3, AWS Glue, AWS Redshift, Tableau, AWS Lambda",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "Bachelor of Technology (BTech) | Computer Science | Amrita Vishwa Vidyapeetham | Kerala,India | August 2010 - March 2014",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Ram Subhash",
+        "email": "ramsubhash0809@gmail.com",
+        "phone": "+14044458754",
+        "linkedin_url": null,
+        "location": "India"
+      },
+      "work_history": [],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Bachelor of Technology",
+          "field_of_study": null,
+          "start_date": "2010-08",
+          "end_date": "2014-03",
+          "in_progress": false,
+          "confidence": 0.6
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": "intermediate"
+        }
+      ],
+      "raw_text_debug": {
+        "method": "docx",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "hymavathi Nalabothu-012 with pages removed.docx",
+    "format": "docx",
+    "parsed": {
+      "sections": {
+        "summary": {
+          "content": "- Architected and deployed Radware SaaS cWAAP solutions by analyzing installation requirements, configuring WAF and API protection policies addressing OWASP Top 10 vulnerabilities, and coordinating with Network Services teams for seamless integration with minimal service disruption.\n- Monitored daily security operations by reviewing Radware cWAAP logs to identify threats and false positives, tuning detection rules based on application behavior, and integrating with SIEM platforms for real-time incident response workflows.\n- Developed automated workflows using Python and SQL scripting to process Radware cWAAP logs, extract actionable intelligence, and integrate Radware APIs with Snowflake Data Platform for advanced analytics and threat hunting capabilities.\n- Configured AWS security implementations by deploying Radware SaaS cWAAP protection for EC2 applications, API Gateway endpoints, and CloudFront distributions while ensuring consistent policies across Azure environments using Azure Application Gateway with WAF v2.\n- Conducted vulnerability assessments by examining application source code to identify injection flaws and authentication issues aligned with OWASP Top 10 standards, implementing remediation strategies through Radware cWAAP rules before production deployment.\n- Established SIEM integration architectures by connecting Radware cWAAP log streams with enterprise monitoring platforms, developing correlation rules for complex attack patterns, and creating automated alerting mechanisms for rapid incident response and forensic analysis.\n- Implemented API protection policies within Radware SaaS cWAAP by analyzing traffic patterns, defining rate limiting thresholds, and creating custom rules safeguarding RESTful and SOAP services against injection attacks and credential stuffing threats.\n- Embedded security controls throughout SDLC processes by integrating SAST and DAST scanning tools into Jenkins and GitLab CI/CD pipelines, establishing security gates ensuring applications met enterprise requirements before production release.\n- Aligned security initiatives with ISO 27001/27002 and NIST CSF framework domains by mapping Radware cWAAP controls to compliance requirements, conducting risk assessments, and maintaining audit-ready documentation for annual validation activities.\n- Performed third-party application risk assessments by evaluating vendor security questionnaires and analyzing API integrations, establishing ongoing monitoring processes including vulnerability assessments and incident response coordination with external vendors.\n- Applied NIST 800-82 guidelines to protect operational technology environments by segmenting networks, implementing defense-in-depth strategies, and establishing monitoring capabilities for SCADA protocols while balancing cybersecurity controls with operational continuity requirements.\n- Orchestrated Python automation scripts to analyze Radware cWAAP security events by developing custom parsers enriching alert data, while building SQL queries against Snowflake Data Platform to aggregate metrics and identify trending attack patterns.\n- Managed multi-cloud security across AWS and Azure by configuring Radware SaaS cWAAP policies for diverse platforms, addressing platform-specific considerations, and ensuring unified protection standards through centralized logging and cross-platform threat intelligence sharing.\n- Collaborated with development teams to remediate code vulnerabilities through secure coding workshops and integration of automated scanning tools into CI/CD pipelines, aligning Application Lifecycle Management practices with OWASP Top 10 mitigation strategies.\n- Analyzed and mitigated OWASP Top 10 vulnerabilities through strategic Radware cWAAP rule configuration, conducting risk assessments to identify exposure points, and developing protection strategies addressing SQL injection, cross-site scripting, and broken authentication threats.\n- Executed compliance mapping by aligning Radware SaaS cWAAP security controls with ISO 27001/27002 and NIST CSF requirements, documenting security procedures for audit readiness, and establishing governance structures ensuring consistent policy application across applications.\n- Extended WAF capabilities by implementing Azure Application Gateway with WAF v2 for Azure-hosted applications and maintaining AWS EC2 and CloudFront protection through Radware cWAAP, ensuring consistent security postures regardless of hosting location.\n- Leveraged Python scripting to integrate Radware APIs with SIEM and Snowflake Data Platform, enabling programmatic policy updates and configuration backups while creating SQL transformation pipelines supporting advanced analytics and automated security metrics reporting.",
+          "confidence": 1.0
+        },
+        "skills": {
+          "content": "Cloud Platforms: AWS, GCP, AZURE\nBuild Tools: Maven, ANT, Gradle\nOperating Systems: Red Hat Linux, CentOS, Ubuntu, Windows, VMware and Mac OS.\nWeb/ Application Servers: Apache Tomcat, Nginx, JBoss, WebLogic, WildFly. Databases: MySQL, PostgreSQL, MongoDB, RDS, DynamoDB, Azure SQL Database Version Control Tools: Git, SVN, GitHub, Bitbucket\nIaac &Configuration Management: Terraform, Ansible, Chef, Puppet\nCI/CD Tools: Jenkins, TeamCity, GitHub Actions, GitLab, XL Release, AWS Code deploy\nContainer Tools: Kubernetes, Docker, OpenShift, ARO\nMonitoring & Logging Tools: Prometheus, Grafana, AWS CloudWatch, ELK Stack, Splunk\nAPM Tools: App Dynamics, Data Dog, New Relic",
+          "confidence": 1.0
+        },
+        "languages": {
+          "content": "Java, Python, Ruby, Bash, PowerShell, JavaScript, HTML/CSS, JSP\nArtifactory Management Tools: JFrog Artifactory, Nexus\nBug Tracking & Testing tools: JIRA, JUnit\nCode Quality control tool: SonarQube, Checkmark",
+          "confidence": 0.9
+        },
+        "additional": {
+          "content": "Kafka, ServiceNow",
+          "confidence": 0.9
+        },
+        "experience": {
+          "content": "## HCA Healthcare: November 2022 - Current (Location: Nashville, TN)\nSite Reliability Engineer\n- Deployed Radware SaaS cWAAP across 40+ healthcare web applications to enforce WAF and API protection while maintaining HIPAA compliance, configuring SSL/TLS offloading, certificate management, and traffic routing to ensure continuous availability for patient portals and EHR integrations with minimal operational disruption.\n- Reviewed Radware cWAAP logs daily using Azure Log Analytics and Microsoft Sentinel, identifying false positives and tuning security rules aligned with OWASP Top 10 vulnerabilities, customizing rulesets to block SQL injection, XSS, and remote code execution attempts targeting healthcare APIs and PHI-handling systems.\n- Integrated Radware cWAAP logs with Splunk, QRadar, and Microsoft Sentinel to design normalized log parsers and correlation rules detecting healthcare-specific attack patterns, including unauthorized PHI access, API abuse, and data exfiltration attempts across distributed clinical environments and telehealth platforms.\n- Automated log ingestion pipelines using Azure Logic Apps and Radware APIs to centralize threat intelligence into SIEM dashboards, enabling real-time incident response workflows, audit readiness for HIPAA compliance reporting, and streamlined integration with Snowflake Data Platform for advanced analytics.\n- Collaborated with Network Services and Border Protection teams to onboard 30+ applications into Radware SaaS cWAAP, conducting pre-deployment security assessments, traffic profiling, and load testing using Azure Load Balancer to validate seamless integration and establish ongoing support workflows.\n- Analyzed and remediated code-based security vulnerabilities by conducting SAST and DAST assessments, identifying insecure API endpoints, hardcoded credentials, and improper input validation aligned with OWASP Top 10, partnering with development teams to embed fixes into the SDLC before production deployment.\n- Embedded security controls throughout the Application Lifecycle Management process by integrating secure software development practices into CI/CD pipelines, enforcing pre-commit security scans using SAST tools, and validating API protection policies with DevOps engineers before promoting builds to production environments.\n- Performed comprehensive third-party application risk analysis for vendor-hosted healthcare SaaS solutions, evaluating API security posture, data encryption standards, and compliance with HIPAA Business Associate Agreement requirements using OWASP risk assessment frameworks and custom Python scripts for vulnerability scoring.\n- Developed Python and SQL automation scripts to query Snowflake Data Platform and Azure Log Analytics for WAF telemetry, extracting insights on blocked threats, geographic attack origins, and API consumption trends, generating compliance dashboards aligned with NIST CSF continuous monitoring requirements.\n- Integrated Radware APIs with Azure API Management and Snowflake Data Platform to automate policy synchronization, export threat intelligence feeds, and orchestrate incident response workflows using Python connectors, enabling automated rule updates based on emerging healthcare threats across multi-cloud environments.\n- Implemented Azure Web Application Firewall and Azure DDoS Protection alongside Radware SaaS cWAAP to establish layered defense-in-depth for healthcare applications, configuring DDoS mitigation thresholds, traffic scrubbing policies, and failover mechanisms using Azure Monitor to ensure uptime for patient-facing services.\n- Enforced compliance with ISO 27001/27002, NIST CSF, and NIST 800-82 security frameworks by conducting quarterly assessments, validating WAF controls using Radware cWAAP, and documenting evidence for healthcare regulatory audits, mapping configurations to NIST CSF Protect and Detect functions.\n- Configured Microsoft Defender for Cloud and Azure Active Directory to enforce identity-based access controls, conditional access policies, and privileged identity management for administrators managing Radware SaaS cWAAP and healthcare infrastructure, integrating with Microsoft Sentinel for authentication anomaly correlation.\n- Managed concurrent priorities across application security, cloud infrastructure modernization, and compliance projects, coordinating cross-functional stakeholders including clinical IT and compliance officers through clear communication, delivering security briefings and remediation roadmaps using ServiceNow ticketing workflows during evolving threat landscapes.\n- Designed Azure Logic Apps to automate security orchestration workflows including automated ServiceNow ticket creation upon Radware cWAAP critical alert detection, threat indicator enrichment, and escalation protocols aligned with HIPAA breach notification timelines, integrating with Microsoft Sentinel playbooks for automated response actions.\n- Tuned Azure Monitor and Azure Log Analytics workspaces to centralize telemetry from Radware SaaS cWAAP, Azure Web Application Firewall, and Microsoft Sentinel, configuring custom KQL queries and alerting thresholds to detect anomalous API consumption, brute-force attempts, and unauthorized PHI access patterns.\n- Conducted SAST and DAST assessments across enterprise EHR platforms to detect code-based vulnerabilities in patient portal modules, collaborating with development teams to integrate secure coding practices into CI/CD pipelines, reducing exposure to SQL injection, XSS, and authentication bypass vulnerabilities while maintaining HL7 FHIR interoperability.\n- Implemented Azure API Management and Azure Load Balancer to optimize and secure communication between microservices supporting telehealth platforms, ensuring HIPAA-compliant data transmission and high availability, integrating Azure DDoS Protection to safeguard internet-facing endpoints from volumetric and application-layer attacks.\n- Deployed Microsoft Defender for Cloud to establish threat detection and security posture management across multi-cloud healthcare infrastructure, configuring automated remediation workflows and compliance scoring aligned with HIPAA Security Rule, NIST CSF, and HITRUST frameworks for proactive misconfiguration identification.\n- Configured Splunk Enterprise Security to aggregate and analyze security event logs from EMR systems, network devices, and identity platforms, developing custom correlation searches and dashboards supporting HIPAA audit controls, breach notification readiness, and incident response workflows aligned with security management processes.\n- Integrated QRadar SIEM to centralize security event monitoring across distributed healthcare environments including on-premises data centers and cloud-hosted EHR systems, building automated offense workflows and enrichment pipelines correlating threat intelligence feeds with internal logs using Python and SQL for timely escalation.\nEnvironment: Radware SaaS cWAAP, Radware cWAAP, Radware APIs, WAF, API, Azure Log Analytics, Microsoft Sentinel, Azure Logic Apps, Azure Load Balancer, Azure Web Application Firewall, Azure DDoS Protection, Azure Monitor, Azure API Management, Azure Active Directory, Microsoft Defender for Cloud, Splunk, Splunk Enterprise Security, QRadar, QRadar SIEM, SIEM, Snowflake Data Platform, Python, SQL, KQL, ServiceNow, SAST, DAST, CI/CD pipelines, DevOps, EHR, EMR, PHI, HIPAA, OWASP Top 10, OWASP, NIST CSF, NIST 800-82, ISO 27001/27002, HITRUST, HITECH, HL7 FHIR, SSL/TLS, SDLC, Application Lifecycle Management.\n## American Express: January 2020 - October 2022 (Location: New York, NY)\n## Site Reliability Engineer\n- Deployed Radware SaaS cWAAP across business-critical banking applications including online portals, mobile APIs, and payment gateways, implementing zero-downtime phased rollout strategies with Azure-hosted environments while conducting pre-production validation using Postman for comprehensive API endpoint testing and functional verification.\n- Remediated code-based security vulnerabilities by assessing OWASP Top 10 risks including SQL injection and cross-site scripting, collaborating with development teams to implement input validation, parameterized queries, and session management controls throughout SDLC phases, significantly reducing critical exposures across banking platforms.\n- Analyzed over 50,000 daily Radware cWAAP security events, continuously tuning protection rules to balance threat mitigation with false positive reduction, ensuring legitimate banking transactions remained uninterrupted while documenting tuning decisions per ISO 27001/27002 governance standards for regulatory audit trails.\n- Integrated Radware cWAAP logs with Splunk and ELK Stack, developing Python scripts to normalize log formats and enrich event data with banking application metadata, enabling real-time correlation with authentication failures, transaction anomalies, and fraud detection systems for enhanced security visibility.\n- Onboarded 35 business-critical banking applications to Radware SaaS cWAAP protection by coordinating with Network Services teams, establishing standardized workflows for DNS configuration, SSL certificate management via Azure Key Vault, and traffic routing policies through documented runbooks and escalation procedures.\n- Developed Python and SQL automation scripts to query Radware APIs for programmatic rule updates, security policy exports, and compliance reporting, implementing infrastructure-as-code practices that maintained consistency across development, staging, and production environments while enabling rapid emergency patch deployment.\n- Evaluated third-party vendor APIs, payment processors, and cloud integrations against OWASP Top 10 vulnerabilities and PCI-DSS requirements, documenting security gaps and collaborating with procurement teams to enforce security standards through vendor contracts, service-level agreements, and ongoing risk assessments.\n- Embedded security controls throughout SDLC by conducting code reviews focused on OWASP Top 10 threats, establishing security gates at build stages, and training development teams on secure coding techniques including proper authentication, cryptographic implementation using Azure Secret Manager, and NIST-aligned input validation patterns.\n- Maintained ISO 27001/27002 and NIST CSF compliance by documenting Radware configurations, security rule rationale, incident response procedures, and change management processes, participating in quarterly internal audits and annual external assessments to demonstrate effective technical control implementation protecting customer financial data.\n- Configured Azure-based security infrastructure supporting Radware SaaS cWAAP deployments, implementing secure connectivity between on-premises data centers and cloud environments, managing Azure Key Vault for certificate lifecycle, and establishing network security groups enforcing defense-in-depth architecture aligned with PCI-DSS network segmentation standards.\n- Monitored Splunk and ELK Stack daily to correlate Radware cWAAP security events with authentication logs and fraud alerts, creating incident response workflows enabling rapid triage of potential breaches, coordinating with SOC analysts to investigate suspicious activities targeting online banking platforms throughout continuous operational coverage.\n- Acquired comprehensive knowledge of core banking systems, credit card processing platforms, and loan origination portals, understanding application architecture and API dependencies to inform Radware rule tuning decisions, minimizing false positives while maintaining robust protection against injection attacks and OWASP Top 10 vulnerabilities.\n- Managed concurrent security priorities across application onboarding projects, vulnerability remediation initiatives, and compliance audit preparations within dynamic banking environments, demonstrating analytical problem-solving through effective prioritization, stakeholder communication with executive leadership, and delivery of security outcomes aligned with risk management frameworks.\n- Utilized Postman for API security testing of banking endpoints, validating authentication mechanisms, authorization controls, and rate limiting against OWASP API Security Top 10 risks, collaborating with development teams to remediate vulnerabilities before production and establishing automated security testing within CI/CD pipelines.\n- Tuned Radware SaaS cWAAP protection rules for specialized banking workflows including wire transfers and ACH processing, analyzing application-specific traffic patterns using SQL queries against log repositories, implementing custom signatures for banking-specific attack patterns while maintaining detailed documentation of security exceptions and PCI-DSS compliance posture.\n- Integrated Radware APIs with core banking platforms to enforce application-layer protection across customer-facing web and mobile applications, enabling real-time detection and mitigation of DDoS attacks, SQL injection, and XSS threats while configuring automated threat intelligence sharing and incident response workflows.\n- Conducted security assessments identifying authentication bypass flaws and insecure deserialization in legacy banking applications, implementing secure coding practices and automated SAST to continuously scan for vulnerabilities during CI/CD pipeline execution, ensuring alignment with SOX audit controls and PCI-DSS secure development lifecycle mandates.\n- Strengthened application-layer protection by configuring Radware WAF policies addressing bot attacks, credential stuffing, and application-layer exploits targeting financial transaction systems, enhancing protection through integration with SIEM platforms and threat intelligence feeds enabling proactive monitoring, correlation of security events per GLBA safeguard rules.\nEnvironment: Radware SaaS cWAAP, Radware cWAAP, Radware APIs, Radware WAF, Radware, Azure, Azure-hosted environments, Azure Key Vault, Azure Secret Manager, Azure-based security infrastructure, Postman, OWASP Top 10, OWASP API Security Top 10, SDLC, SQL injection, XSS, ISO 27001/27002, Splunk, ELK Stack, Python, DNS, SSL certificate, SQL, PCI-DSS, NIST, NIST CSF, Network Security Groups, SOC, CI/CD pipelines, SAST, SOX, WAF, SIEM, GLBA, DDoS, threat intelligence feeds, API, bot attacks, credential stuffing.\n## Best Buy: March 2017 - December 2019 (Location: Richfield, MN)\n## Cloud DevOps Engineer\n- Deployed AWS WAF across retail e-commerce applications hosted on AWS EC2 and AWS ELB/ALB, protecting customer-facing storefronts and checkout systems against OWASP Top 10 vulnerabilities including SQL injection and cross-site scripting, while ensuring PCI-DSS compliance for payment processing and GDPR adherence for customer data protection.\n- Designed comprehensive AWS WAF rule sets and API Gateway protection strategies for RESTful APIs, integrating security policies with backend microservices to safeguard transactional data and personally identifiable information, while continuously analyzing OWASP Top 10 attack vectors and applying defense-in-depth methodologies protecting retail transaction workflows.\n- Integrated AWS CloudWatch, AWS CloudTrail, and AWS WAF logs with enterprise SIEM platforms enabling real-time threat detection and security event correlation, developing Python scripts to automate log parsing, normalization, and alerting workflows while establishing baseline monitoring for retail traffic patterns meeting PCI-DSS audit trail requirements.\n- Conducted daily analysis of AWS WAF and API Gateway protection logs using SQL queries against centralized security data stores, identifying false positives and tuning security rules to minimize customer impact while maintaining robust protection, collaborating with development teams to implement remediation strategies aligned with OWASP Top 10 guidelines.\n- Embedded security controls throughout SDLC by collaborating with development teams to integrate AWS WAF testing, API Gateway validation, and vulnerability scanning using Amazon Inspector into CI/CD pipelines, ensuring retail applications adhered to secure coding practices and addressed OWASP Top 10 risks before production deployment.\n- Developed Python automation scripts interacting with AWS APIs for programmatic management of AWS WAF rules, AWS Shield configurations, and AWS IAM policies, enabling dynamic security policy updates based on emerging threat intelligence while maintaining audit logs in AWS CloudTrail complying with PCI-DSS operational controls.\n- Configured AWS Shield Standard and Advanced protections with AWS WAF to defend high-traffic retail e-commerce platforms against DDoS attacks during peak shopping seasons, implementing rate-limiting rules and geo-blocking policies protecting application availability while monitoring attack patterns through AWS CloudWatch dashboards integrated with SIEM.\n- Collaborated with Network Services teams to onboard business-critical retail applications onto AWS WAF and API Gateway protection frameworks, conducting security assessments to understand application architectures and transaction flows, ensuring minimal disruption to customer-facing services while achieving compliance with PCI-DSS and GDPR requirements.\n- Analyzed and remediated code-based security vulnerabilities identified through Amazon Inspector scans and manual code reviews, working with development teams to address OWASP Top 10 weaknesses including insecure deserialization and broken access control within retail applications, while embedding secure coding practices into SDLC and maintaining remediation documentation.\n- Implemented centralized security logging architecture using Amazon Security Lake integrated with AWS CloudTrail, AWS CloudWatch, and AWS WAF logs, enabling normalized security data collection across multi-account environments supporting retail operations, developing SQL-based analytics queries to identify anomalous patterns and potential security incidents affecting customer transactions.\n- Managed AWS IAM roles, policies, and permission boundaries to enforce least-privilege access controls for retail application infrastructure, including AWS EC2 instances, AWS ELB/ALB configurations, and API Gateway endpoints, ensuring separation of duties and role-based access aligned with PCI-DSS access control requirements and GDPR data protection principles.\n- Established security monitoring and alerting workflows using AWS CloudWatch metrics and alarms integrated with SIEM platforms, creating custom Python scripts to parse AWS WAF block events and API Gateway protection violations, generating actionable security intelligence reports enabling rapid incident response for threats targeting retail payment processing systems.\n- Performed third-party application risk analysis for retail vendor integrations and partner APIs, evaluating security postures against OWASP Top 10 standards and PCI-DSS compliance requirements, documenting risk findings and mitigation recommendations while configuring AWS WAF rules and API Gateway protection policies to enforce secure communication patterns and validate authentication mechanisms.\n- Developed comprehensive SQL queries and Python-based reporting tools to analyze security event data from AWS CloudTrail and SIEM systems, identifying trends in attack methodologies targeting retail applications, supporting compliance reporting for PCI-DSS audits and GDPR data breach notification requirements while providing detailed technical documentation for operations teams.\n- Configured Amazon Security Lake for multi-source event ingestion from POS systems and e-commerce platforms, enabling real-time correlation of transaction anomalies while ensuring PCI-DSS monitoring requirements, implementing OCSF normalization to streamline security operations workflows and support GDPR compliance through automated retention policies and data sovereignty controls across multi-region retail operations.\nEnvironment: AWS WAF, AWS EC2, AWS ELB/ALB, OWASP Top 10, SQL injection, cross-site scripting, PCI-DSS, GDPR, API Gateway, RESTful APIs, AWS CloudWatch, AWS CloudTrail, SIEM, Python, SQL, SDLC, Amazon Inspector, CI/CD pipelines, AWS APIs, AWS Shield, AWS IAM, DDoS, Amazon Security Lake, POS systems, OCSF, microservices, rate-limiting, geo-blocking.\n## Progressive: December 2015 - February 2017 (Location: Mayfield Village, OH)\nDevOps Engineer\n- Designed and managed cloud solutions across AWS and Azure platforms, successfully deploying secure and scalable applications using critical services including AWS EC2, S3, RDS, Azure Virtual Machines, Blob Storage, and Azure SQL Database.\n- Enhanced Software Development Life Cycle (SDLC) by implementing integration with Jenkins, GitHub Actions, and Azure DevOps for CI/CD pipelines, which automated build and deployment processes and reduced release cycles by 25%.\n- Managed software artifact repositories using JFrog/Nexus Artifactory to ensure efficient storage, version control, and distribution across multiple environments.\n- Streamlined administrative tasks with Groovy scripts in AWS, reducing manual efforts by 20% and generating Agile metrics in JIRA to drive data-driven decisions for team performance and productivity optimization.\n- Administered MySQL and MongoDB databases on AWS RDS and Azure Cosmos DB, maintaining high availability, performing critical performance tuning, and implementing automated backup strategies for scalable and secure data management.\n- Implemented robust access management by configuring Identity and Access Management (IAM) roles and policies in AWS and Azure, deploying SSL certificates for encryption, and enforcing Role-Based Access Control (RBAC) to ensure fine-grained security controls.\n- Utilized AWS Key Management Service (KMS) and Azure Key Vault for comprehensive key management, developing disaster recovery strategies and network security configurations to guarantee system security and regulatory compliance.\n- Created and automated infrastructure management scripts using Shell and Python to efficiently handle resources across AWS and Azure environments, reducing manual intervention by 40% and enabling seamless cloud operations.\n- Implemented comprehensive multi-cloud observability and performance monitoring through Datadog and New Relic, developing custom dashboards to track critical AWS metrics including CPU utilization, memory consumption, and latency, while using AWS CloudWatch for real-time monitoring and alerting to ensure proactive issue resolution and optimal system performance.\nEnvironment: Aws, Azure, CI/CD, Git, Jfrog Artifact, JIRA, Ansible playbook, Jenkins pipeline, DevOps methodologies, MySQL, MongoDB, AWS RDS, AWS CloudWatch, IAM, New Relic, Datadog, Shell scripting, Python.\nMastek: June 2014 - October 2015 (Location: Mumbai, India)\n## Linux Administrator / System Engineer\n- Administered and automated Linux/Unix environments, specifically Red Hat Enterprise Linux (RHEL), using Bash and Python scripts to enhance operational efficiency by 25%, streamlining system management and reducing manual intervention.\n- Managed complex system configurations, including Logical Volume Management (LVM) setups, to optimize storage and backup processes, successfully reducing system downtime by 30% through strategic volume management and efficient data organization.\n- Configured and maintained critical network services including DHCP, DNS, and FTP, while implementing robust security protocols such as SSL/TLS and IPSec to ensure secure and reliable network operations across infrastructure.\n- Implemented high availability solutions using Red Hat Clusters and HAProxy, significantly improving system uptime and minimizing service interruptions by 40%, ensuring continuous operational reliability.\n- Developed automated backup strategies and scheduled cron jobs for comprehensive disaster recovery, maintaining data integrity and enabling quick system recovery during potential failures. Implemented extensive system hardening techniques that strengthened security infrastructure and reduced system vulnerabilities by 40%.\n- Performed advanced kernel parameter tuning to optimize system performance, increasing reliability and responsiveness in high-demand computing environments.\n- Managed user and group permissions with SSH key authentication, implementing fine-grained access controls to secure server environments and protect critical system resources.\n- Executed regular system maintenance by patching and updating Linux servers using RPM, YUM, and APT package management tools, maintaining system stability and proactively reducing potential security vulnerabilities.\n- Configured Apache and Nginx web servers to ensure scalable, secure, and efficient service delivery for mission-critical applications, optimizing web infrastructure performance.\n- Integrated Oracle databases with Linux environments, providing comprehensive database administration and performance optimization. Deployed and managed virtual environments using VMware and KVM, improving resource utilization and scalability across multiple data centers.\nEnvironment: Red Hat Enterprise Linux, Bash, Python, Logical Volume Manager, Red Hat Cluster Servers, Oracle, MySQL, DNS, DHCP, FTP.",
+          "confidence": 1.0
+        },
+        "education": {
+          "content": "- Bachelor of Technology Computer Science | Year of passed:",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": null,
+        "email": "hnalaanuch6749@gmail.com",
+        "phone": "+14058942896",
+        "linkedin_url": null,
+        "location": null
+      },
+      "work_history": [
+        {
+          "company_name": "## HCA Healthcare",
+          "client_name": null,
+          "job_title": "Site Reliability Engineer",
+          "start_date": "2022-11",
+          "end_date": null,
+          "is_current": true,
+          "location": "Nashville, TN",
+          "bullets": [
+            "Deployed Radware SaaS cWAAP across 40+ healthcare web applications to enforce WAF and API protection while maintaining HIPAA compliance, configuring SSL/TLS offloading, certificate management, and traffic routing to ensure continuous availability for patient portals and EHR integrations with minimal operational disruption.",
+            "Reviewed Radware cWAAP logs daily using Azure Log Analytics and Microsoft Sentinel, identifying false positives and tuning security rules aligned with OWASP Top 10 vulnerabilities, customizing rulesets to block SQL injection, XSS, and remote code execution attempts targeting healthcare APIs and PHI-handling systems.",
+            "Integrated Radware cWAAP logs with Splunk, QRadar, and Microsoft Sentinel to design normalized log parsers and correlation rules detecting healthcare-specific attack patterns, including unauthorized PHI access, API abuse, and data exfiltration attempts across distributed clinical environments and telehealth platforms.",
+            "Automated log ingestion pipelines using Azure Logic Apps and Radware APIs to centralize threat intelligence into SIEM dashboards, enabling real-time incident response workflows, audit readiness for HIPAA compliance reporting, and streamlined integration with Snowflake Data Platform for advanced analytics.",
+            "Collaborated with Network Services and Border Protection teams to onboard 30+ applications into Radware SaaS cWAAP, conducting pre-deployment security assessments, traffic profiling, and load testing using Azure Load Balancer to validate seamless integration and establish ongoing support workflows.",
+            "Analyzed and remediated code-based security vulnerabilities by conducting SAST and DAST assessments, identifying insecure API endpoints, hardcoded credentials, and improper input validation aligned with OWASP Top 10, partnering with development teams to embed fixes into the SDLC before production deployment.",
+            "Embedded security controls throughout the Application Lifecycle Management process by integrating secure software development practices into CI/CD pipelines, enforcing pre-commit security scans using SAST tools, and validating API protection policies with DevOps engineers before promoting builds to production environments.",
+            "Performed comprehensive third-party application risk analysis for vendor-hosted healthcare SaaS solutions, evaluating API security posture, data encryption standards, and compliance with HIPAA Business Associate Agreement requirements using OWASP risk assessment frameworks and custom Python scripts for vulnerability scoring.",
+            "Developed Python and SQL automation scripts to query Snowflake Data Platform and Azure Log Analytics for WAF telemetry, extracting insights on blocked threats, geographic attack origins, and API consumption trends, generating compliance dashboards aligned with NIST CSF continuous monitoring requirements.",
+            "Integrated Radware APIs with Azure API Management and Snowflake Data Platform to automate policy synchronization, export threat intelligence feeds, and orchestrate incident response workflows using Python connectors, enabling automated rule updates based on emerging healthcare threats across multi-cloud environments.",
+            "Implemented Azure Web Application Firewall and Azure DDoS Protection alongside Radware SaaS cWAAP to establish layered defense-in-depth for healthcare applications, configuring DDoS mitigation thresholds, traffic scrubbing policies, and failover mechanisms using Azure Monitor to ensure uptime for patient-facing services.",
+            "Enforced compliance with ISO 27001/27002, NIST CSF, and NIST 800-82 security frameworks by conducting quarterly assessments, validating WAF controls using Radware cWAAP, and documenting evidence for healthcare regulatory audits, mapping configurations to NIST CSF Protect and Detect functions.",
+            "Configured Microsoft Defender for Cloud and Azure Active Directory to enforce identity-based access controls, conditional access policies, and privileged identity management for administrators managing Radware SaaS cWAAP and healthcare infrastructure, integrating with Microsoft Sentinel for authentication anomaly correlation.",
+            "Managed concurrent priorities across application security, cloud infrastructure modernization, and compliance projects, coordinating cross-functional stakeholders including clinical IT and compliance officers through clear communication, delivering security briefings and remediation roadmaps using ServiceNow ticketing workflows during evolving threat landscapes.",
+            "Designed Azure Logic Apps to automate security orchestration workflows including automated ServiceNow ticket creation upon Radware cWAAP critical alert detection, threat indicator enrichment, and escalation protocols aligned with HIPAA breach notification timelines, integrating with Microsoft Sentinel playbooks for automated response actions.",
+            "Tuned Azure Monitor and Azure Log Analytics workspaces to centralize telemetry from Radware SaaS cWAAP, Azure Web Application Firewall, and Microsoft Sentinel, configuring custom KQL queries and alerting thresholds to detect anomalous API consumption, brute-force attempts, and unauthorized PHI access patterns.",
+            "Conducted SAST and DAST assessments across enterprise EHR platforms to detect code-based vulnerabilities in patient portal modules, collaborating with development teams to integrate secure coding practices into CI/CD pipelines, reducing exposure to SQL injection, XSS, and authentication bypass vulnerabilities while maintaining HL7 FHIR interoperability.",
+            "Implemented Azure API Management and Azure Load Balancer to optimize and secure communication between microservices supporting telehealth platforms, ensuring HIPAA-compliant data transmission and high availability, integrating Azure DDoS Protection to safeguard internet-facing endpoints from volumetric and application-layer attacks.",
+            "Deployed Microsoft Defender for Cloud to establish threat detection and security posture management across multi-cloud healthcare infrastructure, configuring automated remediation workflows and compliance scoring aligned with HIPAA Security Rule, NIST CSF, and HITRUST frameworks for proactive misconfiguration identification.",
+            "Configured Splunk Enterprise Security to aggregate and analyze security event logs from EMR systems, network devices, and identity platforms, developing custom correlation searches and dashboards supporting HIPAA audit controls, breach notification readiness, and incident response workflows aligned with security management processes.",
+            "Integrated QRadar SIEM to centralize security event monitoring across distributed healthcare environments including on-premises data centers and cloud-hosted EHR systems, building automated offense workflows and enrichment pipelines correlating threat intelligence feeds with internal logs using Python and SQL for timely escalation."
+          ],
+          "description": "Deployed Radware SaaS cWAAP across 40+ healthcare web applications to enforce WAF and API protection while maintaining HIPAA compliance, configuring SSL/TLS offloading, certificate management, and traffic routing to ensure continuous availability for patient portals and EHR integrations with minimal operational disruption.\nReviewed Radware cWAAP logs daily using Azure Log Analytics and Microsoft Sentinel, identifying false positives and tuning security rules aligned with OWASP Top 10 vulnerabilities, customizing rulesets to block SQL injection, XSS, and remote code execution attempts targeting healthcare APIs and PHI-handling systems.\nIntegrated Radware cWAAP logs with Splunk, QRadar, and Microsoft Sentinel to design normalized log parsers and correlation rules detecting healthcare-specific attack patterns, including unauthorized PHI access, API abuse, and data exfiltration attempts across distributed clinical environments and telehealth platforms.\nAutomated log ingestion pipelines using Azure Logic Apps and Radware APIs to centralize threat intelligence into SIEM dashboards, enabling real-time incident response workflows, audit readiness for HIPAA compliance reporting, and streamlined integration with Snowflake Data Platform for advanced analytics.\nCollaborated with Network Services and Border Protection teams to onboard 30+ applications into Radware SaaS cWAAP, conducting pre-deployment security assessments, traffic profiling, and load testing using Azure Load Balancer to validate seamless integration and establish ongoing support workflows.\nAnalyzed and remediated code-based security vulnerabilities by conducting SAST and DAST assessments, identifying insecure API endpoints, hardcoded credentials, and improper input validation aligned with OWASP Top 10, partnering with development teams to embed fixes into the SDLC before production deployment.\nEmbedded security controls throughout the Application Lifecycle Management process by integrating secure software development practices into CI/CD pipelines, enforcing pre-commit security scans using SAST tools, and validating API protection policies with DevOps engineers before promoting builds to production environments.\nPerformed comprehensive third-party application risk analysis for vendor-hosted healthcare SaaS solutions, evaluating API security posture, data encryption standards, and compliance with HIPAA Business Associate Agreement requirements using OWASP risk assessment frameworks and custom Python scripts for vulnerability scoring.\nDeveloped Python and SQL automation scripts to query Snowflake Data Platform and Azure Log Analytics for WAF telemetry, extracting insights on blocked threats, geographic attack origins, and API consumption trends, generating compliance dashboards aligned with NIST CSF continuous monitoring requirements.\nIntegrated Radware APIs with Azure API Management and Snowflake Data Platform to automate policy synchronization, export threat intelligence feeds, and orchestrate incident response workflows using Python connectors, enabling automated rule updates based on emerging healthcare threats across multi-cloud environments.\nImplemented Azure Web Application Firewall and Azure DDoS Protection alongside Radware SaaS cWAAP to establish layered defense-in-depth for healthcare applications, configuring DDoS mitigation thresholds, traffic scrubbing policies, and failover mechanisms using Azure Monitor to ensure uptime for patient-facing services.\nEnforced compliance with ISO 27001/27002, NIST CSF, and NIST 800-82 security frameworks by conducting quarterly assessments, validating WAF controls using Radware cWAAP, and documenting evidence for healthcare regulatory audits, mapping configurations to NIST CSF Protect and Detect functions.\nConfigured Microsoft Defender for Cloud and Azure Active Directory to enforce identity-based access controls, conditional access policies, and privileged identity management for administrators managing Radware SaaS cWAAP and healthcare infrastructure, integrating with Microsoft Sentinel for authentication anomaly correlation.\nManaged concurrent priorities across application security, cloud infrastructure modernization, and compliance projects, coordinating cross-functional stakeholders including clinical IT and compliance officers through clear communication, delivering security briefings and remediation roadmaps using ServiceNow ticketing workflows during evolving threat landscapes.\nDesigned Azure Logic Apps to automate security orchestration workflows including automated ServiceNow ticket creation upon Radware cWAAP critical alert detection, threat indicator enrichment, and escalation protocols aligned with HIPAA breach notification timelines, integrating with Microsoft Sentinel playbooks for automated response actions.\nTuned Azure Monitor and Azure Log Analytics workspaces to centralize telemetry from Radware SaaS cWAAP, Azure Web Application Firewall, and Microsoft Sentinel, configuring custom KQL queries and alerting thresholds to detect anomalous API consumption, brute-force attempts, and unauthorized PHI access patterns.\nConducted SAST and DAST assessments across enterprise EHR platforms to detect code-based vulnerabilities in patient portal modules, collaborating with development teams to integrate secure coding practices into CI/CD pipelines, reducing exposure to SQL injection, XSS, and authentication bypass vulnerabilities while maintaining HL7 FHIR interoperability.\nImplemented Azure API Management and Azure Load Balancer to optimize and secure communication between microservices supporting telehealth platforms, ensuring HIPAA-compliant data transmission and high availability, integrating Azure DDoS Protection to safeguard internet-facing endpoints from volumetric and application-layer attacks.\nDeployed Microsoft Defender for Cloud to establish threat detection and security posture management across multi-cloud healthcare infrastructure, configuring automated remediation workflows and compliance scoring aligned with HIPAA Security Rule, NIST CSF, and HITRUST frameworks for proactive misconfiguration identification.\nConfigured Splunk Enterprise Security to aggregate and analyze security event logs from EMR systems, network devices, and identity platforms, developing custom correlation searches and dashboards supporting HIPAA audit controls, breach notification readiness, and incident response workflows aligned with security management processes.\nIntegrated QRadar SIEM to centralize security event monitoring across distributed healthcare environments including on-premises data centers and cloud-hosted EHR systems, building automated offense workflows and enrichment pipelines correlating threat intelligence feeds with internal logs using Python and SQL for timely escalation.",
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company_name": "## American Express",
+          "client_name": null,
+          "job_title": "## Site Reliability Engineer",
+          "start_date": "2020-01",
+          "end_date": "2022-10",
+          "is_current": false,
+          "location": "New York, NY",
+          "bullets": [
+            "Deployed Radware SaaS cWAAP across business-critical banking applications including online portals, mobile APIs, and payment gateways, implementing zero-downtime phased rollout strategies with Azure-hosted environments while conducting pre-production validation using Postman for comprehensive API endpoint testing and functional verification.",
+            "Remediated code-based security vulnerabilities by assessing OWASP Top 10 risks including SQL injection and cross-site scripting, collaborating with development teams to implement input validation, parameterized queries, and session management controls throughout SDLC phases, significantly reducing critical exposures across banking platforms.",
+            "Analyzed over 50,000 daily Radware cWAAP security events, continuously tuning protection rules to balance threat mitigation with false positive reduction, ensuring legitimate banking transactions remained uninterrupted while documenting tuning decisions per ISO 27001/27002 governance standards for regulatory audit trails.",
+            "Integrated Radware cWAAP logs with Splunk and ELK Stack, developing Python scripts to normalize log formats and enrich event data with banking application metadata, enabling real-time correlation with authentication failures, transaction anomalies, and fraud detection systems for enhanced security visibility.",
+            "Onboarded 35 business-critical banking applications to Radware SaaS cWAAP protection by coordinating with Network Services teams, establishing standardized workflows for DNS configuration, SSL certificate management via Azure Key Vault, and traffic routing policies through documented runbooks and escalation procedures.",
+            "Developed Python and SQL automation scripts to query Radware APIs for programmatic rule updates, security policy exports, and compliance reporting, implementing infrastructure-as-code practices that maintained consistency across development, staging, and production environments while enabling rapid emergency patch deployment.",
+            "Evaluated third-party vendor APIs, payment processors, and cloud integrations against OWASP Top 10 vulnerabilities and PCI-DSS requirements, documenting security gaps and collaborating with procurement teams to enforce security standards through vendor contracts, service-level agreements, and ongoing risk assessments.",
+            "Embedded security controls throughout SDLC by conducting code reviews focused on OWASP Top 10 threats, establishing security gates at build stages, and training development teams on secure coding techniques including proper authentication, cryptographic implementation using Azure Secret Manager, and NIST-aligned input validation patterns.",
+            "Maintained ISO 27001/27002 and NIST CSF compliance by documenting Radware configurations, security rule rationale, incident response procedures, and change management processes, participating in quarterly internal audits and annual external assessments to demonstrate effective technical control implementation protecting customer financial data.",
+            "Configured Azure-based security infrastructure supporting Radware SaaS cWAAP deployments, implementing secure connectivity between on-premises data centers and cloud environments, managing Azure Key Vault for certificate lifecycle, and establishing network security groups enforcing defense-in-depth architecture aligned with PCI-DSS network segmentation standards.",
+            "Monitored Splunk and ELK Stack daily to correlate Radware cWAAP security events with authentication logs and fraud alerts, creating incident response workflows enabling rapid triage of potential breaches, coordinating with SOC analysts to investigate suspicious activities targeting online banking platforms throughout continuous operational coverage.",
+            "Acquired comprehensive knowledge of core banking systems, credit card processing platforms, and loan origination portals, understanding application architecture and API dependencies to inform Radware rule tuning decisions, minimizing false positives while maintaining robust protection against injection attacks and OWASP Top 10 vulnerabilities.",
+            "Managed concurrent security priorities across application onboarding projects, vulnerability remediation initiatives, and compliance audit preparations within dynamic banking environments, demonstrating analytical problem-solving through effective prioritization, stakeholder communication with executive leadership, and delivery of security outcomes aligned with risk management frameworks.",
+            "Utilized Postman for API security testing of banking endpoints, validating authentication mechanisms, authorization controls, and rate limiting against OWASP API Security Top 10 risks, collaborating with development teams to remediate vulnerabilities before production and establishing automated security testing within CI/CD pipelines.",
+            "Tuned Radware SaaS cWAAP protection rules for specialized banking workflows including wire transfers and ACH processing, analyzing application-specific traffic patterns using SQL queries against log repositories, implementing custom signatures for banking-specific attack patterns while maintaining detailed documentation of security exceptions and PCI-DSS compliance posture.",
+            "Integrated Radware APIs with core banking platforms to enforce application-layer protection across customer-facing web and mobile applications, enabling real-time detection and mitigation of DDoS attacks, SQL injection, and XSS threats while configuring automated threat intelligence sharing and incident response workflows.",
+            "Conducted security assessments identifying authentication bypass flaws and insecure deserialization in legacy banking applications, implementing secure coding practices and automated SAST to continuously scan for vulnerabilities during CI/CD pipeline execution, ensuring alignment with SOX audit controls and PCI-DSS secure development lifecycle mandates.",
+            "Strengthened application-layer protection by configuring Radware WAF policies addressing bot attacks, credential stuffing, and application-layer exploits targeting financial transaction systems, enhancing protection through integration with SIEM platforms and threat intelligence feeds enabling proactive monitoring, correlation of security events per GLBA safeguard rules."
+          ],
+          "description": "Deployed Radware SaaS cWAAP across business-critical banking applications including online portals, mobile APIs, and payment gateways, implementing zero-downtime phased rollout strategies with Azure-hosted environments while conducting pre-production validation using Postman for comprehensive API endpoint testing and functional verification.\nRemediated code-based security vulnerabilities by assessing OWASP Top 10 risks including SQL injection and cross-site scripting, collaborating with development teams to implement input validation, parameterized queries, and session management controls throughout SDLC phases, significantly reducing critical exposures across banking platforms.\nAnalyzed over 50,000 daily Radware cWAAP security events, continuously tuning protection rules to balance threat mitigation with false positive reduction, ensuring legitimate banking transactions remained uninterrupted while documenting tuning decisions per ISO 27001/27002 governance standards for regulatory audit trails.\nIntegrated Radware cWAAP logs with Splunk and ELK Stack, developing Python scripts to normalize log formats and enrich event data with banking application metadata, enabling real-time correlation with authentication failures, transaction anomalies, and fraud detection systems for enhanced security visibility.\nOnboarded 35 business-critical banking applications to Radware SaaS cWAAP protection by coordinating with Network Services teams, establishing standardized workflows for DNS configuration, SSL certificate management via Azure Key Vault, and traffic routing policies through documented runbooks and escalation procedures.\nDeveloped Python and SQL automation scripts to query Radware APIs for programmatic rule updates, security policy exports, and compliance reporting, implementing infrastructure-as-code practices that maintained consistency across development, staging, and production environments while enabling rapid emergency patch deployment.\nEvaluated third-party vendor APIs, payment processors, and cloud integrations against OWASP Top 10 vulnerabilities and PCI-DSS requirements, documenting security gaps and collaborating with procurement teams to enforce security standards through vendor contracts, service-level agreements, and ongoing risk assessments.\nEmbedded security controls throughout SDLC by conducting code reviews focused on OWASP Top 10 threats, establishing security gates at build stages, and training development teams on secure coding techniques including proper authentication, cryptographic implementation using Azure Secret Manager, and NIST-aligned input validation patterns.\nMaintained ISO 27001/27002 and NIST CSF compliance by documenting Radware configurations, security rule rationale, incident response procedures, and change management processes, participating in quarterly internal audits and annual external assessments to demonstrate effective technical control implementation protecting customer financial data.\nConfigured Azure-based security infrastructure supporting Radware SaaS cWAAP deployments, implementing secure connectivity between on-premises data centers and cloud environments, managing Azure Key Vault for certificate lifecycle, and establishing network security groups enforcing defense-in-depth architecture aligned with PCI-DSS network segmentation standards.\nMonitored Splunk and ELK Stack daily to correlate Radware cWAAP security events with authentication logs and fraud alerts, creating incident response workflows enabling rapid triage of potential breaches, coordinating with SOC analysts to investigate suspicious activities targeting online banking platforms throughout continuous operational coverage.\nAcquired comprehensive knowledge of core banking systems, credit card processing platforms, and loan origination portals, understanding application architecture and API dependencies to inform Radware rule tuning decisions, minimizing false positives while maintaining robust protection against injection attacks and OWASP Top 10 vulnerabilities.\nManaged concurrent security priorities across application onboarding projects, vulnerability remediation initiatives, and compliance audit preparations within dynamic banking environments, demonstrating analytical problem-solving through effective prioritization, stakeholder communication with executive leadership, and delivery of security outcomes aligned with risk management frameworks.\nUtilized Postman for API security testing of banking endpoints, validating authentication mechanisms, authorization controls, and rate limiting against OWASP API Security Top 10 risks, collaborating with development teams to remediate vulnerabilities before production and establishing automated security testing within CI/CD pipelines.\nTuned Radware SaaS cWAAP protection rules for specialized banking workflows including wire transfers and ACH processing, analyzing application-specific traffic patterns using SQL queries against log repositories, implementing custom signatures for banking-specific attack patterns while maintaining detailed documentation of security exceptions and PCI-DSS compliance posture.\nIntegrated Radware APIs with core banking platforms to enforce application-layer protection across customer-facing web and mobile applications, enabling real-time detection and mitigation of DDoS attacks, SQL injection, and XSS threats while configuring automated threat intelligence sharing and incident response workflows.\nConducted security assessments identifying authentication bypass flaws and insecure deserialization in legacy banking applications, implementing secure coding practices and automated SAST to continuously scan for vulnerabilities during CI/CD pipeline execution, ensuring alignment with SOX audit controls and PCI-DSS secure development lifecycle mandates.\nStrengthened application-layer protection by configuring Radware WAF policies addressing bot attacks, credential stuffing, and application-layer exploits targeting financial transaction systems, enhancing protection through integration with SIEM platforms and threat intelligence feeds enabling proactive monitoring, correlation of security events per GLBA safeguard rules.",
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company_name": "## Best Buy",
+          "client_name": null,
+          "job_title": "## Cloud Devops Engineer",
+          "start_date": "2017-03",
+          "end_date": "2019-12",
+          "is_current": false,
+          "location": "Richfield, MN",
+          "bullets": [
+            "Deployed AWS WAF across retail e-commerce applications hosted on AWS EC2 and AWS ELB/ALB, protecting customer-facing storefronts and checkout systems against OWASP Top 10 vulnerabilities including SQL injection and cross-site scripting, while ensuring PCI-DSS compliance for payment processing and GDPR adherence for customer data protection.",
+            "Designed comprehensive AWS WAF rule sets and API Gateway protection strategies for RESTful APIs, integrating security policies with backend microservices to safeguard transactional data and personally identifiable information, while continuously analyzing OWASP Top 10 attack vectors and applying defense-in-depth methodologies protecting retail transaction workflows.",
+            "Integrated AWS CloudWatch, AWS CloudTrail, and AWS WAF logs with enterprise SIEM platforms enabling real-time threat detection and security event correlation, developing Python scripts to automate log parsing, normalization, and alerting workflows while establishing baseline monitoring for retail traffic patterns meeting PCI-DSS audit trail requirements.",
+            "Conducted daily analysis of AWS WAF and API Gateway protection logs using SQL queries against centralized security data stores, identifying false positives and tuning security rules to minimize customer impact while maintaining robust protection, collaborating with development teams to implement remediation strategies aligned with OWASP Top 10 guidelines.",
+            "Embedded security controls throughout SDLC by collaborating with development teams to integrate AWS WAF testing, API Gateway validation, and vulnerability scanning using Amazon Inspector into CI/CD pipelines, ensuring retail applications adhered to secure coding practices and addressed OWASP Top 10 risks before production deployment.",
+            "Developed Python automation scripts interacting with AWS APIs for programmatic management of AWS WAF rules, AWS Shield configurations, and AWS IAM policies, enabling dynamic security policy updates based on emerging threat intelligence while maintaining audit logs in AWS CloudTrail complying with PCI-DSS operational controls.",
+            "Configured AWS Shield Standard and Advanced protections with AWS WAF to defend high-traffic retail e-commerce platforms against DDoS attacks during peak shopping seasons, implementing rate-limiting rules and geo-blocking policies protecting application availability while monitoring attack patterns through AWS CloudWatch dashboards integrated with SIEM.",
+            "Collaborated with Network Services teams to onboard business-critical retail applications onto AWS WAF and API Gateway protection frameworks, conducting security assessments to understand application architectures and transaction flows, ensuring minimal disruption to customer-facing services while achieving compliance with PCI-DSS and GDPR requirements.",
+            "Analyzed and remediated code-based security vulnerabilities identified through Amazon Inspector scans and manual code reviews, working with development teams to address OWASP Top 10 weaknesses including insecure deserialization and broken access control within retail applications, while embedding secure coding practices into SDLC and maintaining remediation documentation.",
+            "Implemented centralized security logging architecture using Amazon Security Lake integrated with AWS CloudTrail, AWS CloudWatch, and AWS WAF logs, enabling normalized security data collection across multi-account environments supporting retail operations, developing SQL-based analytics queries to identify anomalous patterns and potential security incidents affecting customer transactions.",
+            "Managed AWS IAM roles, policies, and permission boundaries to enforce least-privilege access controls for retail application infrastructure, including AWS EC2 instances, AWS ELB/ALB configurations, and API Gateway endpoints, ensuring separation of duties and role-based access aligned with PCI-DSS access control requirements and GDPR data protection principles.",
+            "Established security monitoring and alerting workflows using AWS CloudWatch metrics and alarms integrated with SIEM platforms, creating custom Python scripts to parse AWS WAF block events and API Gateway protection violations, generating actionable security intelligence reports enabling rapid incident response for threats targeting retail payment processing systems.",
+            "Performed third-party application risk analysis for retail vendor integrations and partner APIs, evaluating security postures against OWASP Top 10 standards and PCI-DSS compliance requirements, documenting risk findings and mitigation recommendations while configuring AWS WAF rules and API Gateway protection policies to enforce secure communication patterns and validate authentication mechanisms.",
+            "Developed comprehensive SQL queries and Python-based reporting tools to analyze security event data from AWS CloudTrail and SIEM systems, identifying trends in attack methodologies targeting retail applications, supporting compliance reporting for PCI-DSS audits and GDPR data breach notification requirements while providing detailed technical documentation for operations teams.",
+            "Configured Amazon Security Lake for multi-source event ingestion from POS systems and e-commerce platforms, enabling real-time correlation of transaction anomalies while ensuring PCI-DSS monitoring requirements, implementing OCSF normalization to streamline security operations workflows and support GDPR compliance through automated retention policies and data sovereignty controls across multi-region retail operations."
+          ],
+          "description": "Deployed AWS WAF across retail e-commerce applications hosted on AWS EC2 and AWS ELB/ALB, protecting customer-facing storefronts and checkout systems against OWASP Top 10 vulnerabilities including SQL injection and cross-site scripting, while ensuring PCI-DSS compliance for payment processing and GDPR adherence for customer data protection.\nDesigned comprehensive AWS WAF rule sets and API Gateway protection strategies for RESTful APIs, integrating security policies with backend microservices to safeguard transactional data and personally identifiable information, while continuously analyzing OWASP Top 10 attack vectors and applying defense-in-depth methodologies protecting retail transaction workflows.\nIntegrated AWS CloudWatch, AWS CloudTrail, and AWS WAF logs with enterprise SIEM platforms enabling real-time threat detection and security event correlation, developing Python scripts to automate log parsing, normalization, and alerting workflows while establishing baseline monitoring for retail traffic patterns meeting PCI-DSS audit trail requirements.\nConducted daily analysis of AWS WAF and API Gateway protection logs using SQL queries against centralized security data stores, identifying false positives and tuning security rules to minimize customer impact while maintaining robust protection, collaborating with development teams to implement remediation strategies aligned with OWASP Top 10 guidelines.\nEmbedded security controls throughout SDLC by collaborating with development teams to integrate AWS WAF testing, API Gateway validation, and vulnerability scanning using Amazon Inspector into CI/CD pipelines, ensuring retail applications adhered to secure coding practices and addressed OWASP Top 10 risks before production deployment.\nDeveloped Python automation scripts interacting with AWS APIs for programmatic management of AWS WAF rules, AWS Shield configurations, and AWS IAM policies, enabling dynamic security policy updates based on emerging threat intelligence while maintaining audit logs in AWS CloudTrail complying with PCI-DSS operational controls.\nConfigured AWS Shield Standard and Advanced protections with AWS WAF to defend high-traffic retail e-commerce platforms against DDoS attacks during peak shopping seasons, implementing rate-limiting rules and geo-blocking policies protecting application availability while monitoring attack patterns through AWS CloudWatch dashboards integrated with SIEM.\nCollaborated with Network Services teams to onboard business-critical retail applications onto AWS WAF and API Gateway protection frameworks, conducting security assessments to understand application architectures and transaction flows, ensuring minimal disruption to customer-facing services while achieving compliance with PCI-DSS and GDPR requirements.\nAnalyzed and remediated code-based security vulnerabilities identified through Amazon Inspector scans and manual code reviews, working with development teams to address OWASP Top 10 weaknesses including insecure deserialization and broken access control within retail applications, while embedding secure coding practices into SDLC and maintaining remediation documentation.\nImplemented centralized security logging architecture using Amazon Security Lake integrated with AWS CloudTrail, AWS CloudWatch, and AWS WAF logs, enabling normalized security data collection across multi-account environments supporting retail operations, developing SQL-based analytics queries to identify anomalous patterns and potential security incidents affecting customer transactions.\nManaged AWS IAM roles, policies, and permission boundaries to enforce least-privilege access controls for retail application infrastructure, including AWS EC2 instances, AWS ELB/ALB configurations, and API Gateway endpoints, ensuring separation of duties and role-based access aligned with PCI-DSS access control requirements and GDPR data protection principles.\nEstablished security monitoring and alerting workflows using AWS CloudWatch metrics and alarms integrated with SIEM platforms, creating custom Python scripts to parse AWS WAF block events and API Gateway protection violations, generating actionable security intelligence reports enabling rapid incident response for threats targeting retail payment processing systems.\nPerformed third-party application risk analysis for retail vendor integrations and partner APIs, evaluating security postures against OWASP Top 10 standards and PCI-DSS compliance requirements, documenting risk findings and mitigation recommendations while configuring AWS WAF rules and API Gateway protection policies to enforce secure communication patterns and validate authentication mechanisms.\nDeveloped comprehensive SQL queries and Python-based reporting tools to analyze security event data from AWS CloudTrail and SIEM systems, identifying trends in attack methodologies targeting retail applications, supporting compliance reporting for PCI-DSS audits and GDPR data breach notification requirements while providing detailed technical documentation for operations teams.\nConfigured Amazon Security Lake for multi-source event ingestion from POS systems and e-commerce platforms, enabling real-time correlation of transaction anomalies while ensuring PCI-DSS monitoring requirements, implementing OCSF normalization to streamline security operations workflows and support GDPR compliance through automated retention policies and data sovereignty controls across multi-region retail operations.",
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company_name": "## Progressive",
+          "client_name": null,
+          "job_title": "Devops Engineer",
+          "start_date": "2015-12",
+          "end_date": "2017-02",
+          "is_current": false,
+          "location": "Mayfield Village, OH",
+          "bullets": [
+            "Designed and managed cloud solutions across AWS and Azure platforms, successfully deploying secure and scalable applications using critical services including AWS EC2, S3, RDS, Azure Virtual Machines, Blob Storage, and Azure SQL Database.",
+            "Enhanced Software Development Life Cycle (SDLC) by implementing integration with Jenkins, GitHub Actions, and Azure DevOps for CI/CD pipelines, which automated build and deployment processes and reduced release cycles by 25%.",
+            "Managed software artifact repositories using JFrog/Nexus Artifactory to ensure efficient storage, version control, and distribution across multiple environments.",
+            "Streamlined administrative tasks with Groovy scripts in AWS, reducing manual efforts by 20% and generating Agile metrics in JIRA to drive data-driven decisions for team performance and productivity optimization.",
+            "Administered MySQL and MongoDB databases on AWS RDS and Azure Cosmos DB, maintaining high availability, performing critical performance tuning, and implementing automated backup strategies for scalable and secure data management.",
+            "Implemented robust access management by configuring Identity and Access Management (IAM) roles and policies in AWS and Azure, deploying SSL certificates for encryption, and enforcing Role-Based Access Control (RBAC) to ensure fine-grained security controls.",
+            "Utilized AWS Key Management Service (KMS) and Azure Key Vault for comprehensive key management, developing disaster recovery strategies and network security configurations to guarantee system security and regulatory compliance.",
+            "Created and automated infrastructure management scripts using Shell and Python to efficiently handle resources across AWS and Azure environments, reducing manual intervention by 40% and enabling seamless cloud operations.",
+            "Implemented comprehensive multi-cloud observability and performance monitoring through Datadog and New Relic, developing custom dashboards to track critical AWS metrics including CPU utilization, memory consumption, and latency, while using AWS CloudWatch for real-time monitoring and alerting to ensure proactive issue resolution and optimal system performance."
+          ],
+          "description": "Designed and managed cloud solutions across AWS and Azure platforms, successfully deploying secure and scalable applications using critical services including AWS EC2, S3, RDS, Azure Virtual Machines, Blob Storage, and Azure SQL Database.\nEnhanced Software Development Life Cycle (SDLC) by implementing integration with Jenkins, GitHub Actions, and Azure DevOps for CI/CD pipelines, which automated build and deployment processes and reduced release cycles by 25%.\nManaged software artifact repositories using JFrog/Nexus Artifactory to ensure efficient storage, version control, and distribution across multiple environments.\nStreamlined administrative tasks with Groovy scripts in AWS, reducing manual efforts by 20% and generating Agile metrics in JIRA to drive data-driven decisions for team performance and productivity optimization.\nAdministered MySQL and MongoDB databases on AWS RDS and Azure Cosmos DB, maintaining high availability, performing critical performance tuning, and implementing automated backup strategies for scalable and secure data management.\nImplemented robust access management by configuring Identity and Access Management (IAM) roles and policies in AWS and Azure, deploying SSL certificates for encryption, and enforcing Role-Based Access Control (RBAC) to ensure fine-grained security controls.\nUtilized AWS Key Management Service (KMS) and Azure Key Vault for comprehensive key management, developing disaster recovery strategies and network security configurations to guarantee system security and regulatory compliance.\nCreated and automated infrastructure management scripts using Shell and Python to efficiently handle resources across AWS and Azure environments, reducing manual intervention by 40% and enabling seamless cloud operations.\nImplemented comprehensive multi-cloud observability and performance monitoring through Datadog and New Relic, developing custom dashboards to track critical AWS metrics including CPU utilization, memory consumption, and latency, while using AWS CloudWatch for real-time monitoring and alerting to ensure proactive issue resolution and optimal system performance.",
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company_name": "Mastek",
+          "client_name": null,
+          "job_title": "## Linux Administrator System Engineer",
+          "start_date": "2014-06",
+          "end_date": "2015-10",
+          "is_current": false,
+          "location": "Mumbai, India",
+          "bullets": [
+            "Administered and automated Linux/Unix environments, specifically Red Hat Enterprise Linux (RHEL), using Bash and Python scripts to enhance operational efficiency by 25%, streamlining system management and reducing manual intervention.",
+            "Managed complex system configurations, including Logical Volume Management (LVM) setups, to optimize storage and backup processes, successfully reducing system downtime by 30% through strategic volume management and efficient data organization.",
+            "Configured and maintained critical network services including DHCP, DNS, and FTP, while implementing robust security protocols such as SSL/TLS and IPSec to ensure secure and reliable network operations across infrastructure.",
+            "Implemented high availability solutions using Red Hat Clusters and HAProxy, significantly improving system uptime and minimizing service interruptions by 40%, ensuring continuous operational reliability.",
+            "Developed automated backup strategies and scheduled cron jobs for comprehensive disaster recovery, maintaining data integrity and enabling quick system recovery during potential failures. Implemented extensive system hardening techniques that strengthened security infrastructure and reduced system vulnerabilities by 40%.",
+            "Performed advanced kernel parameter tuning to optimize system performance, increasing reliability and responsiveness in high-demand computing environments.",
+            "Managed user and group permissions with SSH key authentication, implementing fine-grained access controls to secure server environments and protect critical system resources.",
+            "Executed regular system maintenance by patching and updating Linux servers using RPM, YUM, and APT package management tools, maintaining system stability and proactively reducing potential security vulnerabilities.",
+            "Configured Apache and Nginx web servers to ensure scalable, secure, and efficient service delivery for mission-critical applications, optimizing web infrastructure performance.",
+            "Integrated Oracle databases with Linux environments, providing comprehensive database administration and performance optimization. Deployed and managed virtual environments using VMware and KVM, improving resource utilization and scalability across multiple data centers."
+          ],
+          "description": "Administered and automated Linux/Unix environments, specifically Red Hat Enterprise Linux (RHEL), using Bash and Python scripts to enhance operational efficiency by 25%, streamlining system management and reducing manual intervention.\nManaged complex system configurations, including Logical Volume Management (LVM) setups, to optimize storage and backup processes, successfully reducing system downtime by 30% through strategic volume management and efficient data organization.\nConfigured and maintained critical network services including DHCP, DNS, and FTP, while implementing robust security protocols such as SSL/TLS and IPSec to ensure secure and reliable network operations across infrastructure.\nImplemented high availability solutions using Red Hat Clusters and HAProxy, significantly improving system uptime and minimizing service interruptions by 40%, ensuring continuous operational reliability.\nDeveloped automated backup strategies and scheduled cron jobs for comprehensive disaster recovery, maintaining data integrity and enabling quick system recovery during potential failures. Implemented extensive system hardening techniques that strengthened security infrastructure and reduced system vulnerabilities by 40%.\nPerformed advanced kernel parameter tuning to optimize system performance, increasing reliability and responsiveness in high-demand computing environments.\nManaged user and group permissions with SSH key authentication, implementing fine-grained access controls to secure server environments and protect critical system resources.\nExecuted regular system maintenance by patching and updating Linux servers using RPM, YUM, and APT package management tools, maintaining system stability and proactively reducing potential security vulnerabilities.\nConfigured Apache and Nginx web servers to ensure scalable, secure, and efficient service delivery for mission-critical applications, optimizing web infrastructure performance.\nIntegrated Oracle databases with Linux environments, providing comprehensive database administration and performance optimization. Deployed and managed virtual environments using VMware and KVM, improving resource utilization and scalability across multiple data centers.",
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Bachelor of Technology",
+          "field_of_study": "Technology Computer Science",
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "PostgreSQL",
+          "normalized_name": "postgresql",
+          "category": "Databases",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": 6,
+          "proficiency": null
+        },
+        {
+          "name": "Docker",
+          "normalized_name": "docker",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Kubernetes",
+          "normalized_name": "kubernetes",
+          "category": "Tools",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.6,
+          "years_experience": 11,
+          "proficiency": null
+        },
+        {
+          "name": "Communication",
+          "normalized_name": "communication",
+          "category": "Soft Skills",
+          "confidence": 0.6,
+          "years_experience": 9,
+          "proficiency": null
+        },
+        {
+          "name": "Agile",
+          "normalized_name": "agile",
+          "category": "Methodologies",
+          "confidence": 0.6,
+          "years_experience": 1,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "docx",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "sample_001/original.rtf",
+    "format": "txt_rtf",
+    "parsed": {
+      "sections": {
+        "skills": {
+          "content": "Python, Node.js, AWS",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+14155551234",
+        "linkedin_url": null,
+        "location": "Austin, TX"
+      },
+      "work_history": [],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Doe",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Node.js",
+          "normalized_name": "node.js",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.4,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "rtf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "sample_resume.rtf",
+    "format": "txt_rtf",
+    "parsed": {
+      "sections": {
+        "skills": {
+          "content": "Python, Node.js, AWS",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+14155551234",
+        "linkedin_url": null,
+        "location": "Austin, TX"
+      },
+      "work_history": [],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Doe",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Node.js",
+          "normalized_name": "node.js",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.4,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "rtf",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  },
+  {
+    "file": "sample_resume.txt",
+    "format": "txt_rtf",
+    "parsed": {
+      "sections": {
+        "skills": {
+          "content": "Python, JavaScript, React, AWS",
+          "confidence": 1.0
+        },
+        "experience": {
+          "content": "Acme Corp - Software Engineer (2021 - Present)\nBuilt APIs and web apps.",
+          "confidence": 1.0
+        }
+      },
+      "contact": {
+        "full_name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+14155551234",
+        "linkedin_url": null,
+        "location": "San Francisco, CA, Canada"
+      },
+      "work_history": [
+        {
+          "company_name": "Acme Corp - Software Engineer (",
+          "client_name": null,
+          "job_title": null,
+          "start_date": "2021-01",
+          "end_date": null,
+          "is_current": true,
+          "location": null,
+          "bullets": [],
+          "description": "Built APIs and web apps.",
+          "confidence": 0.68
+        }
+      ],
+      "education": [
+        {
+          "institution": null,
+          "degree": "Doe",
+          "field_of_study": null,
+          "start_date": null,
+          "end_date": null,
+          "in_progress": false,
+          "confidence": 0.3
+        },
+        {
+          "institution": null,
+          "degree": "Built",
+          "field_of_study": null,
+          "start_date": "2021-02",
+          "end_date": null,
+          "in_progress": true,
+          "confidence": 0.6
+        }
+      ],
+      "certifications": [],
+      "skills": [
+        {
+          "name": "JavaScript",
+          "normalized_name": "javascript",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "Python",
+          "normalized_name": "python",
+          "category": "Programming Languages",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "React",
+          "normalized_name": "react",
+          "category": "Frameworks",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        },
+        {
+          "name": "AWS",
+          "normalized_name": "aws",
+          "category": "Cloud Platforms",
+          "confidence": 0.85,
+          "years_experience": null,
+          "proficiency": null
+        }
+      ],
+      "raw_text_debug": {
+        "method": "txt",
+        "used_ocr": false,
+        "ocr_confidence": null
+      }
+    },
+    "ground_truth": {},
+    "scores": {}
+  }
+]

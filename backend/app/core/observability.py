@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 import logging.config
 import time
+
+logger = logging.getLogger(__name__)
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -76,6 +78,14 @@ WORKER_UTILIZATION = Gauge(
 DB_POOL_SIZE = Gauge(
     "db_connection_pool_size",
     "Database connection pool size",
+)
+LLM_CACHE_HITS = Counter(
+    "llm_cache_hits_total",
+    "LLM cache hits",
+)
+LLM_CACHE_MISSES = Counter(
+    "llm_cache_misses_total",
+    "LLM cache misses",
 )
 DB_QUERY_LATENCY = Histogram(
     "db_query_latency_seconds",
@@ -178,6 +188,84 @@ SECTION_DETECTION_FALLBACK_TOTAL = Counter(
     "section_detection_fallback_total",
     "Total times deterministic section detection fallback segmenter activated",
 )
+
+# Pipeline parse metrics (emitted after task_save_to_database)
+PARSE_DURATION = Histogram(
+    "resume_parse_duration_seconds",
+    "Parse time",
+    ["format", "queue"],
+)
+SECTION_CONFIDENCE = Histogram(
+    "resume_section_confidence",
+    "Section detection confidence",
+    ["section"],
+    buckets=(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0),
+)
+FIELD_EXTRACTED = Counter(
+    "resume_field_extracted_total",
+    "Fields extracted",
+    ["field", "format"],
+)
+PARSE_ERRORS = Counter(
+    "resume_parse_errors_total",
+    "Parse errors",
+    ["stage", "format"],
+)
+
+
+def emit_parse_metrics(
+    *,
+    parsed: dict,
+    format: str,  # noqa: A002
+    queue: str = "persist",
+    pipeline_duration_seconds: float | None = None,
+) -> None:
+    """Emit per-parse Prometheus metrics after successful save."""
+    fmt = format or "unknown"
+    if pipeline_duration_seconds is not None and pipeline_duration_seconds >= 0:
+        PARSE_DURATION.labels(format=fmt, queue=queue).observe(pipeline_duration_seconds)
+
+    sections = parsed.get("sections") if isinstance(parsed.get("sections"), dict) else {}
+    for section, data in sections.items():
+        if isinstance(data, dict):
+            conf = data.get("confidence")
+            try:
+                val = float(conf) if conf is not None else 0.0
+            except (TypeError, ValueError):
+                val = 0.0
+            SECTION_CONFIDENCE.labels(section=str(section)).observe(max(0.0, min(1.0, val)))
+
+    contact = parsed.get("contact") if isinstance(parsed.get("contact"), dict) else {}
+    work = parsed.get("work_experience") if isinstance(parsed.get("work_experience"), list) else []
+    education = parsed.get("education") if isinstance(parsed.get("education"), list) else []
+
+    email_val = None
+    for e in (contact.get("emails") or []):
+        if isinstance(e, dict) and str(e.get("email") or "").strip():
+            email_val = e.get("email")
+            break
+    if email_val:
+        FIELD_EXTRACTED.labels(field="email", format=fmt).inc()
+
+    phone_val = None
+    for p in (contact.get("phones") or []):
+        if isinstance(p, dict) and str(p.get("phone") or "").strip():
+            phone_val = p.get("phone")
+            break
+    if phone_val:
+        FIELD_EXTRACTED.labels(field="phone", format=fmt).inc()
+
+    company_val = work[0].get("company") if work and isinstance(work[0], dict) else None
+    if company_val and str(company_val).strip():
+        FIELD_EXTRACTED.labels(field="company", format=fmt).inc()
+
+    title_val = work[0].get("title") if work and isinstance(work[0], dict) else None
+    if title_val and str(title_val).strip():
+        FIELD_EXTRACTED.labels(field="title", format=fmt).inc()
+
+    degree_val = education[0].get("degree") if education and isinstance(education[0], dict) else None
+    if degree_val and str(degree_val).strip():
+        FIELD_EXTRACTED.labels(field="degree", format=fmt).inc()
 
 
 def setup_logging() -> None:
@@ -340,6 +428,12 @@ def update_db_pool_metrics(engine: Engine) -> None:
     try:
         pool_size = engine.pool.size()
         DB_POOL_SIZE.set(pool_size)
+        checked_out = engine.pool.checkedout()
+        if pool_size > 0 and checked_out >= pool_size:
+            logger.warning(
+                "DB connection pool exhausted",
+                extra={"pool_size": pool_size, "checked_out": checked_out},
+            )
     except Exception:
         return
 

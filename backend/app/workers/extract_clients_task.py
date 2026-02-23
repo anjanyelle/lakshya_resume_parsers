@@ -17,20 +17,22 @@ logger = logging.getLogger(__name__)
 
 
 _STRONG_CLIENT_RE = re.compile(
-    r"client[s]?\s*[:–\-]\s*(?P<name>[A-Z][^\n,;\.]{2,50})",
+    r"client[s]?\s*[:–\-]\s*(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})",
     re.IGNORECASE,
 )
 
 _MEDIUM_CLIENT_RES = [
     re.compile(
-        r"worked\s+(for|with|at|on-?site\s+at)\s+(?P<name>[A-Z][^\n,;\.]{2,50})",
+        r"worked\s+(for|with|at|on-?site\s+at)\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})",
         re.IGNORECASE,
     ),
-    re.compile(r"project\s+for\s+(?P<name>[A-Z][^\n,;\.]{2,50})", re.IGNORECASE),
-    re.compile(r"on-?site\s+at\s+(?P<name>[A-Z][^\n,;\.]{2,50})", re.IGNORECASE),
-    re.compile(r"deployed\s+at\s+(?P<name>[A-Z][^\n,;\.]{2,50})", re.IGNORECASE),
-    re.compile(r"assigned\s+to\s+(?P<name>[A-Z][^\n,;\.]{2,50})", re.IGNORECASE),
-    re.compile(r"engagement\s+with\s+(?P<name>[A-Z][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"working\s+(at|for|with)\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"project\s+for\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"on-?site\s+at\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"deployed\s+at\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"assigned\s+to\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"engagement\s+with\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,50})", re.IGNORECASE),
+    re.compile(r"(?:at|@)\s+(?P<name>[A-Za-z0-9][^\n,;\.]{2,40})(?=\s|$)", re.IGNORECASE),
 ]
 
 _FALSE_POSITIVES = {
@@ -48,7 +50,7 @@ _FALSE_POSITIVES = {
 
 
 def _clean_client_name(value: str) -> str:
-    name = str(value or "").strip()
+    name = str(value or "").strip().title()
     name = name.strip(" \t\r\n\"'()[]{}")
     name = re.sub(r"\s+", " ", name).strip()
     name = name.rstrip(" .,:;\u2013\u2014-|")

@@ -1,5 +1,7 @@
 from datetime import date
 
+import pytest
+
 from app.services.parser.work_experience_parser import WorkExperienceParser
 
 
@@ -125,3 +127,147 @@ def test_parse_experience_section_does_not_turn_contact_education_or_certs_into_
     jobs = parser.parse_experience_section(text)
     assert any("acme" in (j.company or "").lower() for j in jobs)
     assert all("bachelor" not in (j.company or "").lower() for j in jobs)
+
+
+def test_parse_table_formatted_experience():
+    text = "\n".join(
+        [
+            "Acme Corp | Software Engineer | Jan 2020 - Dec 2022 | NYC",
+            "Beta Ltd  | Senior Dev       | 2018 - 2020         | LA",
+        ]
+    )
+    parser = WorkExperienceParser()
+    jobs = parser.parse_experience_section(text)
+    assert len(jobs) == 2
+    companies = [str(j.company or "").strip() for j in jobs]
+    assert "Acme Corp" in companies or any("acme" in c.lower() for c in companies)
+    assert "Beta Ltd" in companies or any("beta" in c.lower() for c in companies)
+    assert jobs[0].start_date == date(2020, 1, 1)
+    assert jobs[0].end_date == date(2022, 12, 1)
+    assert jobs[1].start_date == date(2018, 1, 1)
+    assert jobs[1].end_date == date(2020, 1, 1)
+
+
+@pytest.mark.parametrize(
+    ("date_str", "expected"),
+    [
+        ("Q1 2020", date(2020, 1, 1)),
+        ("Q4 2019", date(2019, 10, 1)),
+        ("Spring 2020", date(2020, 3, 1)),
+        ("Fall 2019", date(2019, 9, 1)),
+        ("Jan '20", date(2020, 1, 1)),
+        ("Feb '19", date(2019, 2, 1)),
+        ("2020.01", date(2020, 1, 1)),
+        ("01.2020", date(2020, 1, 1)),
+        ("2020", date(2020, 1, 1)),
+    ],
+)
+def test_parse_date_extended_formats(date_str, expected):
+    parser = WorkExperienceParser()
+    result = parser._parse_date(date_str)
+    assert result == expected
+
+
+def test_validate_dates_flags_future_start():
+    parser = WorkExperienceParser()
+    from datetime import date
+    from app.services.parser.work_experience_parser import JobEntry
+
+    jobs = [
+        JobEntry(
+            company="Acme",
+            title="Dev",
+            start_date=date(2030, 1, 1),
+            end_date=date(2031, 1, 1),
+            is_current=False,
+            location=None,
+            description="",
+            bullets=[],
+            duration_months=12,
+            client=None,
+            employment_type=None,
+            confidence=0.9,
+        )
+    ]
+    out = parser._validate_dates(jobs)
+    assert out[0].date_flag == "future_start"
+
+
+def test_validate_dates_flags_end_before_start():
+    parser = WorkExperienceParser()
+    from datetime import date
+    from app.services.parser.work_experience_parser import JobEntry
+
+    jobs = [
+        JobEntry(
+            company="Acme",
+            title="Dev",
+            start_date=date(2022, 1, 1),
+            end_date=date(2020, 1, 1),
+            is_current=False,
+            location=None,
+            description="",
+            bullets=[],
+            duration_months=None,
+            client=None,
+            employment_type=None,
+            confidence=0.9,
+        )
+    ]
+    out = parser._validate_dates(jobs)
+    assert out[0].date_flag == "end_before_start"
+
+
+def test_detect_overlaps_flags_overlapping_jobs():
+    parser = WorkExperienceParser()
+    from datetime import date
+    from app.services.parser.work_experience_parser import JobEntry
+
+    jobs = [
+        JobEntry(
+            company="A",
+            title="Dev",
+            start_date=date(2020, 1, 1),
+            end_date=date(2022, 6, 1),
+            is_current=False,
+            location=None,
+            description="",
+            bullets=[],
+            duration_months=30,
+            client=None,
+            employment_type=None,
+            confidence=0.9,
+        ),
+        JobEntry(
+            company="B",
+            title="Dev",
+            start_date=date(2021, 1, 1),
+            end_date=date(2023, 1, 1),
+            is_current=False,
+            location=None,
+            description="",
+            bullets=[],
+            duration_months=24,
+            client=None,
+            employment_type=None,
+            confidence=0.9,
+        ),
+    ]
+    out = parser._detect_overlaps(jobs)
+    assert out[1].date_flag is not None
+    assert "overlap" in (out[1].date_flag or "")
+
+
+@pytest.mark.parametrize(
+    ("header", "expected_company", "expected_title"),
+    [
+        ("Software Engineer at Google", "Google", "Software Engineer"),
+        ("Product Manager | Stripe", "Stripe", "Product Manager"),
+        ("ACME CORP - Senior Developer", "ACME CORP", "Senior Developer"),
+    ],
+)
+def test_parse_company_title_formats(header, expected_company, expected_title):
+    parser = WorkExperienceParser()
+    company, title = parser._parse_company_title(header)
+    assert company == expected_company
+    assert title == expected_title

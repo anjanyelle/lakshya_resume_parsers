@@ -18,9 +18,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str = Field(
         default="postgresql+psycopg2://postgres:postgres@localhost:5432/resume_parser"
     )
-    DB_POOL_SIZE: int = 5
+    DB_POOL_SIZE: int = 20
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
+    DB_POOL_RECYCLE: int = 1800
 
     SECRET_KEY: str = "change_me"
     ALGORITHM: str = "HS256"
@@ -64,7 +65,7 @@ class Settings(BaseSettings):
     LOCAL_LLM_MODEL: str = "llama3.1:8b-instruct"
     LOCAL_LLM_FALLBACK_MODEL: str | None = None
     LLM_RATE_LIMIT_PER_MINUTE: int = 30
-    LLM_CACHE_TTL_SECONDS: int = 86400
+    LLM_CACHE_TTL_SECONDS: int = 604800  # 7 days
     LLM_TIMEOUT_SECONDS: int = 90
     LLM_MAX_RETRIES: int = 2
     LLM_MAX_CHARS: int = 12000

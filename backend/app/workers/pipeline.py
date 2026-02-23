@@ -20,10 +20,12 @@ from app.core.encryption import set_current_tenant
 import dateparser
 from app.core.database import SessionLocal
 from app.core.observability import (
+    emit_parse_metrics,
     increment_jobs_total,
     observe_parsing_failure,
     observe_parsing_success,
     observe_stage_duration,
+    PARSE_ERRORS,
 )
 from app.models import (
     Candidate,
@@ -297,6 +299,22 @@ def start_parsing_workflow(job_id: str) -> str:
         finally:
             session.close()
         return _run_local()
+
+
+def _source_format_from_path(path: str | None) -> str | None:
+    """Derive source_format from file path for format-aware normalization."""
+    if not path:
+        return None
+    ext = Path(str(path)).suffix.lower().lstrip(".")
+    if ext == "pdf":
+        return "pdf"
+    if ext in ("docx", "doc"):
+        return "docx" if ext == "docx" else "doc"
+    if ext in ("png", "jpg", "jpeg"):
+        return "ocr"
+    if ext == "txt":
+        return "txt"
+    return None
 
 
 def _load_job(job_id: str) -> ParsingJob:
@@ -764,7 +782,10 @@ def task_clean_text(self, job_id: str) -> str:  # noqa: ANN001
         parsed = job.parsed_data or {}
         if parsed.get("text_cleaned"):
             return job_id
-        cleaned = normalize_resume_text(job.raw_text)
+        source_format = _source_format_from_path(
+            getattr(job, "file_path", None) or getattr(job, "extracted_text_path", None)
+        )
+        cleaned = normalize_resume_text(job.raw_text, source_format=source_format)
         _update_job(
             job_id,
             last_stage="clean_text",
@@ -1859,6 +1880,10 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
             key: {
                 "content": value.content,
                 "confidence": value.confidence,
+                "start_line": getattr(value, "start_line", 0) or 0,
+                "end_line": getattr(value, "end_line", 0) or 0,
+                "evidence_heading": getattr(value, "evidence_heading", "") or "",
+                "method": getattr(value, "method", "") or "",
                 **(section_meta.get(key) if isinstance(section_meta.get(key), dict) else {}),
             }
             for key, value in sections.items()
@@ -4018,9 +4043,31 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         job.completed_at = datetime.now(timezone.utc)
         session.commit()
         observe_parsing_success(job.confidence_score, job.started_at)
+
+        fmt = _source_format_from_path(
+            getattr(job, "file_path", None) or getattr(job, "extracted_text_path", None)
+        ) or "unknown"
+        pipeline_duration = (
+            (job.completed_at - job.started_at).total_seconds()
+            if job.started_at and job.completed_at
+            else None
+        )
+        emit_parse_metrics(
+            parsed=parsed,
+            format=fmt,
+            queue="persist",
+            pipeline_duration_seconds=pipeline_duration,
+        )
         return job_id
     except Exception as exc:
         session.rollback()
+        try:
+            fmt = _source_format_from_path(
+                getattr(job, "file_path", None) or getattr(job, "extracted_text_path", None)
+            ) or "unknown"
+        except NameError:
+            fmt = "unknown"
+        PARSE_ERRORS.labels(stage="save_to_database", format=fmt).inc()
         _handle_task_error(job_id, exc, "save_to_database")
         _log_retry_exhausted(self, job_id, "save_to_database")
         raise
