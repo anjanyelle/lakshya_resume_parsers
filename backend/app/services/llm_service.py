@@ -12,6 +12,8 @@ import httpx
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 
 from app.core.config import get_settings
+from app.core.observability import LLM_CACHE_HITS, LLM_CACHE_MISSES
+from app.core.redis_client import get_redis_client
 from app.services.parser.section_parser import SectionParser
 
 logger = logging.getLogger(__name__)
@@ -2209,6 +2211,7 @@ class LLMParsingService:
         if cached:
             return cached
 
+        LLM_CACHE_MISSES.inc()
         self._enforce_rate_limit()
 
         if provider != "local":
@@ -2332,12 +2335,28 @@ class LLMParsingService:
             extra={"task": task, "tokens": tokens, "model": model},
         )
 
-    def _cache_key(self, prompt: str, task: str) -> str:
-        payload = f"{task}:{prompt}".encode("utf-8")
-        return hashlib.sha256(payload).hexdigest()
+    def _cache_key(self, prompt: str, task: str, model: str | None = None) -> str:
+        model_part = model or self.settings.LOCAL_LLM_MODEL or "default"
+        payload = f"{model_part}:{task}:{prompt}".encode("utf-8")
+        h = hashlib.sha256(payload).hexdigest()[:24]
+        return f"llm_cache:{h}"
 
     def _get_cached(self, key: str) -> LLMResponse | None:
         ttl = self.settings.LLM_CACHE_TTL_SECONDS
+        client = get_redis_client()
+        if client:
+            try:
+                cached = client.get(key)
+                if cached:
+                    LLM_CACHE_HITS.inc()
+                    data = json.loads(cached)
+                    return LLMResponse(
+                        content=data.get("content", "{}"),
+                        tokens=data.get("tokens"),
+                        model=data.get("model"),
+                    )
+            except Exception:  # noqa: BLE001
+                pass
         entry = self._cache.get(key)
         if not entry:
             return None
@@ -2345,7 +2364,20 @@ class LLMParsingService:
         if time.time() - timestamp > ttl:
             self._cache.pop(key, None)
             return None
+        LLM_CACHE_HITS.inc()
         return response
 
     def _set_cached(self, key: str, response: LLMResponse) -> None:
+        client = get_redis_client()
+        if client:
+            try:
+                data = {
+                    "content": response.content,
+                    "tokens": response.tokens,
+                    "model": response.model,
+                }
+                client.setex(key, self.settings.LLM_CACHE_TTL_SECONDS, json.dumps(data))
+                return
+            except Exception:  # noqa: BLE001
+                pass
         self._cache[key] = (time.time(), response)

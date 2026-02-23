@@ -1,0 +1,37 @@
+[
+  {
+    "file": "sample.rtf",
+    "format": "txt_rtf",
+    "parsed": {
+      "contact": {
+        "full_name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+14155551234",
+        "linkedin_url": null,
+        "location": "Austin, TX"
+      },
+      "work_history": [],
+      "education": [],
+      "skills": [
+        {"name": "Python", "normalized_name": "python"},
+        {"name": "Node.js", "normalized_name": "node.js"},
+        {"name": "AWS", "normalized_name": "aws"},
+        {"name": "JavaScript", "normalized_name": "javascript"}
+      ],
+      "sections": {"skills": {"content": "Python, Node.js, AWS"}}
+    },
+    "ground_truth": {
+      "contact": {
+        "full_name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "phone": "+1 (415) 555-1234",
+        "location": "Austin, TX"
+      },
+      "work_history": [],
+      "education": [],
+      "skills": ["python", "node.js", "aws"],
+      "sections": {"skills": {"content": "Python Node.js AWS"}}
+    },
+    "scores": {}
+  }
+]

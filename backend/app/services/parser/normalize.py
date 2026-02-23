@@ -19,15 +19,97 @@ _MONTH_RE = re.compile(
 _YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 _DATE_SEP_RE = re.compile(r"\b\d{1,2}[\-/]\d{2,4}\b")
 
-_TECH_KEYWORD_RE = re.compile(
-    r"\b(python|java|javascript|typescript|react|node(?:\.js)?|docker|kubernetes|aws|azure|gcp|sql|postgres(?:ql)?|mysql|redis|kafka|spark|terraform|jenkins|git|linux|fastapi|django|flask)\b",
-    re.IGNORECASE,
+_EXTRA_TECH = [
+    "python",
+    "java",
+    "javascript",
+    "typescript",
+    "react",
+    "node.js",
+    "docker",
+    "kubernetes",
+    "terraform",
+    "ansible",
+    "jenkins",
+    "github actions",
+    "gitlab",
+    "bitbucket",
+    "jira",
+    "confluence",
+    "mongodb",
+    "postgresql",
+    "postgres",
+    "mysql",
+    "redis",
+    "elasticsearch",
+    "graphql",
+    "grpc",
+    "kafka",
+    "rabbitmq",
+    "celery",
+    "fastapi",
+    "nextjs",
+    "nestjs",
+    "express",
+    "spring boot",
+    "django",
+    "flask",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "pytorch",
+    "tensorflow",
+    "langchain",
+    "openai",
+    "huggingface",
+    "airflow",
+    "spark",
+    "databricks",
+    "snowflake",
+    "bigquery",
+    "aws",
+    "azure",
+    "gcp",
+    "sql",
+    "git",
+    "linux",
+]
+_TECH_PATTERN = "|".join(
+    re.escape(t) for t in sorted(set(_EXTRA_TECH), key=len, reverse=True)
 )
+_TECH_KEYWORD_RE = re.compile(rf"\b({_TECH_PATTERN})\b", re.IGNORECASE)
+
+_VERB_HINTS = [
+    r"develop(?:ed|ing)?",
+    r"build(?:s|ing|t)?",
+    r"implement(?:ed|ing)?",
+    r"manage(?:d|ment|s)?",
+    r"lead(?:s|ing)?",
+    r"led",
+    r"design(?:ed|ing)?",
+    r"create(?:d|ing)?",
+    r"optimi[sz](?:ed|ing)?",
+    r"deliver(?:ed|ing)?",
+    r"responsible\s+for",
+    r"collaborat(?:ed|ing)",
+    r"improv(?:ed|ing)",
+    r"proficient",
+    r"experienced",
+    r"skilled",
+    r"expertise",
+    r"knowledge\s+of",
+    r"familiar\s+with",
+    r"hands-on",
+    r"certified",
+    r"working\s+knowledge",
+    r"strong\s+background",
+]
 _VERB_HINT_RE = re.compile(
-    r"\b(develop(?:ed|ing)?|build(?:s|ing|t)?|implement(?:ed|ing)?|manage(?:d|ment|s)?|lead(?:s|ing)?|led|design(?:ed|ing)?|create(?:d|ing)?|optimi[sz](?:ed|ing)?|deliver(?:ed|ing)?|responsible\s+for|collaborat(?:ed|ing)|improv(?:ed|ing))\b",
+    rf"\b({'|'.join(_VERB_HINTS)})\b",
     re.IGNORECASE,
 )
 _PRONOUN_HINT_RE = re.compile(r"\b(i|my|me|we|our)\b|\bresponsible\s+for\b", re.IGNORECASE)
+_CAPITAL_PRONOUN_RE = re.compile(r"^(I|My|The|Our)\s+", re.IGNORECASE)
 
 
 def _repair_common_urls(text: str) -> str:
@@ -66,7 +148,22 @@ def normalize_text(text: str) -> str:
     return cleaned
 
 
-def normalize_resume_text(text: str) -> str:
+def _apply_ocr_fixes(text: str, fixes: dict[str, str]) -> str:
+    """Apply character substitutions only in word context (not in numbers or dates)."""
+    for bad, good in fixes.items():
+        text = re.sub(
+            rf"(?<=[A-Za-z]){re.escape(bad)}(?=[A-Za-z])",
+            good,
+            text,
+        )
+    return text
+
+
+def normalize_resume_text(
+    text: str,
+    *,
+    source_format: str | None = None,
+) -> str:
     cleaned = unicodedata.normalize("NFKC", text)
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
@@ -75,6 +172,16 @@ def normalize_resume_text(text: str) -> str:
     cleaned = cleaned.replace("•", "- ").replace("–", "-").replace("—", "-")
     cleaned = _repair_common_urls(cleaned)
     cleaned = cleaned.replace("\t", "    ")
+
+    if source_format == "pdf":
+        cleaned = re.sub(r"(\w+)-\n(\w+)", r"\1\2", cleaned)
+        cleaned = cleaned.replace("\ufb01", "fi").replace("\ufb02", "fl").replace("\ufb00", "ff")
+    elif source_format in ("docx", "doc"):
+        cleaned = normalize_table_lines(cleaned)
+        cleaned = re.sub(r"\f", "\n\n", cleaned)
+    elif source_format == "ocr":
+        ocr_fixes = {"0": "O", "1": "I", "|": "I", "5": "S"}
+        cleaned = _apply_ocr_fixes(cleaned, ocr_fixes)
 
     def _preserve_columns(match: re.Match[str]) -> str:
         run = match.group(0)
@@ -235,8 +342,13 @@ def clean_summary_and_skills_sections(
         if _TECH_KEYWORD_RE.search(cleaned):
             return True
         tokens = [t.strip() for t in re.split(r"[,/|·]", cleaned) if t.strip()]
-        if len(tokens) >= 3 and all(1 <= len(t) <= 25 for t in tokens) and len(cleaned) <= 120:
-            return True
+        # 3+ items separated by commas, pipes, or slashes
+        if len(tokens) >= 3 and len(cleaned) <= 120:
+            if all(1 <= len(t) <= 25 for t in tokens):
+                return True
+            # No finite verb (no action-verb hints) -> likely skill list
+            if not _VERB_HINT_RE.search(cleaned):
+                return True
         if cleaned.count(",") >= 2 and len(cleaned) <= 120:
             return True
         if re.fullmatch(r"[A-Za-z0-9 +#./-]{2,35}", cleaned) and len(cleaned.split()) <= 4:
@@ -245,10 +357,14 @@ def clean_summary_and_skills_sections(
 
     def _is_sentence_like(line: str, *, min_len: int) -> bool:
         cleaned = (line or "").strip()
+        # Starts with capital pronoun (I/My/The/Our) -> sentence-like regardless of length
+        if _CAPITAL_PRONOUN_RE.match(cleaned):
+            return True
         if len(cleaned) < min_len:
             return False
         if cleaned.count(" ") < 6:
             return False
+        # Verb followed by object (SVO) or pronoun + verb
         if _VERB_HINT_RE.search(cleaned) or _PRONOUN_HINT_RE.search(cleaned):
             return True
         if cleaned.endswith(".") and len(cleaned) >= min_len:

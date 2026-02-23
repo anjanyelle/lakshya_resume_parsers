@@ -9,11 +9,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from statistics import median
 
+try:
+    import fitz  # PyMuPDF
+    HAS_FITZ = True
+except ImportError:
+    fitz = None  # type: ignore
+    HAS_FITZ = False
+
 import pdfplumber
 import pytesseract
 from pdf2image import convert_from_path
 from pypdf import PdfReader
 from docx import Document
+from docx.oxml.ns import qn
 from PIL import Image
 
 from app.core.config import get_settings
@@ -21,6 +29,8 @@ from app.core.observability import OCR_TRIGGER_TOTAL
 from app.services.parser.normalize import normalize_resume_text, normalize_text
 
 logger = logging.getLogger(__name__)
+
+_OCR_LANG_MAP = {"hi": "hin", "ar": "ara", "zh-cn": "chi_sim", "zh": "chi_sim"}
 
 
 _MONTH_HINT_RE = re.compile(
@@ -97,226 +107,54 @@ def _page_boundaries_from_pages_lines(pages_lines: list[list[str]]) -> list[dict
     return boundaries
 
 
-def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
+def _blocks_to_text(blocks: list[LayoutBlock]) -> str:
+    """Convert blocks sorted by y to text lines."""
+    lines = [b.text.strip() for b in sorted(blocks, key=lambda b: b.y0) if b.text.strip()]
+    return "\n".join(lines)
+
+
+def reconstruct_multicolumn_layout(
+    blocks: list[LayoutBlock],
+    page_width: float | None = None,
+) -> str:
+    """Detect 1, 2, or 3+ columns from block x-positions and merge column-major."""
     if not blocks:
         return ""
 
     min_x0 = min(b.x0 for b in blocks)
     max_x1 = max(b.x1 for b in blocks)
-    page_width = max(1.0, max_x1 - min_x0)
-    midpoint = min_x0 + (page_width * 0.5)
+    pw = page_width if page_width is not None else max(1.0, max_x1 - min_x0)
 
-    heights = [b.height for b in blocks if b.height > 0]
-    typical_h = median(heights) if heights else 10.0
-    y_tol = max(2.5, typical_h * 0.35)
+    xs = sorted(set(round((b.x0 - min_x0) / 50) * 50 for b in blocks))
+    col_starts = [0.0]
+    for i in range(1, len(xs)):
+        if xs[i] - xs[i - 1] > 60:
+            col_starts.append(xs[i])
+    col_starts.append(pw)
+    n_cols = len(col_starts) - 1
 
-    def _is_bullet_line(value: str) -> bool:
-        cleaned = (value or "").lstrip()
-        if not cleaned:
-            return False
-        if cleaned.startswith(("-", "•", "*", "·", "▪", "–")):
-            return True
-        return bool(re.match(r"^\d{1,2}\s*[\.)]\s+", cleaned))
+    if n_cols == 1:
+        return _blocks_to_text(blocks)
 
-    def _starts_upper(value: str) -> bool:
-        cleaned = (value or "").lstrip()
-        return bool(re.match(r"^[A-Z]", cleaned))
+    columns: list[list[LayoutBlock]] = [[] for _ in range(n_cols)]
+    for b in blocks:
+        rel_x = b.x0 - min_x0
+        assigned = False
+        for i in range(n_cols):
+            if col_starts[i] <= rel_x < col_starts[i + 1]:
+                columns[i].append(b)
+                assigned = True
+                break
+        if not assigned:
+            columns[-1].append(b)
 
-    def _is_full_width(b: LayoutBlock) -> bool:
-        return b.width >= (page_width * 0.85)
+    parts = [_blocks_to_text(col) for col in columns]
+    return "\n\n".join(p for p in parts if p)
 
-    def _token_stats(lines: list[str]) -> tuple[float, float]:
-        tokens: list[str] = []
-        for ln in lines:
-            tokens.extend([t for t in ln.split() if t])
-        if not tokens:
-            return 0.0, 0.0
-        digitish = 0
-        longish = 0
-        for t in tokens:
-            if any(ch.isdigit() for ch in t) or _MONTH_HINT_RE.search(t):
-                digitish += 1
-            if len(t) >= 8:
-                longish += 1
-        denom = max(1, len(tokens))
-        return digitish / denom, longish / denom
 
-    def _looks_like_date_cell(value: str) -> bool:
-        cleaned = (value or "").strip()
-        if not cleaned:
-            return False
-        if len(cleaned) > 35:
-            return False
-        lowered = cleaned.lower()
-        if not (
-            any(ch.isdigit() for ch in cleaned)
-            or _MONTH_HINT_RE.search(lowered)
-            or "present" in lowered
-            or "current" in lowered
-        ):
-            return False
-        letters = sum(1 for ch in cleaned if ch.isalpha())
-        digits = sum(1 for ch in cleaned if ch.isdigit())
-        if digits == 0:
-            return False
-        return letters <= max(6, int(digits * 0.6))
-
-    full_width = [b for b in blocks if _is_full_width(b)]
-    non_full = [b for b in blocks if not _is_full_width(b)]
-
-    left = [b for b in non_full if b.x_center < midpoint]
-    right = [b for b in non_full if b.x_center >= midpoint]
-
-    full_width_sorted = sorted(full_width, key=lambda b: (b.y0, b.x0))
-    left_sorted = sorted(left, key=lambda b: (b.y0, b.x0))
-    right_sorted = sorted(right, key=lambda b: (b.y0, b.x0))
-
-    two_column = bool(left_sorted) and bool(right_sorted)
-    if two_column:
-        right_lines = [b.text.strip() for b in right_sorted if b.text.strip()]
-        digitish_ratio, longish_ratio = _token_stats(right_lines)
-        right_x0 = min((b.x0 for b in right_sorted), default=min_x0)
-        right_x1 = max((b.x1 for b in right_sorted), default=max_x1)
-        right_width_ratio = max(0.0, (right_x1 - right_x0) / page_width)
-
-        def _columns_look_row_aligned() -> bool:
-            if len(left_sorted) < 2 or len(right_sorted) < 2:
-                return False
-            n = min(len(left_sorted), len(right_sorted), 8)
-            if n < 2:
-                return False
-            aligned = 0
-            tol = y_tol * 2.0
-            for i in range(n):
-                if abs(left_sorted[i].y0 - right_sorted[i].y0) <= tol:
-                    aligned += 1
-            return (aligned / n) >= 0.7
-
-        row_merge_mode = (
-            digitish_ratio >= 0.45
-            and longish_ratio <= 0.45
-            and right_width_ratio >= 0.25
-        )
-        if not row_merge_mode and _columns_look_row_aligned():
-            row_merge_mode = True
-        if not row_merge_mode:
-            main_blocks = sorted(full_width_sorted + left_sorted, key=lambda b: (b.y0, b.x0))
-            side_blocks = right_sorted
-
-            def _emit_blocks(col: list[LayoutBlock]) -> list[str]:
-                out_lines: list[str] = []
-                heights2 = [b.height for b in col if b.height > 0]
-                avg_h2 = (sum(heights2) / len(heights2)) if heights2 else typical_h
-                gap_threshold2 = max(10.0, avg_h2 * 1.5)
-                for i, b in enumerate(col):
-                    ln = b.text.strip()
-                    if ln:
-                        out_lines.append(ln)
-                    if i < (len(col) - 1):
-                        next_b = col[i + 1]
-                        gap = next_b.y0 - b.y1
-                        next_preview = next_b.text.strip()
-                        break_by_gap = gap > gap_threshold2
-                        break_by_punct = (
-                            ln.rstrip().endswith((".", "!", "?", ":", ";"))
-                            and _starts_upper(next_preview)
-                        )
-                        if _is_bullet_line(ln) or _is_bullet_line(next_preview):
-                            break_by_punct = False
-                        if break_by_gap or break_by_punct:
-                            out_lines.append("")
-                return out_lines
-
-            out = _emit_blocks(main_blocks)
-            if out and side_blocks:
-                out.append("")
-            out.extend(_emit_blocks(side_blocks))
-            return "\n".join(out).strip()
-
-    fw_i = 0
-    l_i = 0
-    r_i = 0
-
-    rows: list[tuple[float, float, list[LayoutBlock]]] = []
-
-    def _consume_row(col: list[LayoutBlock], start_idx: int, row_y0: float, row_y1: float) -> tuple[list[LayoutBlock], int, float, float]:
-        out: list[LayoutBlock] = []
-        idx = start_idx
-        while idx < len(col):
-            b = col[idx]
-            overlap = min(b.y1, row_y1) - max(b.y0, row_y0)
-            if overlap >= 0.0 or abs(b.y0 - row_y0) <= y_tol:
-                out.append(b)
-                row_y0 = min(row_y0, b.y0)
-                row_y1 = max(row_y1, b.y1)
-                idx += 1
-                continue
-            break
-        return out, idx, row_y0, row_y1
-
-    while fw_i < len(full_width_sorted) or l_i < len(left_sorted) or r_i < len(right_sorted):
-        next_fw = full_width_sorted[fw_i] if fw_i < len(full_width_sorted) else None
-        next_l = left_sorted[l_i] if l_i < len(left_sorted) else None
-        next_r = right_sorted[r_i] if r_i < len(right_sorted) else None
-
-        candidates: list[LayoutBlock] = [b for b in [next_fw, next_l, next_r] if b is not None]
-        if not candidates:
-            break
-        next_block = min(candidates, key=lambda b: (b.y0, b.x0))
-
-        if next_fw is not None and next_block is next_fw:
-            rows.append((next_fw.y0, next_fw.y1, [next_fw]))
-            fw_i += 1
-            continue
-
-        row_y0 = next_block.y0
-        row_y1 = next_block.y1
-
-        row_blocks: list[LayoutBlock] = []
-        left_row, l_i, row_y0, row_y1 = _consume_row(left_sorted, l_i, row_y0, row_y1)
-        right_row, r_i, row_y0, row_y1 = _consume_row(right_sorted, r_i, row_y0, row_y1)
-
-        row_blocks.extend(left_row)
-        row_blocks.extend(right_row)
-        row_blocks = sorted(row_blocks, key=lambda b: b.x0)
-        if row_blocks:
-            rows.append((row_y0, row_y1, row_blocks))
-
-    out_lines: list[str] = []
-    row_heights = [(y1 - y0) for (y0, y1, _) in rows if (y1 - y0) > 0]
-    avg_row_h = (sum(row_heights) / len(row_heights)) if row_heights else typical_h
-    gap_threshold = max(10.0, avg_row_h * 1.5)
-    for i, (y0, y1, row_blocks) in enumerate(rows):
-        filtered_blocks = row_blocks
-        if len(row_blocks) >= 2:
-            row_texts = [b.text.strip() for b in row_blocks if b.text.strip()]
-            if row_texts and any(_is_bullet_line(t) for t in row_texts):
-                filtered_blocks = [
-                    b
-                    for b in row_blocks
-                    if not (_looks_like_date_cell(b.text.strip()) and not _is_bullet_line(b.text.strip()))
-                ]
-
-        line = " | ".join(b.text.strip() for b in filtered_blocks if b.text.strip()).strip()
-        if line:
-            out_lines.append(line)
-        if i < (len(rows) - 1):
-            next_y0 = rows[i + 1][0]
-            gap = next_y0 - y1
-            next_line_preview = " | ".join(
-                b.text.strip() for b in rows[i + 1][2] if b.text.strip()
-            ).strip()
-            break_by_gap = gap > gap_threshold
-            break_by_punct = (
-                line.rstrip().endswith((".", "!", "?", ":", ";"))
-                and _starts_upper(next_line_preview)
-            )
-            if _is_bullet_line(line) or _is_bullet_line(next_line_preview):
-                break_by_punct = False
-            if break_by_gap or break_by_punct:
-                out_lines.append("")
-
-    return "\n".join(out_lines).strip()
+def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
+    """Thin wrapper for backward compatibility; delegates to reconstruct_multicolumn_layout."""
+    return reconstruct_multicolumn_layout(blocks)
 
 
 def extract_text(file_path: Path) -> ExtractedText:
@@ -342,29 +180,75 @@ def extract_text(file_path: Path) -> ExtractedText:
     raise ValueError(f"Unsupported file extension: {extension}")
 
 
+def _detect_ocr_lang(image_input: str | Path | Image.Image) -> str:
+    try:
+        sample = pytesseract.image_to_string(
+            str(image_input) if isinstance(image_input, (str, Path)) else image_input,
+            lang="eng",
+            config="--psm 6",
+        )[:500]
+        if not sample.strip():
+            return "eng"
+        from langdetect import detect
+
+        lang = detect(sample)
+        return _OCR_LANG_MAP.get(lang, "eng")
+    except Exception:
+        return "eng"
+
+
+def _ocr_with_confidence(
+    image_input: str | Path | Image.Image,
+    lang: str,
+) -> tuple[str, float]:
+    settings = get_settings()
+    if settings.TESSERACT_CMD:
+        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+    inp = str(image_input) if isinstance(image_input, (str, Path)) else image_input
+    data = pytesseract.image_to_data(
+        inp, lang=lang, output_type=pytesseract.Output.DICT
+    )
+    confs = [
+        int(c)
+        for c in data.get("conf", [])
+        if str(c).lstrip("-").isdigit() and int(c) >= 0
+    ]
+    avg_conf = sum(confs) / len(confs) if confs else 0.0
+    text = pytesseract.image_to_string(inp, lang=lang).strip()
+    return text, float(avg_conf)
+
+
+def _increase_dpi(image: Image.Image, target: int = 400) -> Image.Image:
+    dpi = image.info.get("dpi")
+    current = int(dpi[0]) if isinstance(dpi, (tuple, list)) and dpi else 300
+    if current >= target:
+        return image
+    scale = target / current
+    new_size = (int(image.width * scale), int(image.height * scale))
+    return image.resize(new_size, Image.Resampling.LANCZOS)
+
+
 def _extract_image(file_path: Path) -> ExtractedText:
     settings = get_settings()
+    if settings.TESSERACT_CMD:
+        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
     image = Image.open(str(file_path))
-    data = pytesseract.image_to_data(
-        image, lang=settings.TESSERACT_LANG, output_type=pytesseract.Output.DICT
-    )
-    text = pytesseract.image_to_string(image, lang=settings.TESSERACT_LANG).strip()
-
-    confidences: list[float] = []
-    for conf in data.get("conf", []):
-        try:
-            conf_val = float(conf)
-        except ValueError:
-            continue
-        if conf_val >= 0:
-            confidences.append(conf_val)
-    avg_conf = sum(confidences) / len(confidences) if confidences else None
-
+    lang = _detect_ocr_lang(file_path)
+    text, conf = _ocr_with_confidence(file_path, lang)
+    if conf < 60:
+        image = _increase_dpi(image, target=400)
+        text, conf = _ocr_with_confidence(image, lang)
+    metadata: dict[str, object] = {}
+    if conf < 40:
+        logger.warning("Low OCR confidence %.0f%% — flagging for review", conf)
+        metadata["ocr_confidence"] = conf
+        metadata["needs_review"] = True
     return ExtractedText(
         text=normalize_text(text),
-        ocr_confidence=avg_conf,
+        ocr_confidence=conf,
         used_ocr=True,
         method="ocr_image",
+        debug=metadata if metadata else None,
     )
 
 
@@ -426,27 +310,31 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
         logger.info("Low text detected, triggering OCR")
         OCR_TRIGGER_TOTAL.inc()
         try:
-            ocr_text, ocr_conf = _ocr_pdf(file_path)
+            ocr_text, ocr_conf, ocr_metadata = _ocr_pdf(file_path)
+            merged_debug = {**(debug or {}), **(ocr_metadata or {})}
             return ExtractedText(
-                text=normalize_resume_text(ocr_text),
+                text=normalize_resume_text(ocr_text, source_format="ocr"),
                 ocr_confidence=ocr_conf,
                 used_ocr=True,
                 method="ocr",
-                debug=debug or None,
+                debug=merged_debug if merged_debug else None,
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("OCR failed; returning best-effort extracted text", exc_info=exc)
             debug["ocr_failed"] = True
             debug["ocr_error"] = str(exc)
 
-    return ExtractedText(text=normalize_resume_text(text), method=method, debug=debug or None)
+    source_fmt = "ocr" if method == "ocr" else "pdf"
+    return ExtractedText(
+        text=normalize_resume_text(text, source_format=source_fmt),
+        method=method,
+        debug=debug or None,
+    )
 
 
 def _extract_pdf_pymupdf_blocks(file_path: Path) -> str:
-    try:
-        import fitz  # type: ignore
-    except Exception as exc:  # noqa: BLE001
-        raise RuntimeError("PyMuPDF not installed") from exc
+    if not HAS_FITZ or fitz is None:
+        raise ImportError("PyMuPDF (pymupdf) is required for layout-aware PDF extraction. Install with: poetry add pymupdf")
 
     doc = fitz.open(str(file_path))
     blocks_out: list[str] = []
@@ -483,10 +371,8 @@ def extract_text_from_pdf_pymupdf_layout(
     *,
     debug: dict[str, object] | None = None,
 ) -> str:
-    try:
-        import fitz  # type: ignore
-    except Exception as exc:  # noqa: BLE001
-        raise RuntimeError("PyMuPDF not installed") from exc
+    if not HAS_FITZ or fitz is None:
+        raise ImportError("PyMuPDF (pymupdf) is required for layout-aware PDF extraction. Install with: poetry add pymupdf")
 
     def _clean_fragment(value: str) -> str:
         cleaned = "\n".join(line.rstrip() for line in value.splitlines() if line.strip())
@@ -528,7 +414,7 @@ def extract_text_from_pdf_pymupdf_layout(
                     pages_out.append(page_text)
                 continue
 
-            page_out = reconstruct_two_column_layout(items).strip()
+            page_out = reconstruct_multicolumn_layout(items).strip()
             if page_out:
                 pages_out.append(page_out)
     finally:
@@ -574,7 +460,84 @@ def _extract_pdf_page_lines(page: object) -> list[str]:
             return []
 
 
+def _in_bbox(word: dict, bbox: tuple[float, float, float, float]) -> bool:
+    x0, y0, x1, y1 = bbox
+    return (
+        x0 <= word.get("x0", 0)
+        and word.get("x1", 0) <= x1
+        and y0 <= word.get("top", 0)
+        and word.get("bottom", 0) <= y1
+    )
+
+
+def _extract_page_with_tables(page: object) -> tuple[list[str], dict[str, object]]:
+    lines: list[str] = []
+    extract_tables = getattr(page, "extract_tables", None)
+    find_tables = getattr(page, "find_tables", None)
+    if callable(extract_tables):
+        try:
+            for table in extract_tables() or []:
+                if not table:
+                    continue
+                for row in table:
+                    cells = [str(c or "").strip() for c in row]
+                    cells = [c for c in cells if c]
+                    if cells:
+                        lines.append(" | ".join(cells))
+        except Exception:  # noqa: BLE001
+            pass
+    table_bboxes: list[tuple[float, float, float, float]] = []
+    if callable(find_tables):
+        try:
+            for t in find_tables() or []:
+                bbox = getattr(t, "bbox", None)
+                if bbox and len(bbox) >= 4:
+                    table_bboxes.append(tuple(bbox[:4]))
+        except Exception:  # noqa: BLE001
+            pass
+    extract_words = getattr(page, "extract_words", None)
+    if callable(extract_words):
+        try:
+            words = extract_words(keep_blank_chars=False, use_text_flow=True)
+        except TypeError:
+            words = extract_words()
+        except Exception:  # noqa: BLE001
+            words = []
+        if isinstance(words, list) and words:
+            try:
+                non_table_words = [
+                    w for w in words
+                    if not any(_in_bbox(w, b) for b in table_bboxes)
+                ]
+                if non_table_words:
+                    try:
+                        page_width = float(getattr(page, "width", 0.0) or 0.0)
+                    except Exception:  # noqa: BLE001
+                        page_width = 0.0
+                    extra_lines, _ = _reconstruct_lines_from_words_with_layout(
+                        non_table_words, page_width
+                    )
+                    lines.extend(extra_lines)
+            except Exception:  # noqa: BLE001
+                pass
+    elif not lines:
+        extract_text = getattr(page, "extract_text", None)
+        if callable(extract_text):
+            try:
+                raw = extract_text() or ""
+                lines = [ln.rstrip() for ln in raw.splitlines() if ln.strip()]
+            except Exception:  # noqa: BLE001
+                pass
+    return lines, {"detected_columns": 1, "line_count": len(lines)}
+
+
 def _extract_pdf_page_lines_pdfplumber(page: object) -> tuple[list[str], dict[str, object]]:
+    try:
+        lines, meta = _extract_page_with_tables(page)
+        if lines:
+            return lines, meta
+    except Exception:  # noqa: BLE001
+        pass
     extract_words = getattr(page, "extract_words", None)
     if callable(extract_words):
         try:
@@ -716,7 +679,7 @@ def _reconstruct_lines_from_words_with_layout(
     if not blocks:
         return [], {"detected_columns": 1, "line_count": 0}
 
-    layout_text = reconstruct_two_column_layout(blocks).strip()
+    layout_text = reconstruct_multicolumn_layout(blocks).strip()
     out_lines = [ln for ln in layout_text.split("\n")]
     nonempty = sum(1 for ln in out_lines if ln.strip())
 
@@ -835,31 +798,43 @@ def _strip_repeated_headers_footers(pages_lines: list[list[str]]) -> list[list[s
     return cleaned_pages
 
 
-def _ocr_pdf(file_path: Path) -> tuple[str, float | None]:
+def _ocr_pdf(file_path: Path) -> tuple[str, float | None, dict[str, object] | None]:
     settings = get_settings()
+    if settings.TESSERACT_CMD:
+        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
     images = convert_from_path(str(file_path), dpi=300)
+    if not images:
+        return "", None, None
+    lang = _detect_ocr_lang(images[0])
     ocr_text_chunks: list[str] = []
     confidences: list[float] = []
 
     for image in images:
-        data = pytesseract.image_to_data(
-            image, lang=settings.TESSERACT_LANG, output_type=pytesseract.Output.DICT
-        )
-        text = pytesseract.image_to_string(
-            image, lang=settings.TESSERACT_LANG
-        ).strip()
+        text, conf = _ocr_with_confidence(image, lang)
         ocr_text_chunks.append(text)
-
-        for conf in data.get("conf", []):
-            try:
-                conf_val = float(conf)
-            except ValueError:
-                continue
-            if conf_val >= 0:
-                confidences.append(conf_val)
+        confidences.append(conf)
 
     avg_conf = sum(confidences) / len(confidences) if confidences else None
-    return "\n".join(ocr_text_chunks).strip(), avg_conf
+    full_text = "\n".join(ocr_text_chunks).strip()
+
+    if avg_conf is not None and avg_conf < 60:
+        images_400 = convert_from_path(str(file_path), dpi=400)
+        ocr_text_chunks = []
+        confidences = []
+        for image in images_400:
+            text, conf = _ocr_with_confidence(image, lang)
+            ocr_text_chunks.append(text)
+            confidences.append(conf)
+        new_avg = sum(confidences) / len(confidences) if confidences else avg_conf
+        if new_avg > avg_conf:
+            full_text = "\n".join(ocr_text_chunks).strip()
+            avg_conf = new_avg
+
+    metadata: dict[str, object] | None = None
+    if avg_conf is not None and avg_conf < 40:
+        logger.warning("Low OCR confidence %.0f%% — flagging for review", avg_conf)
+        metadata = {"ocr_confidence": avg_conf, "needs_review": True}
+    return full_text, avg_conf, metadata
 
 
 def _extract_docx(file_path: Path) -> ExtractedText:
@@ -873,33 +848,59 @@ def _extract_docx(file_path: Path) -> ExtractedText:
     def _is_list_paragraph(paragraph: object) -> bool:
         try:
             p = getattr(paragraph, "_p", None)
-            ppr = getattr(p, "pPr", None) if p is not None else None
-            numpr = getattr(ppr, "numPr", None) if ppr is not None else None
-            if numpr is not None:
+            if p is None:
+                return False
+            pPr = p.find(qn("w:pPr"))
+            if pPr is None:
+                return False
+            numPr = pPr.find(qn("w:numPr"))
+            if numPr is not None:
                 return True
+            ind = pPr.find(qn("w:ind"))
+            if ind is not None:
+                left_val = ind.get(qn("w:left"))
+                if left_val is not None:
+                    try:
+                        if int(left_val) >= 360:
+                            return True
+                    except (TypeError, ValueError):
+                        pass
         except Exception:  # noqa: BLE001
             pass
-
         name = _style_name(paragraph)
         return "list" in name.lower()
 
     def _is_heading_paragraph(paragraph: object) -> bool:
-        name = _style_name(paragraph)
-        return bool(name) and name.startswith("Heading")
+        style_name = _style_name(paragraph).lower()
+        if style_name.startswith("heading"):
+            return True
+        heading_keywords = ("heading", "header", "section", "title")
+        if any(kw in style_name for kw in heading_keywords):
+            return True
+        text = str(getattr(paragraph, "text", "") or "").strip()
+        if not text or len(text.split()) >= 6:
+            return False
+        if not text.isupper() or not any(c.isalpha() for c in text):
+            return False
+        runs = getattr(paragraph, "runs", []) or []
+        if not runs:
+            return False
+        bold_runs = [r for r in runs if getattr(getattr(r, "font", None), "bold", None) is True]
+        return len(bold_runs) >= 1 and len("".join(str(getattr(r, "text", "") or "") for r in bold_runs).strip()) > 0
+
+    def _emit_paragraph_text(paragraph: object) -> str:
+        text = str(getattr(paragraph, "text", "") or "").strip()
+        if not text:
+            return ""
+        if _is_heading_paragraph(paragraph):
+            return f"## {text}"
+        if _is_list_paragraph(paragraph):
+            return f"- {text}"
+        return text
 
     def _emit_paragraph_lines(paragraph: object) -> list[str]:
-        raw = str(getattr(paragraph, "text", "") or "")
-        text = raw.strip()
-        if not text:
-            return []
-
-        is_heading = _is_heading_paragraph(paragraph)
-        is_bullet = _is_list_paragraph(paragraph)
-        if is_heading:
-            return [f"## {text}"]
-        if is_bullet:
-            return [f"- {text}"]
-        return [text]
+        line = _emit_paragraph_text(paragraph)
+        return [line] if line else []
 
     def _cell_lines(cell: object) -> list[str]:
         lines: list[str] = []

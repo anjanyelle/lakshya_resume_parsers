@@ -124,4 +124,14 @@ Important
 
 
 
+cd /Users/anjanyelle/Desktop/untitled\ folder\ 3/Lakshya-LLM-Resume-Parser/backend
+poetry lock
+poetry install
 
+
+poetry run python -c "import fitz; print('OK')"
+
+poetry run python ../scripts/build_ground_truth.py \
+  --resumes-dir ../resumes \
+  --output ../data/ground_truth.json \
+  --limit 200

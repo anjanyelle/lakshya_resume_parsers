@@ -1459,6 +1459,10 @@ SECTION_REGEX: dict[str, re.Pattern[str]] = {
     for key, aliases in SECTION_ALIASES.items()
 }
 
+INLINE_SECTION_RE = re.compile(
+    r"^(?P<header>[A-Za-z][\w\s&/]{2,40}):\s+(?P<content>.+)$",
+)
+
 
 # KEYWORD_HINTS: dict[str, list[str]] = {
 #     "experience": [
@@ -2257,6 +2261,10 @@ KEYWORD_HINTS: dict[str, list[str]] = {
 class SectionResult:
     content: str
     confidence: float
+    start_line: int = 0
+    end_line: int = 0
+    evidence_heading: str = ""
+    method: str = ""
 
 
 class SectionParser:
@@ -2291,8 +2299,8 @@ class SectionParser:
         sections = self._canonicalize_sections(sections)
         sections = self._postprocess_sections(sections)
         sections = self._truncate_sections_by_stop_headings(sections)
+        self._build_section_metadata(lines, sections, header_map, line_number_map, raw_line_count)
         scored = self._score_sections(sections)
-        self._build_section_metadata(lines, scored, header_map, line_number_map, raw_line_count)
         return scored
 
     def get_detected_headers(self) -> list[dict[str, object]]:
@@ -2348,9 +2356,30 @@ class SectionParser:
         self._last_section_meta = {}
         self._last_section_map = []
         self._last_inferred_starts = {}
+        self._last_inline_content = {}
 
         header_map: dict[int, str] = {}
         for idx, line in enumerate(lines):
+            inline = self._try_split_inline(line)
+            if inline is not None:
+                key, content = inline
+                header_map[idx] = key
+                self._last_inline_content[idx] = content
+                self._last_header_matches.append(
+                    {
+                        "section": key,
+                        "line_index": idx,
+                        "line_number": int(line_number_map.get(idx, idx + 1)),
+                        "confidence": 0.9,
+                        "evidence_heading": line.split(":", 1)[0].strip(),
+                        "method": "inline_section",
+                    }
+                )
+                self._last_header_confidence[idx] = 0.9
+                current_best = self._last_section_header_confidence.get(key, 0.0)
+                if 0.9 > current_best:
+                    self._last_section_header_confidence[key] = 0.9
+                continue
             match = self._match_header_line(line, blank_context.get(idx, False))
             if match is None:
                 continue
@@ -2535,7 +2564,7 @@ class SectionParser:
     def _build_section_metadata(
         self,
         lines: list[str],
-        scored: dict[str, SectionResult],
+        sections: dict[str, list[str]],
         header_map: dict[int, str],
         line_number_map: dict[int, int],
         raw_line_count: int,
@@ -2595,7 +2624,7 @@ class SectionParser:
                 evidence = lines[idx].strip() if 0 <= idx < len(lines) else ""
                 _push_block(key, start_line, end_line, evidence, "heuristic")
 
-        for key in scored.keys():
+        for key in sections.keys():
             canonical = self._canonical_section_key(key)
             if canonical not in self._last_section_meta:
                 self._last_section_meta[canonical] = {
@@ -2843,18 +2872,51 @@ class SectionParser:
         normalized = re.sub(r"\s+", " ", normalized).strip()
         return normalized
 
+    def _is_known_section_key(self, header_candidate: str) -> str | None:
+        """Return canonical section key if header matches a known section, else None."""
+        if not header_candidate or not header_candidate.strip():
+            return None
+        normalized = self._normalize_header_text(header_candidate)
+        if not normalized:
+            return None
+        haystack = f" {normalized} "
+        for key, aliases in SECTION_ALIASES.items():
+            for alias in aliases:
+                alias_norm = self._normalize_header_text(alias)
+                if not alias_norm:
+                    continue
+                if normalized == alias_norm or f" {alias_norm} " in haystack:
+                    return self._canonical_section_key(key)
+        if normalized.replace(" ", "_") in SECTION_KEYS:
+            return self._canonical_section_key(normalized.replace(" ", "_"))
+        return None
+
+    def _try_split_inline(self, line: str) -> tuple[str, str] | None:
+        """If line matches 'Header: content' and header is a known section, return (key, content)."""
+        m = INLINE_SECTION_RE.match(line.strip())
+        if not m:
+            return None
+        header_candidate = m.group("header").strip()
+        key = self._is_known_section_key(header_candidate)
+        if key is None:
+            return None
+        return key, m.group("content").strip()
+
     def _slice_sections(
         self, lines: list[str], header_map: dict[int, str]
     ) -> dict[str, list[str]]:
         if not header_map:
             return {"unknown": lines}
 
+        inline_content = getattr(self, "_last_inline_content", None) or {}
         sorted_headers = sorted(header_map.items(), key=lambda item: item[0])
         sections: dict[str, list[str]] = {}
         for i, (idx, key) in enumerate(sorted_headers):
             start = idx + 1
             end = sorted_headers[i + 1][0] if i + 1 < len(sorted_headers) else len(lines)
-            content = lines[start:end]
+            content = list(lines[start:end])
+            if idx in inline_content:
+                content.insert(0, inline_content[idx])
             sections.setdefault(key, []).extend(content)
         return sections
 
@@ -2969,6 +3031,7 @@ class SectionParser:
         self, sections: dict[str, list[str]]
     ) -> dict[str, SectionResult]:
         results: dict[str, SectionResult] = {}
+        meta = self._last_section_meta
         for key, content_lines in sections.items():
             text = "\n".join(content_lines).strip()
             header_confidence = float(self._last_section_header_confidence.get(key, 0.0) or 0.0)
@@ -2977,7 +3040,19 @@ class SectionParser:
             confidence += self._keyword_density_boost(key, content_lines)
             confidence += self._length_heuristic_boost(key, content_lines)
             confidence = min(confidence, 1.0)
-            results[key] = SectionResult(content=text, confidence=confidence)
+            block = meta.get(key, {}) if isinstance(meta, dict) else {}
+            start_line = int(block.get("start_line", 0) or 0)
+            end_line = int(block.get("end_line", 0) or 0)
+            evidence_heading = str(block.get("evidence_heading") or "")
+            method = str(block.get("method") or "")
+            results[key] = SectionResult(
+                content=text,
+                confidence=confidence,
+                start_line=start_line,
+                end_line=end_line,
+                evidence_heading=evidence_heading,
+                method=method,
+            )
         return results
 
     def _base_confidence(self, key: str) -> float:

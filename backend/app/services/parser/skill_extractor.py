@@ -896,6 +896,20 @@ class SkillMatch:
     proficiency: str | None
 
 
+def _build_known_skills_set(
+    normalized_map: dict,
+    synonym_map: dict,
+) -> set[str]:
+    """Build set of all known skill names (canonical + synonyms) for lookup."""
+    known: set[str] = set(normalized_map.keys()) | set(synonym_map.keys()) | set(synonym_map.values())
+    known.update(RELATED_SKILLS.keys())
+    for vals in RELATED_SKILLS.values():
+        known.update(vals)
+    known.update(SKILL_ALIASES.values())
+    known.update(s.lower().replace("-", " ").replace("_", " ") for s in SOFT_SKILLS)
+    return known
+
+
 class SkillExtractor:
     def __init__(self, taxonomy_path: str | None = None, use_spacy: bool = True) -> None:
         self.taxonomy = self._load_taxonomy(taxonomy_path)
@@ -903,6 +917,7 @@ class SkillExtractor:
             item["normalized_name"]: item for item in self.taxonomy
         }
         self.synonym_map = self._build_synonym_map(self.taxonomy)
+        self._known_skills = _build_known_skills_set(self.normalized_map, self.synonym_map)
         self.use_spacy = use_spacy and spacy is not None
         self._nlp = None
         self._matcher = None
@@ -1039,33 +1054,52 @@ class SkillExtractor:
             if len(line) > 200:
                 continue
             lowered = line.lower()
-            if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
-                continue
             if ":" in line:
+                if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
+                    continue
                 label, _, values = line.partition(":")
                 if "skill" not in label.lower() and "tools" not in label.lower() and "technology" not in label.lower():
                     continue
                 tokens = self._split_skills(values)
             else:
-                if sum(int(d in line) for d in (",", "|", "•", "-", ";")) < 2:
-                    continue
-                tokens = self._split_skills(line)
+                delim_count = sum(int(d in line) for d in (",", "|", "•", "-", ";"))
+                if delim_count < 2:
+                    # Try token-line extraction for space-separated skills (no verb skip)
+                    token_hits = self._extract_from_token_line(line)
+                    if token_hits:
+                        tokens = token_hits
+                    else:
+                        continue
+                else:
+                    if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
+                        continue
+                    tokens = self._split_skills(line)
 
             for token in tokens:
-                name, canonical, category = self._canonicalize_token(token)
-                base = 0.55 if canonical in self.normalized_map else 0.45
-                matches.append(
-                    SkillMatch(
-                        name=name,
-                        normalized_name=canonical,
-                        category=category,
-                        confidence=base,
-                        years_experience=None,
-                        proficiency=None,
+                for name, canonical, category in self._expand_and_canonicalize(token):
+                    base = 0.55 if canonical in self.normalized_map else 0.45
+                    matches.append(
+                        SkillMatch(
+                            name=name,
+                            normalized_name=canonical,
+                            category=category,
+                            confidence=base,
+                            years_experience=None,
+                            proficiency=None,
+                        )
                     )
-                )
 
         return matches
+
+    def _expand_and_canonicalize(self, token: str) -> list[tuple[str, str, str | None]]:
+        """Expand compound skills, then canonicalize. Keep original if no parts in taxonomy."""
+        expanded = self._expand_compound_skill(token)
+        any_in_taxonomy = any(
+            self._canonicalize_token(p)[1] in self.normalized_map for p in expanded
+        )
+        if any_in_taxonomy:
+            return [self._canonicalize_token(part) for part in expanded]
+        return [self._canonicalize_token(token)]
 
     def _canonicalize_token(self, token: str) -> tuple[str, str, str | None]:
         name = re.sub(r"\s+", " ", (token or "").strip())
@@ -1083,7 +1117,7 @@ class SkillExtractor:
         if lowered in SOFT_SKILLS or alias_key in {s.replace(" ", "").replace("-", "") for s in SOFT_SKILLS}:
             return name, lowered.replace("-", " "), "Soft Skills"
 
-        return name, lowered, None
+        return name, canonical, None
 
     def _extract_skills(self, text: str, base_confidence: float) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
@@ -1166,45 +1200,107 @@ class SkillExtractor:
                 category = None
                 tokens = self._split_skills(line)
             for token in tokens:
-                _, normalized, category_hint = self._canonicalize_token(token)
-                if normalized in self.normalized_map:
-                    item = self.normalized_map[normalized]
-                    matches.append(
-                        SkillMatch(
-                            name=item["name"],
-                            normalized_name=item["normalized_name"],
-                            category=item.get("category") or category_hint or category,
-                            confidence=base_confidence,
-                            years_experience=None,
-                            proficiency=None,
+                for name, normalized, category_hint in self._expand_and_canonicalize(token):
+                    if normalized in self.normalized_map:
+                        item = self.normalized_map[normalized]
+                        matches.append(
+                            SkillMatch(
+                                name=item["name"],
+                                normalized_name=item["normalized_name"],
+                                category=item.get("category") or category_hint or category,
+                                confidence=base_confidence,
+                                years_experience=None,
+                                proficiency=None,
+                            )
                         )
-                    )
-                elif category_hint == "Soft Skills":
-                    matches.append(
-                        SkillMatch(
-                            name=token,
-                            normalized_name=normalized,
-                            category=category_hint,
-                            confidence=base_confidence - 0.2,
-                            years_experience=None,
-                            proficiency=None,
+                    elif category_hint == "Soft Skills":
+                        matches.append(
+                            SkillMatch(
+                                name=name,
+                                normalized_name=normalized,
+                                category=category_hint,
+                                confidence=base_confidence - 0.2,
+                                years_experience=None,
+                                proficiency=None,
+                            )
                         )
-                    )
+                    elif self._expand_compound_skill(token) != [token]:
+                        matches.append(
+                            SkillMatch(
+                                name=name,
+                                normalized_name=normalized,
+                                category=category_hint or category,
+                                confidence=base_confidence - 0.15,
+                                years_experience=None,
+                                proficiency=None,
+                            )
+                        )
         return matches
+
+    @staticmethod
+    def _expand_compound_skill(skill: str) -> list[str]:
+        """Expand compound skills: React/Redux -> [React, Redux]; AWS (EC2, S3) -> [AWS, EC2, S3]."""
+        skills = [skill]
+
+        if "/" in skill and len(skill) < 40:
+            parts = [p.strip() for p in skill.split("/")]
+            if all(len(p) >= 2 for p in parts):
+                skills = parts
+
+        paren_m = re.match(r"^(\w+)\s*\(([^)]+)\)\s*$", skill.strip())
+        if paren_m:
+            parent = paren_m.group(1)
+            children = [c.strip() for c in paren_m.group(2).split(",") if c.strip()]
+            skills = [parent] + children
+
+        return skills
 
     @staticmethod
     def _split_skills(value: str) -> list[str]:
         tokens: list[str] = []
-        for part in re.split(r"[,\u2022•;/|]", value):
-            cleaned = part.strip()
-            if not cleaned:
-                continue
-            if len(cleaned) > 40:
-                continue
-            cleaned = cleaned.strip("-•* ")
-            if re.search(r"[A-Za-z]", cleaned):
-                tokens.append(cleaned)
+        current: list[str] = []
+        depth = 0
+        for c in value:
+            if c in "([{":
+                depth += 1
+                current.append(c)
+            elif c in ")]}":
+                depth -= 1
+                current.append(c)
+            elif c in ",\u2022•;/|" and depth == 0:
+                cleaned = "".join(current).strip()
+                if cleaned and len(cleaned) <= 40:
+                    cleaned = cleaned.strip("-•* ")
+                    if re.search(r"[A-Za-z]", cleaned):
+                        tokens.append(cleaned)
+                current = []
+            else:
+                current.append(c)
+        if current:
+            cleaned = "".join(current).strip()
+            if cleaned and len(cleaned) <= 40:
+                cleaned = cleaned.strip("-•* ")
+                if re.search(r"[A-Za-z]", cleaned):
+                    tokens.append(cleaned)
         return tokens
+
+    def _is_known_skill(self, token: str) -> bool:
+        """Check if token (unigram or bigram) is a known skill from taxonomy or aliases."""
+        _, canonical, category = self._canonicalize_token(token)
+        return canonical in self._known_skills or category == "Soft Skills"
+
+    def _extract_from_token_line(self, line: str) -> list[str]:
+        """Match 3+ consecutive known taxonomy tokens on a single line."""
+        tokens = line.split()
+        hits = [t for t in tokens if self._is_known_skill(t)]
+        if len(hits) >= 3:
+            return hits
+        # Also handle 2-word skills: 'Machine Learning', 'Node JS'
+        bigrams = [f"{tokens[i]} {tokens[i + 1]}" for i in range(len(tokens) - 1)]
+        bigram_hits = [b for b in bigrams if self._is_known_skill(b)]
+        if len(hits) + len(bigram_hits) >= 3:
+            return hits + bigram_hits
+        return []
 
     def _load_taxonomy(self, taxonomy_path: str | None) -> list[dict]:
         path = (

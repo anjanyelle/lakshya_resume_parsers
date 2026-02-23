@@ -21,6 +21,10 @@ DATE_TOKEN = (
     r"|\d{1,2}[/-]\d{2}"
     r"|\d{1,2}[/-]\d{4}"
     r"|\d{4}"
+    r"|Q[1-4]\s+\d{4}"
+    r"|(?:Spring|Fall|Summer|Winter)\s+\d{4}"
+    rf"|{MONTH_TOKEN}\s*[\'\u2019]\d{{2}}"
+    r"|\d{4}\.\d{2}|\d{2}\.\d{4}"
     rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"
     rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"
     rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"
@@ -357,7 +361,29 @@ class EducationParser:
         if not value:
             return None
 
-        raw = str(value).strip().replace("’", "'")
+        raw = str(value).strip().replace("\u2019", "'")
+        raw = (
+            raw.replace("Q1", "January")
+            .replace("Q2", "April")
+            .replace("Q3", "July")
+            .replace("Q4", "October")
+            .replace("Spring", "March")
+            .replace("Fall", "September")
+            .replace("Summer", "June")
+            .replace("Winter", "December")
+        )
+        raw = re.sub(
+            r"[\'\u2019](\d{2})\b",
+            lambda m: " 20" + m.group(1) if int(m.group(1)) <= 50 else " 19" + m.group(1),
+            raw,
+        )
+        m_dot = re.match(r"^(?P<y>\d{4})\.(?P<m>\d{2})$", raw)
+        if m_dot:
+            raw = f"{m_dot.group('y')}-{m_dot.group('m')}"
+        m_dot2 = re.match(r"^(?P<m>\d{2})\.(?P<y>\d{4})$", raw)
+        if m_dot2:
+            raw = f"{m_dot2.group('y')}-{m_dot2.group('m')}"
+
         m = re.match(r"^(?P<month>\d{1,2})[/-](?P<year>\d{2})$", raw)
         if m:
             mo = int(m.group("month"))

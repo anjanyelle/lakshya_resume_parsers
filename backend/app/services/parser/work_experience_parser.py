@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
 from typing import Iterable
 
@@ -21,6 +21,10 @@ DATE_TOKEN = (
     r"|\d{1,2}[/-]\d{2}"  # MM/YY
     r"|\d{1,2}[/-]\d{4}"  # MM/YYYY
     r"|\d{4}"  # YYYY
+    r"|Q[1-4]\s+\d{4}"  # Q1 2020, Q4 2019
+    r"|(?:Spring|Fall|Summer|Winter)\s+\d{4}"  # Seasonal
+    rf"|{MONTH_TOKEN}\s*[\'\u2019]\d{{2}}"  # Jan '20, Feb '19
+    r"|\d{4}\.\d{2}|\d{2}\.\d{4}"  # 2020.01, 01.2020
     rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"  # MMM YYYY
     rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"  # MMM 'YY
     rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"  # MMM YY
@@ -36,6 +40,15 @@ PRESENT_RE = re.compile(r"\b(present|current|till\s+date|now)\b", re.IGNORECASE)
 DATE_ANCHOR_RE = re.compile(rf"\b(?:{DATE_TOKEN})\b", re.IGNORECASE)
 COMPANY_LINE_RE = re.compile(
     r"(?P<company>.+?)\s*(?:[-–—|,])\s*(?P<title>.+)"
+)
+# Title at Company (e.g. 'Senior Dev at Acme Corp')
+TITLE_AT_COMPANY_RE = re.compile(
+    r"^(?P<title>[A-Z][\w\s,\.]+?)\s+at\s+(?P<company>[A-Z][\w\s,\.&]+)$",
+    re.IGNORECASE,
+)
+# Title | Company (pipe-separated, no date)
+TITLE_PIPE_COMPANY_RE = re.compile(
+    r"^(?P<title>[^|]{3,60})\s*\|\s*(?P<company>[^|]{3,60})$",
 )
 LOCATION_RE = re.compile(r"\b([A-Za-z .]+,\s*[A-Z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist)\b", re.IGNORECASE)
@@ -131,6 +144,7 @@ class JobEntry:
     employment_type: str | None
     confidence: float
     designation: str | None = None
+    date_flag: str | None = None
 
 
 class WorkExperienceParser:
@@ -220,17 +234,105 @@ class WorkExperienceParser:
         return False
 
     def parse_experience_section(self, text: str) -> list[JobEntry]:
-        chunks = self.extract_individual_jobs(text)
-        jobs: list[JobEntry] = []
-        for chunk in chunks:
-            job = self._parse_chunk(chunk)
-            if job.confidence < 0.8:
-                llm_job = self._llm_fallback(chunk)
-                if llm_job:
-                    job = llm_job
-            if self._is_plausible_job(job):
-                jobs.append(job)
+        all_lines = [l for l in (text or "").splitlines() if l.strip()]
+        pipe_lines = [l for l in all_lines if "|" in l]
+        if all_lines and len(pipe_lines) / max(len(all_lines), 1) > 0.4:
+            jobs = self._parse_table_formatted_experience(text)
+        else:
+            chunks = self.extract_individual_jobs(text)
+            jobs = []
+            for chunk in chunks:
+                job = self._parse_chunk(chunk)
+                if job.confidence < 0.8:
+                    llm_job = self._llm_fallback(chunk)
+                    if llm_job:
+                        job = llm_job
+                if self._is_plausible_job(job):
+                    jobs.append(job)
+        jobs = self._validate_dates(jobs)
+        jobs = self._detect_overlaps(jobs)
         return jobs
+
+    def _parse_table_formatted_experience(self, text: str) -> list[JobEntry]:
+        lines = [l.strip() for l in (text or "").splitlines() if l.strip() and "|" in l]
+        if len(lines) < 2:
+            return []
+        entries: list[JobEntry] = []
+        for line in lines:
+            cols = [c.strip() for c in line.split("|") if c.strip()]
+            if len(cols) < 2:
+                continue
+            entry = self._map_table_cols_to_job(cols)
+            if entry and self._is_plausible_job(entry):
+                entries.append(entry)
+        return entries
+
+    def _map_table_cols_to_job(self, cols: list[str]) -> JobEntry | None:
+        date_col_idx: int | None = None
+        for i, c in enumerate(cols):
+            if DATE_RANGE_RE.search(c):
+                date_col_idx = i
+                break
+        if date_col_idx is None:
+            for i, c in enumerate(cols):
+                if DATE_ANCHOR_RE.search(c) or re.search(r"\b(19|20)\d{2}\b", c):
+                    date_col_idx = i
+                    break
+        start_date, end_date, is_current = None, None, False
+        if date_col_idx is not None:
+            start_date, end_date, is_current = self._parse_dates(cols[date_col_idx])
+
+        non_date_cols = [c for i, c in enumerate(cols) if i != date_col_idx and c]
+        location: str | None = None
+        company: str | None = None
+        title: str | None = None
+
+        for c in non_date_cols:
+            loc_m = LOCATION_RE.search(c)
+            if loc_m:
+                location = loc_m.group(1).strip()
+                non_date_cols = [x for x in non_date_cols if x != c]
+                break
+        if location is None and len(non_date_cols) >= 3:
+            last = non_date_cols[-1]
+            if 2 <= len(last) <= 25 and not any(ch.isdigit() for ch in last):
+                location = last.strip()
+                non_date_cols = non_date_cols[:-1]
+
+        if len(non_date_cols) >= 2:
+            first, second = non_date_cols[0], non_date_cols[1]
+            if self._looks_like_company(first) and self._looks_like_title(second):
+                company, title = first, second
+            elif self._looks_like_company(second) and self._looks_like_title(first):
+                company, title = second, first
+            else:
+                company, title = first, second
+        elif len(non_date_cols) == 1:
+            c = non_date_cols[0]
+            if self._looks_like_company(c):
+                company = c
+            else:
+                title = c
+
+        if not company and not title:
+            return None
+        duration_months = self._calc_duration_months(start_date, end_date, is_current)
+        confidence = self._score_confidence(company, title, start_date, end_date, is_current, None, None)
+        return JobEntry(
+            company=self.normalize_company_names(company),
+            title=self.normalize_job_titles(title),
+            start_date=start_date,
+            end_date=end_date,
+            is_current=is_current,
+            location=location,
+            description="",
+            bullets=[],
+            duration_months=duration_months,
+            client=None,
+            employment_type=None,
+            confidence=confidence,
+            designation=self.normalize_job_titles(title),
+        )
 
     @staticmethod
     def _is_plausible_job(job: JobEntry) -> bool:
@@ -276,6 +378,41 @@ class WorkExperienceParser:
             if not job.bullets or len(job.bullets) < 2:
                 return False
         return job.confidence >= 0.5
+
+    def _validate_dates(self, jobs: list[JobEntry]) -> list[JobEntry]:
+        today = date.today()
+        out: list[JobEntry] = []
+        for job in jobs:
+            s, e = job.start_date, job.end_date
+            flag = job.date_flag
+            if s and s > today:
+                flag = "future_start"
+            if s and e and e < s:
+                flag = "end_before_start"
+            if s and e and not flag:
+                months = (e.year - s.year) * 12 + (e.month - s.month)
+                if months > 480:
+                    flag = "suspicious_duration"
+            if flag:
+                out.append(replace(job, date_flag=flag))
+            else:
+                out.append(job)
+        return out
+
+    def _detect_overlaps(self, jobs: list[JobEntry]) -> list[JobEntry]:
+        sorted_jobs = sorted(
+            [j for j in jobs if j.start_date and j.end_date],
+            key=lambda j: j.start_date,
+        )
+        out = list(jobs)
+        for i in range(len(sorted_jobs) - 1):
+            a, b = sorted_jobs[i], sorted_jobs[i + 1]
+            if b.start_date < a.end_date:
+                overlap_days = (a.end_date - b.start_date).days
+                if overlap_days > 30:
+                    b_idx = out.index(b)
+                    out[b_idx] = replace(b, date_flag=f"overlap_{overlap_days}d_with_prev")
+        return out
 
     def extract_individual_jobs(self, text: str) -> list[str]:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -508,10 +645,22 @@ class WorkExperienceParser:
         return final_location, company_clean, title_clean
 
     def _parse_company_title(self, header: str) -> tuple[str | None, str | None]:
-        match = COMPANY_LINE_RE.search(header)
+        cleaned = (header or "").strip()
+        if not cleaned:
+            return None, None
+        # 1. Title at Company (e.g. 'Software Engineer at Google')
+        match = TITLE_AT_COMPANY_RE.match(cleaned)
         if match:
             return match.group("company").strip(), match.group("title").strip()
-        return None, header.strip() if header else None
+        # 2. Title | Company (e.g. 'Product Manager | Stripe')
+        match = TITLE_PIPE_COMPANY_RE.match(cleaned)
+        if match:
+            return match.group("company").strip(), match.group("title").strip()
+        # 3. Company - Title (existing)
+        match = COMPANY_LINE_RE.search(cleaned)
+        if match:
+            return match.group("company").strip(), match.group("title").strip()
+        return None, cleaned
 
     def _parse_header_lines(
         self, lines: list[str]
@@ -686,7 +835,28 @@ class WorkExperienceParser:
         if not raw:
             return None
         raw = re.sub(r"\s+", " ", raw)
-        raw = raw.replace("’", "'")
+        raw = raw.replace("\u2019", "'")
+        raw = (
+            raw.replace("Q1", "January")
+            .replace("Q2", "April")
+            .replace("Q3", "July")
+            .replace("Q4", "October")
+            .replace("Spring", "March")
+            .replace("Fall", "September")
+            .replace("Summer", "June")
+            .replace("Winter", "December")
+        )
+        raw = re.sub(
+            r"[\'\u2019](\d{2})\b",
+            lambda m: " 20" + m.group(1) if int(m.group(1)) <= 50 else " 19" + m.group(1),
+            raw,
+        )
+        m_dot = re.match(r"^(?P<y>\d{4})\.(?P<m>\d{2})$", raw)
+        if m_dot:
+            raw = f"{m_dot.group('y')}-{m_dot.group('m')}"
+        m_dot2 = re.match(r"^(?P<m>\d{2})\.(?P<y>\d{4})$", raw)
+        if m_dot2:
+            raw = f"{m_dot2.group('y')}-{m_dot2.group('m')}"
 
         m = re.match(r"^(?P<year>\d{4})-(?P<month>\d{2})(?:-(?P<day>\d{2}))?$", raw)
         if m:
