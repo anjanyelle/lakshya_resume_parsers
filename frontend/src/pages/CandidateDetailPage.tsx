@@ -555,13 +555,35 @@ export default function CandidateDetailPage() {
           support.
         </div>
       )}
-      <WorkHistoryTimeline items={displayWorkHistory} />
+      <WorkHistoryTimeline
+        candidateId={id!}
+        items={displayWorkHistory}
+        onUpdate={(updated) => {
+          setCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
+          setOriginalCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
+        }}
+        readOnly={useParsedDataFallback}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
-        <EducationSection items={displayEducation} />
+        <EducationSection
+          candidateId={id!}
+          items={displayEducation}
+          onUpdate={(updated) => {
+            setCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
+            setOriginalCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
+          }}
+          readOnly={useParsedDataFallback}
+        />
         <CertificationsSection
+          candidateId={id!}
           items={displayCertifications}
           rawContent={(parsedData as any)?.sections?.certifications?.content as any}
+          onUpdate={(updated) => {
+            setCandidate((prev) => (prev ? { ...prev, certifications: updated } : prev))
+            setOriginalCandidate((prev) => (prev ? { ...prev, certifications: updated } : prev))
+          }}
+          readOnly={useParsedDataFallback}
         />
       </div>
 

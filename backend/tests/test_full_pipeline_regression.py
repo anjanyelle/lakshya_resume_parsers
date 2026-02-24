@@ -90,16 +90,15 @@ def test_dedup_text_lines_sentence_level():
     assert "Leads teams" in result
 
 
-def test_dedup_text_lines_trim_over_800_chars():
-    """Summary over 800 chars trimmed to first 3 sentences."""
-    # 4 long sentences, each ~250 chars, total > 800
-    s1 = "A" * 240 + "."
-    s2 = "B" * 240 + "."
-    s3 = "C" * 240 + "."
-    s4 = "D" * 240 + "."
-    long_text = f"{s1} {s2} {s3} {s4}"
+def test_dedup_text_lines_trim_over_1500_chars():
+    """Summary over 1500 chars trimmed to first 6 sentences."""
+    # 8 long sentences, each ~250 chars, total > 1500
+    parts = [chr(65 + i) * 240 + "." for i in range(8)]
+    long_text = " ".join(parts)
     result = _dedup_text_lines(long_text)
-    assert len(result) <= 850  # trimmed to first 3 sentences (~720 chars)
+    # Trim only when > 1500 and > 6 sentences, so result is first 6 sentences
+    assert len(result) <= 1600
+    assert "A" in result and "F" in result
 
 
 # --- Name extraction ---
