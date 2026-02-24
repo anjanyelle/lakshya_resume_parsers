@@ -2322,8 +2322,8 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
 
         sections = parsed.get("sections", {})
 
-        EXPERIENCE_KEYS = [
-            # Standard
+        # Primary: employment/work experience (company + title + dates). Prefer these.
+        EXPERIENCE_PRIMARY_KEYS = [
             "experience",
             "work_experience",
             "professional_experience",
@@ -2333,18 +2333,21 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "career_history",
             "positions_held",
             "relevant_experience",
-            # Variations
             "professional_background",
             "career_profile",
-            "career_summary",
             "employment_record",
             "job_history",
             "work_background",
             "industry_experience",
-            "technical_experience",
             "corporate_experience",
             "consulting_experience",
-            # Internship related
+            "employment_details",
+            "work_details",
+        ]
+        # Secondary: projects, internships, etc. Use only when no primary section exists.
+        # Projects/portfolio often have different structure (case studies, objectives) and
+        # should not override real employment experience.
+        EXPERIENCE_SECONDARY_KEYS = [
             "internship",
             "internships",
             "internship_experience",
@@ -2354,7 +2357,6 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "apprenticeship",
             "apprenticeships",
             "traineeship",
-            # Project-based (important for freshers)
             "projects",
             "project_experience",
             "academic_projects",
@@ -2364,28 +2366,24 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "client_projects",
             "research_projects",
             "freelance_projects",
-            # Contract / freelance
             "freelance_experience",
             "contract_experience",
             "consultant_experience",
             "independent_projects",
-            # Military / Govt
             "military_service",
             "armed_forces_experience",
             "government_service",
-            # Other real resume headers
             "assignments",
             "engagements",
             "roles_and_responsibilities",
             "professional_assignments",
             "career_overview",
-            "employment_details",
-            "work_details",
+            "technical_experience",
         ]
 
         experience_text = ""
         experience_block = {}
-        for key in EXPERIENCE_KEYS:
+        for key in EXPERIENCE_PRIMARY_KEYS:
             block = sections.get(key, {}) if isinstance(sections, dict) else {}
             if not isinstance(block, dict):
                 continue
@@ -2393,6 +2391,15 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             if len(content) > len(experience_text):
                 experience_text = content
                 experience_block = block
+        if not experience_text.strip():
+            for key in EXPERIENCE_SECONDARY_KEYS:
+                block = sections.get(key, {}) if isinstance(sections, dict) else {}
+                if not isinstance(block, dict):
+                    continue
+                content = str(block.get("content", "") or "").strip()
+                if len(content) > len(experience_text):
+                    experience_text = content
+                    experience_block = block
 
         try:
             exp_conf = float(experience_block.get("confidence", 0.0) or 0.0) if experience_block else 0.0
@@ -3946,11 +3953,15 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     "skills",
                     "technical skills",
                     "projects",
+                    "project portfolio",
+                    "detailed project portfolio",
+                    "case studies",
                     "education",
                     "certifications",
                 }
                 for line in lines[:15]:
                     lowered = line.lower().strip(":- ")
+                    lowered = re.sub(r"^#+\s*", "", lowered).strip()
                     if lowered in headings:
                         continue
                     if "@" in line or "http" in lowered or "www." in lowered:

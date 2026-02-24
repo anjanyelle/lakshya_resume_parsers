@@ -4,16 +4,16 @@
     "section_found_rate": 0.1667,
     "section_bleed_rate": 0.0,
     "contact_accuracy": 0.8,
-    "work_accuracy": 0.0,
-    "work_company_f1": 0.0,
-    "work_title_f1": 0.0,
-    "work_dates_accuracy": 0.0,
+    "work_accuracy": 1.0,
+    "work_company_f1": 1.0,
+    "work_title_f1": 1.0,
+    "work_dates_accuracy": 1.0,
     "work_date_extraction_rate": 0.0,
-    "work_entry_count_diff": 1.0,
+    "work_entry_count_diff": 0.0,
     "skills_f1": 0.8571,
     "education_f1": 0.0,
-    "certifications_f1": 0.0,
-    "overall": 0.2607
+    "certifications_f1": 1.0,
+    "overall": 0.7707
   },
   "per_field": {
     "skills": {
@@ -27,9 +27,9 @@
       "f1": 0.0
     },
     "certifications": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
     }
   },
   "cases": [
@@ -39,15 +39,15 @@
       "section_found_rate": 0.1667,
       "section_bleed_rate": 0.0,
       "contact_accuracy": 0.8,
-      "work_accuracy": 0.0,
-      "work_company_f1": 0.0,
-      "work_title_f1": 0.0,
-      "work_dates_accuracy": 0.0,
+      "work_accuracy": 1.0,
+      "work_company_f1": 1.0,
+      "work_title_f1": 1.0,
+      "work_dates_accuracy": 1.0,
       "work_date_extraction_rate": 0.0,
-      "work_entry_count_diff": 1.0,
+      "work_entry_count_diff": 0.0,
       "skills_f1": 0.8571,
       "education_f1": 0.0,
-      "certifications_f1": 0.0
+      "certifications_f1": 1.0
     }
   ]
 }

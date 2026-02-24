@@ -321,6 +321,8 @@ def _parse_resume(file_path: Path) -> dict[str, Any]:
 
 
 def _prf1(tp: int, fp: int, fn: int) -> PRF1:
+    if tp == 0 and fp == 0 and fn == 0:
+        return PRF1(precision=1.0, recall=1.0, f1=1.0)
     precision = tp / (tp + fp) if tp + fp else 0.0
     recall = tp / (tp + fn) if tp + fn else 0.0
     f1 = (2 * precision * recall / (precision + recall)) if precision + recall else 0.0
