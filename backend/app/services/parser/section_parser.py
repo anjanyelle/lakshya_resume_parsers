@@ -3039,6 +3039,9 @@ class SectionParser:
             "leadership_experience",
             "teaching_experience",
             "research_experience",
+            "professional_experience",
+            "professional experience",
+            "work_experience",
         }:
             return "experience"
 

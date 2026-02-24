@@ -24,6 +24,7 @@ import {
   reprocessCandidate,
   submitCorrections,
 } from '../services/api/candidates'
+import { fetchJobExtractionDebug } from '../services/api/uploads'
 import {
   workHistoryFromParsed,
   educationFromParsed,
@@ -32,6 +33,10 @@ import {
   contactFromParsed,
   summaryFromParsed,
   shouldUseParsedDataFallback,
+  getDisplayWorkHistory,
+  getDisplayEducation,
+  getDisplaySummary,
+  getDisplayCertifications,
 } from '../utils/parsedDataFallback'
 
 type ReviewFlags = {
@@ -101,6 +106,48 @@ export default function CandidateDetailPage() {
         setHistory([])
         setFuture([])
         setPendingChanges({})
+
+        if (import.meta.env.DEV) {
+          const pd = reviewData.latest_job?.parsed_data || {}
+          const work = pd.work_experience || []
+          const edu = pd.education || []
+          const certs = pd.certifications || []
+          const sections = (pd.sections || {}) as Record<string, unknown>
+          const summaryBlock = sections.summary || {}
+          const summaryContent =
+            typeof summaryBlock === 'object' && summaryBlock !== null && 'content' in summaryBlock
+              ? String((summaryBlock as { content?: string }).content || '')
+              : ''
+          console.log('[DATA-LOSS CHECK] Final frontend rendering — data received from API:', {
+            candidateId: id,
+            db_work_history_count: candidateData.work_history?.length ?? 0,
+            db_education_count: candidateData.education?.length ?? 0,
+            db_certifications_count: candidateData.certifications?.length ?? 0,
+            parsed_work_experience_count: Array.isArray(work) ? work.length : 0,
+            parsed_education_count: Array.isArray(edu) ? edu.length : 0,
+            parsed_certifications_count: Array.isArray(certs) ? certs.length : 0,
+            parsed_summary_length: summaryContent.length,
+            summary_sample: summaryContent.slice(0, 120) + (summaryContent.length > 120 ? '...' : ''),
+          })
+          const jobId = reviewData.latest_job?.id
+          if (jobId) {
+            fetchJobExtractionDebug(jobId)
+              .then((debug) => {
+                console.log('[DATA-LOSS CHECK] Backend extraction debug (compare with rendering):', {
+                  raw_text_length: debug.raw_text_length,
+                  raw_sample_first_200: debug.raw_text_sample_first_200?.slice(0, 100) + '...',
+                  parsed_work_count: debug.parsed_work_experience_count,
+                  parsed_work_desc_chars: debug.parsed_work_description_total_chars,
+                  parsed_education_count: debug.parsed_education_count,
+                  parsed_certifications_count: debug.parsed_certifications_count,
+                  parsed_summary_length: debug.parsed_summary_length,
+                  method: debug.text_extraction_method,
+                  used_ocr: debug.used_ocr,
+                })
+              })
+              .catch(() => {})
+          }
+        }
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : 'Failed to load candidate',
@@ -461,18 +508,16 @@ export default function CandidateDetailPage() {
   const fallbackContact = contactFromParsed(parsedData.contact)
   const fallbackSummary = summaryFromParsed(parsedData)
 
-  const displayWorkHistory = useParsedDataFallback ? fallbackWorkHistory : dbHistory
-  const displayEducation = useParsedDataFallback ? fallbackEducation : (candidate.education ?? [])
-  const displayCertifications = useParsedDataFallback
-    ? fallbackCertifications
-    : (candidate.certifications ?? [])
+  // Prefer parsed_data per section when it has content so UI matches Export JSON
+  const displayWorkHistory = getDisplayWorkHistory(parsedData, dbHistory)
+  const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
+  const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
+  const displaySummary = getDisplaySummary(parsedData, candidate.summary)
+
   const displaySkills = useParsedDataFallback ? fallbackSkills : (candidate.skills ?? [])
   const displayCandidateSkills = useParsedDataFallback
     ? fallbackCandidateSkills
     : (candidate.candidate_skills ?? [])
-  const displaySummary = useParsedDataFallback
-    ? (fallbackSummary ?? candidate.summary ?? '')
-    : (candidate.summary ?? '')
   const displayCandidate: Candidate = useParsedDataFallback
     ? {
         ...candidate,
@@ -590,7 +635,7 @@ export default function CandidateDetailPage() {
       <SkillsSection skills={displaySkills} candidateSkills={displayCandidateSkills} />
 
       <DebugPanel debug={(parsedData as any)?.debug} />
-
+{/* 
       <div className="space-y-3">
         <h2 className="text-xl font-semibold text-slate-900">
           Correction interface
@@ -622,7 +667,7 @@ export default function CandidateDetailPage() {
           canRedo={future.length > 0}
           readOnly={useParsedDataFallback}
         />
-      </div>
+      </div> */}
     </section>
   )
 }

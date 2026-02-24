@@ -192,6 +192,9 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         company = _normalize_text(item.get("company"))
         title = _normalize_text(item.get("title"))
+        # Use client as company when company is empty (e.g. "CLIENT: Home Depot" format)
+        if not company:
+            company = _normalize_text(item.get("client"))
 
         if not company and not title:
             continue
