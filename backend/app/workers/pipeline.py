@@ -92,16 +92,23 @@ logger = logging.getLogger(__name__)
 def clean_summary(text: str) -> str:
     """
     Clean summary text: remove duplicate lines/paragraphs and sentences,
-    trim to 800 chars / 3 sentences if needed. Call before saving.
+    trim to 1500 chars / 6 sentences only when very long. Call before saving.
+    Normalizes " | " and "- | " from section parser so summary renders as readable text.
     """
-    return _dedup_text_lines(text or "")
+    if not (text or "").strip():
+        return text or ""
+    # Normalize table-row style pipes (from section_parser._normalize_table_row) to spaces
+    normalized = re.sub(r"\s*-\s*\|\s*", " ", text)
+    normalized = re.sub(r"\s*\|\s*", " ", normalized)
+    normalized = " ".join(normalized.split())  # collapse multiple spaces
+    return _dedup_text_lines(normalized)
 
 
 def _dedup_text_lines(text: str) -> str:
     """
     Remove duplicate lines and sentences from summary text.
     Deduplicates at paragraph level (lines) and sentence level.
-    Trims to first 3 sentences if result exceeds 800 characters.
+    Trims only when very long (first 6 sentences if exceeds 1500 chars) to preserve full summary.
     """
     if not text:
         return text
@@ -137,9 +144,9 @@ def _dedup_text_lines(text: str) -> str:
 
     result = ". ".join(sentences)
 
-    # 3. Trim to first 3 sentences if exceeds 800 chars
-    if len(result) > 800 and len(sentences) > 3:
-        result = ". ".join(sentences[:3])
+    # 3. Trim only when very long: first 12 sentences if exceeds 2500 chars (preserve full summary)
+    if len(result) > 2500 and len(sentences) > 12:
+        result = ". ".join(sentences[:12])
 
     return result
 
@@ -3678,6 +3685,20 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         parsed = _apply_llm_resume(parsed_data)
         parsed = sanitize_final_output(parsed)
 
+        # If contact name is still empty, try "Name: ..." from raw text so we don't show "Unnamed candidate"
+        raw_text = getattr(job, "raw_text", None) or ""
+        existing_name = (parsed.get("contact") or {}).get("name") or {}
+        if isinstance(existing_name, dict) and not (existing_name.get("name") or "").strip() and raw_text:
+            name_label_re = re.compile(r"\bname\b\s*[:\-]\s*(?P<value>.+)$", re.IGNORECASE)
+            for line in (raw_text or "").splitlines()[:25]:
+                m = name_label_re.search(line.strip())
+                if m:
+                    val = m.group("value").strip()
+                    if val and 2 <= len(val.split()) <= 6 and "@" not in val and not re.search(r"\d", val) and re.match(r"^[A-Za-z\s.'\-]+$", val):
+                        parsed.setdefault("contact", {})
+                        parsed["contact"]["name"] = {"name": val, "confidence": 0.6}
+                        break
+
         def _looks_like_skillish_header(value: str | None) -> bool:
             cleaned = str(value or "").strip()
             if not cleaned:
@@ -3931,6 +3952,27 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 lines = [ln.strip() for ln in str(raw_text).splitlines() if ln.strip()]
                 if not lines:
                     return None
+                # Explicit "Name: ..." or "Name" on one line and value on next (common in resumes)
+                name_label_re = re.compile(r"\bname\b\s*[:\-]\s*(?P<value>.+)$", re.IGNORECASE)
+                for i, line in enumerate(lines[:20]):
+                    m = name_label_re.search(line)
+                    if m:
+                        val = m.group("value").strip()
+                        if not val:
+                            continue
+                        if _is_plausible_person_name(val):
+                            return val
+                        # Use anyway if it looks like a name: 2-6 words, letters/spaces only (e.g. "Nitish Rao B")
+                        parts = [p for p in val.split() if p]
+                        if 2 <= len(parts) <= 6 and re.match(r"^[A-Za-z\s.'\-]+$", val) and "@" not in val and not re.search(r"\d", val):
+                            return val
+                    if line.lower().strip(":- ") == "name" and i + 1 < len(lines):
+                        val = lines[i + 1].strip()
+                        if val and _is_plausible_person_name(val):
+                            return val
+                        parts = [p for p in (val or "").split() if p]
+                        if val and 2 <= len(parts) <= 6 and re.match(r"^[A-Za-z\s.'\-]+$", val) and "@" not in val and not re.search(r"\d", val):
+                            return val
                 headings = {
                     "summary",
                     "professional summary",
@@ -4021,7 +4063,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                             break
                         continue
                     collected.append(line.strip())
-                    if len(" ".join(collected).split()) >= 40:
+                    if len(" ".join(collected).split()) >= 120:
                         break
 
                 summary = " ".join(collected).strip()
@@ -4098,7 +4140,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             candidate.linkedin_url = linkedin or candidate.linkedin_url
             candidate.github_url = github or candidate.github_url
             inferred_summary = summary_section or _guess_summary_from_raw_text(job.raw_text)
-            if inferred_summary and not candidate.summary:
+            if inferred_summary:
                 inferred_summary = clean_summary(inferred_summary)
                 candidate.summary = inferred_summary
             candidate.status = CandidateStatus.SUCCESS

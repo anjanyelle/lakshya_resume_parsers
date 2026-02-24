@@ -890,6 +890,24 @@ class ContactExtractor:
         top_lines = lines[:50]
         contact_label_re = re.compile(r"\b(?:email|phone|linkedin|github)\b\s*:?", re.IGNORECASE)
 
+        # 1. Explicit "Name: ..." on same line or "Name:" then value on next line (common in resumes)
+        # Search first 30 lines so we don't miss name when header/whitespace pushes it down
+        for i, line in enumerate(top_lines[:30]):
+            match = NAME_LABEL_REGEX.search(line)
+            if match:
+                candidate = match.group("value").strip()
+                if self._is_probable_name(candidate):
+                    return NameResult(
+                        name=self._normalize_name_case(candidate), confidence=0.85
+                    )
+            stripped = line.lower().strip(":- ")
+            if stripped == "name" and i + 1 < len(top_lines):
+                next_val = top_lines[i + 1].strip()
+                if self._is_probable_name(next_val):
+                    return NameResult(
+                        name=self._normalize_name_case(next_val), confidence=0.8
+                    )
+
         first_five = lines[:5]
         logger.debug("extract_name input first 5 lines: %s", first_five)
 
@@ -1026,7 +1044,8 @@ class ContactExtractor:
         if len(value) > 60:
             return False
         words = [w for w in re.split(r"\s+", value.strip()) if w]
-        if not (2 <= len(words) <= 4):
+        # Allow 2-6 words for "First Middle Last" or "First Last B" (suffix/initial)
+        if not (2 <= len(words) <= 6):
             return False
         lowered = value.lower()
         if "," in value or "/" in value or "|" in value or "·" in value:
