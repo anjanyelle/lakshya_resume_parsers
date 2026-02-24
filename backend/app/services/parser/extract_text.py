@@ -158,13 +158,25 @@ def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
     return reconstruct_multicolumn_layout(blocks)
 
 
+def _sample_text(text: str, head: int = 200, tail: int = 100) -> str:
+    """Return a short sample for logging (first N + ... + last M chars)."""
+    if not text or len(text) <= head + tail + 20:
+        return (text or "")[: 300]
+    return f"{text[:head]} ... [truncated] ... {text[-tail:]}"
+
+
 def extract_text(file_path: Path) -> ExtractedText:
     settings = get_settings()
     if settings.TESSERACT_CMD:
         pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
     extension = file_path.suffix.lower().lstrip(".")
-    logger.info("Starting text extraction", extra={"path": str(file_path)})
+    logger.info(
+        "[DATA-LOSS CHECK] Starting text extraction: path=%s, extension=%s",
+        str(file_path),
+        extension,
+        extra={"path": str(file_path), "extension": extension},
+    )
 
     if extension == "pdf":
         return _extract_pdf(file_path)
@@ -244,8 +256,16 @@ def _extract_image(file_path: Path) -> ExtractedText:
         logger.warning("Low OCR confidence %.0f%% — flagging for review", conf)
         metadata["ocr_confidence"] = conf
         metadata["needs_review"] = True
+    out_text = normalize_text(text)
+    logger.info(
+        "[DATA-LOSS CHECK] Image OCR done: output_len=%d, confidence=%.0f, sample=%s",
+        len(out_text),
+        conf,
+        repr(_sample_text(out_text, 120, 0))[: 120],
+        extra={"output_chars": len(out_text), "ocr_confidence": conf},
+    )
     return ExtractedText(
-        text=normalize_text(text),
+        text=out_text,
         ocr_confidence=conf,
         used_ocr=True,
         method="ocr_image",
@@ -336,13 +356,25 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
             logger.warning("pdfplumber full extraction failed", exc_info=exc)
 
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
-        logger.info("Low text detected, triggering OCR")
+        logger.info(
+            "[DATA-LOSS CHECK] Low text detected (%d chars), triggering OCR fallback",
+            len(text),
+            extra={"job_id": getattr(file_path, "job_id", None), "chars_before_ocr": len(text)},
+        )
         OCR_TRIGGER_TOTAL.inc()
         try:
             ocr_text, ocr_conf, ocr_metadata = _ocr_pdf(file_path)
+            out_text = normalize_resume_text(ocr_text, source_format="ocr")
+            logger.info(
+                "[DATA-LOSS CHECK] OCR complete: output_len=%d, confidence=%.0f, sample_head=%s",
+                len(out_text),
+                ocr_conf or 0,
+                repr(_sample_text(out_text, 150, 0))[: 120],
+                extra={"output_chars": len(out_text), "ocr_confidence": ocr_conf},
+            )
             merged_debug = {**(debug or {}), **(ocr_metadata or {})}
             return ExtractedText(
-                text=normalize_resume_text(ocr_text, source_format="ocr"),
+                text=out_text,
                 ocr_confidence=ocr_conf,
                 used_ocr=True,
                 method="ocr",
@@ -354,8 +386,17 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
             debug["ocr_error"] = str(exc)
 
     source_fmt = "ocr" if method == "ocr" else "pdf"
+    out_text = normalize_resume_text(text, source_format=source_fmt)
+    logger.info(
+        "[DATA-LOSS CHECK] PDF extraction done: method=%s, output_len=%d, lines≈%d, sample=%s",
+        method,
+        len(out_text),
+        out_text.count("\n") + 1 if out_text else 0,
+        repr(_sample_text(out_text, 120, 80))[: 150],
+        extra={"method": method, "output_chars": len(out_text)},
+    )
     return ExtractedText(
-        text=normalize_resume_text(text, source_format=source_fmt),
+        text=out_text,
         method=method,
         debug=debug or None,
     )
@@ -1189,14 +1230,31 @@ def _extract_docx(file_path: Path) -> ExtractedText:
         "had_header_footer": bool(had_header_footer),
     }
 
-    return ExtractedText(text=normalize_text(text), method="docx", debug=debug)
+    out_text = normalize_text(text)
+    logger.info(
+        "[DATA-LOSS CHECK] DOCX extraction done: output_len=%d, paragraphs=%d, tables=%d, sample=%s",
+        len(out_text),
+        total_paragraphs,
+        table_count,
+        repr(_sample_text(out_text, 120, 80))[: 150],
+        extra={"output_chars": len(out_text), "total_paragraphs": total_paragraphs, "table_count": table_count},
+    )
+    return ExtractedText(text=out_text, method="docx", debug=debug)
 
 
 def _extract_plain_text(file_path: Path, extension: str) -> ExtractedText:
     raw = file_path.read_text(encoding="utf-8", errors="replace")
     if extension == "rtf":
         raw = _strip_rtf(raw)
-    return ExtractedText(text=normalize_text(raw), method=extension)
+    out_text = normalize_text(raw)
+    logger.info(
+        "[DATA-LOSS CHECK] Plain text (%s) done: output_len=%d, sample=%s",
+        extension,
+        len(out_text),
+        repr(_sample_text(out_text, 120, 80))[: 150],
+        extra={"extension": extension, "output_chars": len(out_text)},
+    )
+    return ExtractedText(text=out_text, method=extension)
 
 
 def _strip_rtf(text: str) -> str:

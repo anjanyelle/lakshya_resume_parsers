@@ -27,8 +27,14 @@ type UploadState = {
 
 export const useUploadStore = create<UploadState>((set, get) => ({
   queue: [],
-  addFiles: (files) =>
-    set((state) => ({
+  addFiles: (files) => {
+    if (import.meta.env.DEV && files.length > 0) {
+      console.log('[DATA-LOSS CHECK] File upload stage — files selected:', {
+        count: files.length,
+        files: files.map((f) => ({ name: f.name, size: f.size, type: f.type })),
+      })
+    }
+    return set((state) => ({
       queue: [
         ...state.queue,
         ...files.map((file) => ({
@@ -39,7 +45,8 @@ export const useUploadStore = create<UploadState>((set, get) => ({
           error: null,
         })),
       ],
-    })),
+    }))
+  },
   uploadAll: async () => {
     const queue = get().queue
     for (const item of queue) {
@@ -54,6 +61,13 @@ export const useUploadStore = create<UploadState>((set, get) => ({
           get().updateProgress(item.id, progress),
         )
         get().setJobId(item.id, jobId)
+        if (import.meta.env.DEV) {
+          console.log('[DATA-LOSS CHECK] File upload stage — file sent to backend:', {
+            fileName: item.file.name,
+            fileSize: item.file.size,
+            jobId,
+          })
+        }
         set((state) => ({
           queue: state.queue.map((entry) =>
             entry.id === item.id
@@ -108,6 +122,12 @@ export const useUploadStore = create<UploadState>((set, get) => ({
         try {
           const status = await fetchJobStatus(item.jobId)
           if (status === 'success') {
+            if (import.meta.env.DEV) {
+              console.log('[DATA-LOSS CHECK] Processing complete — job finished successfully:', {
+                jobId: item.jobId,
+                fileName: item.file.name,
+              })
+            }
             get().updateProgress(item.id, 100)
             get().setStatus(item.id, 'success')
           } else if (status === 'failed') {

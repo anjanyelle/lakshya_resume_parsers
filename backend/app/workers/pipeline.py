@@ -994,7 +994,18 @@ def task_clean_text(self, job_id: str) -> str:  # noqa: ANN001
         source_format = _source_format_from_path(
             getattr(job, "file_path", None) or getattr(job, "extracted_text_path", None)
         )
+        raw_len = len(job.raw_text or "")
         cleaned = normalize_resume_text(job.raw_text, source_format=source_format)
+        cleaned_len = len(cleaned or "")
+        logger.info(
+            "[DATA-LOSS CHECK] Clean text stage: job_id=%s, raw_len=%d, cleaned_len=%d, source_fmt=%s, sample_after=%s",
+            job_id,
+            raw_len,
+            cleaned_len,
+            source_format or "unknown",
+            repr((cleaned or "")[: 150] + ("..." if len(cleaned or "") > 150 else ""))[: 180],
+            extra={"job_id": job_id, "raw_chars": raw_len, "cleaned_chars": cleaned_len},
+        )
         _update_job(
             job_id,
             last_stage="clean_text",
@@ -2330,10 +2341,11 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         sections = parsed.get("sections", {})
 
         EXPERIENCE_KEYS = [
-            # Standard
+            # Standard (include space variant for section keys that may be stored with space)
             "experience",
             "work_experience",
             "professional_experience",
+            "professional experience",
             "employment",
             "work_history",
             "employment_history",
@@ -4180,6 +4192,36 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             "DIAG post-sanitize count=%d dropped=%d",
             len(work_entries),
             (len(raw_we) if isinstance(raw_we, list) else 0) - len(work_entries),
+        )
+        raw_text_len = len(job.raw_text or "")
+        summary_block = (parsed.get("sections") or {}).get("summary") or {}
+        if isinstance(summary_block, dict):
+            summary_len = len(str(summary_block.get("content") or ""))
+        else:
+            summary_len = 0
+        we_desc_len = sum(
+            len(str(e.get("description") or ""))
+            for e in (work_entries if isinstance(work_entries, list) else [])
+            if isinstance(e, dict)
+        )
+        logger.info(
+            "[DATA-LOSS CHECK] Final extracted vs raw: job_id=%s, raw_text_chars=%d, work_entries=%d, work_desc_total_chars=%d, education=%d, certifications=%d, summary_chars=%d",
+            job_id,
+            raw_text_len,
+            len(work_entries) if isinstance(work_entries, list) else 0,
+            we_desc_len,
+            len(raw_edu) if isinstance(raw_edu, list) else 0,
+            len(raw_certs) if isinstance(raw_certs, list) else 0,
+            summary_len,
+            extra={
+                "job_id": job_id,
+                "raw_text_chars": raw_text_len,
+                "work_entries": len(work_entries) if isinstance(work_entries, list) else 0,
+                "work_desc_total_chars": we_desc_len,
+                "education_count": len(raw_edu) if isinstance(raw_edu, list) else 0,
+                "certifications_count": len(raw_certs) if isinstance(raw_certs, list) else 0,
+                "summary_chars": summary_len,
+            },
         )
         for entry in work_entries:
             company = entry.get("company") or entry.get("client")

@@ -126,6 +126,95 @@ export function summaryFromParsed(parsed: any): string | null {
   return typeof content === 'string' ? content.trim() || null : null
 }
 
+/** Get raw section content (e.g. sections.experience.content) when structured list is empty */
+function getSectionContent(parsed: any, sectionKey: string): string | null {
+  const content = parsed?.sections?.[sectionKey]?.content
+  return typeof content === 'string' ? content.trim() || null : null
+}
+
+/**
+ * Work history for display: use structured work_experience, or one item from
+ * sections.experience.content when structured list is empty (so UI matches export).
+ */
+export function getDisplayWorkHistory(
+  parsedData: Record<string, any>,
+  dbHistory: WorkHistory[],
+): WorkHistory[] {
+  const structured = workHistoryFromParsed(parsedData.work_experience)
+  if (structured.length > 0) return structured
+  const rawContent =
+    getSectionContent(parsedData, 'experience') ??
+    getSectionContent(parsedData, 'professional experience') ??
+    getSectionContent(parsedData, 'professional_experience')
+  if (rawContent) {
+    return [
+      {
+        id: 'parsed-we-section',
+        company_name: null,
+        client_name: null,
+        job_title: 'Professional Experience',
+        start_date: null,
+        end_date: null,
+        is_current: false,
+        location: null,
+        description: rawContent,
+      },
+    ]
+  }
+  return dbHistory
+}
+
+/**
+ * Education for display: use structured education, or one item from
+ * sections.education.content when structured list is empty.
+ */
+export function getDisplayEducation(
+  parsedData: Record<string, any>,
+  dbEducation: Education[],
+): Education[] {
+  const structured = educationFromParsed(parsedData.education)
+  if (structured.length > 0) return structured
+  const rawContent = getSectionContent(parsedData, 'education')
+  if (rawContent) {
+    return [
+      {
+        id: 'parsed-edu-section',
+        institution: null,
+        degree: null,
+        field_of_study: null,
+        start_date: null,
+        end_date: null,
+        description: rawContent,
+      },
+    ]
+  }
+  return dbEducation
+}
+
+/**
+ * Summary for display: prefer parsed section content so UI matches exported JSON.
+ */
+export function getDisplaySummary(
+  parsedData: Record<string, any>,
+  dbSummary: string | null | undefined,
+): string {
+  const fromParsed = summaryFromParsed(parsedData)
+  if (fromParsed && fromParsed.length > 0) return fromParsed
+  return (dbSummary ?? '').trim() || ''
+}
+
+/**
+ * Certifications for display: prefer parsed when it has items.
+ */
+export function getDisplayCertifications(
+  parsedData: Record<string, any>,
+  dbCerts: Certification[],
+): Certification[] {
+  const structured = certificationsFromParsed(parsedData.certifications)
+  if (structured.length > 0) return structured
+  return dbCerts
+}
+
 /** Check if we should use parsed_data fallback (DB empty but parsed has data) */
 export function shouldUseParsedDataFallback(
   candidate: {

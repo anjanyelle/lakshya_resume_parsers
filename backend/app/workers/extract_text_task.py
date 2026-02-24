@@ -61,13 +61,22 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
                 raise FileNotFoundError(f"File not found: {local_path}")
 
         extracted = extract_text(local_path)
+        raw_len = len(extracted.text or "")
         logger.info(
-            "Extracted text: %d chars, method=%s, ocr=%s",
-            len(extracted.text or ""),
+            "[DATA-LOSS CHECK] File upload → extraction: job_id=%s, chars=%d, method=%s, ocr=%s",
+            job_id,
+            raw_len,
             extracted.method,
             extracted.used_ocr,
-            extra={"job_id": job_id},
+            extra={"job_id": job_id, "extracted_chars": raw_len, "method": extracted.method},
         )
+        if raw_len > 0:
+            sample = (extracted.text or "")[: 250].replace("\n", " ")
+            logger.info(
+                "[DATA-LOSS CHECK] Raw extracted sample (first 250 chars): %s",
+                sample if len(sample) <= 250 else sample[: 247] + "...",
+                extra={"job_id": job_id},
+            )
         source_ext = ""
         try:
             if job.filename and "." in job.filename:
@@ -83,10 +92,25 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
         table_norm_applied = False
         table_rows_normalized = 0
         final_text = extracted.text
+        before_norm_len = len(final_text or "")
         if source_ext in {"docx", "doc"}:
             final_text, table_norm_applied, table_rows_normalized = _normalize_table_lines_with_stats(
                 final_text
             )
+        after_norm_len = len(final_text or "")
+        logger.info(
+            "[DATA-LOSS CHECK] After table norm (docx/doc): before=%d, after=%d, applied=%s, rows_norm=%d",
+            before_norm_len,
+            after_norm_len,
+            table_norm_applied,
+            table_rows_normalized,
+            extra={
+                "job_id": job_id,
+                "before_chars": before_norm_len,
+                "after_chars": after_norm_len,
+                "table_norm_applied": table_norm_applied,
+            },
+        )
 
         job.raw_text = final_text
         job.ocr_confidence = extracted.ocr_confidence
