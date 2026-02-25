@@ -1,0 +1,268 @@
+{
+  "contact": {
+    "name": "Julian Mercer",
+    "email": "julian.mercer.ml@email.com",
+    "location": "Seattle, WA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Tower Neural Network Using Pytorch, Processing Over 10 Billion Daily User Interaction Events",
+      "company": "and Two",
+      "start": "2022-01-01",
+      "end": null,
+      "current": true
+    },
+    {
+      "title": "Wa",
+      "company": "Seattle",
+      "start": "2019-03-01",
+      "end": "2021-12-01",
+      "current": false
+    },
+    {
+      "title": "Recall Curve (Auprc) By 28%",
+      "company": "functions to combat class imbalance (1:1000 fraud ratio)",
+      "start": null,
+      "end": null,
+      "current": false
+    },
+    {
+      "title": "Upon Statistical Threshold Breaches",
+      "company": null,
+      "start": "2017-06-01",
+      "end": "2019-02-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "normalized_name": "python",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Docker",
+      "normalized_name": "docker",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Kubernetes",
+      "normalized_name": "kubernetes",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub Actions",
+      "normalized_name": "github actions",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Terraform",
+      "normalized_name": "terraform",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "DevOps",
+      "normalized_name": "devops",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Leadership",
+      "normalized_name": "leadership",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "PyTorch",
+      "normalized_name": "pytorch",
+      "category": "ML Frameworks"
+    },
+    {
+      "name": "Pandas",
+      "normalized_name": "pandas",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Apache Spark",
+      "normalized_name": "spark",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "Machine Learning",
+      "normalized_name": "machine learning",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Deep Learning",
+      "normalized_name": "deep learning",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Prometheus",
+      "normalized_name": "prometheus",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Grafana",
+      "normalized_name": "grafana",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Snowflake",
+      "normalized_name": "snowflake",
+      "category": "Cloud Data Warehouse"
+    },
+    {
+      "name": "Cloud",
+      "normalized_name": "cloud",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Apache Airflow",
+      "normalized_name": "airflow",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "dbt",
+      "normalized_name": "dbt",
+      "category": "ETL & Data Integration"
+    },
+    {
+      "name": "GCP",
+      "normalized_name": "gcp",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Git",
+      "normalized_name": "git",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Artificial Intelligence",
+      "normalized_name": "artificial intelligence",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "LLMs",
+      "normalized_name": "llms",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Transformer Architectures",
+      "normalized_name": "transformer architectures",
+      "category": "Project Tools"
+    },
+    {
+      "name": "BERT",
+      "normalized_name": "bert",
+      "category": "LLM Models"
+    },
+    {
+      "name": "GPT",
+      "normalized_name": "gpt",
+      "category": "LLM Models"
+    },
+    {
+      "name": "T5",
+      "normalized_name": "t5",
+      "category": "LLM Models"
+    },
+    {
+      "name": "CNNs",
+      "normalized_name": "cnns",
+      "category": "Project Tools"
+    },
+    {
+      "name": "GNNs",
+      "normalized_name": "gnns",
+      "category": "Project Tools"
+    },
+    {
+      "name": "DLRM",
+      "normalized_name": "dlrm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Two-Tower",
+      "normalized_name": "two-tower",
+      "category": "Project Tools"
+    },
+    {
+      "name": "XGBoost",
+      "normalized_name": "xgboost",
+      "category": "Project Tools"
+    },
+    {
+      "name": "LightGBM.",
+      "normalized_name": "lightgbm.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Dask",
+      "normalized_name": "dask",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Snowflake.",
+      "normalized_name": "snowflake.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "vLLM",
+      "normalized_name": "vllm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "TensorRT",
+      "normalized_name": "tensorrt",
+      "category": "Project Tools"
+    },
+    {
+      "name": "TorchScript",
+      "normalized_name": "torchscript",
+      "category": "Project Tools"
+    },
+    {
+      "name": "DVC",
+      "normalized_name": "dvc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data Version Control",
+      "normalized_name": "data version control",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Active",
+      "normalized_name": "active",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Coursera",
+      "normalized_name": "coursera",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Machine Learning Specialty - Amazon Web Services",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "NVIDIA Certified: Fundamentals of Deep Learning - NVIDIA Deep Learning Institute",
+      "org": null
+    }
+  ]
+}

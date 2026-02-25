@@ -1,0 +1,198 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\2e918cbb-8e7c-4751-b894-e5cc423b84dd\\c12f5e76-7fec-42e0-8e20-9fa226d914b6\\original.pdf",
+  "text_preview": "ALEXANDER J. STERLING\nSenior Full Stack Developer & Software Architect (MERN Specialist)\nManhattan, New York | +1 (555) 012-3456 | alex.sterling.dev@example.com\nLinkedIn: alexsterling-fullstack | GitHub: alexsterling-pro | Portfolio: alexsterling.dev\nPROFESSIONAL SUMMARY\nStrategic and results-oriented Senior Full Stack Developer with over 10 years of professional\nexperience in architecting, develo",
+  "contact": {
+    "name": "Alexander J. Sterling",
+    "email": "alex.sterling.dev@example.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Finstream Technologies",
+      "company": "Lead Full Stack Developer",
+      "start": "2021-01-01",
+      "end": null,
+      "current": true,
+      "bullets": []
+    },
+    {
+      "title": "Globalcart Inc",
+      "company": "Grafana.",
+      "start": "2017-06-01",
+      "end": "2020-12-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Cloudflow Systems",
+      "company": "Full Stack Developer",
+      "start": "2014-03-01",
+      "end": "2017-05-01",
+      "current": false,
+      "bullets": [
+        "Built a HIPAA-compliant portal for patient data management and secure tele-consultations.",
+        "Implemented client-side encryption for medical records, ensuring that sensitive data remains encrypted even within the database.",
+        "Impact: Onboarded 250+ clinics and supported 1 million+ secure patient interactions."
+      ]
+    },
+    {
+      "title": null,
+      "company": "Georgia Institute of Technology",
+      "start": "2012-01-01",
+      "end": "2014-01-01",
+      "current": false,
+      "bullets": [
+        "Focus: Distributed Systems and Cloud Computing.",
+        "GPA: 3.9/4.0."
+      ]
+    },
+    {
+      "title": null,
+      "company": "University of Texas at Austin",
+      "start": "2008-01-01",
+      "end": "2012-01-01",
+      "current": false,
+      "bullets": [
+        "Graduated with Honors.",
+        "Communication: Expert at articulating complex technical strategies to non-technical stakeholders.",
+        "Problem-Solving: Exceptional ability to debug large-scale production outages and identify"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "typescript",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "react",
+      "category": "Frameworks",
+      "conf": 0.6
+    },
+    {
+      "name": "node.js",
+      "category": "Frameworks",
+      "conf": 0.6
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.6
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "kubernetes",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "agile",
+      "category": "Methodologies",
+      "conf": 0.6
+    },
+    {
+      "name": "communication",
+      "category": "Soft Skills",
+      "conf": 0.6
+    },
+    {
+      "name": "new york",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "css",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "graphql",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "rest api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "azure",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cloud",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "github",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "gitlab",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "terraform",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "javascript",
+      "category": "Programming Languages",
+      "conf": 0.4
+    }
+  ],
+  "certifications": [
+    {
+      "name": "of legacy monolithic architectures to modern, cloud-native infrastructures on AWS and Azure. A",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "\u2713Global Security Compliance: Led the engineering effort to achieve SOC2 Type II certification. Implemented automated vulnerability scanning (Snyk/SonarQube) and multi-factor",
+      "org": null
+    },
+    {
+      "name": "\u2713Infrastructure Optimization: Optimized AWS resource allocation through the use of Auto",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "MongoDB",
+      "org": "MongoDB"
+    },
+    {
+      "name": "Agile Transformation: Expert in implementing Scrum and Kanban methodologies. Facilitated transition to \u201dPod-based\u201d engineering structures to increase autonomy.",
+      "org": "Scrum Alliance"
+    },
+    {
+      "name": "EDUCATION & ACADEMIC CREDENTIALS",
+      "org": null
+    },
+    {
+      "name": "AWS Certified Solutions Architect - Professional",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "MongoDB Certified Developer Associate",
+      "org": "MongoDB"
+    },
+    {
+      "name": "Certified ScrumMaster (CSM)",
+      "org": "Scrum Alliance"
+    }
+  ]
+}

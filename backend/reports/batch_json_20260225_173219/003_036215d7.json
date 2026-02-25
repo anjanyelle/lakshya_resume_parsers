@@ -1,0 +1,326 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\036215d7-264f-478d-a079-90a5c0d93331\\77bf6fff-bd16-4c88-af21-85c614537bef\\original.pdf",
+  "text_preview": "Julian Mercer\nStaffMachine Learning Engineer & MLOps Architect\njulian.mercer.ml@email.com | +1 (555) 293-8475 | Seattle, WA\nlinkedin.com/in/julianmercer-ml | github.com/jmercer-ai\nProfessional Summary\nVisionary StaffMachine Learning Engineer with 9 years of end-to-end experience architecting, training, and deploying large-scale deep learning systems and Generative AI solutions\nfor enterprise platf",
+  "contact": {
+    "name": "Julian Mercer",
+    "email": "julian.mercer.ml@email.com",
+    "location": "Seattle, WA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Tower Neural Network Using Pytorch, Processing Over 10 Billion Daily User Interaction Events",
+      "company": "and Two",
+      "start": "2022-01-01",
+      "end": null,
+      "current": true,
+      "bullets": []
+    },
+    {
+      "title": "Wa",
+      "company": "Seattle",
+      "start": "2019-03-01",
+      "end": "2021-12-01",
+      "current": false,
+      "bullets": [
+        "Engineered a real-time online feature store utilizing Redis Cluster and Apache Flink to ingest and",
+        "Implemented distributed data parallel (DDP) training across multi-node GPU clusters (AWS EC2 p3.16xlarge",
+        "Designed and executed rigorous, large-scale A/B testing frameworks and multi-armed bandit algorithms to evaluate model performance against baseline heuristics, achieving a statistically significant"
+      ]
+    },
+    {
+      "title": "Recall Curve (Auprc) By 28%",
+      "company": "functions to combat class imbalance (1:1000 fraud ratio)",
+      "start": null,
+      "end": null,
+      "current": false,
+      "bullets": [
+        "Deployed ML models as scalable Docker containers orchestrated by Kubernetes, exposing them via",
+        "Designed an automated model monitoring dashboard in Grafana to track prediction distributions,"
+      ]
+    },
+    {
+      "title": "Upon Statistical Threshold Breaches",
+      "company": null,
+      "start": "2017-06-01",
+      "end": "2019-02-01",
+      "current": false,
+      "bullets": [
+        "Collaborated with the risk operations team to implement a Shadow Deployment strategy for new",
+        "Impact: The upgraded fraud detection suite successfully identified and blocked $15M in fraudulent"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Bachelor of Science",
+      "field": "Computer Science",
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "normalized_name": "python",
+      "category": "Programming Languages",
+      "conf": 0.85
+    },
+    {
+      "name": "Docker",
+      "normalized_name": "docker",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "Kubernetes",
+      "normalized_name": "kubernetes",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "GitHub Actions",
+      "normalized_name": "github actions",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "Terraform",
+      "normalized_name": "terraform",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "DevOps",
+      "normalized_name": "devops",
+      "category": "Methodologies",
+      "conf": 0.85
+    },
+    {
+      "name": "Leadership",
+      "normalized_name": "leadership",
+      "category": "Soft Skills",
+      "conf": 0.85
+    },
+    {
+      "name": "PyTorch",
+      "normalized_name": "pytorch",
+      "category": "ML Frameworks",
+      "conf": 0.85
+    },
+    {
+      "name": "Pandas",
+      "normalized_name": "pandas",
+      "category": "Machine Learning",
+      "conf": 0.85
+    },
+    {
+      "name": "Apache Spark",
+      "normalized_name": "spark",
+      "category": "Big Data Technologies",
+      "conf": 0.85
+    },
+    {
+      "name": "Machine Learning",
+      "normalized_name": "machine learning",
+      "category": "Machine Learning",
+      "conf": 0.85
+    },
+    {
+      "name": "Deep Learning",
+      "normalized_name": "deep learning",
+      "category": "Machine Learning",
+      "conf": 0.85
+    },
+    {
+      "name": "Prometheus",
+      "normalized_name": "prometheus",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "Grafana",
+      "normalized_name": "grafana",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "Snowflake",
+      "normalized_name": "snowflake",
+      "category": "Cloud Data Warehouse",
+      "conf": 0.85
+    },
+    {
+      "name": "Cloud",
+      "normalized_name": "cloud",
+      "category": "Cloud Platforms",
+      "conf": 0.85
+    },
+    {
+      "name": "Apache Airflow",
+      "normalized_name": "airflow",
+      "category": "Big Data Technologies",
+      "conf": 0.85
+    },
+    {
+      "name": "dbt",
+      "normalized_name": "dbt",
+      "category": "ETL & Data Integration",
+      "conf": 0.85
+    },
+    {
+      "name": "GCP",
+      "normalized_name": "gcp",
+      "category": "Cloud Platforms",
+      "conf": 0.85
+    },
+    {
+      "name": "Git",
+      "normalized_name": "git",
+      "category": "DevOps & Containers",
+      "conf": 0.85
+    },
+    {
+      "name": "Artificial Intelligence",
+      "normalized_name": "artificial intelligence",
+      "category": "Machine Learning",
+      "conf": 0.85
+    },
+    {
+      "name": "LLMs",
+      "normalized_name": "llms",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Transformer Architectures",
+      "normalized_name": "transformer architectures",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "BERT",
+      "normalized_name": "bert",
+      "category": "LLM Models",
+      "conf": 0.6
+    },
+    {
+      "name": "GPT",
+      "normalized_name": "gpt",
+      "category": "LLM Models",
+      "conf": 0.6
+    },
+    {
+      "name": "T5",
+      "normalized_name": "t5",
+      "category": "LLM Models",
+      "conf": 0.6
+    },
+    {
+      "name": "CNNs",
+      "normalized_name": "cnns",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "GNNs",
+      "normalized_name": "gnns",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "DLRM",
+      "normalized_name": "dlrm",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Two-Tower",
+      "normalized_name": "two-tower",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "XGBoost",
+      "normalized_name": "xgboost",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "LightGBM.",
+      "normalized_name": "lightgbm.",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Dask",
+      "normalized_name": "dask",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Snowflake.",
+      "normalized_name": "snowflake.",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "vLLM",
+      "normalized_name": "vllm",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "TensorRT",
+      "normalized_name": "tensorrt",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "TorchScript",
+      "normalized_name": "torchscript",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "DVC",
+      "normalized_name": "dvc",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Data Version Control",
+      "normalized_name": "data version control",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Active",
+      "normalized_name": "active",
+      "category": "Project Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "Coursera",
+      "normalized_name": "coursera",
+      "category": "Project Tools",
+      "conf": 0.6
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Machine Learning Specialty - Amazon Web Services",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "NVIDIA Certified: Fundamentals of Deep Learning - NVIDIA Deep Learning Institute",
+      "org": null
+    }
+  ]
+}

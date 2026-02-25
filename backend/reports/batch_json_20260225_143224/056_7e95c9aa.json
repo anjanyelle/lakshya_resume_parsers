@@ -1,0 +1,210 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\7e95c9aa-0078-4bcd-8605-8a6d8a251b4e\\2b0ae299-fa89-4992-bccf-5c1c61d1bd6b\\original.pdf",
+  "text_preview": "sarah.jenkins.azure@email.com | +1 (555) 837-1928 | Austin, TX\nlinkedin.com/in/sarahjenkins-azure | github.com/sarah-azure-arch\nProfessional Summary\nStrategic and highly technical Cloud Architect with 7 years of dedicated experience designing, migrating, and optimizing enterprise-grade infrastructure on Microsoft Azure. Proven expertise in architecting\nhighly available, multi-region Hub-and-Spoke ",
+  "contact": {
+    "name": "Professional Summary",
+    "email": "sarah.jenkins.azure@email.com",
+    "location": "Austin, TX, India"
+  },
+  "work_experience": [
+    {
+      "title": "Sarah Jenkins",
+      "company": null,
+      "start": "2023-08-01",
+      "end": null,
+      "current": true,
+      "bullets": [
+        "Spearheaded the migration of a legacy, monolithic transaction processing engine from on-premises VMware to",
+        "Designed and enforced an organizational Zero Trust security perimeter utilizing Microsoft Entra ID Conditional Access, Azure Private Link, and network segmentation via Azure Firewall, successfully passing rigorous",
+        "Developed modular, highly reusable Infrastructure as Code (IaC) templates using Terraform and Azure Bicep,"
+      ]
+    },
+    {
+      "title": "Key Projects (Enterprise Grade)",
+      "company": null,
+      "start": "2018-05-01",
+      "end": "2020-01-01",
+      "current": false,
+      "bullets": [
+        "Context: The organization\u2019s rapid acquisition strategy resulted in fragmented, unmanaged cloud",
+        "Tech Stack: Azure Virtual WAN, Azure Firewall, Terraform, Azure Policy, Azure Kubernetes Service",
+        "Execution: Architected and executed a complete subscription consolidation into a centralized Huband-Spoke architecture. Deployed Azure Firewall in the Hub for deep packet inspection and forced"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "kubernetes",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "agile",
+      "category": "Methodologies",
+      "conf": 0.6
+    },
+    {
+      "name": "austin",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "in",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "github",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "azure",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "devops",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ci/cd",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cloud",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "microsoft",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "deployment",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "sql",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "database",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "paas",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cache",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "redis",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "deploying Azure Kubernetes Service (AKS)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "ID (Azure AD), and driving rigorous FinOps strategies to reduce cloud operational expenditures by up",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Identity & Security: Microsoft Entra ID (Azure AD), Conditional Access, Azure Key Vault, Microsoft Defender",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Senior Azure Cloud Architect",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Lead Cloud Architect (Microsoft Azure)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Kubernetes Service (AKS). Implemented node autoscaling and Azure Front Door, improving peak-hour",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Engineered a Geo-Redundant Disaster Recovery (DR) architecture utilizing Azure Site Recovery (ASR) and",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Cloud Engineer",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure ExpressRoute connections to ensure low-latency",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Automated the deployment of Azure SQL Databases and Elastic Pools utilizing ARM Templates and Azure",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Secured sensitive application configuration data by migrating hard-coded connection strings to Azure Key",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Measurable Impact: Successfully integrated 3 newly acquired companies into the corporate Azure",
+      "org": "Microsoft"
+    },
+    {
+      "name": "High-Frequency Trading API on Azure PaaS",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure API Management at the perimeter for rate limiting and JWT validation. Replaced the legacy",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Senior Azure Engineer",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Cybersecurity Architect Expert (SC-100) - Microsoft (Active)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Solutions Architect Expert",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Security Engineer Associate",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Administrator Associate (AZ-104) - Microsoft",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Agile Delivery Focus: Proven ability to act as the lead technical visionary within Agile/Scrum environments,",
+      "org": "Scrum Alliance"
+    }
+  ]
+}

@@ -1,0 +1,523 @@
+{
+  "contact": {
+    "name": "Chandra Shyam",
+    "email": "shyamchandra1912@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Based Access, And Logging To Meet",
+      "company": "Humana",
+      "start": "2023-08-01",
+      "end": null,
+      "current": true
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Morgan Stanley",
+      "start": "2020-10-01",
+      "end": "2023-07-01",
+      "current": false
+    },
+    {
+      "title": "Data Engineer Data Analyst",
+      "company": "Delta Airlines",
+      "start": "2017-12-01",
+      "end": "2020-09-01",
+      "current": false
+    },
+    {
+      "title": "Data Engineer Migration Specialist",
+      "company": "Cisco",
+      "start": "2016-02-01",
+      "end": "2017-11-01",
+      "current": false
+    },
+    {
+      "title": "Etl Developer",
+      "company": "Flipkart",
+      "start": "2014-08-01",
+      "end": "2015-12-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": "Bachelor of Technology in Computer Science & Engineering at Koneru Lakshmaiah University 2010-2014",
+      "degree": "Bachelor of Technology",
+      "field_of_study": "Computer Science & Engineering at Koneru Lakshmaiah University",
+      "start": "2010-02-01",
+      "end": "2014-02-01"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "normalized_name": "python",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "SQL",
+      "normalized_name": "sql",
+      "category": "Databases"
+    },
+    {
+      "name": "MySQL",
+      "normalized_name": "mysql",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle",
+      "normalized_name": "oracle",
+      "category": "Databases"
+    },
+    {
+      "name": "AWS",
+      "normalized_name": "aws",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Azure",
+      "normalized_name": "azure",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "GCP",
+      "normalized_name": "gcp",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Docker",
+      "normalized_name": "docker",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Kubernetes",
+      "normalized_name": "kubernetes",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Jenkins",
+      "normalized_name": "jenkins",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Agile",
+      "normalized_name": "agile",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Scikit-learn",
+      "normalized_name": "scikit-learn",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Pandas",
+      "normalized_name": "pandas",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "NumPy",
+      "normalized_name": "numpy",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Apache Spark",
+      "normalized_name": "spark",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "Machine Learning",
+      "normalized_name": "machine learning",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Kafka",
+      "normalized_name": "kafka",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "EC2",
+      "normalized_name": "ec2",
+      "category": "AWS Compute"
+    },
+    {
+      "name": "S3",
+      "normalized_name": "s3",
+      "category": "Cloud Storage"
+    },
+    {
+      "name": "Lambda",
+      "normalized_name": "lambda",
+      "category": "AWS Serverless"
+    },
+    {
+      "name": "Snowflake",
+      "normalized_name": "snowflake",
+      "category": "Cloud Data Warehouse"
+    },
+    {
+      "name": "Redshift",
+      "normalized_name": "redshift",
+      "category": "AWS Data Warehouse"
+    },
+    {
+      "name": "Cloud",
+      "normalized_name": "cloud",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Tableau",
+      "normalized_name": "tableau",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Apache Airflow",
+      "normalized_name": "airflow",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "AWS Glue",
+      "normalized_name": "glue",
+      "category": "Cloud Services"
+    },
+    {
+      "name": "EMR",
+      "normalized_name": "emr",
+      "category": "Cloud Services"
+    },
+    {
+      "name": "Teradata",
+      "normalized_name": "teradata",
+      "category": "Data Warehousing"
+    },
+    {
+      "name": "SQL Server",
+      "normalized_name": "sql server",
+      "category": "Databases"
+    },
+    {
+      "name": "Apache Hive",
+      "normalized_name": "hive",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "Talend",
+      "normalized_name": "talend",
+      "category": "ETL & Data Integration"
+    },
+    {
+      "name": "Informatica",
+      "normalized_name": "informatica",
+      "category": "ETL & Data Integration"
+    },
+    {
+      "name": "SDLC",
+      "normalized_name": "sdlc",
+      "category": "Methodologies"
+    },
+    {
+      "name": "BigQuery",
+      "normalized_name": "bigquery",
+      "category": "GCP Data Warehouse"
+    },
+    {
+      "name": "Databricks",
+      "normalized_name": "databricks",
+      "category": "Cloud Data Platform"
+    },
+    {
+      "name": "Power BI",
+      "normalized_name": "power bi",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Cosmos DB",
+      "normalized_name": "cosmos db",
+      "category": "Databases"
+    },
+    {
+      "name": "Erwin",
+      "normalized_name": "erwin",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud storage",
+      "normalized_name": "cloud storage",
+      "category": "Project Tools"
+    },
+    {
+      "name": "DataProc",
+      "normalized_name": "dataproc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "GKE",
+      "normalized_name": "gke",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Spanner",
+      "normalized_name": "spanner",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Functions",
+      "normalized_name": "functions",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Athena",
+      "normalized_name": "athena",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RDS",
+      "normalized_name": "rds",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud Watch",
+      "normalized_name": "cloud watch",
+      "category": "Project Tools"
+    },
+    {
+      "name": "VPC",
+      "normalized_name": "vpc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SQS",
+      "normalized_name": "sqs",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data factory",
+      "normalized_name": "data factory",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data lake",
+      "normalized_name": "data lake",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Blob storage",
+      "normalized_name": "blob storage",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HDInsight",
+      "normalized_name": "hdinsight",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Fabric",
+      "normalized_name": "fabric",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Splunk",
+      "normalized_name": "splunk",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Star and Snowflake schema",
+      "normalized_name": "star and snowflake schema",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloudera",
+      "normalized_name": "cloudera",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SSIS",
+      "normalized_name": "ssis",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HDFS",
+      "normalized_name": "hdfs",
+      "category": "Project Tools"
+    },
+    {
+      "name": "NiFi",
+      "normalized_name": "nifi",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Spark Streaming",
+      "normalized_name": "spark streaming",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Zookeeper",
+      "normalized_name": "zookeeper",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sqoop",
+      "normalized_name": "sqoop",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Flume",
+      "normalized_name": "flume",
+      "category": "Project Tools"
+    },
+    {
+      "name": "MapReduce",
+      "normalized_name": "mapreduce",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Yarn",
+      "normalized_name": "yarn",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Semarchy",
+      "normalized_name": "semarchy",
+      "category": "Project Tools"
+    },
+    {
+      "name": "EHR",
+      "normalized_name": "ehr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Waterfall",
+      "normalized_name": "waterfall",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Matplotlib",
+      "normalized_name": "matplotlib",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Random",
+      "normalized_name": "random",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "and commit history via Dagster pipelines on AWS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Certifications: Tableau certified",
+      "org": null
+    },
+    {
+      "name": "computation for healthcare pipelines while ensuring HIPAA-compliant audit trails and HL7 interoperability across AWS S3",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and AWS CDK to ingest PR and commit",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and deploying inference infrastructure on AWS EC2 with encryption",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Migrated legacy workloads to AWS EC2",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and AWS ECS to ensure PCI-DSS-compliant financial workflows",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and AWS CloudWatch",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "LLM/prompt optimization models stored in AWS S3 and AWS RDS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "implementing AWS Lambda and AWS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Provisioned and managed AWS EC2 instances for batch processing of interest calculations",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "integrating AWS Lambda and AWS EventBridge for real-time processing",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "integrating AWS Glue and Dagster pipelines for historical backfills",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "into AWS S3 data lakes",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and exposing metrics via Power BI",
+      "org": null
+    },
+    {
+      "name": "and Power BI to generate CES metrics",
+      "org": null
+    },
+    {
+      "name": "storing data in AWS S3",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "AWS Glue job success rates",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "implementing AWS ElastiCache caching and Lambda batching optimizations",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Python services on AWS ECS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "storing data in AWS RDS and AWS S3",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and AWS CloudWatch",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "configuring AWS SNS notifications to ensure",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Integrated SonarQube with Airflow and AWS Glue",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "ingesting static analysis metrics into AWS S3",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "aggregating data using Python and AWS Glue",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "integrating AWS SQS for asynchronous messaging between",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and AWS WAF with custom rules to safeguard",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Automated ETL job scheduling using AWS Lambda and Amazon CloudWatch Events",
+      "org": "Amazon Web Services"
+    }
+  ]
+}

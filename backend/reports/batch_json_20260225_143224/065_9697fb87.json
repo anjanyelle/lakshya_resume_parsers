@@ -1,0 +1,94 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\9697fb87-9769-4354-bb7b-84b24611ae61\\88db0c92-b736-4216-b3af-e10a8b32a5aa\\original.pdf",
+  "text_preview": "KONDURI SUJATHA\n- (+91) 7032548941 -  sujatha.konduri012@gmail.com -  https://www.linkedin.com/in/kondurisujatha12\nPROFILE SUMMARY\n- Java Developer with 3 years of experience in building scalable backend systems using Spring Boot and REST APIs.\n- Proficient in developing microservices architectures, ensuring modular, maintainable applications.\n- Hands-on with frontend tools (HTML/CSS/JavaScript) a",
+  "contact": {
+    "name": "Konduri Sujatha",
+    "email": "sujatha.konduri012@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Software Engineer",
+      "company": "SportPlus Software Technologies Pvt. Ltd, Hyderabad 24",
+      "start": "2022-09-01",
+      "end": "2020-04-01",
+      "current": false,
+      "bullets": [
+        "Developed and implemented Java applications using the Spring and Hibernate frameworks.",
+        "Implemented and tested enhancement feature requests to improve product functionality and extend performance.",
+        "Tested and troubleshot the application, documenting issue resolutions for the development team."
+      ]
+    },
+    {
+      "title": "Education",
+      "company": null,
+      "start": "2018-08-01",
+      "end": "2020-09-01",
+      "current": false,
+      "bullets": []
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "java",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "backend",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "spring",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "rest api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "jenkins",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.55
+    },
+    {
+      "name": "containerization",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ci/cd",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "performance",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Agile/Scrum",
+      "org": "Scrum Alliance"
+    },
+    {
+      "name": "high-quality features in Agile/Scrum environments.",
+      "org": "Scrum Alliance"
+    }
+  ]
+}

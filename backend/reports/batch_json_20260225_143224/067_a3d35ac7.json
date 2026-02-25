@@ -1,0 +1,126 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\a3d35ac7-3d32-4656-90e7-31dac20cb231\\577c9646-fb50-40ee-9769-614cf0903f0c\\original.pdf",
+  "text_preview": "Site Reliability Engineer (SRE) & Cloud Architect\nProfessional Summary\nResults-driven Site Reliability Engineer with 5 years of hands-on experience designing, scaling, and\nsecuring highly available cloud infrastructures for product-based enterprise platforms. Deep expertise in\nestablishing robust SLIs, SLOs, and Error Budgets to bridge the gap between feature velocity and system\nstability. Proven ",
+  "contact": {
+    "name": "Professional Summary",
+    "email": "david.chen.sre@email.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Lead Sre",
+      "company": null,
+      "start": "2019-06-01",
+      "end": "2021-07-01",
+      "current": false,
+      "bullets": [
+        "Execution: Architected a fully automated, active-passive Multi-Region Disaster Recovery architecture. Utilized Terraform to duplicate VPC and EKS infrastructure in a secondary region. Implemented Velero to continuously back up Kubernetes state and persistent volumes to cross-region replicated S3 buckets. Configured Route53 latency-based routing with automated health check failovers.",
+        "Measurable Impact: Successfully reduced the platform\u2019s Recovery Time Objective (RTO) from 4",
+        "Context: The engineering team suffered from extreme alert fatigue due to fragmented monitoring"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "postgresql",
+      "category": "Databases",
+      "conf": 0.6
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.6
+    },
+    {
+      "name": "kubernetes",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "terraform",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ci/cd",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "deployment",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "seattle",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "wa",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "in",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "github",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "devops",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "web services",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.4
+    }
+  ],
+  "certifications": [
+    {
+      "name": "integration initiative using Karpenter, successfully slashing monthly AWS compute expenditures by $45,000",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "IAM database credentials and rotating Kubernetes secrets, saving the engineering team 20+ hours weekly.",
+      "org": "CNCF"
+    },
+    {
+      "name": "Context: The platform was highly vulnerable to single-region AWS failures (e.g., us-east-1 outages),",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Certified Kubernetes Administrator (CKA) - Cloud Native Computing Foundation (CNCF)",
+      "org": "CNCF"
+    },
+    {
+      "name": "AWS Certified DevOps Engineer - Professional - Amazon Web Services",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "AWS Certified Solutions Architect - Associate - Amazon Web Services",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "HashiCorp Certified: Terraform Associate",
+      "org": null
+    }
+  ]
+}

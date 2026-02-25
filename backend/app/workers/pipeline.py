@@ -53,6 +53,7 @@ from app.services.parser.certification_validator import CertificationValidator
 from app.services.parser.skill_extractor import (
     SkillExtractor,
     SkillMatch,
+    clean_text_for_skills,
     is_atomic_skill,
     is_generic_skill,
     is_sentence_fragment,
@@ -413,12 +414,23 @@ def _normalize_skill_name(value: str) -> str:
 
 
 def filter_skills_by_resume_text(
-    extracted_skills: list[dict[str, Any]], resume_text: str | None
+    extracted_skills: list[dict[str, Any]],
+    resume_text: str | None,
+    canonical_normalized_names: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Only allow skills that actually appear in the resume text (no prediction)."""
+    """Keep skills that appear in resume text, or that are in the canonical taxonomy. When canonical set is empty, return all skills (no silent drop)."""
     resume_text_lower = (resume_text or "").lower()
+    canonical_normalized_names = canonical_normalized_names or set()
+    # If taxonomy not populated, don't filter by resume only — return all extracted skills to avoid silent loss
+    if not canonical_normalized_names:
+        logger.info(
+            "filter_skills_by_resume_text: canonical_normalized_names is empty, returning all %d skills",
+            len(extracted_skills),
+        )
+        return list(extracted_skills)
     if not resume_text_lower.strip():
         return list(extracted_skills)
+    logger.debug("filter_skills_by_resume_text: canonical_names size=%d", len(canonical_normalized_names))
     clean_skills: list[dict[str, Any]] = []
     for skill in extracted_skills:
         if not isinstance(skill, dict):
@@ -427,7 +439,9 @@ def filter_skills_by_resume_text(
         norm = (skill.get("normalized_name") or "").strip().lower()
         if not name and not norm:
             continue
-        if name in resume_text_lower or (norm and norm in resume_text_lower):
+        in_resume = name in resume_text_lower or (norm and norm in resume_text_lower)
+        in_taxonomy = norm in canonical_normalized_names
+        if in_resume or in_taxonomy:
             clean_skills.append(skill)
     return clean_skills
 
@@ -2653,6 +2667,7 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
             return match.group(0) if match else text
 
         skills_section = _refine_skills_section(raw_skills_content)
+        skills_section = clean_text_for_skills(skills_section)
         
         skills_section_conf: float | None = None
         if isinstance(skills_block, dict):
@@ -2684,9 +2699,9 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
         fallback_guard = bool(
             skills_section_conf is not None and skills_section_conf < 0.6
         )
-        # Use section-only when we have a real skills section; otherwise extract from full resume (still taxonomy-validated)
+        # Use section-only when we have a substantial skills section; lower threshold so we don't ignore work exp too often
         skills_section_stripped = (skills_section or "").strip()
-        section_only = len(skills_section_stripped) >= 80 and len(skills_section_stripped.split()) >= 3
+        section_only = len(skills_section_stripped) >= 40 and len(skills_section_stripped.split()) >= 2
         matches = extractor.extract_all(
             skills_section,
             jobs,
@@ -2698,6 +2713,7 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
 
         # --- 4-Layer quality filter: canonical norm, sentence fragment drop, atomic validation, category sanitization ---
         known_normalized = extractor.get_known_normalized_skills()
+        canonical_names = extractor.get_canonical_normalized_names()
         filtered_payload: list[dict[str, Any]] = []
         for item in payload if isinstance(payload, list) else []:
             if not isinstance(item, dict):
@@ -2715,22 +2731,26 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
             # STEP 2: Sentence fragment cleaner
             if is_sentence_fragment(skill_label):
                 continue
-            # STEP 1: Atomic skill validation
-            if not is_atomic_skill(skill_label, known_normalized):
+            # STEP 1: Allow all taxonomy skills; only require is_atomic_skill for non-taxonomy (so multi-word taxonomy skills are kept)
+            if canonical_norm not in canonical_names and not is_atomic_skill(skill_label, known_normalized):
                 continue
             # STEP 4: Category validation (reject corrupted comma-separated or tech-list categories)
             sane_cat = sanitize_category(item.get("category"))
             item["category"] = sane_cat if sane_cat else map_category_to_master(item.get("category")) or "Project Tools"
-            # Relaxed master dictionary: allow atomic skills even if not in seed taxonomy
-            canonical_names = extractor.get_canonical_normalized_names()
-            if canonical_norm not in canonical_names and not is_atomic_skill(skill_label, known_normalized):
-                continue
             # Never store generic/umbrella terms (Cloud, Backend, Security, Frontend)
             if is_generic_skill(canonical_norm):
                 continue
             filtered_payload.append(item)
 
         payload = filtered_payload
+
+        logger.info(
+            "Skills after 4-layer filter: %d (input %d), canonical_names=%d, known_normalized=%d",
+            len(filtered_payload),
+            len([match.__dict__ for match in matches]),
+            len(canonical_names),
+            len(known_normalized),
+        )
 
         alias_map = {
             "reactjs": "react",
@@ -2796,7 +2816,13 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
                 merged[key] = {**existing, "version": version_merged}
 
         payload = list(merged.values())
-        payload = filter_skills_by_resume_text(payload, job.raw_text or "")
+        before_resume_filter = len(payload)
+        payload = filter_skills_by_resume_text(payload, job.raw_text or "", canonical_names)
+        logger.info(
+            "Skills after dedup: %d, after filter_by_resume_text: %d",
+            before_resume_filter,
+            len(payload),
+        )
         # Industry standard: default confidence 0.75, master category only, ensure source, never guessed years
         default_confidence = 0.75
         for item in payload:
@@ -4067,7 +4093,13 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
 
         seen_skill_ids: set[str] = set()
-        skill_entries = sanitize_skill_entries(parsed.get("skills", []))
+        skills_before_sanitize = parsed.get("skills", [])
+        skill_entries = sanitize_skill_entries(skills_before_sanitize)
+        logger.info(
+            "Skills before sanitize: %d, after: %d",
+            len(skills_before_sanitize) if isinstance(skills_before_sanitize, list) else 0,
+            len(skill_entries),
+        )
         for entry in skill_entries:
             if not isinstance(entry, dict):
                 continue
@@ -4081,6 +4113,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
             if not raw_name:
                 continue
+            if not normalized:
+                normalized = normalize_skill_name_for_dedup(raw_name)
 
             skill: Skill | None = None
             if normalized:

@@ -1,0 +1,295 @@
+{
+  "contact": {
+    "name": "Austin",
+    "email": "sarah.jenkins.azure@email.com",
+    "location": "Austin, TX, India"
+  },
+  "work_experience": [
+    {
+      "title": "Sarah Jenkins",
+      "company": null,
+      "start": "2023-08-01",
+      "end": null,
+      "current": true
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "SQL",
+      "normalized_name": "sql",
+      "category": "Databases"
+    },
+    {
+      "name": "Redis",
+      "normalized_name": "redis",
+      "category": "Databases"
+    },
+    {
+      "name": "Azure",
+      "normalized_name": "azure",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Docker",
+      "normalized_name": "docker",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Kubernetes",
+      "normalized_name": "kubernetes",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab CI",
+      "normalized_name": "gitlab ci",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub Actions",
+      "normalized_name": "github actions",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Terraform",
+      "normalized_name": "terraform",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Ansible",
+      "normalized_name": "ansible",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab",
+      "normalized_name": "gitlab",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "CI/CD",
+      "normalized_name": "ci/cd",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Agile",
+      "normalized_name": "agile",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Scrum",
+      "normalized_name": "scrum",
+      "category": "Methodologies"
+    },
+    {
+      "name": "DevOps",
+      "normalized_name": "devops",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Datadog",
+      "normalized_name": "datadog",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Cloud",
+      "normalized_name": "cloud",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Security",
+      "normalized_name": "security",
+      "category": "Project Tools"
+    },
+    {
+      "name": "PowerShell",
+      "normalized_name": "powershell",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Cosmos DB",
+      "normalized_name": "cosmos db",
+      "category": "Databases"
+    },
+    {
+      "name": "ARM",
+      "normalized_name": "arm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ExpressRoute",
+      "normalized_name": "expressroute",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AKS",
+      "normalized_name": "aks",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Container Apps",
+      "normalized_name": "azure container apps",
+      "category": "Project Tools"
+    },
+    {
+      "name": "VMSS",
+      "normalized_name": "vmss",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Container Registry",
+      "normalized_name": "azure container registry",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ACR",
+      "normalized_name": "acr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure SQL Managed Instance",
+      "normalized_name": "azure sql managed instance",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Storage Accounts",
+      "normalized_name": "azure storage accounts",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Blob",
+      "normalized_name": "blob",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data Lake Gen2",
+      "normalized_name": "data lake gen2",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RBAC",
+      "normalized_name": "rbac",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Repos",
+      "normalized_name": "repos",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Pipelines",
+      "normalized_name": "pipelines",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Artifacts",
+      "normalized_name": "artifacts",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud Adoption Framework",
+      "normalized_name": "cloud adoption framework",
+      "category": "Project Tools"
+    },
+    {
+      "name": "CAF",
+      "normalized_name": "caf",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Policy",
+      "normalized_name": "policy",
+      "category": "Project Tools"
+    },
+    {
+      "name": "FinOps",
+      "normalized_name": "finops",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ASR",
+      "normalized_name": "asr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Splunk",
+      "normalized_name": "splunk",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Datadog.",
+      "normalized_name": "datadog.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Database Migration Service",
+      "normalized_name": "azure database migration service",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data Box.",
+      "normalized_name": "data box.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "CI",
+      "normalized_name": "ci",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Bitbucket.",
+      "normalized_name": "bitbucket.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Helm",
+      "normalized_name": "helm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Container Registry.",
+      "normalized_name": "azure container registry.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "TCO",
+      "normalized_name": "tco",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Deeply ingrained \"FinOps\" mindset",
+      "normalized_name": "deeply ingrained \"finops\" mindset",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Microsoft Certified: Cybersecurity Architect Expert (SC-100) - Microsoft (Active)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Solutions Architect Expert",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Security Engineer Associate",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Administrator Associate (AZ-104) - Microsoft",
+      "org": "Microsoft"
+    }
+  ]
+}

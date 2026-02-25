@@ -1,0 +1,948 @@
+{
+  "contact": {
+    "name": "Teradata",
+    "email": "yourname@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Bachelor of Technology",
+      "field_of_study": null,
+      "start": "2010-02-01",
+      "end": "2014-02-01"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "normalized_name": "python",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "SQL",
+      "normalized_name": "sql",
+      "category": "Databases"
+    },
+    {
+      "name": "PostgreSQL",
+      "normalized_name": "postgresql",
+      "category": "Databases"
+    },
+    {
+      "name": "MongoDB",
+      "normalized_name": "mongodb",
+      "category": "Databases"
+    },
+    {
+      "name": "MySQL",
+      "normalized_name": "mysql",
+      "category": "Databases"
+    },
+    {
+      "name": "Redis",
+      "normalized_name": "redis",
+      "category": "Databases"
+    },
+    {
+      "name": "DynamoDB",
+      "normalized_name": "dynamodb",
+      "category": "Databases"
+    },
+    {
+      "name": "Cassandra",
+      "normalized_name": "cassandra",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle",
+      "normalized_name": "oracle",
+      "category": "Databases"
+    },
+    {
+      "name": "AWS",
+      "normalized_name": "aws",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Azure",
+      "normalized_name": "azure",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "GCP",
+      "normalized_name": "gcp",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Docker",
+      "normalized_name": "docker",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Kubernetes",
+      "normalized_name": "kubernetes",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Jenkins",
+      "normalized_name": "jenkins",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab CI",
+      "normalized_name": "gitlab ci",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub Actions",
+      "normalized_name": "github actions",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab",
+      "normalized_name": "gitlab",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "CI/CD",
+      "normalized_name": "ci/cd",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Testing",
+      "normalized_name": "testing",
+      "category": "Project Tools"
+    },
+    {
+      "name": "TensorFlow",
+      "normalized_name": "tensorflow",
+      "category": "ML Frameworks"
+    },
+    {
+      "name": "Scikit-learn",
+      "normalized_name": "scikit-learn",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Pandas",
+      "normalized_name": "pandas",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "NumPy",
+      "normalized_name": "numpy",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Apache Spark",
+      "normalized_name": "spark",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "Hadoop",
+      "normalized_name": "hadoop",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "Machine Learning",
+      "normalized_name": "machine learning",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Kafka",
+      "normalized_name": "kafka",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "EC2",
+      "normalized_name": "ec2",
+      "category": "AWS Compute"
+    },
+    {
+      "name": "S3",
+      "normalized_name": "s3",
+      "category": "Cloud Storage"
+    },
+    {
+      "name": "Lambda",
+      "normalized_name": "lambda",
+      "category": "AWS Serverless"
+    },
+    {
+      "name": "Snowflake",
+      "normalized_name": "snowflake",
+      "category": "Cloud Data Warehouse"
+    },
+    {
+      "name": "Redshift",
+      "normalized_name": "redshift",
+      "category": "AWS Data Warehouse"
+    },
+    {
+      "name": "Cloud",
+      "normalized_name": "cloud",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Tableau",
+      "normalized_name": "tableau",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Power BI",
+      "normalized_name": "power bi",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Apache Airflow",
+      "normalized_name": "airflow",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "AWS Glue",
+      "normalized_name": "glue",
+      "category": "Cloud Services"
+    },
+    {
+      "name": "EMR",
+      "normalized_name": "emr",
+      "category": "Cloud Services"
+    },
+    {
+      "name": "Teradata",
+      "normalized_name": "teradata",
+      "category": "Data Warehousing"
+    },
+    {
+      "name": "SQL Server",
+      "normalized_name": "sql server",
+      "category": "Databases"
+    },
+    {
+      "name": "Apache Hive",
+      "normalized_name": "hive",
+      "category": "Big Data Technologies"
+    },
+    {
+      "name": "Talend",
+      "normalized_name": "talend",
+      "category": "ETL & Data Integration"
+    },
+    {
+      "name": "Informatica",
+      "normalized_name": "informatica",
+      "category": "ETL & Data Integration"
+    },
+    {
+      "name": "BigQuery",
+      "normalized_name": "bigquery",
+      "category": "GCP Data Warehouse"
+    },
+    {
+      "name": "Databricks",
+      "normalized_name": "databricks",
+      "category": "Cloud Data Platform"
+    },
+    {
+      "name": "Looker",
+      "normalized_name": "looker",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Cosmos DB",
+      "normalized_name": "cosmos db",
+      "category": "Databases"
+    },
+    {
+      "name": "Vertica",
+      "normalized_name": "vertica",
+      "category": "Project Tools"
+    },
+    {
+      "name": "DB2",
+      "normalized_name": "db2",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Greenplum",
+      "normalized_name": "greenplum",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Couchbase",
+      "normalized_name": "couchbase",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Amazon DynamoDB",
+      "normalized_name": "amazon dynamodb",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure SQL Database",
+      "normalized_name": "azure sql database",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud Bigtable",
+      "normalized_name": "cloud bigtable",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HBase",
+      "normalized_name": "hbase",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AWS: Amazon S3",
+      "normalized_name": "aws: amazon s3",
+      "category": "Project Tools"
+    },
+    {
+      "name": "S3 Glacier",
+      "normalized_name": "s3 glacier",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Glue Data Catalog",
+      "normalized_name": "glue data catalog",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Amazon",
+      "normalized_name": "amazon",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AWS Lake Formation",
+      "normalized_name": "aws lake formation",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AWS DataZone",
+      "normalized_name": "aws datazone",
+      "category": "Project Tools"
+    },
+    {
+      "name": "DMS",
+      "normalized_name": "dms",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SageMaker Data",
+      "normalized_name": "sagemaker data",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Wrangler",
+      "normalized_name": "wrangler",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure SQL",
+      "normalized_name": "azure sql",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Data Lake Storage",
+      "normalized_name": "azure data lake storage",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Blob Storage",
+      "normalized_name": "blob storage",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HDInsight",
+      "normalized_name": "hdinsight",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Data Explorer",
+      "normalized_name": "azure data explorer",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud Dataflow",
+      "normalized_name": "cloud dataflow",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Functions",
+      "normalized_name": "functions",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Pub",
+      "normalized_name": "pub",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sub",
+      "normalized_name": "sub",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Dataproc",
+      "normalized_name": "dataproc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "GKE",
+      "normalized_name": "gke",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Snowflake Schema",
+      "normalized_name": "snowflake schema",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SSIS",
+      "normalized_name": "ssis",
+      "category": "Project Tools"
+    },
+    {
+      "name": "MicroStrategy",
+      "normalized_name": "microstrategy",
+      "category": "Project Tools"
+    },
+    {
+      "name": "PySpark",
+      "normalized_name": "pyspark",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Spark SQL",
+      "normalized_name": "spark sql",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HDFS",
+      "normalized_name": "hdfs",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Control-M",
+      "normalized_name": "control-m",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Oozie",
+      "normalized_name": "oozie",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Dagster",
+      "normalized_name": "dagster",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Prefect",
+      "normalized_name": "prefect",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Dremio",
+      "normalized_name": "dremio",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Trino",
+      "normalized_name": "trino",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Presto",
+      "normalized_name": "presto",
+      "category": "Project Tools"
+    },
+    {
+      "name": "YARN",
+      "normalized_name": "yarn",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sqoop",
+      "normalized_name": "sqoop",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Flume",
+      "normalized_name": "flume",
+      "category": "Project Tools"
+    },
+    {
+      "name": "MapReduce",
+      "normalized_name": "mapreduce",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ZooKeeper",
+      "normalized_name": "zookeeper",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Metabase",
+      "normalized_name": "metabase",
+      "category": "Project Tools"
+    },
+    {
+      "name": "QlikView",
+      "normalized_name": "qlikview",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Plotly",
+      "normalized_name": "plotly",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Seaborn",
+      "normalized_name": "seaborn",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Matplotlib",
+      "normalized_name": "matplotlib",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ETL",
+      "normalized_name": "etl",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Azure Data Factory",
+      "normalized_name": "azure data factory",
+      "category": "Project Tools"
+    },
+    {
+      "name": "PowerCenter",
+      "normalized_name": "powercenter",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Informatica Data Quality",
+      "normalized_name": "informatica data quality",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Talend Data Quality",
+      "normalized_name": "talend data quality",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Semarchy",
+      "normalized_name": "semarchy",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Stitch",
+      "normalized_name": "stitch",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Fivetran",
+      "normalized_name": "fivetran",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Delta Lake",
+      "normalized_name": "delta lake",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Databricks Lakehouse",
+      "normalized_name": "databricks lakehouse",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Parquet",
+      "normalized_name": "parquet",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Avro",
+      "normalized_name": "avro",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Bronze",
+      "normalized_name": "bronze",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Silver",
+      "normalized_name": "silver",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Gold",
+      "normalized_name": "gold",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data Quality",
+      "normalized_name": "data quality",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Databand",
+      "normalized_name": "databand",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Soda",
+      "normalized_name": "soda",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Collibra",
+      "normalized_name": "collibra",
+      "category": "Project Tools"
+    },
+    {
+      "name": "DataHub",
+      "normalized_name": "datahub",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Alation",
+      "normalized_name": "alation",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data Catalogs",
+      "normalized_name": "data catalogs",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Metadata Management",
+      "normalized_name": "metadata management",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data",
+      "normalized_name": "data",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Lineage",
+      "normalized_name": "lineage",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SciPy",
+      "normalized_name": "scipy",
+      "category": "Project Tools"
+    },
+    {
+      "name": "StatsModels",
+      "normalized_name": "statsmodels",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Prophet",
+      "normalized_name": "prophet",
+      "category": "Project Tools"
+    },
+    {
+      "name": "XGBoost",
+      "normalized_name": "xgboost",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Regression",
+      "normalized_name": "regression",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Classification",
+      "normalized_name": "classification",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Gradient",
+      "normalized_name": "gradient",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Boosting",
+      "normalized_name": "boosting",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Streaming",
+      "normalized_name": "streaming",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud Functions",
+      "normalized_name": "cloud functions",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RudderStack",
+      "normalized_name": "rudderstack",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Segment",
+      "normalized_name": "segment",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Amplitude",
+      "normalized_name": "amplitude",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Mixpanel",
+      "normalized_name": "mixpanel",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "and Azure Event Hubs",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Constructed scalable data lakehouse platforms on AWS S3 and Azure Data Lake Storage integrating Delta",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and R on Amazon SageMaker and Azure Machine Learning",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and access policies across AWS Glue Catalog",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Automated cloud migration workflows using AWS DMS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Azure Data Factory",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and GCP Cloud Dataflow to",
+      "org": "Google"
+    },
+    {
+      "name": "and AWS Glue pipelines",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "external vendors via AWS AppFlow",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Azure Logic Apps",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and GCP Cloud Functions for",
+      "org": "Google"
+    },
+    {
+      "name": "triggering AWS Glue workflows",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Azure Synapse Pipelines",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and Azure Synapse Analytics using SQL",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Event Hubs",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Coordinated cross-functional teams following Agile",
+      "org": null
+    },
+    {
+      "name": "Azure Data Factory",
+      "org": "Microsoft"
+    },
+    {
+      "name": "ETL / ELT & Data Integration : AWS Glue",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Azure Data Factory",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Synapse Pipelines",
+      "org": "Microsoft"
+    },
+    {
+      "name": "loading into AWS Redshift",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Pioneered lakehouse architecture on AWS S3 integrating Delta Lake and Databricks Lakehouse",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Engineered real-time streaming solutions leveraging AWS MSK and AWS Lambda to capture e-commerce",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Facilitated seamless data migration using AWS DMS and AWS AppFlow to synchronize product catalogs",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "from legacy systems into AWS Aurora and DynamoDB",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "subsequently processing through AWS Glue",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "analyzing retail sales data from AWS Redshift and Snowflake",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "automating cold data migration from AWS Aurora and AWS Redshift using AWS Lambda functions based",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and Snowflake by implementing partitioning",
+      "org": null
+    },
+    {
+      "name": "data through AWS MSK into Amazon OpenSearch",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "enabling real-time behavioral analysis with AWS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Leveraged AWS Lake Formation to implement fine-grained access controls and data security policies",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "across AWS S3 data lakes",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "managing permissions for AWS Glue jobs",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "AWS Athena queries",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Constructed RESTful APIs using Python and AWS Lambda to expose retail analytics data",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and triggering AWS Glue workflows for automated data",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "troubleshooting AWS Glue failures",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "implementing star schemas optimized for OLAP queries executed through AWS Athena",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Pioneered event-driven architectures using AWS Lambda and AWS AppFlow to automate data",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "synchronization from external vendors into DynamoDB and AWS Aurora",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "triggering AWS Glue ETL jobs",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "connecting to AWS Redshift and Snowflake",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "quality metrics across AWS Glue pipelines",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "and Snowflake tables",
+      "org": null
+    },
+    {
+      "name": "implementing lifecycle policies through AWS Lake Formation",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Pioneered data lakehouse implementation on Azure Data Lake Storage integrating Apache Iceberg and",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Engineered real-time streaming architectures utilizing Azure Event Hubs and Azure Functions to capture",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and transaction records across Snowflake",
+      "org": null
+    },
+    {
+      "name": "Championed analytics modernization by migrating legacy OLAP cubes from Oracle DB to Azure Synapse",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Analytics using Azure Data Factory",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and Scipy on Azure",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Leveraged Azure Databricks with Delta Lake to build unified analytics platform",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and policy enforcement across Azure SQL",
+      "org": "Microsoft"
+    },
+    {
+      "name": "synchronize banking data from legacy DB2 systems into Azure Data Lake Storage",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Constructed containerized analytics applications using Docker and Kubernetes on Azure",
+      "org": "Microsoft"
+    },
+    {
+      "name": "and Azure Synapse Analytics by implementing",
+      "org": "Microsoft"
+    },
+    {
+      "name": "transforming through Azure Logic Apps and Azure Functions",
+      "org": "Microsoft"
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\284c68be-d5a6-4c95-932d-8dc25aded312\\89ac98f5-49f9-470a-bc05-9ed2cd9f5b6e\\original.pdf",
+  "text_preview": "Lead Data Scientist & Principal AI Architect\nevelyn.vance.ds@email.com | +1 (555) 819-2047 | Boston, MA\nlinkedin.com/in/evelynvance-ds | github.com/evance-ai\nProfessional Summary\nHighly accomplished and mathematically rigorous Lead Data Scientist with 9 years of demonstrated expertise in designing, operationalizing, and scaling advanced Machine Learning,\nDeep Learning, and Generative AI solutions.",
+  "contact": {
+    "name": "Professional Summary",
+    "email": "evelyn.vance.ds@email.com",
+    "location": "Boston, MA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Offs Over A Two-Year Period",
+      "company": "day loan default rates by 14%",
+      "start": "2017-03-01",
+      "end": "2020-12-01",
+      "current": false,
+      "bullets": [
+        "Designed, executed, and analyzed over 100 large-scale A/B and multivariate tests to optimize",
+        "Developed a highly accurate Natural Language Processing (NLP) pipeline to perform real-time",
+        "Built comprehensive data ingestion and feature engineering pipelines using PySpark and SQL"
+      ]
+    },
+    {
+      "title": "Tens Of Thousands Of Pdf Contracts",
+      "company": null,
+      "start": "2023-01-01",
+      "end": "2024-01-01",
+      "current": false,
+      "bullets": [
+        "Algorithmic Architecture & Tech Stack: Python, Llama-3-8B, HuggingFace, PyTorch,",
+        "Data Engineering & Modeling Strategy: Engineered a highly distributed, asynchronous",
+        "Advanced Retrieval & Hallucination Mitigation: Deployed an advanced Retrieval-Augmented"
+      ]
+    },
+    {
+      "title": "Senior Data Scientist",
+      "company": null,
+      "start": "2019-01-01",
+      "end": "2020-01-01",
+      "current": false,
+      "bullets": [
+        "Modeling & Reinforcement Learning Implementation: Developed a hybrid modeling approach. First, an XGBoost classifier was trained to predict the probability of loan acceptance at various interest rate deciles. Second, a contextual Multi-Armed Bandit (MAB)",
+        "Measurable Business Impact: The real-time pricing engine was A/B tested against the",
+        "Focus Areas: Applied Statistical Machine Learning, Bayesian Statistics, Natural Language"
+      ]
+    },
+    {
+      "title": "Ny",
+      "company": "New York",
+      "start": "2009-01-01",
+      "end": "2013-01-01",
+      "current": false,
+      "bullets": [
+        "Honors: Summa Cum Laude, Phi Beta Kappa, Dean\u2019s List (All Semesters).",
+        "AWS Certified Machine Learning Specialty (MLS-C01) - Amazon Web Services (Active)",
+        "Google Cloud Professional Data Engineer - Google Cloud Platform (Active)"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.6
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "kubernetes",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "agile",
+      "category": "Methodologies",
+      "conf": 0.6
+    },
+    {
+      "name": "communication",
+      "category": "Soft Skills",
+      "conf": 0.6
+    },
+    {
+      "name": "boston",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ma",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "in",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "github",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "bayesian statistics",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "distributed",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "pytorch",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "natural language processing",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "real-time",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "rest api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "fastapi",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "enterprise",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "artificial intelligence",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "apache kafka",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "redis",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "scikit-learn",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "machine learning",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "web services",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cloud",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "gcp",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Docker. Orchestrated the deployments via Kubernetes on AWS EKS, configuring horizontal",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "AWS Certified Machine Learning Specialty (MLS-C01) - Amazon Web Services (Active)",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Google Cloud Professional Data Engineer - Google Cloud Platform (Active)",
+      "org": "Google"
+    },
+    {
+      "name": "TensorFlow Developer Certificate - TensorFlow Network",
+      "org": null
+    }
+  ]
+}

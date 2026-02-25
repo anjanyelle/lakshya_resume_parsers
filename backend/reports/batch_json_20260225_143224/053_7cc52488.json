@@ -1,0 +1,116 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\7cc52488-12cb-4d33-aea1-9899dcf264df\\5f05fe3b-5836-4c4c-a9fc-3ceb49c6b3df\\original.pdf",
+  "text_preview": "Marcus Sterling\nSenior Data Engineer & Big Data Architect\nmarcus.sterling.de@email.com | +1 (555) 739-1024 | Seattle, WA\nlinkedin.com/in/marcussterling-de | github.com/msterling-data\nProfessional Summary\nHighly analytical and performance-driven Senior Data Engineer with 7 years of extensive\nexperience designing, building, and optimizing petabyte-scale data platforms, distributed\nprocessing pipelin",
+  "contact": {
+    "name": "Marcus Sterling",
+    "email": "marcus.sterling.de@email.com",
+    "location": "Seattle, WA, India"
+  },
+  "work_experience": [
+    {
+      "title": "While Simultaneously Providing The Marketing Team With Live, Actionable Insights Into Campaign",
+      "company": "Master of Science in Computer Science (Data Engineering Focus)",
+      "start": "2014-01-01",
+      "end": "2016-01-01",
+      "current": false,
+      "bullets": [
+        "Focus Areas: Distributed Systems, Advanced Database Management, Large-Scale",
+        "Capstone Project: \"Optimizing MapReduce and Spark Workloads for Heterogeneous",
+        "Honors: Magna Cum Laude, Dean\u2019s List (All Semesters)."
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "seattle",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "wa",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "in",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "github",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cloud",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "gcp",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.55
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.55
+    },
+    {
+      "name": "lambda",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "spark",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "streaming",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "kafka",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Engineered complex Python (Boto3) scripts deployed via AWS Lambda to automate the inges3",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "tion of third-party API data (Salesforce, Zendesk, Stripe) into raw S3 buckets. Utilized AWS",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "accelerated AWS Athena query execution speeds by over 300% for the business intelligence",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Databricks Certified Data Engineer Professional - Databricks (Active)",
+      "org": null
+    },
+    {
+      "name": "AWS Certified Data Analytics Specialty (DAS-C01) - Amazon Web Services (Active)",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "AWS Certified Solutions Architect \u2013 Associate",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Confluent Certified Developer for Apache Kafka (CCDAK) - Confluent",
+      "org": null
+    }
+  ]
+}
