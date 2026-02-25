@@ -716,6 +716,19 @@ class WorkExperienceParser:
         return out
 
     def extract_individual_jobs(self, text: str, source_format: str | None = None) -> list[str]:
+        # Pre-split: when resume uses CLIENT:/ROLE:/Location format, split by CLIENT: blocks first.
+        # Handles consulting resumes where multiple roles are in one section.
+        _client_split_re = re.compile(
+            r"\n\s*(?=(?:CLIENT|client|project)\s*[:\-–—])",
+            re.IGNORECASE,
+        )
+        if _client_split_re.search(text):
+            parts = _client_split_re.split(text)
+            # parts[0] may be preamble; parts[1:] each start with "CLIENT: X\n..."
+            client_blocks = [p.strip() for p in parts[1:] if p.strip()]
+            if len(client_blocks) > 1:
+                return client_blocks
+
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         if not lines:
             return []
@@ -802,6 +815,10 @@ class WorkExperienceParser:
         for idx in range(1, len(lines)):
             line = lines[idx]
             if not line or line.startswith(("-", "•", "*")):
+                continue
+            # CLIENT: / project: at line start = new consulting engagement — always split
+            if CLIENT_HEADER_RE.match(line):
+                split_indices.append(idx)
                 continue
             # Skip labeled fields (Role:, Designation:, Company:, etc.) — not job boundaries
             if LABELED_TITLE_RE.match(line) or LABELED_ORG_RE.match(line):

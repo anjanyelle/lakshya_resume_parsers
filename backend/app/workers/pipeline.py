@@ -3085,22 +3085,29 @@ def task_parse_certifications(self, job_id: str) -> str:
 
         # ====================================================
         # 2️⃣ FALLBACK TO SECTION PARSER (SECONDARY)
+        #    Check multiple section keys — some resumes use "licenses", "credentials", etc.
         # ====================================================
-        if not cert_text:
-            cert_section = sections.get("certifications") if isinstance(sections, dict) else None
-
-            if isinstance(cert_section, dict):
-                try:
-                    cert_section_conf = float(cert_section.get("confidence", 0.0) or 0.0)
-                except (TypeError, ValueError):
-                    cert_section_conf = None
-
-                content = str(cert_section.get("content") or "").strip()
-
-                # Safety: ignore if too long (likely full resume)
-                if content and len(content) < 3000:
-                    cert_text = content
-                    cert_source = "section_parser"
+        if not cert_text and isinstance(sections, dict):
+            for sec_key in (
+                "certifications",
+                "certification",
+                "licenses",
+                "credentials",
+                "professional_credentials",
+                "professional_certifications",
+                "licenses_and_certifications",
+            ):
+                cert_section = sections.get(sec_key)
+                if isinstance(cert_section, dict):
+                    try:
+                        cert_section_conf = float(cert_section.get("confidence", 0.0) or 0.0)
+                    except (TypeError, ValueError):
+                        cert_section_conf = None
+                    content = str(cert_section.get("content") or "").strip()
+                    if content and len(content) < 3000:
+                        cert_text = content
+                        cert_source = "section_parser"
+                        break
 
         # ====================================================
         # 3️⃣ SAFE RAW TEXT FALLBACK (CONTROLLED)
@@ -3220,11 +3227,11 @@ def task_parse_certifications(self, job_id: str) -> str:
         improved_from_candidate_lines = False
         improved_from_llm = False
 
-        # If quality is low, attempt safer fallbacks and choose best by quality.
-        # This is more reliable than section confidence alone.
-        if best_score < 1.0 and (job.raw_text or "").strip():
+        # MERGE primary + candidate_lines (don't choose by score — avoid losing certs)
+        raw_text = (job.raw_text or "").strip()
+        if raw_text:
             candidate_lines = CertificationParser.extract_candidate_lines_from_full_text(
-                job.raw_text or ""
+                raw_text
             )
             if candidate_lines:
                 fallback_text = "\n".join(candidate_lines).strip()
@@ -3244,41 +3251,46 @@ def task_parse_certifications(self, job_id: str) -> str:
                     and str(item.get("name") or "").strip()
                     and len(str(item.get("name"))) <= 200
                 ]
-                fallback_validated = validator.normalize_providers(fallback_payload)
-                fallback_validated = validator.remove_false_positives(fallback_validated)
-                fallback_validated = validator.deduplicate_certifications(fallback_validated)
-                fallback_score = score_certifications(fallback_validated)
-                candidate_lines_quality_score = fallback_score
-                if fallback_score > best_score:
-                    best_score = fallback_score
-                    best_validated = fallback_validated
-                    improved_from_candidate_lines = True
+                # Merge primary + candidate_lines, then validate and dedupe
+                merged_payload = payload + fallback_payload
+                merged_validated = validator.normalize_providers(merged_payload)
+                merged_validated = validator.remove_false_positives(merged_validated)
+                merged_validated = validator.deduplicate_certifications(merged_validated)
+                merged_score = score_certifications(merged_validated)
+                candidate_lines_quality_score = merged_score
+                if len(merged_validated) >= len(best_validated) or merged_score >= best_score:
+                    best_validated = merged_validated
+                    best_score = merged_score
+                    improved_from_candidate_lines = len(merged_validated) > len(validated)
 
-            settings = get_settings()
-            if (
-                best_score < 1.0
-                and settings.LLM_PROVIDER != "none"
-                and settings.PARSING_MODE.lower() != "deterministic"
-            ):
-                llm = LLMParsingService()
-                llm_payload = llm.extract_certifications(cert_text)
-                if isinstance(llm_payload, list):
-                    llm_payload = [
-                        item
-                        for item in llm_payload
-                        if isinstance(item, dict)
-                        and str(item.get("name") or "").strip()
-                        and len(str(item.get("name"))) <= 200
-                    ]
-                    llm_validated = validator.normalize_providers(llm_payload)
-                    llm_validated = validator.remove_false_positives(llm_validated)
-                    llm_validated = validator.deduplicate_certifications(llm_validated)
-                    llm_score = score_certifications(llm_validated)
-                    llm_quality_score = llm_score
-                    if llm_score > best_score:
-                        best_score = llm_score
-                        best_validated = llm_validated
-                        improved_from_llm = True
+        # LLM fallback only when quality still low
+        settings = get_settings()
+        if (
+            best_score < 1.0
+            and settings.LLM_PROVIDER != "none"
+            and settings.PARSING_MODE.lower() != "deterministic"
+        ):
+            llm = LLMParsingService()
+            llm_payload = llm.extract_certifications(cert_text)
+            if isinstance(llm_payload, list):
+                llm_payload = [
+                    item
+                    for item in llm_payload
+                    if isinstance(item, dict)
+                    and str(item.get("name") or "").strip()
+                    and len(str(item.get("name"))) <= 200
+                ]
+                # Merge LLM results with best_validated instead of replacing
+                merged_with_llm = best_validated + llm_payload
+                llm_validated = validator.normalize_providers(merged_with_llm)
+                llm_validated = validator.remove_false_positives(llm_validated)
+                llm_validated = validator.deduplicate_certifications(llm_validated)
+                llm_score = score_certifications(llm_validated)
+                llm_quality_score = llm_score
+                if len(llm_validated) >= len(best_validated) or llm_score > best_score:
+                    best_validated = llm_validated
+                    best_score = llm_score
+                    improved_from_llm = len(llm_validated) > len(best_validated)
 
         validated = best_validated
 
@@ -3697,18 +3709,27 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         parsed = _apply_llm_resume(parsed_data)
         parsed = sanitize_final_output(parsed)
 
-        # If contact name is still empty, try "Name: ..." from raw text so we don't show "Unnamed candidate"
+        # If contact name is still empty, try "Name: ..." or "Page X - Name" from raw text so we don't show "Unnamed candidate"
         raw_text = getattr(job, "raw_text", None) or ""
         existing_name = (parsed.get("contact") or {}).get("name") or {}
         if isinstance(existing_name, dict) and not (existing_name.get("name") or "").strip() and raw_text:
             name_label_re = re.compile(r"\bname\b\s*[:\-]\s*(?P<value>.+)$", re.IGNORECASE)
+            page_name_re = re.compile(r"^page\s+\d+\s*[-–—]\s*(?P<value>[A-Za-z\s.'\-]{4,60})$", re.IGNORECASE)
             for line in (raw_text or "").splitlines()[:25]:
-                m = name_label_re.search(line.strip())
+                stripped = line.strip()
+                m = name_label_re.search(stripped)
                 if m:
                     val = m.group("value").strip()
                     if val and 2 <= len(val.split()) <= 6 and "@" not in val and not re.search(r"\d", val) and re.match(r"^[A-Za-z\s.'\-]+$", val):
                         parsed.setdefault("contact", {})
                         parsed["contact"]["name"] = {"name": val, "confidence": 0.6}
+                        break
+                pm = page_name_re.match(stripped)
+                if pm:
+                    val = pm.group("value").strip()
+                    if val and 2 <= len(val.split()) <= 5 and "@" not in val and not re.search(r"\d", val):
+                        parsed.setdefault("contact", {})
+                        parsed["contact"]["name"] = {"name": val, "confidence": 0.55}
                         break
 
         def _looks_like_skillish_header(value: str | None) -> bool:
@@ -3825,8 +3846,14 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     continue
                 parsed[key] = value
 
-        contact = parsed.get("contact", {})
-        name = contact.get("name", {}).get("name")
+        contact = parsed.get("contact", {}) or {}
+        name_obj = contact.get("name")
+        if isinstance(name_obj, dict):
+            name = (name_obj.get("name") or "").strip() or None
+        elif isinstance(name_obj, str) and name_obj.strip():
+            name = name_obj.strip()
+        else:
+            name = None
         emails = contact.get("emails", [])
         phones = contact.get("phones", [])
         location = contact.get("location", {}).get("city") or contact.get("location", {}).get(
