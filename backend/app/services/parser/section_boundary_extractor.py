@@ -45,10 +45,12 @@ CERTIFICATION_HEADINGS = {
 
 # Stop headings - immediately terminate extraction
 STOP_HEADINGS = {
-    r"(?i)^\s*certification\s*[:\-–—]",
-    r"(?i)^\s*certifications?\s*[:\-–—]?",
+   
     r"(?i)^\s*certification\s*[:\-–—]",       
     r"(?i)^\s*certifications?\s*[:\-–—]?",
+    r"^CORE\s+COMPETENCIES\b.*$",
+    r"^KEY\s+COMPETENCIES\b.*$",
+    r"^COMPETENCIES\b.*$",
     r"^TECHNICAL\s+SKILLS?",
     r"^SKILLS?\s*$",
     r"^PROFESSIONAL\s+EXPERIENCE",
@@ -106,6 +108,7 @@ def _is_heading(line: str, heading_patterns: set[str]) -> bool:
 def _is_stop_heading(line: str) -> bool:
     """Check if line is a stop heading (should terminate extraction)."""
     normalized = _normalize_heading(line)
+    
     for pattern in STOP_HEADINGS:
         if re.match(pattern, normalized):
             return True
@@ -170,6 +173,52 @@ def _is_experience_description(line: str) -> bool:
     pattern = r"\b(" + "|".join(experience_verbs) + r")\b"
     return bool(re.search(pattern, line, re.IGNORECASE))
 
+def extract_summary(text: str) -> ExtractionResult:
+    if not text or not isinstance(text, str):
+        return ExtractionResult("", 0.0, False, [])
+
+    lines = text.splitlines()
+    summary_start = -1
+
+    # 1️⃣ Find heading strictly
+    for idx, line in enumerate(lines):
+        if _is_heading(line, SUMMARY_HEADINGS):
+            summary_start = idx
+            break
+
+    # ❗ If no heading found → return empty
+    if summary_start == -1:
+        return ExtractionResult("", 0.0, False, [])
+
+    extracted_lines = []
+
+    # 2️⃣ Extract until stop heading
+    for idx in range(summary_start + 1, len(lines)):
+        line = lines[idx]
+
+        if _is_stop_heading(line):
+            break
+
+        clean_line = line.strip()
+
+        if not clean_line:
+            continue
+
+        # Stop if looks like new section
+        if _is_heading(clean_line, SUMMARY_HEADINGS):
+            break
+
+        extracted_lines.append(clean_line)
+
+    if not extracted_lines:
+        return ExtractionResult("", 0.5, True, [])
+
+    return ExtractionResult(
+        content="\n".join(extracted_lines),
+        confidence=1.0,
+        section_found=True,
+        extracted_lines=extracted_lines,
+    )
 
 def extract_certifications(text: str) -> ExtractionResult:
     """

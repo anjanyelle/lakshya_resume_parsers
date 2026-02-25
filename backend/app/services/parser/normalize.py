@@ -328,6 +328,19 @@ def clean_summary_and_skills_sections(
     skills_block = sections.get("skills") if isinstance(sections.get("skills"), dict) else None
     if not isinstance(summary_block, dict) or not isinstance(skills_block, dict):
         return sections, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+    
+    try:
+        summary_conf = float(summary_block.get("confidence", 0) or 0)
+        skills_conf = float(skills_block.get("confidence", 0) or 0)
+    except (TypeError, ValueError):
+        summary_conf = 0
+        skills_conf = 0
+
+    if summary_conf >= 0.9 and skills_conf >= 0.9:
+        return sections, {
+            "moved_summary_to_skills": 0,
+            "moved_skills_to_summary": 0,
+        }
 
     summary_text = str(summary_block.get("content") or "")
     skills_text = str(skills_block.get("content") or "")

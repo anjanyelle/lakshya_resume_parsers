@@ -3696,6 +3696,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         )
         parsed = _apply_llm_resume(parsed_data)
         parsed = sanitize_final_output(parsed)
+        # print("\n=== AFTER SANITIZE FINAL OUTPUT ===")
+        # print(parsed.get("sections", {}).get("summary", {}).get("content"))
 
         # If contact name is still empty, try "Name: ..." from raw text so we don't show "Unnamed candidate"
         raw_text = getattr(job, "raw_text", None) or ""
@@ -4151,6 +4153,16 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             candidate.location = location or candidate.location
             candidate.linkedin_url = linkedin or candidate.linkedin_url
             candidate.github_url = github or candidate.github_url
+            # print("\n\n========== DEBUG SUMMARY CHECK ==========")
+            # print("JOB ID:", job_id)
+
+            # print("\n=== SUMMARY FROM SECTIONS ===")
+            # print(summary_section)
+
+            # print("\n=== SUMMARY FROM RAW GUESS ===")
+            # print(_guess_summary_from_raw_text(job.raw_text))
+
+            # print("=========================================\n\n")
             inferred_summary = summary_section or _guess_summary_from_raw_text(job.raw_text)
             if inferred_summary:
                 inferred_summary = clean_summary(inferred_summary)

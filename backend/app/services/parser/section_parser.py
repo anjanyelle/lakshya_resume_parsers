@@ -2441,7 +2441,18 @@ class SectionParser:
                 if match is not None:
                     key, confidence, _, evidence = match
                     return key, min(1.0, float(confidence) + 0.06), "style_heading", evidence or candidate
+                
+        # if self._looks_like_bullet(line):
+        #     return None
+
         if self._looks_like_bullet(line):
+            bullet_stripped = re.sub(
+                r"^\s*(?:[-*•\u2022]|\d+\.)\s+", "", line
+            ).strip()
+
+            if bullet_stripped and bullet_stripped != line:
+                return self._match_header_line(bullet_stripped, blank_surrounded)
+
             return None
         lowered = line.lower().strip()
         if not lowered:
@@ -2678,6 +2689,8 @@ class SectionParser:
             return sections
 
         def _stop_heading_for(section_key: str) -> set[str]:
+            if section_key == "summary":
+                return set(SECTION_KEYS) - {"summary"}
             if section_key == "experience":
                 return {"education", "skills", "certifications", "projects", "achievements"}
             if section_key == "education":
@@ -2713,7 +2726,9 @@ class SectionParser:
                     continue
                 stop_key, conf, _, _ = match
                 stop_key = self._canonical_section_key(stop_key)
-                if stop_key in stop_targets and conf >= 0.9:
+
+                #if stop_key in stop_targets and conf >= 0.9:
+                if stop_key in stop_targets:
                     cut_idx = i
                     break
 
