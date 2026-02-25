@@ -318,6 +318,16 @@ def normalize_table_lines(text: str) -> str:
     return normalized
 
 
+# Headings that indicate skills content — summary must stop before these
+_SUMMARY_STOP_AT_SKILLS_RE = re.compile(
+    r"^(?:technical\s+skills?\s*[:\-–—]?|skills?\s*[:\-–—]?|core\s+competencies\s*[:\-–—]?|"
+    r"databases?\s*&\s*data\s+stores?\s*[:\-–—]?|programming\s+languages?\s*[:\-–—]?|"
+    r"exhaustive\s+technical\s+skill\s+matrix|technologies?\s*[:\-–—]|"
+    r"tech\s+stack\s*[:\-–—]|tools?\s*[:\-–—]|frameworks?\s*[:\-–—]).*$",
+    re.IGNORECASE,
+)
+
+
 def clean_summary_and_skills_sections(
     sections: dict,
 ) -> tuple[dict, dict[str, int]]:
@@ -330,6 +340,15 @@ def clean_summary_and_skills_sections(
         return sections, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
 
     summary_text = str(summary_block.get("content") or "")
+    # Truncate summary at skills headers — prevents skills bleeding into summary
+    summary_lines_raw = summary_text.splitlines()
+    truncated: list[str] = []
+    for ln in summary_lines_raw:
+        stripped = ln.strip()
+        if _SUMMARY_STOP_AT_SKILLS_RE.match(stripped):
+            break
+        truncated.append(ln)
+    summary_text = "\n".join(truncated).strip()
     skills_text = str(skills_block.get("content") or "")
 
     summary_lines = [ln.strip() for ln in summary_text.splitlines() if ln.strip()]

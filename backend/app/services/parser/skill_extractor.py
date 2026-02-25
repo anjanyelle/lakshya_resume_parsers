@@ -1081,7 +1081,13 @@ class SkillExtractor:
                 if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
                     continue
                 label, _, values = line.partition(":")
-                if "skill" not in label.lower() and "tools" not in label.lower() and "technology" not in label.lower():
+                label_lower = label.lower()
+                if (
+                    "skill" not in label_lower
+                    and "tools" not in label_lower
+                    and "technolog" not in label_lower
+                    and "environment" not in label_lower
+                ):
                     continue
                 tokens = self._split_skills(values)
             else:

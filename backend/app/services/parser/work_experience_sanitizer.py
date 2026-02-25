@@ -4,13 +4,14 @@ import logging
 import re
 from typing import Any
 
-from app.services.parser.work_experience_parser import WorkExperienceParser
+from app.services.parser.work_experience_parser import ENVIRONMENT_LINE_RE, WorkExperienceParser
 
 logger = logging.getLogger(__name__)
 
 
 _PLACEHOLDER_RE = re.compile(
-    r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+    r"^(company|client|organization|organisation|employer|designation|title|role|position|"
+    r"job\s*title|professional\s+experience\b|n/a|na\b|tbd|tbc|unknown|none|null)\b",
     re.IGNORECASE,
 )
 
@@ -38,10 +39,25 @@ def _normalize_date_token(value: Any) -> str:
     return raw
 
 
+def _strip_environment_skill_lines(text: str) -> str:
+    """Remove Environment:/Tools:/Technologies: lines — those belong in Skills, not work description."""
+    if not text or not isinstance(text, str):
+        return text
+    lines = text.splitlines()
+    kept: list[str] = []
+    for ln in lines:
+        stripped = ln.strip()
+        if ENVIRONMENT_LINE_RE.match(stripped):
+            continue
+        kept.append(ln)
+    return "\n".join(kept).strip()
+
+
 def _normalize_description(value: Any) -> str:
     raw = _normalize_text(value)
     if not raw:
         return ""
+    raw = _strip_environment_skill_lines(raw)
     raw = re.sub(r"(?m)^\|\s*", "", raw)
     raw = re.sub(r"\s*\|\s*", " - ", raw)
     raw = _collapse_spaces(raw)
@@ -226,7 +242,7 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
                 if not isinstance(b, str):
                     continue
                 bb = _clean_bullet(b)
-                if bb:
+                if bb and not ENVIRONMENT_LINE_RE.match(bb):
                     bullets_out.append(bb)
         normalized["bullets"] = bullets_out
 

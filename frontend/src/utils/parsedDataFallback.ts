@@ -13,6 +13,94 @@ const _get = (obj: any, ...keys: string[]): string | undefined => {
   return undefined
 }
 
+/** Placeholder company/title values that indicate malformed single-entry parsing */
+const PLACEHOLDER_LABELS = new Set([
+  'company', 'professional experience', 'experience', 'role', 'title',
+  'client', 'organization', 'employer', 'n/a', 'na', 'tbd', 'tbc',
+])
+
+function isPlaceholderLike(val: string | null | undefined): boolean {
+  if (!val || typeof val !== 'string') return true
+  const lower = val.trim().toLowerCase()
+  return !lower || PLACEHOLDER_LABELS.has(lower) || lower.length < 3
+}
+
+/** Strip Environment:/Tools:/Technologies: lines from description — those belong in Skills section */
+function stripEnvironmentSkillLines(desc: string | null | undefined): string | null {
+  if (!desc || typeof desc !== 'string') return desc ?? null
+  const envLineRe = /^(?:environments?|environment|tools?|technologies|tech\s*stack)\s*[:\-–—].*$/im
+  const lines = desc.split('\n').filter((ln) => !envLineRe.test(ln.trim()))
+  const out = lines.join('\n').trim()
+  return out || null
+}
+
+/**
+ * Split raw text by CLIENT: blocks (consulting resume format) into structured entries.
+ * Used when backend returns one merged entry instead of separate experiences.
+ */
+function splitRawTextByClientBlocks(text: string): WorkHistory[] {
+  if (!text || typeof text !== 'string') return []
+  // Split by newline before CLIENT:, or by space before CLIENT: when on same line
+  const clientBlockRe = /\n\s*(?=(?:CLIENT|client|project)\s*[:\-–—])|\s+(?=(?:CLIENT|client|project)\s*[:\-–—])/i
+  const parts = text.split(clientBlockRe)
+  const blocks = parts
+    .map((p) => p.trim())
+    .filter((p) => p.length > 20 && /(?:CLIENT|client|project)\s*[:\-–—]/i.test(p))
+  if (blocks.length <= 1) return []
+
+  const entries: WorkHistory[] = []
+  blocks.forEach((block, idx) => {
+    let client = ''
+    let role = ''
+    let location = ''
+    let startDate = ''
+    let endDate = ''
+    let isCurrent = false
+    const descLines: string[] = []
+
+    const lines = block.split(/\n+/)
+    for (const line of lines) {
+      const t = line.trim()
+      const clientMatch = t.match(/^(?:CLIENT|client|project)\s*[:\-–—]\s*(.+)$/i)
+      const roleMatch = t.match(/^(?:ROLE|role|designation|title)\s*[:\-–—]\s*(.+)$/i)
+      const locMatch = t.match(/^(?:location|loc)\s*[:\-–—]\s*(.+)$/i)
+      const dateMatch = t.match(
+        /(\d{4})\s*[-–—]\s*(current|present|now|(\d{4}))/i
+      ) ?? t.match(/([A-Za-z]+\s+\d{4})\s*[-–—]\s*(current|present|now|([A-Za-z]+\s+\d{4}))/i)
+
+      if (clientMatch) client = clientMatch[1].trim()
+      else if (roleMatch) role = roleMatch[1].trim()
+      else if (locMatch) location = locMatch[1].trim()
+      else if (dateMatch) {
+        startDate = dateMatch[1]?.trim() ?? ''
+        const endPart = dateMatch[2] ?? dateMatch[3] ?? ''
+        isCurrent = /current|present|now/i.test(endPart)
+        endDate = isCurrent ? '' : (endPart?.trim() ?? '')
+      } else if (
+        t &&
+        !/^(?:responsibilities?|key\s+responsibilities?)\s*[:\-–—]?$/i.test(t) &&
+        !/^(?:environments?|environment|tools?|technologies|tech\s*stack)\s*[:\-–—]/i.test(t)
+      ) {
+        descLines.push(t)
+      }
+    }
+
+    const description = descLines.join('\n').trim()
+    entries.push({
+      id: `parsed-we-split-${idx}`,
+      company_name: client || null,
+      client_name: client || null,
+      job_title: role || null,
+      start_date: startDate || null,
+      end_date: endDate || null,
+      is_current: isCurrent,
+      location: location || null,
+      description: description || null,
+    })
+  })
+  return entries
+}
+
 /** Map parsed_data.work_experience to WorkHistory[] */
 export function workHistoryFromParsed(
   items: any[] | undefined,
@@ -27,7 +115,7 @@ export function workHistoryFromParsed(
     end_date: _get(item, 'end_date') ?? null,
     is_current: Boolean(item?.is_current ?? null),
     location: _get(item, 'location') ?? null,
-    description: _get(item, 'description') ?? null,
+    description: stripEnvironmentSkillLines(_get(item, 'description')) ?? null,
   }))
 }
 
@@ -100,7 +188,10 @@ export function contactFromParsed(contact: any): {
   if (!contact || typeof contact !== 'object') {
     return { full_name: null, email: null, phone: null, location: null }
   }
-  const name = contact?.name?.name ?? contact?.full_name ?? ''
+  const name =
+    (typeof contact.name === 'string' ? contact.name : contact?.name?.name) ??
+    contact?.full_name ??
+    ''
   const email =
     contact?.emails?.[0]?.email ?? contact?.email ?? ''
   const phone =
@@ -135,18 +226,39 @@ function getSectionContent(parsed: any, sectionKey: string): string | null {
 /**
  * Work history for display: use structured work_experience, or one item from
  * sections.experience.content when structured list is empty (so UI matches export).
+ * When a single entry looks like raw merged text (placeholder labels, long description
+ * with multiple CLIENT: blocks), try to split it into separate entries.
  */
 export function getDisplayWorkHistory(
   parsedData: Record<string, any>,
   dbHistory: WorkHistory[],
 ): WorkHistory[] {
-  const structured = workHistoryFromParsed(parsedData.work_experience)
+  let structured = workHistoryFromParsed(parsedData.work_experience)
+
+  // If we have exactly one entry that looks like raw merged text, try split by CLIENT:
+  if (structured.length === 1) {
+    const entry = structured[0]
+    const desc = entry.description ?? ''
+    const isPlaceholder =
+      isPlaceholderLike(entry.company_name) || isPlaceholderLike(entry.job_title)
+    const hasMultipleClients =
+      (desc.match(/(?:CLIENT|client|project)\s*[:\-–—]/gi) ?? []).length > 1
+    if (isPlaceholder && desc.length > 500 && hasMultipleClients) {
+      const split = splitRawTextByClientBlocks(desc)
+      if (split.length > 1) structured = split
+    }
+  }
+
   if (structured.length > 0) return structured
+
   const rawContent =
     getSectionContent(parsedData, 'experience') ??
     getSectionContent(parsedData, 'professional experience') ??
     getSectionContent(parsedData, 'professional_experience')
   if (rawContent) {
+    // Try to split raw section by CLIENT: before creating single raw block
+    const split = splitRawTextByClientBlocks(rawContent)
+    if (split.length > 1) return split
     return [
       {
         id: 'parsed-we-section',

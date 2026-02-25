@@ -518,6 +518,7 @@ export default function CandidateDetailPage() {
   const displayCandidateSkills = useParsedDataFallback
     ? fallbackCandidateSkills
     : (candidate.candidate_skills ?? [])
+  // Prefer parsed name/contact when DB fields are empty (fixes "Unnamed candidate" for PDFs)
   const displayCandidate: Candidate = useParsedDataFallback
     ? {
         ...candidate,
@@ -526,7 +527,13 @@ export default function CandidateDetailPage() {
         phone: fallbackContact.phone ?? candidate.phone,
         location: fallbackContact.location ?? candidate.location,
       }
-    : candidate
+    : {
+        ...candidate,
+        full_name: (candidate.full_name?.trim() || fallbackContact.full_name) ?? candidate.full_name,
+        email: candidate.email || fallbackContact.email || candidate.email,
+        phone: candidate.phone || fallbackContact.phone || candidate.phone,
+        location: candidate.location || fallbackContact.location || candidate.location,
+      }
 
   const showMismatchBanner =
     dbHistory.length === 0 && parsedExperience.length > 0 && !useParsedDataFallback
