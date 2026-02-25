@@ -1,0 +1,491 @@
+{
+  "contact": {
+    "name": "App Store",
+    "email": "jordan.hayes.ios@email.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Grade Key Projects",
+      "company": "Enterprise",
+      "start": "2022-01-01",
+      "end": "2023-01-01",
+      "current": false
+    },
+    {
+      "title": "Star Rating On The App",
+      "company": "zero reported crashes. The streamlined UI and real",
+      "start": "2019-01-01",
+      "end": "2020-01-01",
+      "current": false
+    },
+    {
+      "title": "And Background Sync Strategies",
+      "company": "Lead Organizer, NYC iOS Meetup (",
+      "start": "2021-01-01",
+      "end": null,
+      "current": true
+    },
+    {
+      "title": "500+ Local Mobile Developers",
+      "company": "community of 1",
+      "start": "2012-01-01",
+      "end": "2016-01-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": null,
+      "field_of_study": null,
+      "start": "2012-02-01",
+      "end": "2016-02-01"
+    },
+    {
+      "institution": "Bachelor of Science in Computer Science, University of California, Los Angeles",
+      "degree": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": "Capstone Project: Designed and developed an iOS application for the university campus to",
+      "degree": "Bus",
+      "field_of_study": null,
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "Go",
+      "normalized_name": "go",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Swift",
+      "normalized_name": "swift",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Objective-C",
+      "normalized_name": "objective-c",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Ruby",
+      "normalized_name": "ruby",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "AWS",
+      "normalized_name": "aws",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Git",
+      "normalized_name": "git",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab",
+      "normalized_name": "gitlab",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Agile",
+      "normalized_name": "agile",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Communication",
+      "normalized_name": "communication",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Leadership",
+      "normalized_name": "leadership",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "WebSocket",
+      "normalized_name": "websocket",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "iOS",
+      "normalized_name": "ios",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Xcode",
+      "normalized_name": "xcode",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Datadog",
+      "normalized_name": "datadog",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Backend",
+      "normalized_name": "backend",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Security",
+      "normalized_name": "security",
+      "category": "Project Tools"
+    },
+    {
+      "name": "JIRA",
+      "normalized_name": "jira",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Confluence",
+      "normalized_name": "confluence",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Pair Programming",
+      "normalized_name": "pair programming",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Figma",
+      "normalized_name": "figma",
+      "category": "Project Tools"
+    },
+    {
+      "name": "UI/UX",
+      "normalized_name": "ui/ux",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "C++",
+      "normalized_name": "c++",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "SwiftUI",
+      "normalized_name": "swiftui",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Combine",
+      "normalized_name": "combine",
+      "category": "Project Tools"
+    },
+    {
+      "name": "MVVM-C",
+      "normalized_name": "mvvm-c",
+      "category": "Project Tools"
+    },
+    {
+      "name": "WebSockets",
+      "normalized_name": "websockets",
+      "category": "Project Tools"
+    },
+    {
+      "name": "CoreData.",
+      "normalized_name": "coredata.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "data",
+      "normalized_name": "data",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Store.",
+      "normalized_name": "store.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "StreamLine Global DRM Expansion",
+      "normalized_name": "streamline global drm expansion",
+      "category": "Project Tools"
+    },
+    {
+      "name": "StreamLine Media",
+      "normalized_name": "streamline media",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AVFoundation",
+      "normalized_name": "avfoundation",
+      "category": "Project Tools"
+    },
+    {
+      "name": "FairPlay Streaming",
+      "normalized_name": "fairplay streaming",
+      "category": "Project Tools"
+    },
+    {
+      "name": "FPS",
+      "normalized_name": "fps",
+      "category": "Project Tools"
+    },
+    {
+      "name": "CoreData",
+      "normalized_name": "coredata",
+      "category": "Project Tools"
+    },
+    {
+      "name": "URLSession.",
+      "normalized_name": "urlsession.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "\u25cbIntegrated Apple\u2019s FairPlay Streaming",
+      "normalized_name": "\u25cbintegrated apple\u2019s fairplay streaming",
+      "category": "Project Tools"
+    },
+    {
+      "name": "KSM",
+      "normalized_name": "ksm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Information",
+      "normalized_name": "information",
+      "category": "Project Tools"
+    },
+    {
+      "name": "allowing StreamLine",
+      "normalized_name": "allowing streamline",
+      "category": "Project Tools"
+    },
+    {
+      "name": "GCD",
+      "normalized_name": "gcd",
+      "category": "Project Tools"
+    },
+    {
+      "name": "NSOperations",
+      "normalized_name": "nsoperations",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Task",
+      "normalized_name": "task",
+      "category": "Project Tools"
+    },
+    {
+      "name": "async",
+      "normalized_name": "async",
+      "category": "Project Tools"
+    },
+    {
+      "name": "await",
+      "normalized_name": "await",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Actors",
+      "normalized_name": "actors",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ARC",
+      "normalized_name": "arc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Jailbreak Detection",
+      "normalized_name": "jailbreak detection",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ATS",
+      "normalized_name": "ats",
+      "category": "Project Tools"
+    },
+    {
+      "name": "FaceID",
+      "normalized_name": "faceid",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Coordinators.",
+      "normalized_name": "coordinators.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "heavyweight database migrations.",
+      "normalized_name": "heavyweight database migrations.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "MVVM",
+      "normalized_name": "mvvm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "VIPER",
+      "normalized_name": "viper",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Bitbucket",
+      "normalized_name": "bitbucket",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Version",
+      "normalized_name": "version",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Control",
+      "normalized_name": "control",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Trello",
+      "normalized_name": "trello",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Asana",
+      "normalized_name": "asana",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Linear",
+      "normalized_name": "linear",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Project",
+      "normalized_name": "project",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Management",
+      "normalized_name": "management",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Zeplin",
+      "normalized_name": "zeplin",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sketch",
+      "normalized_name": "sketch",
+      "category": "Project Tools"
+    },
+    {
+      "name": "InVision",
+      "normalized_name": "invision",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Abstract",
+      "normalized_name": "abstract",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Design",
+      "normalized_name": "design",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Handoff",
+      "normalized_name": "handoff",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Firebase",
+      "normalized_name": "firebase",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Crashlytics",
+      "normalized_name": "crashlytics",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Analytics",
+      "normalized_name": "analytics",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sentry",
+      "normalized_name": "sentry",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Mixpanel",
+      "normalized_name": "mixpanel",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Amplitude",
+      "normalized_name": "amplitude",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Datadog Mobile",
+      "normalized_name": "datadog mobile",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Crash",
+      "normalized_name": "crash",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Auth",
+      "normalized_name": "auth",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Firestore",
+      "normalized_name": "firestore",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Functions",
+      "normalized_name": "functions",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Supabase",
+      "normalized_name": "supabase",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HIG",
+      "normalized_name": "hig",
+      "category": "Project Tools"
+    },
+    {
+      "name": "sprint planning",
+      "normalized_name": "sprint planning",
+      "category": "Soft Skills"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Apple Certified iOS Developer (Equivalent/Industry Standard) - Demonstrates profound",
+      "org": null
+    },
+    {
+      "name": "Certified ScrumMaster (CSM) - Scrum Alliance",
+      "org": null
+    },
+    {
+      "name": "Advanced Swift Certificate - Point-Free (pointfree.co)",
+      "org": null
+    }
+  ]
+}

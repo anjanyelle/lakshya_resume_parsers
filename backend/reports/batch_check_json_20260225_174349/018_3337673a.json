@@ -1,0 +1,372 @@
+{
+  "contact": {
+    "name": "Marcus Vance",
+    "email": "marcus.vance.web3@email.com",
+    "location": "San Francisco, CA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Aether Protocol (Defi)",
+      "company": "Lead Blockchain Architect",
+      "start": "2021-01-01",
+      "end": null,
+      "current": true
+    },
+    {
+      "title": "Decreasing Dapp Frontend Data Retrieval",
+      "company": "and connected them to custom GraphQL subgraphs",
+      "start": null,
+      "end": null,
+      "current": false
+    },
+    {
+      "title": "Chainnova Enterprise Solutions",
+      "company": "100% of flagged vulnerabilities pre",
+      "start": "2018-03-01",
+      "end": "2020-12-01",
+      "current": false
+    },
+    {
+      "title": "Party Escrow Fees",
+      "company": "Backend Software Engineer | FinTech Dynamics | Austin, TX",
+      "start": "2015-06-01",
+      "end": "2018-02-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Master",
+      "field_of_study": "Computer Science",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": "Stanford University, Stanford, CA",
+      "degree": null,
+      "field_of_study": null,
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": null,
+      "degree": "Bachelor of Science",
+      "field_of_study": "Geographically Distributed Networks",
+      "start": "2013-02-01",
+      "end": "2015-02-01"
+    },
+    {
+      "institution": "University of Texas at Austin, Austin, TX",
+      "degree": "Magna",
+      "field_of_study": null,
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "Go",
+      "normalized_name": "go",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Rust",
+      "normalized_name": "rust",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "SQL",
+      "normalized_name": "sql",
+      "category": "Databases"
+    },
+    {
+      "name": "React",
+      "normalized_name": "react",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Next.js",
+      "normalized_name": "next.js",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "AWS",
+      "normalized_name": "aws",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Git",
+      "normalized_name": "git",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab",
+      "normalized_name": "gitlab",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Agile",
+      "normalized_name": "agile",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Scrum",
+      "normalized_name": "scrum",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Communication",
+      "normalized_name": "communication",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Leadership",
+      "normalized_name": "leadership",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Testing",
+      "normalized_name": "testing",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Frontend",
+      "normalized_name": "frontend",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Security",
+      "normalized_name": "security",
+      "category": "Project Tools"
+    },
+    {
+      "name": "JIRA",
+      "normalized_name": "jira",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Confluence",
+      "normalized_name": "confluence",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "VS Code",
+      "normalized_name": "vs code",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "IntelliJ",
+      "normalized_name": "intellij",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Blockchain",
+      "normalized_name": "blockchain",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Solidity",
+      "normalized_name": "solidity",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Code Review",
+      "normalized_name": "code review",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Collaboration",
+      "normalized_name": "collaboration",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Mentoring",
+      "normalized_name": "mentoring",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Circom",
+      "normalized_name": "circom",
+      "category": "Project Tools"
+    },
+    {
+      "name": "zk-SNARKs",
+      "normalized_name": "zk-snarks",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Ethers.js",
+      "normalized_name": "ethers.js",
+      "category": "Project Tools"
+    },
+    {
+      "name": "blockchain events",
+      "normalized_name": "blockchain events",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RWA",
+      "normalized_name": "rwa",
+      "category": "Project Tools"
+    },
+    {
+      "name": "REIT",
+      "normalized_name": "reit",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ERC",
+      "normalized_name": "erc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Hardhat",
+      "normalized_name": "hardhat",
+      "category": "Project Tools"
+    },
+    {
+      "name": "IPFS",
+      "normalized_name": "ipfs",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Chainlink Oracles.",
+      "normalized_name": "chainlink oracles.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "T-REX",
+      "normalized_name": "t-rex",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Ganache",
+      "normalized_name": "ganache",
+      "category": "Project Tools"
+    },
+    {
+      "name": "LocalStack.",
+      "normalized_name": "localstack.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Blockchain Explorers & Analytics:",
+      "normalized_name": "blockchain explorers & analytics:",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Etherscan API",
+      "normalized_name": "etherscan api",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SQL for Web3 data",
+      "normalized_name": "sql for web3 data",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Nansen",
+      "normalized_name": "nansen",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Tenderly",
+      "normalized_name": "tenderly",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Slither",
+      "normalized_name": "slither",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Mythril",
+      "normalized_name": "mythril",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Manticore",
+      "normalized_name": "manticore",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Echidna",
+      "normalized_name": "echidna",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SMTChecker",
+      "normalized_name": "smtchecker",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Surya",
+      "normalized_name": "surya",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Graphing",
+      "normalized_name": "graphing",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Multi-sig",
+      "normalized_name": "multi-sig",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Ledger",
+      "normalized_name": "ledger",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Notion.",
+      "normalized_name": "notion.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "code review.",
+      "normalized_name": "code review.",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "The Blockchain Trilemma",
+      "normalized_name": "the blockchain trilemma",
+      "category": "Project Tools"
+    },
+    {
+      "name": "against tangible business objectives.",
+      "normalized_name": "against tangible business objectives.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "zk-Rollups",
+      "normalized_name": "zk-rollups",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certified Smart Contract Auditor - HackenProof (Issued: Nov 2023)",
+      "org": null
+    },
+    {
+      "name": "ConsenSys Certified Blockchain Developer - ConsenSys Academy (Issued: Aug 2020)",
+      "org": null
+    },
+    {
+      "name": "Certified Hyperledger Fabric Developer (CHFD) - Linux Foundation (Issued: May 2019)",
+      "org": null
+    },
+    {
+      "name": "AWS Certified Solutions Architect - Associate - Amazon Web Services (Issued: Oct 2018)",
+      "org": "Amazon Web Services"
+    }
+  ]
+}

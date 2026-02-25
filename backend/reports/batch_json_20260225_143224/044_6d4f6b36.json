@@ -1,0 +1,268 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\6d4f6b36-846b-4f36-b3c9-895b68e3fd4b\\0d757e6b-3657-4cc9-8072-0d35148618a8\\original.pdf",
+  "text_preview": "Linkedin: www.linkedin.com/in/nitishraob | Phone: 4692696680| nitishb2317@gmail.com\nPROFESSIONAL SUMMARY:\nLaid the foundation for over eight years of enterprise data engineering experience, specializing in Palantir Foundry\nplatforms, where complex datasets were transformed into governed, high-trust data products supporting analytics,\noperational reporting, and decision intelligence across regulate",
+  "contact": {
+    "name": "Professional Summary:",
+    "email": "nitishb2317@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Senior Big Data Engineer",
+      "company": "UnitedHealth Group",
+      "start": "2022-11-01",
+      "end": null,
+      "current": true,
+      "bullets": []
+    },
+    {
+      "title": "Senior Data Engineer",
+      "company": "Wells Fargo",
+      "start": "2020-01-01",
+      "end": "2022-10-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Data Engineer Data Analyst",
+      "company": "Honeywell",
+      "start": "2017-03-01",
+      "end": "2019-12-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Data Engineer Migration Specialist",
+      "company": "Equifax",
+      "start": "2016-02-01",
+      "end": "2017-02-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Etl Developer",
+      "company": "Inno Minds",
+      "start": "2014-05-01",
+      "end": "2015-12-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Education",
+      "company": null,
+      "start": "2010-08-01",
+      "end": "2014-05-01",
+      "current": false,
+      "bullets": []
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.6
+    },
+    {
+      "name": "agile",
+      "category": "Methodologies",
+      "conf": 0.6
+    },
+    {
+      "name": "postgresql",
+      "category": "Databases",
+      "conf": 0.6
+    },
+    {
+      "name": "relational systems",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "mysql",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "tableau",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ehr",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "semarchy",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.55
+    },
+    {
+      "name": "jenkins",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "enforcing hipaa-aligned access controls",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "masking sensitive",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "balancing",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "metrics",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "proactive",
+      "category": "Soft Skills",
+      "conf": 0.45
+    },
+    {
+      "name": "monitoring",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "rest api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "foundry pipelines",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ci/cd",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "git",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "azure",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "spark",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "performance",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "enabling self-service",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "gcp",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cloud",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "pipeline reliability",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "sql",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "database",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "dashboards",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "real-time",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "relational",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "nosql",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "json",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "visualization",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Delivered secure integrations with cloud storage and compute platforms including AWS, Azure, and GCP, ensuring Foundry",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Devised cost-aware pipeline designs by aligning AWS EMR-backed compute usage with workload characteristics, balancing",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Integrated event-driven ingestion patterns using Azure Event Hubs, materializing near real-time transaction streams into",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Tuned Spark runtime configurations on Azure Databricks-backed infrastructure to balance performance and cost during",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Agile Scrum",
+      "org": "Scrum Alliance"
+    },
+    {
+      "name": "Used AWS CloudWatch monitoring ETL job performance and setting up alerts for failures and anomalies. Developed custom",
+      "org": "Amazon Web Services"
+    }
+  ]
+}

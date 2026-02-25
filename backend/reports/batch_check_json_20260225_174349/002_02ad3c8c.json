@@ -1,0 +1,557 @@
+{
+  "contact": {
+    "name": "JULIANNE K. STERLING-ROSS",
+    "email": "j.sterling.ba@strategic-nexus.org",
+    "location": "Atlanta, GA, India"
+  },
+  "work_experience": [
+    {
+      "title": null,
+      "company": "Principal Strategic Business Architect | Global OmniRetail Systems",
+      "start": "2020-01-01",
+      "end": null,
+      "current": true
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Master",
+      "field_of_study": "Strategic Management & Operations",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": "Georgia Institute of Technology (Scheller College of Business), Atlanta, GA",
+      "degree": "Bachelor of Science",
+      "field_of_study": "Science in Industrial Engineering & Computer Science",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": "The University of Texas at Austin, Austin, TX",
+      "degree": "Minor",
+      "field_of_study": null,
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "normalized_name": "python",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "SQL",
+      "normalized_name": "sql",
+      "category": "Databases"
+    },
+    {
+      "name": "PostgreSQL",
+      "normalized_name": "postgresql",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle",
+      "normalized_name": "oracle",
+      "category": "Databases"
+    },
+    {
+      "name": "Azure",
+      "normalized_name": "azure",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Agile",
+      "normalized_name": "agile",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Scrum",
+      "normalized_name": "scrum",
+      "category": "Methodologies"
+    },
+    {
+      "name": "DevOps",
+      "normalized_name": "devops",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Leadership",
+      "normalized_name": "leadership",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "GraphQL",
+      "normalized_name": "graphql",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Pandas",
+      "normalized_name": "pandas",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "NumPy",
+      "normalized_name": "numpy",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Snowflake",
+      "normalized_name": "snowflake",
+      "category": "Cloud Data Warehouse"
+    },
+    {
+      "name": "Cloud",
+      "normalized_name": "cloud",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "JIRA",
+      "normalized_name": "jira",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Confluence",
+      "normalized_name": "confluence",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Slack",
+      "normalized_name": "slack",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Collaboration",
+      "normalized_name": "collaboration",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Tableau",
+      "normalized_name": "tableau",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Power BI",
+      "normalized_name": "power bi",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "BigQuery",
+      "normalized_name": "bigquery",
+      "category": "GCP Data Warehouse"
+    },
+    {
+      "name": "Looker",
+      "normalized_name": "looker",
+      "category": "Visualization Tools"
+    },
+    {
+      "name": "Figma",
+      "normalized_name": "figma",
+      "category": "Project Tools"
+    },
+    {
+      "name": "REST API",
+      "normalized_name": "rest api",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "UI/UX",
+      "normalized_name": "ui/ux",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Canvas",
+      "normalized_name": "canvas",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SWOT",
+      "normalized_name": "swot",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Contextual",
+      "normalized_name": "contextual",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Inquiry",
+      "normalized_name": "inquiry",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RTM",
+      "normalized_name": "rtm",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Cloud Migration Strategy",
+      "normalized_name": "cloud migration strategy",
+      "category": "Project Tools"
+    },
+    {
+      "name": "API Ecosystem Design",
+      "normalized_name": "api ecosystem design",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Data Sovereignty Compliance.",
+      "normalized_name": "data sovereignty compliance.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "BPMN",
+      "normalized_name": "bpmn",
+      "category": "Project Tools"
+    },
+    {
+      "name": "UML Modeling",
+      "normalized_name": "uml modeling",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Root Cause Analysis",
+      "normalized_name": "root cause analysis",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Fishbone",
+      "normalized_name": "fishbone",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Whys",
+      "normalized_name": "whys",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ROI",
+      "normalized_name": "roi",
+      "category": "Project Tools"
+    },
+    {
+      "name": "NPV",
+      "normalized_name": "npv",
+      "category": "Project Tools"
+    },
+    {
+      "name": "IRR",
+      "normalized_name": "irr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Change Management",
+      "normalized_name": "change management",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "ADKAR",
+      "normalized_name": "adkar",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SQL Data Profiling",
+      "normalized_name": "sql data profiling",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Design",
+      "normalized_name": "design",
+      "category": "Project Tools"
+    },
+    {
+      "name": "GDPR",
+      "normalized_name": "gdpr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "CCPA",
+      "normalized_name": "ccpa",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SOX",
+      "normalized_name": "sox",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HIPAA",
+      "normalized_name": "hipaa",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Systems",
+      "normalized_name": "systems",
+      "category": "Project Tools"
+    },
+    {
+      "name": "WCAG",
+      "normalized_name": "wcag",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Signavio",
+      "normalized_name": "signavio",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ARIS",
+      "normalized_name": "aris",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Lucidchart",
+      "normalized_name": "lucidchart",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Gliffy.",
+      "normalized_name": "gliffy.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Jira Cloud",
+      "normalized_name": "jira cloud",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Hotjar",
+      "normalized_name": "hotjar",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Mixpanel",
+      "normalized_name": "mixpanel",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Pendo",
+      "normalized_name": "pendo",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Amplitude",
+      "normalized_name": "amplitude",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Server",
+      "normalized_name": "server",
+      "category": "Project Tools"
+    },
+    {
+      "name": "QlikView.",
+      "normalized_name": "qlikview.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "T-SQL",
+      "normalized_name": "t-sql",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Snowflake Data Warehouse",
+      "normalized_name": "snowflake data warehouse",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Alteryx",
+      "normalized_name": "alteryx",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Designer",
+      "normalized_name": "designer",
+      "category": "Project Tools"
+    },
+    {
+      "name": "NumPy for data wrangling",
+      "normalized_name": "numpy for data wrangling",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SAS.",
+      "normalized_name": "sas.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "4HANA",
+      "normalized_name": "4hana",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Salesforce",
+      "normalized_name": "salesforce",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sales",
+      "normalized_name": "sales",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Service",
+      "normalized_name": "service",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Marketing Clouds",
+      "normalized_name": "marketing clouds",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RESTful APIs",
+      "normalized_name": "restful apis",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SOAP",
+      "normalized_name": "soap",
+      "category": "Project Tools"
+    },
+    {
+      "name": "EDI",
+      "normalized_name": "edi",
+      "category": "Project Tools"
+    },
+    {
+      "name": "IDOC",
+      "normalized_name": "idoc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Zapier.",
+      "normalized_name": "zapier.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AEM",
+      "normalized_name": "aem",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sitecore",
+      "normalized_name": "sitecore",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Asana",
+      "normalized_name": "asana",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Smartsheet",
+      "normalized_name": "smartsheet",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Trello.",
+      "normalized_name": "trello.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Miro",
+      "normalized_name": "miro",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Notion.",
+      "normalized_name": "notion.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Wireframing",
+      "normalized_name": "wireframing",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Balsamiq",
+      "normalized_name": "balsamiq",
+      "category": "Project Tools"
+    },
+    {
+      "name": "InVision.",
+      "normalized_name": "invision.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "UML",
+      "normalized_name": "uml",
+      "category": "Project Tools"
+    },
+    {
+      "name": "BABOK",
+      "normalized_name": "babok",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SAFe",
+      "normalized_name": "safe",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Waterfall",
+      "normalized_name": "waterfall",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Lean.",
+      "normalized_name": "lean.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Jama",
+      "normalized_name": "jama",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Visio",
+      "normalized_name": "visio",
+      "category": "Project Tools"
+    },
+    {
+      "name": "BigQuery.",
+      "normalized_name": "bigquery.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Dynamics",
+      "normalized_name": "dynamics",
+      "category": "Project Tools"
+    },
+    {
+      "name": "AEM.",
+      "normalized_name": "aem.",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "CBAP: Certified Business Analysis Professional - IIBA",
+      "org": null
+    },
+    {
+      "name": "AAC: Agile Analysis Certification - IIBA",
+      "org": null
+    },
+    {
+      "name": "PMP: Project Management Professional - Project Management Institute (PMI)",
+      "org": "PMI"
+    },
+    {
+      "name": "SAP Certified Application Associate: S/4HANA Sales & SCM",
+      "org": null
+    },
+    {
+      "name": "TOGAF Certified",
+      "org": null
+    },
+    {
+      "name": "CSPO: Certified Scrum Product Owner",
+      "org": null
+    }
+  ]
+}

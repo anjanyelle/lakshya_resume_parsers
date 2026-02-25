@@ -1,0 +1,301 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\6b856d40-0375-4a47-92c1-44cd4b0d056a\\fd14ad38-e80c-4210-9521-fdc017818818\\original.pdf",
+  "text_preview": "Marcus Vance\nLead Blockchain Architect & Smart Contract Engineer\nmarcus.vance.web3@email.com | +1 (555) 728-3904 | San Francisco, CA\nlinkedin.com/in/marcusvanceweb3 | github.com/marcusvancedev | Portfolio: marcusvance.eth\nProfessional Summary\nVisionary and security-focused Lead Blockchain Architect with 9 years of full-stack and backend engineering experience, including 7 years exclusively dedicat",
+  "contact": {
+    "name": "Marcus Vance",
+    "email": "marcus.vance.web3@email.com",
+    "location": "San Francisco, CA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Aether Protocol (Defi)",
+      "company": "Lead Blockchain Architect",
+      "start": "2021-01-01",
+      "end": null,
+      "current": true,
+      "bullets": [
+        "Architected and developed the core automated market maker (AMM) smart contracts and liquidity pooling mechanisms in Solidity, successfully bootstrapping the protocol to scale from $0",
+        "Pioneered extensive gas optimization techniques utilizing inline assembly (Yul) and custom",
+        "Engineered and deployed a robust UUPS (Universal Upgradeable Proxy Standard) architecture,"
+      ]
+    },
+    {
+      "title": "Decreasing Dapp Frontend Data Retrieval",
+      "company": "and connected them to custom GraphQL subgraphs",
+      "start": null,
+      "end": null,
+      "current": false,
+      "bullets": [
+        "Implemented ERC-4337 (Account Abstraction) paymasters, subsidizing gas fees for onboarding",
+        "Established rigorous Test-Driven Development (TDD) pipelines using Foundry, writing over",
+        "Managed the end-to-end security lifecycle, successfully acting as the primary technical liaison"
+      ]
+    },
+    {
+      "title": "Chainnova Enterprise Solutions",
+      "company": "100% of flagged vulnerabilities pre",
+      "start": "2018-03-01",
+      "end": "2020-12-01",
+      "current": false,
+      "bullets": [
+        "Architected a private, permissioned blockchain network using Hyperledger Fabric to track the",
+        "Developed complex, deterministic chaincode (smart contracts) in Go, automating multi-party",
+        "Engineered a custom Identity and Access Management (IAM) module utilizing Hyperledger"
+      ]
+    },
+    {
+      "title": "Party Escrow Fees",
+      "company": "Backend Software Engineer | FinTech Dynamics | Austin, TX",
+      "start": "2015-06-01",
+      "end": "2018-02-01",
+      "current": false,
+      "bullets": [
+        "Engineered high-throughput backend microservices in Python (Django) and Go to process fiat",
+        "Advocated for and led the initial technical research and development of a cryptocurrency payment gateway integration, allowing merchants to accept Bitcoin and Ethereum directly.",
+        "Wrote complex automated scripts to interact with raw Bitcoin Core RPCs and Ethereum Geth"
+      ]
+    },
+    {
+      "title": "Preventing Unauthorized",
+      "company": "strictly enforce KYC/AML whitelisting at the smart contract level",
+      "start": null,
+      "end": null,
+      "current": false,
+      "bullets": [
+        "Designed a dynamic payout distributor contract utilizing Merkle trees to airdrop monthly rental",
+        "Integrated decentralized Chainlink Price Feeds and custom external adapters to fetch and independently verify quarterly commercial property appraisals on-chain.",
+        "Built and deployed custom subgraphs utilizing The Graph protocol to seamlessly index token"
+      ]
+    },
+    {
+      "title": "Experienced In Conducting Internal Threat Modeling Exercises And Coordinating Rapid Incident",
+      "company": null,
+      "start": "2009-01-01",
+      "end": "2013-01-01",
+      "current": false,
+      "bullets": [
+        "Agile & Open-Source Collaboration: Deeply integrated into the open-source community, experienced in leading Agile/Scrum ceremonies, and highly comfortable operating in asynchronous,"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "node.js",
+      "category": "Frameworks",
+      "conf": 0.6
+    },
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "postgresql",
+      "category": "Databases",
+      "conf": 0.6
+    },
+    {
+      "name": "agile",
+      "category": "Methodologies",
+      "conf": 0.6
+    },
+    {
+      "name": "san francisco",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ca",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "defi protocols",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "erc-1155",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "zk-snarks",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "circom",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "snarkjs",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "merkle trees",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "rest api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "api",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "containerizing peer nodes",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "orderers",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "and",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "backend",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "microservices",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "django",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "go",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "relational",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "database",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ci/cd",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "deployment",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "jenkins",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "transfers",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "slither",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "mythril",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "echidna",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "javascript",
+      "category": "Programming Languages",
+      "conf": 0.4
+    }
+  ],
+  "certifications": [
+    {
+      "name": "ERC-20",
+      "org": null
+    },
+    {
+      "name": "ERC-721",
+      "org": null
+    },
+    {
+      "name": "ERC-1155",
+      "org": null
+    },
+    {
+      "name": "ERC-4337 (Account Abstraction)",
+      "org": null
+    },
+    {
+      "name": "Diamond Standard (EIP-2535)",
+      "org": null
+    },
+    {
+      "name": "Fabric CA and X.509 certificates, ensuring strict data privacy and HIPAA compliance across",
+      "org": null
+    },
+    {
+      "name": "Certificate Authorities with Docker and orchestrating automated deployments via Kubernetes",
+      "org": "CNCF"
+    },
+    {
+      "name": "Architecture & Tech Stack: Solidity (ERC-1155",
+      "org": null
+    },
+    {
+      "name": "ERC-3643)",
+      "org": null
+    },
+    {
+      "name": "Engineered a fully compliant tokenization suite utilizing the ERC-3643 (T-REX) standard to",
+      "org": null
+    },
+    {
+      "name": "Certified Smart Contract Auditor - HackenProof (Issued: Nov 2023)",
+      "org": null
+    },
+    {
+      "name": "ConsenSys Certified Blockchain Developer - ConsenSys Academy (Issued: Aug 2020)",
+      "org": null
+    },
+    {
+      "name": "Certified Hyperledger Fabric Developer (CHFD) - Linux Foundation (Issued: May 2019)",
+      "org": null
+    },
+    {
+      "name": "AWS Certified Solutions Architect - Associate - Amazon Web Services (Issued: Oct 2018)",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Agile & Open-Source Collaboration: Deeply integrated into the open-source community, experienced in leading Agile/Scrum ceremonies, and highly comfortable operating in asynchronous,",
+      "org": "Scrum Alliance"
+    }
+  ]
+}

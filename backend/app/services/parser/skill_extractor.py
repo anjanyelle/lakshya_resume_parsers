@@ -19,7 +19,56 @@ from app.services.parser.work_experience_parser import JobEntry
 logger = logging.getLogger(__name__)
 
 
-# Only these explicit words set proficiency; no inference from verbs like "developed"/"built".
+def clean_text_for_skills(text: str) -> str:
+    """Normalize text before skill extraction: collapse whitespace, normalize bullets to comma, newlines to comma (one continuous stream)."""
+    if not text or not isinstance(text, str):
+        return ""
+    t = re.sub(r"\s+", " ", text.strip())
+    t = re.sub(r"[•▪\-*]\s*", ",", t)
+    t = t.replace("\n", ",").replace("\r", ",")
+    t = re.sub(r",+", ",", t).strip(",").strip()
+    return t
+
+
+# Standalone noise words to drop when they appear as whole tokens (e.g. "Learn", "based", "models").
+SKILL_NOISE_WORDS = frozenset({"learn", "based", "models"})
+
+
+def clean_skill_text_for_section(text: str) -> str:
+    """Enterprise-grade cleaning for the technical skills section only.
+    Handles parentheses (GCP (Cloud storage, Bigquery) -> GCP, Cloud storage, Bigquery),
+    removes trailing ), replaces & and / with comma, drops standalone noise words."""
+    if not text or not isinstance(text, str):
+        return ""
+    t = text.replace("\u2022", ",").replace("•", ",").replace("▪", ",")
+    t = re.sub(r"[\-*]\s+", ",", t)
+    t = t.replace("\n", ",").replace("\r", ",")
+    t = re.sub(r"\(", ",", t)
+    t = re.sub(r"\)", "", t)
+    t = re.sub(r"&", ",", t)
+    t = re.sub(r"/", ",", t)
+    t = re.sub(r"\s+", " ", t)
+    t = re.sub(r",+", ",", t).strip(" ,")
+    # Standalone noise words (learn, based, models) are dropped in tokenize_skills_by_comma so "Scikit-Learn" stays
+    return t
+
+
+def tokenize_skills_by_comma(text: str) -> list[str]:
+    """Split only by comma (no space/newline split). Use after clean_skill_text_for_section."""
+    if not text or not isinstance(text, str):
+        return []
+    parts = [s.strip() for s in text.split(",") if s.strip()]
+    return [p for p in parts if len(p) > 1 and p.lower() not in SKILL_NOISE_WORDS]
+
+
+def strip_skill_token(token: str) -> str:
+    """Remove leading/trailing brackets and parentheses from a single skill token."""
+    if not token or not isinstance(token, str):
+        return token
+    return token.strip(" \t()[]\"'").strip()
+
+
+# Only these explicit words set proficiency; no inference from verbs like "developed"/"built". no inference from verbs like "developed"/"built".
 EXPLICIT_PROFICIENCY_KEYWORDS = {
     "expert": "expert",
     "mastery": "expert",
@@ -1087,7 +1136,7 @@ def is_broken_or_fragment(skill_name: str) -> bool:
 
 
 def is_generic_skill(normalized_name: str) -> bool:
-    """True if skill is a generic/umbrella term that must not be stored."""
+    """True if skill is a generic/umbrella term that must not be stored. Only REJECT_GENERIC_SKILLS (cloud, backend, security, frontend, web development) are treated as generic."""
     if not normalized_name:
         return True
     return normalize_skill_name(normalized_name) in REJECT_GENERIC_SKILLS
@@ -1178,16 +1227,73 @@ class SkillExtractor:
         return set(self.normalized_map.keys())
 
     def extract_from_skills_section(self, text: str) -> list[SkillMatch]:
+        """Extract skills from the technical skills section only.
+        Uses enterprise-grade cleaning (parentheses -> comma, no space-split), then phrase match + comma-only token match."""
         source = "technical_skills_section"
-        matches = self._extract_skills(text, base_confidence=0.85, source=source)
-        matches.extend(self._extract_freeform_skills(text, base_confidence=0.7, source=source))
-        return matches
+        cleaned = clean_skill_text_for_section(text or "")
+        if not cleaned:
+            return []
+        # Phrase-based taxonomy match (e.g. "Amazon Redshift" in block)
+        phrase_matches = self._extract_skills(cleaned, base_confidence=0.85, source=source)
+        # Comma-only tokenization: no space/newline split to avoid "main tracking", "based and ML", "Spanner)"
+        tokens = tokenize_skills_by_comma(cleaned)
+        freeform_matches: list[SkillMatch] = []
+        for token in tokens:
+            token = strip_skill_token(token)
+            if not token or len(token) < 2:
+                continue
+            base_name, versions = self._extract_versions_from_token(token)
+            canonicalize_input = (base_name if base_name else token).strip()
+            for name, normalized, category_hint in self._expand_and_canonicalize(canonicalize_input or token):
+                vers = versions if versions else None
+                final_cat = map_category_to_master(category_hint) if category_hint else None
+                if normalized in self.normalized_map:
+                    item = self.normalized_map[normalized]
+                    freeform_matches.append(
+                        SkillMatch(
+                            name=item["name"],
+                            normalized_name=item["normalized_name"],
+                            category=item.get("category") or final_cat,
+                            confidence=0.7,
+                            years_experience=None,
+                            proficiency=None,
+                            source=source,
+                            version=vers,
+                        )
+                    )
+                elif category_hint == "Soft Skills":
+                    freeform_matches.append(
+                        SkillMatch(
+                            name=name,
+                            normalized_name=normalized,
+                            category=category_hint,
+                            confidence=0.5,
+                            years_experience=None,
+                            proficiency=None,
+                            source=source,
+                            version=vers,
+                        )
+                    )
+                elif is_atomic_skill(name, self.get_known_normalized_skills()):
+                    freeform_matches.append(
+                        SkillMatch(
+                            name=name,
+                            normalized_name=normalized,
+                            category=final_cat or "Technical Skills",
+                            confidence=0.65,
+                            years_experience=None,
+                            proficiency=None,
+                            source=source,
+                            version=vers,
+                        )
+                    )
+        return self.normalize_skills(phrase_matches + freeform_matches)
 
     def extract_from_work_history(self, jobs: Iterable[JobEntry]) -> list[SkillMatch]:
         source = "experience"
         matches: list[SkillMatch] = []
         for job in jobs:
-            matches.extend(self._extract_skills(job.description, base_confidence=0.6, source=source))
+            matches.extend(self._extract_skills(clean_text_for_skills(job.description or ""), base_confidence=0.6, source=source))
         return matches
 
     def normalize_skills(self, matches: Iterable[SkillMatch]) -> list[SkillMatch]:
@@ -1293,27 +1399,23 @@ class SkillExtractor:
         raw_text: str | None = None,
         section_only: bool = True,
     ) -> list[SkillMatch]:
-        """Extract skills. When section_only=True, use only the Technical Skills section (no work exp/summary)."""
-        section_text = skills_section or ""
+        """Extract skills. Always supplements with raw_text when provided so sparse/misdetected sections don't lose skills."""
+        section_text = clean_skill_text_for_section(skills_section or "")
         if skills_section_confidence is not None and skills_section_confidence < 0.6:
             section_text = ""
+        raw_text_cleaned = clean_text_for_skills(raw_text or "") if raw_text else ""
 
         section_matches = self.extract_from_skills_section(section_text) if section_text else []
-        if section_only:
-            history_matches = []
-            fallback_matches = []
-        else:
-            history_matches = self.extract_from_work_history(jobs)
-            fallback_matches = []
-            if not section_matches and raw_text:
-                fallback_matches = self.extract_from_raw_text(raw_text)
+        history_matches = [] if section_only else self.extract_from_work_history(jobs)
+        # Always use raw_text as supplementary source so we don't lose skills when section is small or misdetected
+        fallback_matches = self.extract_from_raw_text(raw_text_cleaned) if raw_text_cleaned else []
 
         all_matches = self.normalize_skills(section_matches + history_matches + fallback_matches)
 
         # Do not guess years of experience; only explicit mention or timeline would set it (handled elsewhere).
         enriched = []
         for match in all_matches:
-            proficiency = self.infer_proficiency(section_text or (raw_text or ""), match.normalized_name)
+            proficiency = self.infer_proficiency(section_text or (raw_text_cleaned or ""), match.normalized_name)
             enriched.append(
                 SkillMatch(
                     name=match.name,
@@ -1334,8 +1436,13 @@ class SkillExtractor:
     def extract_from_raw_text(self, text: str) -> list[SkillMatch]:
         if not text:
             return []
+        text = clean_text_for_skills(text)
+        if not text:
+            return []
         matches: list[SkillMatch] = []
         lines = [line.strip() for line in text.splitlines() if line.strip()]
+        if not lines:
+            lines = [s.strip() for s in text.split(",") if s.strip()]
         for line in lines:
             if len(line) > 200:
                 continue
@@ -1416,22 +1523,19 @@ class SkillExtractor:
     ) -> list[SkillMatch]:
         matches: list[SkillMatch] = []
         lowered = text.lower()
+        seen_normalized: set[str] = set()
 
         def _contains_term(term: str) -> bool:
+            """Match skill with word boundaries so 'React' does not match 'ReactNative', 'SQL' not in 'NoSQL'."""
             if not term:
                 return False
-            term_lower = term.lower()
-            if term_lower.isalnum() and len(term_lower) <= 3:
-                return bool(
-                    re.search(
-                        rf"(?<![A-Za-z0-9.]){re.escape(term_lower)}(?![A-Za-z0-9.])",
-                        lowered,
-                    )
-                )
-            return bool(re.search(rf"\b{re.escape(term_lower)}\b", lowered))
+            term_lower = term.lower().strip()
+            pattern = r"\b" + re.escape(term_lower) + r"\b"
+            return bool(re.search(pattern, lowered, re.IGNORECASE))
 
         for canonical, item in self.normalized_map.items():
-            if _contains_term(canonical):
+            if _contains_term(canonical) and item["normalized_name"] not in seen_normalized:
+                seen_normalized.add(item["normalized_name"])
                 matches.append(
                     SkillMatch(
                         name=item["name"],
@@ -1447,17 +1551,19 @@ class SkillExtractor:
         for synonym, canonical in self.synonym_map.items():
             if _contains_term(synonym):
                 item = self.normalized_map[canonical]
-                matches.append(
-                    SkillMatch(
-                        name=item["name"],
-                        normalized_name=item["normalized_name"],
-                        category=item.get("category"),
-                        confidence=base_confidence - 0.1,
-                        years_experience=None,
-                        proficiency=None,
-                        source=source,
+                if item["normalized_name"] not in seen_normalized:
+                    seen_normalized.add(item["normalized_name"])
+                    matches.append(
+                        SkillMatch(
+                            name=item["name"],
+                            normalized_name=item["normalized_name"],
+                            category=item.get("category"),
+                            confidence=base_confidence - 0.1,
+                            years_experience=None,
+                            proficiency=None,
+                            source=source,
+                        )
                     )
-                )
 
         if self.use_spacy and self._nlp and self._matcher:
             doc = self._nlp(text)
@@ -1465,8 +1571,9 @@ class SkillExtractor:
                 span = doc[start:end].text.lower()
                 canonical = self.synonym_map.get(span, span)
                 item = self.normalized_map.get(canonical)
-                if not item:
+                if not item or item["normalized_name"] in seen_normalized:
                     continue
+                seen_normalized.add(item["normalized_name"])
                 matches.append(
                     SkillMatch(
                         name=item["name"],
@@ -1585,40 +1692,23 @@ class SkillExtractor:
 
     @staticmethod
     def _split_skills(value: str) -> list[str]:
-        """Industry level tokenizer: split by newline, comma, parentheses, slash, and bullets."""
+        """Split by comma, newline, parentheses, slash; strip brackets/parens from each token to avoid 'Spanner)' etc."""
         if not value:
             return []
-        # Replace common delimiters with commas for easier splitting
-        # Split on commas, newlines, parentheses, slashes, pipes, semicolons, bullets
-        # We also want to treat "Skill (Subskill1, Subskill2)" as 3 individual skills
-        import re
-        
-        # Step 1: Clean bullets and special characters
         text = value.replace("\u2022", ",").replace("•", ",").replace("|", ",").replace(";", ",")
-        
-        # Step 2: Use regex to split on delimiters including parentheses and slashes
-        tokens = re.split(r'[,\n()/\t]', text)
-        
-        # Step 3: Cleanup and filter
+        tokens = re.split(r"[,\n()/\t]", text)
         result: list[str] = []
         for t in tokens:
-            cleaned = t.strip("-* ")
+            cleaned = t.strip("-* ()[]\"'").strip()
             if not cleaned:
                 continue
-                
-            # Filter proficiency keywords from being tokens themselves
             lowered = cleaned.lower()
             if lowered in {"advanced", "intermediate", "beginner", "expert", "expertise", "proficient", "familiar"}:
                 continue
-                
-            # Filter short/garbage tokens
             if len(cleaned) < 2 and not cleaned.isalnum():
                 continue
-            
-            # Final atomic-ish check for garbage
             if re.search(r"[A-Za-z]", cleaned):
                 result.append(cleaned)
-                
         return result
 
     def _is_known_skill(self, token: str) -> bool:

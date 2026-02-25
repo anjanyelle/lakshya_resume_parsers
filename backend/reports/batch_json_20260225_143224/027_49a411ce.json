@@ -1,0 +1,80 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\49a411ce-ab4d-4d08-8d1e-3880ad1a2b0f\\9555145e-5bc1-43c4-9bda-3f082b6be23d\\original.pdf",
+  "text_preview": "Neelisetty Sandhya Rani\n\u00a7 nsandhyarani | \u00ef LinkedIn | \u0080 Portfolio | # Gmail | H Mobile No +91 9550802412\nProfile\nPursuing B.Tech in Computer Science with a specialization in AI & ML, passionate about leveraging\ntechnology for real-world impact.Proficient in Python and C, with hands-on experience in machine learning\nand AI projects.Seeking opportunities in companies focused on technological advance",
+  "contact": {
+    "name": "Neelisetty Sandhya Rani",
+    "email": "",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Education",
+      "company": null,
+      "start": "2022-01-01",
+      "end": "2026-01-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "B Tech Cse(Aiml) At G Narayanamma Institute Of Technology And Science",
+      "company": null,
+      "start": "2020-01-01",
+      "end": "2022-01-01",
+      "current": false,
+      "bullets": [
+        "Programming Languages:Python, C, Java",
+        "Front-end:HTML,CSS,JS",
+        "Database Management: MySQL"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "communication",
+      "category": "Soft Skills",
+      "conf": 0.6
+    },
+    {
+      "name": "javascript",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "problem solving",
+      "category": "Soft Skills",
+      "conf": 0.45
+    },
+    {
+      "name": "time management",
+      "category": "Soft Skills",
+      "conf": 0.45
+    },
+    {
+      "name": "continuous learning",
+      "category": "Soft Skills",
+      "conf": 0.45
+    },
+    {
+      "name": "teamwork",
+      "category": "Soft Skills",
+      "conf": 0.45
+    },
+    {
+      "name": "leadership",
+      "category": "Soft Skills",
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "NPTEL Certificate in C Language (Oct 2023), Gen AI (Oct 2024), and Power BI (July 2025).",
+      "org": null
+    }
+  ]
+}

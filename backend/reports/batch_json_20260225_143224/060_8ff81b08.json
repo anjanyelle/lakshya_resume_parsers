@@ -1,0 +1,234 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\8ff81b08-0f20-47f6-81bd-f22f6492aa6b\\80bde4d5-d479-4606-9323-82bf34e8849d\\original.pdf",
+  "text_preview": "LinkedIn: linkedin.com/in/jsterling-dotnet | Location: Charlotte, NC\nPROFESSIONAL SUMMARY\nVisionary Senior .NET Backend Developer and Architect with over 9 years of hands-on experience in high-concurrency distributed systems, cloud-native application design, and enterprisegrade microservices. Expert in the .NET ecosystem (.NET 8/6, Core 3.1) with a deep mastery of C#\nperformance optimization, memo",
+  "contact": {
+    "name": "Professional Summary",
+    "email": "j.sterling.dev@email.com",
+    "location": "Charlotte, NC"
+  },
+  "work_experience": [
+    {
+      "title": "Server",
+      "company": null,
+      "start": "2016-01-01",
+      "end": "2022-01-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Frequency Transaction Engine Servicing Over 12 Million Global Users",
+      "company": "Microservices Transformation (",
+      "start": "2021-01-01",
+      "end": "2022-01-01",
+      "current": false,
+      "bullets": [
+        "Scalability: Designed an asynchronous ledger update system using Azure Service Bus that",
+        "Cost Optimization: Conducted a comprehensive audit of Azure SQL Elastic Pools and transitioned low-access data to CosmosDB with TTL (Time-to-Live) policies, saving the firm $14,000",
+        "Performance Tuning: Identified a critical bottleneck in the settlement service; by refactoring Entity Framework queries into Dapper and optimizing SQL execution plans, reduced P99"
+      ]
+    },
+    {
+      "title": "Data",
+      "company": "ensuring 100% compliance with HIPAA audits in 2018 and 2019.",
+      "start": "2021-01-01",
+      "end": null,
+      "current": true,
+      "bullets": []
+    },
+    {
+      "title": "Nc",
+      "company": "Remote / Charlotte",
+      "start": "2017-06-01",
+      "end": "2020-12-01",
+      "current": false,
+      "bullets": [
+        "Reporting Engine: Developed a custom data aggregation engine in C# that synthesized",
+        "UI Integration: Built responsive admin dashboards using ASP.NET MVC and Bootstrap, allowing non-technical managers to monitor inventory levels in real-time.",
+        "API Modernization: Assisted in the transition from SOAP/WCF services to RESTful Web APIs,"
+      ]
+    },
+    {
+      "title": "Costs Via Efficiency Insights",
+      "company": null,
+      "start": "2014-05-01",
+      "end": "2017-05-01",
+      "current": false,
+      "bullets": [
+        "Technology Stack: .NET 6, IdentityServer4, EF Core, Azure Key Vault.",
+        "Challenge: Consolidating user data from AD and SQL while ensuring SSO across 30 apps.",
+        "Impact: Reduced identity-related helpdesk tickets by 55% and enforced MFA across the entire enterprise ecosystem."
+      ]
+    },
+    {
+      "title": "Ga",
+      "company": "Atlanta",
+      "start": "2018-01-01",
+      "end": null,
+      "current": true,
+      "bullets": [
+        "Article: \u201dOptimizing EF Core 8 for High-Performance Systems\u201d - 20,000+ views on Dev.to."
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "postgresql",
+      "category": "Databases",
+      "conf": 0.6
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.6
+    },
+    {
+      "name": ".net",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "cloud",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "microsoft",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "azure",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "redis",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "distributed",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "microservices",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "provider",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "preventing",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "asp.net core",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "signalr",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "azure iot hub",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "identityserver4",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ef core",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "azure functions",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ocelot",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": ".net core",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Cloud Infrastructure (Microsoft Azure)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Functions (V3/V4)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Container Apps",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure SQL Database",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Azure Key Vault",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Scalability: Designed an asynchronous ledger update system using Azure Service Bus that",
+      "org": "Microsoft"
+    },
+    {
+      "name": "LazyCache to handle patient lookup surges during COVID-19 vaccine rollouts, preventing",
+      "org": null
+    },
+    {
+      "name": "Microsoft Certified: Azure Solutions Architect Expert",
+      "org": "Microsoft"
+    },
+    {
+      "name": "Microsoft Certified: Azure Developer Associate (AZ-204)",
+      "org": "Microsoft"
+    },
+    {
+      "name": "AWS Certified Developer - Associate",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Certified ScrumMaster (CSM) - Scrum Alliance",
+      "org": "Scrum Alliance"
+    },
+    {
+      "name": "HashiCorp Certified: Terraform Associate",
+      "org": null
+    },
+    {
+      "name": "Azure Data Studio",
+      "org": "Microsoft"
+    },
+    {
+      "name": "MongoDB Compass",
+      "org": "MongoDB"
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "contact": {
+    "name": "Mangali Sai Sumanth",
+    "email": "saisumanthkittu@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [],
+  "education": [
+    {
+      "institution": "Vignana Bharathi Institute of Technology",
+      "degree": "B.Tech",
+      "field_of_study": "Computer Science Engineering",
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "JavaScript",
+      "normalized_name": "javascript",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "MySQL",
+      "normalized_name": "mysql",
+      "category": "Databases"
+    },
+    {
+      "name": "Oracle",
+      "normalized_name": "oracle",
+      "category": "Databases"
+    },
+    {
+      "name": "Communication",
+      "normalized_name": "communication",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "REST API",
+      "normalized_name": "rest api",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "ORM",
+      "normalized_name": "orm",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Collaboration",
+      "normalized_name": "collaboration",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Problem Solving",
+      "normalized_name": "problem solving",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "HTML",
+      "normalized_name": "html",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "CSS",
+      "normalized_name": "css",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "API Development",
+      "normalized_name": "api development",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "JSON",
+      "normalized_name": "json",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Hibernate",
+      "normalized_name": "hibernate",
+      "category": "Project Tools"
+    },
+    {
+      "name": "One-to-One",
+      "normalized_name": "one-to-one",
+      "category": "Project Tools"
+    },
+    {
+      "name": "One-to-Many",
+      "normalized_name": "one-to-many",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Maven",
+      "normalized_name": "maven",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Postman",
+      "normalized_name": "postman",
+      "category": "Project Tools"
+    },
+    {
+      "name": "OOP",
+      "normalized_name": "oop",
+      "category": "Project Tools"
+    },
+    {
+      "name": "REST API Design",
+      "normalized_name": "rest api design",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": []
+}

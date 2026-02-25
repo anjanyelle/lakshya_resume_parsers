@@ -1,0 +1,68 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\49dbf245-90e3-46a7-b169-3458f72db3b9\\bcb293bc-1c7b-4e00-adea-8267c270e0a4\\original.pdf",
+  "text_preview": "Mohammed Aslam Pasha\nHyderabad, India | +91-8367002286 | pashaaslam931@gmail.com\nPROFESSIONAL SUMMARY\nDetail-oriented Java Full Stack Developer with 6 months of hands-on internship experience in\nbuilding responsive web applications using Core Java, Spring Boot, and MySQL. Proven\nability to design user-friendly interfaces with Bootstrap and optimize backend database\nperformance. Certified Top Perfo",
+  "contact": {
+    "name": "Mohammed Aslam Pasha",
+    "email": "pashaaslam931@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [],
+  "education": [],
+  "skills": [
+    {
+      "name": "hyderabad",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "qedge technologies",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "spring",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "mvc",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "backend",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "java",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "spring mvc",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "mysql",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "bootstrap",
+      "category": null,
+      "conf": 0.45
+    }
+  ],
+  "certifications": [
+    {
+      "name": "performance. Certified Top Performer in Full Stack Development, seeking to leverage expertise",
+      "org": null
+    },
+    {
+      "name": "6-Month Internship Certificate - QEdge Technologies",
+      "org": null
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "contact": {
+    "name": "| +918989161448",
+    "email": "thakredp24@gmail.com",
+    "location": ""
+  },
+  "work_experience": [
+    {
+      "title": "Project: Provider Passport (U S Healthcare Platform)",
+      "company": "Provider Passport (U.S. Healthcare Platform)",
+      "start": null,
+      "end": null,
+      "current": false
+    },
+    {
+      "title": null,
+      "company": "Bangalore, KA | [",
+      "start": "2024-07-01",
+      "end": "2024-10-01",
+      "current": false
+    },
+    {
+      "title": "[Project]",
+      "company": null,
+      "start": "2020-09-01",
+      "end": "2024-05-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": "Samrat Ashok Technological Institute",
+      "degree": null,
+      "field_of_study": null,
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "JavaScript",
+      "normalized_name": "javascript",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Java",
+      "normalized_name": "java",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "MySQL",
+      "normalized_name": "mysql",
+      "category": "Databases"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "HTML",
+      "normalized_name": "html",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "CSS",
+      "normalized_name": "css",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "WebSocket",
+      "normalized_name": "websocket",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Spring Boot",
+      "normalized_name": "spring boot",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "REST API",
+      "normalized_name": "rest api",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Hibernate",
+      "normalized_name": "hibernate",
+      "category": "Project Tools"
+    },
+    {
+      "name": "LOCAL-LINE",
+      "normalized_name": "local-line",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Maven",
+      "normalized_name": "maven",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Discord JDA API",
+      "normalized_name": "discord jda api",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Maven.",
+      "normalized_name": "maven.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "LinkedIn",
+      "normalized_name": "linkedin",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Gurugram",
+      "normalized_name": "gurugram",
+      "category": "Project Tools"
+    },
+    {
+      "name": "HR",
+      "normalized_name": "hr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Bangalore",
+      "normalized_name": "bangalore",
+      "category": "Project Tools"
+    },
+    {
+      "name": "KA",
+      "normalized_name": "ka",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "and AWS auto-scaling with on-demand EC2 instance",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "automating deployment of backend to AWS Elastic Beanstalk",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "ChatGPT/Gemini for automated license validation and OCR based data extraction.",
+      "org": null
+    },
+    {
+      "name": "Data Structures and Algorithms Certificate",
+      "org": null
+    },
+    {
+      "name": "Object- Oriented Programming Certificate",
+      "org": null
+    }
+  ]
+}

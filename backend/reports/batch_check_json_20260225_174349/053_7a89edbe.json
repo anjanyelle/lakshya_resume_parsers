@@ -1,0 +1,98 @@
+{
+  "contact": {
+    "name": "Shashiyadav Vallala",
+    "email": "vallalashashi9848@gmail.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Intern",
+      "company": "Software Developer",
+      "start": null,
+      "end": null,
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": "AVN College of Engineering and Technology, B.Tech in Information Technology",
+      "degree": "B.Tech",
+      "field_of_study": "Information Technology",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": "Narayana junior college, MPC",
+      "degree": "High School",
+      "field_of_study": null,
+      "start": null,
+      "end": null
+    }
+  ],
+  "skills": [
+    {
+      "name": "React",
+      "normalized_name": "react",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Node.js",
+      "normalized_name": "node.js",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "MongoDB",
+      "normalized_name": "mongodb",
+      "category": "Databases"
+    },
+    {
+      "name": "MySQL",
+      "normalized_name": "mysql",
+      "category": "Databases"
+    },
+    {
+      "name": "Problem Solving",
+      "normalized_name": "problem solving",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "HTML",
+      "normalized_name": "html",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "CSS",
+      "normalized_name": "css",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "VS Code",
+      "normalized_name": "vs code",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Jupyter",
+      "normalized_name": "jupyter",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Debugging",
+      "normalized_name": "debugging",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certification by Great Learning Academy on React JS",
+      "org": null
+    },
+    {
+      "name": "Certification by Great Learning Academy on Introduction to JavaScript",
+      "org": null
+    },
+    {
+      "name": "Certification by Great Learning Academy on End-to-End MySQL:Schema to Subqueries",
+      "org": null
+    }
+  ]
+}

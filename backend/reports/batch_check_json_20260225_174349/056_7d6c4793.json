@@ -1,0 +1,216 @@
+{
+  "contact": {
+    "name": "Sophia Martinez",
+    "email": "sophia.martinez.ui@email.com",
+    "location": "San Francisco, CA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Lead Frontend Architect",
+      "company": null,
+      "start": "2023-01-01",
+      "end": null,
+      "current": true
+    },
+    {
+      "title": "Person Frontend Team",
+      "company": "than 2 seconds and enabled instant Hot Module Replacement (HMR)",
+      "start": "2020-02-01",
+      "end": "2022-12-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": null,
+      "degree": null,
+      "field_of_study": null,
+      "start": "2014-02-01",
+      "end": "2018-02-01"
+    }
+  ],
+  "skills": [
+    {
+      "name": "React",
+      "normalized_name": "react",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Git",
+      "normalized_name": "git",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitHub",
+      "normalized_name": "github",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "GitLab",
+      "normalized_name": "gitlab",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Agile",
+      "normalized_name": "agile",
+      "category": "Methodologies"
+    },
+    {
+      "name": "Datadog",
+      "normalized_name": "datadog",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "UI/UX",
+      "normalized_name": "ui/ux",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Frontend",
+      "normalized_name": "frontend",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Backend",
+      "normalized_name": "backend",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "JIRA",
+      "normalized_name": "jira",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Confluence",
+      "normalized_name": "confluence",
+      "category": "DevOps & Containers"
+    },
+    {
+      "name": "Pair Programming",
+      "normalized_name": "pair programming",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Collaboration",
+      "normalized_name": "collaboration",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Figma",
+      "normalized_name": "figma",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Zeplin",
+      "normalized_name": "zeplin",
+      "category": "Project Tools"
+    },
+    {
+      "name": "InVision",
+      "normalized_name": "invision",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Abstract",
+      "normalized_name": "abstract",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Sketch.",
+      "normalized_name": "sketch.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Vite",
+      "normalized_name": "vite",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Rollup",
+      "normalized_name": "rollup",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SWC",
+      "normalized_name": "swc",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Babel",
+      "normalized_name": "babel",
+      "category": "Project Tools"
+    },
+    {
+      "name": "ESLint",
+      "normalized_name": "eslint",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Prettier",
+      "normalized_name": "prettier",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Husky",
+      "normalized_name": "husky",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Monitoring",
+      "normalized_name": "monitoring",
+      "category": "Project Tools"
+    },
+    {
+      "name": "RUM",
+      "normalized_name": "rum",
+      "category": "Project Tools"
+    },
+    {
+      "name": "LogRocket",
+      "normalized_name": "logrocket",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Mixpanel",
+      "normalized_name": "mixpanel",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Segment.",
+      "normalized_name": "segment.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Linear.",
+      "normalized_name": "linear.",
+      "category": "Project Tools"
+    },
+    {
+      "name": "pair programming sessions",
+      "normalized_name": "pair programming sessions",
+      "category": "Project Tools"
+    },
+    {
+      "name": "WAS",
+      "normalized_name": "was",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Developer Associate (DVA-C02) - Amazon Web Services (Active)",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Meta Front-End Developer Professional Certificate - Meta (Coursera)",
+      "org": null
+    }
+  ]
+}

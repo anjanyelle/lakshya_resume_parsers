@@ -1,0 +1,156 @@
+{
+  "contact": {
+    "name": "ALEXANDER J. STERLING",
+    "email": "alex.sterling.dev@example.com",
+    "location": "India"
+  },
+  "work_experience": [
+    {
+      "title": "Finstream Technologies",
+      "company": "Lead Full Stack Developer",
+      "start": "2021-01-01",
+      "end": null,
+      "current": true
+    },
+    {
+      "title": "Globalcart Inc",
+      "company": null,
+      "start": "2017-06-01",
+      "end": "2020-12-01",
+      "current": false
+    },
+    {
+      "title": "Cloudflow Systems",
+      "company": "Full Stack Developer",
+      "start": "2014-03-01",
+      "end": "2017-05-01",
+      "current": false
+    },
+    {
+      "title": null,
+      "company": "Georgia Institute of Technology",
+      "start": "2012-01-01",
+      "end": "2014-01-01",
+      "current": false
+    }
+  ],
+  "education": [
+    {
+      "institution": null,
+      "degree": "Master",
+      "field_of_study": "Computer Science",
+      "start": null,
+      "end": null
+    },
+    {
+      "institution": "Georgia Institute of Technology | 2012 - 2014",
+      "degree": "Bachelor of Science",
+      "field_of_study": "Software Engineering",
+      "start": "2012-02-01",
+      "end": "2014-02-01"
+    },
+    {
+      "institution": "University of Texas at Austin | 2008 - 2012",
+      "degree": null,
+      "field_of_study": null,
+      "start": "2008-02-01",
+      "end": "2012-02-01"
+    }
+  ],
+  "skills": [
+    {
+      "name": "React",
+      "normalized_name": "react",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Next.js",
+      "normalized_name": "next.js",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Redux",
+      "normalized_name": "redux",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "AWS",
+      "normalized_name": "aws",
+      "category": "Cloud Platforms"
+    },
+    {
+      "name": "Communication",
+      "normalized_name": "communication",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Leadership",
+      "normalized_name": "leadership",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Project Management",
+      "normalized_name": "project management",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "UI/UX",
+      "normalized_name": "ui/ux",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "SSR",
+      "normalized_name": "ssr",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Frontend",
+      "normalized_name": "frontend",
+      "category": "Programming Languages"
+    },
+    {
+      "name": "Security",
+      "normalized_name": "security",
+      "category": "Project Tools"
+    },
+    {
+      "name": "Adaptability",
+      "normalized_name": "adaptability",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "Problem Solving",
+      "normalized_name": "problem solving",
+      "category": "Soft Skills"
+    },
+    {
+      "name": "ISR",
+      "normalized_name": "isr",
+      "category": "Project Tools"
+    },
+    {
+      "name": "SSG",
+      "normalized_name": "ssg",
+      "category": "Project Tools"
+    },
+    {
+      "name": "MobX.",
+      "normalized_name": "mobx.",
+      "category": "Project Tools"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect - Professional",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "MongoDB Certified Developer Associate",
+      "org": null
+    },
+    {
+      "name": "Certified ScrumMaster (CSM)",
+      "org": null
+    }
+  ]
+}

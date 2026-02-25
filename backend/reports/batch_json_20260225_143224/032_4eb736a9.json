@@ -1,0 +1,161 @@
+{
+  "pdf": "C:\\Lalataksha V Company\\Main-branch\\Lakshya-LLM-Resume-Parser\\backend\\storage\\resumes\\default\\4eb736a9-2faf-46ed-bca2-24d0a13a32ee\\e597d556-a754-40a4-9e7e-172c8ed4fefe\\original.pdf",
+  "text_preview": "elena.rostova.sec@email.com | +1 (555) 492-1039 | San Jose, CA\nlinkedin.com/in/elenarostovasec | github.com/elenarostovasec\nProfessional Summary\nHighly analytical and strategic Lead Cybersecurity Engineer with 9 years of comprehensive experience in architecting, implementing, and defending enterprise-grade cloud infrastructures and SaaS\nplatforms. Specialization in DevSecOps automation, Cloud Secu",
+  "contact": {
+    "name": "Professional Summary",
+    "email": "elena.rostova.sec@email.com",
+    "location": "San Jose, CA, India"
+  },
+  "work_experience": [
+    {
+      "title": "Elena Rostova",
+      "company": null,
+      "start": "2020-01-01",
+      "end": null,
+      "current": true,
+      "bullets": [
+        "Architected and automated a comprehensive Cloud Security Posture Management (CSPM) framework utilizing AWS Security Hub, Prisma Cloud, and custom Python lambda functions, achieving a 99.8% continuous",
+        "Led the DevSecOps transformation initiative, seamlessly integrating Checkmarx (SAST), Snyk (SCA), and",
+        "Engineered custom automated incident response playbooks within Palo Alto Cortex XSOAR, integrating"
+      ]
+    },
+    {
+      "title": "Across 15+ Enterprise Client Networks",
+      "company": null,
+      "start": "2017-03-01",
+      "end": "2019-12-01",
+      "current": false,
+      "bullets": []
+    },
+    {
+      "title": "Tx",
+      "company": "Austin",
+      "start": "2015-06-01",
+      "end": "2017-02-01",
+      "current": false,
+      "bullets": [
+        "Led the technical investigation and containment of a major ransomware outbreak (Ryuk variant) for a",
+        "Developed over 100 custom YARA rules and Splunk SPL queries to detect obfuscated PowerShell execution,",
+        "Conducted deep-dive memory forensics using Volatility and disk forensics using Autopsy to construct timeline"
+      ]
+    }
+  ],
+  "education": [],
+  "skills": [
+    {
+      "name": "python",
+      "category": "Programming Languages",
+      "conf": 0.6
+    },
+    {
+      "name": "react",
+      "category": "Frameworks",
+      "conf": 0.6
+    },
+    {
+      "name": "aws",
+      "category": "Cloud Platforms",
+      "conf": 0.6
+    },
+    {
+      "name": "kubernetes",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "docker",
+      "category": "Tools",
+      "conf": 0.6
+    },
+    {
+      "name": "communication",
+      "category": "Soft Skills",
+      "conf": 0.6
+    },
+    {
+      "name": "san jose",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ca",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "gitlab ci",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "checkmarx",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "snyk",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "defectdojo",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "owasp zap",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "zeek",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "gitlab",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "ci/cd",
+      "category": null,
+      "conf": 0.45
+    },
+    {
+      "name": "javascript",
+      "category": "Programming Languages",
+      "conf": 0.4
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Access (ZPA) and AWS Identity-Aware Proxies",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "credential stuffing attacks, successfully mitigating over 500,000 malicious login attempts monthly with zero",
+      "org": null
+    },
+    {
+      "name": "CISSP (Certified Information Systems Security Professional) - (ISC)2 (Active)",
+      "org": null
+    },
+    {
+      "name": "AWS Certified Security - Specialty - Amazon Web Services",
+      "org": "Amazon Web Services"
+    },
+    {
+      "name": "Offensive Security Certified Professional (OSCP)",
+      "org": null
+    },
+    {
+      "name": "Certified Information Security Manager (CISM)",
+      "org": null
+    },
+    {
+      "name": "GCIH (GIAC Certified Incident Handler) - SANS Institute",
+      "org": null
+    }
+  ]
+}
