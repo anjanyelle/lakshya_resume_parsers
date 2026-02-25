@@ -11,106 +11,22 @@ _RTL_MARKS_RE = re.compile(r"[\u200e\u200f\u202a-\u202e]")
 _MULTISPACE_RUN_RE = re.compile(r"[ \t]{2,}")
 _BULLET_RE = re.compile(r"[\u2022\u2023\u25E6\u2043\u2219\uf0b7\uf0a7\uf0d8\uf0fc▪]")
 
-_TABLE_PIPE_ROW_RE = re.compile(r"^[^\|]+\|[^\|]+(\|[^\|]+)*$")
-_MONTH_RE = re.compile(
-    r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)\b",
-    re.IGNORECASE,
+# Split CamelCase like:
+# AWSCertifiedSolutionsArchitect -> AWS Certified Solutions Architect
+_CAMEL_CASE_SPLIT_RE = re.compile(
+    r"""
+    (?<=[a-z])(?=[A-Z])|
+    (?<=[A-Z])(?=[A-Z][a-z])|
+    (?<=[A-Za-z])(?=\d)|
+    (?<=\d)(?=[A-Za-z])
+    """,
+    re.VERBOSE,
 )
-_YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
-_DATE_SEP_RE = re.compile(r"\b\d{1,2}[\-/]\d{2,4}\b")
 
-_EXTRA_TECH = [
-    "python",
-    "java",
-    "javascript",
-    "typescript",
-    "react",
-    "node.js",
-    "docker",
-    "kubernetes",
-    "terraform",
-    "ansible",
-    "jenkins",
-    "github actions",
-    "gitlab",
-    "bitbucket",
-    "jira",
-    "confluence",
-    "mongodb",
-    "postgresql",
-    "postgres",
-    "mysql",
-    "redis",
-    "elasticsearch",
-    "graphql",
-    "grpc",
-    "kafka",
-    "rabbitmq",
-    "celery",
-    "fastapi",
-    "nextjs",
-    "nestjs",
-    "express",
-    "spring boot",
-    "django",
-    "flask",
-    "pandas",
-    "numpy",
-    "scikit-learn",
-    "pytorch",
-    "tensorflow",
-    "langchain",
-    "openai",
-    "huggingface",
-    "airflow",
-    "spark",
-    "databricks",
-    "snowflake",
-    "bigquery",
-    "aws",
-    "azure",
-    "gcp",
-    "sql",
-    "git",
-    "linux",
-]
-_TECH_PATTERN = "|".join(
-    re.escape(t) for t in sorted(set(_EXTRA_TECH), key=len, reverse=True)
-)
-_TECH_KEYWORD_RE = re.compile(rf"\b({_TECH_PATTERN})\b", re.IGNORECASE)
-
-_VERB_HINTS = [
-    r"develop(?:ed|ing)?",
-    r"build(?:s|ing|t)?",
-    r"implement(?:ed|ing)?",
-    r"manage(?:d|ment|s)?",
-    r"lead(?:s|ing)?",
-    r"led",
-    r"design(?:ed|ing)?",
-    r"create(?:d|ing)?",
-    r"optimi[sz](?:ed|ing)?",
-    r"deliver(?:ed|ing)?",
-    r"responsible\s+for",
-    r"collaborat(?:ed|ing)",
-    r"improv(?:ed|ing)",
-    r"proficient",
-    r"experienced",
-    r"skilled",
-    r"expertise",
-    r"knowledge\s+of",
-    r"familiar\s+with",
-    r"hands-on",
-    r"certified",
-    r"working\s+knowledge",
-    r"strong\s+background",
-]
-_VERB_HINT_RE = re.compile(
-    rf"\b({'|'.join(_VERB_HINTS)})\b",
-    re.IGNORECASE,
-)
-_PRONOUN_HINT_RE = re.compile(r"\b(i|my|me|we|our)\b|\bresponsible\s+for\b", re.IGNORECASE)
-_CAPITAL_PRONOUN_RE = re.compile(r"^(I|My|The|Our)\s+", re.IGNORECASE)
-
+def split_camel_case(text: str) -> str:
+    if not text:
+        return text
+    return _CAMEL_CASE_SPLIT_RE.sub(" ", text)
 
 def _repair_common_urls(text: str) -> str:
     cleaned = text
@@ -135,6 +51,7 @@ def _repair_common_urls(text: str) -> str:
 
 def normalize_text(text: str) -> str:
     cleaned = unicodedata.normalize("NFKC", text)
+    cleaned = split_camel_case(cleaned)
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
     cleaned = _RTL_MARKS_RE.sub("", cleaned)
@@ -196,7 +113,60 @@ def normalize_resume_text(
     cleaned = "\n".join(line.rstrip() for line in cleaned.split("\n"))
     cleaned = cleaned.strip()
     cleaned = fix_ocr_errors(cleaned)
+    #Enterprise Upgrade: Split CamelCase Certifications
+    cleaned = split_camel_case(cleaned)
     return cleaned
+
+
+def fix_concatenated_words(s: str) -> str:
+    """Insert spaces in concatenated words (e.g. IndianInstituteofTechnology -> Indian Institute of Technology).
+    Handles PDF/OCR output or pipeline text that lost spaces between words."""
+    if not s or len(s) < 3:
+        return s
+    # "of" or "at" followed by uppercase -> insert space (e.g. "InstituteofTechnology" -> "Institute of Technology")
+    s = re.sub(r"\b(of|at)([A-Z])", r"\1 \2", s, flags=re.IGNORECASE)
+    # lowercase letter + "of" + uppercase (e.g. "InstituteofTechnology", "CollegeofBusiness")
+    s = re.sub(r"([a-z])of([A-Z])", r"\1 of \2", s)
+    # lowercase letter + "in" + uppercase (e.g. "Sciencein", "Excellencein", "Allocationin")
+    s = re.sub(r"([a-z])in([A-Z])", r"\1 in \2", s)
+    # lowercase letter + "in" + space + uppercase (e.g. "Sciencein Computer" -> "Science in Computer")
+    s = re.sub(r"([a-z])in(\s+)([A-Z])", r"\1 in \2\3", s)
+    # lowercase letter + "at" + uppercase (e.g. "Texasat" -> "Texas at")
+    s = re.sub(r"([a-z])at([A-Z])", r"\1 at \2", s)
+    # lowercase letter + "at" + space + uppercase (e.g. "Texasat Austin" -> "Texas at Austin")
+    s = re.sub(r"([a-z])at(\s+)([A-Z])", r"\1 at \2\3", s)
+    # lowercase letter + "of" + space + uppercase (e.g. "Instituteof Technology", "Collegeof Business")
+    s = re.sub(r"([a-z])of(\s+)([A-Z])", r"\1 of \3", s)
+    # "of" + "the" with no space (e.g. "Recipientofthe", "Presidentofthe")
+    s = re.sub(r"of(the)\b", r" of \1", s, flags=re.IGNORECASE)
+    # lowercase letter + "for" + uppercase (e.g. "Fellowshipfor" -> "Fellowship for")
+    s = re.sub(r"([a-z])for([A-Z])", r"\1 for \2", s)
+    s = re.sub(r"([a-z])for(\s+)([A-Z])", r"\1 for \2\3", s)
+    # semicolon without space before capital (e.g. "Summa Cum Laude;President" -> "; President")
+    s = re.sub(r";([A-Z])", r"; \1", s)
+    # comma without space before capital (e.g. "Cambridge,MA", "Washington,Seattle,WA"); avoid double space
+    s = re.sub(r",(?=[A-Z])(?!\s)", r", ", s)
+    # short abbreviation (2–4 caps) + word (e.g. "UWComputer", "UTComputer", "CMUExcellence", "MITPresidential"); avoid breaking "University"
+    s = re.sub(r"\b(UW|UT|CMU|MIT|USC|NYU|UCLA|UNC)([A-Z][a-z])", r"\1 \2", s)
+    # period + caps + word (e.g. ".NETMicroservices" -> ".NET Microservices")
+    s = re.sub(r"(\.)([A-Z]{2,})([A-Z][a-z]+)", r"\1\2 \3", s)
+    # letter + "&" + letter (e.g. "Management&Operations" -> "Management & Operations")
+    s = re.sub(r"([A-Za-z])(&)([A-Za-z])", r"\1 \2 \3", s)
+    # ")%" or ")letter" without space after comma (e.g. "Business),At" -> "Business), At")
+    s = re.sub(r"(\))\s*,([A-Za-z])", r"\1, \2", s)
+    # All-caps compound institution names (e.g. "MYUNIVERSITY" -> "MY UNIVERSITY")
+    s = re.sub(r"\bMYUNIVERSITY\b", "MY UNIVERSITY", s, flags=re.IGNORECASE)
+    # "Top5%" / "Top10%" etc.
+    s = re.sub(r"([A-Za-z])(\d%?)", r"\1 \2", s)
+    # lowercase followed by uppercase -> insert space (e.g. "IndianInstitute" -> "Indian Institute")
+    s = re.sub(r"([a-z])([A-Z])", r"\1 \2", s)
+    # letter followed by ( -> insert space (e.g. "Technology(IIT)" -> "Technology (IIT)")
+    s = re.sub(r"([a-zA-Z])(\()", r"\1 \2", s)
+    # ) followed by letter -> insert space (e.g. "IIT),Bombay" -> "IIT) , Bombay")
+    s = re.sub(r"(\))([A-Za-z])", r"\1 \2", s)
+    # digit followed by uppercase word (e.g. "2015TestCase" -> "2015 TestCase") so noise can be stripped
+    s = re.sub(r"(\d)([A-Z][a-z])", r"\1 \2", s)
+    return s
 
 
 def fix_ocr_errors(text: str) -> str:
@@ -224,204 +194,3 @@ def fix_ocr_errors(text: str) -> str:
 
     text = re.sub(r"\b[A-Za-z0-9]{2,}\b", _fix_token, text)
     return text
-
-
-def _looks_date_like(value: str) -> bool:
-    cleaned = (value or "").strip()
-    if not cleaned:
-        return False
-    lowered = cleaned.lower()
-    if "present" in lowered or "current" in lowered:
-        return True
-    if _MONTH_RE.search(cleaned):
-        return True
-    if _YEAR_RE.search(cleaned):
-        return True
-    if _DATE_SEP_RE.search(cleaned):
-        return True
-    return False
-
-
-def _looks_company_or_title_like(value: str) -> bool:
-    cleaned = re.sub(r"\s+", " ", (value or "")).strip()
-    if not cleaned:
-        return False
-    if len(cleaned) > 90:
-        return False
-    letters = sum(1 for ch in cleaned if ch.isalpha())
-    if letters < 2:
-        return False
-    return True
-
-
-def _normalize_table_lines_with_stats(text: str) -> tuple[str, bool, int]:
-    if not text:
-        return text, False, 0
-
-    out_lines: list[str] = []
-    applied = False
-    normalized_rows = 0
-
-    for raw_line in text.splitlines():
-        line = raw_line.rstrip("\r")
-        stripped = line.strip()
-        if not stripped or "|" not in stripped or not _TABLE_PIPE_ROW_RE.match(stripped):
-            out_lines.append(line)
-            continue
-
-        cells = [c.strip() for c in stripped.split("|")]
-        cells = [c for c in cells if c]
-        if len(cells) < 2:
-            out_lines.append(line)
-            continue
-
-        date_cells = [c for c in cells if _looks_date_like(c)]
-        company_title_like = sum(1 for c in cells[:3] if _looks_company_or_title_like(c))
-
-        is_headerish = bool(date_cells) and company_title_like >= 2
-        if is_headerish:
-            company = cells[0] if len(cells) >= 1 else ""
-            title = cells[1] if len(cells) >= 2 else ""
-            date_range = ""
-            for c in reversed(cells):
-                if _looks_date_like(c):
-                    date_range = c
-                    break
-            if not date_range and len(cells) >= 3:
-                date_range = cells[2]
-
-            rendered = " | ".join([p for p in [company, title, date_range] if p]).strip()
-            out_lines.append(rendered if rendered else line)
-            continue
-
-        longish = any(len(c) >= 45 or c.count(" ") >= 7 for c in cells)
-        if longish:
-            applied = True
-            normalized_rows += 1
-            for c in cells:
-                cleaned = c.strip()
-                if not cleaned:
-                    continue
-                if cleaned.startswith("-"):
-                    out_lines.append(cleaned)
-                else:
-                    out_lines.append(f"- {cleaned}")
-            continue
-
-        out_lines.append(line)
-
-    return "\n".join(out_lines), applied, normalized_rows
-
-
-def normalize_table_lines(text: str) -> str:
-    normalized, _, _ = _normalize_table_lines_with_stats(text)
-    return normalized
-
-
-def clean_summary_and_skills_sections(
-    sections: dict,
-) -> tuple[dict, dict[str, int]]:
-    if not isinstance(sections, dict) or not sections:
-        return sections, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
-
-    summary_block = sections.get("summary") if isinstance(sections.get("summary"), dict) else None
-    skills_block = sections.get("skills") if isinstance(sections.get("skills"), dict) else None
-    if not isinstance(summary_block, dict) or not isinstance(skills_block, dict):
-        return sections, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
-
-    summary_text = str(summary_block.get("content") or "")
-    skills_text = str(skills_block.get("content") or "")
-
-    summary_lines = [ln.strip() for ln in summary_text.splitlines() if ln.strip()]
-    skills_lines = [ln.strip() for ln in skills_text.splitlines() if ln.strip()]
-
-    def _is_skill_like(line: str) -> bool:
-        cleaned = (line or "").strip("-•* \t").strip()
-        if not cleaned:
-            return False
-        if _TECH_KEYWORD_RE.search(cleaned):
-            return True
-        tokens = [t.strip() for t in re.split(r"[,/|·]", cleaned) if t.strip()]
-        # 3+ items separated by commas, pipes, or slashes
-        if len(tokens) >= 3 and len(cleaned) <= 120:
-            if all(1 <= len(t) <= 25 for t in tokens):
-                return True
-            # No finite verb (no action-verb hints) -> likely skill list
-            if not _VERB_HINT_RE.search(cleaned):
-                return True
-        if cleaned.count(",") >= 2 and len(cleaned) <= 120:
-            return True
-        if re.fullmatch(r"[A-Za-z0-9 +#./-]{2,35}", cleaned) and len(cleaned.split()) <= 4:
-            return True
-        return False
-
-    def _is_sentence_like(line: str, *, min_len: int) -> bool:
-        cleaned = (line or "").strip()
-        # Starts with capital pronoun (I/My/The/Our) -> sentence-like regardless of length
-        if _CAPITAL_PRONOUN_RE.match(cleaned):
-            return True
-        if len(cleaned) < min_len:
-            return False
-        if cleaned.count(" ") < 6:
-            return False
-        # Verb followed by object (SVO) or pronoun + verb
-        if _VERB_HINT_RE.search(cleaned) or _PRONOUN_HINT_RE.search(cleaned):
-            return True
-        if cleaned.endswith(".") and len(cleaned) >= min_len:
-            return True
-        return False
-
-    moved_to_skills: list[str] = []
-    kept_summary: list[str] = []
-    for ln in summary_lines:
-        if _is_skill_like(ln) and not _is_sentence_like(ln, min_len=40):
-            moved_to_skills.append(ln)
-        else:
-            kept_summary.append(ln)
-
-    moved_to_summary: list[str] = []
-    kept_skills: list[str] = []
-    for ln in skills_lines:
-        if _is_sentence_like(ln, min_len=60):
-            moved_to_summary.append(ln)
-        else:
-            kept_skills.append(ln)
-
-    moved_summary_to_skills = len(moved_to_skills)
-    moved_skills_to_summary = len(moved_to_summary)
-
-    out_sections = dict(sections)
-    out_summary = dict(summary_block)
-    out_skills = dict(skills_block)
-
-    all_summary_lines = [*kept_summary, *moved_to_summary]
-    seen = set()
-    deduped = []
-    for line in all_summary_lines:
-        key = line.strip().lower()
-        if key and key not in seen:
-            seen.add(key)
-            deduped.append(line)
-    out_summary["content"] = "\n".join(deduped).strip()
-    if moved_skills_to_summary:
-        out_summary["content_corrected"] = True
-
-    all_skill_lines = [*kept_skills, *moved_to_skills]
-    seen = set()
-    deduped = []
-    for line in all_skill_lines:
-        key = line.strip().lower()
-        if key and key not in seen:
-            seen.add(key)
-            deduped.append(line)
-    out_skills["content"] = "\n".join(deduped).strip()
-    if moved_summary_to_skills:
-        out_skills["content_corrected"] = True
-
-    out_sections["summary"] = out_summary
-    out_sections["skills"] = out_skills
-
-    return out_sections, {
-        "moved_summary_to_skills": int(moved_summary_to_skills),
-        "moved_skills_to_summary": int(moved_skills_to_summary),
-    }
