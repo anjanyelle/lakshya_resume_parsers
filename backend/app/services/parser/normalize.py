@@ -26,7 +26,40 @@ _CAMEL_CASE_SPLIT_RE = re.compile(
 def split_camel_case(text: str) -> str:
     if not text:
         return text
-    return _CAMEL_CASE_SPLIT_RE.sub(" ", text)
+    # Split CamelCase
+    s = _CAMEL_CASE_SPLIT_RE.sub(" ", text)
+    # Enterprise Fix: Repair incorrect "Aust In" / "Berl In" / "Dubl In" splitting caused by OCR normalization
+    if " In" in s or " At" in s:
+        s = re.sub(r"\b(Aust|Berl|Dubl|Lubl|Pek|Tall|Turk|Indi|Chatt|Urb|Beng|Kal)\s+In\b", r"\1in", s, flags=re.IGNORECASE)
+        s = re.sub(r"\b(At)\s+(lanta)\b", r"\1\2", s, flags=re.IGNORECASE)
+    return s
+
+
+def normalize_table_lines(text: str) -> str:
+    """Normalize DOCX table-style text: treat tab/multi-space separators as line breaks so each cell is on its own line."""
+    if not text or not text.strip():
+        return text
+    lines = text.splitlines()
+    out_lines: list[str] = []
+    for line in lines:
+        parts = re.split(r"[\t ]{2,}", line)
+        parts = [p.strip() for p in parts if p.strip()]
+        if parts:
+            out_lines.extend(parts)
+        else:
+            out_lines.append(line.strip())
+    return "\n".join(out_lines)
+
+
+def _normalize_table_lines_with_stats(text: str) -> tuple[str, bool, int]:
+    """Run normalize_table_lines on text; return (cleaned_text, applied, approximate rows normalized)."""
+    if not text or not text.strip():
+        return text, False, 0
+    cleaned = normalize_table_lines(text)
+    applied = cleaned != text
+    count = max(0, cleaned.count("\n") - text.count("\n")) if applied else 0
+    return cleaned, applied, count
+
 
 def _repair_common_urls(text: str) -> str:
     cleaned = text
@@ -166,6 +199,8 @@ def fix_concatenated_words(s: str) -> str:
     s = re.sub(r"(\))([A-Za-z])", r"\1 \2", s)
     # digit followed by uppercase word (e.g. "2015TestCase" -> "2015 TestCase") so noise can be stripped
     s = re.sub(r"(\d)([A-Z][a-z])", r"\1 \2", s)
+    # Enterprise: repair city names wrongly split by ([a-z])in([A-Z]) (e.g. "Aust in Austin" / "Aust in  Austin" -> "Austin Austin")
+    s = re.sub(r"\b(Aust|Berl|Dubl|Lubl|Pek|Tall|Turk|Indi|Chatt|Urb|Beng|Kal)\s+in\s+", r"\1in ", s, flags=re.IGNORECASE)
     return s
 
 
@@ -194,3 +229,81 @@ def fix_ocr_errors(text: str) -> str:
 
     text = re.sub(r"\b[A-Za-z0-9]{2,}\b", _fix_token, text)
     return text
+
+
+def clean_summary_and_skills_sections(payload: dict) -> tuple[dict, dict]:
+    """Normalize summary/skills sections: dedupe lines, move skill-like content from summary to skills, sentence-like from skills to summary.
+    Treats 'technical_skills' section as 'skills' so both headings render skills correctly."""
+    if not isinstance(payload, dict):
+        return payload, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+
+    out = {k: dict(v) if isinstance(v, dict) else v for k, v in payload.items()}
+    counts = {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+
+    summary_block = out.get("summary")
+    skills_block = out.get("skills")
+    tech_skills_block = out.get("technical_skills")
+    if isinstance(tech_skills_block, dict) and isinstance(skills_block, dict):
+        sc = str(skills_block.get("content") or "").strip()
+        tc = str(tech_skills_block.get("content") or "").strip()
+        if tc and (not sc or tc != sc):
+            skills_block = {**skills_block, "content": "\n".join(filter(None, [sc, tc]))}
+    elif isinstance(tech_skills_block, dict) and not isinstance(skills_block, dict):
+        skills_block = dict(tech_skills_block)
+        out["skills"] = skills_block
+    if not isinstance(summary_block, dict):
+        summary_block = {}
+    if not isinstance(skills_block, dict):
+        skills_block = {}
+
+    summary_content = str(summary_block.get("content") or "").strip()
+    skills_content = str(skills_block.get("content") or "").strip()
+
+    summary_lines = [ln.strip() for ln in summary_content.splitlines() if ln.strip()]
+    skills_lines = [ln.strip() for ln in skills_content.splitlines() if ln.strip()]
+
+    seen = set()
+    deduped_summary = []
+    for ln in summary_lines:
+        key = ln.lower()
+        if key not in seen:
+            seen.add(key)
+            deduped_summary.append(ln)
+
+    def is_skill_like(line: str) -> bool:
+        parts = [p.strip() for p in line.split(",") if p.strip()]
+        return len(parts) >= 3
+
+    def is_sentence_like(line: str) -> bool:
+        line_lower = line.lower()
+        if len(line.split()) < 4:
+            return False
+        if line_lower.startswith(("i ", "we ", "my ", "i'm ", "i've ")):
+            return True
+        if any(w in line_lower for w in (" led ", " lead ", " managed ", " built ", " developed ")):
+            return True
+        return False
+
+    to_skills: list[str] = []
+    to_summary: list[str] = []
+    new_summary: list[str] = []
+    new_skills: list[str] = []
+
+    for ln in deduped_summary:
+        if is_skill_like(ln):
+            to_skills.append(ln)
+            counts["moved_summary_to_skills"] += 1
+        else:
+            new_summary.append(ln)
+
+    for ln in skills_lines:
+        if is_sentence_like(ln):
+            to_summary.append(ln)
+            counts["moved_skills_to_summary"] += 1
+        else:
+            new_skills.append(ln)
+
+    out["summary"] = {**summary_block, "content": "\n".join(new_summary + to_summary)}
+    out["skills"] = {**skills_block, "content": "\n".join(new_skills + to_skills)}
+
+    return out, counts

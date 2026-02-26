@@ -18,8 +18,12 @@ from app.workers.celery_app import celery_app
 logger = logging.getLogger(__name__)
 
 
-def _download_s3_to_temp(s3_uri: str) -> Path:
-    temp = tempfile.NamedTemporaryFile(delete=False)
+def _download_s3_to_temp(s3_uri: str, filename_hint: str | None = None) -> Path:
+    """Download S3 object to a temp file, preserving extension for extract_text dispatch."""
+    temp = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=Path(filename_hint or "file.bin").suffix or ".bin",
+    )
     temp_path = Path(temp.name)
     temp.close()
     download_s3_to_file(s3_uri, str(temp_path))
@@ -53,7 +57,12 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
         temp_path = None
         file_path = job.file_path
         if file_path.startswith("s3://"):
-            temp_path = _download_s3_to_temp(file_path)
+            ext_hint = ""
+            if job.filename and "." in job.filename:
+                ext_hint = job.filename
+            elif "." in file_path:
+                ext_hint = Path(file_path).name
+            temp_path = _download_s3_to_temp(file_path, filename_hint=ext_hint or None)
             local_path = temp_path
         else:
             local_path = Path(file_path)

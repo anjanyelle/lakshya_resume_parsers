@@ -89,8 +89,10 @@ async def request_observability(request: Request, call_next):
 
 @app.on_event("startup")
 async def startup() -> None:
-    Path(settings.STORAGE_DIR).mkdir(parents=True, exist_ok=True)
-    logger.info("Storage directory ready at %s", settings.STORAGE_DIR)
+    storage_path = Path(settings.STORAGE_DIR)
+    storage_path.mkdir(parents=True, exist_ok=True)
+    (storage_path / "uploads").mkdir(parents=True, exist_ok=True)
+    logger.info("Storage directory ready at %s (uploads: %s)", settings.STORAGE_DIR, storage_path / "uploads")
     start_queue_metrics_poller(interval_seconds=30)
 
 

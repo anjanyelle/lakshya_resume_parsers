@@ -38,7 +38,8 @@ export interface Education {
   field_of_study?: string | null
   start_date?: string | null
   end_date?: string | null
-  gpa?: number | null
+  gpa?: number | string | null
+  honors?: string | null
   description?: string | null
 }
 

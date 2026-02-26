@@ -36,15 +36,25 @@ DATE_RANGE_RE = re.compile(
     rf"(?P<start>{DATE_TOKEN})\s*(?:\s*(?:[-–—]|to|until|thru|through)\s*)\s*(?P<end>present|current|expected|ongoing|{DATE_TOKEN})",
     re.IGNORECASE,
 )
+# "Expected Dec 2019" or "Expected December 2019" → in-progress graduation
+_EXPECTED_DATE_RE = re.compile(
+    r"Expected\s+(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z.]*\s+)?\d{2,4}",
+    re.IGNORECASE,
+)
+# Full date range with month names (e.g. July-2010 to June 2014, Aug. 2018 – May 2021)
+_DATE_RANGE_FULL_RE = re.compile(
+    rf"(?P<start>{MONTH_TOKEN}[.,]?\s*\d{{2,4}})\s*(?:[-–—]|to)\s*(?P<end>{MONTH_TOKEN}[.,]?\s*\d{{2,4}}|\d{{4}}|present|current|expected|ongoing)",
+    re.IGNORECASE,
+)
 # "Graduated: 2017", "Graduated: 2019"
 GRADUATED_RE = re.compile(r"graduated\s*:\s*(\d{4})", re.IGNORECASE)
 # "Year of passed: 2014" or "Year of passed:"
 YEAR_PASSED_RE = re.compile(r"year\s+of\s+passed\s*:\s*(\d{4})?", re.IGNORECASE)
 YEAR_RE = re.compile(r"\b(19\d{2}|20\d{2})\b")
 GPA_RE = re.compile(
-    r"\b(?P<gpa>\d(?:\.\d{1,2})?)\s*(?:/|of|out of)\s*(?P<scale>\d(?:\.\d)?)\b|"
+    r"\b(?P<gpa>\d(?:\.\d{1,2})?)\s*(?:/|of|out of)\s*(?P<scale>\d{1,2}(?:\.\d{1,2})?)\b|"
     r"\b(?P<pct>\d{2,3})%|"
-    r"\b(?:cum\.?\s*)?(?P<cgpa>cgpa|gpa)[\s:]*(?P<cgpa_val>\d(?:\.\d{1,2})?)\s*(?:/|of|out of)\s*(?P<scale2>\d(?:\.\d)?)?|"
+    r"\b(?:cum\.?\s*)?(?P<cgpa>cgpa|gpa)[\s:]*(?P<cgpa_val>\d(?:\.\d{1,2})?)\s*(?:/|of|out of)\s*(?P<scale2>\d{1,2}(?:\.\d{1,2})?)?|"
     r"\b(?:cum\.?\s*)?(?P<cgpa2>cgpa|gpa)[\s:]*(?P<cgpa_val2>\d(?:\.\d{1,2})?)\b",
     re.IGNORECASE,
 )
@@ -98,6 +108,11 @@ _DEGREE_START_RE = re.compile(
     r"^\s*(?:Bachelor|Master|B\.?Tech|M\.?Tech|B\.?E|M\.?E|MBA|B\.?S|M\.?S|B\.?A|M\.?A|Doctor|Ph\.?D)\b",
     re.IGNORECASE,
 )
+
+_INSTITUTION_LEADING_STOP = re.compile(
+    r"^\s*(?:Master|Bachelor|Science|Business|Administration|University|College|Institute|School|Academy|Project|Summary|Objective|Skills|Certifications?|Experience|Work|Employment)\b",
+    re.IGNORECASE,
+)
 # Common typos in display (e.g. OCR, space-restoration splits)
 _INSTITUTION_TYPO_FIXES = (("technoloav", "Technology"), ("at lanta", "Atlanta"), ("at lanta,", "Atlanta,"))
 # Words that are degree/field terms and must not start institution name (e.g. "Engineering University of X" -> "University of X")
@@ -110,6 +125,8 @@ _NOISE_SUFFIX_RE = re.compile(
     r"\s*(?:[-–—]\s*)?(?:TestCase|Test\s*Case)\s*\d*\.?\d*\s*$",
     re.IGNORECASE,
 )
+# PDF (cid:NN) character reference artifacts from text extraction (e.g. "(cid:17) Karpagam College")
+_CID_RE = re.compile(r"\(cid:\d+\)")
 
 
 @dataclass(frozen=True)
@@ -230,12 +247,19 @@ class EducationParser:
                 if current_text else False
             )
             # New block when this line looks like a second institution (e.g. "Vellore Institute... Bachelors")
+            # ENTERPRISE FIX: Don't split if the current line or previous line ends with 'of' or 'at'
+            # (handles "University of \n Colorado Boulder")
+            prev_line_ends_with_prep = bool(current and current[-1].lower().endswith((" of", " at")))
+            line_starts_with_prep = bool(line.lower().startswith(("of ", "at ")))
+
             line_starts_with_institution = bool(
-                re.match(r"^[A-Z][a-z]+.*?\b(?:University|College|Institute|School of|Academy)\b", line)
+                re.match(r"^[A-Za-z][a-z]+.*?\b(?:University|College|Institute|School of|Academy)\b", line)
             )
             is_second_institution_line = (
                 bool(current)
                 and current_has_institution
+                and not prev_line_ends_with_prep
+                and not line_starts_with_prep
                 and (
                     (current_has_degree and not is_degree_line and not is_degree_label)
                     or (line_starts_with_institution and _DEGREE_LINE_RE.search(line))
@@ -323,6 +347,9 @@ class EducationParser:
             return None
 
         institution = self._clean_institution_for_display(institution)
+        # ENTERPRISE FIX: If institution is a date artifact ("- 2018"), reject it
+        if institution and re.match(r"^[-–—]?\s*\d{4}\s*\.?$", institution.strip()):
+            institution = None
         field = self._normalize_field_of_study(field, degree, institution)
         # Normalize all string outputs: restore spaces in concatenated text, strip pipes/noise (multi-format/PDF-safe)
         institution = _normalize_text_for_display(institution)
@@ -337,10 +364,14 @@ class EducationParser:
         if institution is None and degree and degree.strip().lower() == "degree":
             return None
         # Reject entry with no institution and only a short acronym as field (e.g. "EMR" from unrelated text)
-        if institution is None and field and len(field.strip()) <= 4 and not (gpa or honors or (start and end)):
+        if institution is None and field and len(field.strip()) <= 4 and not (gpa or honors or (start or end)):
             return None
         # Reject entry with only dates (no institution, degree, or field) — e.g. date picked up from experience
         if not institution and not degree and not field:
+            return None
+        # ENTERPRISE FIX: Reject ghost entries that have ONLY dates and no substantive content
+        # (prevents 2013-2015 date-only rows from secondary education sections)
+        if not degree and not field and not gpa and not honors and institution is None:
             return None
 
         return EducationEntry(
@@ -360,9 +391,25 @@ class EducationParser:
         if not inst or not inst.strip():
             return inst
         s = inst.strip()
+        # ENTERPRISE FIX: Reject pure date-artifact strings like "- 2018"
+        if re.match(r"^[-–—]?\s*\d{4}\s*\.?$", s):
+            return None
         # Fix common typos (e.g. truncation "Technoloav")
         for wrong, right in _INSTITUTION_TYPO_FIXES:
             s = re.sub(re.escape(wrong), right, s, flags=re.IGNORECASE)
+        # ENTERPRISE FIX: Strip duplicate "| Graduated: Month YYYY" patterns (appears when single-line has two Graduated markers)
+        s = re.sub(r"(\|\s*Graduated\s*:\s*[A-Za-z]*\s*\d{4})(?:\s*\|\s*Graduated\s*:\s*[A-Za-z]*\s*\d{4})+", r"\1", s, flags=re.IGNORECASE)
+        # ENTERPRISE FIX: Strip all "| Graduated: ..." entries from institution (should be in end_date, not institution)
+        s = re.sub(r"\s*\|?\s*Graduated\s*:\s*[A-Za-z]*\s*\d{4}\s*", " ", s, flags=re.IGNORECASE).strip()
+        # ENTERPRISE FIX: Strip trailing GPA from institution
+        s = re.sub(r"\s*\|\s*(?:CG?PA|GPA)\s*[:\s]*[\d./]+[%]?\.?\s*$", "", s, flags=re.IGNORECASE).strip()
+        # ENTERPRISE FIX: Strip trailing pipe+location chain ("| Meerut, Uttar Pradesh - |")
+        for _ in range(3):
+            prev = s
+            s = re.sub(r"\s*[|]\s*[A-Za-z][A-Za-z\s,.-]*(?:,\s*[A-Za-z]{2,})?\s*$", "", s).strip()
+            s = re.sub(r"\s*[-–—]\s*$", "", s).strip()
+            if s == prev:
+                break
         # Strip trailing "Graduated: ...", "Thesis: ...", "Specialization in ...", "Honors: ..."
         s = _INSTITUTION_STOP_RE.sub("", s).strip()
         # If line starts with degree keyword, keep only from (last) University/College/Institute and optional preceding name
@@ -373,24 +420,57 @@ class EducationParser:
                 m = matches[-1]
                 start_idx = m.start()
                 rev = s[:start_idx].rstrip()
-                # Include up to 4 preceding words if they look like institution name (e.g. "Georgia", "Leeds School")
-                if rev and len(rev.split()) <= 4 and not _DEGREE_START_RE.match(rev):
+                # Include up to 8 preceding words if they look like institution name (e.g. "Georgia", "Leeds School", "Technology Management")
+                if rev and len(rev.split()) <= 8 and not _DEGREE_START_RE.match(rev):
                     start_idx = 0
                 else:
-                    # Include at least the last word before keyword (e.g. "MLWE college" not just "college")
-                    if rev:
+                    # Include leading capitalized words that might be part of the name
+                    rev_parts = rev.split()
+                    lookback = 0
+                    for part in reversed(rev_parts):
+                        if part[0].isupper() or part.lower() in {"of", "at", "in", "for", "&", "and", "the"}:
+                            lookback += 1
+                        else:
+                            break
+                    if lookback > 0:
+                        if lookback < len(rev_parts):
+                            start_idx = len(" ".join(rev_parts[:-lookback])) + 1
+                        else:
+                            # rev is all degree/field words (e.g. "Bachelor of Science in Computer Science Purdue"); keep only from last institution name word
+                            _DEGREE_FIELD_WORDS = {
+                                "bachelor", "master", "of", "in", "science", "arts", "engineering",
+                                "technology", "computer", "business", "administration", "&",
+                            }
+                            start_idx = 0
+                            for i in range(len(rev_parts) - 1, -1, -1):
+                                w = rev_parts[i].lower().rstrip(".'")
+                                if w not in _DEGREE_FIELD_WORDS and len(w) > 1:
+                                    pos = s.find(rev_parts[i])
+                                    if pos >= 0:
+                                        start_idx = pos
+                                        break
+                    else:
+                        # Fallback: at least the last word
                         last_word_start = rev.rfind(" ") + 1 if " " in rev else 0
-                        if last_word_start >= 0 and not _DEGREE_START_RE.match(rev[last_word_start:]):
-                            start_idx = last_word_start
+                        start_idx = last_word_start
                 s = s[start_idx:].strip()
         # Strip trailing " - YYYY." or " - City, ST" that might remain
         s = re.sub(r"\s*[-–—]\s*\d{4}\s*\.?\s*$", "", s).strip()
-        s = re.sub(r"\s*[-–—]\s*[A-Za-z\s,]+\s*$", "", s).strip()
+        # ENTERPRISE FIX: Only strip " - City, ST" if it follows a DASH or PIPE
+        s = re.sub(r"\s*[-–—|]\s*[A-Za-z\s,]{4,}\s*$", "", s).strip()
         # Strip leading degree/field words wrongly prepended to institution (e.g. "Engineering University of Texas" -> "University of Texas at Austin")
-        while _INSTITUTION_LEADING_STOP.match(s):
-            s = _INSTITUTION_LEADING_STOP.sub("", s, count=1).strip()
-            if not re.match(r"\b(?:University|College|Institute|School of|Academy)\b", s, re.IGNORECASE):
+        # ENTERPRISE FIX: Broader strip but stop if University/College keyword is found anywhere in the line
+        # This prevents stripping "University of" from "Technology Management University of..."
+        while _INSTITUTION_LEADING_STOP.match(s) or re.match(r"^\s*(?:Emphasis|Major|Concentration|Focus)\s+(?:in|of)\s+", s, re.IGNORECASE):
+            # If word is a keyword, don't strip it if it's the start of the core name
+            if re.match(r"^\s*(?:University|College|Institute|School of|Academy)\b", s, re.IGNORECASE):
                 break
+            # Also don't strip if stripping would leave a name fragment (e.g. "of Colorado Boulder")
+            if re.match(r"^\s*(?:of|at|in|for)\s+", s, re.IGNORECASE):
+                break
+                
+            s = re.sub(r"^\s*(?:Emphasis|Major|Concentration|Focus)\s+(?:in|of)\s+", "", s, flags=re.IGNORECASE).strip()
+            s = _INSTITUTION_LEADING_STOP.sub("", s, count=1).strip()
         return s if s and len(s) > 2 else inst
 
     def _normalize_field_of_study(
@@ -406,11 +486,24 @@ class EducationParser:
         if re.match(r"^[-–—]\s*\w*\s*$", f) or (len(f) <= 3 and f[0] in "-–—"):
             return None
         # Strip institution name and location from end of field (e.g. "Computer Science Purdue University - West Lafayette" -> "Computer Science")
-        if institution and f:
-            inst_esc = re.escape(institution)
-            f = re.sub(r"\s*" + inst_esc + r"\s*(?:\s*[-–—]\s*[A-Za-z\s,]+)?\s*$", "", f, flags=re.IGNORECASE).strip()
-            if not f:
-                return field
+        if institution:
+            inst_kw = re.search(r"\b(?:University|College|Institute|School)\b", institution, re.IGNORECASE)
+            if inst_kw:
+                core_inst = institution[:inst_kw.end()].strip()
+                f = re.sub(re.escape(core_inst), "", f, flags=re.IGNORECASE).strip().rstrip("&,.-")
+            # Also strip the whole institution if it's there
+            f = re.sub(re.escape(institution), "", f, flags=re.IGNORECASE).strip().rstrip("&,.-")
+            # Strip trailing first word(s) of institution when field accidentally ends with it (e.g. "Computer Science Purdue" -> "Computer Science")
+            inst_parts = institution.split()
+            if inst_parts and len(f) > 3:
+                first_word = inst_parts[0]
+                if len(first_word) >= 2 and first_word.isalnum():
+                    f = re.sub(r"\s+" + re.escape(first_word) + r"\s*$", "", f, flags=re.IGNORECASE).strip()
+        
+        # ENTERPRISE FIX: Specific check for honors leakage
+        if re.search(r"\b(?:All Semesters|Dean'?s List|Honors|Distinction)\b", f, re.IGNORECASE):
+            return None
+            
         # Strip trailing "X University - City" or "University of X - City" when not the institution param
         f = re.sub(
             r"\s+(?:[A-Za-z]+\s+)?(?:University|College|Institute)\s+[A-Za-z\s&.,'()-]*(?:\s*[-–—]\s*[A-Za-z\s,]+)?\s*$",
@@ -498,6 +591,22 @@ class EducationParser:
                         return inst
                     continue
                 cleaned = self._clean_institution_line(line)
+                # ENTERPRISE FIX: If name ends in 'of' or 'at', it's likely split across lines
+                if re.search(r"\b(?:of|at)\s*$", cleaned, re.IGNORECASE):
+                    current_idx = -1
+                    for idx, candidate_line in enumerate(lines):
+                        if candidate_line.strip() == line.strip():
+                            current_idx = idx
+                            break
+                    if current_idx != -1 and current_idx + 1 < len(lines):
+                        next_line = lines[current_idx + 1]
+                        # Don't append if next line STARTS with a year or degree
+                        if not re.match(r"^\s*(?:19|20)\d{2}\b", next_line) and not _DEGREE_LINE_RE.search(next_line):
+                            # Append the name part of the next line (don't split by dash here, keep name like Colorado Boulder - Leeds)
+                            name_part = next_line.strip().split("|")[0].strip()
+                            if name_part:
+                                cleaned += " " + name_part
+
                 if (
                     len(cleaned) > 5
                     and not re.match(r"^\d{4}$", cleaned)
@@ -575,8 +684,12 @@ class EducationParser:
         best: str | None = None
         for m in re.finditer(pattern, text, re.IGNORECASE):
             cand = m.group(1).strip()
+            # ENTERPRISE FIX: Reject candidates starting with dash/pipe (date artifacts like "- 2018")
+            if re.match(r"^[-–—|]", cand):
+                continue
             cand = re.sub(r"\s+Graduated\s*:.*$", "", cand, flags=re.IGNORECASE).strip()
-            cand = re.sub(r"\s*\|\s*[A-Za-z\s,]+$", "", cand).strip()
+            # ENTERPRISE FIX: Strip all pipe-separated suffixes (| Graduated: ..., | City, ST)
+            cand = re.sub(r"\s*\|.*$", "", cand).strip()
             cand = re.sub(r"\s*[-–—]\s*[A-Za-z\s,]+$", "", cand).strip()  # " – Seattle, WA"
             # Strip trailing date parts: " - June 2010 - July 2014" or " - June 2010 - July"
             cand = re.sub(
@@ -599,16 +712,29 @@ class EducationParser:
         """Clean an institution line by removing label prefixes and trailing dates.
         Uses a safer date-stripping approach that won't eat institution names."""
         cleaned = line.strip()
+        # Reject pure date-artifact lines like "- 2018" or "- 2025"
+        if re.match(r"^[-–—]\s*\d{4}\s*$", cleaned):
+            return ""
         # Remove bullet markers
         cleaned = re.sub(r"^[•·▪\-\*]\s*", "", cleaned).strip()
         # Remove label prefix like "College:", "University:", "Institution:"
         cleaned = _INSTITUTION_PREFIX_RE.sub("", cleaned).strip()
+        # ENTERPRISE FIX: Strip "| GPA: X" or "| GPA: X/Y" from institution line
+        cleaned = re.sub(r"\s*\|\s*(?:CG?PA|GPA)\s*[:\s]*[\d./]+[%]?\.?\s*$", "", cleaned, flags=re.IGNORECASE).strip()
+        # ENTERPRISE FIX: Strip trailing "- | City, ST" or "- | Location" chains (pipe+dash combos)
+        cleaned = re.sub(r"\s*[-–—]\s*\|\s*[A-Za-z][A-Za-z\s,]+\s*$", "", cleaned).strip()
+        # ENTERPRISE FIX: Strip trailing " | City, ST" multiple times (handles double-pipes)
+        for _ in range(3):
+            prev = cleaned
+            cleaned = re.sub(r"\s*\|\s*[A-Za-z][A-Za-z\s,.-]*(?:,\s*[A-Za-z]{2,})?\s*$", "", cleaned).strip()
+            if cleaned == prev:
+                break
+        # ENTERPRISE FIX: Strip remaining trailing " - " when nothing follows
+        cleaned = re.sub(r"\s*[-–—]\s*$", "", cleaned).strip()
         # Remove trailing "Graduated: YYYY" or "Graduated:"
         cleaned = re.sub(r"\s+Graduated\s*:\s*\d*\s*$", "", cleaned, flags=re.IGNORECASE).strip()
         # Remove trailing " – 2014." or " - 2014." (single year with dash)
         cleaned = re.sub(r"\s*[-–—]\s*\d{4}\s*\.?\s*$", "", cleaned).strip()
-        # Remove trailing " | City, ST" or " | Seattle, WA"
-        cleaned = re.sub(r"\s*\|\s*[A-Za-z\s,]+$", "", cleaned).strip()
         # Remove trailing standalone month (e.g. "Vellore July" when July is date part -> "Vellore")
         cleaned = re.sub(
             r"\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*$",
@@ -711,6 +837,9 @@ class EducationParser:
             # Use word-boundary regex to avoid substring matches
             # (e.g., "ug" matching inside "Douglas")
             if re.search(rf"\b{re.escape(keyword_l)}\b", lowered):
+                # ENTERPRISE FIX: Reject generic placeholder "Degree"
+                if keyword_l == "degree" or keyword_l.lower() == "degree":
+                    continue
                 return keyword.title()
 
         # Pattern-based extraction for common degree formats
@@ -738,6 +867,9 @@ class EducationParser:
                 "MA", "BA", "PHD", "DBA", "MPA", "MPH", "MSW", "MFA",
             }
             if acronym_match.group(1).upper() in common_degrees:
+                # ENTERPRISE FIX: Additional blacklist for "Degree" placeholder
+                if acronym_match.group(1).upper() == "DEGREE":
+                    return None
                 return acronym_match.group(1).upper()
 
         # Check for year-based qualifications (e.g., "12th grade", "10+2")
@@ -796,7 +928,7 @@ class EducationParser:
         # Parenthetical field e.g. "B.Tech (Computer Science)" — prefer field-like content over institution abbrev (JNTUH) or institution name (Scheller College of Business)
         for paren_match in re.finditer(r"\(\s*([A-Za-z][A-Za-z\s&/\-]{2,50})\s*\)", text):
             f = paren_match.group(1).strip()
-            if re.match(r"^(?:MBA|B\.?Tech|M\.?Tech|B\.?E|M\.?E|B\.?S|M\.?S|B\.?A|M\.?A|Ph\.?D|B\.?Sc|M\.?Sc|LLB|LLM|MBBS|JNTUH|IIT|AIIMS)$", f, re.IGNORECASE):
+            if re.match(r"^(?:MBA|B\.?Tech|M\.?Tech|B\.?E|M\.?E|B\.?S|M\.?S|B\.?A|M\.?A|Ph\.?D|B\.?Sc|M\.?Sc|LLB|LLM|MBBS|JNTUH|JNTU|IIT|AIIMS)$", f, re.IGNORECASE):
                 continue
             # Reject institution-style paren (e.g. "Scheller College of Business")
             if re.search(r"\b(?:College|School|Institute|University|Academy)\s+of\b", f, re.IGNORECASE):
@@ -814,6 +946,17 @@ class EducationParser:
             main = with_minors.group(1).strip().rstrip(".,")
             if len(main) > 2:
                 return main
+        # "Bachelor of Technology in X - " or "B.Tech in X - " (field before institution on same line)
+        btech_in_dash = re.search(
+            r"\b(?:b\.?tech|bachelor\s+of\s+technology)\s+in\s+([A-Za-z\s&,/\-]+?)\s*[-–—]\s*(?=[A-Z])",
+            text,
+            re.IGNORECASE,
+        )
+        if btech_in_dash:
+            field = btech_in_dash.group(1).strip().rstrip(".,")
+            if 2 <= len(field.split()) <= 12 and len(field) > 3:
+                if not re.search(r"\b(?:All Semesters|Dean'?s List|Honors|Distinction)\b", field, re.IGNORECASE):
+                    return field
         # Degree: Field form e.g. "Bachelor of Technology: Computer Science Engineering"
         colon_match = re.search(
             r"\b(?:bachelor|master|b\.?tech|m\.?tech|degree)\s+(?:of\s+)?\w+\s*:\s*([A-Za-z][A-Za-z\s&./\-]+?)(?:\s+from\s+|\s*[-–—]\s*|\s*\(|\s*$)",
@@ -826,31 +969,62 @@ class EducationParser:
             field = _TRAILING_MONTH_RE.sub("", field).strip()
             if 2 <= len(field.split()) <= 12 and len(field) > 3:
                 return field
-        # "IN COMPUTER SCIENCE" after BACHELOR OF SCIENCE (all-caps or mixed)
+        # "BACHELOR OF SCIENCE IN Computer Science" — stop AT the institution keyword (not after it)
+        # ENTERPRISE FIX: Use institution-keyword as hard stop so field never includes university name
+        _INST_KW_STOP = r"(?:University|College|Institute|School\s+of|Academy|Polytechnic)"
         in_field = re.search(
-            r"\b(?:bachelor|master)\s+of\s+(?:science|arts|engineering)\s+in\s+([A-Za-z\s&,/\-]+?)(?:\s+with\s+minors|\s*Expected|\s*\d{4}|\s*$|\n)",
+            r"\b(?:bachelor|master)\s+of\s+(?:science|arts|engineering)\s+in\s+([A-Za-z\s&,/\-]+?)\s+" + _INST_KW_STOP + r"\b",
             text,
             re.IGNORECASE,
         )
+        if not in_field:
+            # Fallback: capture up to EOL/digit/with-minors without institution keywords
+            in_field = re.search(
+                r"\b(?:bachelor|master)\s+of\s+(?:science|arts|engineering)\s+in\s+([A-Za-z\s&,/\-]+?)(?:\s+with\s+minors|\s*Expected|\s*\d{4}|\s*$|\n)",
+                text,
+                re.IGNORECASE,
+            )
         if in_field:
             field = in_field.group(1).strip().rstrip(".,")
+            # Final safety strip of any remaining university keyword tail
+            m_inst = re.search(r"\b(?:University|College|Institute)\b", field, re.IGNORECASE)
+            if m_inst:
+                field = field[:m_inst.start()].strip().rstrip("&,.-")
             if 1 <= len(field.split()) <= 15 and len(field) > 2:
-                return field
+                # ENTERPRISE FIX: Blacklist honors noise from field
+                if re.search(r"\b(?:All Semesters|Dean'?s List|Honors|Distinction|First Class)\b", field, re.IGNORECASE):
+                    field = None
+                if field:
+                    # Strip trailing abbreviations like "- PSG", "- IIT", "- MIT"
+                    field = re.sub(r"\s*[-–—]\s*[A-Z]{2,6}\s*$", "", field).strip()
+                    return field
         field_patterns = [
             r"\b(?:in|major in|specialization in|concentration in|focus in|emphasis in)\s+([A-Za-z &/\-]+)",
             r"\b(?:degree|bachelor|master|diploma)\s+(?:of|in)\s+([A-Za-z &/\-]+)",
             r"\b(?:b\.?tech|b\.?e|m\.?tech|m\.?e)\s+[.\s\-–—]*([A-Za-z][A-Za-z\s&/\-]{2,40})",  # avoid capturing "B" from "– B.Tech"
         ]
-        for pattern in field_patterns:
+        for i, pattern in enumerate(field_patterns):
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
                 field = match.group(1).strip()
+                # ENTERPRISE FIX: Truncate at first newline to prevent multi-line contamination
+                field = field.split("\n")[0].strip()
                 field = re.split(r"\b(19\d{2}|20\d{2})\b|,|\(", field)[0].strip()
                 field = re.sub(r"\s+(?:at|from)\s+.*$", "", field, flags=re.IGNORECASE).strip()
                 field = _TRAILING_MONTH_RE.sub("", field).strip()
                 field = re.sub(r"\s+(?:CGPA|GPA|Graduated)\s*:?\s*.*$", "", field, flags=re.IGNORECASE).strip()
+                # ENTERPRISE FIX: Strip trailing university name — find first institution keyword and cut there
+                m_inst = re.search(r"\b(?:University|College|Institute)\b", field, re.IGNORECASE)
+                if m_inst:
+                    field = field[:m_inst.start()].strip().rstrip("&,.-")
+                # ENTERPRISE FIX: Strip trailing abbreviations like "- PSG", "- IIT", "- MIT"
+                # Use a more flexible regex for abbreviations (2-6 letters)
+                field = re.sub(r"\s*[-–—]\s*[A-Z]{2,6}\s*$", "", field).strip()
                 if 2 <= len(field.split()) <= 12 and len(field) > 3:
-                    field = re.sub(r"\s+(and|with|from|at|the)$", "", field, flags=re.IGNORECASE)
+                    # ENTERPRISE FIX: Blacklist honors noise from field (ignore substrings like 'of')
+                    if re.search(r"\b(?:All Semesters|Dean'?s List|Honors|Distinction|First Class)\b", field, re.IGNORECASE):
+                        continue
+                    field = re.sub(r"\s+(and|with|from|at|the|for)$", "", field, flags=re.IGNORECASE)
                     return field.strip()
         return None
 

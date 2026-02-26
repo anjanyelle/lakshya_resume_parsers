@@ -1,13 +1,3 @@
-
-from datetime import date
-
-import pytest
-
-from app.services.parser.education_parser import EducationParser
-
-
-=======
-
 """Comprehensive unit tests for EducationParser.
 
 Covers all 5 user-provided test samples plus edge cases.
