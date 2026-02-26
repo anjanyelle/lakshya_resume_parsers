@@ -1720,6 +1720,11 @@ class SkillExtractor:
         if skills_section_confidence is not None and skills_section_confidence < 0.45:
             section_text = ""
 
+        # Build combined text for FlashText (minimal clean; keep hyphens/multi-word)
+        section_for_flashtext = clean_text_for_flashtext(skills_section or "")
+        raw_for_flashtext = clean_text_for_flashtext(raw_text or "") if raw_text else ""
+        combined_for_flashtext = " ".join(filter(None, [section_for_flashtext, raw_for_flashtext]))
+
         flashtext_matches = self.extract_with_flashtext(combined_for_flashtext, source="technical_skills_section")
 
         # Hybrid: if FlashText found few skills, add legacy extraction but only keep skills in master DB
@@ -1884,7 +1889,13 @@ class SkillExtractor:
             pattern = r"\b" + re.escape(term_lower) + r"\b"
             return bool(re.search(pattern, lowered, re.IGNORECASE))
 
-        for canonical, item in self.normalized_map.items():
+        # STEP 3 — Longest phrase first: match "SQL Server" before "SQL", "AWS Glue" before "Glue"
+        canonical_sorted = sorted(
+            self.normalized_map.items(),
+            key=lambda x: len(x[0]),
+            reverse=True,
+        )
+        for canonical, item in canonical_sorted:
             if _contains_term(canonical) and item["normalized_name"] not in seen_normalized:
                 seen_normalized.add(item["normalized_name"])
                 matches.append(
@@ -1899,7 +1910,12 @@ class SkillExtractor:
                     )
                 )
 
-        for synonym, canonical in self.synonym_map.items():
+        synonym_sorted = sorted(
+            self.synonym_map.items(),
+            key=lambda x: len(x[0]),
+            reverse=True,
+        )
+        for synonym, canonical in synonym_sorted:
             if _contains_term(synonym):
                 item = self.normalized_map[canonical]
                 if item["normalized_name"] not in seen_normalized:

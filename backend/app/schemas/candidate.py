@@ -78,6 +78,7 @@ class SkillBase(BaseModel):
     name: str = Field(..., max_length=150)
     category: Optional[str] = Field(default=None, max_length=100)
     normalized_name: Optional[str] = Field(default=None, max_length=150)
+    source: Optional[str] = Field(default=None, max_length=50)
 
 
 class SkillCreate(SkillBase):

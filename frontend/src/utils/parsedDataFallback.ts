@@ -119,18 +119,39 @@ export function workHistoryFromParsed(
   }))
 }
 
-/** Map parsed_data.education to Education[] */
+/** Map parsed_data.education to Education[] — supports both API shape (description) and parser shape (honors). */
 export function educationFromParsed(items: any[] | undefined): Education[] {
   if (!Array.isArray(items)) return []
-  return items.map((item, idx) => ({
-    id: `parsed-edu-${idx}`,
-    institution: _get(item, 'institution') ?? null,
-    degree: _get(item, 'degree') ?? null,
-    field_of_study: _get(item, 'field_of_study') ?? null,
-    start_date: _get(item, 'start_date') ?? null,
-    end_date: _get(item, 'end_date') ?? null,
-    description: _get(item, 'description') ?? null,
-  }))
+  return items.map((item, idx) => {
+    const description =
+      _get(item, 'description') ?? _get(item, 'honors') ?? null
+    const startDate = _normDateStr(item?.start_date)
+    const endDate = _normDateStr(item?.end_date)
+    return {
+      id: item?.id ?? `parsed-edu-${idx}`,
+      institution: _get(item, 'institution') ?? null,
+      degree: _get(item, 'degree') ?? null,
+      field_of_study: _get(item, 'field_of_study') ?? null,
+      start_date: startDate ?? null,
+      end_date: endDate ?? null,
+      description,
+    }
+  })
+}
+
+/** Normalize date to YYYY-MM-DD string for display (API/parsed may send ISO or date object). */
+function _normDateStr(value: any): string | null | undefined {
+  if (value == null) return undefined
+  if (typeof value === 'string') {
+    const s = value.trim()
+    if (!s) return undefined
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10)
+    return s
+  }
+  if (typeof value === 'object' && typeof value.toISOString === 'function') {
+    return value.toISOString().slice(0, 10)
+  }
+  return undefined
 }
 
 /** Map parsed_data.certifications to Certification[] */

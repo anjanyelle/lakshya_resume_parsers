@@ -1247,6 +1247,31 @@ class LLMParsingService:
             "<<<TEXT>>>\n"
         )
 
+    def extract_technical_skills_only(self, resume_text: str) -> list[str]:
+        """STEP 4 — LLM fallback: extract only technical skills from resume text.
+        Used to validate skills not in DB; if LLM returns a skill, mark as source='llm'."""
+        if not (resume_text and resume_text.strip()):
+            return []
+        prompt = (
+            self._base_system_prompt
+            + "Extract only technical skills from this resume text.\n"
+            "Return only a clean comma-separated list.\n"
+            "Do not include soft skills.\n\n"
+            f"Resume text:\n<<<TEXT>>>\n{resume_text[:8000]}\n<<<TEXT>>>\n"
+        )
+        response = self._call_llm(prompt, task="extract_technical_skills_only")
+        content = (response.content or "").strip()
+        if not content:
+            return []
+        # Parse comma-separated or JSON array
+        content = content.strip("[]\"'")
+        skills: list[str] = []
+        for part in content.split(","):
+            s = part.strip().strip("'\"").strip()
+            if s and len(s) < 100:
+                skills.append(s)
+        return skills
+
     def _structured_resume_from_parts_prompt(
         self,
         payload: dict[str, Any],
