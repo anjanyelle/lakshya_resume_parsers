@@ -14,7 +14,17 @@ from sqlalchemy.orm import Session
 from app.api.deps import enforce_rate_limit, get_current_user, get_db, require_role
 from app.core.config import get_settings
 from app.models import Candidate, Certification, Education, ParsingJob, ReviewStatus, WorkHistory
-from app.schemas.candidate import CandidateRead, CandidateUpdate, ParsingJobRead
+from app.schemas.candidate import (
+    CandidateRead,
+    CandidateUpdate,
+    CertificationCreate,
+    CertificationUpdate,
+    EducationCreate,
+    EducationUpdate,
+    ParsingJobRead,
+    WorkHistoryCreate,
+    WorkHistoryUpdate,
+)
 from app.schemas.public import CandidatePublicRead
 from app.schemas.review import CandidateReviewResponse, CorrectionRequest
 from app.services.storage import generate_presigned_url
@@ -97,6 +107,12 @@ def get_candidate(
     )
     if not candidate:
         raise HTTPException(status_code=404, detail="Candidate not found")
+    wh_count = len(candidate.work_history) if candidate.work_history else 0
+    logger.info(
+        "Candidate %s: work_history_count=%d",
+        str(candidate_id),
+        wh_count,
+    )
     return CandidatePublicRead.model_validate(candidate)
 
 
@@ -607,6 +623,375 @@ def submit_corrections(
         resource_id=str(candidate.id),
         ip_address=None,
         details={"corrections": [c.field_name for c in payload.corrections]},
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+# ---------- Work History CRUD ----------
+
+
+@router.post("/candidates/{candidate_id}/work-history", response_model=CandidatePublicRead)
+def create_work_history(
+    candidate_id: UUID,
+    payload: WorkHistoryCreate,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = WorkHistory(
+        candidate_id=candidate_id,
+        company_name=payload.company_name,
+        client_name=payload.client_name,
+        job_title=payload.job_title,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
+        is_current=payload.is_current or False,
+        location=payload.location,
+        description=payload.description,
+        display_order=payload.display_order,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="work_history_create",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+@router.put(
+    "/candidates/{candidate_id}/work-history/{entry_id}",
+    response_model=CandidatePublicRead,
+)
+def update_work_history(
+    candidate_id: UUID,
+    entry_id: UUID,
+    payload: WorkHistoryUpdate,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = (
+        db.query(WorkHistory)
+        .filter(WorkHistory.id == entry_id, WorkHistory.candidate_id == candidate_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Work history entry not found")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(row, field, value)
+    db.add(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="work_history_update",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+@router.delete(
+    "/candidates/{candidate_id}/work-history/{entry_id}",
+    response_model=CandidatePublicRead,
+)
+def delete_work_history(
+    candidate_id: UUID,
+    entry_id: UUID,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = (
+        db.query(WorkHistory)
+        .filter(WorkHistory.id == entry_id, WorkHistory.candidate_id == candidate_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Work history entry not found")
+    db.delete(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="work_history_delete",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+# ---------- Education CRUD ----------
+
+
+@router.post("/candidates/{candidate_id}/education", response_model=CandidatePublicRead)
+def create_education(
+    candidate_id: UUID,
+    payload: EducationCreate,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = Education(
+        candidate_id=candidate_id,
+        institution=payload.institution,
+        degree=payload.degree,
+        field_of_study=payload.field_of_study,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
+        gpa=payload.gpa,
+        description=payload.description,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="education_create",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+@router.put(
+    "/candidates/{candidate_id}/education/{entry_id}",
+    response_model=CandidatePublicRead,
+)
+def update_education(
+    candidate_id: UUID,
+    entry_id: UUID,
+    payload: EducationUpdate,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = (
+        db.query(Education)
+        .filter(Education.id == entry_id, Education.candidate_id == candidate_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Education entry not found")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(row, field, value)
+    db.add(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="education_update",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+@router.delete(
+    "/candidates/{candidate_id}/education/{entry_id}",
+    response_model=CandidatePublicRead,
+)
+def delete_education(
+    candidate_id: UUID,
+    entry_id: UUID,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = (
+        db.query(Education)
+        .filter(Education.id == entry_id, Education.candidate_id == candidate_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Education entry not found")
+    db.delete(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="education_delete",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+# ---------- Certifications CRUD ----------
+
+
+@router.post("/candidates/{candidate_id}/certifications", response_model=CandidatePublicRead)
+def create_certification(
+    candidate_id: UUID,
+    payload: CertificationCreate,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = Certification(
+        candidate_id=candidate_id,
+        name=payload.name,
+        issuing_organization=payload.issuing_organization,
+        issue_date=payload.issue_date,
+        expiry_date=payload.expiry_date,
+        credential_id=payload.credential_id,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="certification_create",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+@router.put(
+    "/candidates/{candidate_id}/certifications/{entry_id}",
+    response_model=CandidatePublicRead,
+)
+def update_certification(
+    candidate_id: UUID,
+    entry_id: UUID,
+    payload: CertificationUpdate,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = (
+        db.query(Certification)
+        .filter(Certification.id == entry_id, Certification.candidate_id == candidate_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Certification entry not found")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(row, field, value)
+    db.add(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="certification_update",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
+    )
+    return CandidatePublicRead.model_validate(candidate)
+
+
+@router.delete(
+    "/candidates/{candidate_id}/certifications/{entry_id}",
+    response_model=CandidatePublicRead,
+)
+def delete_certification(
+    candidate_id: UUID,
+    entry_id: UUID,
+    current_user=Depends(require_role("admin", "recruiter")),
+    db: Session = Depends(get_db),
+) -> CandidatePublicRead:
+    enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
+    candidate = (
+        db.query(Candidate)
+        .filter(Candidate.id == candidate_id, Candidate.tenant_id == current_user.tenant_id)
+        .first()
+    )
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    row = (
+        db.query(Certification)
+        .filter(Certification.id == entry_id, Certification.candidate_id == candidate_id)
+        .first()
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Certification entry not found")
+    db.delete(row)
+    db.commit()
+    db.refresh(candidate)
+    log_audit(
+        db,
+        user_id=str(current_user.id),
+        action="certification_delete",
+        resource_type="candidate",
+        resource_id=str(candidate_id),
+        ip_address=None,
     )
     return CandidatePublicRead.model_validate(candidate)
 

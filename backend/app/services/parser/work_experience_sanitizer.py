@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
-from app.services.parser.work_experience_parser import WorkExperienceParser
+from app.services.parser.work_experience_parser import ENVIRONMENT_LINE_RE, WorkExperienceParser
+
+logger = logging.getLogger(__name__)
 
 
 _PLACEHOLDER_RE = re.compile(
-    r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+    r"^(company|client|organization|organisation|employer|designation|title|role|position|"
+    r"job\s*title|professional\s+experience\b|n/a|na\b|tbd|tbc|unknown|none|null)\b",
     re.IGNORECASE,
 )
 
@@ -35,10 +39,25 @@ def _normalize_date_token(value: Any) -> str:
     return raw
 
 
+def _strip_environment_skill_lines(text: str) -> str:
+    """Remove Environment:/Tools:/Technologies: lines — those belong in Skills, not work description."""
+    if not text or not isinstance(text, str):
+        return text
+    lines = text.splitlines()
+    kept: list[str] = []
+    for ln in lines:
+        stripped = ln.strip()
+        if ENVIRONMENT_LINE_RE.match(stripped):
+            continue
+        kept.append(ln)
+    return "\n".join(kept).strip()
+
+
 def _normalize_description(value: Any) -> str:
     raw = _normalize_text(value)
     if not raw:
         return ""
+    raw = _strip_environment_skill_lines(raw)
     raw = re.sub(r"(?m)^\|\s*", "", raw)
     raw = re.sub(r"\s*\|\s*", " - ", raw)
     raw = _collapse_spaces(raw)
@@ -127,6 +146,57 @@ def _merge_entries(primary: dict[str, Any], incoming: dict[str, Any]) -> dict[st
     return out
 
 
+def _count_filled_fields(entry: dict[str, Any]) -> int:
+    """Score entry by number of filled fields (prefer description/bullets)."""
+    score = 0
+    if _normalize_description(entry.get("description")):
+        score += 10
+    bullets = entry.get("bullets")
+    if isinstance(bullets, list):
+        score += len([b for b in bullets if isinstance(b, str) and _clean_bullet(b)])
+    if _normalize_date_token(entry.get("end_date")):
+        score += 2
+    if _normalize_text(entry.get("client")):
+        score += 1
+    if _normalize_text(entry.get("location")):
+        score += 1
+    if _normalize_text(entry.get("employment_type")):
+        score += 1
+    return score
+
+
+def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Remove duplicate work entries. Two entries are duplicates if
+    company + job_title + start_date match. Keep the entry with more filled fields.
+    """
+    if not isinstance(entries, list) or not entries:
+        return list(entries) if isinstance(entries, list) else []
+
+    seen: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        company = _normalize_text(entry.get("company")).lower()
+        title = _normalize_text(entry.get("title")).lower()
+        start_date = _normalize_date_token(entry.get("start_date")).lower()
+        key = (company, title, start_date)
+
+        if key not in seen:
+            seen[key] = entry
+            continue
+
+        existing = seen[key]
+        if _count_filled_fields(entry) > _count_filled_fields(existing):
+            seen[key] = entry
+
+    result = list(seen.values())
+    removed = len(entries) - len(result)
+    if removed > 0:
+        logger.info("deduplicate_work_entries removed %d duplicate(s)", removed)
+    return result
+
+
 def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
     if not isinstance(entries, list) or not entries:
         return []
@@ -138,6 +208,9 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         company = _normalize_text(item.get("company"))
         title = _normalize_text(item.get("title"))
+        # Use client as company when company is empty (e.g. "CLIENT: Home Depot" format)
+        if not company:
+            company = _normalize_text(item.get("client"))
 
         if not company and not title:
             continue
@@ -169,7 +242,7 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
                 if not isinstance(b, str):
                     continue
                 bb = _clean_bullet(b)
-                if bb:
+                if bb and not ENVIRONMENT_LINE_RE.match(bb):
                     bullets_out.append(bb)
         normalized["bullets"] = bullets_out
 
@@ -210,4 +283,5 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         deduped[key] = _merge_entries(deduped[key], entry)
 
-    return [deduped[k] for k in order]
+    merged_list = [deduped[k] for k in order]
+    return deduplicate_work_entries(merged_list)

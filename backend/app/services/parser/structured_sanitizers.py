@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from app.services.parser.skill_extractor import map_category_to_master
+from app.services.parser.certification_validator import deduplicate_certificates
 
 
 _PLACEHOLDER_TOKEN_RE = re.compile(
@@ -161,7 +161,8 @@ def sanitize_certifications_entries(entries: Any) -> list[dict[str, Any]]:
             existing["credential_id"] = _norm_str(e.get("credential_id"))
         deduped[key] = existing
 
-    return [deduped[k] for k in order]
+    result = [deduped[k] for k in order]
+    return deduplicate_certificates(result)
 
 
 _SKILL_BAD_RE = re.compile(r"\b(developed|built|designed|implemented|responsibilities)\b", re.IGNORECASE)

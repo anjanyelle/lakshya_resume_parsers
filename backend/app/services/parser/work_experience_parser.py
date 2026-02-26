@@ -52,6 +52,11 @@ TITLE_PIPE_COMPANY_RE = re.compile(
 )
 LOCATION_RE = re.compile(r"\b([A-Za-z .]+,\s*[A-Z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist)\b", re.IGNORECASE)
+# Job title keywords for splitting single-chunk experience (capitalized at line start)
+TITLE_SPLIT_KEYWORDS = (
+    "engineer", "manager", "developer", "analyst", "designer", "consultant",
+    "director", "lead", "specialist", "architect", "coordinator", "administrator",
+)
 RESPONSIBILITY_MARKERS = {"responsibilities", "key responsibilities", "responsibility"}
 COMPANY_HINT_RE = re.compile(r"\b(inc|llc|ltd|corp|corporation|company|technologies|systems|health|bank|solutions|services)\b", re.IGNORECASE)
 ENVIRONMENT_LINE_RE = re.compile(
@@ -103,18 +108,274 @@ LABELED_RESP_RE = re.compile(
 )
 
 TITLE_NORMALIZATION = {
+    # Seniority
     "sr": "senior",
+    "sr.": "senior",
+    "sen": "senior",
+    "jr": "junior",
+    "jr.": "junior",
+    "assoc": "associate",
+    "asst": "assistant",
+    "lead": "lead",
+    "principal": "principal",
+    "head": "head",
+    "exec": "executive",
+    "vp": "vice president",
+    "svp": "senior vice president",
+    "evp": "executive vice president",
+    "avp": "assistant vice president",
+    "cto": "chief technology officer",
+    "ceo": "chief executive officer",
+    "coo": "chief operating officer",
+    "cfo": "chief financial officer",
+    "cpo": "chief product officer",
+    "ciso": "chief information security officer",
+    "dir": "director",
+    "coord": "coordinator",
+    "spec": "specialist",
+    "cons": "consultant",
+    "intern": "intern",
+    "trainee": "trainee",
+    "stf": "staff",
+
+    # Engineer / Developer
     "swe": "software engineer",
+    "sde": "software development engineer",
+    "sdet": "software development engineer in test",
     "dev": "developer",
+    "engr": "engineer",
+    "eng": "engineer",
+    "software engr": "software engineer",
+    "web dev": "web developer",
+    "app dev": "application developer",
+    "mob dev": "mobile developer",
+    "sys eng": "systems engineer",
+    "sys admin": "system administrator",
+    "sysadmin": "system administrator",
+    "devops eng": "devops engineer",
+    "ml eng": "machine learning engineer",
+    "ai eng": "artificial intelligence engineer",
+    "data eng": "data engineer",
+    "sol arch": "solutions architect",
+    "sa": "solutions architect",
+    "arch": "architect",
+
+    # Managerial
     "mgr": "manager",
+    "pm": "project manager",
+    "pmo": "project management office",
+    "po": "product owner",
+    "ba": "business analyst",
+    "scrum m": "scrum master",
+    "sm": "scrum master",
+    "em": "engineering manager",
+    "tl": "team lead",
+    "tech lead": "technical lead",
+
+    # Tech roles short forms
+    "qa": "quality assurance",
+    "qe": "quality engineer",
+    "ui": "ui",
+    "ux": "ux",
+    "ui/ux": "ui ux",
+    "fe": "frontend",
+    "be": "backend",
+    "fs": "full stack",
+    "hr": "human resources",
+    "it": "information technology",
+    "dba": "database administrator",
+    "db admin": "database administrator",
+    "net admin": "network administrator",
+    "infosec": "information security",
+    "sec eng": "security engineer",
+    "cloud eng": "cloud engineer",
+    "bi": "business intelligence",
+    "ds": "data scientist",
+    "da": "data analyst",
+    "nlp eng": "natural language processing engineer",
+    "cv eng": "computer vision engineer",
+    "ios dev": "ios developer",
+    "android dev": "android developer",
+    "rpa dev": "rpa developer",
+    "erp cons": "erp consultant",
+    "crm cons": "crm consultant",
 }
 
 COMPANY_NORMALIZATION = {
+    # Google / Alphabet
     "google inc": "Google",
+    "google inc.": "Google",
     "google llc": "Google",
+    "google india pvt ltd": "Google",
+    "alphabet inc": "Google",
+    "alphabet inc.": "Google",
+    "google india": "Google",
+
+    # Amazon / AWS
     "amazon.com": "Amazon",
     "amazon inc": "Amazon",
+    "amazon inc.": "Amazon",
+    "amazon web services": "Amazon",
+    "amazon web services india": "Amazon",
+    "aws": "Amazon",
+    "amazon india": "Amazon",
+
+    # Microsoft
     "microsoft corporation": "Microsoft",
+    "microsoft corp": "Microsoft",
+    "microsoft corp.": "Microsoft",
+    "microsoft india pvt ltd": "Microsoft",
+    "microsoft india": "Microsoft",
+    "ms": "Microsoft",
+
+    # Meta / Facebook
+    "facebook": "Meta",
+    "facebook inc": "Meta",
+    "facebook inc.": "Meta",
+    "meta platforms": "Meta",
+    "meta platforms inc": "Meta",
+    "meta platforms inc.": "Meta",
+    "instagram": "Meta",
+    "whatsapp": "Meta",
+
+    # Apple
+    "apple inc": "Apple",
+    "apple inc.": "Apple",
+    "apple computer": "Apple",
+    "apple india": "Apple",
+
+    # Netflix
+    "netflix inc": "Netflix",
+    "netflix inc.": "Netflix",
+    "netflix india": "Netflix",
+
+    # Uber
+    "uber technologies": "Uber",
+    "uber technologies inc": "Uber",
+    "uber india": "Uber",
+
+    # Airbnb
+    "airbnb inc": "Airbnb",
+    "airbnb inc.": "Airbnb",
+
+    # Salesforce
+    "salesforce.com": "Salesforce",
+    "salesforce inc": "Salesforce",
+    "salesforce inc.": "Salesforce",
+
+    # Oracle
+    "oracle corporation": "Oracle",
+    "oracle corp": "Oracle",
+    "oracle india pvt ltd": "Oracle",
+    "oracle india": "Oracle",
+
+    # IBM
+    "ibm": "IBM",
+    "international business machines": "IBM",
+    "ibm india pvt ltd": "IBM",
+    "ibm india": "IBM",
+
+    # SAP
+    "sap se": "SAP",
+    "sap india pvt ltd": "SAP",
+    "sap india": "SAP",
+    "sap labs india": "SAP",
+
+    # Accenture
+    "accenture plc": "Accenture",
+    "accenture india": "Accenture",
+    "accenture india pvt ltd": "Accenture",
+
+    # Cognizant
+    "cognizant": "Cognizant",
+    "cognizant technology solutions": "Cognizant",
+    "cts": "Cognizant",
+    "cognizant india": "Cognizant",
+
+    # HCL
+    "hcl": "HCL Technologies",
+    "hcl technologies": "HCL Technologies",
+    "hcl technologies ltd": "HCL Technologies",
+    "hcl tech": "HCL Technologies",
+    "hcl infosystems": "HCL Technologies",
+
+    # Capgemini
+    "capgemini india": "Capgemini",
+    "capgemini india pvt ltd": "Capgemini",
+
+    # Tech Mahindra
+    "tech mahindra": "Tech Mahindra",
+    "tech mahindra ltd": "Tech Mahindra",
+    "tech m": "Tech Mahindra",
+
+    # Mindtree
+    "mindtree ltd": "Mindtree",
+    "mindtree limited": "Mindtree",
+
+    # Mphasis
+    "mphasis ltd": "Mphasis",
+    "mphasis limited": "Mphasis",
+
+    # Hexaware
+    "hexaware technologies": "Hexaware",
+    "hexaware technologies ltd": "Hexaware",
+
+    # Persistent Systems
+    "persistent systems ltd": "Persistent Systems",
+    "persistent systems limited": "Persistent Systems",
+
+    # L&T
+    "l&t infotech": "LTIMindtree",
+    "larsen & toubro infotech": "LTIMindtree",
+    "lti": "LTIMindtree",
+    "ltimindtree": "LTIMindtree",
+    "ltimindtree ltd": "LTIMindtree",
+
+    # Indian formats
+    "tcs": "Tata Consultancy Services",
+    "tata consultancy services": "Tata Consultancy Services",
+    "tata consultancy services ltd": "Tata Consultancy Services",
+    "tata consultancy services limited": "Tata Consultancy Services",
+    "infosys": "Infosys",
+    "infosys ltd": "Infosys",
+    "infosys limited": "Infosys",
+    "infosys bpo": "Infosys",
+    "wipro": "Wipro",
+    "wipro ltd": "Wipro",
+    "wipro limited": "Wipro",
+    "wipro technologies": "Wipro",
+
+    # Startups / Others
+    "flipkart internet pvt ltd": "Flipkart",
+    "flipkart pvt ltd": "Flipkart",
+    "flipkart india": "Flipkart",
+    "myntra": "Myntra",
+    "myntra designs pvt ltd": "Myntra",
+    "paytm": "Paytm",
+    "one97 communications": "Paytm",
+    "zomato ltd": "Zomato",
+    "zomato india": "Zomato",
+    "swiggy": "Swiggy",
+    "bundl technologies": "Swiggy",
+    "ola": "Ola",
+    "ani technologies": "Ola",
+    "byju's": "BYJU'S",
+    "think & learn pvt ltd": "BYJU'S",
+    "razorpay": "Razorpay",
+    "razorpay software pvt ltd": "Razorpay",
+    "freshworks": "Freshworks",
+    "freshworks inc": "Freshworks",
+    "zoho": "Zoho",
+    "zoho corporation": "Zoho",
+    "zoho corp": "Zoho",
+    "phonepe": "PhonePe",
+    "phonepe pvt ltd": "PhonePe",
+    "meesho": "Meesho",
+    "fashnear technologies pvt ltd": "Meesho",
+    "cred": "CRED",
+    "dreamplug technologies pvt ltd": "CRED",
+    "sharechat": "ShareChat",
+    "mohalla tech pvt ltd": "ShareChat",
 }
 
 TITLE_RANKS = {
@@ -233,13 +494,14 @@ class WorkExperienceParser:
                 return True
         return False
 
-    def parse_experience_section(self, text: str) -> list[JobEntry]:
+    def parse_experience_section(self, text: str, source_format: str | None = None) -> list[JobEntry]:
         all_lines = [l for l in (text or "").splitlines() if l.strip()]
         pipe_lines = [l for l in all_lines if "|" in l]
         if all_lines and len(pipe_lines) / max(len(all_lines), 1) > 0.4:
             jobs = self._parse_table_formatted_experience(text)
+            chunks = []  # table format has no chunks
         else:
-            chunks = self.extract_individual_jobs(text)
+            chunks = self.extract_individual_jobs(text, source_format=source_format)
             jobs = []
             for chunk in chunks:
                 job = self._parse_chunk(chunk)
@@ -249,8 +511,47 @@ class WorkExperienceParser:
                         job = llm_job
                 if self._is_plausible_job(job):
                     jobs.append(job)
+
+        # Length check: if experience > 300 chars but 0 jobs, force LLM fallback
+        mode = (self.settings.PARSING_MODE or "").lower()
+        if (
+            len(jobs) == 0
+            and len(text or "") > 300
+            and self.settings.LLM_PROVIDER != "none"
+            and mode == "full"
+            and self.llm
+        ):
+            llm_entries = self.llm.extract_work_experience(text) or []
+            for payload in llm_entries or []:
+                start_date = self._parse_date(payload.get("start_date", ""))
+                end_date = self._parse_date(payload.get("end_date", ""))
+                is_current = payload.get("is_current", False)
+                duration_months = self._calc_duration_months(start_date, end_date, is_current)
+                bullets = payload.get("responsibilities") or payload.get("bullets") or []
+                job = JobEntry(
+                    company=self.normalize_company_names(payload.get("company_name") or payload.get("company")),
+                    title=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
+                    start_date=start_date,
+                    end_date=end_date,
+                    is_current=is_current,
+                    location=payload.get("location"),
+                    description="\n".join(bullets) if bullets else payload.get("description", ""),
+                    bullets=bullets,
+                    duration_months=duration_months,
+                    client=payload.get("client"),
+                    employment_type=payload.get("employment_type"),
+                    confidence=payload.get("confidence", 0.85),
+                    designation=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
+                )
+                if self._is_plausible_job(job):
+                    jobs.append(job)
+
         jobs = self._validate_dates(jobs)
         jobs = self._detect_overlaps(jobs)
+        if chunks:
+            logger.info("Work experience: %d chunks, %d jobs", len(chunks), len(jobs))
+        else:
+            logger.info("Work experience: %d jobs (table format)", len(jobs))
         return jobs
 
     def _parse_table_formatted_experience(self, text: str) -> list[JobEntry]:
@@ -414,7 +715,20 @@ class WorkExperienceParser:
                     out[b_idx] = replace(b, date_flag=f"overlap_{overlap_days}d_with_prev")
         return out
 
-    def extract_individual_jobs(self, text: str) -> list[str]:
+    def extract_individual_jobs(self, text: str, source_format: str | None = None) -> list[str]:
+        # Pre-split: when resume uses CLIENT:/ROLE:/Location format, split by CLIENT: blocks first.
+        # Handles consulting resumes where multiple roles are in one section.
+        _client_split_re = re.compile(
+            r"\n\s*(?=(?:CLIENT|client|project)\s*[:\-–—])",
+            re.IGNORECASE,
+        )
+        if _client_split_re.search(text):
+            parts = _client_split_re.split(text)
+            # parts[0] may be preamble; parts[1:] each start with "CLIENT: X\n..."
+            client_blocks = [p.strip() for p in parts[1:] if p.strip()]
+            if len(client_blocks) > 1:
+                return client_blocks
+
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         if not lines:
             return []
@@ -430,11 +744,20 @@ class WorkExperienceParser:
             if PRESENT_RE.search(line) and idx > 0 and DATE_ANCHOR_RE.search(lines[idx - 1]):
                 boundaries.append(idx - 1)
                 continue
-            if self._has_date_anchor(line):
+            if self._has_date_anchor(line, source_format=source_format):
                 boundaries.append(idx)
 
         if not boundaries:
-            return ["\n".join(lines)]
+            chunks = ["\n".join(lines)]
+            if len(lines) >= 4 and len(text) > 200:
+                fallback = self._split_single_chunk_fallback(lines)
+                if len(fallback) > 1:
+                    logger.warning(
+                        "Only 1 block found in experience section — possible miss; split by heuristics into %d chunks",
+                        len(fallback),
+                    )
+                    return fallback
+            return chunks
 
         starts: list[int] = []
         last_start = -1
@@ -474,15 +797,68 @@ class WorkExperienceParser:
             if end <= start:
                 continue
             chunks.append("\n".join(lines[start:end]))
+
+        if len(chunks) == 1 and len(lines) >= 4 and len(text) > 200:
+            fallback = self._split_single_chunk_fallback(lines)
+            if len(fallback) > 1:
+                logger.warning(
+                    "Only 1 block found in experience section — possible miss; split by heuristics into %d chunks",
+                    len(fallback),
+                )
+                return fallback
+
         return chunks
 
-    def _has_date_anchor(self, line: str) -> bool:
+    def _split_single_chunk_fallback(self, lines: list[str]) -> list[str]:
+        """Split lines by company name or job title patterns when date-based boundaries failed."""
+        split_indices: list[int] = [0]
+        for idx in range(1, len(lines)):
+            line = lines[idx]
+            if not line or line.startswith(("-", "•", "*")):
+                continue
+            # CLIENT: / project: at line start = new consulting engagement — always split
+            if CLIENT_HEADER_RE.match(line):
+                split_indices.append(idx)
+                continue
+            # Skip labeled fields (Role:, Designation:, Company:, etc.) — not job boundaries
+            if LABELED_TITLE_RE.match(line) or LABELED_ORG_RE.match(line):
+                continue
+            # Company name (2-4 capitalized words) before a date
+            date_match = DATE_RANGE_RE.search(line) or DATE_ANCHOR_RE.search(line)
+            if date_match:
+                prefix = line[: date_match.start()].strip().strip(" -–—|,·")
+                words = prefix.split()
+                if 2 <= len(words) <= 4 and prefix and prefix[0].isupper():
+                    if not any(w.lower() in TITLE_SPLIT_KEYWORDS for w in words[:2]):
+                        split_indices.append(idx)
+                        continue
+            # Job title at line start (e.g. "Senior Software Engineer") — not "Role: X"
+            if TITLE_HINT_RE.search(line) and len(line.split()) <= 6:
+                if idx > 0 and not lines[idx - 1].startswith(("-", "•", "*")):
+                    split_indices.append(idx)
+
+        if len(split_indices) <= 1:
+            return ["\n".join(lines)]
+
+        split_indices = sorted(set(split_indices))
+        chunks: list[str] = []
+        for i, start in enumerate(split_indices):
+            end = split_indices[i + 1] if i + 1 < len(split_indices) else len(lines)
+            if end > start:
+                chunks.append("\n".join(lines[start:end]))
+        return chunks if len(chunks) > 1 else ["\n".join(lines)]
+
+    def _has_date_anchor(self, line: str, source_format: str | None = None) -> bool:
         if DATE_RANGE_RE.search(line):
             return True
         if PRESENT_RE.search(line) and DATE_ANCHOR_RE.search(line):
             return True
         if DATE_ANCHOR_RE.search(line) and re.search(r"(?:[-–—→]|\bto\b)", line, flags=re.IGNORECASE):
             return True
+        # OCR lenient: bare 4-digit year (e.g. 2020, or 2O2O after OCR fixes)
+        if source_format == "ocr":
+            if re.search(r"\b(19|20)[0-9O]{2}\b", line):
+                return True
         return False
 
     def normalize_company_names(self, name: str | None) -> str | None:

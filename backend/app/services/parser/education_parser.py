@@ -1063,13 +1063,7 @@ class EducationParser:
                 end_date = self._clamp_end_date(end_date)
             return start_date, end_date, False
 
-        # 3) "Year of passed: 2014"
-        year_passed = YEAR_PASSED_RE.search(text)
-        if year_passed and year_passed.group(1):
-            y = int(year_passed.group(1))
-            return None, self._clamp_end_date(date(y, 1, 1)), False
-
-        # 4) Fallback: single year or year range
+        # Fallback: look for single year or year range (handles table layout: dates in separate columns)
         years = YEAR_RE.findall(text)
         if len(years) >= 2:
             start_year = int(years[0])

@@ -262,13 +262,98 @@ def clean_summary_and_skills_sections(payload: dict) -> tuple[dict, dict]:
     summary_lines = [ln.strip() for ln in summary_content.splitlines() if ln.strip()]
     skills_lines = [ln.strip() for ln in skills_content.splitlines() if ln.strip()]
 
-    seen = set()
-    deduped_summary = []
-    for ln in summary_lines:
-        key = ln.lower()
-        if key not in seen:
-            seen.add(key)
-            deduped_summary.append(ln)
+    out_lines: list[str] = []
+    applied = False
+    normalized_rows = 0
+
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip("\r")
+        stripped = line.strip()
+        if not stripped or "|" not in stripped or not _TABLE_PIPE_ROW_RE.match(stripped):
+            out_lines.append(line)
+            continue
+
+        cells = [c.strip() for c in stripped.split("|")]
+        cells = [c for c in cells if c]
+        if len(cells) < 2:
+            out_lines.append(line)
+            continue
+
+        date_cells = [c for c in cells if _looks_date_like(c)]
+        company_title_like = sum(1 for c in cells[:3] if _looks_company_or_title_like(c))
+
+        is_headerish = bool(date_cells) and company_title_like >= 2
+        if is_headerish:
+            company = cells[0] if len(cells) >= 1 else ""
+            title = cells[1] if len(cells) >= 2 else ""
+            date_range = ""
+            for c in reversed(cells):
+                if _looks_date_like(c):
+                    date_range = c
+                    break
+            if not date_range and len(cells) >= 3:
+                date_range = cells[2]
+
+            rendered = " | ".join([p for p in [company, title, date_range] if p]).strip()
+            out_lines.append(rendered if rendered else line)
+            continue
+
+        longish = any(len(c) >= 45 or c.count(" ") >= 7 for c in cells)
+        if longish:
+            applied = True
+            normalized_rows += 1
+            for c in cells:
+                cleaned = c.strip()
+                if not cleaned:
+                    continue
+                if cleaned.startswith("-"):
+                    out_lines.append(cleaned)
+                else:
+                    out_lines.append(f"- {cleaned}")
+            continue
+
+        out_lines.append(line)
+
+    return "\n".join(out_lines), applied, normalized_rows
+
+
+def normalize_table_lines(text: str) -> str:
+    normalized, _, _ = _normalize_table_lines_with_stats(text)
+    return normalized
+
+
+# Headings that indicate skills content — summary must stop before these
+_SUMMARY_STOP_AT_SKILLS_RE = re.compile(
+    r"^(?:technical\s+skills?\s*[:\-–—]?|skills?\s*[:\-–—]?|core\s+competencies\s*[:\-–—]?|"
+    r"databases?\s*&\s*data\s+stores?\s*[:\-–—]?|programming\s+languages?\s*[:\-–—]?|"
+    r"exhaustive\s+technical\s+skill\s+matrix|technologies?\s*[:\-–—]|"
+    r"tech\s+stack\s*[:\-–—]|tools?\s*[:\-–—]|frameworks?\s*[:\-–—]).*$",
+    re.IGNORECASE,
+)
+
+
+def clean_summary_and_skills_sections(
+    sections: dict,
+) -> tuple[dict, dict[str, int]]:
+    if not isinstance(sections, dict) or not sections:
+        return sections, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+
+    summary_block = sections.get("summary") if isinstance(sections.get("summary"), dict) else None
+    skills_block = sections.get("skills") if isinstance(sections.get("skills"), dict) else None
+    if not isinstance(summary_block, dict) or not isinstance(skills_block, dict):
+        return sections, {"moved_summary_to_skills": 0, "moved_skills_to_summary": 0}
+
+    summary_text = str(summary_block.get("content") or "")
+    # Truncate summary at skills headers — prevents skills bleeding into summary
+    summary_lines_raw = summary_text.splitlines()
+    truncated: list[str] = []
+    for ln in summary_lines_raw:
+        stripped = ln.strip()
+        if _SUMMARY_STOP_AT_SKILLS_RE.match(stripped):
+            break
+        truncated.append(ln)
+    summary_text = "\n".join(truncated).strip()
+    skills_text = str(skills_block.get("content") or "")
 
     def is_skill_like(line: str) -> bool:
         parts = [p.strip() for p in line.split(",") if p.strip()]

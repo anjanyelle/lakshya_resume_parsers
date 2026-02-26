@@ -24,3 +24,21 @@ export const fetchJobStatus = async (jobId: string) => {
   )
   return response.data.status
 }
+
+/** For data-loss verification: raw text length, samples, and parsed counts */
+export const fetchJobExtractionDebug = async (jobId: string) => {
+  const response = await apiClient.get<{
+    job_id: string
+    raw_text_length: number
+    raw_text_sample_first_200: string
+    raw_text_sample_last_100: string
+    parsed_work_experience_count: number
+    parsed_work_description_total_chars: number
+    parsed_education_count: number
+    parsed_certifications_count: number
+    parsed_summary_length: number
+    text_extraction_method?: string
+    used_ocr?: boolean
+  }>(`/api/v1/jobs/${jobId}/extraction-debug`)
+  return response.data
+}
