@@ -613,7 +613,13 @@ export default function CandidateDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr,1fr]">
         <EducationSection
-          items={candidate.education}
+          items={
+            Array.isArray(candidate.education)
+              ? candidate.education
+              : candidate.education
+                ? [candidate.education]
+                : []
+          }
           onUpdate={handleEducationUpdate}
         />
         <CertificationsSection

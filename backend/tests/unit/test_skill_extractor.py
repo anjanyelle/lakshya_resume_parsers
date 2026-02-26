@@ -3,11 +3,23 @@ from pathlib import Path
 from app.services.parser.skill_extractor import (
     SkillExtractor,
     clean_text_for_skills,
+    clean_text_for_flashtext,
     clean_skill_text_for_section,
     tokenize_skills_by_comma,
     strip_skill_token,
 )
 from app.services.parser.work_experience_parser import JobEntry
+
+
+def test_clean_text_for_flashtext_preserves_hyphens_and_parens():
+    """Minimal cleaner must NOT remove hyphens, slashes, or parentheses (for t-SNE, RAG, etc.)."""
+    raw = "t-SNE, Time-Series Analysis, RAG (Retrieval-Augmented Generation)"
+    out = clean_text_for_flashtext(raw)
+    assert "t-SNE" in out
+    assert "Time-Series" in out
+    assert "RAG" in out
+    assert "(" in out and ")" in out
+    assert "\n" not in out
 
 
 def test_clean_text_for_skills_normalizes_bullets_and_newlines():
@@ -243,3 +255,25 @@ def test_multi_word_taxonomy_skills_in_extract_all():
     assert "spring boot" in normalized or "Spring Boot" in names
     assert "python" in normalized
     assert len(matches) >= 3, f"Expected at least 3 skills (multi-word + python), got {len(matches)}: {normalized}"
+
+
+def test_flashtext_extracts_hyphenated_and_multi_word_from_master_db():
+    """FlashText must extract t-SNE, Scikit-learn from master DB without returning fragments like Time, SNE."""
+    taxonomy_path = (
+        Path(__file__).resolve().parents[2]
+        / "app"
+        / "data"
+        / "taxonomy"
+        / "skills_seed.json"
+    )
+    extractor = SkillExtractor(taxonomy_path=str(taxonomy_path), use_spacy=False)
+    text = "t-SNE, UMAP, Scikit-learn, HuggingFace Transformers"
+    matches = extractor.extract_all(text, [], skills_section_confidence=0.8, raw_text=text)
+    names = {m.name for m in matches}
+    normalized = {m.normalized_name for m in matches}
+    assert "t-SNE" in names or "t-sne" in normalized
+    assert "Scikit-learn" in names or "scikit-learn" in normalized
+    assert not any(
+        frag in names or frag in normalized
+        for frag in ("SNE", "Time", "Parameter")
+    )

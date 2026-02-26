@@ -32,6 +32,10 @@ def _is_placeholder(value: Any) -> bool:
 
 
 def sanitize_education_entries(entries: Any) -> list[dict[str, Any]]:
+    if entries is None:
+        return []
+    if isinstance(entries, dict):
+        entries = [entries]
     if not isinstance(entries, list) or not entries:
         return []
 

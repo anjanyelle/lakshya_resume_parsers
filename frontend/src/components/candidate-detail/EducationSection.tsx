@@ -125,6 +125,28 @@ export default function EducationSection({ items = [], onUpdate }: EducationSect
                             />
                           </div>
                         </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">GPA</label>
+                            <input
+                              type="text"
+                              value={draft.gpa != null ? String(draft.gpa) : ''}
+                              onChange={(e) => setDraft({ ...draft, gpa: e.target.value || undefined })}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-brand-500 outline-none"
+                              placeholder="e.g. 3.8/4.0"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Honors</label>
+                            <input
+                              type="text"
+                              value={draft.honors || ''}
+                              onChange={(e) => setDraft({ ...draft, honors: e.target.value || undefined })}
+                              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:border-brand-500 outline-none"
+                              placeholder="Honors, awards"
+                            />
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <>
@@ -132,8 +154,18 @@ export default function EducationSection({ items = [], onUpdate }: EducationSect
                           {item.institution || 'Institution'}
                         </p>
                         <p className="text-xs text-slate-600 mt-1">
-                          {item.degree || 'Degree'} {item.field_of_study ? `· ${item.field_of_study}` : ''}
+                          {[item.degree, item.field_of_study].filter(Boolean).join(' · ') || 'Degree'}
                         </p>
+                        {(item.gpa != null || item.honors) && (
+                          <p className="text-xs text-slate-500 mt-1">
+                            {item.gpa != null && (
+                              <span>GPA: {String(item.gpa)}</span>
+                            )}
+                            {item.honors && (
+                              <span>{item.gpa != null ? ' · ' : ''}{item.honors}</span>
+                            )}
+                          </p>
+                        )}
                         <p className="text-xs text-slate-500 mt-1">
                           {item.start_date || '—'} → {item.end_date || '—'}
                         </p>

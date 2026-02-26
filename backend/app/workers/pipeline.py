@@ -26,6 +26,9 @@ from app.core.observability import (
     observe_parsing_success,
     observe_stage_duration,
     PARSE_ERRORS,
+    REVIEW_FLAG_TOTAL,
+    SECTION_DETECTION_CONFIDENCE,
+    SECTION_DETECTION_FALLBACK_TOTAL,
 )
 from app.models import (
     Candidate,
@@ -51,16 +54,23 @@ from app.services.parser.section_parser import SectionParser
 from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
 from app.services.parser.skill_extractor import (
+    HARD_SKILL_BLACKLIST,
+    SQL_SUBFUNCTION_MAP,
     SkillExtractor,
     SkillMatch,
+    clean_skill_text_for_section,
     clean_text_for_skills,
+    filter_skills_by_resume_text,
     is_atomic_skill,
     is_generic_skill,
     is_sentence_fragment,
     map_category_to_master,
+    normalize_pdf_split_words,
     normalize_skill_name as normalize_skill_name_for_dedup,
     normalize_to_canonical,
     sanitize_category,
+    strip_skill_token,
+    tokenize_skills_by_comma,
 )
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
 from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
@@ -80,6 +90,10 @@ from app.workers.celery_app import celery_app
 from app.workers.doc_convert_task import convert_doc_to_docx_task
 from app.workers.extract_clients_task import task_extract_clients
 from app.workers.extract_text_task import extract_text_task
+from app.workers.task_calculate_confidence import (
+    build_per_field_confidence,
+    record_quality_metrics,
+)
 from app.services.parser.section_boundary_extractor import extract_certifications
 from app.services.parser.section_boundary_extractor import _clean_summary_text
 
@@ -456,17 +470,7 @@ def _is_raw_text_entry(entry: dict[str, Any]) -> bool:
     return isinstance(data_val, str)
 
 
-            "client": None,
-            "location": "",
-            "employment_type": "",
-            "start_date": "",
-            "end_date": "",
-            "is_current": False,
-            "duration_months": 0,
-            "description": "",
-            "bullets": [],
-            "confidence": 0.0,
-        }
+def _normalize_work_entry(entry: dict[str, Any]) -> dict[str, Any]:
     bullets = entry.get("bullets") or entry.get("responsibilities")
     if not isinstance(bullets, list):
         bullets = [b for b in (bullets or "").split("\n") if str(b).strip()] if bullets else []
@@ -539,6 +543,7 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
 
     merged = dict(parsed)
     personal_info = merged.get("personal_info") or {}
+    contact = merged.get("contact") or {}
     candidate_info = (
         llm_resume.get("candidate_information")
         or llm_resume.get("candidate_info")
@@ -546,9 +551,6 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
         or {}
     )
     if isinstance(candidate_info, dict):
-        if not contact:
-            contact = {}
-
         name = _get_first(candidate_info, "full_name", "name")
         email = _get_first(candidate_info, "email")
         phone = _get_first(candidate_info, "phone")
@@ -1533,17 +1535,36 @@ def task_normalize_education_details(self, job_id: str) -> str:  # noqa: ANN001
         llm = LLMParsingService()
         normalized_entries = llm.normalize_education_entries(education_text)
         if isinstance(normalized_entries, list) and normalized_entries:
-            _update_job(
-                job_id,
-                last_stage="normalize_education_details",
-                parsed_data=_merge_parsed(
-                    job,
-                    {
-                        "education_normalized": normalized_entries,
-                        "education": normalized_entries,
-                    },
-                ),
+            # Store only education_normalized; do NOT overwrite "education" here so we keep
+            # the deterministic parser's multiple entries when it found more than one.
+            existing_education = parsed.get("education", [])
+            existing_list = (
+                existing_education
+                if isinstance(existing_education, list)
+                else [existing_education] if existing_education else []
             )
+            # Overwrite education only when LLM found more entries than the parser
+            if len(normalized_entries) >= len(existing_list):
+                _update_job(
+                    job_id,
+                    last_stage="normalize_education_details",
+                    parsed_data=_merge_parsed(
+                        job,
+                        {
+                            "education_normalized": normalized_entries,
+                            "education": normalized_entries,
+                        },
+                    ),
+                )
+            else:
+                _update_job(
+                    job_id,
+                    last_stage="normalize_education_details",
+                    parsed_data=_merge_parsed(
+                        job,
+                        {"education_normalized": normalized_entries},
+                    ),
+                )
         return job_id
     except Exception as exc:
         _handle_task_error(job_id, exc, "normalize_education_details")
@@ -2806,19 +2827,25 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
             return job_id
 
         sections = parsed.get("sections", {})
-        skills_block = sections.get("skills") if isinstance(sections, dict) else None
+        # Resolve skills section: canonical key is "skills"; section_parser/fallback map "technical skills" -> "skills".
+        # Support both "skills" and "technical_skills" so any code path renders skills correctly.
+        skills_block = None
+        if isinstance(sections, dict):
+            skills_block = sections.get("skills")
+            if not isinstance(skills_block, dict) or not (skills_block.get("content") or "").strip():
+                skills_block = sections.get("technical_skills") or skills_block
         raw_skills_content = (
             skills_block.get("content", "")
             if isinstance(skills_block, dict)
             else ""
         )
         
-        # Step 1: Industry-level section isolation via regex
+        # Step 1: Industry-level section isolation via regex (Skills / Technical Skills / Key Skills / etc.)
         def _refine_skills_section(text: str) -> str:
             if not text:
                 return ""
             # Focus on Skills/Competencies markers and stop at the next obvious header (TitleCase followed by colon)
-            pattern = r"(?:Core Competencies|Technical Skills|Relevant Skills|Key Skills|Additional Skills|Skills).*?(?=\n[A-Z][A-Za-z ]+:|\Z)"
+            pattern = r"(?:(?:Core\s+)?Competencies|Technical\s+Skills?|Technical\s+Expertise|Relevant\s+Skills?|Key\s+Skills?|Additional\s+Skills?|Professional\s+Skills?|Skills(?:\s+&\s+Expertise)?|Competencies).*?(?=\n[A-Z][A-Za-z ]+:|\Z)"
             match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
             return match.group(0) if match else text
 
@@ -2851,6 +2878,13 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
             for item in jobs_payload
         ]
 
+        # FIX 4 — Apply PDF split word normalization BEFORE FlashText so 'My SQL'→'mysql',
+        #          'Py Spark'→'pyspark', 'Git Hub'→'github', 'XG Boost'→'xgboost', etc.
+        if raw_skills_content:
+            raw_skills_content = normalize_pdf_split_words(raw_skills_content)
+        if skills_section:
+            skills_section = normalize_pdf_split_words(skills_section)
+
         extractor = SkillExtractor()
         fallback_guard = bool(
             skills_section_conf is not None and skills_section_conf < 0.6
@@ -2867,9 +2901,70 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
         )
         payload = [match.__dict__ for match in matches]
 
-        # --- 4-Layer quality filter: canonical norm, sentence fragment drop, atomic validation, category sanitization ---
+        # Pre-compute taxonomy lookups (needed by both section-wise extraction and the 4-layer filter below)
         known_normalized = extractor.get_known_normalized_skills()
         canonical_names = extractor.get_canonical_normalized_names()
+
+        # --- SECTION-WISE EXTRACTION: Always parse skills section via comma-split to capture all skills,
+        #     including those not in the master taxonomy (skills_seed.json). This ensures every skill
+        #     explicitly listed in the resume's Skills section is rendered, regardless of taxonomy coverage.
+        section_sourced_normalized: set[str] = set()
+        if raw_skills_content and raw_skills_content.strip():
+            _sec_cleaned = clean_skill_text_for_section(raw_skills_content)
+            _sec_tokens = tokenize_skills_by_comma(_sec_cleaned)
+            _existing_norm_keys = {normalize_skill_name_for_dedup(m.get("normalized_name") or m.get("name") or "") for m in payload}
+            for _tok in _sec_tokens:
+                _tok = strip_skill_token(_tok)
+                if not _tok or len(_tok) < 2:
+                    continue
+                _tok_norm = normalize_skill_name_for_dedup(_tok)
+                if not _tok_norm or _tok_norm in _existing_norm_keys:
+                    continue
+                # Skip obvious sentence fragments and noise
+                if is_sentence_fragment(_tok):
+                    continue
+                if is_generic_skill(_tok_norm):
+                    continue
+                # Word count guard: valid skills are at most 4 words (same as is_atomic_skill MAX_WORDS_ATOMIC)
+                _tok_words = _tok.split()
+                if len(_tok_words) > 4:
+                    continue
+                # STRICT CASING GUARD: reject all-lowercase multi-word tokens.
+                # These are almost always descriptive phrases ('clear', 'scaling', 'engineering squads'),
+                # NOT actual skill names. Real skills start with uppercase (Java, Spring Boot, RESTful APIs,
+                # OOPs, HTML, CSS) or are known acronyms (CSS, HTML, SQL, API).
+                _first_word = _tok_words[0]
+                _is_uppercase_start = bool(_first_word) and _first_word[0].isupper()
+                _is_pure_acronym = bool(re.match(r'^[A-Z]{2,6}$', _tok.strip()))
+                _is_mixed_case = len(_tok) >= 3 and any(c.isupper() for c in _tok[1:]) and bool(re.match(r'^[A-Za-z0-9#+./-]+$', _tok))
+                if not (_is_uppercase_start or _is_pure_acronym or _is_mixed_case):
+                    # Single lowercase word: only accept if is_atomic_skill confirms it's a known tech token
+                    if not is_atomic_skill(_tok, known_normalized):
+                        continue
+                # FIX 5 — HARD SKILL BLACKLIST: reject SQL syntax keywords, generic nouns, noise
+                if _tok_norm in HARD_SKILL_BLACKLIST or _tok.lower() in HARD_SKILL_BLACKLIST:
+                    continue
+                # FIX 5b — SQL SUBFUNCTION GROUPING: RANK/LAG/LEAD → SQL; DML keywords → drop
+                _sql_parent = SQL_SUBFUNCTION_MAP.get(_tok_norm) or SQL_SUBFUNCTION_MAP.get(_tok.lower())
+                if _sql_parent is not None:  # None = drop; non-None string = use parent
+                    _tok_norm = normalize_skill_name_for_dedup(_sql_parent)
+                    _tok = _sql_parent
+                elif _tok.lower() in SQL_SUBFUNCTION_MAP and SQL_SUBFUNCTION_MAP[_tok.lower()] is None:
+                    continue  # DML keyword: drop entirely
+                section_sourced_normalized.add(_tok_norm)
+                _existing_norm_keys.add(_tok_norm)
+                payload.append({
+                    "name": _tok,
+                    "normalized_name": _tok_norm,
+                    "category": "Technical Skills",
+                    "confidence": 0.75,
+                    "years_experience": None,
+                    "proficiency": None,
+                    "source": "technical_skills_section",
+                    "version": None,
+                })
+
+        # --- 4-Layer quality filter: canonical norm, sentence fragment drop, atomic validation, category sanitization ---
         filtered_payload: list[dict[str, Any]] = []
         for item in payload if isinstance(payload, list) else []:
             if not isinstance(item, dict):
@@ -2887,18 +2982,81 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
             # STEP 2: Sentence fragment cleaner
             if is_sentence_fragment(skill_label):
                 continue
-            # STEP 1: Allow all taxonomy skills; only require is_atomic_skill for non-taxonomy (so multi-word taxonomy skills are kept)
-            if canonical_norm not in canonical_names and not is_atomic_skill(skill_label, known_normalized):
+            # STEP 1: Allow all taxonomy skills; also allow pre-validated section-sourced skills.
+            #         Section tokens were strictly validated (casing guard + fragment check) before being added.
+            is_from_section = normalize_skill_name_for_dedup(normalized or name) in section_sourced_normalized
+            if canonical_norm not in canonical_names and not is_atomic_skill(skill_label, known_normalized) and not is_from_section:
                 continue
             # STEP 4: Category validation (reject corrupted comma-separated or tech-list categories)
             sane_cat = sanitize_category(item.get("category"))
-            item["category"] = sane_cat if sane_cat else map_category_to_master(item.get("category")) or "Project Tools"
+            # FIX 7 — Rule-based category fallback: never collapse everything to 'Project Tools'.
+            # Apply explicit category rules before falling back to map_category_to_master.
+            _fallback_cat = None
+            if not sane_cat or sane_cat == "Technical Skills":
+                _cn = canonical_norm
+                if _cn in {"git", "github", "gitlab", "bitbucket", "jira", "confluence", "slack",
+                           "jenkins", "github actions", "gitlab ci", "ci/cd", "docker",
+                           "kubernetes", "terraform", "ansible", "bash", "powershell", "linux"}:
+                    _fallback_cat = "DevOps & Containers"
+                elif _cn in {"jest", "pytest", "selenium", "cypress", "junit", "testing",
+                             "unit testing", "integration testing", "e2e testing"}:
+                    _fallback_cat = "Testing"
+                elif _cn in {"agile", "scrum", "kanban", "sdlc", "devops", "microservices",
+                             "mvc", "oop", "restful", "rest api", "graphql"}:
+                    _fallback_cat = "Methodologies"
+                elif _cn in {"html", "css", "sass", "scss", "jsx", "tailwind",
+                             "tailwind css", "bootstrap", "material ui", "framer motion"}:
+                    _fallback_cat = "Web Technologies"
+                elif _cn in {"pyspark", "spark", "hadoop", "hive", "kafka", "airflow",
+                             "hbase", "zookeeper", "mapreduce", "nifi", "flink", "beam",
+                             "dagster", "prefect", "control-m", "oozie", "sqoop", "flume"}:
+                    _fallback_cat = "Big Data Technologies"
+                elif _cn in {"numpy", "pandas", "scipy", "sklearn", "scikit-learn", "statsmodels",
+                             "matplotlib", "seaborn", "plotly", "jupyter", "pytorch", "tensorflow"}:
+                    _fallback_cat = "Data & ML"
+                elif _cn in {"postgresql", "mysql", "mongodb", "redis", "sqlite", "oracle",
+                             "sql server", "cassandra", "dynamodb", "cosmosdb", "hbase",
+                             "nosql", "aurora", "bigtable", "db2", "vertica", "greenplum",
+                             "teradata", "mariadb", "cockroachdb"}:
+                    _fallback_cat = "Databases"
+                elif _cn in {"aws", "azure", "gcp", "heroku", "digitalocean",
+                             "ec2", "s3", "lambda", "emr", "sagemaker", "redshift",
+                             "glue", "snowflake", "bigquery", "databricks", "athena",
+                             "dataflow", "pubsub", "cloud storage", "msk"}:
+                    _fallback_cat = "Cloud Platforms"
+                elif _cn in {"communication", "leadership", "teamwork", "mentoring",
+                             "collaboration", "problem solving", "troubleshooting",
+                             "adaptability", "critical thinking", "time management"}:
+                    _fallback_cat = "Soft Skills"
+                elif _cn in {"sql", "advanced sql", "window functions", "t-sql", "plsql",
+                             "spark sql", "hive sql"}:
+                    _fallback_cat = "Databases"
+            item["category"] = sane_cat or _fallback_cat or map_category_to_master(item.get("category")) or "Technical Skills"
             # Never store generic/umbrella terms (Cloud, Backend, Security, Frontend)
             if is_generic_skill(canonical_norm):
                 continue
             filtered_payload.append(item)
 
         payload = filtered_payload
+
+        # FIX 6 — POST-FILTER DEDUPLICATION by normalized_name.
+        # Keep the entry with highest confidence. This removes duplicates where
+        # FlashText matched 'glue' and section extraction added 'AWS Glue' with same canonical.
+        _seen_canonical: dict[str, dict] = {}
+        for _item in payload:
+            _key = str(_item.get("normalized_name") or _item.get("name") or "").strip().lower()
+            if not _key:
+                continue
+            if _key not in _seen_canonical:
+                _seen_canonical[_key] = _item
+            else:
+                # Keep the one with higher confidence; prefer taxonomy (non-section) source
+                _existing = _seen_canonical[_key]
+                _conf_new = float(_item.get("confidence") or 0)
+                _conf_old = float(_existing.get("confidence") or 0)
+                if _conf_new > _conf_old:
+                    _seen_canonical[_key] = _item
+        payload = list(_seen_canonical.values())
 
         logger.info(
             "Skills after 4-layer filter: %d (input %d), canonical_names=%d, known_normalized=%d",
@@ -4225,7 +4383,16 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 if (not candidate.current_company or not _is_plausible_headline(candidate.current_company)) and _is_plausible_headline(next_company):
                     candidate.current_company = next_company
 
-        education_entries = sanitize_education_entries(parsed.get("education", []))
+        education_entries = sanitize_education_entries(
+            _coerce_list(
+                parsed.get("education_normalized")
+                if (
+                    len(_coerce_list(parsed.get("education_normalized", [])))
+                    >= len(_coerce_list(parsed.get("education", [])))
+                )
+                else parsed.get("education", [])
+            )
+        )
         for entry in education_entries:
             session.add(
                 Education(
