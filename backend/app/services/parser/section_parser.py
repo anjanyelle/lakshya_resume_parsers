@@ -425,6 +425,7 @@ SECTION_ALIASES: dict[str, list[str]] = {
         "professional history", "career experience", "job history",
         "work", "relevant experience", "professional background",
         "employment record", "career", "work record", "positions held",
+        "internship", "internships", "projects",
         "professional experience & achievements", "work experience & achievements",
         "experience summary", "career progression", "professional journey",
         "positions", "roles", "appointments", "engagements",
@@ -3009,6 +3010,7 @@ class SectionParser:
             "profile",
             "professional_profile",
             "career_profile",
+            "career_overview",
             "executive_summary",
             "professional_summary",
             "career_summary",
@@ -3037,6 +3039,9 @@ class SectionParser:
             "leadership_experience",
             "teaching_experience",
             "research_experience",
+            "professional_experience",
+            "professional experience",
+            "work_experience",
         }:
             return "experience"
 

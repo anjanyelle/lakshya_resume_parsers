@@ -26,8 +26,16 @@ class WorkHistoryCreate(WorkHistoryBase):
     pass
 
 
-class WorkHistoryUpdate(WorkHistoryBase):
-    pass
+class WorkHistoryUpdate(BaseModel):
+    company_name: Optional[str] = None
+    client_name: Optional[str] = None
+    job_title: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    is_current: Optional[bool] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+    display_order: Optional[int] = None
 
 
 class WorkHistoryRead(WorkHistoryBase):
@@ -50,8 +58,14 @@ class EducationCreate(EducationBase):
     pass
 
 
-class EducationUpdate(EducationBase):
-    pass
+class EducationUpdate(BaseModel):
+    institution: Optional[str] = None
+    degree: Optional[str] = None
+    field_of_study: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    gpa: Optional[float] = None
+    description: Optional[str] = None
 
 
 class EducationRead(EducationBase):
@@ -140,8 +154,12 @@ class CertificationCreate(CertificationBase):
     pass
 
 
-class CertificationUpdate(CertificationBase):
-    pass
+class CertificationUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, max_length=200)
+    issuing_organization: Optional[str] = Field(default=None, max_length=200)
+    issue_date: Optional[date] = None
+    expiry_date: Optional[date] = None
+    credential_id: Optional[str] = Field(default=None, max_length=100)
 
 
 class CertificationRead(CertificationBase):

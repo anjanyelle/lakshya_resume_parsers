@@ -23,6 +23,12 @@ SUMMARY_HEADINGS = {
     r"^SUMMARY\s*$",
     r"^OBJECTIVE\s*$",
     r"^CAREER\s+SUMMARY\s*$",
+    r"^CAREER\s+OVERVIEW\s*$",
+    r"^PROFILE\s*$",
+    r"^ABOUT\s+ME\s*$",
+    r"^PERSONAL\s+STATEMENT\s*$",
+    r"^INTRODUCTION\s*$",
+    r"^OVERVIEW\s*$",
 }
 
 CERTIFICATION_HEADINGS = {
@@ -35,7 +41,14 @@ CERTIFICATION_HEADINGS = {
     r"^CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
     r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CREDENTIALS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATES?\s*(AND|&|/)\s*GRANTS?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATES\s*&\s*GRANTS\b.*$",
+    r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^LICENSES?\s+AND\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATIONS?\s+AND\s+LICENSES?\s*[:\-–—]?\s*$",
+    r"^PROFESSIONAL\s+QUALIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^ACCREDITATIONS?\s*[:\-–—]?\s*$",
+    r"^TRAINING\s+&?\s*CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATIONS?\s+&?\s*TRAINING\s*[:\-–—]?\s*$",
 }
 
 # Stop headings - immediately terminate extraction
@@ -388,31 +401,21 @@ def extract_certifications(text: str) -> ExtractionResult:
 
     # =====================================================
     # 1️⃣ INLINE DETECTION (WORKS EVEN INSIDE SUMMARY)
+    #    Matches: Certifications:, Licenses:, Credentials:, etc.
     # =====================================================
     inline_pattern = re.compile(
-        r"(?i)certifications?\s*[:\-–—]\s*(.+)"
+        r"(?i)(?:certifications?|licenses?|credentials?|professional\s+certifications?|licenses?\s*&\s*certifications?)\s*[:\-–—]\s*(.+)"
     )
 
+    inline_lines: list[str] = []
     for line in lines:
         match = inline_pattern.search(line)
         if match:
             inline_content = match.group(1).strip()
-
-            # Split multiple certifications separated by comma
             parts = re.split(r"\s*,\s*", inline_content)
             for part in parts:
                 if part and len(part) < 200:
-                    extracted_lines.append(part.strip())
-
-    # If inline found → return immediately
-    if extracted_lines:
-        extracted_lines = list(dict.fromkeys(extracted_lines))
-        return ExtractionResult(
-            content="\n".join(extracted_lines),
-            confidence=0.9,   # slightly lower than strict boundary
-            section_found=True,
-            extracted_lines=extracted_lines,
-        )
+                    inline_lines.append(part.strip())
 
     # 2️⃣ STRICT BOUNDARY SECTION DETECTION
     for idx, line in enumerate(lines):
@@ -422,6 +425,15 @@ def extract_certifications(text: str) -> ExtractionResult:
             break
 
     if cert_start_idx == -1:
+        # No strict section; return inline content if found
+        if inline_lines:
+            inline_lines = list(dict.fromkeys(inline_lines))
+            return ExtractionResult(
+                content="\n".join(inline_lines),
+                confidence=0.9,
+                section_found=True,
+                extracted_lines=inline_lines,
+            )
         return ExtractionResult(
             content="",
             confidence=0.0,
@@ -471,9 +483,10 @@ def extract_certifications(text: str) -> ExtractionResult:
 
         extracted_lines.append(clean_line)
 
-    extracted_lines = list(dict.fromkeys(extracted_lines))
+    # Merge inline + strict boundary content (preserve order, dedupe)
+    merged = list(dict.fromkeys(inline_lines + extracted_lines))
 
-    if not extracted_lines:
+    if not merged:
         return ExtractionResult(
             content="",
             confidence=0.5,
@@ -482,10 +495,10 @@ def extract_certifications(text: str) -> ExtractionResult:
         )
 
     return ExtractionResult(
-        content="\n".join(extracted_lines),
+        content="\n".join(merged),
         confidence=1.0,
         section_found=True,
-        extracted_lines=extracted_lines,
+        extracted_lines=merged,
     )
 
 

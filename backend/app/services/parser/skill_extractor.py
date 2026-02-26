@@ -1604,7 +1604,12 @@ class SkillExtractor:
         source = "experience"
         matches: list[SkillMatch] = []
         for job in jobs:
-            matches.extend(self._extract_skills(clean_text_for_skills(job.description or ""), base_confidence=0.6, source=source))
+            text = job.description or ""
+            if job.bullets:
+                text = text + "\n" + "\n".join(job.bullets) if text else "\n".join(job.bullets)
+            if text.strip():
+                matches.extend(self._extract_skills(text, base_confidence=0.6))
+                matches.extend(self._extract_freeform_skills(text, base_confidence=0.55))
         return matches
 
     def normalize_skills(self, matches: Iterable[SkillMatch]) -> list[SkillMatch]:
@@ -1710,12 +1715,10 @@ class SkillExtractor:
         raw_text: str | None = None,
         section_only: bool = True,
     ) -> list[SkillMatch]:
-        """Extract skills. Primary: FlashText against master DB (no blind split; keeps hyphens/multi-word).
-        Fallback: if FlashText count < threshold, merge with legacy extraction filtered to master-only."""
-        # Minimal clean for FlashText: do NOT remove hyphens/parentheses/slashes
-        section_for_flashtext = clean_text_for_flashtext(skills_section or "")
-        raw_for_flashtext = clean_text_for_flashtext(raw_text or "") if raw_text else ""
-        combined_for_flashtext = " ".join(filter(None, [section_for_flashtext, raw_for_flashtext]))
+        section_text = skills_section or ""
+        # Use section content when conf >= 0.45 (lowered from 0.6 to avoid discarding valid skills)
+        if skills_section_confidence is not None and skills_section_confidence < 0.45:
+            section_text = ""
 
         flashtext_matches = self.extract_with_flashtext(combined_for_flashtext, source="technical_skills_section")
 
@@ -1743,9 +1746,27 @@ class SkillExtractor:
 
         all_matches = self.normalize_skills(flashtext_matches)
 
-        enriched = []
+        # Require 2+ mentions for low-confidence skills (industry standard)
+        combined_text = (section_text or "") + "\n" + (raw_text or "")
+        for job in jobs:
+            combined_text += "\n" + (job.description or "")
+            combined_text += "\n" + "\n".join(job.bullets or [])
+
+        def _mention_count(skill: str) -> int:
+            pattern = re.compile(rf"\b{re.escape(skill)}\b", re.IGNORECASE)
+            return len(pattern.findall(combined_text))
+
+        filtered: list[SkillMatch] = []
         for match in all_matches:
-            proficiency = self.infer_proficiency(section_text or (raw_text_cleaned or ""), match.normalized_name)
+            if match.confidence >= 0.6:
+                filtered.append(match)
+            elif _mention_count(match.normalized_name) >= 2 or _mention_count(match.name) >= 2:
+                filtered.append(match)
+
+        enriched = []
+        for match in filtered:
+            years = self.calculate_skill_years(jobs, match.normalized_name)
+            proficiency = self.infer_proficiency(section_text or (raw_text or ""), match.normalized_name)
             enriched.append(
                 SkillMatch(
                     name=match.name,
@@ -1780,9 +1801,11 @@ class SkillExtractor:
                     continue
                 label, _, values = line.partition(":")
                 label_lower = label.lower()
-                if not any(
-                    k in label_lower
-                    for k in ("skill", "tools", "technology", "technologies", "tech stack", "expertise", "competencies")
+                if (
+                    "skill" not in label_lower
+                    and "tools" not in label_lower
+                    and "technolog" not in label_lower
+                    and "environment" not in label_lower
                 ):
                     continue
                 tokens = self._split_skills(values)

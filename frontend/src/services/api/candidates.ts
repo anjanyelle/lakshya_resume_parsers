@@ -73,3 +73,135 @@ export const exportCandidateJson = async (id: string) => {
 export const deleteCandidate = async (id: string) => {
   await apiClient.delete(`/api/v1/candidates/${id}`)
 }
+
+// --- Work History CRUD ---
+export type WorkHistoryPayload = Partial<{
+  company_name: string | null
+  client_name: string | null
+  job_title: string | null
+  start_date: string | null
+  end_date: string | null
+  is_current: boolean
+  location: string | null
+  description: string | null
+  display_order: number | null
+}>
+
+export const createWorkHistory = async (
+  candidateId: string,
+  payload: WorkHistoryPayload,
+) => {
+  const response = await apiClient.post<Candidate>(
+    `/api/v1/candidates/${candidateId}/work-history`,
+    payload,
+  )
+  return response.data
+}
+
+export const updateWorkHistory = async (
+  candidateId: string,
+  entryId: string,
+  payload: WorkHistoryPayload,
+) => {
+  const response = await apiClient.put<Candidate>(
+    `/api/v1/candidates/${candidateId}/work-history/${entryId}`,
+    payload,
+  )
+  return response.data
+}
+
+export const deleteWorkHistory = async (
+  candidateId: string,
+  entryId: string,
+) => {
+  const response = await apiClient.delete<Candidate>(
+    `/api/v1/candidates/${candidateId}/work-history/${entryId}`,
+  )
+  return response.data
+}
+
+// --- Education CRUD ---
+export type EducationPayload = Partial<{
+  institution: string | null
+  degree: string | null
+  field_of_study: string | null
+  start_date: string | null
+  end_date: string | null
+  gpa: number | null
+  description: string | null
+}>
+
+export const createEducation = async (
+  candidateId: string,
+  payload: EducationPayload,
+) => {
+  const response = await apiClient.post<Candidate>(
+    `/api/v1/candidates/${candidateId}/education`,
+    payload,
+  )
+  return response.data
+}
+
+export const updateEducation = async (
+  candidateId: string,
+  entryId: string,
+  payload: EducationPayload,
+) => {
+  const response = await apiClient.put<Candidate>(
+    `/api/v1/candidates/${candidateId}/education/${entryId}`,
+    payload,
+  )
+  return response.data
+}
+
+export const deleteEducation = async (
+  candidateId: string,
+  entryId: string,
+) => {
+  const response = await apiClient.delete<Candidate>(
+    `/api/v1/candidates/${candidateId}/education/${entryId}`,
+  )
+  return response.data
+}
+
+// --- Certifications CRUD ---
+export type CertificationPayload = Partial<{
+  name: string
+  issuing_organization: string | null
+  issue_date: string | null
+  expiry_date: string | null
+  credential_id: string | null
+}>
+
+export const createCertification = async (
+  candidateId: string,
+  payload: CertificationPayload,
+) => {
+  const response = await apiClient.post<Candidate>(
+    `/api/v1/candidates/${candidateId}/certifications`,
+    payload,
+  )
+  return response.data
+}
+
+export const updateCertification = async (
+  candidateId: string,
+  entryId: string,
+  payload: CertificationPayload,
+) => {
+  const response = await apiClient.put<Candidate>(
+    `/api/v1/candidates/${candidateId}/certifications/${entryId}`,
+    payload,
+  )
+  return response.data
+}
+
+export const deleteCertification = async (
+  candidateId: string,
+  entryId: string,
+) => {
+  const response = await apiClient.delete<Candidate>(
+    `/api/v1/candidates/${candidateId}/certifications/${entryId}`,
+  )
+  return response.data
+}

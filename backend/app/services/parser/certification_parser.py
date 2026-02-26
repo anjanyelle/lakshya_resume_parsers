@@ -34,17 +34,71 @@ ACTION_VERB_RE = re.compile(
 
 
 CERT_LINE_MARKERS = (
+    # Core words
     "certified",
     "certification",
+    "certifications",
     "certificate",
+    "certificates",
+    "licensed",
     "license",
     "licence",
     "credential",
     "credentials",
     "professional designation",
     "board certified",
+
+    # Validity related
     "expires",
     "expiry",
+    "valid until",
+    "valid through",
+    "issued",
+    "issued on",
+    "date of issue",
+    "credential id",
+    "license number",
+    "registration number",
+
+    # Abbreviations
+    "cert.",
+    "lic.",
+    "reg.",
+
+    # Professional common phrases
+    "accredited",
+    "chartered",
+    "authorized",
+    "recognized by",
+    "member of",
+
+    # Exam based
+    "exam passed",
+    "qualified",
+    "qualified in",
+    "cleared",
+    "passed",
+
+    # Government / Medical / Legal
+    "state licensed",
+    "nationally certified",
+    "federally certified",
+    "board eligible",
+
+    # Tech cert keywords (high signal)
+    "aws certified",
+    "microsoft certified",
+    "oracle certified",
+    "google certified",
+    "pmp",
+    "csm",
+    "cspo",
+    "itil",
+    "ccna",
+    "ccnp",
+    "cissp",
+    "ceh",
+    "scrum master",
 )
 
 TRAINING_FALSE_POSITIVES = (
@@ -53,14 +107,42 @@ TRAINING_FALSE_POSITIVES = (
     "bootcamp",
     "seminar",
     "course",
+    "courses",
+    "online course",
+    "short course",
+    "module",
+    "program",
+    "orientation",
+    "induction",
+    "internship training",
+    "industrial training",
+
+    # Learning platforms
     "coursera",
     "udemy",
     "edx",
-    "webinar",
-    "masterclass",
-    "certificate of completion",
+    "udacity",
+    "simplilearn",
+    "great learning",
+    "linkedin learning",
+    "pluralsight",
+    "skillshare",
+
+    # Participation-only
     "certificate of attendance",
     "certificate of participation",
+    "participated in",
+    "attended",
+    "completion of workshop",
+    "seminar participation",
+    "webinar",
+    "masterclass",
+
+    # Academic signals
+    "bachelor",
+    "master",
+    "degree",
+    "diploma",
 )
 
 

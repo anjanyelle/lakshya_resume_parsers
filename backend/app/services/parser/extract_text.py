@@ -5,6 +5,7 @@ import logging
 import re
 import subprocess
 import tempfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from statistics import median
@@ -157,9 +158,12 @@ def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
     return reconstruct_multicolumn_layout(blocks)
 
 
-# ============================================================
-# ENTRY POINT
-# ============================================================
+def _sample_text(text: str, head: int = 200, tail: int = 100) -> str:
+    """Return a short sample for logging (first N + ... + last M chars)."""
+    if not text or len(text) <= head + tail + 20:
+        return (text or "")[: 300]
+    return f"{text[:head]} ... [truncated] ... {text[-tail:]}"
+
 
 def extract_text(file_path: Path) -> ExtractedText:
     settings = get_settings()
@@ -167,7 +171,12 @@ def extract_text(file_path: Path) -> ExtractedText:
         pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
     extension = file_path.suffix.lower().lstrip(".")
-    logger.info("Starting text extraction", extra={"path": str(file_path)})
+    logger.info(
+        "[DATA-LOSS CHECK] Starting text extraction: path=%s, extension=%s",
+        str(file_path),
+        extension,
+        extra={"path": str(file_path), "extension": extension},
+    )
 
     if extension == "pdf":
         return _extract_pdf(file_path)
@@ -221,40 +230,60 @@ def _extract_image(file_path: Path) -> ExtractedText:
     if settings.TESSERACT_CMD:
         pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
     image = Image.open(str(file_path))
-    data = pytesseract.image_to_data(
-        image,
-        lang=settings.TESSERACT_LANG,
-        output_type=pytesseract.Output.DICT,
+    lang = _detect_ocr_lang(file_path)
+    text, conf = _ocr_with_confidence(file_path, lang)
+    if conf < 60:
+        image = _increase_dpi(image, target=400)
+        text, conf = _ocr_with_confidence(image, lang)
+    metadata: dict[str, object] = {}
+    if conf < 40:
+        logger.warning("Low OCR confidence %.0f%% — flagging for review", conf)
+        metadata["ocr_confidence"] = conf
+        metadata["needs_review"] = True
+    out_text = normalize_text(text)
+    logger.info(
+        "[DATA-LOSS CHECK] Image OCR done: output_len=%d, confidence=%.0f, sample=%s",
+        len(out_text),
+        conf,
+        repr(_sample_text(out_text, 120, 0))[: 120],
+        extra={"output_chars": len(out_text), "ocr_confidence": conf},
     )
-    text = pytesseract.image_to_string(
-        image,
-        lang=settings.TESSERACT_LANG,
-    ).strip()
-    confidences: list[float] = []
-    for conf in data.get("conf", []):
-        try:
-            conf_val = float(conf)
-            if conf_val >= 0:
-                confidences.append(conf_val)
-        except Exception:
-            continue
-    avg_conf = sum(confidences) / len(confidences) if confidences else None
     return ExtractedText(
-        text=normalize_text(text),
-        ocr_confidence=avg_conf,
+        text=out_text,
+        ocr_confidence=conf,
         used_ocr=True,
         method="ocr_image",
     )
 
 
+def _extract_tables_only_pdfplumber(file_path: Path, page_limit: int) -> str:
+    """Extract table content only from PDF (pdfplumber for tables only)."""
+    try:
+        with pdfplumber.open(file_path) as pdf:
+            all_lines: list[str] = []
+            for i, page in enumerate(pdf.pages):
+                if i >= page_limit:
+                    break
+                lines, _ = _extract_page_with_tables(page)
+                all_lines.extend(lines)
+            return "\n".join(all_lines).strip() if all_lines else ""
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("pdfplumber table extraction failed: %s", exc)
+        return ""
+
+
 def _extract_pdf(file_path: Path) -> ExtractedText:
     settings = get_settings()
     text = ""
-    method = "pdfplumber"
+    method = "pypdf"
     debug: dict[str, object] = {}
+    page_limit = settings.PDF_MAX_PAGES
 
+    # 1. Primary: PyMuPDF (fitz) — fastest, layout-aware
     try:
-        pymupdf_text = extract_text_from_pdf_pymupdf_layout(file_path, debug=debug)
+        pymupdf_text = extract_text_from_pdf_pymupdf_layout(
+            file_path, debug=debug, page_limit=page_limit
+        )
         if len(pymupdf_text) >= settings.OCR_MIN_TEXT_CHARS:
             text = pymupdf_text
             method = "pymupdf"
@@ -262,53 +291,73 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
     except Exception as exc:  # noqa: BLE001
         logger.info("PyMuPDF extraction unavailable", exc_info=exc)
 
-    if not text:
-        try:
-            with pdfplumber.open(file_path) as pdf:
-                pages_lines: list[list[str]] = []
-                pages_columns: list[int] = []
-                total_nonempty_lines = 0
-                for page in pdf.pages:
-                    lines, meta = _extract_pdf_page_lines_pdfplumber(page)
-                    pages_lines.append(lines)
-                    try:
-                        cols = int(meta.get("detected_columns", 1)) if isinstance(meta, dict) else 1
-                    except Exception:  # noqa: BLE001
-                        cols = 1
-                    pages_columns.append(cols)
-                    total_nonempty_lines += sum(1 for ln in lines if ln.strip())
-                debug["pdf_pages_sample"] = [lines[:40] for lines in pages_lines[:2]]
-                debug["pdfplumber"] = {
-                    "detected_columns": pages_columns[:10],
-                    "line_count": int(total_nonempty_lines),
-                }
-            pages_lines = _strip_repeated_headers_footers(pages_lines)
-            pages_lines = _normalize_bullets_in_pages(pages_lines)
-            debug["pdfplumber_page_boundaries"] = _page_boundaries_from_pages_lines(pages_lines)
-            text = "\n\n".join("\n".join(lines).strip() for lines in pages_lines).strip()
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("pdfplumber failed, falling back to pypdf", exc_info=exc)
-
+    # 2. Fallback: pypdf (fast, simple) before pdfplumber
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
         try:
             reader = PdfReader(str(file_path))
-            fallback_text = "\n".join(
-                (page.extract_text() or "") for page in reader.pages
+            pages = list(reader.pages)[:page_limit]
+            pypdf_text = "\n".join(
+                (p.extract_text() or "") for p in pages
             ).strip()
-            if len(fallback_text) > len(text):
-                text = fallback_text
+            if len(pypdf_text) > len(text):
+                text = pypdf_text
                 method = "pypdf"
+                debug["pypdf_pages"] = len(pages)
         except Exception as exc:  # noqa: BLE001
             logger.warning("pypdf fallback failed", exc_info=exc)
 
+    # 3. If still low: pdfplumber for tables only (merge with existing text)
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
-        logger.info("Low text detected, triggering OCR")
+        table_text = _extract_tables_only_pdfplumber(file_path, page_limit)
+        if table_text:
+            text = f"{text}\n\n{table_text}".strip() if text else table_text
+            if "pdfplumber" not in str(debug):
+                debug["pdfplumber_tables_only"] = True
+            if len(text) >= settings.OCR_MIN_TEXT_CHARS:
+                method = "pypdf+pdfplumber_tables"
+
+    # 4. Full pdfplumber only if still insufficient (e.g. complex layouts)
+    if len(text) < settings.OCR_MIN_TEXT_CHARS:
+        try:
+            with pdfplumber.open(file_path) as pdf:
+                pages_lines: list[list[str]] = []
+                total_nonempty_lines = 0
+                for i, page in enumerate(pdf.pages):
+                    if i >= page_limit:
+                        break
+                    lines, meta = _extract_pdf_page_lines_pdfplumber(page)
+                    pages_lines.append(lines)
+                    total_nonempty_lines += sum(1 for ln in lines if ln.strip())
+                debug["pdfplumber"] = {"line_count": int(total_nonempty_lines)}
+                pages_lines = _strip_repeated_headers_footers(pages_lines)
+                pages_lines = _normalize_bullets_in_pages(pages_lines)
+                full_text = "\n\n".join("\n".join(lns).strip() for lns in pages_lines).strip()
+                if len(full_text) > len(text):
+                    text = full_text
+                    method = "pdfplumber"
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("pdfplumber full extraction failed", exc_info=exc)
+
+    if len(text) < settings.OCR_MIN_TEXT_CHARS:
+        logger.info(
+            "[DATA-LOSS CHECK] Low text detected (%d chars), triggering OCR fallback",
+            len(text),
+            extra={"job_id": getattr(file_path, "job_id", None), "chars_before_ocr": len(text)},
+        )
         OCR_TRIGGER_TOTAL.inc()
         try:
             ocr_text, ocr_conf, ocr_metadata = _ocr_pdf(file_path)
+            out_text = normalize_resume_text(ocr_text, source_format="ocr")
+            logger.info(
+                "[DATA-LOSS CHECK] OCR complete: output_len=%d, confidence=%.0f, sample_head=%s",
+                len(out_text),
+                ocr_conf or 0,
+                repr(_sample_text(out_text, 150, 0))[: 120],
+                extra={"output_chars": len(out_text), "ocr_confidence": ocr_conf},
+            )
             merged_debug = {**(debug or {}), **(ocr_metadata or {})}
             return ExtractedText(
-                text=normalize_resume_text(ocr_text, source_format="ocr"),
+                text=out_text,
                 ocr_confidence=ocr_conf,
                 used_ocr=True,
                 method="ocr",
@@ -320,8 +369,17 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
             debug["ocr_error"] = str(exc)
 
     source_fmt = "ocr" if method == "ocr" else "pdf"
+    out_text = normalize_resume_text(text, source_format=source_fmt)
+    logger.info(
+        "[DATA-LOSS CHECK] PDF extraction done: method=%s, output_len=%d, lines≈%d, sample=%s",
+        method,
+        len(out_text),
+        out_text.count("\n") + 1 if out_text else 0,
+        repr(_sample_text(out_text, 120, 80))[: 150],
+        extra={"method": method, "output_chars": len(out_text)},
+    )
     return ExtractedText(
-        text=normalize_resume_text(text, source_format=source_fmt),
+        text=out_text,
         method=method,
         debug=debug or None,
     )
@@ -365,6 +423,7 @@ def extract_text_from_pdf_pymupdf_layout(
     file_path: Path,
     *,
     debug: dict[str, object] | None = None,
+    page_limit: int | None = None,
 ) -> str:
     if not HAS_FITZ or fitz is None:
         raise ImportError("PyMuPDF (pymupdf) is required for layout-aware PDF extraction. Install with: poetry add pymupdf")
@@ -377,7 +436,10 @@ def extract_text_from_pdf_pymupdf_layout(
     doc = fitz.open(str(file_path))
     pages_out: list[str] = []
     try:
-        for page in doc:
+        max_pages = page_limit if page_limit is not None else len(doc)
+        for i, page in enumerate(doc):
+            if i >= max_pages:
+                break
             page_dict = page.get_text("dict")
             items: list[LayoutBlock] = []
             for block in page_dict.get("blocks", []) if isinstance(page_dict, dict) else []:
@@ -814,57 +876,59 @@ def _ocr_pdf(file_path: Path) -> tuple[str, float | None, dict[str, object] | No
     settings = get_settings()
     if settings.TESSERACT_CMD:
         pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
-    images = convert_from_path(str(file_path), dpi=300)
 
-    ocr_text_chunks: list[str] = []
-    confidences: list[float] = []
+    # Get page count and apply limit (safety for very long PDFs)
+    try:
+        reader = PdfReader(str(file_path))
+        page_count = len(reader.pages)
+    except Exception:
+        page_count = 999
+    page_limit = min(settings.OCR_MAX_PAGES, page_count)
+    if page_limit < page_count:
+        logger.info("OCR limiting to first %d of %d pages", page_limit, page_count)
 
-    for image in images:
-        data = pytesseract.image_to_data(
-            image,
-            lang=settings.TESSERACT_LANG,
-            output_type=pytesseract.Output.DICT,
-        )
-        text = pytesseract.image_to_string(
-            image,
-            lang=settings.TESSERACT_LANG,
-        ).strip()
+    images = convert_from_path(
+        str(file_path), dpi=300, first_page=1, last_page=page_limit
+    )
+    if not images:
+        return "", None, None
+    lang = _detect_ocr_lang(images[0])
 
-        ocr_text_chunks.append(text)
+    # Parallel page processing (2–4x faster for multi-page PDFs)
+    max_workers = min(4, len(images))
+    ocr_text_chunks: list[str] = [""] * len(images)
+    confidences: list[float] = [0.0] * len(images)
 
-        for conf in data.get("conf", []):
-            try:
-                conf_val = float(conf)
-                if conf_val >= 0:
-                    confidences.append(conf_val)
-            except Exception:
-                continue
+    def _ocr_page(args: tuple[int, Image.Image]) -> tuple[int, str, float]:
+        idx, image = args
+        text, conf = _ocr_with_confidence(image, lang)
+        return idx, text, conf
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(_ocr_page, (i, img)): i for i, img in enumerate(images)}
+        for future in as_completed(futures):
+            idx, text, conf = future.result()
+            ocr_text_chunks[idx] = text
+            confidences[idx] = conf
 
     avg_conf = sum(confidences) / len(confidences) if confidences else None
     full_text = "\n".join(ocr_text_chunks).strip()
 
     if avg_conf is not None and avg_conf < 60:
-        images_400 = convert_from_path(str(file_path), dpi=400)
-        ocr_text_chunks = []
-        confidences = []
-        for image in images_400:
-            data = pytesseract.image_to_data(
-                image,
-                lang=settings.TESSERACT_LANG,
-                output_type=pytesseract.Output.DICT,
-            )
-            text = pytesseract.image_to_string(
-                image,
-                lang=settings.TESSERACT_LANG,
-            ).strip()
-            ocr_text_chunks.append(text)
-            for conf in data.get("conf", []):
-                try:
-                    conf_val = float(conf)
-                    if conf_val >= 0:
-                        confidences.append(conf_val)
-                except Exception:
-                    continue
+        images_400 = convert_from_path(
+            str(file_path), dpi=400, first_page=1, last_page=page_limit
+        )
+        ocr_text_chunks = [""] * len(images_400)
+        confidences = [0.0] * len(images_400)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_ocr_page, (i, img)): i
+                for i, img in enumerate(images_400)
+            }
+            for future in as_completed(futures):
+                idx, text, conf = future.result()
+                ocr_text_chunks[idx] = text
+                confidences[idx] = conf
         new_avg = sum(confidences) / len(confidences) if confidences else avg_conf
         if new_avg > avg_conf:
             full_text = "\n".join(ocr_text_chunks).strip()
@@ -916,21 +980,46 @@ def _extract_docx(file_path: Path) -> ExtractedText:
 
     def _is_heading_paragraph(paragraph: object) -> bool:
         style_name = _style_name(paragraph).lower()
+        # 1. Explicit heading styles (Word: Heading 1, Heading 2, etc.)
         if style_name.startswith("heading"):
             return True
-        heading_keywords = ("heading", "header", "section", "title")
-        if any(kw in style_name for kw in heading_keywords):
+        # 2. Other style-based headers (Subtitle, Section Header, Resume Section, etc.)
+        heading_style_keywords = (
+            "heading", "header", "section", "title", "subtitle", "titre",
+            "section header", "section title", "block title", "resume section",
+            "caption heading", "toc", "list header",
+        )
+        if any(kw in style_name for kw in heading_style_keywords):
             return True
+        # 3. Outline level (Word assigns outlineLvl to heading paragraphs)
+        try:
+            p = getattr(paragraph, "_p", None)
+            if p is not None:
+                pPr = p.find(qn("w:pPr"))
+                if pPr is not None:
+                    outline = pPr.find(qn("w:outlineLvl"))
+                    if outline is not None and outline.get(qn("w:val")) is not None:
+                        return True
+        except Exception:  # noqa: BLE001
+            pass
+        # 4. Text-based fallback: short ALL CAPS (e.g. "EXPERIENCE", "EDUCATION")
         text = str(getattr(paragraph, "text", "") or "").strip()
         if not text or len(text.split()) >= 6:
             return False
         if not text.isupper() or not any(c.isalpha() for c in text):
             return False
-        runs = getattr(paragraph, "runs", []) or []
-        if not runs:
+        # Exclude date-like lines (e.g. "DECEMBER 2020", "2020 - 2024")
+        if re.search(r"\b(19|20)\d{2}\b", text):
             return False
-        bold_runs = [r for r in runs if getattr(getattr(r, "font", None), "bold", None) is True]
-        return len(bold_runs) >= 1 and len("".join(str(getattr(r, "text", "") or "") for r in bold_runs).strip()) > 0
+        # Accept if bold, or if looks like resume section (2-4 words, no digits)
+        runs = getattr(paragraph, "runs", []) or []
+        if runs:
+            bold_runs = [r for r in runs if getattr(getattr(r, "font", None), "bold", None) is True]
+            if bold_runs and len("".join(str(getattr(r, "text", "") or "") for r in bold_runs).strip()) > 0:
+                return True
+        # Short ALL CAPS without digits (common for "EXPERIENCE", "SKILLS")
+        words = text.split()
+        return 1 <= len(words) <= 4 and not any(c.isdigit() for c in text)
 
     def _emit_paragraph_text(paragraph: object) -> str:
         text = str(getattr(paragraph, "text", "") or "").strip()
@@ -947,11 +1036,17 @@ def _extract_docx(file_path: Path) -> ExtractedText:
         return [line] if line else []
 
     def _cell_lines(cell: object) -> list[str]:
+        """Extract text from cell: paragraphs first, then nested tables (document order)."""
         lines: list[str] = []
         paragraphs = getattr(cell, "paragraphs", [])
         if isinstance(paragraphs, list):
             for p in paragraphs:
                 lines.extend(_emit_paragraph_lines(p))
+        # Nested tables: extract in order (fixes Issue 8 - DOCX table order)
+        nested_tables = getattr(cell, "tables", [])
+        if isinstance(nested_tables, list):
+            for nt in nested_tables:
+                lines.extend(_table_to_lines(nt))
         return [ln for ln in lines if ln.strip()]
 
     def _looks_like_data_table(table: object) -> bool:
@@ -1122,6 +1217,12 @@ def _extract_docx(file_path: Path) -> ExtractedText:
     header_text, footer_text = _extract_headers_footers()
     had_header_footer = bool(header_text or footer_text)
 
+    # Prepend header so name in header/footer is available for contact extraction
+    if header_text and header_text.strip():
+        text = f"{header_text.strip()}\n\n{text}"
+    if footer_text and footer_text.strip():
+        text = f"{text}\n\n{footer_text.strip()}"
+
     debug: dict[str, object] = {
         "docx_header": header_text,
         "docx_footer": footer_text,
@@ -1133,11 +1234,16 @@ def _extract_docx(file_path: Path) -> ExtractedText:
         "had_header_footer": bool(had_header_footer),
     }
 
-    return ExtractedText(
-        text=normalize_text(text),
-        method="docx",
+    out_text = normalize_text(text)
+    logger.info(
+        "[DATA-LOSS CHECK] DOCX extraction done: output_len=%d, paragraphs=%d, tables=%d, sample=%s",
+        len(out_text),
+        total_paragraphs,
+        table_count,
+        repr(_sample_text(out_text, 120, 80))[: 150],
+        extra={"output_chars": len(out_text), "total_paragraphs": total_paragraphs, "table_count": table_count},
     )
-
+    return ExtractedText(text=out_text, method="docx", debug=debug)
 
 # ============================================================
 # PLAIN TEXT
@@ -1145,10 +1251,27 @@ def _extract_docx(file_path: Path) -> ExtractedText:
 
 def _extract_plain_text(file_path: Path, extension: str) -> ExtractedText:
     raw = file_path.read_text(encoding="utf-8", errors="replace")
-    return ExtractedText(
-        text=normalize_text(raw),
-        method=extension,
+    if extension == "rtf":
+        raw = _strip_rtf(raw)
+    out_text = normalize_text(raw)
+    logger.info(
+        "[DATA-LOSS CHECK] Plain text (%s) done: output_len=%d, sample=%s",
+        extension,
+        len(out_text),
+        repr(_sample_text(out_text, 120, 80))[: 150],
+        extra={"extension": extension, "output_chars": len(out_text)},
     )
+    return ExtractedText(text=out_text, method=extension)
+
+
+def _strip_rtf(text: str) -> str:
+    # Decode hex-encoded characters like \'e9
+    def _hex_replace(match: re.Match[str]) -> str:
+        hex_value = match.group(1)
+        try:
+            return bytes.fromhex(hex_value).decode("latin-1")
+        except ValueError:
+            return ""
 
 
 # ============================================================

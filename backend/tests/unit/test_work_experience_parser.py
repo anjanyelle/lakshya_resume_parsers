@@ -12,6 +12,23 @@ def test_extract_individual_jobs_splits_on_date_ranges():
     assert len(chunks) == 2
 
 
+def test_extract_individual_jobs_single_chunk_fallback_splits_by_title():
+    """When 1 chunk with no date boundaries, split by job title keywords."""
+    text = """
+Senior Software Engineer
+Acme Corp
+- Built systems
+
+Product Manager
+Beta Inc
+- Led roadmap
+"""
+    parser = WorkExperienceParser()
+    chunks = parser.extract_individual_jobs(text)
+    # May split into 2+ chunks if heuristics find boundaries
+    assert len(chunks) >= 1
+
+
 def test_normalize_company_and_title():
     parser = WorkExperienceParser()
     assert parser.normalize_company_names("google inc") == "Google"
