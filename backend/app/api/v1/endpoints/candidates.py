@@ -498,6 +498,67 @@ def submit_corrections(
             db.add(row)
             continue
 
+        if field.startswith("education."):
+            parts = field.split(".")
+            if len(parts) != 3:
+                raise HTTPException(status_code=400, detail=f"Invalid correction field: {field}")
+            _, row_id, attr = parts
+            try:
+                row_uuid = UUID(row_id)
+            except ValueError as exc:
+                raise HTTPException(status_code=400, detail=f"Invalid education id: {row_id}") from exc
+
+            row = (
+                db.query(Education)
+                .filter(Education.id == row_uuid, Education.candidate_id == candidate.id)
+                .first()
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Education item not found")
+
+            allowed = {
+                "institution",
+                "degree",
+                "field_of_study",
+                "start_date",
+                "end_date",
+                "gpa",
+                "description",
+            }
+            if attr not in allowed:
+                raise HTTPException(status_code=400, detail=f"Unsupported education field: {attr}")
+
+            current_value = getattr(row, attr)
+            if isinstance(current_value, datetime):
+                original_value = current_value.isoformat()
+            else:
+                original_value = str(current_value) if current_value is not None else None
+
+            parsed_value = corrected_value
+            if attr in {"start_date", "end_date"}:
+                parsed_value = _parse_optional_date(corrected_value)
+            elif attr == "gpa":
+                try:
+                    parsed_value = float(corrected_value) if corrected_value else None
+                except ValueError:
+                    parsed_value = row.gpa
+            else:
+                parsed_value = str(corrected_value).strip() if corrected_value is not None else None
+                if parsed_value == "":
+                    parsed_value = None
+
+            record_correction(
+                db,
+                candidate_id=candidate.id,
+                field_name=field,
+                original_value=original_value,
+                corrected_value=str(corrected_value) if corrected_value is not None else None,
+                corrected_by=str(current_user.id),
+            )
+            setattr(row, attr, parsed_value)
+            db.add(row)
+            continue
+
         if hasattr(candidate, field):
             current_value = getattr(candidate, field)
             original_value = str(current_value) if current_value is not None else None
@@ -517,7 +578,22 @@ def submit_corrections(
             if field == "email":
                 candidate.email_hash = hash_value(corrected_value)
         if field == "skills" and corrected_value:
+            from app.models import CandidateSkill, Skill
             suggest_skills(db, corrected_value, source="manual_correction")
+            # Clear existing associations
+            db.query(CandidateSkill).filter(CandidateSkill.candidate_id == candidate.id).delete()
+            # Add new associations
+            skill_names = [s.strip() for s in corrected_value.split(",") if s.strip()]
+            for name in skill_names:
+                normalized = name.lower()
+                skill_obj = db.query(Skill).filter(Skill.normalized_name == normalized).first()
+                if not skill_obj:
+                    skill_obj = Skill(name=name, normalized_name=normalized)
+                    db.add(skill_obj)
+                    db.flush()
+                db.add(CandidateSkill(candidate_id=candidate.id, skill_id=skill_obj.id))
+            db.flush()
+            continue
 
     if payload.corrections and candidate.review_status == ReviewStatus.PENDING:
         candidate.review_status = ReviewStatus.IN_REVIEW

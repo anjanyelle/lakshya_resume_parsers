@@ -20,6 +20,7 @@ os.environ.setdefault("ENCRYPTION_KEY", "QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUF
 def configure_test_env(tmp_path_factory) -> None:
     os.environ.setdefault("LOG_DIR", str(tmp_path_factory.mktemp("logs")))
     os.environ.setdefault("S3_BUCKET", "test-bucket")
+    os.environ.setdefault("STORAGE_DIR", str(tmp_path_factory.mktemp("storage")))
     get_settings.cache_clear()
 
 

@@ -35,6 +35,10 @@ CERTIFICATION_HEADINGS = {
     r"^CERTIFICATIONS?\s*[:\-–—]?\s*$",
     r"^CERTIFICATION\s*[:\-–—]?\s*$",
     r"^LICENSES?\s*[:\-–—]?\s*$",
+    r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^TECHNICAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATIONS?\s*(AND|&|/)\s*LICENSES?\s*[:\-–—]?\s*$",
+    r"^CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
     r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CREDENTIALS?\s*[:\-–—]?\s*$",
     r"^CERTIFICATES\s*&\s*GRANTS\b.*$",
@@ -49,10 +53,6 @@ CERTIFICATION_HEADINGS = {
 
 # Stop headings - immediately terminate extraction
 STOP_HEADINGS = {
-    r"(?i)^\s*certification\s*[:\-–—]",
-    r"(?i)^\s*certifications?\s*[:\-–—]?",
-    r"(?i)^\s*certification\s*[:\-–—]",       
-    r"(?i)^\s*certifications?\s*[:\-–—]?",
     r"^TECHNICAL\s+SKILLS?",
     r"^SKILLS?\s*$",
     r"^PROFESSIONAL\s+EXPERIENCE",
@@ -62,8 +62,6 @@ STOP_HEADINGS = {
     r"^JOBS?\s*$",
     r"^EDUCATION",
     r"^ACADEMIC",
-    r"^CERTIFICATIONS?",
-    r"^LICENSES?",
     r"^AWARDS?",
     r"^ACHIEVEMENTS?",
     r"^PROJECTS?",
@@ -73,7 +71,6 @@ STOP_HEADINGS = {
     r"^INTERESTS?",
     r"^REFERENCES?",
     r"^PORTFOLIO",
-    r"^PUBLICATIONS?",
     r"^VOLUNTEER",
     r"^PAGE\s+\d+",
 }
@@ -90,7 +87,15 @@ class ExtractionResult:
 
 def _normalize_heading(text: str) -> str:
     """Normalize heading text for matching."""
-    return re.sub(r"\s+", " ", text.strip().upper())
+    text = text.strip().upper()
+
+    # Remove pipes used in PDF formatting
+    text = re.sub(r"\s*\|\s*", " ", text)
+
+    # Normalize multiple spaces
+    text = re.sub(r"\s+", " ", text)
+
+    return text
 
 
 def _is_heading(line: str, heading_patterns: set[str]) -> bool:
@@ -113,6 +118,51 @@ def _is_stop_heading(line: str) -> bool:
     for pattern in STOP_HEADINGS:
         if re.match(pattern, normalized):
             return True
+    return False
+
+def _is_major_section_heading(line: str) -> bool:
+    """
+    Universal heading detector.
+    Detects unknown future headings.
+    """
+
+    if not line:
+        return False
+
+    text = line.strip()
+
+    # Remove special chars
+    clean = re.sub(r"[&/,:;()\-\–\—]", "", text)
+    words = clean.split()
+
+    # 1️⃣ Heading must be short (1–6 words)
+    if not (1 <= len(words) <= 6):
+        return False
+
+    # 2️⃣ Not a sentence
+    if text.endswith("."):
+        return False
+
+    # 3️⃣ No year
+    if re.search(r"\b(19|20)\d{2}\b", text):
+        return False
+
+    # 4️⃣ No action verbs
+    if re.search(
+        r"\b(developed|managed|led|designed|implemented|created|worked|analyzed)\b",
+        text,
+        re.IGNORECASE,
+    ):
+        return False
+
+    # 5️⃣ Accept ALL CAPS
+    if text.isupper():
+        return True
+
+    # 6️⃣ Accept Title Case headings
+    if all(word[:1].isupper() for word in words if word):
+        return True
+
     return False
 
 
@@ -175,6 +225,155 @@ def _is_experience_description(line: str) -> bool:
     return bool(re.search(pattern, line, re.IGNORECASE))
 
 
+def extract_summary(text: str) -> ExtractionResult:
+    """
+    Extract professional summary using strict regex lookahead boundary detection.
+    
+    Extracts only text under "Summary" or "Professional Summary" heading.
+    Stops immediately when encountering stop headings (Certification, Skills, etc.).
+    Does not include the stop heading line itself.
+    
+    Args:
+        text: Full resume text
+        
+    Returns:
+        ExtractionResult with extracted summary, confidence, and metadata
+        
+    Examples:
+        >>> result = extract_summary("PROFESSIONAL SUMMARY\\nHigh-achieving IT...")
+        >>> result.confidence
+        1.0
+    """
+    if not text or not isinstance(text, str):
+        return ExtractionResult(
+            content="",
+            confidence=0.0,
+            section_found=False,
+            extracted_lines=[],
+        )
+    
+    lines = text.splitlines()
+    
+    # Find summary heading using strict regex (case-insensitive with lookahead)
+    summary_idx = None
+    summary_pattern = r"(?i)^\s*(professional\s*\|?\s*)?(summary|profile|objective)\s*$"
+    
+    for i, line in enumerate(lines):
+        if re.match(summary_pattern, line):
+            summary_idx = i
+            break
+    
+    if summary_idx is None:
+        logger.debug("No summary heading found")
+        return ExtractionResult(
+            content="",
+            confidence=0.0,
+            section_found=False,
+            extracted_lines=[],
+        )
+    
+    # Define stop heading patterns with lookahead boundary
+    stop_patterns = [
+    r"(?i)^\s*certifications?\s*:?\s*$",
+    r"(?i)^\s*technical\s+skills?\s*:?\s*$",
+    r"(?i)^\s*skills?\s*:?\s*$",
+    r"(?i)^\s*professional\s+experience\s*:?\s*$",
+    r"(?i)^\s*work\s+experience\s*:?\s*$",
+    r"(?i)^\s*education\s*:?\s*$",
+    r"(?i)^\s*environment\s*:?\s*$",
+]
+    
+    # Extract lines until stop heading (do not include stop heading line)
+    extracted_lines = []
+    for i in range(summary_idx + 1, len(lines)):
+        line = lines[i]
+        
+        # Check if this line matches any stop heading using lookahead patterns
+        is_stop = any(re.match(pattern, line) for pattern in stop_patterns)
+        if is_stop:
+            logger.debug(f"Stop boundary found at line {i}: {line[:50]}")
+            break
+
+        # Stop if email detected (contact bleed)
+        if re.search(r"\b[\w\.-]+@[\w\.-]+\.\w+\b", line):
+            break
+
+    # Stop if phone detected
+        if re.search(r"\+?\d[\d\s\-\(\)]{8,}", line):
+           break
+        # Stop if we hit a standalone name block (ALL CAPS short line)
+        if re.match(r"^[A-Z]{2,}$", line.strip()) and len(line.strip()) < 20:
+           break
+        extracted_lines.append(line)
+    
+    # Remove leading/trailing blank lines
+    while extracted_lines and not extracted_lines[0].strip():
+        extracted_lines.pop(0)
+    while extracted_lines and not extracted_lines[-1].strip():
+        extracted_lines.pop()
+    
+    # Check if we have actual content
+    has_content = any(line.strip() for line in extracted_lines)
+    
+    if not has_content:
+        logger.debug("Summary heading found but no content after it")
+        return ExtractionResult(
+            content="",
+            confidence=0.5,
+            section_found=True,
+            extracted_lines=[],
+        )
+    
+    # Join lines with newlines to preserve structure
+    # Join lines
+    raw_content = "\n".join(extracted_lines).strip()
+
+    # Clean summary text once
+    content = _clean_summary_text(raw_content)
+
+    logger.debug(f"Summary extracted: {len(content)} chars, confidence=1.0")
+
+    return ExtractionResult(
+        content=content,
+        confidence=1.0,
+        section_found=True,
+        extracted_lines=extracted_lines,   # keep original lines
+    )
+
+def _clean_summary_text(text: str) -> str:
+    if not text:
+        return text
+
+    # Remove pipe bullets
+    text = re.sub(r"^\s*\|\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"\s+\|\s+", " ", text)
+
+    # Remove bullet characters
+    text = re.sub(r"^\s*[-–—•]\s*", "", text, flags=re.MULTILINE)
+
+    # Fix hyphen line breaks
+    text = re.sub(r"-\s*\n\s*", "", text)
+
+    # Merge wrapped lines
+    text = re.sub(r"\n(?!\n)", " ", text)
+
+    # Remove page numbers
+    text = re.sub(r"Page\s+\d+\s+of\s+\d+", "", text, flags=re.IGNORECASE)
+
+    # Fix camelCase joins
+    text = re.sub(r"(?<=[a-z])(?=[A-Z])", " ", text)
+
+    # Fix letter-number joins
+    text = re.sub(r"(?<=[a-zA-Z])(?=\d)", " ", text)
+    text = re.sub(r"(?<=\d)(?=[a-zA-Z])", " ", text)
+
+    # Normalize spaces
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
+
+
+
 def extract_certifications(text: str) -> ExtractionResult:
     """
     Strict + inline-safe certification extraction.
@@ -218,9 +417,7 @@ def extract_certifications(text: str) -> ExtractionResult:
                 if part and len(part) < 200:
                     inline_lines.append(part.strip())
 
-    # =====================================================
     # 2️⃣ STRICT BOUNDARY SECTION DETECTION
-    # =====================================================
     for idx, line in enumerate(lines):
         if _is_heading(line, CERTIFICATION_HEADINGS):
             cert_start_idx = idx
@@ -250,9 +447,11 @@ def extract_certifications(text: str) -> ExtractionResult:
     for idx in range(cert_start_idx + 1, len(lines)):
         line = lines[idx]
 
-        if _is_stop_heading(line):
-            break
-
+        # if _is_stop_heading(line):
+        #     break
+        if _is_stop_heading(line) or _is_major_section_heading(line):
+              break
+        
         clean_line = line.strip()
 
         if re.match(r"^Page\s+\d+", clean_line, re.IGNORECASE):
@@ -260,8 +459,8 @@ def extract_certifications(text: str) -> ExtractionResult:
 
         if not clean_line:
             continue
-
-        clean_line = re.sub(r"^[•\-\*\u2022]\s*", "", clean_line)
+         # handles PDF bullet types
+        clean_line = re.sub(r"^[\-\u2013\u2014•\*\u2022\u25CF\u25E6\u2043]+\s*", "", clean_line)
 
         if _is_environment_line(clean_line):
             break

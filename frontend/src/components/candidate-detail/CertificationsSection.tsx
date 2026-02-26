@@ -19,7 +19,9 @@ type CertificationsSectionProps = {
 
 const isExpired = (expiryDate?: string | null) => {
   if (!expiryDate) return false
-  return new Date(expiryDate).getTime() < Date.now()
+  const date = new Date(expiryDate)
+  if (isNaN(date.getTime())) return false
+  return date.getTime() < Date.now()
 }
 
 const parseFallbackItems = (
