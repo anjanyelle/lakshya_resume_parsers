@@ -49,7 +49,7 @@ from app.data.taxonomy.degree_taxonomy import DEGREE_ALIASES
 from app.services.parser.certification_parser import CertificationParser
 from app.services.parser.contact_extractor import ContactExtractor
 from app.services.parser.education_parser import EducationParser
-from app.services.parser.normalize import fix_concatenated_words, normalize_resume_text
+from app.services.parser.normalize import fix_concatenated_words, normalize_resume_text, normalize_text_for_skills_pre
 from app.services.parser.section_parser import SectionParser
 from app.services.parser.achievements_extractor import AchievementsExtractor
 from app.services.parser.certification_validator import CertificationValidator
@@ -2880,9 +2880,12 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
 
         # FIX 4 — Apply PDF split word normalization BEFORE FlashText so 'My SQL'→'mysql',
         #          'Py Spark'→'pyspark', 'Git Hub'→'github', 'XG Boost'→'xgboost', etc.
+        # STEP 2 — Pre-normalize broken tokens first (My SQL→MySQL, S 3→S3, etc.)
         if raw_skills_content:
+            raw_skills_content = normalize_text_for_skills_pre(raw_skills_content)
             raw_skills_content = normalize_pdf_split_words(raw_skills_content)
         if skills_section:
+            skills_section = normalize_text_for_skills_pre(skills_section)
             skills_section = normalize_pdf_split_words(skills_section)
 
         extractor = SkillExtractor()
@@ -2957,12 +2960,36 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
                     "name": _tok,
                     "normalized_name": _tok_norm,
                     "category": "Technical Skills",
-                    "confidence": 0.75,
+                    "confidence": 0.85,
                     "years_experience": None,
                     "proficiency": None,
                     "source": "technical_skills_section",
                     "version": None,
                 })
+
+        # STEP 4 — LLM fallback: validate skills not in DB; if LLM returns them, mark source='llm'
+        _section_not_in_db = [
+            normalize_skill_name_for_dedup(str(p.get("normalized_name") or p.get("name") or ""))
+            for p in payload
+            if isinstance(p, dict)
+            and p.get("source") == "technical_skills_section"
+            and normalize_skill_name_for_dedup(str(p.get("normalized_name") or p.get("name") or "")) not in canonical_names
+        ]
+        if _section_not_in_db and job.raw_text:
+            try:
+                llm = LLMParsingService()
+                llm_skills_raw = llm.extract_technical_skills_only(job.raw_text)
+                llm_skills_set = {normalize_skill_name_for_dedup(s) for s in llm_skills_raw if s}
+                for _item in payload:
+                    if not isinstance(_item, dict) or _item.get("source") != "technical_skills_section":
+                        continue
+                    _norm = normalize_skill_name_for_dedup(str(_item.get("normalized_name") or _item.get("name") or ""))
+                    if _norm in canonical_names:
+                        continue
+                    if _norm in llm_skills_set:
+                        _item["source"] = "llm"
+            except Exception:  # noqa: BLE001
+                pass
 
         # --- 4-Layer quality filter: canonical norm, sentence fragment drop, atomic validation, category sanitization ---
         filtered_payload: list[dict[str, Any]] = []
@@ -2972,6 +2999,17 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
             name = str(item.get("name") or "").strip()
             normalized = str(item.get("normalized_name") or "").strip()
             if not name and not normalized:
+                continue
+            # STEP 5 — Strict: reject confidence < 0.80
+            conf = float(item.get("confidence") or 0)
+            if conf < 0.80:
+                continue
+            # STEP 5 — Reject if > 4 words
+            skill_label = name or normalized
+            if len(skill_label.split()) > 4:
+                continue
+            # STEP 5 — Reject all-lowercase multi-word (sentence fragment / garbage)
+            if len(skill_label.split()) >= 2 and not any(c.isupper() for c in skill_label):
                 continue
             # STEP 3: Canonical normalization (e.g. Amazon Redshift, AWS Redshift -> redshift)
             canonical_norm = normalize_to_canonical(normalized or name)
@@ -3039,6 +3077,7 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
 
         payload = filtered_payload
 
+        # STEP 6 — Deduplicate by normalized (lower + strip); preserve order.
         # FIX 6 — POST-FILTER DEDUPLICATION by normalized_name.
         # Keep the entry with highest confidence. This removes duplicates where
         # FlashText matched 'glue' and section extraction added 'AWS Glue' with same canonical.

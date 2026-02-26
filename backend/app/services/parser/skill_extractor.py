@@ -1861,7 +1861,13 @@ class SkillExtractor:
             pattern = r"\b" + re.escape(term_lower) + r"\b"
             return bool(re.search(pattern, lowered, re.IGNORECASE))
 
-        for canonical, item in self.normalized_map.items():
+        # STEP 3 — Longest phrase first: match "SQL Server" before "SQL", "AWS Glue" before "Glue"
+        canonical_sorted = sorted(
+            self.normalized_map.items(),
+            key=lambda x: len(x[0]),
+            reverse=True,
+        )
+        for canonical, item in canonical_sorted:
             if _contains_term(canonical) and item["normalized_name"] not in seen_normalized:
                 seen_normalized.add(item["normalized_name"])
                 matches.append(
@@ -1876,7 +1882,12 @@ class SkillExtractor:
                     )
                 )
 
-        for synonym, canonical in self.synonym_map.items():
+        synonym_sorted = sorted(
+            self.synonym_map.items(),
+            key=lambda x: len(x[0]),
+            reverse=True,
+        )
+        for synonym, canonical in synonym_sorted:
             if _contains_term(synonym):
                 item = self.normalized_map[canonical]
                 if item["normalized_name"] not in seen_normalized:

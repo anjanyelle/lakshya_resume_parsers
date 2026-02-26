@@ -630,7 +630,20 @@ export default function CandidateDetailPage() {
       </div>
 
       <SkillsSection
-        skills={candidate.skills}
+        skills={
+          Array.isArray((latestJob as any)?.parsed_data?.skills)
+            ? ((latestJob as any).parsed_data.skills as any[]).map(
+                (s: any, i: number) =>
+                  ({
+                    id: s.id ?? `skill-${i}`,
+                    name: s.name ?? s.normalized_name ?? '',
+                    category: s.category ?? null,
+                    normalized_name: s.normalized_name ?? null,
+                    source: s.source ?? null,
+                  }) as Skill
+              )
+            : candidate.skills ?? []
+        }
         candidateSkills={candidate.candidate_skills}
         onUpdate={handleSkillsUpdate}
       />

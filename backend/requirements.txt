@@ -1,3 +1,6 @@
+# Install: pip install -r requirements.txt
+# Then: python -m spacy download en_core_web_sm  (or en_core_web_lg for better NER)
+# Optional transformer NER: pip install transformers torch
 fastapi
 uvicorn[standard]
 sqlalchemy
@@ -24,6 +27,8 @@ pillow
 pdf2image
 rapidfuzz
 spacy
+scikit-learn
+nltk
 flashtext
 phonenumbers
 celery

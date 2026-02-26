@@ -11,6 +11,28 @@ _RTL_MARKS_RE = re.compile(r"[\u200e\u200f\u202a-\u202e]")
 _MULTISPACE_RUN_RE = re.compile(r"[ \t]{2,}")
 _BULLET_RE = re.compile(r"[\u2022\u2023\u25E6\u2043\u2219\uf0b7\uf0a7\uf0d8\uf0fc▪]")
 
+# Pre-normalization replacements for skill extraction (fix broken tokens BEFORE extraction).
+# Applied to raw text before FlashText/section parsing. Longest matches first.
+PRE_NORMALIZATION_REPLACEMENTS: dict[str, str] = {
+    "My SQL": "MySQL",
+    "S 3": "S3",
+    "EC 2": "EC2",
+    "Postgre SQL": "PostgreSQL",
+    "Map Reduce": "MapReduce",
+    "Ni Fi": "NiFi",
+}
+
+
+def normalize_text_for_skills_pre(text: str) -> str:
+    """Fix broken tokens before skill extraction (e.g. 'My SQL' -> 'MySQL', 'S 3' -> 'S3')."""
+    if not text or not isinstance(text, str):
+        return text
+    result = text
+    for wrong, correct in sorted(PRE_NORMALIZATION_REPLACEMENTS.items(), key=lambda x: -len(x[0])):
+        result = result.replace(wrong, correct)
+    return result
+
+
 # Split CamelCase like:
 # AWSCertifiedSolutionsArchitect -> AWS Certified Solutions Architect
 _CAMEL_CASE_SPLIT_RE = re.compile(
