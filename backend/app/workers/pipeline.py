@@ -236,7 +236,7 @@ def sanitize_final_output(parsed_data: dict[str, Any]) -> dict[str, Any]:
     if isinstance(contact, dict):
         name_obj = contact.get("name")
         name_val = (
-            name_obj.get("name") if isinstance(name_obj, dict) else name_obj
+            name_obj.get("name") if isinstance(name_obj, dict) else name_obj 
         )
         if name_val is None:
             contact.setdefault("name", {})
