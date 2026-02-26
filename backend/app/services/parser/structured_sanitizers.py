@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from app.services.parser.certification_validator import deduplicate_certificates
+from app.services.parser.skill_extractor import map_category_to_master
 
 
 _PLACEHOLDER_TOKEN_RE = re.compile(
@@ -38,6 +39,18 @@ def sanitize_education_entries(entries: Any) -> list[dict[str, Any]]:
         entries = [entries]
     if not isinstance(entries, list) or not entries:
         return []
+
+    def _norm_date_for_dedup(val: Any) -> str:
+        """Normalize date to string for dedup key (ISO date or empty)."""
+        if val is None:
+            return ""
+        s = _norm_str(val)
+        if not s:
+            return ""
+        # Keep first 10 chars of ISO date (YYYY-MM-DD) for consistent dedup
+        if len(s) >= 10 and s[4] == "-" and s[7] == "-":
+            return s[:10]
+        return s
 
     cleaned: list[dict[str, Any]] = []
     for item in entries:
@@ -80,8 +93,8 @@ def sanitize_education_entries(entries: Any) -> list[dict[str, Any]]:
             _norm_str(e.get("institution")).lower(),
             _norm_str(e.get("degree")).lower(),
             _norm_str(e.get("field_of_study")).lower(),
-            _norm_str(e.get("start_date")).lower(),
-            _norm_str(e.get("end_date")).lower(),
+            _norm_date_for_dedup(e.get("start_date")),
+            _norm_date_for_dedup(e.get("end_date")),
         )
         if key not in deduped:
             deduped[key] = e

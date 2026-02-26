@@ -36,6 +36,12 @@ export default function SkillsSection({
     ).slice(0, 8)
   }, [newSkill, skills])
 
+  // STEP 7 — Clean rendering: sort by name, never raw JSON; render as skill badges only
+  const sortedSkills = useMemo(
+    () => [...skills].sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+    [skills]
+  )
+
   useEffect(() => {
     if (initialSkills.length > 0) {
       setSkills(initialSkills)
@@ -127,9 +133,9 @@ export default function SkillsSection({
         <h3 className="text-[14px] font-bold text-[#1E293B]">Skills</h3>
       </div>
 
-      {/* Active Skills Cloud */}
+      {/* Active Skills Cloud — sorted, cleaned array; badge for LLM-added */}
       <div className="flex flex-wrap gap-3 mb-8">
-        {skills.map((skill) => (
+        {sortedSkills.map((skill) => (
           <div
             key={skill.id}
             className="flex items-center gap-2 rounded-full border border-[#2D3E50] bg-white px-4 py-2 hover:bg-slate-50 transition-colors"
@@ -137,6 +143,14 @@ export default function SkillsSection({
             <span className="text-[14px] font-medium text-[#2D3E50]">
               {skill.name}
             </span>
+            {skill.source === 'llm' && (
+              <span
+                className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800"
+                title="Added via LLM"
+              >
+                Added via LLM
+              </span>
+            )}
             {editing && (
               <button
                 onClick={() => removeSkill(skill.id)}

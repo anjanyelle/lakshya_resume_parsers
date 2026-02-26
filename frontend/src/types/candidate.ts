@@ -11,6 +11,7 @@ export interface Skill {
   name: string
   category?: string | null
   normalized_name?: string | null
+  source?: string | null
 }
 
 export interface CandidateSkill {
