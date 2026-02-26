@@ -56,7 +56,25 @@ from app.services.parser.certification_validator import (
     CertificationValidator,
     deduplicate_certificates,
 )
-from app.services.parser.skill_extractor import SkillExtractor, SkillMatch
+from app.services.parser.skill_extractor import (
+    HARD_SKILL_BLACKLIST,
+    SkillExtractor,
+    SkillMatch,
+    SQL_SUBFUNCTION_MAP,
+    clean_skill_text_for_section,
+    clean_text_for_skills,
+    filter_skills_by_resume_text,
+    is_atomic_skill,
+    is_generic_skill,
+    is_sentence_fragment,
+    map_category_to_master,
+    normalize_pdf_split_words,
+    normalize_skill_name as normalize_skill_name_for_dedup,
+    normalize_to_canonical,
+    sanitize_category,
+    strip_skill_token,
+    tokenize_skills_by_comma,
+)
 from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
 from app.services.parser.work_experience_sanitizer import (
     deduplicate_work_entries,
@@ -872,14 +890,16 @@ def _parse_date_str(value: str | None) -> date | None:
     raw = str(value).strip()
     if not raw:
         return None
+    raw = raw.replace("\u2019", "'").replace("\u2018", "'")
 
-    # Fallbacks for formats dateparser may not handle well
-    q_match = re.match(r"Q([1-4])\s+(\d{4})", raw, re.IGNORECASE)
+    # Q1 2020, Q4 2019 (optional space)
+    q_match = re.match(r"Q([1-4])\s*(\d{4})", raw, re.IGNORECASE)
     if q_match:
         q, year = int(q_match.group(1)), int(q_match.group(2))
         month = (q - 1) * 3 + 1
         return date(year, month, 1)
 
+    # Spring 2020, Fall 2019
     season_match = re.match(
         r"(Spring|Summer|Fall|Winter)\s+(\d{4})", raw, re.IGNORECASE
     )
@@ -888,12 +908,26 @@ def _parse_date_str(value: str | None) -> date | None:
         month = {"spring": 3, "summer": 6, "fall": 9, "winter": 12}.get(season, 1)
         return date(year, month, 1)
 
-    # MMM 'YY or MMM 'YY -> normalize to MMM 20YY for dateparser
+    # Jan'20 or Jan '20 (with or without space before apostrophe)
     apostrophe_match = re.match(
-        r"([A-Za-z]{3,})\s*['\u2019\u2018]\s*(\d{2})\b", raw
+        r"([A-Za-z]{3,})\s*['\u2019\u2018](\d{2})\b", raw
     )
     if apostrophe_match:
-        raw = f"{apostrophe_match.group(1)} 20{apostrophe_match.group(2)}"
+        yy = int(apostrophe_match.group(2))
+        y = 2000 + yy if yy <= 50 else 1900 + yy
+        raw = f"{apostrophe_match.group(1)} {y}"
+
+    # 20.01.2020, 15.06.24 (DD.MM.YYYY, DD.MM.YY)
+    dmy_dot = re.match(r"^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$", raw)
+    if dmy_dot:
+        d, m, y = int(dmy_dot.group(1)), int(dmy_dot.group(2)), int(dmy_dot.group(3))
+        if y < 100:
+            y += 2000 if y <= 50 else 1900
+        if 1 <= d <= 31 and 1 <= m <= 12:
+            try:
+                return date(y, m, d)
+            except ValueError:
+                return date(y, m, 1)
 
     # DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY (day first)
     dmy_match = re.match(r"(\d{1,2})[./\-](\d{1,2})[./\-](\d{2,4})\b", raw)
@@ -904,6 +938,17 @@ def _parse_date_str(value: str | None) -> date | None:
         if 1 <= d <= 31 and 1 <= m <= 12:
             try:
                 return date(y, m, d)
+            except ValueError:
+                pass
+
+    # 01/20, 03-22 (MM/YY, MM-YY)
+    mmyy_match = re.match(r"^(\d{1,2})[/\-](\d{2})\b$", raw)
+    if mmyy_match:
+        mo, yy = int(mmyy_match.group(1)), int(mmyy_match.group(2))
+        y = 2000 + yy if yy <= 50 else 1900 + yy
+        if 1 <= mo <= 12:
+            try:
+                return date(y, mo, 1)
             except ValueError:
                 pass
 
@@ -2372,8 +2417,8 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
                         conf = float(v.get("confidence", 0.0) or 0.0)
                     except (TypeError, ValueError):
                         conf = 0.0
-                    # Keep sections with conf >= 0.45 (lowered from 0.6 to avoid discarding valid content)
-                    if conf >= 0.45:
+                    # Keep sections with conf >= 0.35 (lowered from 0.45 to avoid discarding valid content)
+                    if conf >= 0.35:
                         merged[k] = v
 
                 for k, v in fb_sections.items():
@@ -4680,7 +4725,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     end_date=_parse_date_str(entry.get("end_date")),
                     is_current=entry.get("is_current", False),
                     location=entry.get("location"),
-                    description=description,
+                    description=entry.get("description"),
                     display_order=None,
                 )
             )

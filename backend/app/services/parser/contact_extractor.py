@@ -14,6 +14,8 @@ try:
 except Exception:  # noqa: BLE001
     spacy = None
 
+from app.services.parser.ner_fallback import extract_entities as _ner_extract_entities
+
 logger = logging.getLogger(__name__)
 
 
@@ -733,7 +735,7 @@ class ContactExtractor:
             try:
                 self._nlp = spacy.load("en_core_web_sm")
             except Exception:  # noqa: BLE001
-                self._nlp = spacy.blank("en")
+                self._nlp = None  # No blank fallback: NER requires pretrained model
 
     @staticmethod
     def _contains_country_hint(text: str, hint: str) -> bool:
@@ -883,6 +885,21 @@ class ContactExtractor:
             country = "India"
             confidence = max(confidence, 0.6)
 
+        # NER fallback when regex fails: GPE → Location (cities, countries)
+        if not city or not country:
+            entities = _ner_extract_entities(text[:8000], labels=("GPE",))
+            gpes = [g.strip() for g in entities.get("GPE", []) if g.strip()]
+            valid_gpes = [g for g in gpes if g.lower() not in INVALID_CITY_TOKENS]
+            if valid_gpes:
+                if not city and len(valid_gpes[0]) > 2:
+                    city = valid_gpes[0]
+                    confidence = max(confidence, 0.5)
+                if not country:
+                    # Use last GPE as country (often "City, State, Country" order)
+                    last_gpe = valid_gpes[-1]
+                    country = COUNTRY_HINTS.get(last_gpe.lower()) or last_gpe
+                    confidence = max(confidence, 0.45)
+
         return LocationResult(city=city, state=state, country=country, confidence=confidence)
 
     def extract_name(self, text: str) -> NameResult:
@@ -939,13 +956,19 @@ class ContactExtractor:
                         name=self._normalize_name_case(candidate), confidence=0.72
                     )
 
+        # NER fallback when regex fails: PERSON → Name
         if self._nlp:
             doc = self._nlp("\n".join(top_lines))
             for ent in doc.ents:
                 if ent.label_ in {"PERSON", "PER"}:
                     name = ent.text.strip()
-                    if len(name.split()) <= 5:
-                        return NameResult(name=name, confidence=0.75)
+                    if len(name.split()) <= 5 and self._is_probable_name(name):
+                        return NameResult(name=self._normalize_name_case(name), confidence=0.75)
+        else:
+            entities = _ner_extract_entities("\n".join(top_lines), labels=("PERSON",))
+            for name in entities.get("PERSON", []):
+                if len(name.split()) <= 5 and self._is_probable_name(name):
+                    return NameResult(name=self._normalize_name_case(name), confidence=0.72)
 
         for line in top_lines:
             if self._looks_like_section_header(line):

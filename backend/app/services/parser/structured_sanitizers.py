@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from app.services.parser.certification_validator import deduplicate_certificates
+from app.services.parser.skill_extractor import map_category_to_master
 
 
 _PLACEHOLDER_TOKEN_RE = re.compile(

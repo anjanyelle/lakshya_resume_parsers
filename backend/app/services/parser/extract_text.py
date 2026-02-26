@@ -118,7 +118,12 @@ def reconstruct_multicolumn_layout(
     blocks: list[LayoutBlock],
     page_width: float | None = None,
 ) -> str:
-    """Detect 1, 2, or 3+ columns from block x-positions and merge column-major."""
+    """Detect 1, 2, or 3+ columns from block x-positions; output left column first, then right.
+
+    Full-width blocks (e.g. headers) are output first in y-order. Column boundaries
+    detected by gaps in x-positions (gap >= 8% page width or 50px). Critical for resume
+    parsing: wrong order breaks section detection, contact, and experience extraction.
+    """
     if not blocks:
         return ""
 
@@ -126,20 +131,38 @@ def reconstruct_multicolumn_layout(
     max_x1 = max(b.x1 for b in blocks)
     pw = page_width if page_width is not None else max(1.0, max_x1 - min_x0)
 
-    xs = sorted(set(round((b.x0 - min_x0) / 50) * 50 for b in blocks))
+    # Full-width blocks (headers, titles) output first in y-order
+    full_width_threshold = pw * 0.85
+    full_width = [b for b in blocks if b.width >= full_width_threshold]
+    non_full = [b for b in blocks if b.width < full_width_threshold]
+    full_sorted = sorted(full_width, key=lambda b: (b.y0, b.x0))
+    full_text = _blocks_to_text(full_sorted).strip()
+
+    if not non_full:
+        return full_text
+
+    # Collect block x_center positions for column detection
+    x_centers = sorted(set(b.x_center - min_x0 for b in non_full))
+    if not x_centers:
+        return full_text + ("\n\n" + _blocks_to_text(non_full) if non_full else "")
+
+    # Column boundary: gap >= 8% of page width or 50px (whichever is larger)
+    min_gap = max(50.0, pw * 0.08)
     col_starts = [0.0]
-    for i in range(1, len(xs)):
-        if xs[i] - xs[i - 1] > 60:
-            col_starts.append(xs[i])
-    col_starts.append(pw)
+    for i in range(1, len(x_centers)):
+        if x_centers[i] - x_centers[i - 1] >= min_gap:
+            col_starts.append(x_centers[i])
+    col_starts.append(pw + 1.0)
     n_cols = len(col_starts) - 1
 
     if n_cols == 1:
-        return _blocks_to_text(blocks)
+        col_text = _blocks_to_text(non_full)
+        return (full_text + "\n\n" + col_text).strip() if full_text else col_text
 
+    # Assign each non-full block to column by x_center; sort within column by y0
     columns: list[list[LayoutBlock]] = [[] for _ in range(n_cols)]
-    for b in blocks:
-        rel_x = b.x0 - min_x0
+    for b in non_full:
+        rel_x = b.x_center - min_x0
         assigned = False
         for i in range(n_cols):
             if col_starts[i] <= rel_x < col_starts[i + 1]:
@@ -149,8 +172,16 @@ def reconstruct_multicolumn_layout(
         if not assigned:
             columns[-1].append(b)
 
-    parts = [_blocks_to_text(col) for col in columns]
-    return "\n\n".join(p for p in parts if p)
+    # Output: full-width first, then left column, then right column
+    parts: list[str] = []
+    if full_text:
+        parts.append(full_text)
+    for col in columns:
+        col_sorted = sorted(col, key=lambda b: (b.y0, b.x0))
+        text = _blocks_to_text(col_sorted)
+        if text.strip():
+            parts.append(text)
+    return "\n\n".join(parts)
 
 
 def reconstruct_two_column_layout(blocks: list[LayoutBlock]) -> str:
@@ -291,32 +322,8 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
     except Exception as exc:  # noqa: BLE001
         logger.info("PyMuPDF extraction unavailable", exc_info=exc)
 
-    # 2. Fallback: pypdf (fast, simple) before pdfplumber
-    if len(text) < settings.OCR_MIN_TEXT_CHARS:
-        try:
-            reader = PdfReader(str(file_path))
-            pages = list(reader.pages)[:page_limit]
-            pypdf_text = "\n".join(
-                (p.extract_text() or "") for p in pages
-            ).strip()
-            if len(pypdf_text) > len(text):
-                text = pypdf_text
-                method = "pypdf"
-                debug["pypdf_pages"] = len(pages)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("pypdf fallback failed", exc_info=exc)
-
-    # 3. If still low: pdfplumber for tables only (merge with existing text)
-    if len(text) < settings.OCR_MIN_TEXT_CHARS:
-        table_text = _extract_tables_only_pdfplumber(file_path, page_limit)
-        if table_text:
-            text = f"{text}\n\n{table_text}".strip() if text else table_text
-            if "pdfplumber" not in str(debug):
-                debug["pdfplumber_tables_only"] = True
-            if len(text) >= settings.OCR_MIN_TEXT_CHARS:
-                method = "pypdf+pdfplumber_tables"
-
-    # 4. Full pdfplumber only if still insufficient (e.g. complex layouts)
+    # 2. Fallback: pdfplumber full (layout-aware, extract_words) BEFORE pypdf.
+    # pdfplumber preserves column order; pypdf does not. Critical for multi-column resumes.
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
         try:
             with pdfplumber.open(file_path) as pdf:
@@ -337,6 +344,31 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
                     method = "pdfplumber"
         except Exception as exc:  # noqa: BLE001
             logger.warning("pdfplumber full extraction failed", exc_info=exc)
+
+    # 3. If still low: pypdf (fast, no layout)
+    if len(text) < settings.OCR_MIN_TEXT_CHARS:
+        try:
+            reader = PdfReader(str(file_path))
+            pages = list(reader.pages)[:page_limit]
+            pypdf_text = "\n".join(
+                (p.extract_text() or "") for p in pages
+            ).strip()
+            if len(pypdf_text) > len(text):
+                text = pypdf_text
+                method = "pypdf"
+                debug["pypdf_pages"] = len(pages)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("pypdf fallback failed", exc_info=exc)
+
+    # 4. If still low: pdfplumber tables only (merge with existing text)
+    if len(text) < settings.OCR_MIN_TEXT_CHARS:
+        table_text = _extract_tables_only_pdfplumber(file_path, page_limit)
+        if table_text:
+            text = f"{text}\n\n{table_text}".strip() if text else table_text
+            if "pdfplumber" not in str(debug):
+                debug["pdfplumber_tables_only"] = True
+            if len(text) >= settings.OCR_MIN_TEXT_CHARS:
+                method = f"{method}+pdfplumber_tables"
 
     if len(text) < settings.OCR_MIN_TEXT_CHARS:
         logger.info(
@@ -698,40 +730,47 @@ def _reconstruct_lines_from_words_with_layout(
         else:
             line_bins.append({"y0": y0, "y1": y1, "words": [w]})
 
+    # Build blocks; SPLIT at column gaps so left/right columns become separate blocks.
+    # This allows reconstruct_multicolumn_layout to order: left column first, then right.
     blocks: list[LayoutBlock] = []
     for b in line_bins:
         b_words = b.get("words", [])
         if not isinstance(b_words, list) or not b_words:
             continue
         sorted_words = sorted(b_words, key=lambda ww: float(ww["x0"]))
-        parts: list[str] = []
+        # Split into column chunks when gap >= gap_threshold (column boundary)
+        chunks: list[list[dict]] = []
+        current_chunk: list[dict] = []
         last_x1: float | None = None
-        min_x0 = float("inf")
-        max_x1 = 0.0
         for ww in sorted_words:
-            token = str(ww.get("text") or "")
-            if not token:
-                continue
             x0 = float(ww.get("x0") or 0.0)
-            x1 = float(ww.get("x1") or x0)
-            min_x0 = min(min_x0, x0)
-            max_x1 = max(max_x1, x1)
             if last_x1 is not None and (x0 - last_x1) >= gap_threshold:
-                parts.append("|")
-            parts.append(token)
-            last_x1 = x1
-        line = " ".join(parts).strip()
-        if not line or min_x0 == float("inf"):
-            continue
-        blocks.append(
-            LayoutBlock(
-                x0=float(min_x0),
-                y0=float(b["y0"]),
-                x1=float(max_x1),
-                y1=float(b["y1"]),
-                text=_normalize_bullet_prefix(line),
+                if current_chunk:
+                    chunks.append(current_chunk)
+                    current_chunk = []
+            current_chunk.append(ww)
+            last_x1 = float(ww.get("x1") or x0)
+        if current_chunk:
+            chunks.append(current_chunk)
+
+        for chunk in chunks:
+            if not chunk:
+                continue
+            parts = [str(w.get("text") or "").strip() for w in chunk if str(w.get("text") or "").strip()]
+            line = " ".join(parts).strip()
+            if not line:
+                continue
+            min_x0 = min(float(w.get("x0") or 0.0) for w in chunk)
+            max_x1 = max(float(w.get("x1") or w.get("x0") or 0.0) for w in chunk)
+            blocks.append(
+                LayoutBlock(
+                    x0=min_x0,
+                    y0=float(b["y0"]),
+                    x1=max_x1,
+                    y1=float(b["y1"]),
+                    text=_normalize_bullet_prefix(line),
+                )
             )
-        )
 
     if not blocks:
         return [], {"detected_columns": 1, "line_count": 0}

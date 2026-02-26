@@ -29,6 +29,65 @@ Beta Inc
     assert len(chunks) >= 1
 
 
+def test_split_single_chunk_fallback_splits_on_title_and_company_suffix():
+    """Fallback splits on Senior Engineer / Lead Developer and company suffix (Inc, Pvt Ltd, Technologies)."""
+    text = """
+Senior Software Engineer
+Acme Technologies
+- Built scalable systems for millions of users
+- Led architecture decisions and mentored junior developers
+
+Lead Developer
+XYZ Pvt Ltd
+- Led team of 5 engineers on critical projects
+- Delivered features ahead of schedule
+"""
+    parser = WorkExperienceParser()
+    chunks = parser.extract_individual_jobs(text)
+    assert len(chunks) >= 2
+    assert "Senior Software Engineer" in chunks[0]
+    assert "Acme Technologies" in chunks[0]
+    assert "Lead Developer" in chunks[1]
+    assert "XYZ Pvt Ltd" in chunks[1]
+
+
+def test_split_single_chunk_fallback_title_at_company_format():
+    """Fallback splits on 'Title at Company' format. Needs >200 chars to trigger fallback."""
+    text = """
+Software Engineer at Google
+- Built internal tools and improved developer productivity
+- Collaborated with cross-functional teams on large-scale projects
+- Implemented best practices for code review and deployment
+
+Senior Developer at Microsoft
+- Led team of engineers on critical initiatives
+- Delivered features ahead of schedule
+"""
+    parser = WorkExperienceParser()
+    chunks = parser.extract_individual_jobs(text)
+    assert len(chunks) >= 2
+    assert "at Google" in chunks[0] or "Google" in chunks[0]
+    assert "at Microsoft" in chunks[1] or "Microsoft" in chunks[1]
+
+
+def test_split_single_chunk_fallback_principal_staff_senior_titles():
+    """Fallback recognizes Principal Engineer, Staff Engineer, Senior Analyst, etc."""
+    text = """
+Principal Software Engineer
+Big Corp Inc
+- Architected distributed systems serving millions of users
+- Defined technical standards and mentored senior engineers
+
+Staff Engineer
+Tech Solutions
+- Led initiatives across multiple product teams
+- Drove adoption of new technologies and best practices
+"""
+    parser = WorkExperienceParser()
+    chunks = parser.extract_individual_jobs(text)
+    assert len(chunks) >= 2
+
+
 def test_normalize_company_and_title():
     parser = WorkExperienceParser()
     assert parser.normalize_company_names("google inc") == "Google"
@@ -40,6 +99,24 @@ def test_parse_date_range():
     start, end, is_current = parser._parse_dates("Jan 2020 - Present")
     assert isinstance(start, date)
     assert is_current is True
+
+
+def test_parse_date_range_2020_present_and_current():
+    """Support 2020–Present, 2020 - Current (en-dash, hyphen)."""
+    parser = WorkExperienceParser()
+    for text in ["2020–Present", "2020 - Current", "2019 - Present"]:
+        start, end, is_current = parser._parse_dates(text)
+        assert isinstance(start, date)
+        assert is_current is True
+
+
+def test_parse_date_range_jan20_format():
+    """Support Jan'20 - Dec'21 range."""
+    parser = WorkExperienceParser()
+    start, end, is_current = parser._parse_dates("Jan'20 - Dec'21")
+    assert start == date(2020, 1, 1)
+    assert end == date(2021, 12, 1)
+    assert is_current is False
 
 
 def test_parse_date_range_mm_yy():
@@ -173,9 +250,14 @@ def test_parse_table_formatted_experience():
         ("Spring 2020", date(2020, 3, 1)),
         ("Fall 2019", date(2019, 9, 1)),
         ("Jan '20", date(2020, 1, 1)),
+        ("Jan'20", date(2020, 1, 1)),
         ("Feb '19", date(2019, 2, 1)),
         ("2020.01", date(2020, 1, 1)),
         ("01.2020", date(2020, 1, 1)),
+        ("20.01.2020", date(2020, 1, 20)),
+        ("15.06.24", date(2024, 6, 15)),
+        ("01/20", date(2020, 1, 1)),
+        ("03/22", date(2022, 3, 1)),
         ("2020", date(2020, 1, 1)),
     ],
 )

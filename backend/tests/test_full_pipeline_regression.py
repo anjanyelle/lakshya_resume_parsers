@@ -56,6 +56,27 @@ def test_date_ym_format():
     assert _parse_date_str("2020/01") is not None
 
 
+def test_date_jan20_no_space():
+    """Jan'20 (no space before apostrophe)."""
+    assert _parse_date_str("Jan'20") is not None
+    assert _parse_date_str("Jan'20").year == 2020
+
+
+def test_date_01_slash_20():
+    """01/20 as MM/YY."""
+    assert _parse_date_str("01/20") is not None
+    assert _parse_date_str("01/20").year == 2020
+    assert _parse_date_str("01/20").month == 1
+
+
+def test_date_dd_mm_yyyy_dots():
+    """20.01.2020 as DD.MM.YYYY."""
+    assert _parse_date_str("20.01.2020") is not None
+    assert _parse_date_str("20.01.2020").day == 20
+    assert _parse_date_str("20.01.2020").month == 1
+    assert _parse_date_str("20.01.2020").year == 2020
+
+
 # --- Summary dedup ---
 def test_summary_no_duplicates():
     sections = {

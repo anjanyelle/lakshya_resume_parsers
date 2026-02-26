@@ -1481,7 +1481,7 @@ class SkillExtractor:
             try:
                 self._nlp = spacy.load("en_core_web_sm")
             except Exception:  # noqa: BLE001
-                self._nlp = spacy.blank("xx")
+                self._nlp = spacy.blank("xx")  # Fallback: PhraseMatcher only, no NER
             self._matcher = PhraseMatcher(self._nlp.vocab, attr="LOWER")
             patterns = [self._nlp.make_doc(item["name"]) for item in self.taxonomy]
             patterns += [self._nlp.make_doc(syn) for syn in self.synonym_map.keys()]
@@ -1716,9 +1716,13 @@ class SkillExtractor:
         section_only: bool = True,
     ) -> list[SkillMatch]:
         section_text = skills_section or ""
-        # Use section content when conf >= 0.45 (lowered from 0.6 to avoid discarding valid skills)
-        if skills_section_confidence is not None and skills_section_confidence < 0.45:
+        # Use section content when conf >= 0.35 (lowered from 0.45 to avoid discarding valid skills)
+        if skills_section_confidence is not None and skills_section_confidence < 0.35:
             section_text = ""
+
+        combined_for_flashtext = (section_text or "") + "\n" + (raw_text or "")
+        section_for_flashtext = clean_skill_text_for_section(section_text or "") if section_text else ""
+        raw_for_flashtext = clean_text_for_skills(raw_text or "") if raw_text else ""
 
         flashtext_matches = self.extract_with_flashtext(combined_for_flashtext, source="technical_skills_section")
 

@@ -14,25 +14,31 @@ logger = logging.getLogger(__name__)
 
 
 MONTH_TOKEN = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+# Present/current variants for range end (expanded for resume variations)
+PRESENT_END_TOKEN = r"(?:present|current|now|till\s+date|ongoing|to\s+date|to\s+present)"
 DATE_TOKEN = (
     r"(?:"
     r"\d{4}-\d{2}-\d{2}"  # YYYY-MM-DD
     r"|\d{4}[/-]\d{1,2}"  # YYYY-MM or YYYY/MM
-    r"|\d{1,2}[/-]\d{2}"  # MM/YY
+    r"|\d{1,2}[/-]\d{2}"  # MM/YY, 01/20
     r"|\d{1,2}[/-]\d{4}"  # MM/YYYY
     r"|\d{4}"  # YYYY
-    r"|Q[1-4]\s+\d{4}"  # Q1 2020, Q4 2019
+    r"|Q[1-4]\s*\d{4}"  # Q1 2020, Q4 2019 (optional space)
     r"|(?:Spring|Fall|Summer|Winter)\s+\d{4}"  # Seasonal
-    rf"|{MONTH_TOKEN}\s*[\'\u2019]\d{{2}}"  # Jan '20, Feb '19
+    rf"|{MONTH_TOKEN}\s*[\'\u2019]\d{{2}}"  # Jan '20, Feb '19 (with space)
+    rf"|{MONTH_TOKEN}[\'\u2019]\d{{2}}"  # Jan'20, Feb'19 (no space)
     r"|\d{4}\.\d{2}|\d{2}\.\d{4}"  # 2020.01, 01.2020
+    r"|\d{1,2}\.\d{1,2}\.\d{2,4}"  # 20.01.2020, 15.06.24 (DD.MM.YYYY)
     rf"|{MONTH_TOKEN}[.,]?\s+\d{{4}}"  # MMM YYYY
     rf"|{MONTH_TOKEN}\s*[\u2019']\s*\d{{2}}"  # MMM 'YY
     rf"|{MONTH_TOKEN}[.,]?\s+\d{{2}}"  # MMM YY
     r")"
 )
 
+# Range separator: hyphen, en-dash, em-dash, arrow, or words (to, until, thru, through)
+DATE_RANGE_SEP = r"(?:\s*[-–—→]\s*|\s+to\s+|\s+until\s+|\s+thru\s+|\s+through\s+)"
 DATE_RANGE_RE = re.compile(
-    rf"(?P<start>{DATE_TOKEN})\s*(?:\s*(?:[-–—→]|to|until|thru|through)\s*)\s*(?P<end>present|current|till\s+date|now|{DATE_TOKEN})",
+    rf"(?P<start>{DATE_TOKEN}){DATE_RANGE_SEP}(?P<end>{PRESENT_END_TOKEN}|{DATE_TOKEN})",
     re.IGNORECASE,
 )
 
@@ -53,9 +59,25 @@ TITLE_PIPE_COMPANY_RE = re.compile(
 LOCATION_RE = re.compile(r"\b([A-Za-z .]+,\s*[A-Z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist)\b", re.IGNORECASE)
 # Job title keywords for splitting single-chunk experience (capitalized at line start)
+# Includes base roles and seniority-prefixed variants
 TITLE_SPLIT_KEYWORDS = (
     "engineer", "manager", "developer", "analyst", "designer", "consultant",
     "director", "lead", "specialist", "architect", "coordinator", "administrator",
+    "senior", "principal", "staff", "associate", "junior", "head", "chief",
+)
+# Company name suffixes — lines ending with these often indicate new job block
+COMPANY_SUFFIX_PATTERN = re.compile(
+    r"\b(?:inc\.?|pvt\.?\s*ltd\.?|llc|llp|corp\.?|corporation|technologies|solutions|"
+    r"services|systems|consulting|consultants|group|holdings|labs?|software|"
+    r"technologies|international|ventures)\s*$",
+    re.IGNORECASE,
+)
+# Year-only line: "2020", "2019 - 2021", "2018–2020" (standalone year or range)
+YEAR_ONLY_ANCHOR_RE = re.compile(
+    r"^(?:\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*)?"
+    r"(?P<year1>(?:19|20)\d{2})"
+    r"(?:\s*[-–—]\s*(?P<year2>(?:19|20)\d{2}|present|current))?\s*$",
+    re.IGNORECASE,
 )
 RESPONSIBILITY_MARKERS = {"responsibilities", "key responsibilities", "responsibility"}
 COMPANY_HINT_RE = re.compile(r"\b(inc|llc|ltd|corp|corporation|company|technologies|systems|health|bank|solutions|services)\b", re.IGNORECASE)
@@ -810,32 +832,67 @@ class WorkExperienceParser:
         return chunks
 
     def _split_single_chunk_fallback(self, lines: list[str]) -> list[str]:
-        """Split lines by company name or job title patterns when date-based boundaries failed."""
+        """Split lines by company name or job title patterns when date-based boundaries failed.
+
+        Detection patterns (in order of priority):
+        1. CLIENT: / project: — consulting engagement
+        2. Company suffix lines — Inc, Pvt Ltd, LLC, Technologies, Solutions
+        3. Title at Company format — "Software Engineer at ABC Corp"
+        4. Job title at line start — Senior Engineer, Lead Developer, etc.
+        5. Company name (2-4 words) before a date
+        6. Year-only anchors — 2020, 2019–2021
+        """
         split_indices: list[int] = [0]
         for idx in range(1, len(lines)):
             line = lines[idx]
-            if not line or line.startswith(("-", "•", "*")):
+            if not line or line.startswith(("-", "•", "*", "\u2022")):
                 continue
-            # CLIENT: / project: at line start = new consulting engagement — always split
+            stripped = line.strip().strip(" -–—|,·")
+            if not stripped:
+                continue
+
+            # 1. CLIENT: / project: at line start = new consulting engagement — always split
             if CLIENT_HEADER_RE.match(line):
                 split_indices.append(idx)
                 continue
-            # Skip labeled fields (Role:, Designation:, Company:, etc.) — not job boundaries
+
+            # 2. Skip labeled fields (Role:, Designation:, Company:, etc.) — not job boundaries
             if LABELED_TITLE_RE.match(line) or LABELED_ORG_RE.match(line):
                 continue
-            # Company name (2-4 capitalized words) before a date
+
+            # 3. Company suffix line — line looks like company name (ends with Inc, Pvt Ltd, LLC, etc.)
+            #    Only split when prev line is bullet (company follows job block), not when company
+            #    follows title (e.g. "Senior Engineer" then "Acme Technologies").
+            prev_line = lines[idx - 1].strip() if idx > 0 else ""
+            prev_is_bullet = prev_line.startswith(("-", "•", "*", "\u2022"))
+            if self._looks_like_company_line(stripped) and prev_is_bullet:
+                split_indices.append(idx)
+                continue
+
+            # 4. Title at Company format — "Software Engineer at ABC Corp", "Senior Dev at Google"
+            if TITLE_AT_COMPANY_RE.match(stripped):
+                split_indices.append(idx)
+                continue
+
+            # 5. Year-only anchor — "2020", "2019 - 2021", "Jan 2018 – Dec 2020"
+            if YEAR_ONLY_ANCHOR_RE.match(stripped) and len(stripped) <= 35:
+                split_indices.append(idx)
+                continue
+
+            # 6. Company name (2-4 capitalized words) before a date
             date_match = DATE_RANGE_RE.search(line) or DATE_ANCHOR_RE.search(line)
             if date_match:
                 prefix = line[: date_match.start()].strip().strip(" -–—|,·")
                 words = prefix.split()
-                if 2 <= len(words) <= 4 and prefix and prefix[0].isupper():
+                if 2 <= len(words) <= 5 and prefix and prefix[0].isupper():
                     if not any(w.lower() in TITLE_SPLIT_KEYWORDS for w in words[:2]):
                         split_indices.append(idx)
                         continue
-            # Job title at line start (e.g. "Senior Software Engineer") — not "Role: X"
-            if TITLE_HINT_RE.search(line) and len(line.split()) <= 6:
-                if idx > 0 and not lines[idx - 1].startswith(("-", "•", "*")):
-                    split_indices.append(idx)
+
+            # 7. Job title at line start — "Senior Software Engineer", "Lead Developer", "Principal Architect"
+            #    Expanded: senior, principal, staff, lead + engineer/developer/analyst/consultant
+            if self._looks_like_title_line(stripped, idx, lines):
+                split_indices.append(idx)
 
         if len(split_indices) <= 1:
             return ["\n".join(lines)]
@@ -847,6 +904,59 @@ class WorkExperienceParser:
             if end > start:
                 chunks.append("\n".join(lines[start:end]))
         return chunks if len(chunks) > 1 else ["\n".join(lines)]
+
+    @staticmethod
+    def _looks_like_company_line(line: str) -> bool:
+        """True if line looks like a company name (ends with Inc, Pvt Ltd, LLC, Technologies, etc.)."""
+        if len(line) < 4 or len(line) > 80:
+            return False
+        if line[0].islower():
+            return False
+        words = line.split()
+        if len(words) < 2 or len(words) > 6:
+            return False
+        # Must end with company suffix
+        if not COMPANY_SUFFIX_PATTERN.search(line):
+            return False
+        # Avoid skill-ish lines (e.g. "Python Technologies" as a skill category)
+        if WorkExperienceParser._looks_like_skillish_header(line):
+            return False
+        return True
+
+    @staticmethod
+    def _looks_like_title_line(line: str, idx: int, lines: list[str]) -> bool:
+        """True if line looks like a job title at block start (Senior Engineer, Lead Developer, etc.)."""
+        words = line.split()
+        if len(words) > 8:
+            return False
+        # Split when prev is bullet (end of prior job) or when prev looks like company (title follows company)
+        prev_line = lines[idx - 1].strip() if idx > 0 else ""
+        prev_is_bullet = prev_line.startswith(("-", "•", "*", "\u2022"))
+        prev_is_company_like = (
+            bool(prev_line)
+            and prev_line[0].isupper()
+            and COMPANY_SUFFIX_PATTERN.search(prev_line)
+            and 2 <= len(prev_line.split()) <= 6
+        )
+        if not prev_is_bullet and not prev_is_company_like and idx > 0:
+            # Prev is likely title or other - don't split (same job block)
+            return False
+        lowered = line.lower()
+        # Must contain a title keyword
+        if not TITLE_HINT_RE.search(lowered):
+            return False
+        # Reject if it looks like a bullet/description (starts with verb)
+        verb_start = re.match(
+            r"^(developed|built|designed|implemented|led|managed|created|"
+            r"improved|reduced|increased|analyzed|coordinated)\b",
+            lowered,
+        )
+        if verb_start:
+            return False
+        # Reject "at Company" in middle of description
+        if " at " in lowered and not TITLE_AT_COMPANY_RE.match(line):
+            return False
+        return True
 
     def _has_date_anchor(self, line: str, source_format: str | None = None) -> bool:
         if DATE_RANGE_RE.search(line):
@@ -938,6 +1048,13 @@ class WorkExperienceParser:
         if client and company and self._client_looks_embedded_in_company(company, client):
             cleaned = self._remove_embedded_client(company, client)
             company = cleaned or company
+        # NER fallback when regex fails: ORG → Company
+        if not company:
+            from app.services.parser.ner_fallback import extract_entities
+            entities = extract_entities(chunk, labels=("ORG",))
+            orgs = [o for o in entities.get("ORG", []) if o and not PLACEHOLDER_ORG_RE.match((o or "").strip())]
+            if orgs:
+                company = orgs[0]
         employment_type = self._detect_employment_type(chunk)
 
         confidence = self._score_confidence(company, title, start_date, end_date, is_current, client, bullets)
@@ -1201,7 +1318,8 @@ class WorkExperienceParser:
         end_raw = (match.group("end") or "").strip()
 
         start_date = self._parse_date(start_raw)
-        if end_raw.lower() in {"present", "current", "till date", "till  date", "now"}:
+        end_lower = end_raw.lower().replace("  ", " ").strip()
+        if end_lower in {"present", "current", "till date", "till  date", "now", "ongoing", "to date", "to present"}:
             return start_date, None, True
         end_date = self._parse_date(end_raw)
         return start_date, end_date, False
@@ -1211,7 +1329,31 @@ class WorkExperienceParser:
         if not raw:
             return None
         raw = re.sub(r"\s+", " ", raw)
-        raw = raw.replace("\u2019", "'")
+        raw = raw.replace("\u2019", "'").replace("\u2018", "'")
+
+        # DD.MM.YYYY or DD.MM.YY (20.01.2020, 15.06.24) — before other transforms
+        dmy_dot = re.match(r"^(?P<d>\d{1,2})\.(?P<m>\d{1,2})\.(?P<y>\d{2,4})$", raw)
+        if dmy_dot:
+            d, m, y = int(dmy_dot.group("d")), int(dmy_dot.group("m")), int(dmy_dot.group("y"))
+            if y < 100:
+                y += 2000 if y <= 50 else 1900
+            if 1 <= d <= 31 and 1 <= m <= 12:
+                try:
+                    return date(y, m, d)
+                except ValueError:
+                    return date(y, m, 1)
+
+        # Jan'20 or Jan '20 (with or without space before apostrophe)
+        jan_apostrophe = re.match(rf"^({MONTH_TOKEN})\s*['\u2019](\d{{2}})$", raw, re.IGNORECASE)
+        if jan_apostrophe:
+            mon_raw, yy = jan_apostrophe.group(1), int(jan_apostrophe.group(2))
+            y = 2000 + yy if yy <= 50 else 1900 + yy
+            parsed = dateparser.parse(
+                f"{mon_raw} {y}",
+                settings={"PREFER_DAY_OF_MONTH": "first", "PREFER_DATES_FROM": "past"},
+            )
+            return parsed.date() if parsed else None
+
         raw = (
             raw.replace("Q1", "January")
             .replace("Q2", "April")
@@ -1271,24 +1413,6 @@ class WorkExperienceParser:
                 return date(y, mo, 1)
             except ValueError:
                 return None
-
-        m = re.match(
-            rf"^(?P<mon>{MONTH_TOKEN})\s*[']\s*(?P<year>\d{{2}})$",
-            raw,
-            flags=re.IGNORECASE,
-        )
-        if m:
-            mon_raw = m.group("mon")
-            yy = int(m.group("year"))
-            y = 2000 + yy if yy <= 49 else 1900 + yy
-            parsed = dateparser.parse(
-                f"{mon_raw} {y}",
-                settings={
-                    "PREFER_DAY_OF_MONTH": "first",
-                    "PREFER_DATES_FROM": "past",
-                },
-            )
-            return parsed.date() if parsed else None
 
         m = re.match(r"^(?P<year>\d{4})$", raw)
         if m:

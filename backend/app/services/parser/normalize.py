@@ -317,9 +317,7 @@ def clean_summary_and_skills_sections(payload: dict) -> tuple[dict, dict]:
     return "\n".join(out_lines), applied, normalized_rows
 
 
-def normalize_table_lines(text: str) -> str:
-    normalized, _, _ = _normalize_table_lines_with_stats(text)
-    return normalized
+
 
 
 # Headings that indicate skills content — summary must stop before these

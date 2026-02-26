@@ -2282,7 +2282,10 @@ class SectionParser:
         self._last_raw_line_count: int = 0
         self._last_inferred_starts: dict[str, int] = {}
         if self.use_spacy:
-            self._nlp = spacy.blank("xx")
+            try:
+                self._nlp = spacy.load("en_core_web_sm")
+            except Exception:  # noqa: BLE001
+                self._nlp = spacy.blank("xx")  # Fallback: tokenization only, no NER
             self._matcher = PhraseMatcher(self._nlp.vocab, attr="LOWER")
             for key, aliases in SECTION_ALIASES.items():
                 patterns = [self._nlp.make_doc(alias) for alias in aliases]

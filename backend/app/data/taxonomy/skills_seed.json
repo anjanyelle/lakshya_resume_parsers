@@ -2478,6 +2478,4566 @@
       "parents": [
         "AWS"
       ]
+    },
+    {
+      "name": "Vite",
+      "category": "Tools",
+      "normalized_name": "vite",
+      "synonyms": [
+        "Vite.js"
+      ],
+      "parents": [
+        "Frontend",
+        "Build"
+      ]
+    },
+    {
+      "name": "esbuild",
+      "category": "Tools",
+      "normalized_name": "esbuild",
+      "synonyms": [],
+      "parents": [
+        "Build",
+        "Bundler"
+      ]
+    },
+    {
+      "name": "Webpack",
+      "category": "Tools",
+      "normalized_name": "webpack",
+      "synonyms": [],
+      "parents": [
+        "Build",
+        "Bundler"
+      ]
+    },
+    {
+      "name": "Rollup",
+      "category": "Tools",
+      "normalized_name": "rollup",
+      "synonyms": [],
+      "parents": [
+        "Build",
+        "Bundler"
+      ]
+    },
+    {
+      "name": "Parcel",
+      "category": "Tools",
+      "normalized_name": "parcel",
+      "synonyms": [],
+      "parents": [
+        "Build",
+        "Bundler"
+      ]
+    },
+    {
+      "name": "Babel",
+      "category": "Tools",
+      "normalized_name": "babel",
+      "synonyms": [
+        "Babel.js"
+      ],
+      "parents": [
+        "JavaScript",
+        "Transpiler"
+      ]
+    },
+    {
+      "name": "SWC",
+      "category": "Tools",
+      "normalized_name": "swc",
+      "synonyms": [
+        "Speedy Web Compiler"
+      ],
+      "parents": [
+        "Build",
+        "Transpiler"
+      ]
+    },
+    {
+      "name": "pnpm",
+      "category": "Tools",
+      "normalized_name": "pnpm",
+      "synonyms": [],
+      "parents": [
+        "Package Manager"
+      ]
+    },
+    {
+      "name": "Yarn",
+      "category": "Tools",
+      "normalized_name": "yarn",
+      "synonyms": [
+        "Yarn Berry"
+      ],
+      "parents": [
+        "Package Manager"
+      ]
+    },
+    {
+      "name": "Bun",
+      "category": "Tools",
+      "normalized_name": "bun",
+      "synonyms": [],
+      "parents": [
+        "Runtime",
+        "JavaScript"
+      ]
+    },
+    {
+      "name": "Deno",
+      "category": "Tools",
+      "normalized_name": "deno",
+      "synonyms": [],
+      "parents": [
+        "Runtime",
+        "JavaScript"
+      ]
+    },
+    {
+      "name": "Nuxt",
+      "category": "Frameworks",
+      "normalized_name": "nuxt",
+      "synonyms": [
+        "Nuxt.js",
+        "NuxtJS"
+      ],
+      "parents": [
+        "Vue",
+        "SSR"
+      ]
+    },
+    {
+      "name": "Remix",
+      "category": "Frameworks",
+      "normalized_name": "remix",
+      "synonyms": [
+        "Remix.run"
+      ],
+      "parents": [
+        "React",
+        "Full Stack"
+      ]
+    },
+    {
+      "name": "Gatsby",
+      "category": "Frameworks",
+      "normalized_name": "gatsby",
+      "synonyms": [
+        "Gatsby.js"
+      ],
+      "parents": [
+        "React",
+        "Static Site"
+      ]
+    },
+    {
+      "name": "Astro",
+      "category": "Frameworks",
+      "normalized_name": "astro",
+      "synonyms": [],
+      "parents": [
+        "Frontend",
+        "Static Site"
+      ]
+    },
+    {
+      "name": "SolidJS",
+      "category": "Frameworks",
+      "normalized_name": "solidjs",
+      "synonyms": [
+        "Solid"
+      ],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Qwik",
+      "category": "Frameworks",
+      "normalized_name": "qwik",
+      "synonyms": [],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Lit",
+      "category": "Frameworks",
+      "normalized_name": "lit",
+      "synonyms": [
+        "Lit Element"
+      ],
+      "parents": [
+        "Web Components"
+      ]
+    },
+    {
+      "name": "Alpine.js",
+      "category": "Frameworks",
+      "normalized_name": "alpine.js",
+      "synonyms": [
+        "Alpine"
+      ],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Tailwind CSS",
+      "category": "Web Technologies",
+      "normalized_name": "tailwind css",
+      "synonyms": [
+        "Tailwind"
+      ],
+      "parents": [
+        "CSS",
+        "Styling"
+      ]
+    },
+    {
+      "name": "Bootstrap",
+      "category": "Web Technologies",
+      "normalized_name": "bootstrap",
+      "synonyms": [],
+      "parents": [
+        "CSS",
+        "UI"
+      ]
+    },
+    {
+      "name": "Material UI",
+      "category": "Web Technologies",
+      "normalized_name": "material ui",
+      "synonyms": [
+        "MUI",
+        "Material-UI"
+      ],
+      "parents": [
+        "React",
+        "UI"
+      ]
+    },
+    {
+      "name": "Chakra UI",
+      "category": "Web Technologies",
+      "normalized_name": "chakra ui",
+      "synonyms": [
+        "Chakra"
+      ],
+      "parents": [
+        "React",
+        "UI"
+      ]
+    },
+    {
+      "name": "Ant Design",
+      "category": "Web Technologies",
+      "normalized_name": "ant design",
+      "synonyms": [
+        "AntD"
+      ],
+      "parents": [
+        "React",
+        "UI"
+      ]
+    },
+    {
+      "name": "Storybook",
+      "category": "Tools",
+      "normalized_name": "storybook",
+      "synonyms": [],
+      "parents": [
+        "Frontend",
+        "Documentation"
+      ]
+    },
+    {
+      "name": "Vitest",
+      "category": "Testing",
+      "normalized_name": "vitest",
+      "synonyms": [],
+      "parents": [
+        "Testing",
+        "Vite"
+      ]
+    },
+    {
+      "name": "Mocha",
+      "category": "Testing",
+      "normalized_name": "mocha",
+      "synonyms": [],
+      "parents": [
+        "JavaScript",
+        "Testing"
+      ]
+    },
+    {
+      "name": "Chai",
+      "category": "Testing",
+      "normalized_name": "chai",
+      "synonyms": [],
+      "parents": [
+        "JavaScript",
+        "Testing"
+      ]
+    },
+    {
+      "name": "Testing Library",
+      "category": "Testing",
+      "normalized_name": "testing library",
+      "synonyms": [
+        "React Testing Library"
+      ],
+      "parents": [
+        "Testing"
+      ]
+    },
+    {
+      "name": "Playwright",
+      "category": "Testing",
+      "normalized_name": "playwright",
+      "synonyms": [],
+      "parents": [
+        "E2E",
+        "Testing"
+      ]
+    },
+    {
+      "name": "Puppeteer",
+      "category": "Testing",
+      "normalized_name": "puppeteer",
+      "synonyms": [],
+      "parents": [
+        "E2E",
+        "Automation"
+      ]
+    },
+    {
+      "name": "K6",
+      "category": "Testing",
+      "normalized_name": "k6",
+      "synonyms": [
+        "k6 Load Testing"
+      ],
+      "parents": [
+        "Load Testing"
+      ]
+    },
+    {
+      "name": "Locust",
+      "category": "Testing",
+      "normalized_name": "locust",
+      "synonyms": [],
+      "parents": [
+        "Load Testing"
+      ]
+    },
+    {
+      "name": "JMeter",
+      "category": "Testing",
+      "normalized_name": "jmeter",
+      "synonyms": [
+        "Apache JMeter"
+      ],
+      "parents": [
+        "Load Testing"
+      ]
+    },
+    {
+      "name": "Postman",
+      "category": "Tools",
+      "normalized_name": "postman",
+      "synonyms": [],
+      "parents": [
+        "API",
+        "Testing"
+      ]
+    },
+    {
+      "name": "Insomnia",
+      "category": "Tools",
+      "normalized_name": "insomnia",
+      "synonyms": [],
+      "parents": [
+        "API",
+        "Testing"
+      ]
+    },
+    {
+      "name": "Swagger",
+      "category": "Tools",
+      "normalized_name": "swagger",
+      "synonyms": [
+        "OpenAPI"
+      ],
+      "parents": [
+        "API",
+        "Documentation"
+      ]
+    },
+    {
+      "name": "gRPC",
+      "category": "Backend",
+      "normalized_name": "grpc",
+      "synonyms": [],
+      "parents": [
+        "API",
+        "RPC"
+      ]
+    },
+    {
+      "name": "Apollo",
+      "category": "Frameworks",
+      "normalized_name": "apollo",
+      "synonyms": [
+        "Apollo Client",
+        "Apollo Server"
+      ],
+      "parents": [
+        "GraphQL"
+      ]
+    },
+    {
+      "name": "tRPC",
+      "category": "Frameworks",
+      "normalized_name": "trpc",
+      "synonyms": [],
+      "parents": [
+        "TypeScript",
+        "API"
+      ]
+    },
+    {
+      "name": "Prisma",
+      "category": "Backend",
+      "normalized_name": "prisma",
+      "synonyms": [],
+      "parents": [
+        "ORM",
+        "Database"
+      ]
+    },
+    {
+      "name": "TypeORM",
+      "category": "Backend",
+      "normalized_name": "typeorm",
+      "synonyms": [],
+      "parents": [
+        "ORM",
+        "TypeScript"
+      ]
+    },
+    {
+      "name": "Sequelize",
+      "category": "Backend",
+      "normalized_name": "sequelize",
+      "synonyms": [],
+      "parents": [
+        "ORM",
+        "Node.js"
+      ]
+    },
+    {
+      "name": "SQLAlchemy",
+      "category": "Backend",
+      "normalized_name": "sqlalchemy",
+      "synonyms": [],
+      "parents": [
+        "ORM",
+        "Python"
+      ]
+    },
+    {
+      "name": "Memcached",
+      "category": "Databases",
+      "normalized_name": "memcached",
+      "synonyms": [],
+      "parents": [
+        "Cache"
+      ]
+    },
+    {
+      "name": "ActiveMQ",
+      "category": "Data",
+      "normalized_name": "activemq",
+      "synonyms": [
+        "Apache ActiveMQ"
+      ],
+      "parents": [
+        "Message Queue"
+      ]
+    },
+    {
+      "name": "Celery",
+      "category": "Backend",
+      "normalized_name": "celery",
+      "synonyms": [],
+      "parents": [
+        "Python",
+        "Task Queue"
+      ]
+    },
+    {
+      "name": "Bull",
+      "category": "Backend",
+      "normalized_name": "bull",
+      "synonyms": [
+        "Bull Queue"
+      ],
+      "parents": [
+        "Node.js",
+        "Task Queue"
+      ]
+    },
+    {
+      "name": "Sidekiq",
+      "category": "Backend",
+      "normalized_name": "sidekiq",
+      "synonyms": [],
+      "parents": [
+        "Ruby",
+        "Task Queue"
+      ]
+    },
+    {
+      "name": "AWS ECS",
+      "category": "Cloud Services",
+      "normalized_name": "aws ecs",
+      "synonyms": [
+        "ECS",
+        "Elastic Container Service"
+      ],
+      "parents": [
+        "AWS",
+        "Containers"
+      ]
+    },
+    {
+      "name": "AWS EKS",
+      "category": "Cloud Services",
+      "normalized_name": "aws eks",
+      "synonyms": [
+        "EKS",
+        "Elastic Kubernetes"
+      ],
+      "parents": [
+        "AWS",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "AWS CloudFront",
+      "category": "Cloud Services",
+      "normalized_name": "aws cloudfront",
+      "synonyms": [
+        "CloudFront"
+      ],
+      "parents": [
+        "AWS",
+        "CDN"
+      ]
+    },
+    {
+      "name": "AWS IAM",
+      "category": "Cloud Services",
+      "normalized_name": "aws iam",
+      "synonyms": [
+        "IAM"
+      ],
+      "parents": [
+        "AWS",
+        "Security"
+      ]
+    },
+    {
+      "name": "Azure Functions",
+      "category": "Cloud Services",
+      "normalized_name": "azure functions",
+      "synonyms": [],
+      "parents": [
+        "Azure",
+        "Serverless"
+      ]
+    },
+    {
+      "name": "Azure DevOps",
+      "category": "Cloud Services",
+      "normalized_name": "azure devops",
+      "synonyms": [],
+      "parents": [
+        "Azure",
+        "DevOps"
+      ]
+    },
+    {
+      "name": "Google Cloud Functions",
+      "category": "Cloud Services",
+      "normalized_name": "google cloud functions",
+      "synonyms": [
+        "Cloud Functions"
+      ],
+      "parents": [
+        "GCP",
+        "Serverless"
+      ]
+    },
+    {
+      "name": "Vercel",
+      "category": "Cloud Platforms",
+      "normalized_name": "vercel",
+      "synonyms": [],
+      "parents": [
+        "Hosting",
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Netlify",
+      "category": "Cloud Platforms",
+      "normalized_name": "netlify",
+      "synonyms": [],
+      "parents": [
+        "Hosting",
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Railway",
+      "category": "Cloud Platforms",
+      "normalized_name": "railway",
+      "synonyms": [],
+      "parents": [
+        "Hosting"
+      ]
+    },
+    {
+      "name": "Render",
+      "category": "Cloud Platforms",
+      "normalized_name": "render",
+      "synonyms": [],
+      "parents": [
+        "Hosting"
+      ]
+    },
+    {
+      "name": "Fly.io",
+      "category": "Cloud Platforms",
+      "normalized_name": "fly.io",
+      "synonyms": [
+        "Fly"
+      ],
+      "parents": [
+        "Hosting"
+      ]
+    },
+    {
+      "name": "Cloudflare",
+      "category": "Cloud Platforms",
+      "normalized_name": "cloudflare",
+      "synonyms": [],
+      "parents": [
+        "CDN",
+        "Security"
+      ]
+    },
+    {
+      "name": "Cloudflare Workers",
+      "category": "Cloud Services",
+      "normalized_name": "cloudflare workers",
+      "synonyms": [],
+      "parents": [
+        "Cloudflare",
+        "Serverless"
+      ]
+    },
+    {
+      "name": "Supabase",
+      "category": "Databases",
+      "normalized_name": "supabase",
+      "synonyms": [],
+      "parents": [
+        "PostgreSQL",
+        "Backend"
+      ]
+    },
+    {
+      "name": "PlanetScale",
+      "category": "Databases",
+      "normalized_name": "planetscale",
+      "synonyms": [],
+      "parents": [
+        "MySQL",
+        "Serverless"
+      ]
+    },
+    {
+      "name": "Neon",
+      "category": "Databases",
+      "normalized_name": "neon",
+      "synonyms": [
+        "Neon DB"
+      ],
+      "parents": [
+        "PostgreSQL",
+        "Serverless"
+      ]
+    },
+    {
+      "name": "Turso",
+      "category": "Databases",
+      "normalized_name": "turso",
+      "synonyms": [],
+      "parents": [
+        "SQLite",
+        "Edge"
+      ]
+    },
+    {
+      "name": "Delta Lake",
+      "category": "Data & ML",
+      "normalized_name": "delta lake",
+      "synonyms": [
+        "Delta"
+      ],
+      "parents": [
+        "Data Lake"
+      ]
+    },
+    {
+      "name": "Apache Iceberg",
+      "category": "Data & ML",
+      "normalized_name": "apache iceberg",
+      "synonyms": [
+        "Iceberg"
+      ],
+      "parents": [
+        "Data Lake"
+      ]
+    },
+    {
+      "name": "Apache Hudi",
+      "category": "Data & ML",
+      "normalized_name": "apache hudi",
+      "synonyms": [
+        "Hudi"
+      ],
+      "parents": [
+        "Data Lake"
+      ]
+    },
+    {
+      "name": "Fivetran",
+      "category": "Data & ML",
+      "normalized_name": "fivetran",
+      "synonyms": [],
+      "parents": [
+        "ETL"
+      ]
+    },
+    {
+      "name": "Airbyte",
+      "category": "Data & ML",
+      "normalized_name": "airbyte",
+      "synonyms": [],
+      "parents": [
+        "ETL"
+      ]
+    },
+    {
+      "name": "Meltano",
+      "category": "Data & ML",
+      "normalized_name": "meltano",
+      "synonyms": [],
+      "parents": [
+        "ETL"
+      ]
+    },
+    {
+      "name": "Monte Carlo",
+      "category": "Data & ML",
+      "normalized_name": "monte carlo",
+      "synonyms": [],
+      "parents": [
+        "Data Observability"
+      ]
+    },
+    {
+      "name": "Hex",
+      "category": "Data & ML",
+      "normalized_name": "hex",
+      "synonyms": [],
+      "parents": [
+        "Analytics",
+        "Notebook"
+      ]
+    },
+    {
+      "name": "Mode",
+      "category": "Data & ML",
+      "normalized_name": "mode",
+      "synonyms": [],
+      "parents": [
+        "Analytics"
+      ]
+    },
+    {
+      "name": "Sigma",
+      "category": "Data & ML",
+      "normalized_name": "sigma",
+      "synonyms": [
+        "Sigma Computing"
+      ],
+      "parents": [
+        "BI"
+      ]
+    },
+    {
+      "name": "ThoughtSpot",
+      "category": "Data & ML",
+      "normalized_name": "thoughtspot",
+      "synonyms": [],
+      "parents": [
+        "BI"
+      ]
+    },
+    {
+      "name": "Qlik",
+      "category": "Data & ML",
+      "normalized_name": "qlik",
+      "synonyms": [
+        "QlikView",
+        "Qlik Sense"
+      ],
+      "parents": [
+        "BI"
+      ]
+    },
+    {
+      "name": "Sisense",
+      "category": "Data & ML",
+      "normalized_name": "sisense",
+      "synonyms": [],
+      "parents": [
+        "BI"
+      ]
+    },
+    {
+      "name": "New Relic",
+      "category": "Monitoring & Logging",
+      "normalized_name": "new relic",
+      "synonyms": [],
+      "parents": [
+        "APM"
+      ]
+    },
+    {
+      "name": "Sentry",
+      "category": "Monitoring & Logging",
+      "normalized_name": "sentry",
+      "synonyms": [],
+      "parents": [
+        "Error Tracking"
+      ]
+    },
+    {
+      "name": "LogRocket",
+      "category": "Monitoring & Logging",
+      "normalized_name": "logrocket",
+      "synonyms": [],
+      "parents": [
+        "Frontend",
+        "Monitoring"
+      ]
+    },
+    {
+      "name": "Honeycomb",
+      "category": "Monitoring & Logging",
+      "normalized_name": "honeycomb",
+      "synonyms": [],
+      "parents": [
+        "Observability"
+      ]
+    },
+    {
+      "name": "PagerDuty",
+      "category": "Monitoring & Logging",
+      "normalized_name": "pagerduty",
+      "synonyms": [],
+      "parents": [
+        "Incident Management"
+      ]
+    },
+    {
+      "name": "Opsgenie",
+      "category": "Monitoring & Logging",
+      "normalized_name": "opsgenie",
+      "synonyms": [],
+      "parents": [
+        "Incident Management"
+      ]
+    },
+    {
+      "name": "Jaeger",
+      "category": "Monitoring & Logging",
+      "normalized_name": "jaeger",
+      "synonyms": [],
+      "parents": [
+        "Distributed Tracing"
+      ]
+    },
+    {
+      "name": "Zipkin",
+      "category": "Monitoring & Logging",
+      "normalized_name": "zipkin",
+      "synonyms": [],
+      "parents": [
+        "Distributed Tracing"
+      ]
+    },
+    {
+      "name": "OpenTelemetry",
+      "category": "Monitoring & Logging",
+      "normalized_name": "opentelemetry",
+      "synonyms": [
+        "OTel"
+      ],
+      "parents": [
+        "Observability"
+      ]
+    },
+    {
+      "name": "Argo CD",
+      "category": "DevOps",
+      "normalized_name": "argo cd",
+      "synonyms": [
+        "ArgoCD"
+      ],
+      "parents": [
+        "GitOps",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Flux",
+      "category": "DevOps",
+      "normalized_name": "flux",
+      "synonyms": [
+        "Flux CD"
+      ],
+      "parents": [
+        "GitOps",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Helm",
+      "category": "DevOps",
+      "normalized_name": "helm",
+      "synonyms": [],
+      "parents": [
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Kustomize",
+      "category": "DevOps",
+      "normalized_name": "kustomize",
+      "synonyms": [],
+      "parents": [
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Pulumi",
+      "category": "DevOps",
+      "normalized_name": "pulumi",
+      "synonyms": [],
+      "parents": [
+        "IaC"
+      ]
+    },
+    {
+      "name": "Crossplane",
+      "category": "DevOps",
+      "normalized_name": "crossplane",
+      "synonyms": [],
+      "parents": [
+        "Kubernetes",
+        "Cloud"
+      ]
+    },
+    {
+      "name": "Bazel",
+      "category": "Tools",
+      "normalized_name": "bazel",
+      "synonyms": [],
+      "parents": [
+        "Build"
+      ]
+    },
+    {
+      "name": "Buck",
+      "category": "Tools",
+      "normalized_name": "buck",
+      "synonyms": [
+        "Buck2"
+      ],
+      "parents": [
+        "Build"
+      ]
+    },
+    {
+      "name": "Nx",
+      "category": "Tools",
+      "normalized_name": "nx",
+      "synonyms": [
+        "Nx Workspace"
+      ],
+      "parents": [
+        "Monorepo"
+      ]
+    },
+    {
+      "name": "Turborepo",
+      "category": "Tools",
+      "normalized_name": "turborepo",
+      "synonyms": [],
+      "parents": [
+        "Monorepo"
+      ]
+    },
+    {
+      "name": "Lerna",
+      "category": "Tools",
+      "normalized_name": "lerna",
+      "synonyms": [],
+      "parents": [
+        "Monorepo"
+      ]
+    },
+    {
+      "name": "Stripe",
+      "category": "Tools",
+      "normalized_name": "stripe",
+      "synonyms": [],
+      "parents": [
+        "Payments"
+      ]
+    },
+    {
+      "name": "PayPal",
+      "category": "Tools",
+      "normalized_name": "paypal",
+      "synonyms": [],
+      "parents": [
+        "Payments"
+      ]
+    },
+    {
+      "name": "Shopify",
+      "category": "Tools",
+      "normalized_name": "shopify",
+      "synonyms": [],
+      "parents": [
+        "E-commerce"
+      ]
+    },
+    {
+      "name": "WooCommerce",
+      "category": "Tools",
+      "normalized_name": "woocommerce",
+      "synonyms": [],
+      "parents": [
+        "E-commerce"
+      ]
+    },
+    {
+      "name": "Magento",
+      "category": "Tools",
+      "normalized_name": "magento",
+      "synonyms": [],
+      "parents": [
+        "E-commerce"
+      ]
+    },
+    {
+      "name": "Salesforce",
+      "category": "Tools",
+      "normalized_name": "salesforce",
+      "synonyms": [
+        "SFDC"
+      ],
+      "parents": [
+        "CRM"
+      ]
+    },
+    {
+      "name": "HubSpot",
+      "category": "Tools",
+      "normalized_name": "hubspot",
+      "synonyms": [],
+      "parents": [
+        "CRM",
+        "Marketing"
+      ]
+    },
+    {
+      "name": "Zendesk",
+      "category": "Tools",
+      "normalized_name": "zendesk",
+      "synonyms": [],
+      "parents": [
+        "Support"
+      ]
+    },
+    {
+      "name": "Intercom",
+      "category": "Tools",
+      "normalized_name": "intercom",
+      "synonyms": [],
+      "parents": [
+        "Support",
+        "Chat"
+      ]
+    },
+    {
+      "name": "Segment",
+      "category": "Tools",
+      "normalized_name": "segment",
+      "synonyms": [],
+      "parents": [
+        "Analytics",
+        "CDP"
+      ]
+    },
+    {
+      "name": "Mixpanel",
+      "category": "Tools",
+      "normalized_name": "mixpanel",
+      "synonyms": [],
+      "parents": [
+        "Analytics"
+      ]
+    },
+    {
+      "name": "Heap",
+      "category": "Tools",
+      "normalized_name": "heap",
+      "synonyms": [],
+      "parents": [
+        "Analytics"
+      ]
+    },
+    {
+      "name": "FullStory",
+      "category": "Tools",
+      "normalized_name": "fullstory",
+      "synonyms": [],
+      "parents": [
+        "Session Replay"
+      ]
+    },
+    {
+      "name": "Hotjar",
+      "category": "Tools",
+      "normalized_name": "hotjar",
+      "synonyms": [],
+      "parents": [
+        "Analytics",
+        "Heatmaps"
+      ]
+    },
+    {
+      "name": "LaunchDarkly",
+      "category": "Tools",
+      "normalized_name": "launchdarkly",
+      "synonyms": [],
+      "parents": [
+        "Feature Flags"
+      ]
+    },
+    {
+      "name": "Split.io",
+      "category": "Tools",
+      "normalized_name": "split.io",
+      "synonyms": [
+        "Split"
+      ],
+      "parents": [
+        "Feature Flags"
+      ]
+    },
+    {
+      "name": "Optimizely",
+      "category": "Tools",
+      "normalized_name": "optimizely",
+      "synonyms": [],
+      "parents": [
+        "A/B Testing"
+      ]
+    },
+    {
+      "name": "Contentful",
+      "category": "Tools",
+      "normalized_name": "contentful",
+      "synonyms": [],
+      "parents": [
+        "CMS"
+      ]
+    },
+    {
+      "name": "Sanity",
+      "category": "Tools",
+      "normalized_name": "sanity",
+      "synonyms": [],
+      "parents": [
+        "CMS"
+      ]
+    },
+    {
+      "name": "Strapi",
+      "category": "Tools",
+      "normalized_name": "strapi",
+      "synonyms": [],
+      "parents": [
+        "CMS",
+        "Headless"
+      ]
+    },
+    {
+      "name": "Directus",
+      "category": "Tools",
+      "normalized_name": "directus",
+      "synonyms": [],
+      "parents": [
+        "CMS",
+        "Headless"
+      ]
+    },
+    {
+      "name": "Payload CMS",
+      "category": "Tools",
+      "normalized_name": "payload cms",
+      "synonyms": [
+        "Payload"
+      ],
+      "parents": [
+        "CMS"
+      ]
+    },
+    {
+      "name": "Twilio",
+      "category": "Tools",
+      "normalized_name": "twilio",
+      "synonyms": [],
+      "parents": [
+        "Communications"
+      ]
+    },
+    {
+      "name": "SendGrid",
+      "category": "Tools",
+      "normalized_name": "sendgrid",
+      "synonyms": [],
+      "parents": [
+        "Email"
+      ]
+    },
+    {
+      "name": "Resend",
+      "category": "Tools",
+      "normalized_name": "resend",
+      "synonyms": [],
+      "parents": [
+        "Email"
+      ]
+    },
+    {
+      "name": "Auth0",
+      "category": "Security",
+      "normalized_name": "auth0",
+      "synonyms": [],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "Clerk",
+      "category": "Security",
+      "normalized_name": "clerk",
+      "synonyms": [],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "Supabase Auth",
+      "category": "Security",
+      "normalized_name": "supabase auth",
+      "synonyms": [],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "Firebase Auth",
+      "category": "Security",
+      "normalized_name": "firebase auth",
+      "synonyms": [],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "NextAuth",
+      "category": "Security",
+      "normalized_name": "nextauth",
+      "synonyms": [],
+      "parents": [
+        "Authentication",
+        "Next.js"
+      ]
+    },
+    {
+      "name": "Passport.js",
+      "category": "Security",
+      "normalized_name": "passport.js",
+      "synonyms": [
+        "Passport"
+      ],
+      "parents": [
+        "Authentication",
+        "Node.js"
+      ]
+    },
+    {
+      "name": "C",
+      "category": "Programming Languages",
+      "normalized_name": "c",
+      "synonyms": [],
+      "parents": [
+        "Systems"
+      ]
+    },
+    {
+      "name": "Perl",
+      "category": "Programming Languages",
+      "normalized_name": "perl",
+      "synonyms": [],
+      "parents": [
+        "Backend"
+      ]
+    },
+    {
+      "name": "COBOL",
+      "category": "Programming Languages",
+      "normalized_name": "cobol",
+      "synonyms": [],
+      "parents": [
+        "Legacy"
+      ]
+    },
+    {
+      "name": "F#",
+      "category": "Programming Languages",
+      "normalized_name": "f#",
+      "synonyms": [
+        "FSharp"
+      ],
+      "parents": [
+        ".NET"
+      ]
+    },
+    {
+      "name": "VB.NET",
+      "category": "Programming Languages",
+      "normalized_name": "vb.net",
+      "synonyms": [
+        "Visual Basic .NET"
+      ],
+      "parents": [
+        ".NET"
+      ]
+    },
+    {
+      "name": "Groovy",
+      "category": "Programming Languages",
+      "normalized_name": "groovy",
+      "synonyms": [],
+      "parents": [
+        "JVM"
+      ]
+    },
+    {
+      "name": "Clojure",
+      "category": "Programming Languages",
+      "normalized_name": "clojure",
+      "synonyms": [],
+      "parents": [
+        "JVM"
+      ]
+    },
+    {
+      "name": "Elixir",
+      "category": "Programming Languages",
+      "normalized_name": "elixir",
+      "synonyms": [],
+      "parents": [
+        "Backend"
+      ]
+    },
+    {
+      "name": "Erlang",
+      "category": "Programming Languages",
+      "normalized_name": "erlang",
+      "synonyms": [],
+      "parents": [
+        "Backend"
+      ]
+    },
+    {
+      "name": "Lua",
+      "category": "Programming Languages",
+      "normalized_name": "lua",
+      "synonyms": [],
+      "parents": [
+        "Scripting"
+      ]
+    },
+    {
+      "name": "Zig",
+      "category": "Programming Languages",
+      "normalized_name": "zig",
+      "synonyms": [],
+      "parents": [
+        "Systems"
+      ]
+    },
+    {
+      "name": "V",
+      "category": "Programming Languages",
+      "normalized_name": "v",
+      "synonyms": [
+        "V Lang"
+      ],
+      "parents": [
+        "Systems"
+      ]
+    },
+    {
+      "name": "Odin",
+      "category": "Programming Languages",
+      "normalized_name": "odin",
+      "synonyms": [],
+      "parents": [
+        "Systems"
+      ]
+    },
+    {
+      "name": "Nim",
+      "category": "Programming Languages",
+      "normalized_name": "nim",
+      "synonyms": [],
+      "parents": [
+        "Systems"
+      ]
+    },
+    {
+      "name": "Crystal",
+      "category": "Programming Languages",
+      "normalized_name": "crystal",
+      "synonyms": [],
+      "parents": [
+        "Backend"
+      ]
+    },
+    {
+      "name": "Julia",
+      "category": "Programming Languages",
+      "normalized_name": "julia",
+      "synonyms": [],
+      "parents": [
+        "Data",
+        "Scientific"
+      ]
+    },
+    {
+      "name": "MATLAB",
+      "category": "Programming Languages",
+      "normalized_name": "matlab",
+      "synonyms": [],
+      "parents": [
+        "Scientific"
+      ]
+    },
+    {
+      "name": "SAS",
+      "category": "Programming Languages",
+      "normalized_name": "sas",
+      "synonyms": [],
+      "parents": [
+        "Analytics"
+      ]
+    },
+    {
+      "name": "Stata",
+      "category": "Programming Languages",
+      "normalized_name": "stata",
+      "synonyms": [],
+      "parents": [
+        "Statistics"
+      ]
+    },
+    {
+      "name": "SPSS",
+      "category": "Programming Languages",
+      "normalized_name": "spss",
+      "synonyms": [],
+      "parents": [
+        "Statistics"
+      ]
+    },
+    {
+      "name": "ABAP",
+      "category": "Programming Languages",
+      "normalized_name": "abap",
+      "synonyms": [],
+      "parents": [
+        "SAP"
+      ]
+    },
+    {
+      "name": "Vyper",
+      "category": "Programming Languages",
+      "normalized_name": "vyper",
+      "synonyms": [],
+      "parents": [
+        "Blockchain"
+      ]
+    },
+    {
+      "name": "Move",
+      "category": "Programming Languages",
+      "normalized_name": "move",
+      "synonyms": [
+        "Move Language"
+      ],
+      "parents": [
+        "Blockchain"
+      ]
+    },
+    {
+      "name": "Haskell",
+      "category": "Programming Languages",
+      "normalized_name": "haskell",
+      "synonyms": [],
+      "parents": [
+        "Functional"
+      ]
+    },
+    {
+      "name": "OCaml",
+      "category": "Programming Languages",
+      "normalized_name": "ocaml",
+      "synonyms": [],
+      "parents": [
+        "Functional"
+      ]
+    },
+    {
+      "name": "Kotlin Coroutines",
+      "category": "Frameworks",
+      "normalized_name": "kotlin coroutines",
+      "synonyms": [
+        "Coroutines"
+      ],
+      "parents": [
+        "Kotlin"
+      ]
+    },
+    {
+      "name": "Quarkus",
+      "category": "Frameworks",
+      "normalized_name": "quarkus",
+      "synonyms": [],
+      "parents": [
+        "Java",
+        "Cloud Native"
+      ]
+    },
+    {
+      "name": "Micronaut",
+      "category": "Frameworks",
+      "normalized_name": "micronaut",
+      "synonyms": [],
+      "parents": [
+        "Java"
+      ]
+    },
+    {
+      "name": "Laravel",
+      "category": "Frameworks",
+      "normalized_name": "laravel",
+      "synonyms": [],
+      "parents": [
+        "PHP"
+      ]
+    },
+    {
+      "name": "Symfony",
+      "category": "Frameworks",
+      "normalized_name": "symfony",
+      "synonyms": [],
+      "parents": [
+        "PHP"
+      ]
+    },
+    {
+      "name": "Rails",
+      "category": "Frameworks",
+      "normalized_name": "rails",
+      "synonyms": [
+        "Ruby on Rails",
+        "RoR"
+      ],
+      "parents": [
+        "Ruby"
+      ]
+    },
+    {
+      "name": "Phoenix",
+      "category": "Frameworks",
+      "normalized_name": "phoenix",
+      "synonyms": [],
+      "parents": [
+        "Elixir"
+      ]
+    },
+    {
+      "name": "Gin",
+      "category": "Frameworks",
+      "normalized_name": "gin",
+      "synonyms": [
+        "Gin Gonic"
+      ],
+      "parents": [
+        "Go"
+      ]
+    },
+    {
+      "name": "Echo",
+      "category": "Frameworks",
+      "normalized_name": "echo",
+      "synonyms": [
+        "Echo Framework"
+      ],
+      "parents": [
+        "Go"
+      ]
+    },
+    {
+      "name": "Fiber",
+      "category": "Frameworks",
+      "normalized_name": "fiber",
+      "synonyms": [],
+      "parents": [
+        "Go"
+      ]
+    },
+    {
+      "name": "Actix",
+      "category": "Frameworks",
+      "normalized_name": "actix",
+      "synonyms": [
+        "Actix Web"
+      ],
+      "parents": [
+        "Rust"
+      ]
+    },
+    {
+      "name": "Axum",
+      "category": "Frameworks",
+      "normalized_name": "axum",
+      "synonyms": [],
+      "parents": [
+        "Rust"
+      ]
+    },
+    {
+      "name": "Rocket",
+      "category": "Frameworks",
+      "normalized_name": "rocket",
+      "synonyms": [],
+      "parents": [
+        "Rust"
+      ]
+    },
+    {
+      "name": "Warp",
+      "category": "Frameworks",
+      "normalized_name": "warp",
+      "synonyms": [],
+      "parents": [
+        "Rust"
+      ]
+    },
+    {
+      "name": "Tauri",
+      "category": "Frameworks",
+      "normalized_name": "tauri",
+      "synonyms": [],
+      "parents": [
+        "Desktop",
+        "Rust"
+      ]
+    },
+    {
+      "name": "Electron",
+      "category": "Frameworks",
+      "normalized_name": "electron",
+      "synonyms": [],
+      "parents": [
+        "Desktop"
+      ]
+    },
+    {
+      "name": "Expo",
+      "category": "Frameworks",
+      "normalized_name": "expo",
+      "synonyms": [],
+      "parents": [
+        "React Native"
+      ]
+    },
+    {
+      "name": "Ionic",
+      "category": "Frameworks",
+      "normalized_name": "ionic",
+      "synonyms": [],
+      "parents": [
+        "Mobile"
+      ]
+    },
+    {
+      "name": "Capacitor",
+      "category": "Frameworks",
+      "normalized_name": "capacitor",
+      "synonyms": [],
+      "parents": [
+        "Mobile"
+      ]
+    },
+    {
+      "name": "Cordova",
+      "category": "Frameworks",
+      "normalized_name": "cordova",
+      "synonyms": [
+        "PhoneGap"
+      ],
+      "parents": [
+        "Mobile"
+      ]
+    },
+    {
+      "name": "MAUI",
+      "category": "Frameworks",
+      "normalized_name": "maui",
+      "synonyms": [
+        ".NET MAUI"
+      ],
+      "parents": [
+        "Mobile",
+        ".NET"
+      ]
+    },
+    {
+      "name": "Unity",
+      "category": "Tools",
+      "normalized_name": "unity",
+      "synonyms": [],
+      "parents": [
+        "Game Development"
+      ]
+    },
+    {
+      "name": "Unreal Engine",
+      "category": "Tools",
+      "normalized_name": "unreal engine",
+      "synonyms": [
+        "Unreal"
+      ],
+      "parents": [
+        "Game Development"
+      ]
+    },
+    {
+      "name": "Godot",
+      "category": "Tools",
+      "normalized_name": "godot",
+      "synonyms": [],
+      "parents": [
+        "Game Development"
+      ]
+    },
+    {
+      "name": "Cucumber",
+      "category": "Testing",
+      "normalized_name": "cucumber",
+      "synonyms": [],
+      "parents": [
+        "BDD"
+      ]
+    },
+    {
+      "name": "SpecFlow",
+      "category": "Testing",
+      "normalized_name": "specflow",
+      "synonyms": [],
+      "parents": [
+        "BDD",
+        ".NET"
+      ]
+    },
+    {
+      "name": "Robot Framework",
+      "category": "Testing",
+      "normalized_name": "robot framework",
+      "synonyms": [],
+      "parents": [
+        "Automation"
+      ]
+    },
+    {
+      "name": "Karate",
+      "category": "Testing",
+      "normalized_name": "karate",
+      "synonyms": [
+        "Karate DSL"
+      ],
+      "parents": [
+        "API Testing"
+      ]
+    },
+    {
+      "name": "REST Assured",
+      "category": "Testing",
+      "normalized_name": "rest assured",
+      "synonyms": [],
+      "parents": [
+        "API Testing",
+        "Java"
+      ]
+    },
+    {
+      "name": "WireMock",
+      "category": "Testing",
+      "normalized_name": "wiremock",
+      "synonyms": [],
+      "parents": [
+        "Mocking"
+      ]
+    },
+    {
+      "name": "Mockito",
+      "category": "Testing",
+      "normalized_name": "mockito",
+      "synonyms": [],
+      "parents": [
+        "Java",
+        "Mocking"
+      ]
+    },
+    {
+      "name": "Sinon",
+      "category": "Testing",
+      "normalized_name": "sinon",
+      "synonyms": [],
+      "parents": [
+        "JavaScript",
+        "Mocking"
+      ]
+    },
+    {
+      "name": "MSW",
+      "category": "Testing",
+      "normalized_name": "msw",
+      "synonyms": [
+        "Mock Service Worker"
+      ],
+      "parents": [
+        "API Mocking"
+      ]
+    },
+    {
+      "name": "Contract Testing",
+      "category": "Methodologies",
+      "normalized_name": "contract testing",
+      "synonyms": [],
+      "parents": [
+        "Testing"
+      ]
+    },
+    {
+      "name": "TDD",
+      "category": "Methodologies",
+      "normalized_name": "tdd",
+      "synonyms": [
+        "Test-Driven Development"
+      ],
+      "parents": [
+        "Testing"
+      ]
+    },
+    {
+      "name": "BDD",
+      "category": "Methodologies",
+      "normalized_name": "bdd",
+      "synonyms": [
+        "Behavior-Driven Development"
+      ],
+      "parents": [
+        "Testing"
+      ]
+    },
+    {
+      "name": "DDD",
+      "category": "Methodologies",
+      "normalized_name": "ddd",
+      "synonyms": [
+        "Domain-Driven Design"
+      ],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "CQRS",
+      "category": "Methodologies",
+      "normalized_name": "cqrs",
+      "synonyms": [],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Event Sourcing",
+      "category": "Methodologies",
+      "normalized_name": "event sourcing",
+      "synonyms": [],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Hexagonal Architecture",
+      "category": "Methodologies",
+      "normalized_name": "hexagonal architecture",
+      "synonyms": [
+        "Ports and Adapters"
+      ],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Clean Architecture",
+      "category": "Methodologies",
+      "normalized_name": "clean architecture",
+      "synonyms": [],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "SOLID",
+      "category": "Methodologies",
+      "normalized_name": "solid",
+      "synonyms": [],
+      "parents": [
+        "Design Principles"
+      ]
+    },
+    {
+      "name": "Design Patterns",
+      "category": "Methodologies",
+      "normalized_name": "design patterns",
+      "synonyms": [],
+      "parents": [
+        "Software Engineering"
+      ]
+    },
+    {
+      "name": "Mob Programming",
+      "category": "Soft Skills",
+      "normalized_name": "mob programming",
+      "synonyms": [],
+      "parents": [
+        "Collaboration"
+      ]
+    },
+    {
+      "name": "Remote Work",
+      "category": "Soft Skills",
+      "normalized_name": "remote work",
+      "synonyms": [],
+      "parents": [
+        "Work Style"
+      ]
+    },
+    {
+      "name": "Cross-functional",
+      "category": "Soft Skills",
+      "normalized_name": "cross-functional",
+      "synonyms": [],
+      "parents": [
+        "Collaboration"
+      ]
+    },
+    {
+      "name": "Stakeholder Management",
+      "category": "Soft Skills",
+      "normalized_name": "stakeholder management",
+      "synonyms": [],
+      "parents": [
+        "Communication"
+      ]
+    },
+    {
+      "name": "Requirements Analysis",
+      "category": "Soft Skills",
+      "normalized_name": "requirements analysis",
+      "synonyms": [],
+      "parents": [
+        "Product"
+      ]
+    },
+    {
+      "name": "User Research",
+      "category": "Soft Skills",
+      "normalized_name": "user research",
+      "synonyms": [],
+      "parents": [
+        "Product"
+      ]
+    },
+    {
+      "name": "Product Strategy",
+      "category": "Soft Skills",
+      "normalized_name": "product strategy",
+      "synonyms": [],
+      "parents": [
+        "Product"
+      ]
+    },
+    {
+      "name": "Data Modeling",
+      "category": "Data & ML",
+      "normalized_name": "data modeling",
+      "synonyms": [],
+      "parents": [
+        "Database"
+      ]
+    },
+    {
+      "name": "ETL",
+      "category": "Data & ML",
+      "normalized_name": "etl",
+      "synonyms": [],
+      "parents": [
+        "Data"
+      ]
+    },
+    {
+      "name": "ELT",
+      "category": "Data & ML",
+      "normalized_name": "elt",
+      "synonyms": [],
+      "parents": [
+        "Data"
+      ]
+    },
+    {
+      "name": "Data Pipeline",
+      "category": "Data & ML",
+      "normalized_name": "data pipeline",
+      "synonyms": [],
+      "parents": [
+        "Data"
+      ]
+    },
+    {
+      "name": "Feature Engineering",
+      "category": "Data & ML",
+      "normalized_name": "feature engineering",
+      "synonyms": [],
+      "parents": [
+        "ML"
+      ]
+    },
+    {
+      "name": "Model Deployment",
+      "category": "Data & ML",
+      "normalized_name": "model deployment",
+      "synonyms": [
+        "MLOps"
+      ],
+      "parents": [
+        "ML"
+      ]
+    },
+    {
+      "name": "A/B Testing",
+      "category": "Data & ML",
+      "normalized_name": "a/b testing",
+      "synonyms": [
+        "Split Testing"
+      ],
+      "parents": [
+        "Experimentation"
+      ]
+    },
+    {
+      "name": "Statistical Analysis",
+      "category": "Data & ML",
+      "normalized_name": "statistical analysis",
+      "synonyms": [],
+      "parents": [
+        "Statistics"
+      ]
+    },
+    {
+      "name": "Data Visualization",
+      "category": "Data & ML",
+      "normalized_name": "data visualization",
+      "synonyms": [],
+      "parents": [
+        "Analytics"
+      ]
+    },
+    {
+      "name": "D3.js",
+      "category": "Web Technologies",
+      "normalized_name": "d3.js",
+      "synonyms": [
+        "D3"
+      ],
+      "parents": [
+        "Visualization"
+      ]
+    },
+    {
+      "name": "Chart.js",
+      "category": "Web Technologies",
+      "normalized_name": "chart.js",
+      "synonyms": [],
+      "parents": [
+        "Visualization"
+      ]
+    },
+    {
+      "name": "Recharts",
+      "category": "Web Technologies",
+      "normalized_name": "recharts",
+      "synonyms": [],
+      "parents": [
+        "React",
+        "Visualization"
+      ]
+    },
+    {
+      "name": "Plotly",
+      "category": "Data & ML",
+      "normalized_name": "plotly",
+      "synonyms": [],
+      "parents": [
+        "Visualization"
+      ]
+    },
+    {
+      "name": "Matplotlib",
+      "category": "Data & ML",
+      "normalized_name": "matplotlib",
+      "synonyms": [],
+      "parents": [
+        "Python",
+        "Visualization"
+      ]
+    },
+    {
+      "name": "Seaborn",
+      "category": "Data & ML",
+      "normalized_name": "seaborn",
+      "synonyms": [],
+      "parents": [
+        "Python",
+        "Visualization"
+      ]
+    },
+    {
+      "name": "Keras",
+      "category": "Data & ML",
+      "normalized_name": "keras",
+      "synonyms": [],
+      "parents": [
+        "Deep Learning",
+        "Python"
+      ]
+    },
+    {
+      "name": "Hugging Face",
+      "category": "Data & ML",
+      "normalized_name": "hugging face",
+      "synonyms": [
+        "HuggingFace",
+        "Transformers"
+      ],
+      "parents": [
+        "NLP",
+        "ML"
+      ]
+    },
+    {
+      "name": "LangChain",
+      "category": "Data & ML",
+      "normalized_name": "langchain",
+      "synonyms": [],
+      "parents": [
+        "LLM",
+        "Python"
+      ]
+    },
+    {
+      "name": "LlamaIndex",
+      "category": "Data & ML",
+      "normalized_name": "llamaindex",
+      "synonyms": [
+        "GPT Index"
+      ],
+      "parents": [
+        "LLM",
+        "Python"
+      ]
+    },
+    {
+      "name": "CrewAI",
+      "category": "Data & ML",
+      "normalized_name": "crewai",
+      "synonyms": [],
+      "parents": [
+        "LLM",
+        "Agents"
+      ]
+    },
+    {
+      "name": "AutoGen",
+      "category": "Data & ML",
+      "normalized_name": "autogen",
+      "synonyms": [
+        "Microsoft AutoGen"
+      ],
+      "parents": [
+        "LLM",
+        "Agents"
+      ]
+    },
+    {
+      "name": "DSPy",
+      "category": "Data & ML",
+      "normalized_name": "dspy",
+      "synonyms": [],
+      "parents": [
+        "LLM",
+        "Python"
+      ]
+    },
+    {
+      "name": "Ollama",
+      "category": "Data & ML",
+      "normalized_name": "ollama",
+      "synonyms": [],
+      "parents": [
+        "LLM",
+        "Local"
+      ]
+    },
+    {
+      "name": "vLLM",
+      "category": "Data & ML",
+      "normalized_name": "vllm",
+      "synonyms": [],
+      "parents": [
+        "LLM",
+        "Inference"
+      ]
+    },
+    {
+      "name": "ONNX",
+      "category": "Data & ML",
+      "normalized_name": "onnx",
+      "synonyms": [
+        "Open Neural Network Exchange"
+      ],
+      "parents": [
+        "ML",
+        "Model Export"
+      ]
+    },
+    {
+      "name": "TensorRT",
+      "category": "Data & ML",
+      "normalized_name": "tensorrt",
+      "synonyms": [],
+      "parents": [
+        "NVIDIA",
+        "Inference"
+      ]
+    },
+    {
+      "name": "OpenCV",
+      "category": "Data & ML",
+      "normalized_name": "opencv",
+      "synonyms": [],
+      "parents": [
+        "Computer Vision",
+        "Python"
+      ]
+    },
+    {
+      "name": "Ray",
+      "category": "Data & ML",
+      "normalized_name": "ray",
+      "synonyms": [
+        "Ray.io"
+      ],
+      "parents": [
+        "Distributed",
+        "ML"
+      ]
+    },
+    {
+      "name": "MLflow",
+      "category": "Data & ML",
+      "normalized_name": "mlflow",
+      "synonyms": [],
+      "parents": [
+        "MLOps"
+      ]
+    },
+    {
+      "name": "Weights & Biases",
+      "category": "Data & ML",
+      "normalized_name": "weights & biases",
+      "synonyms": [
+        "W&B",
+        "wandb"
+      ],
+      "parents": [
+        "MLOps"
+      ]
+    },
+    {
+      "name": "DVC",
+      "category": "Data & ML",
+      "normalized_name": "dvc",
+      "synonyms": [
+        "Data Version Control"
+      ],
+      "parents": [
+        "MLOps"
+      ]
+    },
+    {
+      "name": "BentoML",
+      "category": "Data & ML",
+      "normalized_name": "bentoml",
+      "synonyms": [],
+      "parents": [
+        "MLOps",
+        "Model Serving"
+      ]
+    },
+    {
+      "name": "Seldon",
+      "category": "Data & ML",
+      "normalized_name": "seldon",
+      "synonyms": [
+        "Seldon Core"
+      ],
+      "parents": [
+        "MLOps",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Feast",
+      "category": "Data & ML",
+      "normalized_name": "feast",
+      "synonyms": [],
+      "parents": [
+        "Feature Store",
+        "MLOps"
+      ]
+    },
+    {
+      "name": "Tecton",
+      "category": "Data & ML",
+      "normalized_name": "tecton",
+      "synonyms": [],
+      "parents": [
+        "Feature Store"
+      ]
+    },
+    {
+      "name": "Vertex AI",
+      "category": "Data & ML",
+      "normalized_name": "vertex ai",
+      "synonyms": [],
+      "parents": [
+        "GCP",
+        "ML"
+      ]
+    },
+    {
+      "name": "Azure ML",
+      "category": "Data & ML",
+      "normalized_name": "azure ml",
+      "synonyms": [
+        "Azure Machine Learning"
+      ],
+      "parents": [
+        "Azure",
+        "ML"
+      ]
+    },
+    {
+      "name": "Pinecone",
+      "category": "Databases",
+      "normalized_name": "pinecone",
+      "synonyms": [],
+      "parents": [
+        "Vector DB",
+        "ML"
+      ]
+    },
+    {
+      "name": "Weaviate",
+      "category": "Databases",
+      "normalized_name": "weaviate",
+      "synonyms": [],
+      "parents": [
+        "Vector DB"
+      ]
+    },
+    {
+      "name": "Qdrant",
+      "category": "Databases",
+      "normalized_name": "qdrant",
+      "synonyms": [],
+      "parents": [
+        "Vector DB"
+      ]
+    },
+    {
+      "name": "Chroma",
+      "category": "Databases",
+      "normalized_name": "chroma",
+      "synonyms": [
+        "ChromaDB"
+      ],
+      "parents": [
+        "Vector DB"
+      ]
+    },
+    {
+      "name": "Milvus",
+      "category": "Databases",
+      "normalized_name": "milvus",
+      "synonyms": [],
+      "parents": [
+        "Vector DB"
+      ]
+    },
+    {
+      "name": "pgvector",
+      "category": "Databases",
+      "normalized_name": "pgvector",
+      "synonyms": [],
+      "parents": [
+        "PostgreSQL",
+        "Vector DB"
+      ]
+    },
+    {
+      "name": "Fine-tuning",
+      "category": "Data & ML",
+      "normalized_name": "fine-tuning",
+      "synonyms": [
+        "LLM Fine-tuning"
+      ],
+      "parents": [
+        "LLM",
+        "ML"
+      ]
+    },
+    {
+      "name": "Prompt Engineering",
+      "category": "Data & ML",
+      "normalized_name": "prompt engineering",
+      "synonyms": [],
+      "parents": [
+        "LLM"
+      ]
+    },
+    {
+      "name": "Reinforcement Learning",
+      "category": "Data & ML",
+      "normalized_name": "reinforcement learning",
+      "synonyms": [
+        "RL"
+      ],
+      "parents": [
+        "ML"
+      ]
+    },
+    {
+      "name": "NLP",
+      "category": "Data & ML",
+      "normalized_name": "nlp",
+      "synonyms": [
+        "Natural Language Processing"
+      ],
+      "parents": [
+        "ML"
+      ]
+    },
+    {
+      "name": "Time Series Analysis",
+      "category": "Data & ML",
+      "normalized_name": "time series analysis",
+      "synonyms": [],
+      "parents": [
+        "Statistics",
+        "ML"
+      ]
+    },
+    {
+      "name": "Anomaly Detection",
+      "category": "Data & ML",
+      "normalized_name": "anomaly detection",
+      "synonyms": [],
+      "parents": [
+        "ML"
+      ]
+    },
+    {
+      "name": "Recommendation Systems",
+      "category": "Data & ML",
+      "normalized_name": "recommendation systems",
+      "synonyms": [],
+      "parents": [
+        "ML"
+      ]
+    },
+    {
+      "name": "CouchDB",
+      "category": "Databases",
+      "normalized_name": "couchdb",
+      "synonyms": [],
+      "parents": [
+        "NoSQL",
+        "Document DB"
+      ]
+    },
+    {
+      "name": "OpenSearch",
+      "category": "Databases",
+      "normalized_name": "opensearch",
+      "synonyms": [],
+      "parents": [
+        "Search",
+        "AWS"
+      ]
+    },
+    {
+      "name": "Solr",
+      "category": "Databases",
+      "normalized_name": "solr",
+      "synonyms": [
+        "Apache Solr"
+      ],
+      "parents": [
+        "Search"
+      ]
+    },
+    {
+      "name": "Neo4j",
+      "category": "Databases",
+      "normalized_name": "neo4j",
+      "synonyms": [],
+      "parents": [
+        "Graph DB"
+      ]
+    },
+    {
+      "name": "ArangoDB",
+      "category": "Databases",
+      "normalized_name": "arangodb",
+      "synonyms": [],
+      "parents": [
+        "Graph DB",
+        "Document DB"
+      ]
+    },
+    {
+      "name": "InfluxDB",
+      "category": "Databases",
+      "normalized_name": "influxdb",
+      "synonyms": [],
+      "parents": [
+        "Time Series DB"
+      ]
+    },
+    {
+      "name": "TimescaleDB",
+      "category": "Databases",
+      "normalized_name": "timescaledb",
+      "synonyms": [],
+      "parents": [
+        "PostgreSQL",
+        "Time Series DB"
+      ]
+    },
+    {
+      "name": "TiDB",
+      "category": "Databases",
+      "normalized_name": "tidb",
+      "synonyms": [],
+      "parents": [
+        "NewSQL"
+      ]
+    },
+    {
+      "name": "Synapse Analytics",
+      "category": "Databases",
+      "normalized_name": "synapse analytics",
+      "synonyms": [
+        "Azure Synapse"
+      ],
+      "parents": [
+        "Azure",
+        "Data Warehouse"
+      ]
+    },
+    {
+      "name": "DuckDB",
+      "category": "Databases",
+      "normalized_name": "duckdb",
+      "synonyms": [],
+      "parents": [
+        "Analytics",
+        "OLAP"
+      ]
+    },
+    {
+      "name": "ClickHouse",
+      "category": "Databases",
+      "normalized_name": "clickhouse",
+      "synonyms": [],
+      "parents": [
+        "OLAP",
+        "Analytics"
+      ]
+    },
+    {
+      "name": "Apache Spark",
+      "category": "Data & ML",
+      "normalized_name": "apache spark",
+      "synonyms": [
+        "Spark",
+        "PySpark"
+      ],
+      "parents": [
+        "Data",
+        "Distributed"
+      ]
+    },
+    {
+      "name": "Apache Kafka",
+      "category": "Data",
+      "normalized_name": "apache kafka",
+      "synonyms": [
+        "Kafka"
+      ],
+      "parents": [
+        "Streaming",
+        "Message Queue"
+      ]
+    },
+    {
+      "name": "Apache Flink",
+      "category": "Data & ML",
+      "normalized_name": "apache flink",
+      "synonyms": [
+        "Flink"
+      ],
+      "parents": [
+        "Streaming",
+        "Data"
+      ]
+    },
+    {
+      "name": "Apache Beam",
+      "category": "Data & ML",
+      "normalized_name": "apache beam",
+      "synonyms": [],
+      "parents": [
+        "Data Pipeline"
+      ]
+    },
+    {
+      "name": "Apache Airflow",
+      "category": "Data & ML",
+      "normalized_name": "apache airflow",
+      "synonyms": [
+        "Airflow"
+      ],
+      "parents": [
+        "Workflow",
+        "Data Pipeline"
+      ]
+    },
+    {
+      "name": "Spark Streaming",
+      "category": "Data & ML",
+      "normalized_name": "spark streaming",
+      "synonyms": [
+        "Structured Streaming"
+      ],
+      "parents": [
+        "Spark",
+        "Streaming"
+      ]
+    },
+    {
+      "name": "Kafka Streams",
+      "category": "Data & ML",
+      "normalized_name": "kafka streams",
+      "synonyms": [],
+      "parents": [
+        "Kafka",
+        "Streaming"
+      ]
+    },
+    {
+      "name": "Kinesis",
+      "category": "Data & ML",
+      "normalized_name": "kinesis",
+      "synonyms": [
+        "AWS Kinesis"
+      ],
+      "parents": [
+        "AWS",
+        "Streaming"
+      ]
+    },
+    {
+      "name": "Pub/Sub",
+      "category": "Data",
+      "normalized_name": "pub/sub",
+      "synonyms": [
+        "Google Pub/Sub"
+      ],
+      "parents": [
+        "GCP",
+        "Streaming"
+      ]
+    },
+    {
+      "name": "dbt Cloud",
+      "category": "Data & ML",
+      "normalized_name": "dbt cloud",
+      "synonyms": [],
+      "parents": [
+        "dbt",
+        "Cloud"
+      ]
+    },
+    {
+      "name": "Metabase",
+      "category": "Data & ML",
+      "normalized_name": "metabase",
+      "synonyms": [],
+      "parents": [
+        "BI"
+      ]
+    },
+    {
+      "name": "Superset",
+      "category": "Data & ML",
+      "normalized_name": "superset",
+      "synonyms": [
+        "Apache Superset"
+      ],
+      "parents": [
+        "BI"
+      ]
+    },
+    {
+      "name": "Polars",
+      "category": "Data & ML",
+      "normalized_name": "polars",
+      "synonyms": [],
+      "parents": [
+        "Python",
+        "Data"
+      ]
+    },
+    {
+      "name": "SciPy",
+      "category": "Data & ML",
+      "normalized_name": "scipy",
+      "synonyms": [],
+      "parents": [
+        "Python",
+        "Scientific"
+      ]
+    },
+    {
+      "name": "Penetration Testing",
+      "category": "Security",
+      "normalized_name": "penetration testing",
+      "synonyms": [
+        "Pen Testing",
+        "Pentest"
+      ],
+      "parents": [
+        "Security"
+      ]
+    },
+    {
+      "name": "OWASP",
+      "category": "Security",
+      "normalized_name": "owasp",
+      "synonyms": [],
+      "parents": [
+        "Security",
+        "Web"
+      ]
+    },
+    {
+      "name": "SAST",
+      "category": "Security",
+      "normalized_name": "sast",
+      "synonyms": [
+        "Static Application Security Testing"
+      ],
+      "parents": [
+        "Security",
+        "DevSecOps"
+      ]
+    },
+    {
+      "name": "DAST",
+      "category": "Security",
+      "normalized_name": "dast",
+      "synonyms": [
+        "Dynamic Application Security Testing"
+      ],
+      "parents": [
+        "Security",
+        "DevSecOps"
+      ]
+    },
+    {
+      "name": "SIEM",
+      "category": "Security",
+      "normalized_name": "siem",
+      "synonyms": [],
+      "parents": [
+        "Security"
+      ]
+    },
+    {
+      "name": "SOC",
+      "category": "Security",
+      "normalized_name": "soc",
+      "synonyms": [
+        "Security Operations Center"
+      ],
+      "parents": [
+        "Security"
+      ]
+    },
+    {
+      "name": "Zero Trust",
+      "category": "Security",
+      "normalized_name": "zero trust",
+      "synonyms": [],
+      "parents": [
+        "Security",
+        "Architecture"
+      ]
+    },
+    {
+      "name": "PKI",
+      "category": "Security",
+      "normalized_name": "pki",
+      "synonyms": [
+        "Public Key Infrastructure"
+      ],
+      "parents": [
+        "Security",
+        "Cryptography"
+      ]
+    },
+    {
+      "name": "TLS/SSL",
+      "category": "Security",
+      "normalized_name": "tls/ssl",
+      "synonyms": [
+        "SSL",
+        "TLS"
+      ],
+      "parents": [
+        "Security",
+        "Cryptography"
+      ]
+    },
+    {
+      "name": "OAuth 2.0",
+      "category": "Security",
+      "normalized_name": "oauth 2.0",
+      "synonyms": [
+        "OAuth"
+      ],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "OIDC",
+      "category": "Security",
+      "normalized_name": "oidc",
+      "synonyms": [
+        "OpenID Connect"
+      ],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "SAML",
+      "category": "Security",
+      "normalized_name": "saml",
+      "synonyms": [],
+      "parents": [
+        "Authentication",
+        "SSO"
+      ]
+    },
+    {
+      "name": "JWT",
+      "category": "Security",
+      "normalized_name": "jwt",
+      "synonyms": [
+        "JSON Web Token"
+      ],
+      "parents": [
+        "Authentication"
+      ]
+    },
+    {
+      "name": "Secret Management",
+      "category": "Security",
+      "normalized_name": "secret management",
+      "synonyms": [],
+      "parents": [
+        "Security",
+        "DevOps"
+      ]
+    },
+    {
+      "name": "Vault",
+      "category": "Security",
+      "normalized_name": "vault",
+      "synonyms": [
+        "HashiCorp Vault"
+      ],
+      "parents": [
+        "Secret Management"
+      ]
+    },
+    {
+      "name": "AWS Secrets Manager",
+      "category": "Security",
+      "normalized_name": "aws secrets manager",
+      "synonyms": [],
+      "parents": [
+        "AWS",
+        "Secret Management"
+      ]
+    },
+    {
+      "name": "Snyk",
+      "category": "Security",
+      "normalized_name": "snyk",
+      "synonyms": [],
+      "parents": [
+        "DevSecOps"
+      ]
+    },
+    {
+      "name": "Trivy",
+      "category": "Security",
+      "normalized_name": "trivy",
+      "synonyms": [],
+      "parents": [
+        "Container Security"
+      ]
+    },
+    {
+      "name": "SonarQube",
+      "category": "Security",
+      "normalized_name": "sonarqube",
+      "synonyms": [],
+      "parents": [
+        "Code Quality",
+        "SAST"
+      ]
+    },
+    {
+      "name": "Burp Suite",
+      "category": "Security",
+      "normalized_name": "burp suite",
+      "synonyms": [],
+      "parents": [
+        "Penetration Testing",
+        "Web"
+      ]
+    },
+    {
+      "name": "Nmap",
+      "category": "Security",
+      "normalized_name": "nmap",
+      "synonyms": [],
+      "parents": [
+        "Network",
+        "Security"
+      ]
+    },
+    {
+      "name": "Wireshark",
+      "category": "Security",
+      "normalized_name": "wireshark",
+      "synonyms": [],
+      "parents": [
+        "Network",
+        "Security"
+      ]
+    },
+    {
+      "name": "Compliance",
+      "category": "Security",
+      "normalized_name": "compliance",
+      "synonyms": [],
+      "parents": [
+        "Security",
+        "Governance"
+      ]
+    },
+    {
+      "name": "SOC 2",
+      "category": "Security",
+      "normalized_name": "soc 2",
+      "synonyms": [
+        "SOC2"
+      ],
+      "parents": [
+        "Compliance"
+      ]
+    },
+    {
+      "name": "GDPR",
+      "category": "Security",
+      "normalized_name": "gdpr",
+      "synonyms": [],
+      "parents": [
+        "Compliance",
+        "Privacy"
+      ]
+    },
+    {
+      "name": "HIPAA",
+      "category": "Security",
+      "normalized_name": "hipaa",
+      "synonyms": [],
+      "parents": [
+        "Compliance",
+        "Healthcare"
+      ]
+    },
+    {
+      "name": "PCI DSS",
+      "category": "Security",
+      "normalized_name": "pci dss",
+      "synonyms": [
+        "PCI"
+      ],
+      "parents": [
+        "Compliance",
+        "Payments"
+      ]
+    },
+    {
+      "name": "ISO 27001",
+      "category": "Security",
+      "normalized_name": "iso 27001",
+      "synonyms": [],
+      "parents": [
+        "Compliance",
+        "Security"
+      ]
+    },
+    {
+      "name": "FedRAMP",
+      "category": "Security",
+      "normalized_name": "fedramp",
+      "synonyms": [],
+      "parents": [
+        "Compliance",
+        "Government"
+      ]
+    },
+    {
+      "name": "Google Cloud",
+      "category": "Cloud Platforms",
+      "normalized_name": "google cloud",
+      "synonyms": [
+        "GCP",
+        "Google Cloud Platform"
+      ],
+      "parents": [
+        "Cloud"
+      ]
+    },
+    {
+      "name": "Chef",
+      "category": "DevOps",
+      "normalized_name": "chef",
+      "synonyms": [],
+      "parents": [
+        "Configuration Management"
+      ]
+    },
+    {
+      "name": "Puppet",
+      "category": "DevOps",
+      "normalized_name": "puppet",
+      "synonyms": [],
+      "parents": [
+        "Configuration Management"
+      ]
+    },
+    {
+      "name": "Docker Compose",
+      "category": "DevOps",
+      "normalized_name": "docker compose",
+      "synonyms": [],
+      "parents": [
+        "Docker",
+        "Containers"
+      ]
+    },
+    {
+      "name": "CircleCI",
+      "category": "DevOps",
+      "normalized_name": "circleci",
+      "synonyms": [],
+      "parents": [
+        "CI/CD"
+      ]
+    },
+    {
+      "name": "Travis CI",
+      "category": "DevOps",
+      "normalized_name": "travis ci",
+      "synonyms": [],
+      "parents": [
+        "CI/CD"
+      ]
+    },
+    {
+      "name": "Bitbucket Pipelines",
+      "category": "DevOps",
+      "normalized_name": "bitbucket pipelines",
+      "synonyms": [],
+      "parents": [
+        "CI/CD"
+      ]
+    },
+    {
+      "name": "Spinnaker",
+      "category": "DevOps",
+      "normalized_name": "spinnaker",
+      "synonyms": [],
+      "parents": [
+        "CD",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Istio",
+      "category": "DevOps",
+      "normalized_name": "istio",
+      "synonyms": [],
+      "parents": [
+        "Service Mesh",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Linkerd",
+      "category": "DevOps",
+      "normalized_name": "linkerd",
+      "synonyms": [],
+      "parents": [
+        "Service Mesh",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "Envoy",
+      "category": "DevOps",
+      "normalized_name": "envoy",
+      "synonyms": [],
+      "parents": [
+        "Service Mesh",
+        "Proxy"
+      ]
+    },
+    {
+      "name": "Nginx",
+      "category": "Backend",
+      "normalized_name": "nginx",
+      "synonyms": [],
+      "parents": [
+        "Web Server",
+        "Load Balancer"
+      ]
+    },
+    {
+      "name": "HAProxy",
+      "category": "Backend",
+      "normalized_name": "haproxy",
+      "synonyms": [],
+      "parents": [
+        "Load Balancer"
+      ]
+    },
+    {
+      "name": "Traefik",
+      "category": "DevOps",
+      "normalized_name": "traefik",
+      "synonyms": [],
+      "parents": [
+        "Reverse Proxy",
+        "Kubernetes"
+      ]
+    },
+    {
+      "name": "VPC",
+      "category": "Cloud Services",
+      "normalized_name": "vpc",
+      "synonyms": [
+        "Virtual Private Cloud"
+      ],
+      "parents": [
+        "Networking",
+        "Cloud"
+      ]
+    },
+    {
+      "name": "CDK",
+      "category": "Cloud Services",
+      "normalized_name": "cdk",
+      "synonyms": [
+        "AWS CDK",
+        "Cloud Development Kit"
+      ],
+      "parents": [
+        "AWS",
+        "IaC"
+      ]
+    },
+    {
+      "name": "SAM",
+      "category": "Cloud Services",
+      "normalized_name": "sam",
+      "synonyms": [
+        "AWS SAM",
+        "Serverless Application Model"
+      ],
+      "parents": [
+        "AWS",
+        "Serverless"
+      ]
+    },
+    {
+      "name": "Serverless Framework",
+      "category": "DevOps",
+      "normalized_name": "serverless framework",
+      "synonyms": [],
+      "parents": [
+        "Serverless",
+        "IaC"
+      ]
+    },
+    {
+      "name": "OpenTofu",
+      "category": "DevOps",
+      "normalized_name": "opentofu",
+      "synonyms": [],
+      "parents": [
+        "IaC",
+        "Terraform"
+      ]
+    },
+    {
+      "name": "ELK Stack",
+      "category": "Monitoring & Logging",
+      "normalized_name": "elk stack",
+      "synonyms": [
+        "ELK",
+        "Elastic Stack"
+      ],
+      "parents": [
+        "Logging"
+      ]
+    },
+    {
+      "name": "Loki",
+      "category": "Monitoring & Logging",
+      "normalized_name": "loki",
+      "synonyms": [
+        "Grafana Loki"
+      ],
+      "parents": [
+        "Logging"
+      ]
+    },
+    {
+      "name": "Fluentd",
+      "category": "Monitoring & Logging",
+      "normalized_name": "fluentd",
+      "synonyms": [],
+      "parents": [
+        "Logging"
+      ]
+    },
+    {
+      "name": "Logstash",
+      "category": "Monitoring & Logging",
+      "normalized_name": "logstash",
+      "synonyms": [],
+      "parents": [
+        "Logging"
+      ]
+    },
+    {
+      "name": "Kibana",
+      "category": "Monitoring & Logging",
+      "normalized_name": "kibana",
+      "synonyms": [],
+      "parents": [
+        "Visualization",
+        "Logging"
+      ]
+    },
+    {
+      "name": "CloudWatch",
+      "category": "Monitoring & Logging",
+      "normalized_name": "cloudwatch",
+      "synonyms": [
+        "AWS CloudWatch"
+      ],
+      "parents": [
+        "AWS",
+        "Monitoring"
+      ]
+    },
+    {
+      "name": "GCP Monitoring",
+      "category": "Monitoring & Logging",
+      "normalized_name": "gcp monitoring",
+      "synonyms": [
+        "Cloud Monitoring"
+      ],
+      "parents": [
+        "GCP",
+        "Monitoring"
+      ]
+    },
+    {
+      "name": "Dynatrace",
+      "category": "Monitoring & Logging",
+      "normalized_name": "dynatrace",
+      "synonyms": [],
+      "parents": [
+        "APM"
+      ]
+    },
+    {
+      "name": "AppDynamics",
+      "category": "Monitoring & Logging",
+      "normalized_name": "appdynamics",
+      "synonyms": [],
+      "parents": [
+        "APM"
+      ]
+    },
+    {
+      "name": "Site Reliability Engineering",
+      "category": "Methodologies",
+      "normalized_name": "site reliability engineering",
+      "synonyms": [
+        "SRE"
+      ],
+      "parents": [
+        "DevOps"
+      ]
+    },
+    {
+      "name": "Assembly",
+      "category": "Programming Languages",
+      "normalized_name": "assembly",
+      "synonyms": [
+        "ASM"
+      ],
+      "parents": [
+        "Systems"
+      ]
+    },
+    {
+      "name": "WebAssembly",
+      "category": "Programming Languages",
+      "normalized_name": "webassembly",
+      "synonyms": [
+        "WASM"
+      ],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Less",
+      "category": "Web Technologies",
+      "normalized_name": "less",
+      "synonyms": [],
+      "parents": [
+        "CSS"
+      ]
+    },
+    {
+      "name": "WebSockets",
+      "category": "Web Technologies",
+      "normalized_name": "websockets",
+      "synonyms": [
+        "WS"
+      ],
+      "parents": [
+        "Networking",
+        "Real-time"
+      ]
+    },
+    {
+      "name": "Server-Sent Events",
+      "category": "Web Technologies",
+      "normalized_name": "server-sent events",
+      "synonyms": [
+        "SSE"
+      ],
+      "parents": [
+        "Real-time"
+      ]
+    },
+    {
+      "name": "PWA",
+      "category": "Web Technologies",
+      "normalized_name": "pwa",
+      "synonyms": [
+        "Progressive Web App"
+      ],
+      "parents": [
+        "Frontend",
+        "Mobile"
+      ]
+    },
+    {
+      "name": "Web Components",
+      "category": "Web Technologies",
+      "normalized_name": "web components",
+      "synonyms": [],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Micro Frontends",
+      "category": "Web Technologies",
+      "normalized_name": "micro frontends",
+      "synonyms": [],
+      "parents": [
+        "Frontend",
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Accessibility",
+      "category": "Web Technologies",
+      "normalized_name": "accessibility",
+      "synonyms": [
+        "a11y",
+        "WCAG"
+      ],
+      "parents": [
+        "Frontend",
+        "UX"
+      ]
+    },
+    {
+      "name": "SEO",
+      "category": "Web Technologies",
+      "normalized_name": "seo",
+      "synonyms": [
+        "Search Engine Optimization"
+      ],
+      "parents": [
+        "Marketing",
+        "Web"
+      ]
+    },
+    {
+      "name": "Core Web Vitals",
+      "category": "Web Technologies",
+      "normalized_name": "core web vitals",
+      "synonyms": [],
+      "parents": [
+        "Performance",
+        "SEO"
+      ]
+    },
+    {
+      "name": "Internationalization",
+      "category": "Web Technologies",
+      "normalized_name": "internationalization",
+      "synonyms": [
+        "i18n"
+      ],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Localization",
+      "category": "Web Technologies",
+      "normalized_name": "localization",
+      "synonyms": [
+        "l10n"
+      ],
+      "parents": [
+        "Frontend"
+      ]
+    },
+    {
+      "name": "REST",
+      "category": "Backend",
+      "normalized_name": "rest",
+      "synonyms": [
+        "RESTful API"
+      ],
+      "parents": [
+        "API"
+      ]
+    },
+    {
+      "name": "JSON",
+      "category": "Web Technologies",
+      "normalized_name": "json",
+      "synonyms": [],
+      "parents": [
+        "Data Format"
+      ]
+    },
+    {
+      "name": "XML",
+      "category": "Web Technologies",
+      "normalized_name": "xml",
+      "synonyms": [],
+      "parents": [
+        "Data Format"
+      ]
+    },
+    {
+      "name": "Protocol Buffers",
+      "category": "Backend",
+      "normalized_name": "protocol buffers",
+      "synonyms": [
+        "Protobuf",
+        "proto3"
+      ],
+      "parents": [
+        "gRPC",
+        "Serialization"
+      ]
+    },
+    {
+      "name": "Fastify",
+      "category": "Frameworks",
+      "normalized_name": "fastify",
+      "synonyms": [],
+      "parents": [
+        "Node.js",
+        "Backend"
+      ]
+    },
+    {
+      "name": "NestJS",
+      "category": "Frameworks",
+      "normalized_name": "nestjs",
+      "synonyms": [
+        "Nest"
+      ],
+      "parents": [
+        "Node.js",
+        "TypeScript"
+      ]
+    },
+    {
+      "name": "ASP.NET",
+      "category": "Frameworks",
+      "normalized_name": "asp.net",
+      "synonyms": [
+        "ASP.NET Core"
+      ],
+      "parents": [
+        ".NET",
+        "Backend"
+      ]
+    },
+    {
+      "name": "Zustand",
+      "category": "Frameworks",
+      "normalized_name": "zustand",
+      "synonyms": [],
+      "parents": [
+        "React",
+        "State Management"
+      ]
+    },
+    {
+      "name": "MobX",
+      "category": "Frameworks",
+      "normalized_name": "mobx",
+      "synonyms": [],
+      "parents": [
+        "State Management"
+      ]
+    },
+    {
+      "name": "React Query",
+      "category": "Frameworks",
+      "normalized_name": "react query",
+      "synonyms": [
+        "TanStack Query"
+      ],
+      "parents": [
+        "React",
+        "Data Fetching"
+      ]
+    },
+    {
+      "name": "SWR",
+      "category": "Frameworks",
+      "normalized_name": "swr",
+      "synonyms": [],
+      "parents": [
+        "React",
+        "Data Fetching"
+      ]
+    },
+    {
+      "name": "Pinia",
+      "category": "Frameworks",
+      "normalized_name": "pinia",
+      "synonyms": [],
+      "parents": [
+        "Vue",
+        "State Management"
+      ]
+    },
+    {
+      "name": "NgRx",
+      "category": "Frameworks",
+      "normalized_name": "ngrx",
+      "synonyms": [],
+      "parents": [
+        "Angular",
+        "State Management"
+      ]
+    },
+    {
+      "name": "Hono",
+      "category": "Frameworks",
+      "normalized_name": "hono",
+      "synonyms": [],
+      "parents": [
+        "Backend",
+        "Edge"
+      ]
+    },
+    {
+      "name": "Elysia",
+      "category": "Frameworks",
+      "normalized_name": "elysia",
+      "synonyms": [],
+      "parents": [
+        "Bun",
+        "Backend"
+      ]
+    },
+    {
+      "name": "Drizzle ORM",
+      "category": "Backend",
+      "normalized_name": "drizzle orm",
+      "synonyms": [
+        "Drizzle"
+      ],
+      "parents": [
+        "ORM",
+        "TypeScript"
+      ]
+    },
+    {
+      "name": "Mongoose",
+      "category": "Backend",
+      "normalized_name": "mongoose",
+      "synonyms": [],
+      "parents": [
+        "MongoDB",
+        "Node.js"
+      ]
+    },
+    {
+      "name": "Appium",
+      "category": "Testing",
+      "normalized_name": "appium",
+      "synonyms": [],
+      "parents": [
+        "Mobile",
+        "E2E"
+      ]
+    },
+    {
+      "name": "XCTest",
+      "category": "Testing",
+      "normalized_name": "xctest",
+      "synonyms": [],
+      "parents": [
+        "Apple",
+        "Mobile"
+      ]
+    },
+    {
+      "name": "Espresso",
+      "category": "Testing",
+      "normalized_name": "espresso",
+      "synonyms": [],
+      "parents": [
+        "Android",
+        "Mobile"
+      ]
+    },
+    {
+      "name": "TestNG",
+      "category": "Testing",
+      "normalized_name": "testng",
+      "synonyms": [],
+      "parents": [
+        "Java",
+        "Testing"
+      ]
+    },
+    {
+      "name": "NUnit",
+      "category": "Testing",
+      "normalized_name": "nunit",
+      "synonyms": [],
+      "parents": [
+        ".NET",
+        "Testing"
+      ]
+    },
+    {
+      "name": "xUnit",
+      "category": "Testing",
+      "normalized_name": "xunit",
+      "synonyms": [],
+      "parents": [
+        ".NET",
+        "Testing"
+      ]
+    },
+    {
+      "name": "Pact",
+      "category": "Testing",
+      "normalized_name": "pact",
+      "synonyms": [],
+      "parents": [
+        "Contract Testing"
+      ]
+    },
+    {
+      "name": "Artillery",
+      "category": "Testing",
+      "normalized_name": "artillery",
+      "synonyms": [],
+      "parents": [
+        "Load Testing"
+      ]
+    },
+    {
+      "name": "Gatling",
+      "category": "Testing",
+      "normalized_name": "gatling",
+      "synonyms": [],
+      "parents": [
+        "Load Testing",
+        "Scala"
+      ]
+    },
+    {
+      "name": "SonarCloud",
+      "category": "Tools",
+      "normalized_name": "sonarcloud",
+      "synonyms": [],
+      "parents": [
+        "Code Quality"
+      ]
+    },
+    {
+      "name": "Code Coverage",
+      "category": "Testing",
+      "normalized_name": "code coverage",
+      "synonyms": [],
+      "parents": [
+        "Testing",
+        "Quality"
+      ]
+    },
+    {
+      "name": "Sketch",
+      "category": "Tools",
+      "normalized_name": "sketch",
+      "synonyms": [],
+      "parents": [
+        "Design"
+      ]
+    },
+    {
+      "name": "Adobe XD",
+      "category": "Tools",
+      "normalized_name": "adobe xd",
+      "synonyms": [],
+      "parents": [
+        "Design"
+      ]
+    },
+    {
+      "name": "InVision",
+      "category": "Tools",
+      "normalized_name": "invision",
+      "synonyms": [],
+      "parents": [
+        "Design",
+        "Prototyping"
+      ]
+    },
+    {
+      "name": "Zeplin",
+      "category": "Tools",
+      "normalized_name": "zeplin",
+      "synonyms": [],
+      "parents": [
+        "Design",
+        "Handoff"
+      ]
+    },
+    {
+      "name": "UX Design",
+      "category": "Soft Skills",
+      "normalized_name": "ux design",
+      "synonyms": [
+        "User Experience Design"
+      ],
+      "parents": [
+        "Design"
+      ]
+    },
+    {
+      "name": "UI Design",
+      "category": "Soft Skills",
+      "normalized_name": "ui design",
+      "synonyms": [
+        "User Interface Design"
+      ],
+      "parents": [
+        "Design"
+      ]
+    },
+    {
+      "name": "Design Systems",
+      "category": "Methodologies",
+      "normalized_name": "design systems",
+      "synonyms": [],
+      "parents": [
+        "Design",
+        "Frontend"
+      ]
+    },
+    {
+      "name": "Wireframing",
+      "category": "Soft Skills",
+      "normalized_name": "wireframing",
+      "synonyms": [],
+      "parents": [
+        "Design"
+      ]
+    },
+    {
+      "name": "Prototyping",
+      "category": "Soft Skills",
+      "normalized_name": "prototyping",
+      "synonyms": [],
+      "parents": [
+        "Design"
+      ]
+    },
+    {
+      "name": "Information Architecture",
+      "category": "Soft Skills",
+      "normalized_name": "information architecture",
+      "synonyms": [
+        "IA"
+      ],
+      "parents": [
+        "UX Design"
+      ]
+    },
+    {
+      "name": "SAFe",
+      "category": "Methodologies",
+      "normalized_name": "safe",
+      "synonyms": [
+        "Scaled Agile Framework"
+      ],
+      "parents": [
+        "Agile"
+      ]
+    },
+    {
+      "name": "OKRs",
+      "category": "Methodologies",
+      "normalized_name": "okrs",
+      "synonyms": [
+        "Objectives and Key Results"
+      ],
+      "parents": [
+        "Product"
+      ]
+    },
+    {
+      "name": "Technical Leadership",
+      "category": "Soft Skills",
+      "normalized_name": "technical leadership",
+      "synonyms": [
+        "Tech Lead"
+      ],
+      "parents": [
+        "Leadership"
+      ]
+    },
+    {
+      "name": "Team Management",
+      "category": "Soft Skills",
+      "normalized_name": "team management",
+      "synonyms": [],
+      "parents": [
+        "Leadership"
+      ]
+    },
+    {
+      "name": "Ethereum",
+      "category": "Blockchain",
+      "normalized_name": "ethereum",
+      "synonyms": [
+        "ETH"
+      ],
+      "parents": [
+        "Blockchain"
+      ]
+    },
+    {
+      "name": "Web3.js",
+      "category": "Blockchain",
+      "normalized_name": "web3.js",
+      "synonyms": [
+        "Web3"
+      ],
+      "parents": [
+        "Blockchain",
+        "JavaScript"
+      ]
+    },
+    {
+      "name": "Ethers.js",
+      "category": "Blockchain",
+      "normalized_name": "ethers.js",
+      "synonyms": [
+        "Ethers"
+      ],
+      "parents": [
+        "Blockchain",
+        "JavaScript"
+      ]
+    },
+    {
+      "name": "Hardhat",
+      "category": "Blockchain",
+      "normalized_name": "hardhat",
+      "synonyms": [],
+      "parents": [
+        "Blockchain",
+        "Ethereum"
+      ]
+    },
+    {
+      "name": "Foundry",
+      "category": "Blockchain",
+      "normalized_name": "foundry",
+      "synonyms": [],
+      "parents": [
+        "Blockchain",
+        "Ethereum"
+      ]
+    },
+    {
+      "name": "Truffle",
+      "category": "Blockchain",
+      "normalized_name": "truffle",
+      "synonyms": [],
+      "parents": [
+        "Blockchain",
+        "Ethereum"
+      ]
+    },
+    {
+      "name": "IPFS",
+      "category": "Blockchain",
+      "normalized_name": "ipfs",
+      "synonyms": [
+        "InterPlanetary File System"
+      ],
+      "parents": [
+        "Blockchain",
+        "Storage"
+      ]
+    },
+    {
+      "name": "DeFi",
+      "category": "Blockchain",
+      "normalized_name": "defi",
+      "synonyms": [
+        "Decentralized Finance"
+      ],
+      "parents": [
+        "Blockchain"
+      ]
+    },
+    {
+      "name": "NFT",
+      "category": "Blockchain",
+      "normalized_name": "nft",
+      "synonyms": [
+        "Non-Fungible Token"
+      ],
+      "parents": [
+        "Blockchain"
+      ]
+    },
+    {
+      "name": "Smart Contracts",
+      "category": "Blockchain",
+      "normalized_name": "smart contracts",
+      "synonyms": [],
+      "parents": [
+        "Blockchain"
+      ]
+    },
+    {
+      "name": "Embedded Systems",
+      "category": "Embedded",
+      "normalized_name": "embedded systems",
+      "synonyms": [],
+      "parents": [
+        "Hardware"
+      ]
+    },
+    {
+      "name": "RTOS",
+      "category": "Embedded",
+      "normalized_name": "rtos",
+      "synonyms": [
+        "Real-Time Operating System",
+        "FreeRTOS"
+      ],
+      "parents": [
+        "Embedded"
+      ]
+    },
+    {
+      "name": "Arduino",
+      "category": "Embedded",
+      "normalized_name": "arduino",
+      "synonyms": [],
+      "parents": [
+        "Embedded",
+        "IoT"
+      ]
+    },
+    {
+      "name": "Raspberry Pi",
+      "category": "Embedded",
+      "normalized_name": "raspberry pi",
+      "synonyms": [],
+      "parents": [
+        "Embedded",
+        "IoT"
+      ]
+    },
+    {
+      "name": "MQTT",
+      "category": "Embedded",
+      "normalized_name": "mqtt",
+      "synonyms": [],
+      "parents": [
+        "IoT",
+        "Protocol"
+      ]
+    },
+    {
+      "name": "IoT",
+      "category": "Embedded",
+      "normalized_name": "iot",
+      "synonyms": [
+        "Internet of Things"
+      ],
+      "parents": [
+        "Hardware",
+        "Networking"
+      ]
+    },
+    {
+      "name": "FPGA",
+      "category": "Embedded",
+      "normalized_name": "fpga",
+      "synonyms": [
+        "Field-Programmable Gate Array"
+      ],
+      "parents": [
+        "Hardware"
+      ]
+    },
+    {
+      "name": "Verilog",
+      "category": "Programming Languages",
+      "normalized_name": "verilog",
+      "synonyms": [],
+      "parents": [
+        "FPGA",
+        "Hardware"
+      ]
+    },
+    {
+      "name": "VHDL",
+      "category": "Programming Languages",
+      "normalized_name": "vhdl",
+      "synonyms": [],
+      "parents": [
+        "FPGA",
+        "Hardware"
+      ]
+    },
+    {
+      "name": "CAN Bus",
+      "category": "Embedded",
+      "normalized_name": "can bus",
+      "synonyms": [],
+      "parents": [
+        "Embedded",
+        "Automotive"
+      ]
+    },
+    {
+      "name": "Bitbucket",
+      "category": "Tools",
+      "normalized_name": "bitbucket",
+      "synonyms": [],
+      "parents": [
+        "Version Control"
+      ]
+    },
+    {
+      "name": "Notion",
+      "category": "Tools",
+      "normalized_name": "notion",
+      "synonyms": [],
+      "parents": [
+        "Documentation",
+        "Project Management"
+      ]
+    },
+    {
+      "name": "Linear",
+      "category": "Tools",
+      "normalized_name": "linear",
+      "synonyms": [],
+      "parents": [
+        "Project Management"
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "category": "Backend",
+      "normalized_name": "webhooks",
+      "synonyms": [],
+      "parents": [
+        "API",
+        "Integration"
+      ]
+    },
+    {
+      "name": "Event-Driven Architecture",
+      "category": "Methodologies",
+      "normalized_name": "event-driven architecture",
+      "synonyms": [
+        "EDA"
+      ],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "Monolith",
+      "category": "Methodologies",
+      "normalized_name": "monolith",
+      "synonyms": [
+        "Monolithic Architecture"
+      ],
+      "parents": [
+        "Architecture"
+      ]
+    },
+    {
+      "name": "API Gateway",
+      "category": "Backend",
+      "normalized_name": "api gateway",
+      "synonyms": [],
+      "parents": [
+        "API"
+      ]
+    },
+    {
+      "name": "Rate Limiting",
+      "category": "Backend",
+      "normalized_name": "rate limiting",
+      "synonyms": [],
+      "parents": [
+        "API",
+        "Security"
+      ]
+    },
+    {
+      "name": "Caching",
+      "category": "Backend",
+      "normalized_name": "caching",
+      "synonyms": [],
+      "parents": [
+        "Performance"
+      ]
+    },
+    {
+      "name": "CDN",
+      "category": "Backend",
+      "normalized_name": "cdn",
+      "synonyms": [
+        "Content Delivery Network"
+      ],
+      "parents": [
+        "Performance",
+        "Networking"
+      ]
+    },
+    {
+      "name": "Load Balancing",
+      "category": "Backend",
+      "normalized_name": "load balancing",
+      "synonyms": [],
+      "parents": [
+        "Networking",
+        "Scalability"
+      ]
+    },
+    {
+      "name": "Database Sharding",
+      "category": "Backend",
+      "normalized_name": "database sharding",
+      "synonyms": [
+        "Sharding"
+      ],
+      "parents": [
+        "Database",
+        "Scalability"
+      ]
+    },
+    {
+      "name": "Database Replication",
+      "category": "Backend",
+      "normalized_name": "database replication",
+      "synonyms": [],
+      "parents": [
+        "Database",
+        "Availability"
+      ]
+    },
+    {
+      "name": "Connection Pooling",
+      "category": "Backend",
+      "normalized_name": "connection pooling",
+      "synonyms": [],
+      "parents": [
+        "Database",
+        "Performance"
+      ]
+    },
+    {
+      "name": "Query Optimization",
+      "category": "Backend",
+      "normalized_name": "query optimization",
+      "synonyms": [],
+      "parents": [
+        "Database",
+        "Performance"
+      ]
+    },
+    {
+      "name": "Sprint Planning",
+      "category": "Soft Skills",
+      "normalized_name": "sprint planning",
+      "synonyms": [],
+      "parents": [
+        "Scrum",
+        "Agile"
+      ]
+    },
+    {
+      "name": "Roadmap Planning",
+      "category": "Soft Skills",
+      "normalized_name": "roadmap planning",
+      "synonyms": [],
+      "parents": [
+        "Product"
+      ]
+    },
+    {
+      "name": "Hiring",
+      "category": "Soft Skills",
+      "normalized_name": "hiring",
+      "synonyms": [
+        "Recruiting"
+      ],
+      "parents": [
+        "Leadership"
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "category": "Soft Skills",
+      "normalized_name": "budget management",
+      "synonyms": [],
+      "parents": [
+        "Management"
+      ]
+    },
+    {
+      "name": "Vendor Management",
+      "category": "Soft Skills",
+      "normalized_name": "vendor management",
+      "synonyms": [],
+      "parents": [
+        "Management"
+      ]
+    },
+    {
+      "name": "Incident Management",
+      "category": "Soft Skills",
+      "normalized_name": "incident management",
+      "synonyms": [],
+      "parents": [
+        "SRE",
+        "DevOps"
+      ]
+    },
+    {
+      "name": "Post-Mortem",
+      "category": "Soft Skills",
+      "normalized_name": "post-mortem",
+      "synonyms": [
+        "Blameless Post-Mortem"
+      ],
+      "parents": [
+        "SRE",
+        "Incident Management"
+      ]
+    },
+    {
+      "name": "Capacity Planning",
+      "category": "Soft Skills",
+      "normalized_name": "capacity planning",
+      "synonyms": [],
+      "parents": [
+        "SRE"
+      ]
+    },
+    {
+      "name": "Technical Documentation",
+      "category": "Soft Skills",
+      "normalized_name": "technical documentation",
+      "synonyms": [],
+      "parents": [
+        "Communication"
+      ]
+    },
+    {
+      "name": "Presentation Skills",
+      "category": "Soft Skills",
+      "normalized_name": "presentation skills",
+      "synonyms": [],
+      "parents": [
+        "Communication"
+      ]
+    },
+    {
+      "name": "Conflict Resolution",
+      "category": "Soft Skills",
+      "normalized_name": "conflict resolution",
+      "synonyms": [],
+      "parents": [
+        "Communication"
+      ]
+    },
+    {
+      "name": "Negotiation",
+      "category": "Soft Skills",
+      "normalized_name": "negotiation",
+      "synonyms": [],
+      "parents": [
+        "Communication"
+      ]
+    },
+    {
+      "name": "TCP/IP",
+      "category": "Networking",
+      "normalized_name": "tcp/ip",
+      "synonyms": [],
+      "parents": [
+        "Networking"
+      ]
+    },
+    {
+      "name": "DNS",
+      "category": "Networking",
+      "normalized_name": "dns",
+      "synonyms": [],
+      "parents": [
+        "Networking"
+      ]
+    },
+    {
+      "name": "HTTP/2",
+      "category": "Networking",
+      "normalized_name": "http/2",
+      "synonyms": [],
+      "parents": [
+        "Networking",
+        "Web"
+      ]
+    },
+    {
+      "name": "HTTP/3",
+      "category": "Networking",
+      "normalized_name": "http/3",
+      "synonyms": [
+        "QUIC"
+      ],
+      "parents": [
+        "Networking",
+        "Web"
+      ]
+    },
+    {
+      "name": "VPN",
+      "category": "Networking",
+      "normalized_name": "vpn",
+      "synonyms": [
+        "Virtual Private Network"
+      ],
+      "parents": [
+        "Networking",
+        "Security"
+      ]
+    },
+    {
+      "name": "SD-WAN",
+      "category": "Networking",
+      "normalized_name": "sd-wan",
+      "synonyms": [],
+      "parents": [
+        "Networking"
+      ]
+    },
+    {
+      "name": "BGP",
+      "category": "Networking",
+      "normalized_name": "bgp",
+      "synonyms": [
+        "Border Gateway Protocol"
+      ],
+      "parents": [
+        "Networking"
+      ]
+    },
+    {
+      "name": "Firewall",
+      "category": "Networking",
+      "normalized_name": "firewall",
+      "synonyms": [],
+      "parents": [
+        "Networking",
+        "Security"
+      ]
     }
   ]
 }
