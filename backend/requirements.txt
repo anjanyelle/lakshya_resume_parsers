@@ -24,6 +24,7 @@ pillow
 pdf2image
 rapidfuzz
 spacy
+flashtext
 phonenumbers
 celery
 redis

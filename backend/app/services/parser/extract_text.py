@@ -193,53 +193,37 @@ def extract_text(file_path: Path) -> ExtractedText:
     raise ValueError(f"Unsupported file extension: {extension}")
 
 
-def _detect_ocr_lang(image_input: str | Path | Image.Image) -> str:
-    try:
-        sample = pytesseract.image_to_string(
-            str(image_input) if isinstance(image_input, (str, Path)) else image_input,
-            lang="eng",
-            config="--psm 6",
-        )[:500]
-        if not sample.strip():
-            return "eng"
-        from langdetect import detect
+# ============================================================
+# QUALITY CHECK ENGINE (used by first PDF path if present)
+# ============================================================
 
-        lang = detect(sample)
-        return _OCR_LANG_MAP.get(lang, "eng")
-    except Exception:
-        return "eng"
+def _is_text_quality_good(text: str) -> bool:
+    if not text or len(text) < 200:
+        return False
 
+    # Too many merged long tokens
+    long_tokens = [w for w in text.split() if len(w) > 30]
+    if len(long_tokens) > 5:
+        return False
 
-def _ocr_with_confidence(
-    image_input: str | Path | Image.Image,
-    lang: str,
-) -> tuple[str, float]:
-    settings = get_settings()
-    if settings.TESSERACT_CMD:
-        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
-    inp = str(image_input) if isinstance(image_input, (str, Path)) else image_input
-    data = pytesseract.image_to_data(
-        inp, lang=lang, output_type=pytesseract.Output.DICT
-    )
-    confs = [
-        int(c)
-        for c in data.get("conf", [])
-        if str(c).lstrip("-").isdigit() and int(c) >= 0
-    ]
-    avg_conf = sum(confs) / len(confs) if confs else 0.0
-    text = pytesseract.image_to_string(inp, lang=lang).strip()
-    return text, float(avg_conf)
+    # Too many weird uppercase/lowercase merges
+    if len(re.findall(r"[a-z][A-Z]", text)) > 20:
+        return False
+
+    # Too many artificial separators
+    if text.count("|") > 10:
+        return False
+
+    # Too many abnormal long alpha runs
+    if len(re.findall(r"[A-Za-z]{25,}", text)) > 5:
+        return False
+
+    return True
 
 
-def _increase_dpi(image: Image.Image, target: int = 400) -> Image.Image:
-    dpi = image.info.get("dpi")
-    current = int(dpi[0]) if isinstance(dpi, (tuple, list)) and dpi else 300
-    if current >= target:
-        return image
-    scale = target / current
-    new_size = (int(image.width * scale), int(image.height * scale))
-    return image.resize(new_size, Image.Resampling.LANCZOS)
-
+# ============================================================
+# OCR
+# ============================================================
 
 def _extract_image(file_path: Path) -> ExtractedText:
     settings = get_settings()
@@ -269,7 +253,6 @@ def _extract_image(file_path: Path) -> ExtractedText:
         ocr_confidence=conf,
         used_ocr=True,
         method="ocr_image",
-        debug=metadata if metadata else None,
     )
 
 
@@ -814,8 +797,25 @@ def _group_words_into_lines(
 
 
 def _strip_repeated_headers_footers(pages_lines: list[list[str]]) -> list[list[str]]:
+    """Remove repeated headers/footers and industry-style page markers (e.g. '-- 1 of 10 --')."""
     if len(pages_lines) < 2:
         return pages_lines
+
+    # Enterprise: strip page markers like "-- 1 of 10 --" and standalone page numbers
+    _PAGE_MARKER_RE = re.compile(r"^\s*--\s*\d+\s+of\s+\d+\s*--\s*$", re.IGNORECASE)
+    _STANDALONE_DIGIT_RE = re.compile(r"^\s*\d{1,3}\s*$")
+
+    def _drop_page_markers(lines: list[str]) -> list[str]:
+        out: list[str] = []
+        for i, line in enumerate(lines):
+            if _PAGE_MARKER_RE.match(line.strip()):
+                continue
+            if _STANDALONE_DIGIT_RE.match(line.strip()) and (i < 2 or i >= max(0, len(lines) - 2)):
+                continue
+            out.append(line)
+        return out
+
+    pages_lines = [_drop_page_markers(p) for p in pages_lines]
 
     def norm(line: str) -> str:
         cleaned = re.sub(r"\s+", " ", line).strip().lower()
@@ -940,6 +940,10 @@ def _ocr_pdf(file_path: Path) -> tuple[str, float | None, dict[str, object] | No
         metadata = {"ocr_confidence": avg_conf, "needs_review": True}
     return full_text, avg_conf, metadata
 
+
+# ============================================================
+# DOCX
+# ============================================================
 
 def _extract_docx(file_path: Path) -> ExtractedText:
     document = Document(str(file_path))
@@ -1241,6 +1245,9 @@ def _extract_docx(file_path: Path) -> ExtractedText:
     )
     return ExtractedText(text=out_text, method="docx", debug=debug)
 
+# ============================================================
+# PLAIN TEXT
+# ============================================================
 
 def _extract_plain_text(file_path: Path, extension: str) -> ExtractedText:
     raw = file_path.read_text(encoding="utf-8", errors="replace")
@@ -1266,35 +1273,37 @@ def _strip_rtf(text: str) -> str:
         except ValueError:
             return ""
 
-    text = re.sub(r"\\'([0-9a-fA-F]{2})", _hex_replace, text)
-    text = re.sub(r"\\par[d]?", "\n", text)
-    text = re.sub(r"\\[a-zA-Z]+\d* ?", "", text)
-    text = text.replace("{", "").replace("}", "")
-    return text
 
+# ============================================================
+# DOC CONVERSION
+# ============================================================
 
 def _convert_doc_to_docx(file_path: Path) -> Path:
     output_dir = Path(tempfile.mkdtemp())
-    try:
-        subprocess.run(
-            [
-                "soffice",
-                "--headless",
-                "--convert-to",
-                "docx",
-                "--outdir",
-                str(output_dir),
-                str(file_path),
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except subprocess.CalledProcessError as exc:
-        logger.exception("DOC to DOCX conversion failed", extra={"stderr": exc.stderr})
-        raise RuntimeError("DOC conversion failed") from exc
+
+    subprocess.run(
+        [
+            "soffice",
+            "--headless",
+            "--convert-to",
+            "docx",
+            "--outdir",
+            str(output_dir),
+            str(file_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
     converted = output_dir / f"{file_path.stem}.docx"
+
     if not converted.exists():
         raise RuntimeError("DOC conversion did not produce output")
+
     return converted
+
+
+# ============================================================
+# HEADER / FOOTER STRIPPER (single definition; see above)
+# ============================================================

@@ -64,3 +64,30 @@ def test_clean_summary_skills_i_led_sentence_is_sentence_like():
     out, counts = clean_summary_and_skills_sections(sections)
     assert counts["moved_skills_to_summary"] >= 1
     assert "I led a team of 10 engineers" in (out["summary"].get("content") or "")
+
+
+def test_clean_summary_skills_technical_skills_merged_into_skills():
+    """When 'technical_skills' section exists, it is merged into 'skills' so all skills render."""
+    sections = {
+        "summary": {"content": ""},
+        "skills": {"content": "Python, Java"},
+        "technical_skills": {"content": "AWS, Docker"},
+    }
+    out, _ = clean_summary_and_skills_sections(sections)
+    skills_content = (out["skills"].get("content") or "").strip()
+    assert "Python" in skills_content
+    assert "Java" in skills_content
+    assert "AWS" in skills_content
+    assert "Docker" in skills_content
+
+
+def test_clean_summary_skills_only_technical_skills_becomes_skills():
+    """When only 'technical_skills' exists (no 'skills'), it is used as the skills block."""
+    sections = {
+        "summary": {"content": ""},
+        "technical_skills": {"content": "React, Node.js"},
+    }
+    out, _ = clean_summary_and_skills_sections(sections)
+    assert "skills" in out
+    assert "React" in (out["skills"].get("content") or "")
+    assert "Node.js" in (out["skills"].get("content") or "")

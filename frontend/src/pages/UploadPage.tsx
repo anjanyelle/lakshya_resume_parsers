@@ -13,7 +13,7 @@ export default function UploadPage() {
   useEffect(() => {
     const interval = window.setInterval(() => {
       pollStatuses()
-    }, 8000)
+    }, 4000)
     return () => window.clearInterval(interval)
   }, [pollStatuses])
 

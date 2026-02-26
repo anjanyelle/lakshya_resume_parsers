@@ -73,8 +73,12 @@ def test_ground_truth_accuracy():
 
     report = {key: _metrics(**values) for key, values in totals.items()}
 
+    # Use small tolerance for F1 to avoid floating-point comparison failures
+    tolerance = 1e-9
     for key, metrics in report.items():
-        assert metrics["f1"] >= baseline[key]["f1"], f"{key} F1 regression detected"
+        assert metrics["f1"] >= baseline[key]["f1"] - tolerance, (
+            f"{key} F1 regression detected: {metrics['f1']!r} < baseline {baseline[key]['f1']!r}"
+        )
 
     report_path = Path("tests/reports/accuracy_report.json")
     report_path.parent.mkdir(parents=True, exist_ok=True)

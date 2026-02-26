@@ -32,6 +32,10 @@ def _is_placeholder(value: Any) -> bool:
 
 
 def sanitize_education_entries(entries: Any) -> list[dict[str, Any]]:
+    if entries is None:
+        return []
+    if isinstance(entries, dict):
+        entries = [entries]
     if not isinstance(entries, list) or not entries:
         return []
 
@@ -184,13 +188,14 @@ def sanitize_skill_entries(entries: Any) -> list[dict[str, Any]]:
             continue
 
         normalized = _norm_str(item.get("normalized_name"))
-        normalized = normalized.lower() if normalized else ""
+        normalized = (normalized.lower() if normalized else "") or " ".join((name or "").strip().lower().split())
 
         out = dict(item)
         out["name"] = name
         out["normalized_name"] = normalized or None
         category = _norm_str(item.get("category"))
-        out["category"] = category[:100] if category else None
+        category_mapped = map_category_to_master(category) if category else None
+        out["category"] = (category_mapped[:100] if category_mapped else None)
         cleaned.append(out)
 
     deduped: dict[str, dict[str, Any]] = {}

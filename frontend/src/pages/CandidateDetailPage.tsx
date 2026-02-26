@@ -13,7 +13,7 @@ import CorrectionSplitView from '../components/candidate-detail/CorrectionSplitV
 import DebugPanel from '../components/candidate-detail/DebugPanel'
 import Modal from '../components/common/Modal'
 import Skeleton from '../components/common/Skeleton'
-import type { Candidate, ParsingJob } from '../types'
+import type { Candidate, ParsingJob, Education, Certification, Skill } from '../types'
 import {
   approveCandidate,
   deleteCandidate,
@@ -187,32 +187,151 @@ export default function CandidateDetailPage() {
     [originalCandidate],
   )
 
-  const handleCertificationChange = useCallback(
-    (certificationId: string, field: string, value: string) => {
+  const handleSkillsUpdate = useCallback(
+    async (updatedSkills: Skill[]) => {
+      if (!id) return
+      const skillsString = updatedSkills.map((s) => s.name).join(', ')
+      const originalSkillsString =
+        originalCandidate?.skills?.map((s) => s.name).join(', ') || ''
+
+      if (skillsString === originalSkillsString) return
+
+      // Optimistic update
+      setCandidate((prev) => (prev ? { ...prev, skills: updatedSkills } : prev))
+
+      try {
+        const updatedCandidate = await submitCorrections(id, [
+          {
+            field_name: 'skills',
+            original_value: originalSkillsString,
+            corrected_value: skillsString,
+          },
+        ])
+        setCandidate(updatedCandidate)
+        setOriginalCandidate(updatedCandidate)
+        toast.success('Skills updated')
+      } catch (error: any) {
+        const msg = error?.response?.data?.detail || 'Failed to update skills'
+        toast.error(msg)
+        setCandidate(originalCandidate)
+      }
+    },
+    [id, originalCandidate],
+  )
+
+  const handleEducationUpdate = useCallback(
+    async (educationId: string, updated: Partial<Education>) => {
+      const originalItem = originalCandidate?.education?.find(
+        (item) => item.id === educationId,
+      ) as any
+      if (!originalItem) return
+
+      const allowedFields = [
+        'institution',
+        'degree',
+        'field_of_study',
+        'start_date',
+        'end_date',
+        'description',
+      ]
+
+      const corrections = Object.entries(updated)
+        .filter(([field, value]) => {
+          if (!allowedFields.includes(field)) return false
+          // Only send if it actually changed
+          return String(value ?? '') !== String(originalItem[field] ?? '')
+        })
+        .map(([field, value]) => ({
+          field_name: `education.${educationId}.${field}`,
+          original_value: originalItem[field] ? String(originalItem[field]) : null,
+          corrected_value: value ? String(value) : null,
+        }))
+
+      if (corrections.length === 0) return
+
+      // Optimistic update
       setCandidate((prev) => {
-        if (!prev?.certifications) return prev
-        const next = {
+        if (!prev?.education) return prev
+        return {
           ...prev,
-          certifications: prev.certifications.map((item) =>
-            item.id === certificationId ? { ...item, [field]: value } : item,
+          education: prev.education.map((item) =>
+            item.id === educationId ? { ...item, ...updated } : item,
           ),
         }
-        return next
       })
 
-      const original =
-        originalCandidate?.certifications?.find((item) => item.id === certificationId) as any
-      const originalValue = original?.[field]
-      const path = `certifications.${certificationId}.${field}`
-      setPendingChanges((prev) => ({
-        ...prev,
-        [path]: {
-          original: originalValue ? String(originalValue) : null,
-          corrected: value,
-        },
-      }))
+      try {
+        const updatedCandidate = await submitCorrections(id!, corrections)
+        setCandidate(updatedCandidate)
+        setOriginalCandidate(updatedCandidate)
+        toast.success('Education updated')
+      } catch (error: any) {
+        const msg = error?.response?.data?.detail || 'Failed to update education'
+        toast.error(msg)
+        setCandidate(originalCandidate)
+      }
     },
-    [originalCandidate],
+    [id, originalCandidate],
+  )
+
+  const handleCertificationUpdate = useCallback(
+    async (certId: string, updated: Partial<Certification>) => {
+      const originalItem = originalCandidate?.certifications?.find(
+        (item) => item.id === certId,
+      ) as any
+      if (!originalItem) return
+
+      const allowedFields = [
+        'name',
+        'issuing_organization',
+        'issue_date',
+        'expiry_date',
+        'credential_id',
+      ]
+
+      const corrections = Object.entries(updated)
+        .filter(([field, value]) => {
+          if (!allowedFields.includes(field)) return false
+          return String(value ?? '') !== String(originalItem[field] ?? '')
+        })
+        .map(([field, value]) => ({
+          field_name: `certifications.${certId}.${field}`,
+          original_value: originalItem[field] ? String(originalItem[field]) : null,
+          corrected_value: value ? String(value) : null,
+        }))
+
+      if (corrections.length === 0) return
+
+      // Optimistic update
+      setCandidate((prev) => {
+        if (!prev?.certifications) return prev
+        return {
+          ...prev,
+          certifications: prev.certifications.map((item) =>
+            item.id === certId ? { ...item, ...updated } : item,
+          ),
+        }
+      })
+
+      try {
+        const updatedCandidate = await submitCorrections(id!, corrections)
+        setCandidate(updatedCandidate)
+        setOriginalCandidate(updatedCandidate)
+        toast.success('Certification updated')
+      } catch (error: any) {
+        const msg = error?.response?.data?.detail || 'Failed to update certification'
+        toast.error(msg)
+        setCandidate(originalCandidate)
+      }
+    },
+    [id, originalCandidate],
+  )
+
+  const handleCertificationChange = useCallback(
+    (certificationId: string, field: string, value: string) => {
+      handleCertificationUpdate(certificationId, { [field]: value })
+    },
+    [handleCertificationUpdate],
   )
 
   useEffect(() => {
