@@ -387,7 +387,7 @@ def clean_summary_and_skills_sections(
     moved_to_skills: list[str] = []
     kept_summary: list[str] = []
     for ln in summary_lines:
-        if _is_skill_like(ln) and not _is_sentence_like(ln, min_len=40):
+        if _is_skill_like(ln) and not _is_sentence_like(ln, min_len=25):
             moved_to_skills.append(ln)
         else:
             kept_summary.append(ln)
@@ -427,7 +427,14 @@ def clean_summary_and_skills_sections(
         if key and key not in seen:
             seen.add(key)
             deduped.append(line)
+
+    if not deduped and summary_lines:
+    # restore original summary if cleaning removed everything
+        out_summary["content"] = summary_text.strip()
+    else:
+        out_summary["content"] = "\n".join(deduped).strip()        
     out_skills["content"] = "\n".join(deduped).strip()
+
     if moved_summary_to_skills:
         out_skills["content_corrected"] = True
 

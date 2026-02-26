@@ -2461,6 +2461,19 @@ class SectionParser:
 
         prefix_match: tuple[str, float] | None = None
         normalized_line = self._normalize_header_text(line)
+
+        if normalized_line:
+            for key, aliases in SECTION_ALIASES.items():
+                for alias in aliases:
+                    alias_norm = self._normalize_header_text(alias)
+                    if not alias_norm:
+                        continue
+                    if normalized_line == alias_norm:
+                        return key, 0.98, "dict_match_exact", stripped
+                    
+                    if normalized_line.startswith(alias_norm + " "):
+                        return key, 0.93, "dict_match_prefix_loose", stripped 
+
         if normalized_line:
             for key, aliases in SECTION_ALIASES.items():
                 for alias in aliases:
@@ -2719,8 +2732,26 @@ class SectionParser:
                 if not isinstance(ln, str):
                     continue
                 candidate = ln.strip()
-                if not candidate or len(candidate) > 80:
+                if not candidate or len(candidate) > 120:
                     continue
+
+                # ===============================
+                if key == "summary":
+
+                   # Stop on ALL CAPS headings
+                    if self._is_uppercase_header(candidate) and len(candidate.split()) <= 10:
+                        cut_idx = i
+                        break
+
+                    # Stop on Title Case headings
+                    if self._is_titlecase_header(candidate):
+                        cut_idx = i
+                        break
+
+                   # Stop on Colon-style headings
+                    if ":" in candidate and len(candidate.split()) <= 12:
+                        cut_idx = i
+                        break
                 match = self._match_header_line(candidate, blank_surrounded=False)
                 if match is None:
                     continue
@@ -2728,7 +2759,18 @@ class SectionParser:
                 stop_key = self._canonical_section_key(stop_key)
 
                 #if stop_key in stop_targets and conf >= 0.9:
-                if stop_key in stop_targets:
+                # if stop_key in stop_targets:
+                #     cut_idx = i
+                #     break
+                if (
+                    stop_key in stop_targets
+                    and conf >= 0.85
+                    and len(candidate) <= 60
+                    and (
+                        self._is_uppercase_header(candidate)
+                        or self._is_titlecase_header(candidate)
+                    )
+                ):
                     cut_idx = i
                     break
 
@@ -2772,12 +2814,18 @@ class SectionParser:
 
     @staticmethod
     def _looks_like_sentence(line: str) -> bool:
-        words = [w for w in re.split(r"\s+", line.strip()) if w]
-        if len(words) >= 8:
+        stripped = line.strip()
+        words = [w for w in re.split(r"\s+", stripped) if w]
+
+        if stripped.isupper():
+            return False
+    
+        if len(words) >= 12:
             return True
+        
         if "," in line or ";" in line:
             return True
-        if line.strip().endswith("."):
+        if stripped.endswith("."):
             return True
         if re.search(r"\b(?:and|with|that|which|using)\b", line.lower()) and len(words) >= 6:
             return True
@@ -2830,11 +2878,33 @@ class SectionParser:
                 markers["projects"] = idx
 
         if "summary" not in markers:
-            upper_bound = min([v for v in markers.values()] + [len(lines)])
-            for idx in range(start_idx, upper_bound):
+            # upper_bound = min([v for v in markers.values()] + [len(lines)])
+            
+            # Only allow summary inference in first 25 lines after contact
+            search_limit = min(start_idx + 25, len(lines))
+            for idx in range(start_idx, search_limit):
                 line = lines[idx]
-                words = [w for w in re.split(r"\s+", line.strip()) if w]
-                if len(words) >= 12 and not self._looks_like_bullet(line):
+                if not isinstance(line, str):
+                    continue
+
+                stripped = line.strip()
+                if not stripped:
+                    continue
+
+                # Avoid bullets
+                if self._looks_like_bullet(stripped):
+                    continue
+
+            # Avoid uppercase headings
+                if self._is_uppercase_header(stripped):
+                    continue
+
+            # Avoid title-case headings like "Core Competencies"
+                if self._is_titlecase_header(stripped) and len(stripped.split()) <= 6:
+                    continue
+
+                words = [w for w in re.split(r"\s+", stripped) if w]
+                if len(words) >= 15: 
                     markers["summary"] = idx
                     break
 
@@ -2847,23 +2917,93 @@ class SectionParser:
 
         self._last_inferred_starts = dict(markers)
 
-        last_cursor = start_idx
+        
+        # STOP_HEADERS = {
+        #     "core competencies",
+        #     "technical skills",
+        #     "skills",
+        #     "professional experience",
+        #     "work experience",
+        #     "experience",
+        #     "education",
+        #     "certifications",
+        #     "projects",
+        #     "achievements",
+        #     "awards",
+        #     "leadership",
+        #     "publications",
+        #     "languages"
+         
+        #  }
+
+        # last_cursor = start_idx
         for pos, (idx, key) in enumerate(ordered):
-            if idx > last_cursor and "summary" not in sections and "summary" not in markers:
-                pass
-            if idx > last_cursor and last_cursor == start_idx and start_idx > 0:
-                pass
-            next_idx = ordered[pos + 1][0] if pos + 1 < len(ordered) else len(lines)
+            
+            next_idx = (ordered[pos + 1][0] if pos + 1 < len(ordered) else len(lines))
+
+            if key == "summary":
+
+                summary_word_count = 0
+                for l in lines[idx:next_idx]:
+                    summary_word_count += len(str(l).split())
+
+                    for stop_i in range(idx + 1, next_idx):
+                        raw_line = str(lines[stop_i]).strip()
+                        lowered = raw_line.lower()
+
+                # 1️⃣ Stop at Strategy / Action / Outcome blocks
+                        if re.match(r"^-?\s*(strategy|action|outcome)\s*:", lowered):
+                            next_idx = stop_i
+                            break
+
+                # 2️⃣ Stop at bullet block after long paragraph
+                        if summary_word_count > 80 and self._looks_like_bullet(raw_line):
+                            next_idx = stop_i
+                            break
+
+                # 3️⃣ Stop at case-study leadership block
+                        if summary_word_count > 100 and (
+                            lowered.startswith("primary ")
+                            or lowered.startswith("led ")
+                            or lowered.startswith("managed ")
+                        ):
+                            next_idx = stop_i
+                            break
+
+                # 4️⃣ Stop at short achievement lines after large summary
+                        if summary_word_count > 100 and len(raw_line.split()) < 10:
+                            next_idx = stop_i
+                            break
+                        
+                # for stop_i in range(idx + 1, next_idx):
+                #     normalized_line = self._normalize_header_text(lines[stop_i])
+                #     if normalized_line in STOP_HEADERS:
+                #         next_idx = stop_i
+                #         break
+
             content = lines[idx:next_idx]
             sections[key] = content
             self._last_section_header_confidence[key] = 0.65
-            last_cursor = next_idx
+            # last_cursor = next_idx
 
         if start_idx < ordered[0][0]:
             pre = lines[start_idx : ordered[0][0]]
             if pre and "summary" not in sections:
-                sections["summary"] = pre
-                self._last_section_header_confidence["summary"] = 0.6
+                # sections["summary"] = pre
+                # self._last_section_header_confidence["summary"] = 0.6
+
+                # Only treat as summary if it looks paragraph-like
+                paragraph_lines = [
+                    ln 
+                    for ln in pre
+                    if isinstance(ln, str)
+                    and not self._looks_like_bullet(ln)
+                    and len(ln.split()) >= 10
+                ]
+
+                if paragraph_lines:
+                    sections["summary"] = paragraph_lines
+                    self._last_section_header_confidence["summary"] = 0.6
 
         return sections
 

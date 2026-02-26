@@ -3696,6 +3696,17 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         )
         parsed = _apply_llm_resume(parsed_data)
         parsed = sanitize_final_output(parsed)
+
+        print("\n================ SUMMARY DEBUG =================")
+        print("JOB ID:", job_id)
+
+        sections = parsed.get("sections", {})
+        summary_block = sections.get("summary", {}) if isinstance(sections, dict) else {}
+        summary_content = summary_block.get("content") if isinstance(summary_block, dict) else None
+
+        print("\n--- SUMMARY CONTENT BEFORE DB SAVE ---")
+        print(summary_content)
+        print("------------------------------------------------\n")
         # print("\n=== AFTER SANITIZE FINAL OUTPUT ===")
         # print(parsed.get("sections", {}).get("summary", {}).get("content"))
 
