@@ -46,11 +46,13 @@ export default function ResumePreviewSection({
         )}
 
         {!error && docxHtml && (
-          <div className="p-6">
-            <div
-              className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-li:text-slate-600"
-              dangerouslySetInnerHTML={{ __html: docxHtml }}
-            />
+          <div className="bg-slate-50/50 p-4 min-h-full">
+            <div className="elegant-resume-page">
+              <div
+                className="elegant-resume-preview"
+                dangerouslySetInnerHTML={{ __html: docxHtml }}
+              />
+            </div>
           </div>
         )}
 
