@@ -896,6 +896,18 @@ class WorkExperienceParser:
         header = lines[0] if lines else ""
         company, title, location, start_date, end_date, is_current, body_start = self._parse_header_lines(lines)
 
+        # "Client: X Location: Y Role: Z" format (single or multi-line) — Client is often the employer (company)
+        for hline in lines[:4]:
+            client_from_line, loc_from_line, role_from_line = self._extract_client_location_role_from_line(hline)
+            if client_from_line and not company:
+                company = client_from_line
+            if loc_from_line and not location:
+                location = loc_from_line
+            if role_from_line and (not title or not self._looks_like_title(str(title))):
+                title = role_from_line
+            if company and location and title:
+                break
+
         location, company, title = self._extract_and_clean_location(location, company, title, chunk)
 
         labeled_company, labeled_title, labeled_desc = self._parse_labeled_fields(lines[1:])
@@ -1028,11 +1040,16 @@ class WorkExperienceParser:
         match = TITLE_AT_COMPANY_RE.match(cleaned)
         if match:
             return match.group("company").strip(), match.group("title").strip()
-        # 2. Title | Company (e.g. 'Product Manager | Stripe')
+        # 2. Company | Location (e.g. 'Wells Fargo | Charlotte, NC') — second part is city, state
+        if "|" in cleaned:
+            parts = [p.strip() for p in cleaned.split("|", 1) if p.strip()]
+            if len(parts) == 2 and LOCATION_RE.search(parts[1]) and self._looks_like_company(parts[0]):
+                return parts[0], None  # company only; location handled elsewhere
+        # 3. Title | Company (e.g. 'Product Manager | Stripe')
         match = TITLE_PIPE_COMPANY_RE.match(cleaned)
         if match:
             return match.group("company").strip(), match.group("title").strip()
-        # 3. Company - Title (existing)
+        # 4. Company - Title (existing)
         match = COMPANY_LINE_RE.search(cleaned)
         if match:
             return match.group("company").strip(), match.group("title").strip()
@@ -1372,6 +1389,13 @@ class WorkExperienceParser:
                 if not match:
                     continue
                 raw = (match.group("client") or "").strip().strip("-–—| ")
+                # "Client: Nike Location: Beaverton, OR Role: Senior Dev" -> take only "Nike"
+                raw = re.split(
+                    r"\s+(?:location|loc|role|designation|title|position)\s*[:\-–—]",
+                    raw,
+                    maxsplit=1,
+                    flags=re.IGNORECASE,
+                )[0].strip()
                 raw = re.split(r"\s{2,}|\||\u2022", raw)[0].strip()
 
                 date_anchor = DATE_ANCHOR_RE.search(raw)
@@ -1390,6 +1414,46 @@ class WorkExperienceParser:
                     continue
                 return raw
         return None
+
+    def _extract_client_location_role_from_line(self, line: str) -> tuple[str | None, str | None, str | None]:
+        """Parse 'Client: X Location: Y Role: Z' or similar single-line header. Returns (client, location, role)."""
+        if not line or not CLIENT_HEADER_RE.search(line):
+            return None, None, None
+        client, location, role = None, None, None
+        # Location: X
+        loc_m = LOCATION_MARKER_RE.search(line)
+        if loc_m:
+            location = (loc_m.group("loc") or "").strip().strip("-–—|,;:")
+            if len(location) > 120:
+                location = None
+        # Role: X or Designation: X or Title: X
+        role_m = LABELED_TITLE_RE.search(line)
+        if role_m:
+            raw_role = (role_m.group("value") or "").strip()
+            raw_role = self._strip_dates(raw_role).strip() or raw_role
+            if raw_role and self._looks_like_title(raw_role) and len(raw_role) < 120:
+                role = raw_role
+        # Client: X — split before Location: or Role: to avoid over-capture
+        for pattern in CLIENT_PATTERNS:
+            m = pattern.search(line)
+            if not m:
+                continue
+            raw = (m.group("client") or "").strip()
+            raw = re.split(
+                r"\s+(?:location|loc|role|designation|title|position)\s*[:\-–—]",
+                raw,
+                maxsplit=1,
+                flags=re.IGNORECASE,
+            )[0].strip()
+            raw = DATE_RANGE_RE.sub("", raw).strip(" -–—|,:")
+            loc_in_raw = LOCATION_RE.search(raw)
+            if loc_in_raw:
+                raw = raw.replace(loc_in_raw.group(1), "").strip(" -–—|,:")
+            raw = re.sub(r"\s+", " ", raw).strip()
+            if raw and len(raw) <= 120:
+                client = raw
+            break
+        return client, location, role
 
     def _detect_employment_type(self, text: str) -> str | None:
         lowered = text.lower()

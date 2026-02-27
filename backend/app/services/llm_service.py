@@ -77,9 +77,12 @@ class ContactModel(BaseModel):
 class WorkExperienceItemModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    company: str | None
-    client: str | None
-    title: str | None
+    company: str | None = Field(default=None, validation_alias=AliasChoices("company", "company_name"))
+    client: str | None = Field(default=None, validation_alias=AliasChoices("client", "client_name"))
+    title: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("title", "job_title", "role", "designation", "position"),
+    )
     start_date: str | None
     end_date: str | None
     is_current: bool
@@ -1122,7 +1125,14 @@ class LLMParsingService:
             "Extract ONLY work experience from the provided text and return ONLY JSON.\n\n"
             "Rules:\n"
             "- Keep each company/role separate.\n"
-            "- Extract client names ONLY if explicitly indicated (examples: 'Client:', 'End Client:', 'Client -', 'Project for <client>', 'Worked for <client>').\n"
+            "- company = employer/organization where the person worked. When resume says 'Client: X' as the "
+            "primary identifier (with no separate Company:), put X in company (the employer).\n"
+            "- client = end client ONLY when there is BOTH a consulting/staffing company AND a separate "
+            "client (e.g. 'ABC Consulting' company, 'Nike' client). If only 'Client: Nike' appears, Nike goes in company.\n"
+            "- title = job title, role, designation, or position (all synonyms).\n"
+            "- location = city, state, or 'Location: X' value.\n"
+            "- Extract from formats: 'Client: X Location: Y Role: Z', 'Title | Company | Date', "
+            "'Company (Client: X) | Date', 'Company: Location', etc.\n"
             "- Do not invent companies/clients.\n\n"
             "Schema (return exactly this shape; no extra keys):\n"
             f"{json.dumps(schema, ensure_ascii=False)}\n\n"

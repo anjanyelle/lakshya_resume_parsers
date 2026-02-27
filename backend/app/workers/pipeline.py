@@ -617,9 +617,12 @@ def _normalize_work_entry(entry: dict[str, Any]) -> dict[str, Any]:
     desc = entry.get("description")
     if desc is None and bullets:
         desc = "\n".join(str(b) for b in bullets)
+    title_val = str(
+        entry.get("title") or entry.get("job_title") or entry.get("role") or entry.get("designation") or ""
+    ).strip() or ""
     return {
-        "title": str(entry.get("title") or entry.get("job_title") or "").strip() or "",
-        "designation": str(entry.get("designation") or "").strip() or "",
+        "title": title_val,
+        "designation": str(entry.get("designation") or "").strip() or title_val,
         "company": str(entry.get("company") or entry.get("company_name") or "").strip() or "",
         "client": entry.get("client") if entry.get("client") else None,
         "location": str(entry.get("location") or "").strip() or "",
@@ -641,7 +644,9 @@ def _is_valid_work_entry(entry: dict[str, Any]) -> bool:
     if _is_raw_text_entry(entry):
         return False
     company = str(entry.get("company") or entry.get("company_name") or "").strip()
-    title = str(entry.get("title") or entry.get("job_title") or "").strip()
+    title = str(
+        entry.get("title") or entry.get("job_title") or entry.get("role") or entry.get("designation") or ""
+    ).strip()
     if not company and not title:
         return False
     if len(company) > 120 or len(title) > 120:
@@ -787,8 +792,8 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
             else:
                 description = str(responsibilities) if responsibilities else None
             d = {
-                "company": _get_first(entry, "client_name", "company", "client"),
-                "title": _get_first(entry, "role", "title"),
+                "company": _get_first(entry, "company_name", "company", "client_name", "client"),
+                "title": _get_first(entry, "job_title", "role", "title", "designation"),
                 "start_date": _get_first(entry, "start_date"),
                 "end_date": _get_first(entry, "end_date"),
                 "is_current": entry.get("is_current", False),
@@ -797,7 +802,7 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
                 "bullets": responsibilities if isinstance(responsibilities, list) else [],
             }
             if _is_valid_work_entry(d):
-                work_items.append(_to_canonical_work_entry(d))
+                work_items.append(_normalize_work_entry(d))
         if work_items:
             merged["work_experience"] = work_items
 
@@ -821,8 +826,8 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
             description = _normalize_work_description(description or entry.get("description"))
             d = {
                 "company": entry.get("company_name") or entry.get("company"),
-                "client": entry.get("client"),
-                "title": entry.get("job_title") or entry.get("title"),
+                "client": entry.get("client") or entry.get("client_name"),
+                "title": entry.get("job_title") or entry.get("title") or entry.get("role") or entry.get("designation"),
                 "start_date": entry.get("start_date"),
                 "end_date": entry.get("end_date"),
                 "is_current": entry.get("is_current", False),
@@ -835,7 +840,7 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
                 "confidence": entry.get("confidence"),
             }
             if _is_valid_work_entry(d):
-                work_items.append(_to_canonical_work_entry(d))
+                work_items.append(_normalize_work_entry(d))
         if work_items:
             merged["work_experience"] = work_items
 
@@ -2768,7 +2773,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                         payload.append(
                             {
                                 "company": item.get("company") or item.get("company_name"),
-                                "title": item.get("title") or item.get("job_title"),
+                                "title": item.get("title") or item.get("job_title") or item.get("role") or item.get("designation"),
                                 "start_date": item.get("start_date"),
                                 "end_date": item.get("end_date"),
                                 "is_current": bool(item.get("is_current", False)),
@@ -4738,12 +4743,17 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         )
         for entry in work_entries:
             company = entry.get("company") or entry.get("client")
+            client = entry.get("client")
+            # When "Client: X" was the only employer identifier, company=client; avoid duplicate
+            if client and company and str(client).strip().lower() == str(company).strip().lower():
+                client = None
+            title = entry.get("title") or entry.get("job_title") or entry.get("role") or entry.get("designation")
             session.add(
                 WorkHistory(
                     candidate_id=job.candidate_id,
                     company_name=company,
-                    client_name=entry.get("client"),
-                    job_title=entry.get("title"),
+                    client_name=client,
+                    job_title=title,
                     start_date=_parse_date_str(entry.get("start_date")),
                     end_date=_parse_date_str(entry.get("end_date")),
                     is_current=entry.get("is_current", False),
