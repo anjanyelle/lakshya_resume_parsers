@@ -46,6 +46,11 @@ function formatDate(d: string | null | undefined): string {
   return isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10)
 }
 
+/** True if id is a synthetic parsed ID (parsed-we-0, parsed-edu-1, etc.), not a DB UUID */
+function isParsedId(id: string): boolean {
+  return /^parsed-/.test(id)
+}
+
 export default function WorkHistoryTimeline({
   candidateId,
   items = [],
@@ -94,7 +99,7 @@ export default function WorkHistoryTimeline({
         is_current: form.is_current ?? false,
         description: form.description || null,
       }
-      if (editingId) {
+      if (editingId && !isParsedId(editingId)) {
         const updated = await updateWorkHistory(candidateId, editingId, payload)
         onUpdate?.(updated.work_history ?? [])
         toast.success('Work history updated')
@@ -115,14 +120,20 @@ export default function WorkHistoryTimeline({
     async (entry: WorkHistory) => {
       if (!window.confirm('Remove this work history entry? This cannot be undone.')) return
       try {
-        const updated = await deleteWorkHistory(candidateId, entry.id)
-        onUpdate?.(updated.work_history ?? [])
-        toast.success('Work history removed')
+        if (isParsedId(entry.id)) {
+          const filtered = items.filter((i) => i.id !== entry.id)
+          onUpdate?.(filtered)
+          toast.success('Work history removed')
+        } else {
+          const updated = await deleteWorkHistory(candidateId, entry.id)
+          onUpdate?.(updated.work_history ?? [])
+          toast.success('Work history removed')
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to delete')
       }
     },
-    [candidateId, onUpdate],
+    [candidateId, items, onUpdate],
   )
 
   return (

@@ -42,6 +42,11 @@ function formatDate(d: string | null | undefined): string {
   return isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10)
 }
 
+/** True if id is a synthetic parsed ID (parsed-edu-0, etc.), not a DB UUID */
+function isParsedId(id: string): boolean {
+  return /^parsed-/.test(id)
+}
+
 export default function EducationSection({
   candidateId,
   items = [],
@@ -88,7 +93,7 @@ export default function EducationSection({
         end_date: form.end_date || null,
         description: form.description || null,
       }
-      if (editingId) {
+      if (editingId && !isParsedId(editingId)) {
         const updated = await updateEducation(candidateId, editingId, payload)
         onUpdate?.(updated.education ?? [])
         toast.success('Education updated')
@@ -114,14 +119,20 @@ export default function EducationSection({
       )
         return
       try {
-        const updated = await deleteEducation(candidateId, entry.id)
-        onUpdate?.(updated.education ?? [])
-        toast.success('Education removed')
+        if (isParsedId(entry.id)) {
+          const filtered = items.filter((i) => i.id !== entry.id)
+          onUpdate?.(filtered)
+          toast.success('Education removed')
+        } else {
+          const updated = await deleteEducation(candidateId, entry.id)
+          onUpdate?.(updated.education ?? [])
+          toast.success('Education removed')
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to delete')
       }
     },
-    [candidateId, onUpdate],
+    [candidateId, items, onUpdate],
   )
 
   return (
