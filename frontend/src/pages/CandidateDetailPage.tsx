@@ -27,6 +27,7 @@ import {
   getDisplayWorkHistory,
   getDisplayEducation,
   getDisplaySummary,
+  getDisplayCertifications
 } from '../utils/parsedDataFallback'
 
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
@@ -407,6 +408,7 @@ export default function CandidateDetailPage() {
   // Prefer parsed_data per section when it has content so UI matches Export JSON
   const displayWorkHistory = getDisplayWorkHistory(parsedData, dbHistory)
   const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
+  const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
   const displaySummary = getDisplaySummary(parsedData, candidate.summary)
 
   const displaySkills = useParsedDataFallback ? fallbackSkills : (candidate.skills ?? [])
@@ -555,7 +557,7 @@ export default function CandidateDetailPage() {
               candidate={displayCandidate}
               displayWorkHistory={displayWorkHistory}
               displayEducation={displayEducation}
-              displaySkills={displaySkills}
+              displayCertifications={displayCertifications}              displaySkills={displaySkills}
               displayCandidateSkills={displayCandidateSkills}
               displaySummary={displaySummary}
               activeFieldId={activeField ?? activeFieldId}
