@@ -16,37 +16,37 @@ export type UploadItem = {
 
 type UploadState = {
   queue: UploadItem[]
-  addFiles: (files: File[]) => void
+  activePreviewId: string | null
+  addFiles: (files: File[]) => UploadItem[]
   uploadAll: () => Promise<void>
   updateProgress: (id: string, progress: number) => void
   setStatus: (id: string, status: UploadStatus) => void
   setJobId: (id: string, jobId: string) => void
   setError: (id: string, error: string) => void
   pollStatuses: () => Promise<void>
+  setActivePreviewId: (id: string | null) => void
 }
 
 export const useUploadStore = create<UploadState>((set, get) => ({
   queue: [],
+  activePreviewId: null,
   addFiles: (files) => {
-    if (import.meta.env.DEV && files.length > 0) {
-      console.log('[DATA-LOSS CHECK] File upload stage — files selected:', {
-        count: files.length,
-        files: files.map((f) => ({ name: f.name, size: f.size, type: f.type })),
-      })
-    }
-    return set((state) => ({
-      queue: [
-        ...state.queue,
-        ...files.map((file) => ({
-          id: crypto.randomUUID(),
-          file,
-          status: 'queued' as UploadStatus,
-          progress: 0,
-          error: null,
-        })),
-      ],
+    // ... items added
+    const newItems = files.map((file) => ({
+      id: crypto.randomUUID(),
+      file,
+      status: 'queued' as UploadStatus,
+      progress: 0,
+      error: null,
     }))
+
+    set((state) => ({
+      queue: [...state.queue, ...newItems],
+    }))
+
+    return newItems // Return new items so caller can set active preview
   },
+  setActivePreviewId: (id) => set({ activePreviewId: id }),
   uploadAll: async () => {
     const queue = get().queue
     for (const item of queue) {
@@ -72,10 +72,10 @@ export const useUploadStore = create<UploadState>((set, get) => ({
           queue: state.queue.map((entry) =>
             entry.id === item.id
               ? {
-                  ...entry,
-                  status: 'processing',
-                  uploadedAt: new Date().toLocaleString(),
-                }
+                ...entry,
+                status: 'processing',
+                uploadedAt: new Date().toLocaleString(),
+              }
               : entry,
           ),
         }))
