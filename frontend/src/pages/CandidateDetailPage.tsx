@@ -148,7 +148,7 @@ export default function CandidateDetailPage() {
       if (skillsString === originalSkillsString) return
 
       // Optimistic update
-      setCandidate((prev) => (prev ? { ...prev, skills: updatedSkills } : prev))
+      //setCandidate((prev) => (prev ? { ...prev, skills: updatedSkills } : prev))
 
       try {
         const updatedCandidate = await submitCorrections(id, [
@@ -164,7 +164,7 @@ export default function CandidateDetailPage() {
       } catch (error: any) {
         const msg = error?.response?.data?.detail || 'Failed to update skills'
         toast.error(msg)
-        setCandidate(originalCandidate)
+        //setCandidate(originalCandidate)
       }
     },
     [id, originalCandidate],
@@ -405,9 +405,13 @@ export default function CandidateDetailPage() {
     : []
   const dbHistory = candidate.work_history ?? []
 
+  // const useParsedDataFallback = shouldUseParsedDataFallback(candidate, parsedData)
+  // const { skills: fallbackSkills, candidateSkills: fallbackCandidateSkills } =
+  //   skillsFromParsed(parsedData.skills)
+  // const fallbackContact = contactFromParsed(parsedData.contact)
+
   const useParsedDataFallback = shouldUseParsedDataFallback(candidate, parsedData)
-  const { skills: fallbackSkills, candidateSkills: fallbackCandidateSkills } =
-    skillsFromParsed(parsedData.skills)
+
   const fallbackContact = contactFromParsed(parsedData.contact)
 
   // Prefer parsed_data per section when it has content so UI matches Export JSON
@@ -416,10 +420,12 @@ export default function CandidateDetailPage() {
   const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
   const displaySummary = getDisplaySummary(parsedData, candidate.summary)
 
-  const displaySkills = useParsedDataFallback ? fallbackSkills : (candidate.skills ?? [])
-  const displayCandidateSkills = useParsedDataFallback
-    ? fallbackCandidateSkills
-    : (candidate.candidate_skills ?? [])
+  const displaySkills = candidate.skills ?? []
+  const displayCandidateSkills = candidate.candidate_skills ?? []
+
+  //const displaySkills = useParsedDataFallback ? fallbackSkills : (candidate.skills ?? [])
+  //const displayCandidateSkills = useParsedDataFallback ? fallbackCandidateSkills : (candidate.candidate_skills ?? [])
+
   // Prefer parsed name/contact when DB fields are empty (fixes "Unnamed candidate" for PDFs)
   const displayCandidate: Candidate = useParsedDataFallback
     ? {
