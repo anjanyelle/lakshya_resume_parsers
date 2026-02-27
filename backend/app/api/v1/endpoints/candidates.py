@@ -570,10 +570,10 @@ def submit_corrections(
             candidate_id=candidate.id,
             field_name=field,
             original_value=original_value,
-            corrected_value=corrected_value,
+            corrected_value=str(corrected_value) if corrected_value is not None else None,
             corrected_by=str(current_user.id),
         )
-        if hasattr(candidate, field) and corrected_value is not None:
+        if hasattr(candidate, field) and corrected_value is not None and field != "skills":
             setattr(candidate, field, corrected_value)
             if field == "email":
                 candidate.email_hash = hash_value(corrected_value)

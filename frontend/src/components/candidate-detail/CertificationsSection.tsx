@@ -63,6 +63,11 @@ function formatDate(d: string | null | undefined): string {
   return isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10)
 }
 
+/** True if id is a synthetic ID (parsed-cert-0, fallback-0, etc.), not a DB UUID */
+function isParsedId(id: string): boolean {
+  return /^(parsed|fallback)-/.test(id)
+}
+
 export default function CertificationsSection({
   candidateId,
   items = [],
@@ -72,6 +77,7 @@ export default function CertificationsSection({
 }: CertificationsSectionProps) {
   const safeItems = items ?? []
   const fallback = safeItems.length === 0 ? parseFallbackItems(rawContent) : []
+  const displayItems = safeItems.length > 0 ? safeItems : fallback
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -118,7 +124,7 @@ export default function CertificationsSection({
         expiry_date: form.expiry_date || null,
         credential_id: form.credential_id || null,
       }
-      if (editingId) {
+      if (editingId && !isParsedId(editingId)) {
         const updated = await updateCertification(
           candidateId,
           editingId,
@@ -148,14 +154,20 @@ export default function CertificationsSection({
       )
         return
       try {
-        const updated = await deleteCertification(candidateId, entry.id)
-        onUpdate?.(updated.certifications ?? [])
-        toast.success('Certification removed')
+        if (isParsedId(entry.id)) {
+          const filtered = displayItems.filter((i) => i.id !== entry.id)
+          onUpdate?.(filtered)
+          toast.success('Certification removed')
+        } else {
+          const updated = await deleteCertification(candidateId, entry.id)
+          onUpdate?.(updated.certifications ?? [])
+          toast.success('Certification removed')
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to delete')
       }
     },
-    [candidateId, onUpdate],
+    [candidateId, displayItems, onUpdate],
   )
 
   return (

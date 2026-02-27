@@ -98,8 +98,8 @@ export default function CorrectionSplitView({
   const originalEducation = originalData.education || []
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr,1.2fr]">
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-subtle">
+    <div className="grid gap-6 lg:grid-cols-">
+      {/* <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-subtle">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-900">Original resume</h3>
           <span className="text-xs text-slate-400">PDF view</span>
@@ -115,7 +115,7 @@ export default function CorrectionSplitView({
             {resumeError || 'Resume preview unavailable.'}
           </div>
         )}
-      </div>
+      </div> */}
 
       <div className="space-y-4">
         {!readOnly && (

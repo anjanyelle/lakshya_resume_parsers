@@ -778,7 +778,7 @@ export default function CandidateDetailPage() {
       />
 
       <DebugPanel debug={(parsedData as any)?.debug} />
-{/* 
+
       <div className="space-y-3">
         <h2 className="text-xl font-semibold text-slate-900">
           Correction interface
@@ -810,7 +810,7 @@ export default function CandidateDetailPage() {
           canRedo={future.length > 0}
           readOnly={useParsedDataFallback}
         />
-      </div> */}
+      </div>
     </section>
   )
 }
