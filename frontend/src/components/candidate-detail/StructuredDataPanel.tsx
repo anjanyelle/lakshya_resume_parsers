@@ -1,12 +1,13 @@
 import { useCallback, useRef } from 'react'
 import { useScrollToField } from '../../hooks/useScrollToField'
-import { Briefcase, GraduationCap, Sparkles } from 'lucide-react'
-import type { Candidate, WorkHistory, Education, Skill } from '../../types'
+import { Award, Briefcase, GraduationCap, Sparkles } from 'lucide-react'
+import type { Candidate, WorkHistory, Education, Skill, Certification } from '../../types'
 import PersonalDetailsSection from './PersonalDetailsSection'
 import SummarySection from './SummarySection'
 import WorkHistoryTimeline from './WorkHistoryTimeline'
 import EducationSection from './EducationSection'
 import SkillsSection from './SkillsSection'
+import CertificationsSection from './CertificationsSection'
 
 export type FieldId = string
 
@@ -14,6 +15,7 @@ type StructuredDataPanelProps = {
   candidate: Candidate
   displayWorkHistory: WorkHistory[]
   displayEducation: Education[]
+  displayCertifications: Certification[]
   displaySkills: Skill[]
   displayCandidateSkills: { skill?: Skill | null }[]
   displaySummary: string | null
@@ -37,6 +39,7 @@ export default function StructuredDataPanel({
   candidate,
   displayWorkHistory,
   displayEducation,
+  displayCertifications,
   displaySkills,
   displayCandidateSkills,
   displaySummary,
@@ -60,6 +63,7 @@ export default function StructuredDataPanel({
   const experienceSectionRef = useRef<HTMLElement>(null)
   const educationSectionRef = useRef<HTMLElement>(null)
   const summarySectionRef = useRef<HTMLElement>(null)
+  const certificationsSectionRef = useRef<HTMLDivElement | null>(null)
 
   const getPanelSectionElement = useCallback((fieldId: string) => {
     const refMap: Record<string, HTMLElement | null> = {
@@ -157,6 +161,29 @@ export default function StructuredDataPanel({
           onFieldSelect={onFieldSelect}
         />
       </section>
+      
+      {/* Certifications */}
+      <section
+        ref={certificationsSectionRef}
+        className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+     >
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+          <Award className="h-4 w-4 text-slate-500" />
+          Certifications
+        </h3>
+        <CertificationsSection
+          candidateId={candidateId}
+          items={displayCertifications}
+          onUpdate={(updated) => {
+            onCandidateUpdate({
+              ...candidate,
+              certifications: updated,
+            })
+          }}
+          readOnly={readOnly}
+        />
+      </section>
+
 
       {/* Skills */}
       <section
