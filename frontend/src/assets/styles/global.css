@@ -31,28 +31,49 @@
   }
 }
 
-/* Resume viewer */
-.resume-viewer-content {
-  user-select: text;
+/* Elegant Resume Preview Styles */
+.elegant-resume-page {
+  @apply mx-auto my-8 min-h-[1056px] w-full max-w-[816px] bg-white p-[0.75in] shadow-lg ring-1 ring-slate-200;
 }
 
-.resume-field-span {
-  @apply cursor-pointer rounded px-0.5 transition-colors duration-200;
+.elegant-resume-preview {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #334155;
+  line-height: 1.5;
 }
-.resume-field-span:hover {
-  @apply bg-brand-100;
+
+.elegant-resume-preview h1 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  @apply mb-2 text-center text-4xl font-bold text-brand-900;
 }
-.resume-field-active {
-  @apply bg-brand-100;
+
+.elegant-resume-preview h2 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  @apply mb-4 mt-8 flex flex-col items-start text-xl font-bold uppercase tracking-wide text-brand-800;
 }
-.resume-field-highlight-animate {
-  animation: highlight-pulse 1.5s ease-in-out 2;
+
+/* Reddish-orange line under h2 sections */
+.elegant-resume-preview h2::after {
+  content: '';
+  @apply mt-2 h-[2px] w-full bg-orange-600/80;
 }
-@keyframes highlight-pulse {
-  0%, 100% {
-    background-color: transparent;
-  }
-  50% {
-    background-color: rgb(219 234 254);
-  }
+
+.elegant-resume-preview h3 {
+  @apply mb-1 mt-4 text-lg font-bold text-slate-800;
+}
+
+.elegant-resume-preview p {
+  @apply mb-3;
+}
+
+.elegant-resume-preview ul {
+  @apply mb-4 list-disc pl-5;
+}
+
+.elegant-resume-preview li {
+  @apply mb-1;
+}
+
+.elegant-resume-preview a {
+  @apply font-medium text-orange-700 underline decoration-orange-300 transition-colors hover:text-orange-800;
 }
