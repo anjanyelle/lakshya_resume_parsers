@@ -577,23 +577,70 @@ def submit_corrections(
             setattr(candidate, field, corrected_value)
             if field == "email":
                 candidate.email_hash = hash_value(corrected_value)
-        if field == "skills" and corrected_value:
+
+        # if field == "skills" and corrected_value:
+        #     from app.models import CandidateSkill, Skill
+        #     suggest_skills(db, corrected_value, source="manual_correction")
+        #     # Clear existing associations
+        #     db.query(CandidateSkill).filter(CandidateSkill.candidate_id == candidate.id).delete()
+        #     # Add new associations
+        #     skill_names = [s.strip() for s in corrected_value.split(",") if s.strip()]
+        #     for name in skill_names:
+        #         normalized = name.lower()
+        #         skill_obj = db.query(Skill).filter(Skill.normalized_name == normalized).first()
+        #         if not skill_obj:
+        #             skill_obj = Skill(name=name, normalized_name=normalized)
+        #             db.add(skill_obj)
+        #             db.flush()
+        #         db.add(CandidateSkill(candidate_id=candidate.id, skill_id=skill_obj.id))
+        #     db.flush()
+        #     continue
+
+        if field == "skills":
             from app.models import CandidateSkill, Skill
-            suggest_skills(db, corrected_value, source="manual_correction")
-            # Clear existing associations
-            db.query(CandidateSkill).filter(CandidateSkill.candidate_id == candidate.id).delete()
-            # Add new associations
-            skill_names = [s.strip() for s in corrected_value.split(",") if s.strip()]
-            for name in skill_names:
-                normalized = name.lower()
-                skill_obj = db.query(Skill).filter(Skill.normalized_name == normalized).first()
-                if not skill_obj:
-                    skill_obj = Skill(name=name, normalized_name=normalized)
-                    db.add(skill_obj)
-                    db.flush()
-                db.add(CandidateSkill(candidate_id=candidate.id, skill_id=skill_obj.id))
-            db.flush()
-            continue
+            from sqlalchemy import or_
+
+            suggest_skills(db, corrected_value or "", source="manual_correction")
+
+    # Clear existing associations
+            db.query(CandidateSkill).filter(
+                CandidateSkill.candidate_id == candidate.id
+            ).delete()
+
+            if corrected_value:
+                skill_names = [s.strip() for s in corrected_value.split(",") if s.strip()]
+
+                for name in skill_names:
+                    normalized = name.lower()
+
+                    skill_obj = (
+                        db.query(Skill)
+                        .filter(
+                            or_(
+                                Skill.normalized_name == normalized,
+                                Skill.name == name
+                            )
+                        )
+                        .first()
+                    )
+
+                    if not skill_obj:
+                        skill_obj = Skill(
+                            name=name,
+                            normalized_name=normalized
+                        )
+                        db.add(skill_obj)
+                        db.flush()
+
+                    db.add(
+                        CandidateSkill(
+                            candidate_id=candidate.id,
+                            skill_id=skill_obj.id,
+                        )
+                )
+
+        db.flush()
+        continue
 
     if payload.corrections and candidate.review_status == ReviewStatus.PENDING:
         candidate.review_status = ReviewStatus.IN_REVIEW
