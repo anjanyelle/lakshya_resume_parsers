@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Plus, X, Edit2, Check } from 'lucide-react'
+import { Plus, X, Edit2 } from 'lucide-react'
 import type { CandidateSkill, Skill } from '../../types/candidate'
 
 type SkillsSectionProps = {
   skills?: Skill[]
   candidateSkills?: CandidateSkill[]
   onUpdate?: (skills: Skill[]) => void
+  activeFieldId?: string | null
+  onFieldSelect?: (fieldId: string) => void
 }
 
 const SUGGESTED_SKILLS_LIST = [
@@ -21,7 +23,10 @@ const ALL_SKILLS_DATABASE = [
 export default function SkillsSection({
   skills: initialSkills = [],
   onUpdate,
+  activeFieldId = null,
+  onFieldSelect,
 }: SkillsSectionProps) {
+  const isActive = activeFieldId === 'skills'
   const [editing, setEditing] = useState(false)
   const [skills, setSkills] = useState<Skill[]>(initialSkills)
   const [newSkill, setNewSkill] = useState('')
@@ -88,7 +93,20 @@ export default function SkillsSection({
   }
 
   return (
-    <div className="bg-white rounded-[20px] shadow-lg border border-slate-100 p-10 max-w-4xl mx-auto font-sans">
+    <div
+      role={onFieldSelect && !editing ? 'button' : undefined}
+      tabIndex={onFieldSelect && !editing ? 0 : undefined}
+      onClick={() => {
+        if (editing) return
+        if (onFieldSelect) onFieldSelect('skills')
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !editing && onFieldSelect) onFieldSelect('skills')
+      }}
+      className={`rounded-lg border p-6 shadow-sm font-sans transition-all duration-200 ${
+        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
+      }`}
+    >
       {/* Header Description */}
       <div className="mb-8 flex items-center justify-between">
         <div>
@@ -99,30 +117,36 @@ export default function SkillsSection({
         </div>
         {!editing ? (
           <button
-            onClick={() => setEditing(true)}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setEditing(true)
+            }}
             className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:text-slate-700 transition-colors"
           >
             <Edit2 className="h-4 w-4" />
           </button>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <button
+              type="button"
               onClick={() => {
                 onUpdate?.(skills)
                 setEditing(false)
               }}
-              className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 hover:text-emerald-700 transition-colors"
+              className="rounded-lg bg-brand-600 px-3 py-2 text-sm font-medium text-white hover:bg-brand-700"
             >
-              <Check className="h-4 w-4" />
+              Save
             </button>
             <button
+              type="button"
               onClick={() => {
                 setSkills(initialSkills)
                 setEditing(false)
               }}
-              className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:text-slate-700 transition-colors"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
-              <X className="h-4 w-4" />
+              Cancel
             </button>
           </div>
         )}

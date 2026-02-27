@@ -7,7 +7,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from starlette.background import BackgroundTask
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -229,3 +229,56 @@ def download_file(
     if not local_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(local_path, filename=job.filename)
+
+
+@router.get("/files/{job_id}/html")
+def get_file_html(
+    job_id: UUID,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Convert PDF to HTML for resume preview with click-to-highlight. Returns 404 for non-PDF."""
+    enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
+    job = (
+        db.execute(
+            select(ParsingJob)
+            .join(Candidate, Candidate.id == ParsingJob.candidate_id)
+            .where(
+                ParsingJob.id == job_id,
+                Candidate.tenant_id == current_user.tenant_id,
+            )
+        )
+        .scalars()
+        .first()
+    )
+    if not job:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    ext = Path(job.filename or "").suffix.lower().lstrip(".")
+    if ext != "pdf":
+        raise HTTPException(
+            status_code=400,
+            detail="HTML preview only supported for PDF. Use DOCX for best results.",
+        )
+
+    temp_path_to_clean: Path | None = None
+    try:
+        if job.file_path.startswith("s3://"):
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+            temp_path_to_clean = Path(tmp.name)
+            tmp.close()
+            download_s3_to_file(job.file_path, str(temp_path_to_clean))
+            file_path = temp_path_to_clean
+        else:
+            file_path = Path(job.file_path)
+
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+
+        from app.services.pdf_to_html import pdf_to_html
+
+        html_content = pdf_to_html(file_path)
+        return PlainTextResponse(html_content, media_type="text/html; charset=utf-8")
+    finally:
+        if temp_path_to_clean and temp_path_to_clean.exists():
+            temp_path_to_clean.unlink(missing_ok=True)

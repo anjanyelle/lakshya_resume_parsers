@@ -21,6 +21,7 @@ prometheus-client
 sentry-sdk
 pdfplumber
 pypdf
+pymupdf
 python-docx
 pytesseract
 pillow
