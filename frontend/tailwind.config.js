@@ -41,10 +41,17 @@ export default {
           '0%': { backgroundColor: 'transparent' },
           '100%': { backgroundColor: 'rgb(219 234 254)' },
         },
+        'scan-horizontal': {
+          '0%': { left: '-10%', opacity: '0' },
+          '5%': { opacity: '1' },
+          '95%': { opacity: '1' },
+          '100%': { left: '110%', opacity: '0' },
+        },
       },
       animation: {
         'highlight-pulse': 'highlight-pulse 1.5s ease-in-out 2',
         'highlight-in': 'highlight-in 0.4s ease-out forwards',
+        scan: 'scan-horizontal 3s linear infinite',
       },
     },
   },
