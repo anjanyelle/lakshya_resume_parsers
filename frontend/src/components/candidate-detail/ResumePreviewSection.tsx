@@ -9,6 +9,8 @@ type ResumePreviewSectionProps = {
   error?: string | null
   /** Document filename for display */
   filename?: string
+  /** Hide the header bar */
+  hideHeader?: boolean
 }
 
 export default function ResumePreviewSection({
@@ -16,18 +18,21 @@ export default function ResumePreviewSection({
   docxHtml,
   error,
   filename,
+  hideHeader,
 }: ResumePreviewSectionProps) {
   return (
     <div className="flex h-full min-h-[60vh] flex-col rounded-xl border border-slate-200 bg-white shadow-sm lg:min-h-[calc(100vh-12rem)]">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-4 py-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <FileText className="h-5 w-5 shrink-0 text-slate-400" />
-          <span className="truncate text-sm font-medium text-slate-700">
-            {filename || 'Resume'}
-          </span>
+      {!hideHeader && (
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <FileText className="h-5 w-5 shrink-0 text-slate-400" />
+            <span className="truncate text-sm font-medium text-slate-700">
+              {filename || 'Resume'}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Preview content - scrollable, full height */}
       <div className="min-h-0 flex-1 overflow-auto">
@@ -41,11 +46,13 @@ export default function ResumePreviewSection({
         )}
 
         {!error && docxHtml && (
-          <div className="p-6">
-            <div
-              className="prose prose-slate max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-li:text-slate-600"
-              dangerouslySetInnerHTML={{ __html: docxHtml }}
-            />
+          <div className="bg-slate-50/50 p-4 min-h-full">
+            <div className="elegant-resume-page">
+              <div
+                className="elegant-resume-preview"
+                dangerouslySetInnerHTML={{ __html: docxHtml }}
+              />
+            </div>
           </div>
         )}
 
