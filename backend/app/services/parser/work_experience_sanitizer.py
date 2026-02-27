@@ -92,12 +92,22 @@ def _has_any_body(entry: dict[str, Any]) -> bool:
     return False
 
 
+def _get_title(entry: dict[str, Any]) -> str:
+    """Extract title from entry, checking role/job_title/designation as fallbacks."""
+    return _normalize_text(
+        entry.get("title") or entry.get("role") or entry.get("job_title") or entry.get("designation")
+    )
+
+
 def _merge_entries(primary: dict[str, Any], incoming: dict[str, Any]) -> dict[str, Any]:
     out = dict(primary)
 
-    for key in ("company", "title", "client", "location", "employment_type"):
+    for key in ("company", "client", "location", "employment_type"):
         if not _normalize_text(out.get(key)) and _normalize_text(incoming.get(key)):
             out[key] = _normalize_text(incoming.get(key))
+    # Title: also check role, job_title, designation
+    if not _get_title(out) and _get_title(incoming):
+        out["title"] = _get_title(incoming)
 
     out["is_current"] = bool(out.get("is_current")) or bool(incoming.get("is_current"))
 
@@ -207,7 +217,7 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
             continue
 
         company = _normalize_text(item.get("company"))
-        title = _normalize_text(item.get("title"))
+        title = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
         # Use client as company when company is empty (e.g. "CLIENT: Home Depot" format)
         if not company:
             company = _normalize_text(item.get("client"))
