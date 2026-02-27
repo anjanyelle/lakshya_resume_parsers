@@ -1099,7 +1099,9 @@ class WorkExperienceParser:
             title_from_role = None
             role_match = LABELED_TITLE_RE.search(date_line)
             if role_match:
-                title_from_role = (role_match.group("value") or "").strip()
+                raw_val = (role_match.group("value") or "").strip()
+                # Strip date range (e.g. "January 2023 – Current") from "Role: Senior Developer January 2023 – Current"
+                title_from_role = self._strip_dates(raw_val).strip() or raw_val
 
             company_from_date = None
             date_span = DATE_RANGE_RE.search(date_line)

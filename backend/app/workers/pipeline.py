@@ -3122,9 +3122,11 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
         fallback_guard = bool(
             skills_section_conf is not None and skills_section_conf < 0.6
         )
-        # Use section-only when we have a substantial skills section; lower threshold so we don't ignore work exp too often
+        # Include work history in skill extraction to capture technologies from job descriptions
+        # (e.g. Helidon, Quarkus, Prometheus from Environment lines). section_only=False when we have jobs.
         skills_section_stripped = (skills_section or "").strip()
-        section_only = len(skills_section_stripped) >= 40 and len(skills_section_stripped.split()) >= 2
+        has_substantial_section = len(skills_section_stripped) >= 40 and len(skills_section_stripped.split()) >= 2
+        section_only = has_substantial_section and not jobs
         matches = extractor.extract_all(
             skills_section,
             jobs,
