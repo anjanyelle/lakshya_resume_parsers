@@ -32,6 +32,20 @@ export default {
       boxShadow: {
         subtle: '0 10px 30px -20px rgba(15, 23, 42, 0.35)',
       },
+      keyframes: {
+        'highlight-pulse': {
+          '0%, 100%': { backgroundColor: 'transparent' },
+          '50%': { backgroundColor: 'rgb(219 234 254)' },
+        },
+        'highlight-in': {
+          '0%': { backgroundColor: 'transparent' },
+          '100%': { backgroundColor: 'rgb(219 234 254)' },
+        },
+      },
+      animation: {
+        'highlight-pulse': 'highlight-pulse 1.5s ease-in-out 2',
+        'highlight-in': 'highlight-in 0.4s ease-out forwards',
+      },
     },
   },
   plugins: [],

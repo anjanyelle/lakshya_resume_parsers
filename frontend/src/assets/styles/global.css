@@ -30,3 +30,29 @@
     text-wrap: balance;
   }
 }
+
+/* Resume viewer */
+.resume-viewer-content {
+  user-select: text;
+}
+
+.resume-field-span {
+  @apply cursor-pointer rounded px-0.5 transition-colors duration-200;
+}
+.resume-field-span:hover {
+  @apply bg-brand-100;
+}
+.resume-field-active {
+  @apply bg-brand-100;
+}
+.resume-field-highlight-animate {
+  animation: highlight-pulse 1.5s ease-in-out 2;
+}
+@keyframes highlight-pulse {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgb(219 234 254);
+  }
+}

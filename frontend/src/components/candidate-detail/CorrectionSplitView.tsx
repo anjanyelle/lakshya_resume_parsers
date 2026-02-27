@@ -29,8 +29,8 @@ type CorrectionSplitViewProps = {
 }
 
 export default function CorrectionSplitView({
-  resumeUrl,
-  resumeError,
+  resumeUrl: _resumeUrl,
+  resumeError: _resumeError,
   parsedData,
   originalData,
   workHistory,

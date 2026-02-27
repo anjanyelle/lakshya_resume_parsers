@@ -14,6 +14,8 @@ type WorkHistoryTimelineProps = {
   items?: WorkHistory[]
   onUpdate?: (updated: WorkHistory[]) => void
   readOnly?: boolean
+  activeFieldId?: string | null
+  onFieldSelect?: (fieldId: string) => void
 }
 
 const emptyForm: WorkHistoryPayload & { id?: string } = {
@@ -56,7 +58,10 @@ export default function WorkHistoryTimeline({
   items = [],
   onUpdate,
   readOnly = false,
+  activeFieldId = null,
+  onFieldSelect,
 }: WorkHistoryTimelineProps) {
+  const isActive = activeFieldId === 'experience'
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<WorkHistoryPayload & { id?: string }>(emptyForm)
@@ -137,13 +142,26 @@ export default function WorkHistoryTimeline({
   )
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6">
+    <div
+      role={onFieldSelect ? 'button' : undefined}
+      tabIndex={onFieldSelect ? 0 : undefined}
+      onClick={() => onFieldSelect?.('experience')}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onFieldSelect?.('experience')
+      }}
+      className={`rounded-lg border p-6 transition-all duration-200 ${
+        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
+      }`}
+    >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Work history</h2>
         {!readOnly && (
           <button
             type="button"
-            onClick={openAdd}
+            onClick={(e) => {
+              e.stopPropagation()
+              openAdd()
+            }}
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
           >
             Add Work History
@@ -184,7 +202,7 @@ export default function WorkHistoryTimeline({
                     )}
                   </div>
                   {!readOnly && (
-                    <div className="flex shrink-0 gap-1">
+                    <div className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
                         onClick={() => openEdit(item)}

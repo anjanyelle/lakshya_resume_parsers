@@ -4,9 +4,11 @@ import {
   ClipboardCheck,
   Database,
   FileText,
+  Menu,
   UploadCloud,
   Users,
 } from 'lucide-react'
+import { useLayout } from '../../contexts/LayoutContext'
 import Button from '../common/Button'
 import { NAV_ITEMS } from '../../utils/constants'
 import { useAuthStore } from '../../store/authStore'
@@ -23,6 +25,7 @@ const icons = {
 export default function Header() {
   const navigate = useNavigate()
   const { accessToken, clearTokens } = useAuthStore()
+  const { sidebarOpen, setSidebarOpen } = useLayout()
 
   const handleAuthClick = () => {
     if (accessToken) {
@@ -36,6 +39,16 @@ export default function Header() {
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
+          {!sidebarOpen && (
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50"
+              aria-label="Show sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-subtle">
             <FileText className="h-5 w-5" />
           </div>

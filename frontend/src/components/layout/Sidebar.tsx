@@ -18,9 +18,18 @@ const links = [
   { label: 'Taxonomy', path: '/taxonomy', icon: Database },
 ]
 
-export default function Sidebar() {
+type SidebarProps = {
+  open?: boolean
+}
+
+export default function Sidebar({ open = true }: SidebarProps) {
   return (
-    <aside className="hidden w-64 flex-shrink-0 border-r border-slate-200 bg-white px-4 py-6 lg:block">
+    <aside
+      className={`hidden flex-shrink-0 overflow-hidden border-r border-slate-200 bg-white transition-all duration-200 ease-in-out lg:block ${
+        open ? 'w-64' : 'w-0'
+      }`}
+    >
+      <div className="w-64 px-4 py-6">
       <div className="mb-8 flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
           <FileText className="h-4 w-4" />
@@ -52,6 +61,7 @@ export default function Sidebar() {
           )
         })}
       </nav>
+      </div>
     </aside>
   )
 }
