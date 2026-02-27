@@ -13,7 +13,11 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
   const collapseSidebar = useCallback(() => setSidebarOpen(false), [])
   return (
     <LayoutContext.Provider
-      value={{ sidebarOpen, setSidebarOpen, collapseSidebar }}
+      value={{
+        sidebarOpen,
+        setSidebarOpen,
+        collapseSidebar,
+      }}
     >
       {children}
     </LayoutContext.Provider>
@@ -25,8 +29,8 @@ export function useLayout() {
   if (!ctx)
     return {
       sidebarOpen: true,
-      setSidebarOpen: () => {},
-      collapseSidebar: () => {},
+      setSidebarOpen: () => { },
+      collapseSidebar: () => { },
     }
   return ctx
 }
