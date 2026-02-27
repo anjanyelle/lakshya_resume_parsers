@@ -254,6 +254,10 @@ export function getDisplayWorkHistory(
   parsedData: Record<string, any>,
   dbHistory: WorkHistory[],
 ): WorkHistory[] {
+
+  if (dbHistory && dbHistory.length > 0) {
+    return dbHistory
+  }
   let structured = workHistoryFromParsed(parsedData.work_experience)
 
   // If we have exactly one entry that looks like raw merged text, try split by CLIENT:
@@ -294,7 +298,7 @@ export function getDisplayWorkHistory(
       },
     ]
   }
-  return dbHistory
+  return []
 }
 
 /**
@@ -305,6 +309,11 @@ export function getDisplayEducation(
   parsedData: Record<string, any>,
   dbEducation: Education[],
 ): Education[] {
+ 
+  if (dbEducation && dbEducation.length > 0) {
+    return dbEducation
+  }
+
   const structured = educationFromParsed(parsedData.education)
   if (structured.length > 0) return structured
   const rawContent = getSectionContent(parsedData, 'education')
@@ -321,7 +330,7 @@ export function getDisplayEducation(
       },
     ]
   }
-  return dbEducation
+  return []
 }
 
 /**
@@ -331,6 +340,10 @@ export function getDisplaySummary(
   parsedData: Record<string, any>,
   dbSummary: string | null | undefined,
 ): string {
+
+  const trimmedDb = (dbSummary ?? '').trim()
+  if (trimmedDb.length > 0) return trimmedDb
+
   const fromParsed = summaryFromParsed(parsedData)
   if (fromParsed && fromParsed.length > 0) return fromParsed
   return (dbSummary ?? '').trim() || ''
@@ -343,9 +356,14 @@ export function getDisplayCertifications(
   parsedData: Record<string, any>,
   dbCerts: Certification[],
 ): Certification[] {
+
+  //Always prefer DB if it has data
+  if (dbCerts && dbCerts.length > 0) {
+    return dbCerts
+  }
   const structured = certificationsFromParsed(parsedData.certifications)
   if (structured.length > 0) return structured
-  return dbCerts
+  return []
 }
 
 /** Check if we should use parsed_data fallback (DB empty but parsed has data) */

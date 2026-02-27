@@ -520,14 +520,19 @@ export default function CandidateDetailPage() {
   const handleSummarySave = async (value: string) => {
     if (!id) return
     try {
-      await submitCorrections(id, [
+      const updatedCandidate = await submitCorrections(
+        id, [
         {
           field_name: 'summary',
           original_value: candidate?.summary ?? null,
           corrected_value: value,
         },
       ])
-      setCandidate((prev) => (prev ? { ...prev, summary: value } : prev))
+
+      // 🔥 Always use backend response
+      setCandidate(updatedCandidate)
+      setOriginalCandidate(updatedCandidate)
+      // setCandidate((prev) => (prev ? { ...prev, summary: value } : prev))
       toast.success('Summary updated')
     } catch (error) {
       toast.error(
