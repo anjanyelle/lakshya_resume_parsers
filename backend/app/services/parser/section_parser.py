@@ -14,6 +14,16 @@ except Exception:  # noqa: BLE001
 
 logger = logging.getLogger(__name__)
 
+TOP_LEVEL_SECTIONS = {
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "certifications",
+    "projects",
+    "achievements",
+    "contact",
+}
 
 SECTION_KEYS = [
     # ============================================
@@ -2498,7 +2508,14 @@ class SectionParser:
 
         for key, pattern in SECTION_REGEX.items():
             if pattern.match(line):
-                return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
+                canonical_key = self._canonical_section_key(key)
+
+                if canonical_key not in TOP_LEVEL_SECTIONS:
+                    return None
+
+                return canonical_key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
+
+                # return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
 
         if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
             return None
@@ -2508,7 +2525,15 @@ class SectionParser:
 
         if prefix_match is not None:
             key, base_conf = prefix_match
-            return key, base_conf, "dict_match", stripped
+
+            canonical_key = self._canonical_section_key(key)
+
+            if canonical_key not in TOP_LEVEL_SECTIONS:
+                return None
+
+            return canonical_key, base_conf, "dict_match", stripped
+
+            # return key, base_conf, "dict_match", stripped
 
         if has_digits:
             normalized_digitless = self._normalize_header_text(re.sub(r"\d+", " ", line))
@@ -2536,7 +2561,14 @@ class SectionParser:
                     break
             if digitless_best is None:
                 return None
-            return digitless_best[0], digitless_best[1], "dict_match", stripped
+            # return digitless_best[0], digitless_best[1], "dict_match", stripped
+            canonical_key = self._canonical_section_key(digitless_best[0])
+
+            if canonical_key not in TOP_LEVEL_SECTIONS:
+                return None
+
+            return canonical_key, digitless_best[1], "dict_match", stripped
+
         haystack = f" {normalized_line} "
 
         best: tuple[str, float] | None = None
@@ -2560,7 +2592,14 @@ class SectionParser:
                     continue
         if best is None:
             return None
-        return best[0], best[1], "dict_match", stripped
+
+        canonical_key = self._canonical_section_key(best[0])
+
+        if canonical_key not in TOP_LEVEL_SECTIONS:
+            return None
+
+        return canonical_key, best[1], "dict_match", stripped    
+        # return best[0], best[1], "dict_match", stripped
 
     def _build_section_metadata(
         self,
@@ -2678,6 +2717,10 @@ class SectionParser:
             return sections
 
         def _stop_heading_for(section_key: str) -> set[str]:
+            # if section_key == "summary":
+            #     return {"experience", "education", "skills", "certifications", "projects", "achievements"}
+            if section_key == "summary":
+                return TOP_LEVEL_SECTIONS - {"summary"}
             if section_key == "experience":
                 return {"education", "skills", "certifications", "projects", "achievements"}
             if section_key == "education":
@@ -2711,9 +2754,12 @@ class SectionParser:
                 match = self._match_header_line(candidate, blank_surrounded=False)
                 if match is None:
                     continue
+
                 stop_key, conf, _, _ = match
                 stop_key = self._canonical_section_key(stop_key)
-                if stop_key in stop_targets and conf >= 0.9:
+                
+                # if stop_key in stop_targets and conf >= 0.75:
+                if stop_key in stop_targets:
                     cut_idx = i
                     break
 

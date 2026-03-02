@@ -285,6 +285,16 @@ export default function CandidateDetailPage() {
       // 🔥 Always use backend response
       setCandidate(updatedCandidate)
       setOriginalCandidate(updatedCandidate)
+      setParsedData((prev) => ({
+        ...prev,
+        sections: {
+          ...prev.sections,
+          summary: {
+            ...(prev.sections?.summary || {}),
+            content: value,
+        },
+      },
+    }))
       // setCandidate((prev) => (prev ? { ...prev, summary: value } : prev))
       toast.success('Summary updated')
     } catch (error) {
@@ -419,7 +429,6 @@ export default function CandidateDetailPage() {
   const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
   const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
   const displaySummary = getDisplaySummary(parsedData, candidate.summary)
-
   const displaySkills = candidate.skills ?? []
   const displayCandidateSkills = candidate.candidate_skills ?? []
 
