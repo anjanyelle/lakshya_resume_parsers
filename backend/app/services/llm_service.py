@@ -1885,6 +1885,7 @@ class LLMParsingService:
             "For each job extract:\n\n"
             "• Company Name\n"
             "• Job Title\n"
+            "• Client Name (if applicable)\n"
             "• Start Date\n"
             "• End Date\n"
             "• Current Role\n"
@@ -1902,6 +1903,7 @@ class LLMParsingService:
             "Return JSON array with:\n\n"
             "- company_name\n"
             "- job_title\n"
+            "- client_name\n"
             "- start_date\n"
             "- end_date\n"
             "- is_current\n"
@@ -2195,7 +2197,7 @@ class LLMParsingService:
     def extract_work_experience(self, text: str) -> list[dict[str, Any]]:
         prompt = (
             "Extract work experience from this resume section. "
-            "Return JSON array of objects with: company_name, job_title, "
+            "Return JSON array of objects with: company_name, client_name, job_title, "
             "start_date, end_date, is_current, location, responsibilities (array). "
             f"Here's the text:\n{text}"
         )

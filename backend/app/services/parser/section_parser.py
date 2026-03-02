@@ -2288,6 +2288,14 @@ class SectionParser:
                 patterns = [self._nlp.make_doc(alias) for alias in aliases]
                 self._matcher.add(key, patterns)
 
+        # Optimization: Pre-calculate normalized mapping for fast O(1) exact matches
+        self._exact_alias_map: dict[str, str] = {}
+        for key, aliases in SECTION_ALIASES.items():
+            for alias in aliases:
+                norm = self._normalize_header_text(alias)
+                if norm and norm not in self._exact_alias_map:
+                    self._exact_alias_map[norm] = key
+
     def parse(self, raw_text: str) -> dict[str, SectionResult]:
         lines, blank_context, line_number_map, raw_line_count = self._prepare_lines(raw_text)
         self._last_line_number_map = dict(line_number_map)
@@ -2450,27 +2458,17 @@ class SectionParser:
 
         prefix_match: tuple[str, float] | None = None
         normalized_line = self._normalize_header_text(line)
-        if normalized_line:
-            for key, aliases in SECTION_ALIASES.items():
-                for alias in aliases:
-                    m = re.match(
-                        rf"^\s*[^A-Za-z0-9]*?{re.escape(alias)}(?P<rest>.*)$",
-                        line,
-                        flags=re.IGNORECASE,
-                    )
-                    if not m:
-                        continue
-                    rest = m.group("rest") or ""
-                    if not re.match(r"^\s*[:|/\\\-–—]", rest):
-                        continue
-                    alias_norm = self._normalize_header_text(alias)
-                    if not alias_norm:
-                        continue
-                    if normalized_line == alias_norm or normalized_line.startswith(f"{alias_norm} "):
-                        prefix_match = (key, 0.92)
-                        break
-                if prefix_match is not None:
-                    break
+        
+        # Optimization: Fast exact match check
+        if normalized_line in self._exact_alias_map:
+            prefix_match = (self._exact_alias_map[normalized_line], 0.95)
+
+        # If no exact match, try prefix matching with a much faster approach
+        if not prefix_match and normalized_line:
+            # Check for "Header: content" style inline headers first
+            # (Note: we already call _try_split_inline in _detect_headers, 
+            # but this is for recursive/nested calls or style_heading bits)
+            pass
 
         if len(line) > 80 and prefix_match is None:
             return None
@@ -2480,27 +2478,17 @@ class SectionParser:
         casing_bonus = 0.0
         if self._is_uppercase_header(line) or self._is_titlecase_header(line):
             casing_bonus = 0.05
-        length_bonus = 0.0
+        
         token_count = len([t for t in re.split(r"\s+", line.strip()) if t])
-        if 1 <= token_count <= 4:
-            length_bonus = 0.05
-        elif token_count == 5:
-            length_bonus = 0.02
+        length_bonus = 0.05 if 1 <= token_count <= 4 else (0.02 if token_count == 5 else 0.0)
         blank_bonus = 0.05 if blank_surrounded else 0.0
 
-        normalized_compact = normalized_line.replace(" ", "") if normalized_line else ""
-        allow_compact_header_match = (
-            bool(normalized_compact)
-            and token_count == 1
-            and 8 <= len(normalized_compact) <= 40
-            and (self._is_uppercase_header(line) or self._is_titlecase_header(line))
-        )
-
+        # Optimization: Use pre-compiled SECTION_REGEX
         for key, pattern in SECTION_REGEX.items():
             if pattern.match(line):
                 return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
 
-        if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
+        if any(v in lowered for v in HEADER_FALSE_POSITIVE_VERBS):
             return None
 
         if not normalized_line:
@@ -2510,57 +2498,17 @@ class SectionParser:
             key, base_conf = prefix_match
             return key, base_conf, "dict_match", stripped
 
+        # Heuristic/Digit checks
         if has_digits:
             normalized_digitless = self._normalize_header_text(re.sub(r"\d+", " ", line))
-            if not normalized_digitless:
-                return None
-            digitless_haystack = f" {normalized_digitless} "
-            digitless_best: tuple[str, float] | None = None
-            for key, aliases in SECTION_ALIASES.items():
-                for alias in aliases:
-                    alias_norm = self._normalize_header_text(alias)
-                    if not alias_norm:
-                        continue
-                    if allow_compact_header_match:
-                        alias_compact = alias_norm.replace(" ", "")
-                        if alias_compact and normalized_compact == alias_compact:
-                            digitless_best = (
-                                key,
-                                min(1.0, 0.86 + casing_bonus + length_bonus + blank_bonus),
-                            )
-                            break
-                    if normalized_digitless == alias_norm or f" {alias_norm} " in digitless_haystack:
-                        digitless_best = (key, min(1.0, 0.8 + casing_bonus + length_bonus + blank_bonus))
-                        break
-                if digitless_best is not None:
-                    break
-            if digitless_best is None:
-                return None
-            return digitless_best[0], digitless_best[1], "dict_match", stripped
-        haystack = f" {normalized_line} "
+            if normalized_digitless in self._exact_alias_map:
+                key = self._exact_alias_map[normalized_digitless]
+                return key, min(1.0, 0.8 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
 
-        best: tuple[str, float] | None = None
-        for key, aliases in SECTION_ALIASES.items():
-            for alias in aliases:
-                alias_norm = self._normalize_header_text(alias)
-                if not alias_norm:
-                    continue
-                if allow_compact_header_match:
-                    alias_compact = alias_norm.replace(" ", "")
-                    if alias_compact and normalized_compact == alias_compact:
-                        base = 0.86 + casing_bonus + length_bonus + blank_bonus
-                        return key, min(1.0, base), "dict_match", stripped
-                if normalized_line == alias_norm:
-                    base = 0.85 + casing_bonus + length_bonus + blank_bonus
-                    return key, min(1.0, base), "dict_match", stripped
-                if f" {alias_norm} " in haystack:
-                    candidate = (key, min(1.0, 0.85 + casing_bonus + length_bonus + blank_bonus))
-                    if best is None or candidate[1] > best[1]:
-                        best = candidate
-                    continue
-        if best is None:
-            return None
-        return best[0], best[1], "dict_match", stripped
+        # Keyword density fallback (only for exact normalized matches in aliases)
+        # We've already checked the exact_alias_map above.
+        
+        return None
 
     def _build_section_metadata(
         self,

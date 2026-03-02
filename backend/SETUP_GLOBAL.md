@@ -38,7 +38,7 @@ python -m pip install scikit-learn numpy
 If you use SpaCy for skill extraction:
 
 ```bash
-python -m spacy download en_core_web_sm
+python -m spacy download en_core_web_lg
 ```
 
 ---
@@ -56,7 +56,7 @@ python -m pip install pydantic
 python -m pip install spacy nltk
 python -m pip install openai
 python -m pip install scikit-learn numpy
-python -m spacy download en_core_web_sm
+python -m spacy download en_core_web_lg
 ```
 
 ---

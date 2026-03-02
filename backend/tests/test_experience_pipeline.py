@@ -1,6 +1,6 @@
 import pytest
 
-from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+from app.services.parser.work_experience_parser import sanitize_work_experience_entries
 from app.workers.pipeline import _parse_date_str
 
 

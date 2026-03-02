@@ -1,5 +1,5 @@
 # Install: pip install -r requirements.txt
-# Then: python -m spacy download en_core_web_sm  (or en_core_web_lg for better NER)
+# Then: python -m spacy download en_core_web_lg (recommended for high accuracy NER)
 # Optional transformer NER: pip install transformers torch
 fastapi
 uvicorn[standard]

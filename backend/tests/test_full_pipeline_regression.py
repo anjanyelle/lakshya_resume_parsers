@@ -1,5 +1,5 @@
 import pytest
-from app.services.parser.work_experience_sanitizer import (
+from app.services.parser.work_experience_parser import (
     deduplicate_work_entries,
     sanitize_work_experience_entries,
 )

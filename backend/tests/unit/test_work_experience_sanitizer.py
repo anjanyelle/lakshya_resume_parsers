@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 def test_sanitize_work_experience_drops_skillish_headers():
-    from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+    from app.services.parser.work_experience_parser import sanitize_work_experience_entries
 
     entries = [
         {
@@ -27,7 +27,7 @@ def test_sanitize_work_experience_drops_skillish_headers():
 
 
 def test_sanitize_work_experience_drops_empty_low_signal_entries():
-    from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+    from app.services.parser.work_experience_parser import sanitize_work_experience_entries
 
     entries = [
         {"company": "Acme", "title": "Engineer"},
@@ -45,7 +45,7 @@ def test_sanitize_work_experience_drops_empty_low_signal_entries():
 
 
 def test_sanitize_work_experience_drops_placeholders():
-    from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+    from app.services.parser.work_experience_parser import sanitize_work_experience_entries
 
     entries = [
         {"company": "Company", "title": "Engineer", "start_date": "2020-01"},
@@ -59,7 +59,7 @@ def test_sanitize_work_experience_drops_placeholders():
 
 
 def test_sanitize_work_experience_merges_duplicates_and_dedupes_bullets():
-    from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+    from app.services.parser.work_experience_parser import sanitize_work_experience_entries
 
     entries = [
         {
@@ -103,7 +103,7 @@ def test_sanitize_work_experience_merges_duplicates_and_dedupes_bullets():
 
 
 def test_sanitize_keeps_entry_with_company_title_without_dates():
-    from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+    from app.services.parser.work_experience_parser import sanitize_work_experience_entries
 
     entries = [
         {

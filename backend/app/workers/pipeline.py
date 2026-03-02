@@ -76,8 +76,9 @@ from app.services.parser.skill_extractor import (
     strip_skill_token,
     tokenize_skills_by_comma,
 )
-from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
-from app.services.parser.work_experience_sanitizer import (
+from app.services.parser.work_experience_parser import (
+    JobEntry,
+    WorkExperienceParser,
     deduplicate_work_entries,
     sanitize_work_experience_entries,
 )
@@ -803,10 +804,14 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
 
     work_llm = parsed.get("work_experience_llm")
     existing_work = merged.get("work_experience")
+    
+    missing_titles = sum(1 for w in (existing_work or []) if not str(w.get("title", "")).strip() or re.search(r"\b(19|20)\d{2}\b", str(w.get("title", ""))))
+    missing_companies = sum(1 for w in (existing_work or []) if not str(w.get("company", "")).strip() or re.search(r"\b(19|20)\d{2}\b", str(w.get("company", ""))))
+
     use_llm = (
         isinstance(work_llm, list)
         and work_llm
-        and (not existing_work or len(work_llm) > len(existing_work))
+        and (not existing_work or len(work_llm) >= len(existing_work) or missing_titles > 0 or missing_companies > 0)
     )
     if use_llm:
         work_items = []
@@ -4267,6 +4272,9 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 if _looks_like_skillish_header(company) or _looks_like_skillish_header(title):
                     continue
                 if len(company) > 180 or len(title) > 180:
+                    continue
+                # Reject if deterministic parsing failed to strip dates
+                if re.search(r"\b(19|20)\d{2}\b", company) or re.search(r"\b(19|20)\d{2}\b", title):
                     continue
                 good += 1
             return good == 0
