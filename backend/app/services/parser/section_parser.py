@@ -377,16 +377,20 @@ SECTION_ALIASES: dict[str, list[str]] = {
     
     "summary": [
         # English
-        "professional summary", "summary", "executive summary", "career summary",
-        "profile", "professional profile", "career profile", "personal profile",
-        "objective", "career objective", "professional objective", "career goal",
-        "about", "about me", "introduction", "overview", "career overview",
-        "personal statement", "professional statement", "statement",
-        "qualifications summary", "summary of qualifications",
-        "professional overview", "executive profile", "career highlights",
-        "snapshot", "professional snapshot", "value proposition",
-        "branding statement", "personal brand", "elevator pitch",
-        "highlights", "career summary highlights", "professional highlights",
+        # "professional summary", "summary", "executive summary", "career summary",
+        # "profile", "professional profile", "career profile", "personal profile",
+        # "objective", "career objective", "professional objective", "career goal",
+        # "about", "about me", "introduction", "overview", "career overview",
+        # "personal statement", "professional statement", "statement",
+        # "qualifications summary", "summary of qualifications",
+        # "professional overview", "executive profile", "career highlights",
+        # "snapshot", "professional snapshot", "value proposition",
+        # "branding statement", "personal brand", "elevator pitch",
+        # "highlights", "career summary highlights", "professional highlights",
+
+        "professional summary","summary","executive summary","career summary","objective",
+        "career objective","professional objective","career goal","qualifications summary",
+        "summary of qualifications",
         
         # Spanish
         "resumen profesional", "resumen", "perfil profesional", "perfil",
@@ -534,7 +538,7 @@ SECTION_ALIASES: dict[str, list[str]] = {
         # English
         "skills", "technical skills", "professional skills", "core skills",
         "skills summary", "skill summary", "key skills", "areas of expertise",
-        "expertise", "core competencies", "competencies", "capabilities",
+        "expertise", "core competencies","corecompetencies", "competencies", "capabilities",
         "skills & expertise", "skills and abilities", "abilities",
         "technical expertise", "technical proficiency", "proficiencies",
         "skills & tools", "tools & technologies", "technologies",
@@ -2298,6 +2302,14 @@ class SectionParser:
                 patterns = [self._nlp.make_doc(alias) for alias in aliases]
                 self._matcher.add(key, patterns)
 
+    # Optimization: Pre-calculate normalized mapping for fast O(1) exact matches
+        # self._exact_alias_map: dict[str, str] = {}
+        # for key, aliases in SECTION_ALIASES.items():
+        #     for alias in aliases:
+        #         norm = self._normalize_header_text(alias)
+        #         if norm and norm not in self._exact_alias_map:
+        #             self._exact_alias_map[norm] = key        
+
     def parse(self, raw_text: str) -> dict[str, SectionResult]:
         lines, blank_context, line_number_map, raw_line_count = self._prepare_lines(raw_text)
         self._last_line_number_map = dict(line_number_map)
@@ -2484,8 +2496,9 @@ class SectionParser:
 
         if len(line) > 80 and prefix_match is None:
             return None
-        if self._looks_like_sentence(line) and prefix_match is None:
-            return None
+        
+        # if self._looks_like_sentence(line) and prefix_match is None:
+        #     return None
 
         casing_bonus = 0.0
         if self._is_uppercase_header(line) or self._is_titlecase_header(line):
@@ -2505,6 +2518,10 @@ class SectionParser:
             and 8 <= len(normalized_compact) <= 40
             and (self._is_uppercase_header(line) or self._is_titlecase_header(line))
         )
+
+
+        if self._looks_like_sentence(line) and prefix_match is None and not allow_compact_header_match:
+            return None
 
         for key, pattern in SECTION_REGEX.items():
             if pattern.match(line):

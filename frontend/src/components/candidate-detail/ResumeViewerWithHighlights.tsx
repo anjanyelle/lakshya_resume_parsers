@@ -132,7 +132,7 @@ export default function ResumeViewerWithHighlights({
     [onFieldClick]
   )
 
-  if (pdfUrl && !processedHtml) {
+  if (pdfUrl && !html) {
     return (
       <div className="flex h-full min-h-[400px] flex-col">
         <p className="mb-2 text-xs text-slate-500">
