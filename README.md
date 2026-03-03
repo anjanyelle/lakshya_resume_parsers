@@ -3,6 +3,50 @@ Resume Parser Fine-Tuning Project
 This repository includes a resume parsing system and a small synthetic dataset
 generator for fine-tuning or evaluation.
 
+## Database setup (required)
+
+The API and parsing pipeline use **PostgreSQL**. You need a running Postgres instance and must run migrations before starting the backend.
+
+- **PostgreSQL** – required (candidates, parsing jobs, skills, etc.).
+- **Redis** – optional; only for Celery workers (async parsing). For local dev with `PARSING_MODE=deterministic` or `text_only`, the app can run without Redis.
+
+### Option A: Postgres + Redis with Docker
+
+From project root:
+
+```bash
+docker compose up -d postgres redis
+```
+
+Set in `backend/.env` (match user/password if you set `POSTGRES_USER` / `POSTGRES_PASSWORD` in root `.env` for Docker):
+
+```env
+DATABASE_URL="postgresql+psycopg2://postgres:postgres@localhost:5432/resume_parser"
+```
+
+### Option B: Local PostgreSQL
+
+1. Install PostgreSQL (e.g. Postgres.app or `brew install postgresql@14`).
+2. Create DB: `createdb resume_parser`
+3. In `backend/.env`:
+
+```env
+DATABASE_URL="postgresql+psycopg2://USER:PASSWORD@localhost:5432/resume_parser"
+```
+
+### Migrations and seed (from backend directory)
+
+```bash
+cd backend
+poetry install
+poetry run alembic upgrade head
+poetry run python scripts/init_db.py
+```
+
+Then start the API: `poetry run uvicorn app.main:app --reload`
+
+---
+
 Quick Start
 - Generate dataset files:
   - python scripts/prepare_dataset.py

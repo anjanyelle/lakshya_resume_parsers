@@ -9,6 +9,7 @@ from dataclasses import asdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from celery import chain
 from sqlalchemy import delete, select
@@ -370,7 +371,7 @@ def start_parsing_workflow(job_id: str) -> str:
     session = SessionLocal()
     try:
         job = session.execute(
-            select(ParsingJob).where(ParsingJob.id == job_id)
+            select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
         ).scalar_one_or_none()
         if job:
             job.status = ParsingJobStatus.PROCESSING
@@ -460,7 +461,7 @@ def start_parsing_workflow(job_id: str) -> str:
         session = SessionLocal()
         try:
             job = session.execute(
-                select(ParsingJob).where(ParsingJob.id == job_id)
+                select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
             ).scalar_one_or_none()
             if job and job.status == ParsingJobStatus.PROCESSING:
                 job.task_id = result_id
@@ -477,7 +478,7 @@ def start_parsing_workflow(job_id: str) -> str:
         session = SessionLocal()
         try:
             job = session.execute(
-                select(ParsingJob).where(ParsingJob.id == job_id)
+                select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
             ).scalar_one_or_none()
             if job and job.status == ParsingJobStatus.PROCESSING:
                 job.task_id = f"local-{job_id}"
@@ -504,11 +505,16 @@ def _source_format_from_path(path: str | None) -> str | None:
     return None
 
 
+def _to_uuid(job_id: str | UUID) -> UUID:
+    """Ensure job_id is a UUID for SQLAlchemy PostgreSQL UUID columns."""
+    return job_id if isinstance(job_id, UUID) else UUID(job_id)
+
+
 def _load_job(job_id: str) -> ParsingJob:
     session = SessionLocal()
     try:
         job = session.execute(
-            select(ParsingJob).where(ParsingJob.id == job_id)
+            select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
         ).scalar_one_or_none()
         if not job:
             raise ValueError(f"ParsingJob not found: {job_id}")
@@ -532,7 +538,7 @@ def _update_job(
     session = SessionLocal()
     try:
         job = session.execute(
-            select(ParsingJob).where(ParsingJob.id == job_id)
+            select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
         ).scalar_one_or_none()
         if not job:
             return
@@ -1210,7 +1216,7 @@ def task_finalize_text_only(self, job_id: str) -> str:  # noqa: ANN001
     try:
         structlog.contextvars.bind_contextvars(job_id=job_id)
         job = session.execute(
-            select(ParsingJob).where(ParsingJob.id == job_id)
+            select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
         ).scalar_one_or_none()
         if not job:
             return job_id
@@ -4180,7 +4186,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         except Exception:
             pass
         job = session.execute(
-            select(ParsingJob).where(ParsingJob.id == job_id)
+            select(ParsingJob).where(ParsingJob.id == _to_uuid(job_id))
         ).scalar_one_or_none()
         if not job:
             return job_id
@@ -4841,14 +4847,14 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             if normalized:
                 skill = session.execute(
                     select(Skill).where(Skill.normalized_name == normalized)
-                ).scalar_one_or_none()
+                ).scalars().first()
             if not skill:
-                skill = session.execute(select(Skill).where(Skill.name == raw_name)).scalar_one_or_none()
+                skill = session.execute(select(Skill).where(Skill.name == raw_name)).scalars().first()
 
             if not skill and normalized:
                 skill = session.execute(
                     select(Skill).where(Skill.normalized_name == normalized)
-                ).scalar_one_or_none()
+                ).scalars().first()
             if not skill:
                 stmt = (
                     pg_insert(Skill)
@@ -4866,11 +4872,11 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 if not skill:
                     skill = session.execute(
                         select(Skill).where(Skill.name == raw_name)
-                    ).scalar_one_or_none()
+                    ).scalars().first()
                 if not skill and normalized:
                     skill = session.execute(
                         select(Skill).where(Skill.normalized_name == normalized)
-                    ).scalar_one_or_none()
+                    ).scalars().first()
 
             if not skill:
                 continue

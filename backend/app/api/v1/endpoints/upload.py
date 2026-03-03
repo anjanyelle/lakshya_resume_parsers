@@ -30,6 +30,25 @@ settings = get_settings()
 logger = logging.getLogger(__name__)
 
 
+def _raw_text_to_html(text: str | None) -> str:
+    """Turn raw resume text into minimal HTML for preview when debug.html_preview is missing."""
+    if not text or not text.strip():
+        return "<p>No text available for preview.</p>"
+    lines = text.split("\n")
+    out: list[str] = []
+    for line in lines:
+        clean = line.strip()
+        if not clean:
+            continue
+        clean = (
+            clean.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        )
+        out.append(f"<p>{clean}</p>")
+    return "\n".join(out) if out else "<p>No text available for preview.</p>"
+
+
 def _extract_extension(filename: str) -> str:
     return Path(filename).suffix.lower().lstrip(".")
 
@@ -227,6 +246,12 @@ def download_file(
             background=BackgroundTask(lambda: os.unlink(str(temp_path))),
         )
     local_path = Path(job.file_path)
+    if not local_path.exists() and job.original_file_copy_path:
+        copy_path = job.original_file_copy_path
+        if not str(copy_path).startswith("s3://"):
+            alt = Path(copy_path)
+            if alt.exists():
+                return FileResponse(alt, filename=job.filename)
     if not local_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(local_path, filename=job.filename)
@@ -268,6 +293,9 @@ def get_file_html(
     
     logger.info(f"HTML preview found: {bool(html_preview)}, length: {len(html_preview) if html_preview else 0}")
 
+    if not html_preview and (job.raw_text or "").strip():
+        html_preview = _raw_text_to_html(job.raw_text)
+        logger.info(f"Using raw_text fallback for HTML preview, length: {len(html_preview)}")
     if not html_preview:
         logger.warning(f"HTML preview not available for job_id: {job_id}")
         raise HTTPException(status_code=404, detail="HTML preview not available")

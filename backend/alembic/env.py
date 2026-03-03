@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.append(str(BASE_DIR))
@@ -22,6 +22,13 @@ config.set_main_option("sqlalchemy.url", database_url)
 
 target_metadata = Base.metadata
 
+# Migrations are written for PostgreSQL (UUID, JSONB, ENUM). Require it.
+if database_url and "sqlite" in database_url.lower():
+    raise SystemExit(
+        "Alembic migrations require PostgreSQL. DATABASE_URL is set to SQLite. "
+        "Set DATABASE_URL to a postgresql+psycopg2://... URL (e.g. in backend/.env)."
+    )
+
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
@@ -39,9 +46,9 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    """Use the same DATABASE_URL as the app (from .env / get_settings())."""
+    connectable = create_engine(
+        str(settings.DATABASE_URL),
         poolclass=pool.NullPool,
     )
 
