@@ -133,6 +133,10 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
         debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
         debug_bundle = dict(debug_bundle)
 
+        # Store html_preview if available from extraction
+        if isinstance(debug, dict) and "html_preview" in debug:
+            debug_bundle["html_preview"] = debug["html_preview"]
+
         if isinstance(debug, dict) and debug:
             debug_copy = dict(debug)
             if extracted.method == "docx":

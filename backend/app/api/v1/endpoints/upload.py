@@ -7,7 +7,7 @@ from pathlib import Path
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from starlette.background import BackgroundTask
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,6 +23,7 @@ from app.utils.file_validation import validate_magic
 from app.utils.audit import log_audit
 from app.utils.virus_scan import scan_file
 from app.workers.pipeline import start_parsing_workflow
+from fastapi.responses import HTMLResponse
 
 router = APIRouter()
 settings = get_settings()
@@ -237,8 +238,12 @@ def get_file_html(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Convert PDF to HTML for resume preview with click-to-highlight. Returns 404 for non-PDF."""
+    """Return HTML preview for resume with click-to-highlight support."""
     enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
+    
+    # Debug logging
+    logger.info(f"HTML preview requested for job_id: {job_id}")
+
     job = (
         db.execute(
             select(ParsingJob)
@@ -251,34 +256,52 @@ def get_file_html(
         .scalars()
         .first()
     )
+
+    if not job:
+        logger.warning(f"Job not found for job_id: {job_id}")
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Get html_preview from parsed_data.debug.html_preview
+    parsed_data = job.parsed_data or {}
+    debug_data = parsed_data.get("debug", {})
+    html_preview = debug_data.get("html_preview")
+    
+    logger.info(f"HTML preview found: {bool(html_preview)}, length: {len(html_preview) if html_preview else 0}")
+
+    if not html_preview:
+        logger.warning(f"HTML preview not available for job_id: {job_id}")
+        raise HTTPException(status_code=404, detail="HTML preview not available")
+
+    logger.info(f"Returning HTML preview for job_id: {job_id}, length: {len(html_preview)}")
+    return HTMLResponse(content=html_preview)
+
+
+@router.get("/files/{job_id}/html-test")
+def get_file_html_test(
+    job_id: UUID,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Test endpoint to verify HTML content without authentication."""
+    job = (
+        db.execute(
+            select(ParsingJob)
+            .where(ParsingJob.id == job_id)
+        )
+        .scalars()
+        .first()
+    )
+
     if not job:
         raise HTTPException(status_code=404, detail="File not found")
 
-    ext = Path(job.filename or "").suffix.lower().lstrip(".")
-    if ext != "pdf":
-        raise HTTPException(
-            status_code=400,
-            detail="HTML preview only supported for PDF. Use DOCX for best results.",
-        )
+    parsed_data = job.parsed_data or {}
+    debug_data = parsed_data.get("debug", {})
+    html_preview = debug_data.get("html_preview")
 
-    temp_path_to_clean: Path | None = None
-    try:
-        if job.file_path.startswith("s3://"):
-            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-            temp_path_to_clean = Path(tmp.name)
-            tmp.close()
-            download_s3_to_file(job.file_path, str(temp_path_to_clean))
-            file_path = temp_path_to_clean
-        else:
-            file_path = Path(job.file_path)
-
-        if not file_path.exists():
-            raise HTTPException(status_code=404, detail="File not found")
-
-        from app.services.pdf_to_html import pdf_to_html
-
-        html_content = pdf_to_html(file_path)
-        return PlainTextResponse(html_content, media_type="text/html; charset=utf-8")
-    finally:
-        if temp_path_to_clean and temp_path_to_clean.exists():
-            temp_path_to_clean.unlink(missing_ok=True)
+    if not html_preview:
+        return PlainTextResponse("No HTML preview available")
+    
+    # Return first 500 chars for testing
+    sample = html_preview[:500] if html_preview else "No HTML"
+    return PlainTextResponse(f"HTML Preview Test - Length: {len(html_preview)}\n\n{sample}")

@@ -54,6 +54,33 @@ class ExtractedText:
     debug: dict[str, object] | None = None
 
 
+def _text_to_basic_html(text: str) -> str:
+    """
+    Convert extracted plain text into simple HTML paragraphs.
+    Required so PDF behaves like DOCX in frontend highlighting.
+    """
+    if not text:
+        return ""
+
+    lines = text.split("\n")
+    html_lines: list[str] = []
+
+    for line in lines:
+        clean = line.strip()
+        if not clean:
+            continue
+
+        # Escape minimal HTML
+        clean = (
+            clean.replace("&", "&amp;")
+                 .replace("<", "&lt;")
+                 .replace(">", "&gt;")
+        )
+
+        html_lines.append(f"<p>{clean}</p>")
+
+    return "\n".join(html_lines)
+
 @dataclass(frozen=True)
 class LayoutBlock:
     x0: float
@@ -355,13 +382,14 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
                 repr(_sample_text(out_text, 150, 0))[: 120],
                 extra={"output_chars": len(out_text), "ocr_confidence": ocr_conf},
             )
-            merged_debug = {**(debug or {}), **(ocr_metadata or {})}
+            html_preview = _text_to_basic_html(out_text)
+            merged_debug = {**(debug or {}), **(ocr_metadata or {}),"html_preview": html_preview,}
             return ExtractedText(
                 text=out_text,
                 ocr_confidence=ocr_conf,
                 used_ocr=True,
                 method="ocr",
-                debug=merged_debug if merged_debug else None,
+                debug=merged_debug,
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("OCR failed; returning best-effort extracted text", exc_info=exc)
@@ -378,10 +406,17 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
         repr(_sample_text(out_text, 120, 80))[: 150],
         extra={"method": method, "output_chars": len(out_text)},
     )
+    html_preview = _text_to_basic_html(out_text)
+
+    merged_debug = {
+        **(debug or {}),
+        "html_preview": html_preview,
+    }
+
     return ExtractedText(
         text=out_text,
         method=method,
-        debug=debug or None,
+        debug=merged_debug,
     )
 
 

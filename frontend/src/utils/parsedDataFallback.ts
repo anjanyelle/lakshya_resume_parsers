@@ -341,12 +341,16 @@ export function getDisplaySummary(
   dbSummary: string | null | undefined,
 ): string {
 
-  const trimmedDb = (dbSummary ?? '').trim()
-  if (trimmedDb.length > 0) return trimmedDb
+  const parsed = summaryFromParsed(parsedData)?.trim() ?? ''
+  const db = dbSummary ?? ''
 
-  const fromParsed = summaryFromParsed(parsedData)
-  if (fromParsed && fromParsed.length > 0) return fromParsed
-  return (dbSummary ?? '').trim() || ''
+  // Always prefer parsed if it exists
+  if (parsed && parsed.length > 0) {
+    return parsed
+  }
+
+  // fallback to DB only if parsed missing
+  return db
 }
 
 /**

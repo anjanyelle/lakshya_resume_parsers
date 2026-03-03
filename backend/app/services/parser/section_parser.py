@@ -14,6 +14,16 @@ except Exception:  # noqa: BLE001
 
 logger = logging.getLogger(__name__)
 
+TOP_LEVEL_SECTIONS = {
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "certifications",
+    "projects",
+    "achievements",
+    "contact",
+}
 
 SECTION_KEYS = [
     # ============================================
@@ -367,16 +377,20 @@ SECTION_ALIASES: dict[str, list[str]] = {
     
     "summary": [
         # English
-        "professional summary", "summary", "executive summary", "career summary",
-        "profile", "professional profile", "career profile", "personal profile",
-        "objective", "career objective", "professional objective", "career goal",
-        "about", "about me", "introduction", "overview", "career overview",
-        "personal statement", "professional statement", "statement",
-        "qualifications summary", "summary of qualifications",
-        "professional overview", "executive profile", "career highlights",
-        "snapshot", "professional snapshot", "value proposition",
-        "branding statement", "personal brand", "elevator pitch",
-        "highlights", "career summary highlights", "professional highlights",
+        # "professional summary", "summary", "executive summary", "career summary",
+        # "profile", "professional profile", "career profile", "personal profile",
+        # "objective", "career objective", "professional objective", "career goal",
+        # "about", "about me", "introduction", "overview", "career overview",
+        # "personal statement", "professional statement", "statement",
+        # "qualifications summary", "summary of qualifications",
+        # "professional overview", "executive profile", "career highlights",
+        # "snapshot", "professional snapshot", "value proposition",
+        # "branding statement", "personal brand", "elevator pitch",
+        # "highlights", "career summary highlights", "professional highlights",
+
+        "professional summary","summary","executive summary","career summary","objective",
+        "career objective","professional objective","career goal","qualifications summary",
+        "summary of qualifications",
         
         # Spanish
         "resumen profesional", "resumen", "perfil profesional", "perfil",
@@ -524,7 +538,7 @@ SECTION_ALIASES: dict[str, list[str]] = {
         # English
         "skills", "technical skills", "professional skills", "core skills",
         "skills summary", "skill summary", "key skills", "areas of expertise",
-        "expertise", "core competencies", "competencies", "capabilities",
+        "expertise", "core competencies","corecompetencies", "competencies", "capabilities",
         "skills & expertise", "skills and abilities", "abilities",
         "technical expertise", "technical proficiency", "proficiencies",
         "skills & tools", "tools & technologies", "technologies",
@@ -2288,6 +2302,14 @@ class SectionParser:
                 patterns = [self._nlp.make_doc(alias) for alias in aliases]
                 self._matcher.add(key, patterns)
 
+    # Optimization: Pre-calculate normalized mapping for fast O(1) exact matches
+        # self._exact_alias_map: dict[str, str] = {}
+        # for key, aliases in SECTION_ALIASES.items():
+        #     for alias in aliases:
+        #         norm = self._normalize_header_text(alias)
+        #         if norm and norm not in self._exact_alias_map:
+        #             self._exact_alias_map[norm] = key        
+
     def parse(self, raw_text: str) -> dict[str, SectionResult]:
         lines, blank_context, line_number_map, raw_line_count = self._prepare_lines(raw_text)
         self._last_line_number_map = dict(line_number_map)
@@ -2474,8 +2496,9 @@ class SectionParser:
 
         if len(line) > 80 and prefix_match is None:
             return None
-        if self._looks_like_sentence(line) and prefix_match is None:
-            return None
+        
+        # if self._looks_like_sentence(line) and prefix_match is None:
+        #     return None
 
         casing_bonus = 0.0
         if self._is_uppercase_header(line) or self._is_titlecase_header(line):
@@ -2496,9 +2519,20 @@ class SectionParser:
             and (self._is_uppercase_header(line) or self._is_titlecase_header(line))
         )
 
+
+        if self._looks_like_sentence(line) and prefix_match is None and not allow_compact_header_match:
+            return None
+
         for key, pattern in SECTION_REGEX.items():
             if pattern.match(line):
-                return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
+                canonical_key = self._canonical_section_key(key)
+
+                if canonical_key not in TOP_LEVEL_SECTIONS:
+                    return None
+
+                return canonical_key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
+
+                # return key, min(1.0, 1.0 + casing_bonus + length_bonus + blank_bonus), "dict_match", stripped
 
         if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in HEADER_FALSE_POSITIVE_VERBS):
             return None
@@ -2508,7 +2542,15 @@ class SectionParser:
 
         if prefix_match is not None:
             key, base_conf = prefix_match
-            return key, base_conf, "dict_match", stripped
+
+            canonical_key = self._canonical_section_key(key)
+
+            if canonical_key not in TOP_LEVEL_SECTIONS:
+                return None
+
+            return canonical_key, base_conf, "dict_match", stripped
+
+            # return key, base_conf, "dict_match", stripped
 
         if has_digits:
             normalized_digitless = self._normalize_header_text(re.sub(r"\d+", " ", line))
@@ -2536,7 +2578,14 @@ class SectionParser:
                     break
             if digitless_best is None:
                 return None
-            return digitless_best[0], digitless_best[1], "dict_match", stripped
+            # return digitless_best[0], digitless_best[1], "dict_match", stripped
+            canonical_key = self._canonical_section_key(digitless_best[0])
+
+            if canonical_key not in TOP_LEVEL_SECTIONS:
+                return None
+
+            return canonical_key, digitless_best[1], "dict_match", stripped
+
         haystack = f" {normalized_line} "
 
         best: tuple[str, float] | None = None
@@ -2560,7 +2609,14 @@ class SectionParser:
                     continue
         if best is None:
             return None
-        return best[0], best[1], "dict_match", stripped
+
+        canonical_key = self._canonical_section_key(best[0])
+
+        if canonical_key not in TOP_LEVEL_SECTIONS:
+            return None
+
+        return canonical_key, best[1], "dict_match", stripped    
+        # return best[0], best[1], "dict_match", stripped
 
     def _build_section_metadata(
         self,
@@ -2678,6 +2734,10 @@ class SectionParser:
             return sections
 
         def _stop_heading_for(section_key: str) -> set[str]:
+            # if section_key == "summary":
+            #     return {"experience", "education", "skills", "certifications", "projects", "achievements"}
+            if section_key == "summary":
+                return TOP_LEVEL_SECTIONS - {"summary"}
             if section_key == "experience":
                 return {"education", "skills", "certifications", "projects", "achievements"}
             if section_key == "education":
@@ -2711,9 +2771,12 @@ class SectionParser:
                 match = self._match_header_line(candidate, blank_surrounded=False)
                 if match is None:
                     continue
+
                 stop_key, conf, _, _ = match
                 stop_key = self._canonical_section_key(stop_key)
-                if stop_key in stop_targets and conf >= 0.9:
+                
+                # if stop_key in stop_targets and conf >= 0.75:
+                if stop_key in stop_targets:
                     cut_idx = i
                     break
 

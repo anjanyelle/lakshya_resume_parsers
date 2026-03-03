@@ -228,13 +228,34 @@ export default function CandidateDetailPage() {
 
           if (ext === 'pdf' && latestJob?.id) {
             try {
+              console.log('=== PDF HTML Debug ===')
+              console.log('Job ID:', latestJob.id)
+              console.log('Extension:', ext)
               const { fetchFileHtml } = await import('../services/api/files')
               const html = await fetchFileHtml(latestJob.id)
-              setResumePreviewHtml(html)
-              setResumePreviewType('docx')
-              setResumePreviewUrl(null)
+              console.log('Raw HTML response:', html)
+              console.log('HTML type:', typeof html)
+              console.log('HTML length:', html?.length || 0)
+              console.log('HTML trimmed length:', html?.trim()?.length || 0)
+              
+              if (html && html.trim().length > 0) {
+                console.log('✅ Setting HTML preview state')
+                setResumePreviewHtml(html)
+                setResumePreviewType('docx')
+                setResumePreviewUrl(null)
+                setResumePreviewError(null)
+                console.log('Final state - type: docx, html exists:', !!resumePreviewHtml)
+              } else {
+                console.log('❌ HTML invalid, falling back to iframe')
+                console.log('Final state - type: pdf, html exists:', !!resumePreviewHtml)
+                setResumePreviewError('PDF highlighting not available. Showing standard PDF viewer.')
+                /* fall through to iframe */
+              }
               return
-            } catch {
+            } catch (error: any) {
+              console.error('❌ PDF HTML preview failed:', error)
+              console.warn('PDF HTML preview not available, falling back to iframe:', error?.message || error)
+              setResumePreviewError('PDF highlighting not available. Showing standard PDF viewer.')
               /* fall through to iframe */
             }
           }
@@ -285,6 +306,16 @@ export default function CandidateDetailPage() {
       // 🔥 Always use backend response
       setCandidate(updatedCandidate)
       setOriginalCandidate(updatedCandidate)
+      setParsedData((prev) => ({
+        ...prev,
+        sections: {
+          ...prev.sections,
+          summary: {
+            ...(prev.sections?.summary || {}),
+            content: value,
+        },
+      },
+    }))
       // setCandidate((prev) => (prev ? { ...prev, summary: value } : prev))
       toast.success('Summary updated')
     } catch (error) {
@@ -419,7 +450,6 @@ export default function CandidateDetailPage() {
   const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
   const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
   const displaySummary = getDisplaySummary(parsedData, candidate.summary)
-
   const displaySkills = candidate.skills ?? []
   const displayCandidateSkills = candidate.candidate_skills ?? []
 

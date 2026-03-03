@@ -8,7 +8,7 @@ from typing import Iterable
 
 import dateparser
 from app.core.config import get_settings
-from app.services.llm_service import LLMParsingService
+from app.services.llm_service import LLMParsingService 
 
 logger = logging.getLogger(__name__)
 
