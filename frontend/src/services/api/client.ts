@@ -1,8 +1,7 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../../store/authStore'
 
-const baseURL =
-  import.meta.env.VITE_API_URL?.toString() ?? 'http://localhost:8000'
+const baseURL = 'http://localhost:8000'  // Force correct backend port
 
 export const apiClient = axios.create({
   baseURL,
