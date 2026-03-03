@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import * as mammoth from 'mammoth'
-import { FileText, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import ResumePreviewSection from '../candidate-detail/ResumePreviewSection'
 
 interface InlineScanningViewProps {
@@ -53,70 +53,56 @@ export default function InlineScanningView({ file, isProcessing, onClose }: Inli
     }, [file, ext])
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-            {/* Visual Header from Image */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                <div className="flex items-center gap-4">
-                    {/* Blue Icon */}
-                    <div className="bg-brand-500 p-2.5 rounded-xl flex items-center justify-center shadow-md">
-                        <FileText className="h-6 w-6 text-white" strokeWidth={2.5} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+            {/* Background Overlay Layer - Only this blurs */}
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-md z-0" />
+
+            {/* Centered Resume Container - Kept perfectly sharp */}
+            <div className="relative z-50 w-full max-w-4xl h-[90vh] transition-transform duration-500 transform scale-[1.08] flex flex-col items-center justify-center opacity-100">
+
+                {/* Resume Page with strong Shadow and sharp borders */}
+                <div className="relative w-full h-full bg-white rounded-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden ring-1 ring-slate-200">
+                    <div className="h-full overflow-auto scrollbar-hide bg-white">
+                        <ResumePreviewSection
+                            pdfUrl={pdfUrl}
+                            docxHtml={docxHtml}
+                            error={error}
+                            filename={filename}
+                            hideHeader={true}
+                        />
                     </div>
 
-                    {/* File Info */}
-                    <div className="flex flex-col">
-                        <h3 className="text-xl font-bold text-slate-900 leading-tight">
-                            {filename}
-                        </h3>
-                        <span className="text-[10px] font-bold tracking-widest text-brand-600 uppercase mt-0.5">
-                            AI Extraction Active
-                        </span>
-                    </div>
-                </div>
+                    {/* Premium Scanning Animation Overlay */}
+                    {isProcessing && (
+                        <div className="pointer-events-none absolute inset-0 z-[100]">
+                            {/* Scanning Indicator Text */}
+                            <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-brand-600 text-white text-[10px] font-bold tracking-[0.2em] uppercase rounded-full shadow-lg z-50">
+                                Scanning Resume
+                            </div>
 
-                <div className="flex items-center gap-3">
-                    {/* Processing Badge */}
-                    <div className="flex items-center bg-[#334155] text-white px-4 py-1.5 rounded-full shadow-inner">
-                        <div className="w-2 h-2 rounded-full bg-brand-400 mr-2.5 animate-pulse" />
-                        <span className="text-[11px] font-bold tracking-widest uppercase">
-                            Processing
-                        </span>
-                    </div>
+                            {/* The Scanning Line - Vertical Bar */}
+                            <div
+                                className="absolute top-0 h-full w-[4px] bg-brand-500 shadow-[0_0_30px_8px_rgba(37,99,235,0.7)] animate-scan z-40"
+                                style={{ left: '-10%' }}
+                            >
+                                {/* Glow and gradient trailing the line */}
+                                <div className="absolute right-0 top-0 h-full w-[500px] bg-gradient-to-l from-brand-500/20 via-brand-500/5 to-transparent" />
+                            </div>
 
-                    {/* Close Button */}
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-                    >
-                        <X className="h-5 w-5" />
-                    </button>
-                </div>
-            </div>
-
-            {/* Main Content with Scanning Animation */}
-            <div className="relative flex-1 min-h-0 bg-slate-50/30 overflow-hidden">
-                <div className="h-full overflow-auto">
-                    <ResumePreviewSection
-                        pdfUrl={pdfUrl}
-                        docxHtml={docxHtml}
-                        error={error}
-                        filename={filename}
-                        hideHeader={true}
-                    />
-                </div>
-
-                {/* Scanning Animation Overlay */}
-                {isProcessing && (
-                    <div className="pointer-events-none absolute inset-0 z-20">
-                        {/* The Scanning Line */}
-                        <div
-                            className="absolute top-0 h-full w-[2px] bg-brand-400 shadow-[0_0_20px_4px_rgba(37,99,235,0.4)] animate-scan"
-                            style={{ left: '-10%' }}
-                        >
-                            {/* Soft Glow following the line */}
-                            <div className="absolute left-[-150px] top-0 h-full w-[150px] bg-gradient-to-r from-transparent to-brand-400/10" />
+                            {/* Subtle dark overlay for contrast against the scanner bar */}
+                            <div className="absolute inset-0 bg-slate-900/[0.03] pointer-events-none z-30" />
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
+
+                {/* Close action */}
+                <button
+                    onClick={onClose}
+                    className="absolute -top-12 right-0 p-2 text-slate-500 hover:text-slate-800 transition-colors bg-white/80 hover:bg-white rounded-full shadow-sm z-[60]"
+                    title="Close preview"
+                >
+                    <X className="h-6 w-6" />
+                </button>
             </div>
         </div>
     )

@@ -59,15 +59,11 @@ export default function UploadPage() {
   return (
     <section className="space-y-6">
       {activeItem && (
-        <div className="flex justify-center items-start pt-4">
-          <div className="w-full max-w-5xl h-[calc(100vh-16rem)] min-h-[700px]">
-            <InlineScanningView
-              file={activeItem.file}
-              isProcessing={activeItem.status === 'uploading' || activeItem.status === 'processing'}
-              onClose={() => setActivePreviewId(null)}
-            />
-          </div>
-        </div>
+        <InlineScanningView
+          file={activeItem.file}
+          isProcessing={activeItem.status === 'uploading' || activeItem.status === 'processing'}
+          onClose={() => setActivePreviewId(null)}
+        />
       )}
 
       {!activeItem && (
