@@ -1,0 +1,1027 @@
+
+PRODUCTION-GRADE RESUME PARSER
+ML spaCy NER Fine-Tuned Approach
+Complete Enterprise-Level Technical Documentation
+
+Target Accuracy: 85–90%  ·  Open-Source Only  ·  13 Modules  ·  Production-Ready
+spaCy NER Fine-Tuning  ·  FastAPI  ·  Docker  ·  CI/CD  ·  Active Learning Pipeline
+
+SECTION 1
+PROJECT OVERVIEW
+
+1.1  Objective
+This project builds an end-to-end, production-grade Resume Parser that accepts PDF and DOCX files and returns a fully structured JSON object containing all relevant candidate information — without relying on any third-party parsing APIs, OpenAI APIs, or paid LLM services. Every component is open-source, self-hosted, and owned entirely by your engineering team.
+The parser must handle real-world resume diversity: graphic-heavy layouts, multi-column PDFs, inconsistent date formats, non-Western names, varied section naming conventions, and abbreviated job titles. It must process resumes programmatically at scale without human intervention per document.
+1.2  Accuracy Target
+The accuracy target is 85–90% field-level F1 score across all entity types on a held-out test set of at least 150 diverse resumes. This is not a vanity metric — it means that 85–90 out of every 100 entity extractions are correct.
+Entity Type
+Minimum F1
+Target F1
+Method
+EMAIL / PHONE
+97%
+99%
+Deterministic Regex
+NAME
+90%
+94%
+NER Model
+DESIGNATION
+83%
+88%
+NER + Rules
+COMPANY
+83%
+87%
+NER Model
+SKILLS
+85%
+90%
+Vocab Match + NER
+EDUCATION
+82%
+87%
+NER + Section
+EXPERIENCE_YEARS
+84%
+89%
+Calc Engine
+
+1.3  Constraints
+	•	No third-party resume parsing APIs (Affinda, Sovren, RChilli, etc.)
+	•	No OpenAI, Anthropic, Gemini, or any paid LLM inference API
+	•	No commercial model licenses — all models must be open-source
+	•	Python-based NLP pipeline using spaCy as the primary framework
+	•	Inference must run on CPU in production (GPU optional for training)
+	•	API must respond within 3 seconds per resume under standard load
+	•	All components must be containerisable with Docker
+	•	All model weights and training data must be owned and self-hosted
+1.4  Why spaCy Fine-Tuned NER Approach
+spaCy is the correct choice for this use case for several interconnected reasons that together make it superior to alternatives:
+	•	Maturity and Production Stability: spaCy v3+ is used in production by thousands of companies. It has a stable API, comprehensive documentation, and predictable behaviour. Models trained in spaCy v3 will behave identically in development and production.
+	•	CPU-First Design: Unlike transformer models which need GPU for practical inference speed, spaCy's CNN-based token classification runs at 50–200 documents per second on CPU. This is critical for cost-controlled production deployments.
+	•	Incremental Trainability: spaCy supports continual learning — you can add training examples progressively without retraining from scratch each time. This is essential for an iterative accuracy improvement strategy.
+	•	Custom Entity Labels: spaCy allows you to define any entity labels you need (SKILLS, DESIGNATION, COMPANY) and train the model to recognise them. This is not possible with out-of-the-box NLP models.
+	•	Integrated Pipeline: spaCy handles tokenisation, sentence segmentation, POS tagging, dependency parsing, and NER in a single unified pipeline. Each component improves the others — POS tags help NER disambiguation.
+	•	.spacy Binary Format: Training data is stored in a binary format that is memory-efficient, fast to load, and validates annotation integrity automatically.
+1.5  System Architecture Overview
+The system consists of five major layers that process every resume in strict sequence. Each layer is independently testable, independently replaceable, and independently monitorable.
+SYSTEM ARCHITECTURE — 5 LAYERS
+  [CLIENT / API CONSUMER]
+           |
+  ┌────────▼──────────────────────────────────────────────┐
+  │  LAYER 1: INGESTION  (PDF/DOCX → raw text + metadata) │
+  └────────┬──────────────────────────────────────────────┘
+           |
+  ┌────────▼──────────────────────────────────────────────┐
+  │  LAYER 2: PREPROCESSING  (clean + section segmentation)│
+  └────────┬──────────────────────────────────────────────┘
+           |
+  ┌────────▼──────────────────────────────────────────────┐
+  │  LAYER 3: EXTRACTION  (Regex + spaCy NER → entities)  │
+  └────────┬──────────────────────────────────────────────┘
+           |
+  ┌────────▼──────────────────────────────────────────────┐
+  │  LAYER 4: POST-PROCESSING  (normalise + validate)     │
+  └────────┬──────────────────────────────────────────────┘
+           |
+  ┌────────▼──────────────────────────────────────────────┐
+  │  LAYER 5: OUTPUT  (validated JSON + confidence scores) │
+  └───────────────────────────────────────────────────────┘
+
+SECTION 2
+SYSTEM ARCHITECTURE (HIGH LEVEL)
+
+2.1  End-to-End Flow
+Understanding the complete data flow through the system is essential before writing a single line of code. Every engineering decision downstream must be compatible with this flow.
+	•	Step 1 — Upload: Client submits a file (PDF or DOCX) via HTTP POST to the FastAPI endpoint. The file passes validation (format check, size limit, malware scan). A unique job_id is assigned and the file is stored temporarily.
+	•	Step 2 — Text Extraction: The extraction engine selects the appropriate extractor based on MIME type. For PDF, pdfplumber is tried first (text-based); if it returns <50 words, Tesseract OCR is triggered (scanned PDF). For DOCX, python-docx traverses paragraph elements in DOM order.
+	•	Step 3 — Cleaning: Raw text is normalised — Unicode characters are converted, excessive whitespace collapsed, special characters stripped. The cleaned text is the canonical input to all subsequent steps.
+	•	Step 4 — Section Segmentation: The text is split into labelled zones (CONTACT, SUMMARY, EXPERIENCE, EDUCATION, SKILLS, CERTIFICATIONS, PROJECTS). Each zone is processed independently by the extraction engine.
+	•	Step 5 — Regex Pre-Extraction: Deterministic patterns extract email, phone, LinkedIn URL, GitHub URL, and date strings. These values bypass the ML model entirely and are guaranteed to be correct when the pattern matches.
+	•	Step 6 — spaCy NER Inference: The fine-tuned model processes each section's text and returns a list of entity spans with labels (NAME, SKILLS, DESIGNATION, COMPANY, EDUCATION, LOCATION, CERTIFICATION). Each span includes a confidence score derived from the model's internal probability distribution.
+	•	Step 7 — Post-Processing: Raw entities are normalised (dates parsed, skills mapped to taxonomy, company names cleaned), deduplicated, and validated. The experience years calculator processes employment date ranges.
+	•	Step 8 — Output Assembly: All extracted fields are assembled into the canonical JSON schema. Confidence scores are attached per field. Missing fields are flagged. The response is returned to the client.
+2.2  Microservice vs Monolith Decision
+Recommendation: Start Monolith, Structure for Microservices
+Build Phase 1 as a single deployable unit with clear module boundaries. Each module is a Python package with a defined interface. Splitting into microservices is a structural refactor, not a rewrite, when module interfaces are clean from day one. Premature microservice decomposition adds operational overhead without accuracy benefits at early stage. Split only when you have independent scaling requirements — e.g., OCR is slow and needs horizontal scaling while NER is fast and needs vertical scaling. This decision should be revisited at Phase 3.
+
+2.3  Folder Structure (Production Ready)
+resume-parser/
+├── app/
+│   ├── __init__.py
+│   ├── main.py                    # FastAPI application entry point
+│   ├── api/
+│   │   ├── v1/
+│   │   │   ├── routes.py          # API route definitions
+│   │   │   └── schemas.py         # Pydantic request/response schemas
+│   ├── core/
+│   │   ├── config.py              # Environment config & constants
+│   │   ├── logging.py             # Structured logging setup
+│   │   └── exceptions.py          # Custom exception classes
+│   ├── modules/
+│   │   ├── ingestion/
+│   │   │   ├── extractor.py       # PDF + DOCX text extraction
+│   │   │   ├── validator.py       # File validation + security
+│   │   │   └── ocr.py             # Tesseract OCR integration
+│   │   ├── preprocessing/
+│   │   │   ├── cleaner.py         # Text normalisation
+│   │   │   ├── segmenter.py       # Section segmentation
+│   │   │   └── regex_extractor.py # Deterministic field extraction
+│   │   ├── ner/
+│   │   │   ├── model_loader.py    # spaCy model loading + caching
+│   │   │   └── inference.py       # NER inference + confidence
+│   │   ├── postprocessing/
+│   │   │   ├── normalizer.py      # Entity normalisation
+│   │   │   ├── skill_mapper.py    # Skill taxonomy mapping
+│   │   │   ├── date_parser.py     # Date range processing
+│   │   │   ├── experience_calc.py # Years of experience calculation
+│   │   │   └── deduplicator.py    # Entity deduplication
+│   │   └── output/
+│   │       ├── schema.py          # Final JSON schema builder
+│   │       └── confidence.py      # Confidence scoring engine
+├── training/
+│   ├── annotate/
+│   │   ├── convert_to_spacy.py    # Label Studio → .spacy format
+│   │   └── validate_annotations.py
+│   ├── configs/
+│   │   ├── base_config.cfg        # spaCy base training config
+│   │   └── config.cfg             # Full training config (generated)
+│   ├── scripts/
+│   │   ├── train.py               # Training orchestration
+│   │   ├── evaluate.py            # Evaluation + metrics
+│   │   └── active_learning.py     # Active learning selection
+│   ├── data/
+│   │   ├── raw/                   # Original annotated JSON from Label Studio
+│   │   ├── processed/             # Converted .spacy files
+│   │   ├── train.spacy
+│   │   ├── dev.spacy
+│   │   └── test.spacy
+│   └── models/
+│       ├── v1.0/                  # Model version directories
+│       ├── v1.1/
+│       └── latest -> v1.1/        # Symlink to current production model
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── accuracy/                  # Accuracy test suite
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── .github/workflows/             # CI/CD pipelines
+├── requirements.txt
+├── requirements-dev.txt
+└── README.md
+
+2.4  Data Flow Diagram (Textual)
+The following describes how data transforms at each boundary in the pipeline. Understanding what data looks like at each handoff point is essential for debugging when the pipeline fails.
+	•	Boundary 1 (Client → Ingestion): Input is a raw binary file stream. Output is a RawDocument object: { job_id, filename, mime_type, raw_text: str, page_count: int, extraction_method: 'pdfplumber'|'ocr'|'docx', extraction_quality_score: float }
+	•	Boundary 2 (Ingestion → Preprocessing): Input is RawDocument.raw_text. Output is CleanedDocument: { job_id, clean_text: str, sections: { CONTACT: str, EXPERIENCE: str, EDUCATION: str, SKILLS: str, ... }, metadata: dict }
+	•	Boundary 3 (Preprocessing → NER): Input is CleanedDocument.sections (each section processed independently). Output is EntityList: [ { text: str, label: str, start: int, end: int, score: float, section: str } ]
+	•	Boundary 4 (NER → PostProcessing): Input is EntityList. Output is NormalisedEntities: same structure but text fields are normalised, dates are ISO-8601, skills are canonical names.
+	•	Boundary 5 (PostProcessing → Output): Input is NormalisedEntities. Output is the final ParsedResume JSON object conforming to the documented schema.
+2.5  Confidence Scoring System Design
+Every field in the output carries a confidence score between 0.0 and 1.0. This score is critical for production use — it tells downstream systems whether to trust the extracted value or flag it for human review.
+	•	Deterministic fields (email, phone, LinkedIn): Score is always 1.0 if the regex matches, 0.0 if missing. There is no intermediate value — the pattern either matches or it does not.
+	•	NER fields (name, company, designation): Score is the softmax probability of the winning entity label from spaCy's internal NER scorer. This is available via the ent._.score attribute after adding a custom extension.
+	•	Composite fields (total_experience_years): Score is derived from the completeness and consistency of underlying date ranges. If all employment dates are present and non-overlapping, score is 0.9+. Missing end dates penalise the score.
+	•	Skills: Score is 1.0 for vocabulary-matched skills, 0.7–0.9 for NER-extracted skills depending on model confidence.
+Confidence Threshold Policy
+Fields with score < 0.5 should be returned as null with a flag: { value: null, confidence: 0.3, flagged: true, reason: 'low_model_confidence' }
+Fields with score 0.5–0.7 should be returned with a warning flag
+Fields with score > 0.7 are returned normally
+The threshold values are configurable — store them in config.py, not hardcoded in logic
+
+SECTION 3
+MODULE 1: DOCUMENT INGESTION LAYER
+
+3.1  Supported Formats
+The ingestion layer must handle four primary file types, each with a distinct extraction path. Attempting to use a single extractor for all formats is a common mistake that causes silent failures.
+Format
+Primary Tool
+Fallback Tool
+Failure Mode
+PDF (text)
+pdfplumber
+PyMuPDF (fitz)
+Column scrambling on multi-col layouts
+PDF (scanned)
+Tesseract OCR
+None (best-effort)
+Low quality scans yield <70% OCR accuracy
+DOCX
+python-docx
+textract
+Text in text boxes is missed
+DOC (legacy)
+LibreOffice → DOCX
+textract
+Conversion formatting loss
+
+3.2  PDF Text Extraction Strategy
+PDF is the most complex format to extract reliably because the PDF specification does not define a logical reading order — it defines visual positions. A two-column resume is stored as a series of text objects positioned at (x,y) coordinates, and extracting them in the wrong order scrambles the content.
+Why pdfplumber is Preferred Over PyMuPDF
+pdfplumber provides layout-aware extraction. It groups text into lines based on vertical position and then sorts horizontally. It also exposes word-level bounding boxes, which are essential for detecting column boundaries and reconstructing reading order. PyMuPDF (fitz) is faster but extracts text in internal storage order, which frequently mismatches visual order on complex layouts.
+Multi-Column Detection Logic
+To detect multi-column layouts, analyse the x-coordinate distribution of word bounding boxes. If the words cluster into two distinct x-position groups with a clear gap (>15% of page width), the PDF has a two-column layout. In this case, apply column-aware extraction: extract the left column text first, then the right column, and concatenate them with a clear section separator.
+Extraction Quality Scoring
+After extraction, compute a quality score: (word_count / expected_average_resume_word_count). If this score falls below 0.3, flag the extraction as potentially failed and trigger the OCR fallback. Expected average resume word count is 400–600 for a single-page resume, 600–1200 for multi-page. Store this threshold in configuration.
+# Extraction Quality Gate Logic (pseudocode)
+raw_text = pdfplumber_extract(pdf_path)
+word_count = len(raw_text.split())
+
+if word_count < 80:
+    # Almost certainly a scanned PDF or extraction failure
+    raw_text = tesseract_extract(pdf_path)  # OCR fallback
+    extraction_method = 'ocr'
+    quality_score = word_count / 400  # penalised score
+elif word_count < 200:
+    # Borderline — return with warning flag
+    extraction_method = 'pdfplumber_partial'
+    quality_score = word_count / 400
+else:
+    extraction_method = 'pdfplumber'
+    quality_score = min(1.0, word_count / 400)
+
+3.3  DOCX Extraction Strategy
+DOCX files are XML archives. python-docx parses the document.xml and returns paragraphs in DOM order, which generally matches the visual reading order. However, there are two common failure modes that must be explicitly handled.
+	•	Failure Mode 1 — Tables: Content inside table cells is not returned by the default paragraph iterator. You must explicitly iterate over doc.tables, then rows, then cells, then cell.paragraphs. Merge this content into the main text at the approximate position of the table in the document.
+	•	Failure Mode 2 — Text Boxes (Shapes): Content inside text boxes (shapes) is not accessible through python-docx's public API. These must be extracted by directly accessing the raw XML: doc.element.body.xml and parsing the <w:txbxContent> elements with lxml. This is a common issue for graphic-heavy resumes where the candidate's name is in a text box at the top.
+	•	Failure Mode 3 — Headers/Footers: Candidate contact information (email, phone, address) is sometimes placed in the document header. Access via doc.sections[0].header.paragraphs.
+3.4  Handling Scanned PDFs (OCR Strategy)
+Scanned PDFs contain no extractable text — the content is an embedded image. Tesseract OCR must convert the image to text. Accuracy depends heavily on image quality. For production, implement a pre-processing pipeline before passing to Tesseract.
+	•	Step 1 — PDF to Image: Convert each page to a PNG at 300 DPI using pdf2image (poppler backend). 300 DPI is the minimum for reliable OCR. 150 DPI produces noticeably lower accuracy on small fonts.
+	•	Step 2 — Image Pre-processing: Apply deskew (rotate to correct slight tilt), denoise (median blur to remove speckles), and binarise (Otsu thresholding for clear black/white text). Use OpenCV for these operations.
+	•	Step 3 — Tesseract Configuration: Use --psm 6 (assume uniform block of text) for standard resumes. Use --psm 3 (automatic page segmentation) for layouts with mixed blocks. Pass --oem 3 (neural net mode) for best accuracy.
+	•	Step 4 — Confidence Check: Tesseract returns per-character confidence. If mean confidence falls below 60%, flag the document as low-quality OCR and include a warning in the output.
+OCR Accuracy Warning
+OCR introduces errors that are invisible to the NER model. A phone number like '9876543210' may be OCR'd as '9B76543210', causing the regex to miss it. The accuracy ceiling for resumes processed via OCR is approximately 70–75% regardless of NER model quality. Document this limitation clearly to users.
+3.5  File Validation & Security
+Every uploaded file must pass security validation before any processing begins. Processing a malicious file before validation could allow path traversal attacks, zip bombs (for DOCX), or server-side injection via malformed PDF.
+	•	Step 1 — MIME Type Validation: Do NOT trust the file extension. Read the first 8 bytes (magic bytes) and compare against known signatures: PDF starts with '%PDF', DOCX starts with 'PK' (ZIP archive). Reject any file that does not match expected signatures.
+	•	Step 2 — File Size Limit: Enforce a maximum file size of 10MB. Resume files legitimately exceed 5MB only in rare cases with embedded images. Files larger than 10MB should be rejected with HTTP 413.
+	•	Step 3 — Page Count Limit: After opening a valid PDF, check page count. Resumes are rarely more than 10 pages. Files with >15 pages should be flagged as non-resume and optionally rejected.
+	•	Step 4 — Zip Bomb Protection (DOCX): DOCX is a ZIP file. Before extracting, check the compressed:uncompressed size ratio. Ratios above 100:1 indicate a potential zip bomb.
+	•	Step 5 — Filename Sanitisation: Store files using the generated job_id as the filename, not the client-provided filename. Never use client filenames in file system operations — they may contain path traversal sequences like '../../etc/passwd'.
+3.6  Metadata Capture
+Capture the following metadata during ingestion and store it alongside the extraction result. This metadata is essential for debugging, quality analysis, and model improvement decisions.
+# Metadata object captured per document
+{
+  'job_id':            str,       # UUID v4
+  'original_filename': str,       # Sanitised copy of client filename
+  'file_size_bytes':   int,
+  'mime_type':         str,       # 'application/pdf' | 'application/vnd.openxmlformats...'
+  'page_count':        int,
+  'extraction_method': str,       # 'pdfplumber' | 'ocr' | 'docx' | 'pdfplumber_partial'
+  'extraction_quality_score': float,  # 0.0–1.0
+  'word_count':        int,
+  'char_count':        int,
+  'processing_time_ms': int,
+  'created_at':        datetime,  # UTC
+  'warnings':          list[str]  # Any extraction warnings
+}
+Submodule: Upload Controller
+Responsibility: Accept HTTP multipart file upload, validate file, assign job_id, write to temp storage, invoke extraction engine, return job_id to client if async or ParsedResume if sync. Owns: security validation, file I/O, job tracking.
+Submodule: Extraction Engine
+Responsibility: Route file to correct extractor based on MIME type, apply fallback logic if primary extraction fails, compute quality score, return RawDocument. Owns: pdfplumber integration, python-docx integration, Tesseract orchestration.
+Submodule: Error Handling Layer
+Responsibility: Catch all extraction exceptions and convert to structured error responses. Every error must include: error_code (e.g. EXTRACTION_FAILED_LOW_QUALITY), error_message (human readable), suggested_action (e.g. 'Submit higher quality scan'), and partial_result if any text was extracted before failure.
+Submodule: Logging Strategy
+Use structured JSON logging (structlog or python-json-logger) with these fields on every extraction: job_id, timestamp_utc, extraction_method, word_count, quality_score, duration_ms, error (if any). Ship logs to centralised storage (ELK stack or CloudWatch). Never log file content — log only metadata.
+
+SECTION 4
+MODULE 2: TEXT PREPROCESSING PIPELINE
+
+4.1  Cleaning Rules
+Raw extracted text from PDFs and DOCX files contains noise that degrades NER accuracy. Each cleaning rule below exists because real resume text exhibits the named problem. Do not skip rules that seem 'unlikely' — every rule here was added to fix a real failure case.
+	•	Rule 1 — Unicode Normalisation: Apply unicodedata.normalize('NFKC', text). This converts Unicode variants to their standard forms (e.g., ﬁ ligature → fi, ' smart quote → ' straight quote, em dash → standard dash). Without this, regex patterns fail on visually identical characters with different code points.
+	•	Rule 2 — Control Character Removal: Strip all ASCII control characters (0x00–0x1F) except 0x09 (tab) and 0x0A (newline). These characters come from corrupted PDF extraction and cause tokenisation failures.
+	•	Rule 3 — Whitespace Normalisation: Replace multiple consecutive spaces with a single space. Preserve single newlines (they indicate line breaks in the resume). Collapse 3+ consecutive newlines to exactly 2 (paragraph boundary). Do NOT strip all newlines — they are used in section detection.
+	•	Rule 4 — Repeated Character Removal: PDF horizontal rules (─────────) are often extracted as repeated characters. Replace sequences of 4+ identical non-alphanumeric characters with a single newline (they indicate section boundaries).
+	•	Rule 5 — Header/Footer Removal: Page headers and footers repeat on every page. Detect repeating lines (appearing on 2+ pages with identical content) and remove them. The most common: page numbers, 'Curriculum Vitae', candidate name as running header.
+	•	Rule 6 — Bullet Character Normalisation: Replace all bullet point variants (•, ◦, ▪, ■, →, ✓, ★) with a standardised marker (a literal hyphen + space '- '). This ensures bullet-separated skills are consistently tokenised.
+4.2  Normalisation Strategy
+After cleaning, apply normalisation transforms that make the text more consistent for NER. Normalisation must be reversible in the sense that the original span positions should still map to the normalised text positions — this is required for accurate entity span labelling.
+	•	Date Normalisation (for pre-extraction): Standardise month abbreviations before NER: 'Jan', 'Jan.', 'January' → 'January'. 'Sept' → 'September'. This improves date regex recall.
+	•	Case Preservation: Do NOT lowercase the text before NER. NER models rely on capitalisation as a signal for proper nouns (company names, institutions, names). Lowercasing before NER is a common mistake that significantly degrades accuracy.
+	•	URL Masking: Replace URLs in the main text body (not the contact section) with a placeholder token '[URL]'. URLs contain characters that can confuse the tokeniser.
+	•	Number Normalisation: In the main text body, normalise ordinal numbers: '1st', '2nd', '3rd' → 'first', 'second', 'third'. This aids experience extraction (e.g. '2nd largest bank' → 'second largest bank').
+4.3  Section Segmentation Logic
+Section segmentation is the most architecturally important preprocessing step. Every subsequent extraction depends on knowing which section a piece of text belongs to. An entity extracted from the wrong section will be incorrectly categorised (e.g., a school name extracted from the EXPERIENCE section would be incorrectly labelled as a COMPANY).
+Detection Approach: Three-Layer Strategy
+	•	Layer 1 — Explicit Header Keywords: Scan each line. If a line matches any known section header keyword pattern (case-insensitive, with fuzzy matching tolerance), mark it as the start of that section. Known headers for EXPERIENCE: 'Work Experience', 'Professional Experience', 'Employment History', 'Career History', 'Work History'. For SKILLS: 'Technical Skills', 'Core Competencies', 'Key Skills', 'Skills & Technologies'. Maintain a vocabulary of 15–20 variants per section type.
+	•	Layer 2 — Visual Formatting Signals: Headers are frequently rendered as ALL CAPS lines, lines followed by a divider (--- or ===), or lines with no other content. These structural signals reinforce keyword detection.
+	•	Layer 3 — Position and Length Heuristics: The contact section is almost always at the top of the resume. If no explicit header is found in the first 300 characters, assume that block is the CONTACT section. Similarly, if a long block of dates and company names appears before an EDUCATION header, treat it as EXPERIENCE even without a header.
+Unknown Section Handling
+If a section header is detected but does not match any known vocabulary, classify it as UNKNOWN and assign it a section_id. Log these occurrences — they are candidates for vocabulary expansion. Do not discard UNKNOWN sections; pass them through NER as GENERAL context.
+# Section Vocabulary (partial example)
+SECTION_HEADERS = {
+  'EXPERIENCE': [
+    r'(?i)^(work|professional|relevant|related)?\s*experience$',
+    r'(?i)^employment\s*(history|record)?$',
+    r'(?i)^career\s*(history|summary|highlights)?$',
+    r'(?i)^positions?\s*(held)?$',
+  ],
+  'EDUCATION': [
+    r'(?i)^(academic|educational?)?\s*background$',
+    r'(?i)^education(\s+and\s+training)?$',
+    r'(?i)^(degrees?|qualifications?)$',
+  ],
+  'SKILLS': [
+    r'(?i)^(technical|core|key|professional)?\s*skills?$',
+    r'(?i)^(technologies|tools|competencies|proficiencies)$',
+    r'(?i)^skills?\s*(and\s+technologies)?$',
+  ],
+}
+
+4.4  Regex-Based Pre-Tagging
+Before the NER model runs, deterministic regex extractors tag entities with 100% confidence. These pre-tagged entities are either excluded from NER processing entirely (reducing model load) or used to validate NER predictions.
+Entity
+Regex Pattern
+Edge Cases
+EMAIL
+[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}
+Obfuscated: john[at]gmail.com
+PHONE
+(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}
+International: +91, +44, +1
+LINKEDIN
+linkedin\.com/in/[\w\-]+
+Shortened: lnkd.in/...
+GITHUB
+github\.com/[\w\-]+
+Case variants
+DATE
+(Jan|Feb|Mar|...)\s*\d{4}|\d{2}/\d{4}|\d{4}
+'Present', 'Current', 'Till date'
+
+4.5  Tokenisation Strategy
+spaCy handles tokenisation internally when you call nlp(text). However, you must customise the tokeniser to handle resume-specific tokens correctly. Without customisation, spaCy will incorrectly split tokens like 'C++', 'C#', 'Node.js', '.NET', and 'AWS-certified'.
+	•	Custom Infixes: Add patterns to prevent splitting on '+', '#', '.' within known tech terms. Register these as custom tokeniser rules before loading the NER model.
+	•	Custom Prefixes/Suffixes: Add patterns for common resume abbreviations: 'Sr.', 'Jr.', 'B.Tech', 'M.Sc', 'Ph.D' to prevent sentence boundary detection from splitting these.
+	•	Special Token Rules: Add explicit exception rules for known multi-word technical terms that should be treated as single tokens: 'machine learning', 'deep learning', 'natural language processing'. These are added to the tokeniser's special_cases.
+4.6  Stopword Handling
+Do NOT apply aggressive stopword removal before NER. Stopwords provide grammatical context that the NER model uses to determine entity boundaries. Removing 'the', 'at', 'of' before NER degrades performance.
+Stopword handling is relevant only for skill extraction via vocabulary matching: when checking if a skill term appears in text, do not count stopword-only surrounding context as part of the skill name.
+4.7  Custom Lemmatisation Strategy
+Lemmatisation should be applied to the SKILLS section text before vocabulary matching, not to the full document before NER. 'managing', 'managed', 'manages' should all map to 'manage' when checking skill vocabulary (e.g., 'Project Management'). spaCy provides lemmatisation via the token.lemma_ attribute after running the pipeline.
+
+SECTION 5
+MODULE 3: DATA ANNOTATION STRATEGY
+
+5.1  Define Custom Entities
+These 10 entity types form the complete annotation vocabulary. Every annotator must use exactly these labels — no synonyms, no abbreviations, no ad-hoc additions.
+Label
+Definition
+Examples
+Critical Rule
+NAME
+The full legal name of the candidate
+'John Smith', 'Priya Sharma', 'Li Wei'
+Do NOT include professional titles (Dr., Prof.) as part of the NAME span
+EMAIL
+Complete email address
+'john.smith@gmail.com'
+Include the full address including TLD
+PHONE
+Complete phone number including country code if present
+'+91 9876543210', '(555) 123-4567'
+Include country code, area code, and number
+SKILLS
+A specific technical or professional skill
+'Python', 'Project Management', 'React.js', 'Machine Learning'
+Do NOT include general adjectives ('excellent', 'proficient') as part of the span
+DESIGNATION
+A job title or role held by the candidate
+'Senior Software Engineer', 'Product Manager'
+Include level qualifiers (Senior, Lead, Principal) in the span
+COMPANY
+Name of an employer organisation
+'Google', 'Tata Consultancy Services', 'Startup Inc.'
+Do NOT include 'at', 'for' before the company name
+EXPERIENCE_YEARS
+Explicit statement of years of experience
+'5 years of experience', '3+ years', '10 years'
+Only tag explicit statements, NOT computed experience from date ranges
+EDUCATION
+Degree name and/or institution name
+'B.Tech Computer Science', 'Stanford University', 'MBA Finance'
+Tag the entire degree-institution phrase as a single span where possible
+LOCATION
+A city, state, country, or address
+'Mumbai, India', 'New York, NY', 'Remote'
+Do NOT include postal codes as part of the span
+CERTIFICATION
+A professional certification or accreditation
+'AWS Certified Solutions Architect', 'PMP', 'Google Analytics Certified'
+Include the issuing body if it appears in the same phrase
+
+5.2  Annotation Guidelines Document
+Every person who annotates data must read and sign off on this guidelines document. Inconsistent annotations are worse than fewer annotations — they teach the model contradictory patterns.
+Span Boundary Rules
+	•	Always use the tightest possible span. 'Senior Software Engineer at Google' → label 'Senior Software Engineer' as DESIGNATION and 'Google' as COMPANY — do NOT label the entire phrase as either.
+	•	Include determiners and prepositions within a span only if they are part of the canonical name: 'The New York Times' → include 'The'. 'at Google' → do NOT include 'at'.
+	•	When a candidate lists skills as a comma-separated list, annotate each individual skill as a separate entity span, not the entire list.
+Ambiguity Resolution Rules
+	•	If you are unsure whether something is a COMPANY or LOCATION, ask: 'Is this the name of an organisation?' If yes → COMPANY. 'Mumbai' → LOCATION. 'Mumbai Tech Hub' → COMPANY (if it's a company name).
+	•	If you are unsure whether something is a DESIGNATION or SKILLS, ask: 'Is this a role the candidate held?' If yes → DESIGNATION. 'Data Analysis' → SKILLS. 'Data Analyst' → DESIGNATION.
+	•	If a degree and institution appear in the same line, prefer a single EDUCATION span encompassing both over two separate spans. If they appear on different lines, annotate each separately.
+5.3  Edge Case Rules
+	•	Multi-Word Skills: 'Machine Learning', 'Natural Language Processing', 'Cloud Computing', 'Data Structures and Algorithms' are each a single SKILLS span.
+	•	Abbreviated Skills: 'ML' → SKILLS. 'NLP' → SKILLS. 'DS' is ambiguous (Data Science or Data Structures) — if context is clear, annotate; if ambiguous, do not annotate.
+	•	Versions in Skill Names: 'Python 3.x', 'React 18', 'Java 11' — include version numbers in the span.
+	•	Implicit Experience: If the resume says 'I have 5 years in software development', label '5 years' as part of EXPERIENCE_YEARS. Label the full phrase '5 years in software development' if it forms a natural unit.
+	•	Current Employer: If the COMPANY name is followed by 'Present' as the end date, still annotate the COMPANY normally. The 'Present' date is handled by the date parser, not by NER.
+	•	Remote Locations: 'Remote' as a location → annotate as LOCATION. 'Work from home' → annotate as LOCATION.
+5.4  Handling Overlapping Entities
+spaCy NER does not support overlapping entity spans. If you attempt to annotate overlapping spans, training will fail with an alignment error. The rule is: when two entities could overlap, always use the most specific label and annotate the broader span separately if it does not include the inner span.
+	•	Example: 'AWS Certified Solutions Architect Professional'. The correct annotation is a single CERTIFICATION span covering the full phrase. Do NOT additionally annotate 'AWS' as a SKILLS span within this CERTIFICATION span.
+	•	Example: 'B.Tech in Computer Science from IIT Bombay'. If this is a single entity, annotate the entire phrase as EDUCATION. Do NOT additionally annotate 'IIT Bombay' as a COMPANY within this EDUCATION span.
+Overlap Prevention in Label Studio
+In Label Studio, the NER labelling interface will warn you when spans overlap. When this warning appears, the correct action is almost always to widen the outer span to include the inner span and use the outer entity's label.
+5.5  Annotation Tools Recommendation
+	•	Primary Tool: Label Studio (https://labelstud.io) — Open-source, self-hostable, supports NER annotation, produces export in multiple formats including spaCy-compatible, supports multi-annotator workflows with agreement tracking.
+	•	Setup: Deploy Label Studio via Docker on an internal server. Create a project with the NER template. Add all 10 entity labels. Import resume texts (plain text, not PDFs) one by one or in batches.
+	•	Export Format: Export completed annotations as JSON. Run your convert_to_spacy.py script to convert to .spacy binary format. The spaCy documentation provides the official conversion script.
+	•	Alternative: Doccano — simpler interface but less flexible. Prodigy (paid) — the gold standard for spaCy annotation but requires a commercial license. Avoid Prodigy due to cost unless budget allows.
+5.6  Dataset Size Planning
+The relationship between annotation volume and accuracy is not linear. The first 200 examples produce the steepest accuracy gains. After 800 examples, gains per additional example diminish significantly. Budget your annotation effort accordingly.
+Milestone
+Annotated Resumes
+Expected F1
+Focus
+Proof of Concept
+50–80
+65–72%
+Validate pipeline, identify easy wins
+Alpha Build
+200–300
+74–80%
+Cover main formats and industries
+Beta Build
+500–700
+80–85%
+Add edge cases, international formats
+Production v1
+800–1,200
+85–88%
+Systematic error correction, diversity
+90%+ Target
+1,500–2,500
+88–91%
+Active learning, transformer upgrade
+
+Submodule: Annotation Schema Design
+The annotation schema is stored as a JSON configuration file that is loaded by Label Studio. It defines all entity labels, their display colours, and any labelling shortcuts. Keep this file version-controlled — it is the single source of truth for what entities are valid.
+Submodule: Dataset Format Conversion
+Label Studio exports JSONL (JSON Lines) format. The converter script must: read each JSONL record, extract the raw text and annotation spans, create a spaCy DocBin object, convert character-offset annotations to token-offset annotations using spaCy's Alignment class, and serialise to .spacy binary. Run validation after conversion to catch misaligned spans.
+Submodule: Data Validation Pipeline
+After conversion, run python -m spacy debug data config.cfg to validate the training data. This command checks for misaligned spans, overlapping entities, and empty documents. Fix all warnings before training — invalid training examples silently corrupt model learning.
+
+SECTION 6
+MODULE 4: spaCy MODEL FINE-TUNING
+
+6.1  Model Selection
+Three base model choices exist. Each has different accuracy ceilings, resource requirements, and training complexity. Choose based on your production infrastructure constraints.
+Model
+Size
+CPU Inference Speed
+NER Accuracy Ceiling
+en_core_web_sm
+12 MB
+200+ docs/sec
+78–82% (limited vocabulary coverage)
+en_core_web_md
+43 MB
+100–150 docs/sec
+82–86% (better word vectors)
+en_core_web_lg
+741 MB
+60–100 docs/sec
+84–88% (large vocabulary)
+en_core_web_trf
+~500 MB
+5–20 docs/sec (CPU only)
+88–93% (transformer, needs GPU)
+
+Recommendation
+Start with en_core_web_lg. It provides the best balance of accuracy and CPU inference speed. The 741MB size is a one-time download, not a runtime memory cost per request (the model is loaded once at startup and cached in memory, typically 400–600MB RSS). If en_core_web_lg consistently falls short of 85% after 800+ annotations, consider en_core_web_trf with GPU inference.
+
+6.2  Creating Blank Model vs Updating Existing
+You must update an existing model, not create a blank one. A blank spaCy NER model starts with random weights and no linguistic knowledge. An updated model starts with the pre-trained model's understanding of English grammar, named entities, and word semantics, then learns your custom entity labels on top.
+Creating a blank model requires 10–50x more training data to reach the same accuracy because it must relearn basic linguistic patterns from scratch. This is almost never the right choice unless you are building for a non-English language with no suitable pre-trained model.
+The critical detail when updating an existing model: use the 'resume_ner' component approach. Add your custom NER component to the existing pipeline rather than replacing the entire NER component. This preserves the existing model's understanding of standard entities (PERSON, ORG, GPE) while adding your custom labels.
+6.3  Adding Custom NER Labels
+spaCy allows you to add new entity labels to an existing NER component. The critical constraint is that when you add new labels, you must include the original entity labels in your training data as well — otherwise the model will 'forget' how to recognise them (catastrophic forgetting).
+# Add custom labels to existing NER model (pseudocode)
+nlp = spacy.load('en_core_web_lg')
+ner = nlp.get_pipe('ner')
+
+# Add each custom label
+custom_labels = ['NAME', 'EMAIL', 'PHONE', 'SKILLS', 'DESIGNATION',
+                 'COMPANY', 'EXPERIENCE_YEARS', 'EDUCATION',
+                 'LOCATION', 'CERTIFICATION']
+
+for label in custom_labels:
+    ner.add_label(label)
+
+# Note: PERSON, ORG, GPE labels from the base model are retained automatically
+# Your training data should include examples of both original AND custom labels
+
+6.4  Training Configuration File
+spaCy v3 uses a declarative configuration file (config.cfg) that defines every aspect of training. This is superior to imperative training scripts because it makes training fully reproducible. The config file is version-controlled alongside the model.
+# config.cfg — Critical sections explained
+
+[nlp]
+lang = 'en'
+pipeline = ['tok2vec', 'ner']
+# Only train NER — freeze other components to prevent degradation
+
+[training]
+dev_corpus = 'corpora.dev'
+train_corpus = 'corpora.train'
+seed = 42                        # Reproducibility
+gpu_allocator = null             # Change to 'pytorch' if using GPU
+accumulate_gradient = 1
+patience = 1600                  # Stop if no improvement after N steps
+max_epochs = 0                   # 0 = unlimited, rely on patience
+max_steps = 20000                # Hard cap on total training steps
+eval_frequency = 200             # Evaluate on dev set every 200 steps
+score_weights = {'ents_f': 1.0}  # Optimise for entity F1 score
+
+[training.optimizer]
+@optimizers = 'Adam.v1'
+learn_rate = 0.001               # Start here, tune down if unstable
+beta1 = 0.9
+beta2 = 0.999
+
+[training.batcher]
+@batchers = 'spacy.batch_by_words.v1'
+discard_oversize = false
+tolerance = 0.2
+get_length = null
+  [training.batcher.size]
+  @schedules = 'compounding.v1'
+  start = 100                    # Start batch size (in words)
+  stop = 1000                    # Maximum batch size
+  compound = 1.001               # Growth factor per step
+
+[components.ner]
+source = 'en_core_web_lg'        # Transfer from pre-trained
+
+[components.ner.model]
+@architectures = 'spacy.TransitionBasedParser.v2'
+  [components.ner.model.tok2vec]
+  @architectures = 'spacy.Tok2VecListener.v1'
+  width = ${components.tok2vec.model.encode.width}
+
+6.5  Hyperparameter Strategy
+	•	Learning Rate: Start at 0.001. If training loss diverges (increases after first 500 steps), reduce to 0.0005. If training is very slow with minimal loss reduction, increase to 0.002. Use the cyclic learning rate schedule if training plateaus.
+	•	Batch Size: Start with compounding schedule (100→1000 words). Larger batches are more stable but may overfit with limited data. If validation F1 is much lower than training F1, reduce batch size.
+	•	Dropout: spaCy NER uses 0.1 dropout by default. Do not change unless you see clear overfitting. Setting dropout above 0.3 significantly slows convergence.
+	•	Patience: 1600 steps without improvement on validation F1. This is conservative — training typically completes in 5,000–15,000 steps on a 500-example dataset.
+	•	Max Steps: Set a hard limit of 20,000 steps per training run. Runs beyond this are rarely productive and consume resources without accuracy gains.
+6.6  Training Loop Explanation
+spaCy's training loop processes mini-batches of annotated documents, updates model weights using backpropagation, and periodically evaluates on the held-out dev set. Understanding what happens at each step helps you diagnose training problems.
+	•	Step 1 — Initialisation: spaCy creates a copy of the base model with your new entity labels added. Existing weights are preserved. New label weights are randomly initialised.
+	•	Step 2 — Mini-batch Creation: Training examples are shuffled and grouped into mini-batches. The compounding batcher starts with small batches (faster gradient signal) and grows them over time (more stable gradients).
+	•	Step 3 — Forward Pass: The batch is processed through the pipeline (tok2vec → NER). The NER transition system computes the probability distribution over possible entity spans.
+	•	Step 4 — Loss Computation: The model's predictions are compared to the gold annotations. The loss is the negative log-likelihood of the correct entity spans.
+	•	Step 5 — Backward Pass: Gradients flow back through the network. Weights are updated using the Adam optimiser.
+	•	Step 6 — Evaluation (every eval_frequency steps): The model is run on the dev set. Precision, Recall, and F1 are computed per entity label. The best model checkpoint is saved whenever F1 improves.
+	•	Step 7 — Early Stopping: If the dev F1 has not improved in 'patience' steps, training stops. The best checkpoint (not the final checkpoint) is the output model.
+6.7  Handling Imbalanced Data
+In real resumes, some entity types are far more frequent than others. SKILLS might appear 20 times per resume, while EXPERIENCE_YEARS might appear once. This imbalance causes the model to over-invest in learning common entities and under-invest in rare ones.
+	•	Mitigation 1 — Oversample Rare Entities: Include more annotated examples that contain EXPERIENCE_YEARS, CERTIFICATION, and LOCATION entities, even if this means annotating more resumes from specific resume styles.
+	•	Mitigation 2 — Augmentation: For rare entities, create synthetic training examples: take a real annotated resume and substitute the company name with another company name, or the degree with another degree. This is safe for NER as long as the entity spans remain consistent.
+	•	Mitigation 3 — Per-Label Analysis: After each training run, examine F1 per entity label. Labels below 75% F1 need more training examples, not more hyperparameter tuning.
+6.8  Evaluation Metrics
+spaCy evaluates NER using span-exact matching: a prediction is counted as correct only if both the start and end character offsets AND the entity label match the gold annotation exactly. Partial matches are counted as wrong.
+The three key metrics and what they mean in practice:
+	•	Precision: Of all entity spans the model predicted, what fraction were exactly correct? Low precision means the model is hallucinating entities — predicting spans that are not in the gold data. In production, low precision means returning wrong values.
+	•	Recall: Of all entity spans in the gold data, what fraction did the model find? Low recall means the model is missing entities. In production, low recall means missing important fields.
+	•	F1 Score: The harmonic mean of precision and recall. Use this as your primary headline metric. An F1 of 85 means the model is extracting entities at 85% quality accounting for both false positives and false negatives.
+# Evaluate and print per-entity metrics
+# Run: python -m spacy evaluate ./models/latest ./data/test.spacy
+
+# Expected output format:
+# NER P   NER R   NER F
+# 87.3%   84.1%   85.7%
+#
+# Per-type breakdown:
+# NAME:          P=91.2  R=89.5  F=90.3
+# EMAIL:         P=99.8  R=99.6  F=99.7
+# PHONE:         P=99.1  R=98.7  F=98.9
+# SKILLS:        P=86.4  R=83.1  F=84.7
+# DESIGNATION:   P=84.2  R=81.5  F=82.8
+# COMPANY:       P=83.7  R=80.4  F=82.0
+# EXPERIENCE_YEARS: P=88.1  R=85.7  F=86.9
+# EDUCATION:     P=85.5  R=82.9  F=84.2
+# LOCATION:      P=87.8  R=84.2  F=86.0
+# CERTIFICATION: P=84.3  R=80.8  F=82.5
+
+SECTION 7
+MODULE 5: POST-PROCESSING ENGINE
+
+7.1  Entity Normalisation
+Raw NER output contains entities in the exact form they appear in the resume text. Post-processing transforms these raw strings into normalised, consistent values suitable for database storage and downstream system consumption.
+	•	Name Normalisation: Apply title case ('JOHN SMITH' → 'John Smith'). Remove leading/trailing whitespace. Remove common prefixes that are not name components: 'Name:', 'Candidate:'. Handle hyphenated names correctly ('MARY-ANNE JONES' → 'Mary-Anne Jones').
+	•	Company Name Normalisation: Apply title case. Remove 'Inc.', 'Ltd.', 'LLC', 'Pvt. Ltd.' suffixes for canonical matching (preserve the original in a separate field). Clean extracted whitespace artifacts.
+	•	Education Normalisation: Standardise degree abbreviations: 'B. Tech' → 'B.Tech', 'BE' → 'B.E.', 'MBA' stays 'MBA'. Map known institution abbreviations to full names using a lookup table (IIT → Indian Institute of Technology).
+	•	Location Normalisation: Standardise city/state/country formats. 'Bengaluru' and 'Bangalore' map to the same canonical value. Use a geolocation lookup table for the 500 most common resume cities.
+7.2  Skill Standardisation Dictionary
+Skills extracted by NER are inconsistently formatted. 'python', 'Python', 'Python 3', 'python programming', 'python scripting' should all map to a canonical 'Python' skill. This requires a skills taxonomy — a structured dictionary that maps raw skill strings to canonical skill names.
+	•	Source: Use the EMSI/Lightcast Skills API (has a free tier) or the ESCO Skills taxonomy (EU open-source) as your base vocabulary. Both provide canonical skill names, aliases, and category groupings.
+	•	Structure: Store as a JSON file: { 'python programming': 'Python', 'py': 'Python', 'javascript': 'JavaScript', 'js': 'JavaScript', 'reactjs': 'React.js', ... }. Load into memory at startup as a dictionary for O(1) lookup.
+	•	Matching Strategy: First attempt exact match (after lowercasing). If no match, attempt edit-distance matching with threshold <= 2 for terms longer than 6 characters (catches typos like 'Pythong' → 'Python'). Do NOT apply fuzzy matching to short terms (< 4 chars) — too many false positives.
+	•	Size: Minimum viable skills dictionary contains 1,000–2,000 entries. A production-grade taxonomy should contain 5,000–15,000 entries covering all major technology stacks, business domains, and soft skills.
+7.3  Date Range Parsing
+Employment and education records contain date ranges that must be parsed into structured start_date and end_date values. The challenge is the enormous variety of date formats found in real resumes.
+# Date formats that must be handled
+formats = [
+  'January 2020',          # Full month name, year
+  'Jan 2020',              # Abbreviated month, year
+  'Jan. 2020',             # Abbreviated with period
+  '01/2020',               # Month number / year
+  '2020-01',               # ISO partial date
+  '2020',                  # Year only
+  'Q1 2020',               # Quarter
+]
+
+# Range markers that must be recognised
+range_markers = ['–', '—', '-', 'to', 'until', 'till', 'through']
+
+# 'Current' markers (maps to today's date)
+current_markers = ['present', 'current', 'now', 'today', 'ongoing',
+                   'till date', 'to date', 'continuing', 'currently']
+
+# Use the dateparser library for robust parsing
+# pip install dateparser
+import dateparser
+parsed = dateparser.parse('Jan 2020', settings={'PREFER_DAY_OF_MONTH': 'first'})
+
+7.4  Experience Calculation Engine
+Once employment date ranges are parsed, the experience calculation engine computes the candidate's total years of experience and per-company tenure. This is one of the most critical fields for ATS screening.
+	•	Total Experience Calculation: Sum the duration of all non-overlapping employment periods. If periods overlap (e.g., a person held two jobs simultaneously), count the overlapping period only once.
+	•	Gap Detection: Identify gaps between employment periods. A gap > 90 days is flagged as a career gap in the output.
+	•	Overlap Handling: Sort all date ranges by start date. Use a sweep-line algorithm to merge overlapping ranges before summing durations.
+	•	Missing Dates: If an employment record has no dates, do not include it in the total experience calculation. Flag the record as 'dates_unknown'.
+	•	Precision: Report experience as years with one decimal place. 2 years and 7 months → 2.6 years. Do not round to integers — this causes significant distortion for early-career candidates.
+7.5  Deduplication Logic
+NER may extract the same entity multiple times — especially skills that appear in both the SKILLS section and the EXPERIENCE section bullet points. Deduplication must preserve the highest-confidence occurrence.
+	•	Skills Deduplication: After taxonomy mapping, deduplicate by canonical skill name. If 'Python' appears 5 times, the output skills list contains it once.
+	•	Company Deduplication: If the same company appears multiple times (e.g., a candidate who rejoined a company), preserve both records if the date ranges are different. Merge if date ranges and job titles are identical.
+	•	Education Deduplication: Deduplicate by institution + degree pair. Identical entries are merged with the highest confidence score.
+7.6  Confidence Boosting Rules
+Rule-based confidence boosting adjusts the model's raw confidence scores based on contextual evidence. These rules are applied after NER, before output assembly.
+	•	Email Confirmation Boost: If the candidate's name (extracted by NER) appears in their email address (e.g., name='John Smith', email='john.smith@gmail.com'), boost NAME confidence by +0.05.
+	•	Section Context Boost: An entity extracted from its expected section gets a +0.05 confidence boost. A COMPANY extracted from the EXPERIENCE section is more likely to be correct than one extracted from the EDUCATION section.
+	•	Cross-Validation Penalty: If EXPERIENCE_YEARS extracted by regex (e.g., '5 years') is inconsistent with the computed total from date ranges (e.g., computed = 8.3 years), reduce the EXPERIENCE_YEARS confidence by 0.15.
+7.7  Rule + ML Hybrid Logic
+The final extraction result is not purely from the ML model. For each field, the system applies a hierarchy of confidence:
+	•	Level 1 (Highest): Deterministic regex match → confidence 1.0. Overrides any ML prediction.
+	•	Level 2: NER prediction with boosting rules applied → confidence 0.6–0.95.
+	•	Level 3: Heuristic fallback (e.g., first line of resume = name if no NER match) → confidence 0.5–0.7.
+	•	Level 4 (Lowest): Field not extracted → null with confidence 0.0, flagged = true.
+
+SECTION 8
+MODULE 6: JSON STRUCTURE DESIGN
+
+6.1  Final Output Schema
+The JSON output schema is the contract between the parser and all downstream systems. Once defined and shipped, changes to field names or types are breaking changes. Design it carefully.
+{
+  'meta': {
+    'job_id':           'uuid-v4-string',
+    'processed_at':     '2024-01-15T10:30:00Z',
+    'model_version':    '1.2.0',
+    'processing_ms':    842,
+    'extraction_method':'pdfplumber',
+    'overall_confidence': 0.87,
+    'warnings':         []
+  },
+  'contact': {
+    'name':     { 'value': 'John Smith',            'confidence': 0.94, 'flagged': false },
+    'email':    { 'value': 'john@example.com',      'confidence': 1.00, 'flagged': false },
+    'phone':    { 'value': '+1 555-123-4567',        'confidence': 1.00, 'flagged': false },
+    'linkedin': { 'value': 'linkedin.com/in/jsmith', 'confidence': 1.00, 'flagged': false },
+    'github':   { 'value': 'github.com/jsmith',      'confidence': 1.00, 'flagged': false },
+    'location': { 'value': 'San Francisco, CA',     'confidence': 0.89, 'flagged': false }
+  },
+  'summary': {
+    'text':       { 'value': 'Experienced software engineer...', 'confidence': 0.85, 'flagged': false },
+    'total_experience_years': { 'value': 7.5, 'confidence': 0.91, 'flagged': false }
+  },
+  'experience': [
+    {
+      'company':    { 'value': 'Google',                'confidence': 0.93, 'flagged': false },
+      'designation':{ 'value': 'Senior Software Engineer','confidence': 0.91,'flagged': false },
+      'start_date': { 'value': '2021-03-01',            'confidence': 0.95, 'flagged': false },
+      'end_date':   { 'value': null,                    'confidence': 1.00, 'flagged': false },
+      'is_current': true,
+      'duration_years': 2.9,
+      'description':{ 'value': 'Led development of...', 'confidence': 0.80, 'flagged': false },
+      'location':   { 'value': 'Mountain View, CA',     'confidence': 0.88, 'flagged': false }
+    }
+  ],
+  'education': [
+    {
+      'institution':{ 'value': 'MIT',                   'confidence': 0.96, 'flagged': false },
+      'degree':     { 'value': 'B.Sc Computer Science', 'confidence': 0.92, 'flagged': false },
+      'start_date': { 'value': '2014-09-01',            'confidence': 0.88, 'flagged': false },
+      'end_date':   { 'value': '2018-06-01',            'confidence': 0.90, 'flagged': false },
+      'gpa':        { 'value': '3.8',                   'confidence': 0.85, 'flagged': false }
+    }
+  ],
+  'skills': {
+    'technical': ['Python', 'TensorFlow', 'Docker', 'Kubernetes', 'PostgreSQL'],
+    'soft':      ['Leadership', 'Communication', 'Problem Solving'],
+    'all':       ['Python', 'TensorFlow', 'Docker', 'Kubernetes', 'PostgreSQL', 'Leadership'],
+    'confidence': 0.88
+  },
+  'certifications': [
+    { 'value': 'AWS Certified Solutions Architect', 'confidence': 0.91, 'flagged': false }
+  ],
+  'error_flags': []
+}
+6.2  Nested Structure
+The experience and education arrays are ordered by date descending (most recent first). Each array element is a complete record with its own confidence scores. Downstream systems can iterate the array and use only records above a confidence threshold.
+6.3  Confidence Score Per Field
+Every leaf value in the schema carries a confidence object. This is non-negotiable — it is what distinguishes a production parser from a script. Downstream ATS systems use confidence scores to: auto-reject low-confidence extractions for human review, compute an overall resume quality score, and decide whether to send a confirmation email to the candidate.
+6.4  Error Flags
+The error_flags array at the root level collects all non-fatal issues encountered during parsing. Unlike HTTP errors (which indicate complete failures), error flags indicate partial issues where parsing completed but with known problems.
+# Error flag structure
+'error_flags': [
+  {
+    'code':     'LOW_EXTRACTION_QUALITY',
+    'severity': 'WARNING',  # 'INFO' | 'WARNING' | 'ERROR'
+    'message':  'PDF text extraction quality score is 0.41. Results may be inaccurate.',
+    'field':    'meta.extraction_quality_score',
+    'action':   'Submit a higher-quality PDF or DOCX file for best results'
+  },
+  {
+    'code':     'MISSING_FIELD',
+    'severity': 'INFO',
+    'message':  'Phone number not found in document.',
+    'field':    'contact.phone',
+    'action':   null
+  }
+]
+6.5  Missing Field Detection
+All fields that were not extracted receive a null value with confidence 0.0 and flagged = true. Additionally, the missing field is added to the error_flags array with code MISSING_FIELD and severity INFO. This makes it trivial for downstream systems to identify what is missing without parsing through the entire JSON.
+
+SECTION 9
+MODULE 7: API LAYER
+
+7.1  FastAPI Backend Structure
+FastAPI is the correct choice for the Python-based parsing API. It provides: automatic OpenAPI documentation, Pydantic request/response validation, async I/O support, and performance comparable to Node.js/Go for I/O-bound operations. It is 2–3x faster than Flask for concurrent requests.
+# app/main.py — Application entry point
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from app.modules.ner.model_loader import load_model
+from app.api.v1.routes import router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load spaCy model once at startup, keep in memory
+    app.state.nlp = load_model('models/latest')
+    yield
+    # Cleanup on shutdown
+
+app = FastAPI(
+    title='Resume Parser API',
+    version='1.0.0',
+    lifespan=lifespan
+)
+
+# API Routes:
+# POST /api/v1/parse       — Synchronous parse (returns result in response)
+# POST /api/v1/parse/async — Async parse (returns job_id, poll for result)
+# GET  /api/v1/result/{id} — Poll for async result
+# GET  /api/v1/health      — Health check
+# GET  /api/v1/model/info  — Current model version and metadata
+
+7.2  Async Processing
+The synchronous endpoint processes the resume within the HTTP request and returns the result in the response. The async endpoint processes the resume in a background task and allows the client to poll for the result.
+The synchronous path is appropriate for resume volumes under 100 requests/minute and resume processing times under 2 seconds. The async path is appropriate when processing is slow (large PDFs, OCR) or when handling high volume bursts.
+	•	spaCy NER inference is CPU-bound and therefore blocks the event loop. To prevent this from degrading throughput, run spaCy inference in a ProcessPoolExecutor (process pool, not thread pool — spaCy releases the GIL inconsistently). FastAPI's run_in_executor handles this transparently.
+7.3  Background Job Queue
+For production-grade async processing, use Celery with a Redis broker. However, for an initial deployment, Python's asyncio background tasks are sufficient for < 50 concurrent requests. Implement Celery only when you have a demonstrated need — it adds operational complexity.
+7.4  Response Format
+All API responses follow the same envelope structure. This makes client-side error handling uniform.
+# Success response
+{ 'status': 'success', 'data': { /* ParsedResume JSON */ }, 'error': null }
+
+# Validation error (400)
+{ 'status': 'error', 'data': null, 'error': {
+    'code': 'INVALID_FILE_FORMAT',
+    'message': 'Only PDF and DOCX files are accepted.',
+    'details': null
+  }
+}
+
+# Server error (500)
+{ 'status': 'error', 'data': null, 'error': {
+    'code': 'PARSING_FAILED',
+    'message': 'An internal error occurred during parsing.',
+    'details': null   # Never expose stack traces to clients
+  }
+}
+7.5  Error Handling
+	•	HTTP 400 — Validation Error: Invalid file type, file too large, malformed request. Always return a human-readable error message with the specific validation rule that failed.
+	•	HTTP 413 — File Too Large: File exceeds the 10MB limit. Return the limit in the error message.
+	•	HTTP 422 — Processing Warning: The file was processed but with low confidence. Return the parsed result with error_flags populated.
+	•	HTTP 500 — Server Error: An unexpected internal error occurred. Log the full stack trace server-side but return only 'An internal error occurred' to the client. Never expose stack traces externally.
+	•	HTTP 503 — Model Not Ready: The spaCy model has not finished loading. Return a Retry-After header. Implement a startup health check that prevents the load balancer from routing traffic until the model is loaded.
+7.6  Logging & Monitoring
+	•	Request Logging: Log every request with: timestamp, job_id, file_size, file_type, processing_time_ms, status_code, overall_confidence. Never log file content.
+	•	Performance Metrics: Expose a /metrics endpoint compatible with Prometheus. Track: p50/p90/p99 processing times, request rate, error rate, model inference time separately from total processing time.
+	•	Model Drift Detection: Track mean confidence scores over time. A declining mean confidence on production traffic is an early indicator that model performance is degrading, requiring retraining.
+
+SECTION 10
+MODULE 8: EVALUATION & ACCURACY IMPROVEMENT
+
+8.1  Confusion Matrix Analysis
+For NER, the confusion matrix shows which entity labels are being confused with each other. A DESIGNATION predicted as COMPANY is a common confusion type on resumes (e.g., 'Product Manager' may be mistaken for an organisation name). Analysing this matrix identifies which entity pairs need disambiguation training examples.
+Build a custom confusion matrix: for each gold entity, record what the model predicted. This is not a standard sklearn confusion matrix — you need span-level comparison, not token-level. Implement it as a script that loads the test.spacy file, runs the model, and computes per-label confusion.
+8.2  Error Bucketing Strategy
+Every prediction error on the test set must be classified into an error bucket. This classification drives what to work on next. Spend your annotation and engineering effort proportional to error bucket frequency.
+Error Bucket
+Definition
+Fix Strategy
+Span Boundary Error
+Correct label, wrong start/end character
+Review annotation guidelines, re-annotate ambiguous cases
+Label Confusion
+Wrong label on a correct span
+Add disambiguation examples to training data
+False Positive
+Entity predicted that does not exist in gold
+Add negative examples (same text, no entity)
+False Negative
+Gold entity completely missed by model
+Add more positive examples of this entity pattern
+Upstream Error
+Error caused by bad text extraction
+Fix extraction layer, not NER model
+Annotation Error
+Gold annotation is actually wrong
+Correct annotation, re-train
+
+8.3  Iterative Re-Training Process
+	•	Week 1: Train on initial 200–300 annotations. Evaluate on dev set. Record per-label F1. Identify bottom-3 performing labels.
+	•	Week 2: Annotate 50–80 additional resumes specifically designed to improve bottom-3 labels. Retrain. Evaluate. Compare to previous F1.
+	•	Week 3–4: Analyse error buckets on the test set. Fix the largest bucket first. Annotate or rule-fix accordingly. Retrain.
+	•	Ongoing: Every retraining cycle uses the full accumulated dataset. Never train on only new examples — always retrain on all available data. This prevents catastrophic forgetting.
+	•	Regression Testing: Maintain a regression test suite of 30–50 resumes that previously failed. Every new model version must pass this suite. A model that improves overall F1 but breaks previously working cases should be rejected.
+8.4  Continuous Dataset Expansion
+The most reliable path to 90% accuracy is more diverse, high-quality training data. Plan for continuous dataset expansion as part of your quarterly roadmap.
+	•	Month 1–2: 200–300 annotated resumes, focused on tech industry
+	•	Month 3–4: Add 200+ covering finance, healthcare, manufacturing, sales
+	•	Month 5–6: Add 200+ covering international formats (India, Europe, Middle East)
+	•	Month 7+: Active learning — use model uncertainty to select which unlabelled resumes to annotate next (highest value per annotation hour)
+8.5  Edge Case Testing Strategy
+The standard test set measures average-case performance. Edge cases are systematically under-represented in random samples. Build a dedicated edge case test suite with these categories:
+	•	Multi-Column PDFs: At least 30 two-column resume PDFs of different styles
+	•	Scanned PDFs: 20 scanned resumes at various quality levels (high, medium, low DPI)
+	•	Non-English Names: 30 resumes with Chinese, Indian, Arabic, Russian, and other non-Western names
+	•	Career Gaps: 20 resumes with employment gaps > 6 months
+	•	Non-Standard Section Names: 20 resumes using unconventional section headers
+	•	Graphic Designer Resumes: 15 heavily formatted resumes with minimal text
+	•	Academic CVs: 10 long-form CVs with publication lists and extensive education sections
+8.6  Real-World Accuracy Measurement Method
+Offline test-set accuracy (F1 on test.spacy) is a necessary but insufficient measurement of production accuracy. Real-world accuracy is measured differently.
+	•	Sampling Strategy: Once per month, randomly sample 50 resumes from production traffic. Manually verify the extracted output against the original resume. Record the error rate per field.
+	•	Discrepancy Analysis: Compare the real-world error rate to the test-set F1. If the gap is >8 percentage points, the test set is not representative of production traffic.
+	•	Feedback Loop: If your application has user-facing review (e.g., candidates reviewing their parsed data), collect corrections. Each correction is a potential training example.
+
+SECTION 11
+MODULE 9: PRODUCTION DEPLOYMENT
+
+9.1  Model Packaging
+spaCy models are packaged as Python packages using python -m spacy package. This creates a wheel (.whl) file that can be installed with pip. The packaged model includes: model weights, config.cfg, meta.json (model metadata including version, accuracy scores, training date), and vocab data.
+Store model packages in an internal artifact registry (Nexus, GitHub Packages, or an S3-backed registry). The Docker image downloads the model from the registry during build, not from git. Model weights should never be committed to git — they are binary, large, and change frequently.
+9.2  Docker Strategy
+# Dockerfile — Multi-stage build
+FROM python:3.11-slim AS base
+WORKDIR /app
+
+# Install system dependencies for PDF/OCR processing
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr tesseract-ocr-eng \
+    poppler-utils \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Download spaCy base model (NOT the fine-tuned model — that comes from registry)
+RUN python -m spacy download en_core_web_lg
+
+# Copy application code
+COPY app/ ./app/
+
+# Copy fine-tuned model from build arg or registry
+ARG MODEL_VERSION=latest
+COPY models/${MODEL_VERSION}/ ./models/latest/
+
+# Production runtime
+FROM base AS production
+EXPOSE 8000
+CMD ['uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000',
+     '--workers', '2', '--no-access-log']
+
+# Note: workers=2 for CPU-bound NLP. More workers = higher memory, not higher throughput.
+9.3  CI/CD
+	•	Trigger: CI runs on every push to main branch and on every pull request.
+	•	Stage 1 — Lint & Format: black, flake8, isort. Fail fast on style violations.
+	•	Stage 2 — Unit Tests: Run all tests in tests/unit/. Must pass 100%.
+	•	Stage 3 — Integration Tests: Run tests/integration/ against a running Docker container.
+	•	Stage 4 — Accuracy Tests: Run the accuracy test suite against the current model. If mean F1 drops below 84%, fail the pipeline and block deployment.
+	•	Stage 5 — Docker Build: Build the production Docker image. Tag with git commit SHA.
+	•	Stage 6 — Deploy to Staging: Push to staging environment. Run smoke tests.
+	•	Stage 7 — Deploy to Production: Manual approval gate. Blue-green deployment to zero-downtime rollout.
+9.4  Version Control for Models
+Use semantic versioning for models: MAJOR.MINOR.PATCH. MAJOR increments when entity labels change (breaking change for consumers). MINOR increments when training data is significantly expanded. PATCH increments for bugfix retraining runs.
+Every deployed model must have a version record in a model registry (a simple database table or JSON file) with: version, training_date, dataset_size, per-label F1 scores, release_notes.
+9.5  Performance Optimisation
+	•	Model Loading: Load the spaCy model once at application startup using the lifespan context manager. Never load the model per request — a 741MB model takes 3–8 seconds to load.
+	•	Batch Processing: When processing multiple resumes in bulk, use nlp.pipe(texts, batch_size=32) instead of calling nlp(text) in a loop. This is 3–5x faster.
+	•	Disabled Components: When running NER-only inference, disable pipeline components not needed: nlp.select_pipes(enable=['ner']). This saves 20–40% of inference time.
+	•	ONNX Export: Export the spaCy model to ONNX format for faster CPU inference. spaCy supports ONNX export via spacy-onnx. Typical speedup: 1.5–2.5x on CPU.
+	•	Memory Management: Set a maximum document length (nlp.max_length) to prevent memory exhaustion from very long documents. Set to 1,000,000 characters for resumes.
+9.6  Scaling Strategy
+NLP processing is CPU-bound and memory-intensive. Scaling strategy differs from I/O-bound services.
+	•	Vertical Scaling First: Add more CPU cores and RAM before adding more instances. A single 8-core, 16GB instance runs 4 uvicorn workers (2 cores per worker) and processes ~80 resumes/minute.
+	•	Horizontal Scaling: Add more instances behind a load balancer when vertical limits are reached. Each instance loads its own copy of the model into memory (~600MB). With 3 instances, memory cost is ~2GB model data total.
+	•	Autoscaling: Configure autoscaling based on CPU utilisation (scale up at >70%, scale down at <30%). Resume parsing CPU spikes are short and bursty — autoscaling lag is acceptable for async processing, not for synchronous endpoints.
+
+SECTION 12
+MODULE 10: ADVANCED IMPROVEMENTS
+
+10.1  Resume Section Classification Model
+The current section segmentation uses keyword matching, which fails on non-standard section headers. An advanced improvement is to train a text classification model that classifies each paragraph or block of text into a section type.
+Implementation: Train a spaCy TextCategorizer component on labelled section examples (each example is a block of text with a section label). This is an independent component from NER and can be trained with 500–1,000 labelled section examples. When deployed, it replaces the keyword-matching segmenter and handles novel section header names.
+10.2  Hybrid Rules + ML Architecture
+The most powerful accuracy improvement comes from a layered hybrid that combines rules, vocabulary matching, NER, and post-processing rules into a unified decision pipeline. At each extraction step, multiple signals vote on the final answer.
+For SKILLS extraction specifically, the hybrid approach is: (1) vocabulary match against the skills taxonomy (highest confidence), (2) NER model prediction (medium confidence), (3) pattern-based extraction (e.g., any word in the SKILLS section that is in Title Case and not a common English word) as a fallback. The union of these three layers has significantly higher recall than any single layer.
+10.3  Transformer Upgrade Strategy
+If spaCy + en_core_web_lg reaches a ceiling below 85%, the next step is to switch the base model to en_core_web_trf, which is backed by a RoBERTa transformer. This requires GPU for practical inference speeds but can increase F1 by 4–8 percentage points.
+Migration path: The training data format (.spacy files) is identical — no re-annotation is needed. Only the base model and training config change. Train on GPU (Google Colab, Vast.ai), export ONNX for CPU inference in production. Budget 4–12 hours of GPU training time per training run.
+10.4  Active Learning Pipeline
+Active learning is a strategy to maximise accuracy improvement per annotation hour. Instead of annotating random resumes, you select the resumes where the model is most uncertain — these provide the highest information gain per annotation.
+	•	Step 1: Run the current model on a pool of 500+ unlabelled resumes.
+	•	Step 2: For each resume, compute an uncertainty score: the mean of (1 - max_entity_confidence) across all predicted entities.
+	•	Step 3: Select the 50 resumes with the highest uncertainty scores. These are the resumes the model is most confused about.
+	•	Step 4: Annotate these 50 resumes and add them to the training set.
+	•	Step 5: Retrain and evaluate. Active learning typically delivers 2–3x the accuracy improvement per annotation hour compared to random sampling.
+10.5  Confidence-Based Reprocessing
+For any field with confidence below 0.65, implement a reprocessing fallback pipeline that applies alternative extraction strategies. This is a catch-all for cases where the primary extraction fails.
+	•	NAME fallback: If NER confidence for NAME < 0.65, apply the heuristic: the name is likely in the first 3 lines of the resume. Extract all PERSON entities from the first 3 lines using a stricter pattern.
+	•	COMPANY fallback: If NER confidence for COMPANY < 0.65 in an experience record, use the proximity heuristic: the company name is typically on the same line as or immediately above the DESIGNATION entity.
+	•	DATE fallback: If the date parser fails to extract dates for an experience record, flag the record and log the raw text of the experience section for human review.
+
+SECTION 13
+AI TOOL USAGE STRATEGY
+
+Your team has access to Cursor, Windsurf, and Claude as AI coding tools. Using them effectively is a force multiplier. Using them incorrectly creates technical debt that is harder to remove than code you wrote manually. This section defines the correct usage pattern for each tool in the context of this project.
+Cursor
+Highest-Value Use Cases
+	•	Code Generation: Use Cursor to generate first drafts of entire modules. Before prompting, write a detailed comment block at the top of the file explaining the module's responsibility, inputs, outputs, and constraints. Then prompt: 'Implement this module according to the specification in the file header.' Review every generated line.
+	•	Regex Generation: Describe the pattern you need in plain English. Cursor generates the regex and explains each component. Verify against test cases immediately.
+	•	Boilerplate Elimination: Use Cursor to generate Pydantic schemas, FastAPI route handlers, Dockerfile stubs, and pytest fixtures. These are mechanical and well-suited to generation.
+	•	Refactoring: Use Cursor's 'edit this code to...' capability to refactor existing code. It preserves logic while improving structure.
+Avoid These Uses
+	•	Do not ask Cursor to design the architecture — it will generate plausible-looking but locally inconsistent designs. Architecture decisions must be made by engineers.
+	•	Do not use Cursor-generated training configuration without reading the spaCy documentation. Config parameters have subtle interactions that require understanding.
+Windsurf
+Highest-Value Use Cases
+	•	Codebase Navigation: Windsurf excels at understanding your entire codebase context. Use it to answer questions like: 'Which modules call the NER inference function?' and 'Where is the confidence threshold defined?' This saves hours of manual search.
+	•	Cross-File Refactoring: When you need to rename a function or change a data structure that is used across 10 files, Windsurf can make all changes consistently in one operation.
+	•	Test Generation: Describe a function's behaviour and Windsurf generates comprehensive unit tests including edge cases. This is significantly faster than writing tests manually.
+	•	Debugging: Paste a stack trace and Windsurf identifies the root cause and suggests a fix. It can trace through multiple files to find the source of an error.
+	•	Documentation Generation: Windsurf can generate docstrings for all functions in a module in a single pass. Use this at the end of each sprint.
+Claude
+Highest-Value Use Cases
+	•	Architecture Validation: Before building any module, describe your planned design to Claude and ask: 'What are the failure modes of this design? What have I missed?' Claude provides a structured critique that catches design flaws early.
+	•	Dataset Creation Assistance: Ask Claude to generate synthetic resume text in different formats (tech resume, finance resume, Indian resume, graphic designer resume). Use these synthetic texts as annotation candidates. Never use AI-generated text as training data without human annotation — only as text to annotate.
+	•	Annotation Guideline Development: Describe an ambiguous annotation case and ask Claude: 'Given these annotation guidelines, how should this case be annotated? What is the argument for each option?' Claude helps resolve guideline ambiguities consistently.
+	•	Error Analysis: Paste a batch of NER prediction errors and ask Claude: 'Categorise these errors and suggest what training data would fix each category.' This accelerates the error bucketing process.
+	•	Technical Writing: Use Claude to write module documentation, README sections, and API reference documentation. Provide the code and ask for explanations of what it does and why.
+	•	Skill Taxonomy Expansion: Ask Claude to generate a comprehensive list of skill synonyms and aliases for specific technology domains. Review and validate before adding to the taxonomy.
+Avoid These Uses
+	•	Do not ask Claude to predict whether your model will reach 85% — it cannot know this without seeing your data and evaluation results.
+	•	Do not use Claude's code output directly in production without testing. Claude does not have access to your codebase context and may generate code that is inconsistent with your conventions.
+	•	Do not ask Claude to annotate resumes for you. Annotation requires human judgement on the specific guidelines your team has agreed to. AI-generated annotations will introduce systematic biases.
+General AI Tool Principles
+The Golden Rule of AI Tools in This Project
+AI tools generate first drafts. Engineers own all final decisions. Every line of generated code must be read and understood by the engineer who commits it. If you cannot explain what a generated function does, you should not commit it. The goal is to move faster, not to remove engineering responsibility.
+
+	•	Iteration Speed: The primary value of AI tools on this project is reducing time from idea to working code. Each module should have a first draft within 1–2 hours using AI assistance, followed by a 2–4 hour review and testing cycle.
+	•	Consistency: Establish team conventions (naming, error handling, logging format) before starting AI-assisted coding. Conventions prevent AI tools from generating inconsistent code across modules.
+	•	Version Control: Commit AI-generated code with the same discipline as hand-written code. Use clear commit messages that note when code was AI-assisted for future reference.
+
+— END OF DOCUMENT —
+Production-Grade Resume Parser — ML spaCy NER Fine-Tuned Approach

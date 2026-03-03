@@ -1,0 +1,73 @@
+services:
+  # Backend API Service
+  - type: web
+    name: resume-parser-api
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    
+    # Environment Variables
+    envVars:
+      # App Settings
+      - key: APP_NAME
+        value: Resume Parser API
+      - key: ENVIRONMENT
+        value: production
+      - key: API_V1_STR
+        value: /api/v1
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Database (Render PostgreSQL)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: resume-parser-db
+          property: connectionString
+
+      # Security
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 60
+
+      # Storage
+      - key: STORAGE_DIR
+        value: ./storage
+      - key: UPLOAD_MAX_SIZE_MB
+        value: 20
+      - key: CORS_ORIGINS
+        value: https://your-frontend-domain.vercel.app
+
+      # Parsing Settings
+      - key: PARSING_MODE
+        value: deterministic
+      - key: LLM_PROVIDER
+        value: none
+
+      # ClamAV
+      - key: CLAMAV_ENABLED
+        value: false
+
+      # Redis (Optional - can use Render Redis)
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: resume-parser-redis
+          property: connectionString
+
+  # PostgreSQL Database
+  - type: pserv
+    name: resume-parser-db
+    plan: free
+    databaseName: resume_parser
+    user: postgres
+
+  # Redis (Optional - for caching and background jobs)
+  - type: redis
+    name: resume-parser-redis
+    plan: free
