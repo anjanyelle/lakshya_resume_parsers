@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 import structlog
 from sqlalchemy import select
@@ -13,15 +15,15 @@ router = APIRouter()
 
 @router.get("/jobs/{job_id}/status")
 def job_status(
-    job_id: str,
+    job_id: UUID,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict[str, str | None]:
-    structlog.contextvars.bind_contextvars(job_id=job_id)
+    structlog.contextvars.bind_contextvars(job_id=str(job_id))
     try:
         import sentry_sdk
 
-        sentry_sdk.set_tag("job_id", job_id)
+        sentry_sdk.set_tag("job_id", str(job_id))
     except Exception:
         pass
     enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
@@ -38,15 +40,15 @@ def job_status(
 
 @router.get("/jobs/{job_id}/logs")
 def job_logs(
-    job_id: str,
+    job_id: UUID,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict[str, str | None]:
-    structlog.contextvars.bind_contextvars(job_id=job_id)
+    structlog.contextvars.bind_contextvars(job_id=str(job_id))
     try:
         import sentry_sdk
 
-        sentry_sdk.set_tag("job_id", job_id)
+        sentry_sdk.set_tag("job_id", str(job_id))
     except Exception:
         pass
     enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
@@ -62,7 +64,7 @@ def job_logs(
 
 @router.get("/jobs/{job_id}/extraction-debug")
 def job_extraction_debug(
-    job_id: str,
+    job_id: UUID,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
