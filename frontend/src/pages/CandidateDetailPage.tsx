@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useLayout } from '../contexts/LayoutContext'
 import { toast } from 'react-hot-toast'
@@ -21,7 +21,7 @@ import {
 } from '../services/api/candidates'
 import { fetchJobExtractionDebug } from '../services/api/uploads'
 import {
-  skillsFromParsed,
+  // skillsFromParsed, // TODO: Use this for skills display
   contactFromParsed,
   shouldUseParsedDataFallback,
   getDisplayWorkHistory,
@@ -56,21 +56,21 @@ export default function CandidateDetailPage() {
   const { collapseSidebar } = useLayout()
 
   // Refs for scrollIntoView: name, email, phone, skills, experience
-  const fieldRefsMap = useRef<Record<string, HTMLDivElement | null>>({
-    full_name: null,
-    email: null,
-    phone: null,
-    skills: null,
-    experience: null,
-  })
+  // const fieldRefsMap = useRef<Record<string, HTMLDivElement | null>>({
+  //   full_name: null,
+  //   email: null,
+  //   phone: null,
+  //   skills: null,
+  //   experience: null,
+  // })
 
   // Prepare scrollToField for later use (highlight not implemented yet)
-  const scrollToField = useCallback((fieldId: string) => {
-    const el = fieldRefsMap.current[fieldId]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [])
+  // const scrollToField = useCallback((fieldId: string) => {
+  //   const el = fieldRefsMap.current[fieldId]
+  //   if (el) {
+  //     el.scrollIntoView({ behavior: 'smooth' })
+  //   }
+  // }, [])
 
   useEffect(() => {
     if (!id) return
