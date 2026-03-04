@@ -88,7 +88,7 @@ def get_current_user(
         except ProgrammingError as e:
             err_msg = str(getattr(e, "orig", e) or e).lower()
             if "revoked_tokens" in err_msg:
-                pass  # Table missing or error; skip revocation check
+                db.rollback()  # Reset transaction so subsequent queries (e.g. User) can run
             else:
                 raise
     user = db.query(User).filter(User.email == subject).first()
