@@ -41,7 +41,7 @@ services:
       - key: UPLOAD_MAX_SIZE_MB
         value: 20
       - key: CORS_ORIGINS
-        value: https://your-frontend-domain.vercel.app
+        value: https://lakshya-llm-resume-parser-ated.vercel.app,http://localhost:5173,http://localhost:3000
 
       # Parsing Settings
       - key: PARSING_MODE
