@@ -106,7 +106,11 @@ class Settings(BaseSettings):
     DEPLOYMENT_ID: str | None = None
 
     CORS_ORIGINS: list[str] = Field(
-        default_factory=lambda: ["http://localhost:5173", "http://localhost:3000"]
+        default_factory=lambda: [
+            "http://localhost:5173", 
+            "http://localhost:3000",
+            "https://lakshya-llm-resume-parser-ated.vercel.app"
+        ]
     )
 
     model_config = SettingsConfigDict(
