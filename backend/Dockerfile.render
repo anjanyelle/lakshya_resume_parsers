@@ -1,0 +1,66 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+WORKDIR /app
+
+# Install system dependencies for PDF/OCR processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    poppler-utils \
+    libmagic1 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install poetry
+RUN pip install --no-cache-dir poetry==1.6.1
+
+# Copy dependency files
+COPY pyproject.toml poetry.lock* ./
+
+# Install Python dependencies
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi --only main
+
+# Download spaCy model
+RUN python -m spacy download en_core_web_sm
+
+# Copy application code
+COPY . .
+
+# Create storage directories
+RUN mkdir -p storage/uploads \
+    && mkdir -p logs
+
+# Create non-root user for security
+RUN useradd -ms /bin/bash appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Production startup command
+CMD ["gunicorn", "app.main:app", \
+     "-w", "2", \
+     "-k", "uvicorn.workers.UvicornWorker", \
+     "-b", "0.0.0.0:8000", \
+     "--timeout", "120", \
+     "--max-requests", "1000", \
+     "--max-requests-jitter", "50", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-"]
