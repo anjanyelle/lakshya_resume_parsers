@@ -305,6 +305,9 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
     method = "pypdf"
     debug: dict[str, object] = {}
     page_limit = settings.PDF_MAX_PAGES
+    # Production: cap pages for speed (resumes are typically 1–10 pages)
+    if settings.ENVIRONMENT.lower() not in ("development", "local"):
+        page_limit = min(page_limit, 15)
 
     # 1. Primary: PyMuPDF (fitz) — fastest, layout-aware
     try:
@@ -919,6 +922,9 @@ def _ocr_pdf(file_path: Path) -> tuple[str, float | None, dict[str, object] | No
     except Exception:
         page_count = 999
     page_limit = min(settings.OCR_MAX_PAGES, page_count)
+    # Production: cap OCR pages for speed (OCR is slow; 5 pages is usually enough for resumes)
+    if settings.ENVIRONMENT.lower() not in ("development", "local"):
+        page_limit = min(page_limit, 5)
     if page_limit < page_count:
         logger.info("OCR limiting to first %d of %d pages", page_limit, page_count)
 

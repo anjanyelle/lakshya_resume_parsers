@@ -69,16 +69,21 @@ After that, register, login, and upload should work without 503.
 
 Uploads can feel slow because parsing runs in the same process (no Celery workers on Render) and the default pipeline has many steps.
 
-**What we do automatically:** If `LLM_PROVIDER` is `none`, the app uses the **deterministic** pipeline (no LLM steps), so parsing finishes in seconds instead of minutes.
+**What we do automatically:**
 
-**Recommended env for Render (fast parsing, no LLM):**
+- If `LLM_PROVIDER` is `none`, the app uses the **deterministic** pipeline (no LLM steps), so parsing finishes in seconds instead of minutes.
+- Defaults: `PDF_MAX_PAGES=20`, `OCR_MAX_PAGES=10` (lower than before for faster extraction).
+- When `ENVIRONMENT` is not `development` or `local`, PDF extraction is capped at **15 pages** and OCR at **5 pages** so resumes finish quickly.
+
+**Recommended env for Render (fast parsing):**
 
 ```env
+ENVIRONMENT=production
 PARSING_MODE=deterministic
 LLM_PROVIDER=none
 ```
 
-Optional: `PDF_MAX_PAGES=15` (default 50) to cap PDF length and speed up extraction.
+Optional: `PDF_MAX_PAGES=15` and `OCR_MAX_PAGES=5` for even faster runs (defaults already apply production caps above).
 
 ---
 
