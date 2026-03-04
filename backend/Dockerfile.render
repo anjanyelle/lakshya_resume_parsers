@@ -39,6 +39,9 @@ RUN pip install --no-cache-dir spacy \
 # Copy application code
 COPY . .
 
+# Make startup script executable
+RUN chmod +x startup.sh
+
 # Create storage directories
 RUN mkdir -p storage/uploads \
     && mkdir -p logs
@@ -56,4 +59,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Production startup command
-CMD ["./startup.sh"]
+CMD ["/app/startup.sh"]
