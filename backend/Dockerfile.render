@@ -28,17 +28,14 @@ RUN pip install --no-cache-dir poetry==1.6.1
 # Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
-# Copy app directory first for Poetry to find the package
-COPY app/ ./app/
-
-# Install Python dependencies
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --only main
+# Convert Poetry dependencies to requirements.txt and install with pip
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --without-dev \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Download spaCy model
 RUN python -m spacy download en_core_web_sm
 
-# Copy remaining application code
+# Copy application code
 COPY . .
 
 # Create storage directories
