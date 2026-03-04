@@ -107,9 +107,10 @@ class Settings(BaseSettings):
 
     CORS_ORIGINS: list[str] = Field(
         default_factory=lambda: [
-            "http://localhost:5173", 
+            "http://localhost:5173",
             "http://localhost:3000",
-            "https://lakshya-llm-resume-parser-ated.vercel.app"
+            "https://lakshya-llm-resume-parser.vercel.app",
+            "https://lakshya-llm-resume-parser-ated.vercel.app",
         ]
     )
 
