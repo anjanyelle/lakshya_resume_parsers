@@ -105,40 +105,41 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     DEPLOYMENT_ID: str | None = None
 
-    CORS_ORIGINS: list[str] = Field(
-        default_factory=lambda: [
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "https://lakshya-llm-resume-parser.vercel.app",
-            "https://lakshya-llm-resume-parser-ated.vercel.app",
-        ]
-    )
+    # Stored as string so env can be a single URL or comma-separated (avoids JSON parse errors)
+    _cors_origins_raw: str = Field(default="", validation_alias="CORS_ORIGINS", exclude=True)
+
+    @property
+    def CORS_ORIGINS(self) -> list[str]:
+        raw = (getattr(self, "_cors_origins_raw", None) or "").strip()
+        if not raw:
+            return [
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "https://lakshya-llm-resume-parser.vercel.app",
+                "https://lakshya-llm-resume-parser-ated.vercel.app",
+            ]
+        return self._parse_cors_origins(raw)
+
+    @staticmethod
+    def _parse_cors_origins(value: str) -> list[str]:
+        cleaned = value.strip()
+        if not cleaned:
+            return []
+        if cleaned.startswith("["):
+            try:
+                parsed = json.loads(cleaned)
+                if isinstance(parsed, list):
+                    return [str(origin).strip() for origin in parsed if str(origin).strip()]
+            except json.JSONDecodeError:
+                pass
+            return [o.strip().strip('"').strip("'") for o in cleaned.strip("[]").split(",") if o.strip()]
+        return [o.strip() for o in cleaned.split(",") if o.strip()]
 
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=True,
         env_ignore_empty=True,
     )
-
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value: Any) -> list[str]:
-        if isinstance(value, str):
-            cleaned = value.strip()
-            if not cleaned:
-                return []
-            if cleaned.startswith("["):
-                try:
-                    parsed = json.loads(cleaned)
-                    if isinstance(parsed, list):
-                        return [str(origin).strip() for origin in parsed if str(origin).strip()]
-                except Exception:  # noqa: BLE001
-                    pass
-                return [origin.strip().strip('"').strip("'") for origin in cleaned.strip("[]").split(",") if origin]
-            return [origin.strip() for origin in cleaned.split(",") if origin.strip()]
-        if isinstance(value, Iterable):
-            return [str(origin).strip() for origin in value if str(origin).strip()]
-        raise ValueError("Invalid CORS_ORIGINS format")
 
     @field_validator("ALLOWED_UPLOAD_EXTENSIONS", mode="before")
     @classmethod
