@@ -106,11 +106,11 @@ class Settings(BaseSettings):
     DEPLOYMENT_ID: str | None = None
 
     # Stored as string so env can be a single URL or comma-separated (avoids JSON parse errors)
-    _cors_origins_raw: str = Field(default="", validation_alias="CORS_ORIGINS", exclude=True)
+    cors_origins_raw: str = Field(default="", validation_alias="CORS_ORIGINS", exclude=True)
 
     @property
     def CORS_ORIGINS(self) -> list[str]:
-        raw = (getattr(self, "_cors_origins_raw", None) or "").strip()
+        raw = (getattr(self, "cors_origins_raw", None) or "").strip()
         if not raw:
             return [
                 "http://localhost:5173",
