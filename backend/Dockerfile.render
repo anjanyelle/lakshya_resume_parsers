@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir poetry==1.6.1
 COPY pyproject.toml poetry.lock* ./
 
 # Convert Poetry dependencies to requirements.txt and install with pip
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --without-dev \
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --only main \
     && pip install --no-cache-dir -r requirements.txt
 
 # Download spaCy model
