@@ -65,6 +65,21 @@ Then start the API: `poetry run uvicorn app.main:app --reload`
 
 After that, register, login, and upload should work without 503.
 
+### Parsing speed on production (Render / no Redis, no LLM)
+
+Uploads can feel slow because parsing runs in the same process (no Celery workers on Render) and the default pipeline has many steps.
+
+**What we do automatically:** If `LLM_PROVIDER` is `none`, the app uses the **deterministic** pipeline (no LLM steps), so parsing finishes in seconds instead of minutes.
+
+**Recommended env for Render (fast parsing, no LLM):**
+
+```env
+PARSING_MODE=deterministic
+LLM_PROVIDER=none
+```
+
+Optional: `PDF_MAX_PAGES=15` (default 50) to cap PDF length and speed up extraction.
+
 ---
 
 Quick Start

@@ -282,6 +282,11 @@ def start_parsing_workflow(job_id: str) -> str:
     increment_jobs_total()
     settings = get_settings()
 
+    # When no LLM is configured, use deterministic pipeline for faster parsing (avoids many no-op LLM steps).
+    parsing_mode = (settings.PARSING_MODE or "full").lower()
+    if parsing_mode == "full" and (settings.LLM_PROVIDER or "").lower() == "none":
+        parsing_mode = "deterministic"
+
     job_for_path = None
     try:
         job_for_path = _load_job(job_id)
@@ -291,7 +296,7 @@ def start_parsing_workflow(job_id: str) -> str:
     source_path = getattr(job_for_path, "file_path", None) if job_for_path is not None else None
     is_doc_upload = bool(source_path) and str(source_path).lower().endswith(".doc")
 
-    if settings.PARSING_MODE.lower() == "text_only":
+    if parsing_mode == "text_only":
         first = task_extract_text.si(job_id).set(queue="extract")
         if is_doc_upload and source_path:
             first = chain(
@@ -303,7 +308,7 @@ def start_parsing_workflow(job_id: str) -> str:
             task_clean_text.s().set(queue="parse"),
             task_finalize_text_only.s().set(queue="persist"),
         )
-    elif settings.PARSING_MODE.lower() == "deterministic":
+    elif parsing_mode == "deterministic":
         first = task_extract_text.si(job_id).set(queue="extract")
         if is_doc_upload and source_path:
             first = chain(
@@ -393,9 +398,9 @@ def start_parsing_workflow(job_id: str) -> str:
         if is_doc_upload and source_path:
             convert_doc_to_docx_task.apply(args=[job_id, str(source_path)])
         tasks = [task_extract_text, task_clean_text]
-        if settings.PARSING_MODE.lower() == "text_only":
+        if parsing_mode == "text_only":
             tasks.append(task_finalize_text_only)
-        elif settings.PARSING_MODE.lower() == "deterministic":
+        elif parsing_mode == "deterministic":
             tasks.extend(
                 [
                     task_detect_sections,
