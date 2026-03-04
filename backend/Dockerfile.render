@@ -29,14 +29,18 @@ RUN pip install --no-cache-dir poetry==1.6.1
 COPY pyproject.toml poetry.lock* ./
 
 # Convert Poetry dependencies to requirements.txt and install with pip
-RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --without-dev \
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --only main \
     && pip install --no-cache-dir -r requirements.txt
 
-# Download spaCy model
-RUN python -m spacy download en_core_web_sm
+# Install spaCy and download model
+RUN pip install --no-cache-dir spacy \
+    && python -m spacy download en_core_web_sm
 
 # Copy application code
 COPY . .
+
+# Make startup script executable
+RUN chmod +x startup.sh
 
 # Create storage directories
 RUN mkdir -p storage/uploads \
@@ -48,6 +52,10 @@ RUN useradd -ms /bin/bash appuser \
 
 USER appuser
 
+# Set environment variables
+ENV ENVIRONMENT=production
+ENV DATABASE_URL=postgresql://resume_parser_h6rg_user:TvSuN42NuVxjLsWC4N6H22tLrQTVB9Dd@dpg-d6k1nm0gjchc739n8kp0-a.singapore-postgres.render.com/resume_parser_h6rg
+
 EXPOSE 8000
 
 # Health check
@@ -55,12 +63,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Production startup command
-CMD ["gunicorn", "app.main:app", \
-     "-w", "2", \
-     "-k", "uvicorn.workers.UvicornWorker", \
-     "-b", "0.0.0.0:8000", \
-     "--timeout", "120", \
-     "--max-requests", "1000", \
-     "--max-requests-jitter", "50", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-"]
+CMD ["sh", "-c", "alembic upgrade head && python create_admin_user.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

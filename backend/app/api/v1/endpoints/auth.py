@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from jose import JWTError
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 import secrets
@@ -47,14 +48,18 @@ def register(
             "role": payload.role or "recruiter",
         },
     )
-    log_audit(
-        db,
-        user_id=str(user.id),
-        action="register",
-        resource_type="user",
-        resource_id=str(user.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(user.id),
+            action="register",
+            resource_type="user",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (register still succeeded): %s", e)
+        db.rollback()  # clear failed audit so session is usable for response
     return UserRead.model_validate(user)
 
 
@@ -70,14 +75,18 @@ def login(
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token = create_access_token(subject=user.email)
     refresh_token = create_refresh_token(subject=user.email)
-    log_audit(
-        db,
-        user_id=str(user.id),
-        action="login",
-        resource_type="user",
-        resource_id=str(user.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(user.id),
+            action="login",
+            resource_type="user",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (login still succeeded): %s", e)
+        db.rollback()
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -101,21 +110,32 @@ def refresh(
     if not jti or not subject:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
-    if revoked:
-        raise HTTPException(status_code=401, detail="Token revoked")
+    try:
+        revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
+        if revoked:
+            raise HTTPException(status_code=401, detail="Token revoked")
+    except ProgrammingError as e:
+        err_msg = str(getattr(e, "orig", e) or e).lower()
+        if "revoked_tokens" in err_msg:
+            db.rollback()
+        else:
+            raise
 
     access_token = create_access_token(subject=subject)
     refresh_token = create_refresh_token(subject=subject)
     user = user_crud.get_by_email(db, subject)
-    log_audit(
-        db,
-        user_id=str(user.id) if user else None,
-        action="refresh",
-        resource_type="user",
-        resource_id=str(user.id) if user else None,
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(user.id) if user else None,
+            action="refresh",
+            resource_type="user",
+            resource_id=str(user.id) if user else None,
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (refresh still succeeded): %s", e)
+        db.rollback()
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -147,14 +167,18 @@ def logout(
         RevokedToken(jti=jti, subject=subject, expires_at=expires_at)
     )
     db.commit()
-    log_audit(
-        db,
-        user_id=str(current_user.id),
-        action="logout",
-        resource_type="user",
-        resource_id=str(current_user.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(current_user.id),
+            action="logout",
+            resource_type="user",
+            resource_id=str(current_user.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (logout still succeeded): %s", e)
+        db.rollback()
     logger.info("User logged out", extra={"user": current_user.email})
     return {"status": "ok"}
 
@@ -179,14 +203,18 @@ def create_api_key(
     db.add(api_key)
     db.commit()
     db.refresh(api_key)
-    log_audit(
-        db,
-        user_id=str(current_user.id),
-        action="create_api_key",
-        resource_type="api_key",
-        resource_id=str(api_key.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(current_user.id),
+            action="create_api_key",
+            resource_type="api_key",
+            resource_id=str(api_key.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (create_api_key still succeeded): %s", e)
+        db.rollback()
     return ApiKeyResponse(api_key=raw_key, key_id=api_key.id)
 
 
@@ -205,12 +233,16 @@ def revoke_api_key(
     db.add(api_key)
     db.commit()
     db.refresh(api_key)
-    log_audit(
-        db,
-        user_id=str(current_user.id),
-        action="revoke_api_key",
-        resource_type="api_key",
-        resource_id=str(api_key.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(current_user.id),
+            action="revoke_api_key",
+            resource_type="api_key",
+            resource_id=str(api_key.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (revoke_api_key still succeeded): %s", e)
+        db.rollback()
     return ApiKeyRead.model_validate(api_key)

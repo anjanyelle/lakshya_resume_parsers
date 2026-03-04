@@ -840,6 +840,24 @@ class LLMParsingService:
             "}\n"
         )
 
+    def extract_personal_information(self, text: str) -> dict[str, Any]:
+        """Extract personal/contact info from resume text. Returns dict with 'personal_info' key."""
+        if not text or not text.strip():
+            return {"personal_info": {}}
+        try:
+            response = self._call_llm(
+                self._personal_info_prompt(text), task="extract_personal_info"
+            )
+            parsed = self._parse_json(response.content, expect_array=False)
+            if isinstance(parsed, dict) and "personal_info" in parsed:
+                return parsed
+            if isinstance(parsed, dict):
+                return {"personal_info": parsed}
+            return {"personal_info": {}}
+        except Exception as e:
+            logger.warning("extract_personal_information failed: %s", e)
+            return {"personal_info": {}}
+
     def _education_entries_normalization_prompt(
         self, text: str, header: str | None = None
     ) -> str:
