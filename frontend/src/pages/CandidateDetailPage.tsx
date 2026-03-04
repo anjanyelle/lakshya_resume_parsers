@@ -81,7 +81,7 @@ export default function CandidateDetailPage() {
           fetchCandidate(id),
           fetchCandidateReview(id),
         ])
-        setCandidate(candidateData)
+        setCandidate(candidateData) 
         setOriginalCandidate(candidateData)
         setLatestJob(reviewData.latest_job)
         setParsedData(clone(reviewData.latest_job?.parsed_data || {}))
