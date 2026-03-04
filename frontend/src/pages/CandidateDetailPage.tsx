@@ -71,7 +71,7 @@ export default function CandidateDetailPage() {
       el.scrollIntoView({ behavior: 'smooth' })
     }
   }, [])
-
+    
   useEffect(() => {
     if (!id) return
     const fetchData = async () => {
