@@ -1,0 +1,46 @@
+const fieldMappings: FieldMapping[] = [
+  // Candidate Personal Information - LIGHT GREEN
+  { id: 'full_name', value: displayCandidate.full_name ?? '', label: 'Candidate Name', type: 'personal' as const },
+  { id: 'email', value: displayCandidate.email ?? '', label: 'Candidate Email', type: 'personal' as const },
+  { id: 'phone', value: displayCandidate.phone ?? '', label: 'Candidate Phone', type: 'personal' as const },
+  { id: 'location', value: displayCandidate.location ?? '', label: 'Location', type: 'personal' as const },
+  { id: 'linkedin_url', value: displayCandidate.linkedin_url ?? '', label: 'LinkedIn', type: 'personal' as const },
+  { id: 'github_url', value: displayCandidate.github_url ?? '', label: 'GitHub', type: 'personal' as const },  
+
+  // Education Only - LIGHT YELLOW
+  ...displayEducation
+    .filter((e) => (e.institution ?? '').trim().length > 2)
+    .map((e) => ({ id: 'education' as const, value: e.institution ?? '', label: 'Education', type: 'education' as const })),
+  ...displayEducation
+    .filter((e) => (e.degree ?? '').trim().length > 2)
+    .map((e) => ({ id: 'education' as const, value: e.degree ?? '', label: 'Education', type: 'education' as const })),
+
+  // Common Education Related Words - LIGHT YELLOW
+  { id: 'education', value: 'Computer Science', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Science', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Engineering', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Technology', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'University', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'College', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Institute', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Institution', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Bachelor', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Master', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'PhD', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'B.Tech', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'M.Tech', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'B.Sc', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'M.Sc', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'B.E', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'M.E', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'B.Com', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'M.Com', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'BBA', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'MBA', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Diploma', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Certificate', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Graduation', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Graduated', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Post Graduation', label: 'Education', type: 'education' as const },
+  { id: 'education', value: 'Under Graduation', label: 'Education', type: 'education' as const },
+]

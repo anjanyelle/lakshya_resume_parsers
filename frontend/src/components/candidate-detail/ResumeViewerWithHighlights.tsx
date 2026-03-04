@@ -5,6 +5,7 @@ export type FieldMapping = {
   id: string
   value: string
   label: string
+  type?: 'personal' | 'skills' | 'experience' | 'education' | 'contact'
 }
 
 type ResumeViewerWithHighlightsProps = {
@@ -34,26 +35,116 @@ function escapeRegex(str: string): string {
 function injectFieldSpans(
   html: string,
   fieldMappings: FieldMapping[],
-  activeFieldId: string | null
+  activeFieldId: string | null,
 ): string {
   let result = html
+  
+  // Ensure HTML is not double-escaped
+  if (result.includes('&lt;') || result.includes('&gt;')) {
+    // Unescape HTML if it's already escaped
+    result = result.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+  }
+  
   // Sort by value length descending so longer values get replaced first (e.g. full email before substring)
   const sorted = [...fieldMappings].filter((f) => f.value && f.value.trim().length > 2)
   sorted.sort((a, b) => (b.value?.length ?? 0) - (a.value?.length ?? 0))
 
-  for (const { id, value, label } of sorted) {
-    const escaped = escapeRegex(value.trim())
-    if (!escaped) continue
-    const isActive = activeFieldId === id
-    const activeClasses =
-      'bg-blue-200 border-l-4 border-blue-500 rounded-md pl-1.5 transition-all duration-200'
-    const inactiveClasses =
-      'bg-yellow-100 border-l-4 border-yellow-400 rounded-md pl-1.5 transition-all duration-200'
-    const dynamicClasses = isActive ? activeClasses : inactiveClasses
-    const span = `<span data-resume-field="${id}" data-value="${value.replace(/"/g, '&quot;')}" data-label="${label.replace(/"/g, '&quot;')}" class="resume-field-span cursor-pointer px-1 ${dynamicClasses}">${value}</span>`
-    const re = new RegExp(escaped.replace(/\s+/g, '\\s*'), 'g')
-    result = result.replace(re, span)
+  // Process each field type separately to avoid cross-type overlaps
+  const fieldTypes = ['personal', 'skills', 'experience', 'education', 'contact', 'default']
+  
+  for (const fieldType of fieldTypes) {
+    const fieldsByType = sorted.filter(f => (f.type || 'default') === fieldType)
+    
+    for (const { id, value, label, type } of fieldsByType) {
+      const cleanValue = value.trim()
+      if (!cleanValue) continue
+      
+      const isActive = activeFieldId === id
+      
+      // Define color schemes for different field types
+      const fieldColors = {
+        personal: {
+          active: 'bg-orange-50 border-l-4 border-orange-300 rounded-md pl-1.5 transition-all duration-200',
+          inactive: 'bg-orange-50 border-l-4 border-orange-300 rounded-md pl-1.5 transition-all duration-200'
+        },
+        skills: {
+          active: 'bg-blue-50 border-l-4 border-blue-300 rounded-md pl-1.5 transition-all duration-200',
+          inactive: 'bg-blue-50 border-l-4 border-blue-300 rounded-md pl-1.5 transition-all duration-200'
+        },
+        experience: {
+          active: 'bg-green-200 border-l-4 border-green-500 rounded-md pl-1.5 transition-all duration-200',
+          inactive: 'bg-green-100 border-l-4 border-green-400 rounded-md pl-1.5 transition-all duration-200'
+        },
+        education: {
+          active: 'bg-yellow-50 border-l-4 border-yellow-300 rounded-md pl-1.5 transition-all duration-200',
+          inactive: 'bg-yellow-50 border-l-4 border-yellow-300 rounded-md pl-1.5 transition-all duration-200'
+        },
+        contact: {
+          active: 'bg-pink-200 border-l-4 border-pink-500 rounded-md pl-1.5 transition-all duration-200',
+          inactive: 'bg-pink-100 border-l-4 border-pink-400 rounded-md pl-1.5 transition-all duration-200'
+        },
+        default: {
+          active: 'bg-blue-200 border-l-4 border-blue-500 rounded-md pl-1.5 transition-all duration-200',
+          inactive: 'bg-yellow-100 border-l-4 border-yellow-400 rounded-md pl-1.5 transition-all duration-200'
+        }
+      }
+      
+      // Get color scheme for field type, fallback to default
+      const colorScheme = fieldColors[type || 'default']
+      const { active: activeClasses, inactive: inactiveClasses } = colorScheme
+      
+      const dynamicClasses = isActive ? activeClasses : inactiveClasses
+      
+      // Create clean span with proper attributes
+      const span = `<span data-resume-field="${id}" data-value="${value.replace(/"/g, '&quot;')}" data-label="${label.replace(/"/g, '&quot;')}" data-field-type="${type || 'default'}" class="resume-field-span cursor-pointer px-1 ${dynamicClasses}">${value}</span>`
+      
+      // Strict regex that matches complete standalone words only
+      const escaped = escapeRegex(cleanValue)
+      
+      // Use word boundaries with context checking to prevent partial matches
+      // This approach checks character before and after to ensure complete word matching
+      const wordBoundaryRegex = new RegExp(`\\b${escaped}\\b`, 'gi')
+      
+      // Phrase-based matching to prevent partial matches completely
+      const phrasesToMatch = cleanValue.split(' ').filter(p => p.trim().length > 0)
+      phrasesToMatch.sort((a, b) => b.length - a.length)
+      
+      // Match each phrase separately with strict word boundaries
+      for (const phrase of phrasesToMatch) {
+        const phraseRegex = new RegExp(`\\b${escapeRegex(phrase)}\\b`, 'gi')
+        
+        result = result.replace(phraseRegex, (match) => {
+          // Check character context to ensure proper word boundaries
+          const matchIndex = result.indexOf(match)
+          const beforeChar = matchIndex > 0 ? result[matchIndex - 1] : ' '
+          const afterChar = result[matchIndex + match.length]
+          
+          // Only highlight if properly surrounded by word boundaries
+          const isProperBoundary = (
+            (beforeChar === undefined || beforeChar === ' ' || beforeChar === '\n' || beforeChar === '\t' || beforeChar === '.' || beforeChar === ',' || beforeChar === ';' || beforeChar === '(' || beforeChar === '[') &&
+            (afterChar === undefined || afterChar === ' ' || afterChar === '\n' || afterChar === '\t' || afterChar === '.' || afterChar === ',' || afterChar === ';' || afterChar === ')' || afterChar === ']')
+          )
+          
+          if (!isProperBoundary) {
+            return match // Don't highlight partial matches
+          }
+          
+          // Check if already inside a span
+          const beforeMatch = result.substring(0, matchIndex)
+          const openSpans = (beforeMatch.match(/<span/g) || []).length
+          const closeSpans = (beforeMatch.match(/<\/span>/g) || []).length
+          
+          // If we're inside an unclosed span, don't replace
+          if (openSpans > closeSpans) {
+            return match
+          }
+          
+          return span
+        })
+      }
+    }
   }
+  
   return result
 }
 
@@ -77,8 +168,65 @@ export default function ResumeViewerWithHighlights({
 
   const processedHtml = useMemo(() => {
     if (!html) return ''
-    return injectFieldSpans(html, fieldMappings, activeFieldId)
-  }, [html, fieldMappings, activeFieldId])
+    
+    // Always return html to prevent blank page
+    if (!html || html.trim() === '') return html
+    
+    // Debug: log the input
+    if (import.meta.env.DEV) {
+      console.log('[ResumeViewer] Input HTML:', html?.substring(0, 200))
+      console.log('[ResumeViewer] FieldMappings count:', fieldMappings.length)
+    }
+    
+    // Only highlight if we have fieldMappings (important skills)
+    if (fieldMappings.length === 0) return html
+    
+    // Highlight important skills with appropriate colors while preserving HTML structure
+    let highlightedHtml = html
+    
+    try {
+      for (const { value, type } of fieldMappings) {
+        const skillName = value.trim()
+        if (skillName.length > 2) {
+          // Create regex for exact phrase matching only (no partial matches)
+          const escapedSkill = skillName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+          // Match exact phrase with word boundaries, but not partial matches within larger phrases
+          const regex = new RegExp(`\\b${escapedSkill}\\b`, 'gi')
+          highlightedHtml = highlightedHtml.replace(regex, (match) => {
+            // Skip if already wrapped in mark tag to prevent double highlighting
+            if (match.includes('data-resume-field') || match.includes('style=')) {
+              return match
+            }
+            
+            // Set color based on field type
+            let bgColor = '#eff6ff' // Default light blue
+            let textColor = '#1e40af' // Default blue text
+            
+            if (type === 'education') {
+              bgColor = '#fef3c7' // Light yellow
+              textColor = '#92400e' // Yellow text
+            } else if (type === 'personal') {
+              bgColor = '#dcfce7' // Light green
+              textColor = '#166534' // Green text
+            } else if (type === 'skills') {
+              bgColor = '#eff6ff' // Light blue
+              textColor = '#1e40af' // Blue text
+            } else if (type === 'experience') {
+              bgColor = '#f3e8ff' // Light purple
+              textColor = '#6b21a8' // Purple text
+            }
+            
+            return `<mark data-resume-field="${type}" data-value="${value}" data-field-type="${type}" style="background-color: ${bgColor}; color: ${textColor}; padding: 2px 4px; border-radius: 3px; cursor: pointer;">${match}</mark>`
+          })
+        }
+      }
+    } catch (error) {
+      console.error('[ResumeViewer] Error in highlighting:', error)
+      return html // Return original HTML on error
+    }
+    
+    return highlightedHtml
+  }, [html, fieldMappings])
 
   useEffect(() => {
     if (!scrollToFieldId || !containerRef.current) return
@@ -98,36 +246,30 @@ export default function ResumeViewerWithHighlights({
   }, [scrollToFieldId, onScrollComplete])
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const target = (e.target as HTMLElement).closest('[data-resume-field]') as
-        | HTMLElement
-        | null
-      if (!target) {
-        setTooltip(null)
-        return
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement
+      const markElement = target.closest('mark') as HTMLElement | null
+      if (markElement) {
+        e.preventDefault()
+        
+        // Get the field type from the mark element's parent or data
+        const fieldType = markElement.getAttribute('data-field-type') || 'skills'
+        const fieldId = markElement.getAttribute('data-resume-field') || 'skills'
+        const value = markElement.textContent || ''
+        
+        // Navigate to appropriate section based on field type
+        if (fieldType === 'skills' || fieldId.includes('skill')) {
+          onFieldClick('skills', value, 'Skills') // Go to skills section
+        } else if (fieldType === 'personal' && fieldId === 'location') {
+          onFieldClick('work_history', value, 'Experience') // Go to work history section for locations
+        } else if (fieldType === 'personal') {
+          onFieldClick('full_name', value, 'Candidate Details') // Go to candidate details section
+        } else if (fieldType === 'experience') {
+          onFieldClick('work_history', value, 'Experience') // Go to work history section
+        } else if (fieldType === 'education') {
+          onFieldClick('education', value, 'Education') // Go to education section
+        }
       }
-      e.preventDefault()
-      const fieldId = target.dataset.resumeField ?? ''
-      const value = target.dataset.value ?? ''
-      const label = target.dataset.label ?? ''
-      onFieldClick(fieldId, value, label)
-      setTooltip({
-        x: e.clientX,
-        y: e.clientY,
-        value,
-        label,
-      })
-      const hideTooltip = (e: Event) => {
-        const target = e.target as HTMLElement
-        if (target.closest('[data-resume-tooltip]')) return
-        setTooltip(null)
-        window.removeEventListener('click', hideTooltip)
-        window.removeEventListener('scroll', hideTooltip)
-      }
-      requestAnimationFrame(() => {
-        window.addEventListener('click', hideTooltip)
-        window.addEventListener('scroll', hideTooltip)
-      })
     },
     [onFieldClick]
   )

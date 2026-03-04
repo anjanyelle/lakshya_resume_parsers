@@ -344,13 +344,13 @@ export function getDisplaySummary(
   const parsed = summaryFromParsed(parsedData)?.trim() ?? ''
   const db = dbSummary ?? ''
 
-  // Always prefer parsed if it exists
-  if (parsed && parsed.length > 0) {
-    return parsed
+  // Prefer database summary if it exists (means it was edited)
+  if (db && db.length > 0) {
+    return db
   }
 
-  // fallback to DB only if parsed missing
-  return db
+  // fallback to parsed only if DB summary missing
+  return parsed
 }
 
 /**

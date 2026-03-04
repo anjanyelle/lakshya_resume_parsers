@@ -1,0 +1,54 @@
+Replace this line:
+    { id: 'full_name', value: displayCandidate.full_name ?? '', label: 'Candidate Name' },
+With this:
+    { id: 'full_name', value: displayCandidate.full_name ?? '', label: 'Candidate Name', type: 'personal' },
+
+Replace this line:
+    { id: 'email', value: displayCandidate.email ?? '', label: 'Candidate Email' },
+With this:
+    { id: 'email', value: displayCandidate.email ?? '', label: 'Candidate Email', type: 'contact' },
+
+Replace this line:
+    { id: 'phone', value: displayCandidate.phone ?? '', label: 'Candidate Phone' },
+With this:
+    { id: 'phone', value: displayCandidate.phone ?? '', label: 'Candidate Phone', type: 'contact' },
+
+Replace this line:
+    { id: 'location', value: displayCandidate.location ?? '', label: 'Location' },
+With this:
+    { id: 'location', value: displayCandidate.location ?? '', label: 'Location', type: 'personal' },
+
+Replace this line:
+    { id: 'linkedin_url', value: displayCandidate.linkedin_url ?? '', label: 'LinkedIn' },
+With this:
+    { id: 'linkedin_url', value: displayCandidate.linkedin_url ?? '', label: 'LinkedIn', type: 'personal' },
+
+Replace this line:
+    { id: 'github_url', value: displayCandidate.github_url ?? '', label: 'GitHub' },
+With this:
+    { id: 'github_url', value: displayCandidate.github_url ?? '', label: 'GitHub', type: 'personal' },
+
+Replace this line:
+      .map((s) => ({ id: 'skills' as const, value: s.name, label: 'Skills' })),
+With this:
+      .map((s) => ({ id: 'skills' as const, value: s.name, label: 'Skills', type: 'skills' as const })),
+
+Replace this line:
+      .map((wh) => ({ id: 'experience' as const, value: wh.company_name ?? '', label: 'Experience' })),
+With this:
+      .map((wh) => ({ id: 'experience' as const, value: wh.company_name ?? '', label: 'Experience', type: 'experience' as const })),
+
+Replace this line:
+      .map((wh) => ({ id: 'experience' as const, value: wh.job_title ?? '', label: 'Experience' })),
+With this:
+      .map((wh) => ({ id: 'experience' as const, value: wh.job_title ?? '', label: 'Experience', type: 'experience' as const })),
+
+Replace this line:
+      .map((e) => ({ id: 'education' as const, value: e.institution ?? '', label: 'Education' })),
+With this:
+      .map((e) => ({ id: 'education' as const, value: e.institution ?? '', label: 'Education', type: 'education' as const })),
+
+Replace this line:
+      .map((e) => ({ id: 'education' as const, value: e.degree ?? '', label: 'Education' })),
+With this:
+      .map((e) => ({ id: 'education' as const, value: e.degree ?? '', label: 'Education', type: 'education' as const })),
