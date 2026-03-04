@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Create admin user in PostgreSQL database on Render.
-If the users table does not exist, runs Alembic migrations first and retries.
+Runs Alembic migrations first so the users table exists, then creates the admin user.
 """
 import asyncio
 import os
@@ -10,22 +10,23 @@ import sys
 from pathlib import Path
 
 # Add the app directory to Python path
-sys.path.append(str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import sessionmaker
 
 from app.core.database import get_db_url
+from app.models import Base  # noqa: F401 - loads all models into Base.metadata
 from app.models.user import User
 from app.core.security import get_password_hash
 
 
 def _run_migrations() -> None:
-    """Run Alembic migrations so that the users table exists."""
-    print("Users table missing; running migrations...")
+    """Run Alembic migrations using the same Python interpreter (avoids PATH issues in Docker)."""
+    print("Running database migrations...")
     result = subprocess.run(
-        ["alembic", "upgrade", "head"],
+        [sys.executable, "-m", "alembic", "upgrade", "head"],
         capture_output=True,
         text=True,
         env=os.environ.copy(),
@@ -40,12 +41,25 @@ def _run_migrations() -> None:
     print("Migrations completed.")
 
 
+def _ensure_users_table(engine) -> None:
+    """
+    If the users table is still missing (Alembic may have skipped because DB was marked at head),
+    create only the users table from the SQLAlchemy model. Safe: checkfirst=True.
+    """
+    print("Users table still missing; creating users table...")
+    Base.metadata.tables["users"].create(bind=engine, checkfirst=True)
+    print("Users table created.")
+
+
 async def create_admin_user() -> None:
-    """Create admin user in the database. Runs migrations first if users table is missing."""
+    """Create admin user in the database. Runs migrations first so the users table exists."""
     database_url = os.getenv("DATABASE_URL", get_db_url())
     print(
         f"Connecting to database: {database_url.split('@')[1] if '@' in database_url else 'local'}"
     )
+
+    # Ensure migrations have run (same DB as app; CMD may run alembic before this, but re-run is safe)
+    _run_migrations()
 
     engine = create_engine(database_url)
     SessionLocal = sessionmaker(bind=engine)
@@ -80,6 +94,7 @@ async def create_admin_user() -> None:
             if attempt == 0 and "users" in err_msg.lower() and "does not exist" in err_msg.lower():
                 db.close()
                 _run_migrations()
+                _ensure_users_table(engine)
                 continue
             print(f"❌ Error creating admin user: {e}")
             raise
