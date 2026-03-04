@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 _PLACEHOLDER_RE = re.compile(
-    r"^(company|client|organization|organisation|employer|designation|title|role|position|"
-    r"job\s*title|professional\s+experience\b|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|title(?:\s*role)?|role(?:\s*title)?|position|description)\b",
     re.IGNORECASE,
 )
 

@@ -2725,6 +2725,29 @@ class SectionParser:
         if skills or "skills" in sections:
             sections["skills"] = self._dedupe_preserve_order(skills)
 
+        summary = list(sections.get("summary", []) or [])
+        if summary:
+            cleaned_summary: list[str] = []
+            for line in summary:
+                # 1. Strip raw HTML tags (e.g., <div>, <span style="...">)
+                cleaned = re.sub(r"<[^>]*>", "", line)
+                
+                # 2. Deduplicate keywords within the line if it looks like a list
+                if "," in cleaned and len(cleaned) < 300:
+                    parts = [p.strip() for p in re.split(r",\s*", cleaned) if p.strip()]
+                    seen_parts: set[str] = set()
+                    unique_parts: list[str] = []
+                    for p in parts:
+                        p_low = p.lower()
+                        if p_low not in seen_parts:
+                            seen_parts.add(p_low)
+                            unique_parts.append(p)
+                    cleaned = ", ".join(unique_parts)
+                
+                if cleaned.strip():
+                    cleaned_summary.append(cleaned.strip())
+            sections["summary"] = self._dedupe_preserve_order(cleaned_summary)
+
         return sections
 
     def _truncate_sections_by_stop_headings(
