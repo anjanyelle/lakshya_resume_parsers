@@ -47,7 +47,28 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def options_preflight(request: Request, call_next):
+    """Ensure OPTIONS preflight always returns 200 so CORS preflight never gets 400/405."""
+    if request.method == "OPTIONS":
+        origin = request.headers.get("origin")
+        response = JSONResponse(content={}, status_code=200)
+        if origin and (not settings.CORS_ORIGINS or origin in settings.CORS_ORIGINS):
+            response.headers["Access-Control-Allow-Origin"] = origin
+        elif settings.CORS_ORIGINS:
+            response.headers["Access-Control-Allow-Origin"] = settings.CORS_ORIGINS[0]
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = request.headers.get("access-control-request-headers", "*")
+        response.headers["Access-Control-Max-Age"] = "86400"
+        return response
+    return await call_next(request)
+
+
 @app.middleware("http")
 async def csrf_protect(request: Request, call_next):
     if settings.CSRF_ENABLED and request.method in {"POST", "PUT", "PATCH", "DELETE"}:

@@ -10,6 +10,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Up
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from starlette.background import BackgroundTask
 from sqlalchemy import select
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db
@@ -121,22 +122,32 @@ async def _process_uploads(
         finally:
             await upload.close()
 
-        candidate = Candidate(
-            status=CandidateStatus.PENDING,
-            tenant_id=current_user.tenant_id if current_user else "default",
-        )
-        db.add(candidate)
-        db.flush()
+        try:
+            candidate = Candidate(
+                status=CandidateStatus.PENDING,
+                tenant_id=current_user.tenant_id if current_user else "default",
+            )
+            db.add(candidate)
+            db.flush()
 
-        job = ParsingJob(
-            candidate_id=candidate.id,
-            filename=upload.filename,
-            file_path=file_path,
-            status=ParsingJobStatus.PENDING,
-        )
-        db.add(job)
-        db.commit()
-        db.refresh(job)
+            job = ParsingJob(  
+                candidate_id=candidate.id,
+                filename=upload.filename,
+                file_path=file_path,
+                status=ParsingJobStatus.PENDING,
+            )
+            db.add(job)
+            db.commit()
+            db.refresh(job)
+        except ProgrammingError as e:
+            db.rollback()
+            err_msg = str(getattr(e, "orig", None) or e).lower()
+            if "does not exist" in err_msg or "candidates" in err_msg or "parsing_jobs" in err_msg:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Database schema not ready. Please try again in a moment or contact support.",
+                ) from e
+            raise
 
         try:
             base_key = f"resumes/{candidate.tenant_id}/{candidate.id}/{job.id}"
