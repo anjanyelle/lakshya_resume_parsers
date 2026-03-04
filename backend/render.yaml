@@ -72,8 +72,8 @@ services:
   - type: pserv
     name: resume-parser-db
     plan: free
-    databaseName: resume_parser
-    user: postgres
+    databaseName: resume_parser_h6rg
+    user: resume_parser_h6rg_user
 
   # Redis (Optional - for caching and background jobs)
   - type: redis
