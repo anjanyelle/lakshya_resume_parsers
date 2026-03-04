@@ -6,6 +6,7 @@ from uuid import uuid4
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 import structlog
 from sqlalchemy import text
@@ -51,22 +52,30 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def options_preflight(request: Request, call_next):
-    """Ensure OPTIONS preflight always returns 200 so CORS preflight never gets 400/405."""
-    if request.method == "OPTIONS":
+class OptionsPreflightMiddleware(BaseHTTPMiddleware):
+    """Runs first (added last). Ensures OPTIONS preflight always gets 200 so CORS never gets 400."""
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method != "OPTIONS":
+            return await call_next(request)
         origin = request.headers.get("origin")
         response = JSONResponse(content={}, status_code=200)
-        if origin and (not settings.CORS_ORIGINS or origin in settings.CORS_ORIGINS):
-            response.headers["Access-Control-Allow-Origin"] = origin
+        if origin:
+            if not settings.CORS_ORIGINS or origin in settings.CORS_ORIGINS:
+                response.headers["Access-Control-Allow-Origin"] = origin
+            elif settings.CORS_ORIGINS:
+                response.headers["Access-Control-Allow-Origin"] = settings.CORS_ORIGINS[0]
         elif settings.CORS_ORIGINS:
             response.headers["Access-Control-Allow-Origin"] = settings.CORS_ORIGINS[0]
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = request.headers.get("access-control-request-headers", "*")
+        response.headers["Access-Control-Allow-Headers"] = request.headers.get("access-control-request-headers", "content-type,authorization,x-csrf-token")
         response.headers["Access-Control-Max-Age"] = "86400"
         return response
-    return await call_next(request)
+
+
+# Add last so it runs first (outermost)
+app.add_middleware(OptionsPreflightMiddleware)
 
 
 @app.middleware("http")
