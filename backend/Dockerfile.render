@@ -52,6 +52,9 @@ RUN useradd -ms /bin/bash appuser \
 
 USER appuser
 
+# Set environment variables
+ENV ENVIRONMENT=production
+
 EXPOSE 8000
 
 # Health check
