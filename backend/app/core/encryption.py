@@ -25,37 +25,37 @@ def _load_keys() -> Dict[str, str]:
         return json.loads(settings.ENCRYPTION_KEYS_JSON)
     if settings.ENCRYPTION_KEY:
         return {settings.DEFAULT_TENANT_ID: settings.ENCRYPTION_KEY}
-    if settings.ENVIRONMENT.lower() in {"development", "local"}:
-        return {}
-    raise ValueError("Encryption key not configured")
+    # No key configured: use no-op (development or production without encryption)
+    return {}
 
 
-def _get_key_for_tenant(tenant_id: str) -> bytes:
+def _get_key_for_tenant(tenant_id: str) -> bytes | None:
     keys = _load_keys()
+    if not keys:
+        return None
     key = keys.get(tenant_id) or keys.get(get_settings().DEFAULT_TENANT_ID)
     if not key:
-        if get_settings().ENVIRONMENT.lower() in {"development", "local"}:
-            return b""
-        raise ValueError("No encryption key for tenant")
+        return None
     return key.encode("utf-8")
 
 
 def encrypt_value(value: str) -> str:
-    if get_settings().ENVIRONMENT.lower() in {"development", "local"}:
-        return value
     key = _get_key_for_tenant(get_current_tenant())
+    if not key:
+        return value
     fernet = Fernet(key)
     token = fernet.encrypt(value.encode("utf-8"))
     return token.decode("utf-8")
 
 
 def decrypt_value(token: str) -> str:
-    if get_settings().ENVIRONMENT.lower() in {"development", "local"}:
-        return token
     key = _get_key_for_tenant(get_current_tenant())
+    if not key:
+        return token
     fernet = Fernet(key)
     try:
         value = fernet.decrypt(token.encode("utf-8"))
-    except InvalidToken as exc:
-        raise ValueError("Invalid encryption token") from exc
+    except InvalidToken:
+        # Stored value may be plaintext (e.g. before encryption was enabled)
+        return token
     return value.decode("utf-8")
