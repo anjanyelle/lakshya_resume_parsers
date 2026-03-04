@@ -47,14 +47,17 @@ def register(
             "role": payload.role or "recruiter",
         },
     )
-    log_audit(
-        db,
-        user_id=str(user.id),
-        action="register",
-        resource_type="user",
-        resource_id=str(user.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(user.id),
+            action="register",
+            resource_type="user",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (register still succeeded): %s", e)
     return UserRead.model_validate(user)
 
 
@@ -70,14 +73,17 @@ def login(
         raise HTTPException(status_code=401, detail="Invalid credentials")
     access_token = create_access_token(subject=user.email)
     refresh_token = create_refresh_token(subject=user.email)
-    log_audit(
-        db,
-        user_id=str(user.id),
-        action="login",
-        resource_type="user",
-        resource_id=str(user.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(user.id),
+            action="login",
+            resource_type="user",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (login still succeeded): %s", e)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -108,14 +114,17 @@ def refresh(
     access_token = create_access_token(subject=subject)
     refresh_token = create_refresh_token(subject=subject)
     user = user_crud.get_by_email(db, subject)
-    log_audit(
-        db,
-        user_id=str(user.id) if user else None,
-        action="refresh",
-        resource_type="user",
-        resource_id=str(user.id) if user else None,
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(user.id) if user else None,
+            action="refresh",
+            resource_type="user",
+            resource_id=str(user.id) if user else None,
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (refresh still succeeded): %s", e)
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
