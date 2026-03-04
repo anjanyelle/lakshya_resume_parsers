@@ -41,7 +41,7 @@ apiClient.interceptors.request.use((config) => {
     config.headers = {
       ...config.headers,
       Authorization: `Bearer ${accessToken}`,
-    }
+    } as any
   }
   return config
 })
@@ -75,7 +75,7 @@ apiClient.interceptors.response.use(
     const shouldRetry = !status || status >= 500
     if (shouldRetry && (original?._retryCount ?? 0) < 2) {
       original._retryCount = (original._retryCount ?? 0) + 1
-      await new Promise((resolve) => setTimeout(resolve, 400 * original._retryCount))
+      await new Promise((resolve) => setTimeout(resolve, 400 * (original._retryCount ?? 1)))
       return apiClient(original)
     }
 
