@@ -39,9 +39,11 @@ RUN pip install --no-cache-dir spacy \
 # Copy application code
 COPY . .
 
-# Create storage directories
+# Create storage directories and initialize database
 RUN mkdir -p storage/uploads \
-    && mkdir -p logs
+    && mkdir -p logs \
+    && alembic upgrade head \
+    && python create_admin_user.py
 
 # Create non-root user for security
 RUN useradd -ms /bin/bash appuser \
@@ -56,4 +58,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Production startup command
-CMD ["sh", "-c", "alembic upgrade head && python create_admin_user.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["/usr/local/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
