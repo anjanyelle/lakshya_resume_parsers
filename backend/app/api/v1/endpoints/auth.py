@@ -59,6 +59,7 @@ def register(
         )
     except Exception as e:
         logger.warning("Audit log failed (register still succeeded): %s", e)
+        db.rollback()  # clear failed audit so session is usable for response
     return UserRead.model_validate(user)
 
 
@@ -85,6 +86,7 @@ def login(
         )
     except Exception as e:
         logger.warning("Audit log failed (login still succeeded): %s", e)
+        db.rollback()
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -133,6 +135,7 @@ def refresh(
         )
     except Exception as e:
         logger.warning("Audit log failed (refresh still succeeded): %s", e)
+        db.rollback()
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
@@ -164,14 +167,18 @@ def logout(
         RevokedToken(jti=jti, subject=subject, expires_at=expires_at)
     )
     db.commit()
-    log_audit(
-        db,
-        user_id=str(current_user.id),
-        action="logout",
-        resource_type="user",
-        resource_id=str(current_user.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(current_user.id),
+            action="logout",
+            resource_type="user",
+            resource_id=str(current_user.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (logout still succeeded): %s", e)
+        db.rollback()
     logger.info("User logged out", extra={"user": current_user.email})
     return {"status": "ok"}
 
@@ -196,14 +203,18 @@ def create_api_key(
     db.add(api_key)
     db.commit()
     db.refresh(api_key)
-    log_audit(
-        db,
-        user_id=str(current_user.id),
-        action="create_api_key",
-        resource_type="api_key",
-        resource_id=str(api_key.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(current_user.id),
+            action="create_api_key",
+            resource_type="api_key",
+            resource_id=str(api_key.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (create_api_key still succeeded): %s", e)
+        db.rollback()
     return ApiKeyResponse(api_key=raw_key, key_id=api_key.id)
 
 
@@ -222,12 +233,16 @@ def revoke_api_key(
     db.add(api_key)
     db.commit()
     db.refresh(api_key)
-    log_audit(
-        db,
-        user_id=str(current_user.id),
-        action="revoke_api_key",
-        resource_type="api_key",
-        resource_id=str(api_key.id),
-        ip_address=request.client.host if request.client else None,
-    )
+    try:
+        log_audit(
+            db,
+            user_id=str(current_user.id),
+            action="revoke_api_key",
+            resource_type="api_key",
+            resource_id=str(api_key.id),
+            ip_address=request.client.host if request.client else None,
+        )
+    except Exception as e:
+        logger.warning("Audit log failed (revoke_api_key still succeeded): %s", e)
+        db.rollback()
     return ApiKeyRead.model_validate(api_key)

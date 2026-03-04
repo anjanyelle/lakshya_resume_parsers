@@ -41,6 +41,18 @@ def _run_migrations() -> None:
     print("Migrations completed.")
 
 
+def _ensure_all_tables(engine) -> None:
+    """
+    Create any missing tables from SQLAlchemy models (e.g. when Alembic reports 'at head'
+    but the DB was created elsewhere or migrations didn't fully apply). Safe: checkfirst=True.
+    """
+    try:
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+    except Exception as e:
+        # e.g. enum type already exists from a partial migration; don't fail startup
+        print(f"Note: Could not ensure all tables: {e}")
+
+
 def _ensure_users_table(engine) -> None:
     """
     If the users table is still missing (Alembic may have skipped because DB was marked at head),
@@ -62,6 +74,11 @@ async def create_admin_user() -> None:
     _run_migrations()
 
     engine = create_engine(database_url)
+
+    # If Alembic was already "at head" but tables are missing (e.g. new DB or partial state),
+    # create any missing tables from models so upload and other endpoints work.
+    _ensure_all_tables(engine)
+
     SessionLocal = sessionmaker(bind=engine)
 
     for attempt in range(2):
