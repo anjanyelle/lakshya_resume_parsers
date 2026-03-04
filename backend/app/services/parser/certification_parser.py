@@ -232,41 +232,79 @@ class CertificationParser:
         return out
 
     def parse(self, text: str) -> list[CertificationEntry]:
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        entries: list[CertificationEntry] = []
+        raw_lines = [line.strip() for line in text.splitlines() if line.strip()]
+        if not raw_lines:
+            return []
 
-        for line in lines:
+        # Multi-line grouping logic
+        # We try to group adjacent lines that belong to the same certification.
+        # A new certification usually starts with a strong marker or a known cert name.
+        
+        grouped_blocks: list[list[str]] = []
+        current_block: list[str] = []
+        
+        for line in raw_lines:
+            # Check if this line looks like a NEW certification start
+            # or a continuation of the current one.
+            is_start = False
             
-            line = re.sub(r"\s*[–—]\s*(?=[A-Z])", "\n", line)
-            #Remove bullets / dashes from beginning
+            # 1. Starts with a bullet? (likely new entry)
+            if line.startswith(("-", "*", "•", "\u2022", "", "", "▪")):
+                is_start = True
+            
+            # 2. Strong marker present?
+            lowered = line.lower()
+            if any(marker in lowered for marker in CERT_LINE_MARKERS) and len(line.split()) < 15:
+                # If current block already has a name, this might be a new one
+                if current_block:
+                    is_start = True
+            
+            # 3. Known abbreviation?
+            if any(re.search(rf"\b{re.escape(alias)}\b", lowered) for alias in CERTIFICATION_ALIASES):
+                if current_block:
+                    is_start = True
+
+            if is_start and current_block:
+                grouped_blocks.append(current_block)
+                current_block = [line]
+            else:
+                current_block.append(line)
+        
+        if current_block:
+            grouped_blocks.append(current_block)
+
+        entries: list[CertificationEntry] = []
+        seen_keys: set[str] = set()
+
+        for block in grouped_blocks:
+            # Join block lines into a single "meta-line" for parsing
+            # but preserve some separation
+            combined_text = " | ".join(block)
+            
+            # Apply standard cleaning
+            line = re.sub(r"\s*[–—]\s*(?=[A-Z])", "\n", combined_text)
             line = re.sub(r"^[\-\*•\u2022\–\—]+\s*", "", line)
-            #Normalize spacing (VERY IMPORTANT for PDF)
             line = re.sub(r"\s*-\s*", " - ", line)
             line = re.sub(r"\s*:\s*", ": ", line)
             line = re.sub(r"\s+", " ", line).strip()
 
             if not line:
                 continue
-            # Split comma-separated certifications
-            # (Sir originally split only by bullet/pipe)
+
             candidates = self._split_candidate_lines(line)
-
             for candidate in candidates:
-
                 if not candidate:
                     continue
-
-                # Skip skill lists accidentally inside section
-                if self._looks_like_skill_list(candidate):
-                    continue
-
-                # Skip section labels accidentally captured
-                if self._looks_like_section_label(candidate):
+                if self._looks_like_skill_list(candidate) or self._looks_like_section_label(candidate):
                     continue
 
                 entry = self._parse_line(candidate)
                 if entry:
-                    entries.append(entry)
+                    # Deduplication: Name + Org
+                    key = f"{entry.name.lower()}|{(entry.issuing_organization or '').lower()}"
+                    if key not in seen_keys:
+                        seen_keys.add(key)
+                        entries.append(entry)
 
         return entries
 

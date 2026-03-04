@@ -199,6 +199,10 @@ class EducationParser:
         # Post-parse merge: merge adjacent entries where one has institution
         # but no degree and the other has degree but no institution.
         entries = self._merge_adjacent_entries(entries)
+        
+        # Deduplication: Remove exact duplicates (Institution + Degree)
+        entries = self._dedupe_entries(entries)
+        
         return entries
 
     # ------------------------------------------------------------------
@@ -318,6 +322,24 @@ class EducationParser:
             merged.append(current)
 
         return merged
+
+    def _dedupe_entries(self, entries: list[EducationEntry]) -> list[EducationEntry]:
+        """Remove duplicate education entries based on institution and degree."""
+        if not entries:
+            return entries
+        seen: set[str] = set()
+        deduped: list[EducationEntry] = []
+        for entry in entries:
+            inst = (entry.institution or "").strip().lower()
+            deg = (entry.degree or "").strip().lower()
+            if not inst and not deg:
+                deduped.append(entry)
+                continue
+            key = f"{inst}|{deg}"
+            if key not in seen:
+                seen.add(key)
+                deduped.append(entry)
+        return deduped
 
     def _combine_entries(self, degree_entry: EducationEntry, inst_entry: EducationEntry) -> EducationEntry:
         """Combine two entries, preferring the degree_entry for degree/field/dates
@@ -1139,6 +1161,10 @@ class EducationParser:
             )
             return parsed.date() if parsed else None
             
+        year_only = re.match(r"^(\d{4})$", raw)
+        if year_only:
+            return date(int(year_only.group(1)), 1, 1)
+            
         parsed = dateparser.parse(
             raw, 
             settings={
@@ -1149,24 +1175,22 @@ class EducationParser:
         )
         if parsed:
             return parsed.date()
+
         # Fallback for "July-2010", "June 2014", "Aug. 2018", "Dec 2019" when dateparser fails (allow period after month)
         month_year = re.match(
             r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z.]*[\s\-/.]*(\d{2,4})",
-            value,
+            raw,
             re.IGNORECASE,
         )
         if month_year:
             y = int(month_year.group(1))
             if y < 100:
                 y = 2000 + y if y < 50 else 1900 + y
-            month_str = value[:3].lower()
+            month_str = raw[:3].lower()
             months = "jan feb mar apr may jun jul aug sep oct nov dec".split()
-            for i, m in enumerate(months, 1):
-                if month_str == m:
+            for i, mo in enumerate(months, 1):
+                if month_str == mo:
                     return date(y, i, 1)
-        year_only = re.match(r"^(\d{4})$", value)
-        if year_only:
-            return date(int(year_only.group(1)), 1, 1)
         return None
 
     def _extract_gpa(self, text: str) -> str | None:
