@@ -252,6 +252,11 @@ def reprocess_candidate(
         file_path=job.file_path,
     )
     db.add(new_job)
+
+    candidate_row = db.query(Candidate).filter(Candidate.id == job.candidate_id).first()
+    if candidate_row:
+        candidate_row.summary_manually_edited = False
+
     db.commit()
     job_id = str(new_job.id)
 
@@ -565,6 +570,39 @@ def submit_corrections(
         else:
             original_value = correction.original_value
 
+        # ---------- SUMMARY SPECIAL HANDLING ----------
+        if field == "summary":
+            print(f"🔧 SUMMARY EDIT: Processing summary correction")
+            print(f"🔧 SUMMARY EDIT: Candidate ID: {candidate.id}")
+            
+            # Safe access to the attribute
+            before_flag = getattr(candidate, 'summary_manually_edited', False)
+            print(f"🔧 SUMMARY EDIT: BEFORE - summary_manually_edited: {before_flag}")
+            print(f"🔧 SUMMARY EDIT: BEFORE - summary length: {len(candidate.summary) if candidate.summary else 0}")
+            
+            record_correction(
+                db,
+                candidate_id=candidate.id,
+                field_name=field,
+                original_value=original_value,
+                corrected_value=str(corrected_value) if corrected_value is not None else None,
+                corrected_by=str(current_user.id),
+            )
+ 
+            candidate.summary = corrected_value
+            candidate.summary_manually_edited = True
+            
+            # Ensure the flag is flushed to database before continue
+            db.flush()
+            
+            after_flag = getattr(candidate, 'summary_manually_edited', False)
+            print(f"🔧 SUMMARY EDIT: AFTER - summary_manually_edited: {after_flag}")
+            print(f"🔧 SUMMARY EDIT: AFTER - summary length: {len(candidate.summary) if candidate.summary else 0}")
+            print(f"🔧 SUMMARY EDIT: New summary: {candidate.summary}")
+
+            # Skip general logic since we handled everything here
+            continue  
+
         record_correction(
             db,
             candidate_id=candidate.id,
@@ -577,7 +615,7 @@ def submit_corrections(
             setattr(candidate, field, corrected_value)
             if field == "email":
                 candidate.email_hash = hash_value(corrected_value)
-
+            
         # if field == "skills" and corrected_value:
         #     from app.models import CandidateSkill, Skill
         #     suggest_skills(db, corrected_value, source="manual_correction")
@@ -877,7 +915,7 @@ def update_education(
         user_id=str(current_user.id),
         action="education_update",
         resource_type="candidate",
-        resource_id=str(candidate_id),
+        resource_id=str(candidate_id), 
         ip_address=None,
     )
     return CandidatePublicRead.model_validate(candidate)
