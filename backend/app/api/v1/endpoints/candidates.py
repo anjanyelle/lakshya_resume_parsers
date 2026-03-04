@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 import dateparser
 import structlog
 from sqlalchemy import or_, select
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db, require_role
@@ -88,7 +89,14 @@ def list_candidates(
         if "@" in q:
             filters.append(Candidate.email_hash == hash_value(q))
         query = query.filter(or_(*filters))
-    candidates = query.offset(skip).limit(limit).all()
+    try:
+        candidates = query.offset(skip).limit(limit).all()
+    except ProgrammingError as e:
+        err_msg = str(getattr(e, "orig", e) or e).lower()
+        if "candidates" in err_msg or "does not exist" in err_msg:
+            db.rollback()
+            return []
+        raise
     return [CandidatePublicRead.model_validate(c) for c in candidates]
 
 
