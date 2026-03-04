@@ -165,14 +165,17 @@ async def _process_uploads(
             background_tasks.add_task(start_parsing_workflow, str(job.id))
         else:
             background_tasks.add_task(start_parsing_workflow, str(job.id))
-        log_audit(
-            db,
-            user_id=str(current_user.id) if current_user else None,
-            action="upload_resume",
-            resource_type="candidate",
-            resource_id=str(candidate.id),
-            ip_address=None,
-        )
+        try:
+            log_audit(
+                db,
+                user_id=str(current_user.id) if current_user else None,
+                action="upload_resume",
+                resource_type="candidate",
+                resource_id=str(candidate.id),
+                ip_address=None,
+            )
+        except Exception as e:
+            logger.warning("Audit log failed (upload still succeeded): %s", e)
         jobs.append(UploadJobResponse(job_id=str(job.id), status=job.status.value))
 
     return BatchUploadResponse(message="Upload successful", jobs=jobs)
