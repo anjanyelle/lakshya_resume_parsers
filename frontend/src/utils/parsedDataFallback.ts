@@ -334,22 +334,27 @@ export function getDisplayEducation(
 }
 
 /**
- * Summary for display: prefer parsed section content so UI matches exported JSON.
+ * Summary for display: prioritize database summary (user edits) over parsed data.
  */
 export function getDisplaySummary(
   parsedData: Record<string, any>,
   dbSummary: string | null | undefined,
+  summaryManuallyEdited?: boolean,
 ): string {
-
   const parsed = summaryFromParsed(parsedData)?.trim() ?? ''
-  const db = dbSummary ?? ''
+  const db = (dbSummary ?? '').trim()
 
-  // Always prefer parsed if it exists
-  if (parsed && parsed.length > 0) {
+  // If user manually edited — always show their edited text
+  if (summaryManuallyEdited && db.length > 0) {
+    return db
+  }
+
+  // Otherwise show parsed (initial upload state) if available
+  if (parsed.length > 0) {
     return parsed
   }
 
-  // fallback to DB only if parsed missing
+  // Final fallback to database (might be empty)
   return db
 }
 

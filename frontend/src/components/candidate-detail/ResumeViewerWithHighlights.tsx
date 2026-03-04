@@ -4,56 +4,72 @@ import { scrollToResumeSpan } from '../../hooks/useScrollToField'
 export type FieldMapping = {
   id: string
   value: string
-  label: string
+  label?: string
 }
 
 type ResumeViewerWithHighlightsProps = {
-  /** Rendered HTML from DOCX (mammoth) or other source */
   html?: string | null
-  /** PDF blob URL - shown when html is empty (click-to-highlight not supported for PDF) */
   pdfUrl?: string | null
-  /** Shown when both html and pdfUrl are empty */
   emptyMessage?: string
-  /** Fields to make clickable in HTML (name, email, phone, location) */
   fieldMappings: FieldMapping[]
-  /** Currently active field id */
   activeFieldId: string | null
-  /** When user clicks text in resume */
   onFieldClick: (fieldId: string, value: string, label: string) => void
-  /** Scroll to this field when selected from right panel */
   scrollToFieldId: string | null
-  /** Callback when scroll completed */
   onScrollComplete?: () => void
 }
 
-function escapeRegex(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-/** Inject clickable spans into HTML for known field values */
 function injectFieldSpans(
   html: string,
   fieldMappings: FieldMapping[],
   activeFieldId: string | null
 ): string {
   let result = html
-  // Sort by value length descending so longer values get replaced first (e.g. full email before substring)
-  const sorted = [...fieldMappings].filter((f) => f.value && f.value.trim().length > 2)
-  sorted.sort((a, b) => (b.value?.length ?? 0) - (a.value?.length ?? 0))
 
-  for (const { id, value, label } of sorted) {
-    const escaped = escapeRegex(value.trim())
-    if (!escaped) continue
+  result = result.replace(/<mark[^>]*data-resume-field[^>]*>([\s\S]*?)<\/mark>/g, '$1')
+  result = result.replace(/<span[^>]*data-resume-field[^>]*>([\s\S]*?)<\/span>/g, '$1')
+
+  const sorted = [...fieldMappings]
+    .filter((f) => f.value && f.value.trim().length > 2)
+    .sort((a, b) => (b.value?.length ?? 0) - (a.value?.length ?? 0))
+
+  for (const { id, value } of sorted) {
+    const cleanValue = value.trim()
+    if (!cleanValue) continue
+
     const isActive = activeFieldId === id
-    const activeClasses =
-      'bg-blue-200 border-l-4 border-blue-500 rounded-md pl-1.5 transition-all duration-200'
-    const inactiveClasses =
-      'bg-yellow-100 border-l-4 border-yellow-400 rounded-md pl-1.5 transition-all duration-200'
-    const dynamicClasses = isActive ? activeClasses : inactiveClasses
-    const span = `<span data-resume-field="${id}" data-value="${value.replace(/"/g, '&quot;')}" data-label="${label.replace(/"/g, '&quot;')}" class="resume-field-span cursor-pointer px-1 ${dynamicClasses}">${value}</span>`
-    const re = new RegExp(escaped.replace(/\s+/g, '\\s*'), 'g')
-    result = result.replace(re, span)
+    const activeStyle = 'background-color: #fde68a; color: #92400e; padding: 1px 8px; border-radius: 999px; cursor: pointer; font-weight: 500;'
+
+    let inactiveStyle: string
+    if (id.includes('skill') || id === 'skills') {
+  // 🔵 Skills → light blue pill
+      inactiveStyle = 'background-color: #e0f2fe; color: #0369a1; padding: 1px 8px; border-radius: 999px; cursor: pointer;'
+    } else if (id.includes('education') || id === 'degree' || id === 'institution') {
+  // 🟠 Education → light orange pill
+      inactiveStyle = 'background-color: #ffedd5; color: #c2410c; padding: 1px 8px; border-radius: 999px; cursor: pointer;'
+    } else if (id.includes('experience') || id.includes('company') || id.includes('role') || id === 'work_history') {
+  // 🟡 Experience/Clients → light yellow pill
+      inactiveStyle = 'background-color: #fef9c3; color: #854d0e; padding: 1px 8px; border-radius: 999px; cursor: pointer;'
+    } else if (id === 'full_name' || id === 'email' || id === 'phone' || id === 'location') {
+  // 🟢 Candidate details → light green pill
+      inactiveStyle = 'background-color: #dcfce7; color: #166534; padding: 1px 8px; border-radius: 999px; cursor: pointer;'
+    } else {
+  // default → light blue pill
+      inactiveStyle = 'background-color: #e0f2fe; color: #0369a1; padding: 1px 8px; border-radius: 999px; cursor: pointer;'
+    }
+
+    const style = isActive ? activeStyle : inactiveStyle
+
+    const escapedValue = cleanValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const wordBoundaryRegex = new RegExp(`(?![^<]*>)\\b${escapedValue}\\b`, 'gi')
+
+    result = result.replace(wordBoundaryRegex, (match) => {
+      if (match.includes('data-resume-field') || match.includes('style=')) {
+        return match
+      }
+      return `<mark data-resume-field="${id}" data-value="${cleanValue.replace(/"/g, '&quot;')}" style="${style}">${match}</mark>`
+    })
   }
+
   return result
 }
 
@@ -99,9 +115,7 @@ export default function ResumeViewerWithHighlights({
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      const target = (e.target as HTMLElement).closest('[data-resume-field]') as
-        | HTMLElement
-        | null
+      const target = (e.target as HTMLElement).closest('[data-resume-field]') as HTMLElement | null
       if (!target) {
         setTooltip(null)
         return
@@ -109,13 +123,32 @@ export default function ResumeViewerWithHighlights({
       e.preventDefault()
       const fieldId = target.dataset.resumeField ?? ''
       const value = target.dataset.value ?? ''
-      const label = target.dataset.label ?? ''
-      onFieldClick(fieldId, value, label)
+
+      // ✅ CHANGE 2: Redirect by field type
+      if (fieldId.includes('skill') || fieldId === 'skills') {
+        onFieldClick('skills', value, 'Skills')
+      } else if (fieldId === 'full_name' || fieldId === 'email' || fieldId === 'phone' || fieldId === 'location') {
+        onFieldClick('full_name', value, 'Candidate Details')
+      } else if (fieldId.includes('education') || fieldId === 'degree' || fieldId === 'institution') {
+        onFieldClick('education', value, 'Education')
+      } else if (fieldId.includes('experience_company')) {
+        // 🟡 Clients → highlight like skills (no navigation)
+        onFieldClick('skills', value, 'Clients')
+      } else if (fieldId.includes('experience_role')) {
+        // 🟡 Experience roles → highlight like skills (no navigation)
+        onFieldClick('skills', value, 'Experience Roles')
+      } else if (fieldId === 'work_history') {
+        // 🟡 Work history → highlight like skills (no navigation)
+        onFieldClick('skills', value, 'Work History')
+      } else if (fieldId === 'full_name' || fieldId === 'email' || fieldId === 'phone' || fieldId === 'location') {
+        onFieldClick('full_name', value, 'Candidate Details')
+      }
+
       setTooltip({
         x: e.clientX,
         y: e.clientY,
         value,
-        label,
+        label: fieldId,
       })
       const hideTooltip = (e: Event) => {
         const target = e.target as HTMLElement
