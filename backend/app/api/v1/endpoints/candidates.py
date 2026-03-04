@@ -92,8 +92,15 @@ def list_candidates(
     try:
         candidates = query.offset(skip).limit(limit).all()
     except ProgrammingError as e:
-        err_msg = str(getattr(e, "orig", e) or e).lower()
-        if "candidates" in err_msg or "does not exist" in err_msg:
+        err_msg = str(getattr(e, "orig", None) or e).lower()
+        if "does not exist" in err_msg or "candidates" in err_msg:
+            db.rollback()
+            return []
+        raise
+    except Exception as e:
+        # Catch wrapped or alternate DB errors (e.g. missing table)
+        err_msg = str(getattr(e, "orig", None) or e).lower()
+        if "relation" in err_msg and "does not exist" in err_msg:
             db.rollback()
             return []
         raise
