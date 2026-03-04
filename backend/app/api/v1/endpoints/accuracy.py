@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import desc, func
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db
@@ -13,13 +14,34 @@ from app.models.parsing_job import ParsingJobStatus
 router = APIRouter()
 
 
+def _empty_accuracy_overview() -> dict:
+    return {
+        "total_jobs": 0,
+        "success_jobs": 0,
+        "failed_jobs": 0,
+        "success_rate": 0.0,
+        "avg_processing_seconds": 0.0,
+        "avg_confidence": 0.0,
+        "correction_rate": 0.0,
+        "section_scores": [],
+        "recent_runs": [],
+    }
+
+
 @router.get("/accuracy/overview")
 def accuracy_overview(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict[str, object]:
     enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
-    total = db.query(func.count(ParsingJob.id)).scalar() or 0
+    try:
+        total = db.query(func.count(ParsingJob.id)).scalar() or 0
+    except ProgrammingError as e:
+        err_msg = str(getattr(e, "orig", e) or e).lower()
+        if "parsing_jobs" in err_msg or "does not exist" in err_msg:
+            db.rollback()
+            return _empty_accuracy_overview()
+        raise
     success = (
         db.query(func.count(ParsingJob.id))
         .filter(ParsingJob.status == ParsingJobStatus.SUCCESS)

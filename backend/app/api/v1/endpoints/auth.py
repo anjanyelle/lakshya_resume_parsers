@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from jose import JWTError
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 import secrets
@@ -107,9 +108,16 @@ def refresh(
     if not jti or not subject:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
-    if revoked:
-        raise HTTPException(status_code=401, detail="Token revoked")
+    try:
+        revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
+        if revoked:
+            raise HTTPException(status_code=401, detail="Token revoked")
+    except ProgrammingError as e:
+        err_msg = str(getattr(e, "orig", e) or e).lower()
+        if "revoked_tokens" in err_msg:
+            db.rollback()
+        else:
+            raise
 
     access_token = create_access_token(subject=subject)
     refresh_token = create_refresh_token(subject=subject)

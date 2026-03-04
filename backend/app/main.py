@@ -124,6 +124,17 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
+@app.get("/", include_in_schema=False)
+async def root() -> dict:
+    """Root route so GET / returns 200 instead of 404."""
+    return {
+        "service": settings.APP_NAME,
+        "docs": "/docs",
+        "health": "/health",
+        "api": settings.API_V1_STR,
+    }
+
+
 @app.get("/metrics", include_in_schema=False)
 async def metrics() -> Response:
     db = SessionLocal()
