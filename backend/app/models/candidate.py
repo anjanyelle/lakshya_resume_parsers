@@ -52,6 +52,7 @@ class Candidate(Base):
     linkedin_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     github_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    summary_manually_edited: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     years_experience: Mapped[float | None] = mapped_column(nullable=True)
     years_experience_confidence: Mapped[float | None] = mapped_column(
         Float, nullable=True

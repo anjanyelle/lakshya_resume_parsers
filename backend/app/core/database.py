@@ -26,6 +26,11 @@ SessionLocal = sessionmaker(
 )
 
 
+def get_db_url() -> str:
+    """Return the database URL (for scripts that need a connection string)."""
+    return str(settings.DATABASE_URL)
+
+
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:

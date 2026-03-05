@@ -51,6 +51,7 @@ class CandidatePublicRead(BaseModel):
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
     summary: Optional[str] = None
+    summary_manually_edited: Optional[bool] = False
     years_experience: Optional[float] = None
     years_experience_confidence: Optional[float] = None
     current_title: Optional[str] = None
