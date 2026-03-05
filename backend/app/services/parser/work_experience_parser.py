@@ -75,7 +75,7 @@ EDU_KEYWORD_RE = re.compile(
 )
 CERT_KEYWORD_RE = re.compile(r"\b(certified|certification|certificate)\b", re.IGNORECASE)
 PLACEHOLDER_ORG_RE = re.compile(
-    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|title(?:\s*role)?|role(?:\s*title)?|position|description)\b",
+    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|title(?:\s*role)?|role(?:\s*title)?|position|description|location|duration|period|dates?)\b",
     re.IGNORECASE,
 )
 CLIENT_PATTERNS: list[re.Pattern[str]] = [
@@ -677,8 +677,14 @@ class WorkExperienceParser:
             return False
 
         # Reject skill/tool lists accidentally promoted into a "job" header (common PDF failure mode).
-        if WorkExperienceParser._looks_like_skillish_header(company) or WorkExperienceParser._looks_like_skillish_header(title):
-            return False
+        # If we have a strong title and dates, be less aggressive about this.
+        has_dates = bool(job.start_date) or bool(job.end_date)
+        is_skillish_company = WorkExperienceParser._looks_like_skillish_header(company)
+        is_skillish_title = WorkExperienceParser._looks_like_skillish_header(title)
+        
+        if (is_skillish_company or is_skillish_title):
+            if not (has_dates and title and WorkExperienceParser._looks_like_title(title)):
+                return False
 
         has_dates = bool(job.start_date) or bool(job.end_date)
         has_body = bool(job.bullets) or bool(str(job.description or "").strip())
@@ -969,9 +975,9 @@ class WorkExperienceParser:
         # we combine them to ensure no content (like plain text paragraphs) is lost.
         # But we prioritize labeled_desc if it exists.
         if labeled_desc:
-            description_lines = labeled_desc
+            description_lines = [self._clean_header_text(line) for line in labeled_desc]
         else:
-            description_lines = body_lines
+            description_lines = [self._clean_header_text(line) for line in body_lines]
 
         description = "\n".join(description_lines)
         duration_months = self._calc_duration_months(start_date, end_date, is_current)
@@ -998,9 +1004,13 @@ class WorkExperienceParser:
                 # Keep consulting firm as company, client as client
                 pass
             elif self._client_looks_embedded_in_company(company_clean, client):
-                cleaned = self._remove_embedded_client(company_clean, client)
-                if cleaned:
-                    company = cleaned
+                remainder = self._remove_embedded_client(company_clean, client)
+                # If the remainder looks like a location, then 'client' was likely the company name
+                # and the company field just included the location.
+                if remainder and not self._parse_location(remainder):
+                    company = remainder
+                else:
+                    company = client
             else:
                 # If we have both a company and a client, and company isn't consulting,
                 # we might have them swapped or both valid. For now, keep as is.
@@ -1094,42 +1104,40 @@ class WorkExperienceParser:
 
         return final_location, company_clean, title_clean
 
-    def _clean_header_text(self, text: str | None) -> str:
+    def _clean_header_text(self, text: str | None, strip_labels: bool = True) -> str:
         if not text:
             return ""
-        # 1. Strip markdown headers
+        # 1. Strip markdown headers (handle ##, ###, and multiple leading #)
         cleaned = re.sub(r"^#+\s*", "", text.strip())
+        # Also handle mid-line remnants of headers if they look like artifacts
+        cleaned = re.sub(r"\s*##+\s*", " ", cleaned)
         
         # 2. Strip parentheticals that look like dates or locations
-        # Handles: "(Atlanta, GA August 2020 - May 2023)", "(Contract)", "(Jan 2020 - Present)"
-        # Use a non-greedy approach to catch multiple parentheticals
         def clean_parenthetical(match):
             content = match.group(1).lower()
-            # If it contains a date token, a location pattern, or is just a status like "contract"
             if DATE_ANCHOR_RE.search(content) or LOCATION_RE.search(content) or any(kw in content for kw in {"contract", "remote", "onsite", "hybrid", "freelance"}):
                 return ""
-            return match.group(0) # Keep it if it doesn't look like noise
+            return match.group(0)
 
         cleaned = re.sub(r"\(([^)]+)\)", clean_parenthetical, cleaned)
         
-        # 3. Strip literal labels aggressively (even without colons)
-        # Handles "Company Home Depot" or "Role Senior Developer"
-        # We only strip at the beginning of the string to avoid stripping valid words mid-name
-        label_match = PLACEHOLDER_ORG_RE.match(cleaned)
-        if label_match:
-            # Check if there is a colon or enough trailing text to justify stripping
-            if ":" in cleaned:
-                cleaned = cleaned.split(":", 1)[1]
-            else:
-                # Fallback: strip the label word if it's followed by a space
-                cleaned = cleaned[label_match.end():]
+        # 3. Strip literal labels aggressively
+        # Handles "Role: Site Reliability Engineer" or "Company Northern Trust"
+        if strip_labels:
+            label_match = PLACEHOLDER_ORG_RE.match(cleaned)
+            if label_match:
+                if ":" in cleaned:
+                    cleaned = cleaned.split(":", 1)[1]
+                else:
+                    # Only strip at start if followed by word boundary
+                    cleaned = re.sub(rf"^{PLACEHOLDER_ORG_RE.pattern}\b\s*", "", cleaned, flags=re.IGNORECASE)
         
-        # Final cleanup of stray markers and extra whitespace
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned.strip(" -–—|,;:")
 
     def _parse_company_title(self, header: str) -> tuple[str | None, str | None]:
-        cleaned = self._clean_header_text(header)
+        # Do NOT strip labels yet, as we need them for identification (Client: X, Role: Y)
+        cleaned = self._clean_header_text(header, strip_labels=False)
         if not cleaned:
             return None, None
 
@@ -1363,13 +1371,18 @@ class WorkExperienceParser:
             if cleaned.isupper() and 2 <= len(cleaned) <= 10:
                 return True
             # Single word Title Case (e.g. "Humana", "Amazon", "Flipkart")
-            # But only if it's not a title keyword
+            # But only if it's not a title keyword or a metadata label
             if cleaned.istitle() and not TITLE_HINT_RE.search(cleaned):
+                if cleaned.lower() in {"location", "duration", "period", "dates", "summary"}:
+                    return False
                 return True
 
         if 2 <= len(cleaned) <= 40 and cleaned.isupper() and not TITLE_HINT_RE.search(cleaned):
             # Reject strings that look like dates (e.g. "AUG 2020")
             if DATE_ANCHOR_RE.search(cleaned):
+                return False
+            # Reject metadata headers in ALL CAPS
+            if cleaned in {"LOCATION", "DURATION", "PERIOD", "DATES", "SUMMARY"}:
                 return False
             return True
             
@@ -1408,6 +1421,10 @@ class WorkExperienceParser:
             return False
         # Reject literal labels like "Role", "Company", etc.
         if PLACEHOLDER_ORG_RE.match(lowered.rstrip(": ")):
+            return False
+        
+        # If the string contains "Role:" or "Company:", definitely not a title
+        if any(kw + ":" in lowered for kw in {"role", "company", "client", "position", "designation"}):
             return False
 
         # Reject location patterns like "Minneapolis, Mn" or "Boston, MA" from being titles
@@ -1563,19 +1580,19 @@ class WorkExperienceParser:
         if "|" in cleaned:
             parts = [p.strip() for p in cleaned.split("|") if p.strip()]
             if len(parts) >= 2:
-                left, right = parts[0], parts[1]
+                # Independent cleaning for both sides first
+                left = self._clean_header_text(parts[0])
+                right = self._clean_header_text(parts[1])
+                
                 left_l = left.lower()
                 right_l = right.lower()
                 
                 # If after stripping one side is still a placeholder, discard it
                 if not left or PLACEHOLDER_ORG_RE.fullmatch(left_l.strip(":- ")) or left_l.strip(":- ") in {"role", "client", "company"}:
-                    return self._clean_header_text(right), None
+                    return right, None
                 if not right or PLACEHOLDER_ORG_RE.fullmatch(right_l.strip(":- ")) or right_l.strip(":- ") in {"role", "client", "company"}:
-                    return self._clean_header_text(left), None
+                    return left, None
                 
-                # Independent cleaning for both sides
-                left = self._clean_header_text(left)
-                right = self._clean_header_text(right)
                 if not left and not right:
                     return None, None
                 if not left: return None, right
@@ -1600,12 +1617,9 @@ class WorkExperienceParser:
 
         match = COMPANY_LINE_RE.search(cleaned)
         if match:
-            company = match.group("company").strip()
-            title = match.group("title").strip()
-            
             # Independent cleaning for both sides
-            company = self._clean_header_text(company)
-            title = self._clean_header_text(title)
+            company = self._clean_header_text(match.group("company"))
+            title = self._clean_header_text(match.group("title"))
             
             if not company and not title:
                 return None, None
@@ -1653,6 +1667,8 @@ class WorkExperienceParser:
         # common bullet points including those seen in some PDFs/Word docs
         bullet_chars = ("-", "•", "*", "", "", "▪", "▫", "‣", "◦")
         for line in lines:
+            if not line.strip(): continue
+            
             trimmed = line.lstrip()
             if trimmed.startswith(bullet_chars):
                 # found a bullet; strip the bullet character and whitespace
@@ -1662,7 +1678,10 @@ class WorkExperienceParser:
                     if content.startswith(char):
                         content = content[len(char):].strip()
                         break
-                bullets.append(content)
+                # Clean the content only AFTER identifying it as a bullet
+                content = self._clean_header_text(content)
+                if content:
+                    bullets.append(content)
         return bullets
 
     def _extract_client(self, text: str) -> str | None:
