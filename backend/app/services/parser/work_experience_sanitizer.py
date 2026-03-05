@@ -206,6 +206,8 @@ def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, An
         return list(entries) if isinstance(entries, list) else []
 
     seen: dict[tuple[str, str, str], dict[str, Any]] = {}
+    order: list[tuple[str, str, str]] = []
+    
     for entry in entries:
         if not isinstance(entry, dict):
             continue
@@ -216,13 +218,14 @@ def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, An
 
         if key not in seen:
             seen[key] = entry
+            order.append(key)
             continue
 
         existing = seen[key]
         if _count_filled_fields(entry) > _count_filled_fields(existing):
             seen[key] = entry
 
-    result = list(seen.values())
+    result = [seen[k] for k in order]
     removed = len(entries) - len(result)
     if removed > 0:
         logger.info("deduplicate_work_entries removed %d duplicate(s)", removed)

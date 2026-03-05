@@ -48,9 +48,9 @@ TITLE_AT_COMPANY_RE = re.compile(
 )
 # Title | Company (pipe-separated, no date)
 TITLE_PIPE_COMPANY_RE = re.compile(
-    r"^(?P<title>[^|]{3,60})\s*\|\s*(?P<company>[^|]{3,60})$",
+    r"^(?P<title>[^|]{3,80})\s*\|\s*(?P<company>[^|]{3,80})$",
 )
-LOCATION_RE = re.compile(r"\b([A-Za-z .]+,\s*[A-Z]{2})\b")
+LOCATION_RE = re.compile(r"\b([A-Za-z \.]{2,40},\s*[A-Z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist|officer|associate|head|executive|technician|representative|administrator|coordinator|principal|scientist|researcher|expert|intern|partner|programmer|coder|tester|qa|quality assurance|support|scrum master|product owner|founder|co-founder|vp|cto|cio|cfo|ceo)\b", re.IGNORECASE)
 # Job title keywords for splitting single-chunk experience (capitalized at line start)
 TITLE_SPLIT_KEYWORDS = (
@@ -549,6 +549,17 @@ class WorkExperienceParser:
 
         jobs = self._validate_dates(jobs)
         jobs = self._detect_overlaps(jobs)
+
+        # STRICT SORTING: Prioritize current jobs, then sort by start date descending
+        def sort_key(j: JobEntry):
+            is_curr = 1 if j.is_current else 0
+            # Convert date to string for robust comparison, handling None
+            # Current jobs come first (is_curr=1), then most recent start date
+            s_date = j.start_date.isoformat() if j.start_date else "0000-01-01"
+            return (is_curr, s_date)
+
+        jobs.sort(key=sort_key, reverse=True)
+
         if chunks:
             logger.info("Work experience: %d chunks, %d jobs", len(chunks), len(jobs))
         else:
@@ -1113,8 +1124,14 @@ class WorkExperienceParser:
                     return parts[0], parts[1]
 
         # Fallback: if no delimiter found, check whether the string looks like a company or a title.
-        if self._looks_like_company(cleaned) and not TITLE_HINT_RE.search(cleaned):
+        looks_like_company = self._looks_like_company(cleaned)
+        looks_like_title = self._looks_like_title(cleaned)
+
+        if looks_like_company and not looks_like_title:
             return cleaned, None
+        if looks_like_title and not looks_like_company:
+            return None, cleaned
+            
         return None, cleaned
 
     def _parse_header_lines(
@@ -1256,6 +1273,9 @@ class WorkExperienceParser:
         # Only null company if it has a strong job-title keyword AND does NOT look like a company.
         # Do NOT null for short single-word names like "Humana", "TCS", "Verizon" — those are valid companies.
         if company and title and TITLE_HINT_RE.search(company) and not self._looks_like_company(company):
+            # One last check: if title is empty, maybe what we thought was company is actually title
+            if not title:
+                title = company
             company = None
 
         if company and date_idx is not None:
@@ -1304,6 +1324,10 @@ class WorkExperienceParser:
 
         # State/Location pattern (e.g. "Louisville, KY") is NOT a company
         if re.search(r",\s*[A-Z]{2}\b", text):
+            return False
+            
+        # Reject labels (Role:, Designation:, etc.) as part of company name
+        if PLACEHOLDER_ORG_RE.match(text):
             return False
 
         # If it has 2-5 words and none are title hints, be lenient
