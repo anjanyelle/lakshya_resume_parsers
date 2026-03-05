@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import desc, select
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db
@@ -17,20 +18,27 @@ def recent_corrections(
     db: Session = Depends(get_db),
 ) -> list[dict[str, str | None]]:
     enforce_rate_limit(current_user.email, limit=60, per_seconds=60)
-    rows = (
-        db.execute(
-            select(
-                Correction,
-                Candidate.full_name,
-                Candidate.email,
+    try:
+        rows = (
+            db.execute(
+                select(
+                    Correction,
+                    Candidate.full_name,
+                    Candidate.email,
+                )
+                .join(Candidate, Candidate.id == Correction.candidate_id)
+                .where(Candidate.tenant_id == current_user.tenant_id)
+                .order_by(desc(Correction.corrected_at))
+                .limit(limit)
             )
-            .join(Candidate, Candidate.id == Correction.candidate_id)
-            .where(Candidate.tenant_id == current_user.tenant_id)
-            .order_by(desc(Correction.corrected_at))
-            .limit(limit)
+            .all()
         )
-        .all()
-    )
+    except ProgrammingError as e:
+        err_msg = str(getattr(e, "orig", e) or e).lower()
+        if "corrections" in err_msg or "candidates" in err_msg or "does not exist" in err_msg:
+            db.rollback()
+            return []
+        raise
     results: list[dict[str, str | None]] = []
     for correction, full_name, email in rows:
         results.append(

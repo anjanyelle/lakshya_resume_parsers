@@ -8,6 +8,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 import redis
 import structlog
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
@@ -80,9 +81,16 @@ def get_current_user(
     if not subject or token_type != "access":
         raise HTTPException(status_code=401, detail="Invalid token")
     if jti:
-        revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
-        if revoked:
-            raise HTTPException(status_code=401, detail="Token revoked")
+        try:
+            revoked = db.query(RevokedToken).filter(RevokedToken.jti == jti).first()
+            if revoked:
+                raise HTTPException(status_code=401, detail="Token revoked")
+        except ProgrammingError as e:
+            err_msg = str(getattr(e, "orig", e) or e).lower()
+            if "revoked_tokens" in err_msg:
+                db.rollback()  # Reset transaction so subsequent queries (e.g. User) can run
+            else:
+                raise
     user = db.query(User).filter(User.email == subject).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
