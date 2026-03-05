@@ -32,23 +32,23 @@ SUMMARY_HEADINGS = {
 }
 
 CERTIFICATION_HEADINGS = {
-    r"^CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATION\s*[:\-–—]?\s*$",
-    r"^LICENSES?\s*[:\-–—]?\s*$",
-    r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^TECHNICAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATIONS?\s*(AND|&|/)\s*LICENSES?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
-    r"^PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
-    r"^CREDENTIALS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATES\s*&\s*GRANTS\b.*$",
-    r"^PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^LICENSES?\s+AND\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATIONS?\s+AND\s+LICENSES?\s*[:\-–—]?\s*$",
-    r"^PROFESSIONAL\s+QUALIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^ACCREDITATIONS?\s*[:\-–—]?\s*$",
-    r"^TRAINING\s+&?\s*CERTIFICATIONS?\s*[:\-–—]?\s*$",
-    r"^CERTIFICATIONS?\s+&?\s*TRAINING\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATION\s*[:\-–—]?\s*$",
+    r"^##?\s*LICENSES?\s*[:\-–—]?\s*$",
+    r"^##?\s*PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*TECHNICAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATIONS?\s*(AND|&|/)\s*LICENSES?\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATIONS?\s*(AND|&|/)\s*TRAINING\s*[:\-–—]?\s*$",
+    r"^##?\s*PROFESSIONAL\s+CREDENTIALS?\s*[:\-–—]?\s*$",
+    r"^##?\s*CREDENTIALS?\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATES\s*&\s*GRANTS\b.*$",
+    r"^##?\s*PROFESSIONAL\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*LICENSES?\s+AND\s+CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATIONS?\s+AND\s+LICENSES?\s*[:\-–—]?\s*$",
+    r"^##?\s*PROFESSIONAL\s+QUALIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*ACCREDITATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*TRAINING\s+&?\s*CERTIFICATIONS?\s*[:\-–—]?\s*$",
+    r"^##?\s*CERTIFICATIONS?\s+&?\s*TRAINING\s*[:\-–—]?\s*$",
 }
 
 # Stop headings - immediately terminate extraction
@@ -129,6 +129,11 @@ def _is_major_section_heading(line: str) -> bool:
     if not line:
         return False
 
+    # Exclude certification-related lines first
+    cert_keywords_pattern = r"\b(istqb|certified|certification|certificate|foundation|advanced|test\s+analyst)\b"
+    if re.search(cert_keywords_pattern, line, re.IGNORECASE):
+        return False
+
     text = line.strip()
 
     # Remove special chars
@@ -198,12 +203,17 @@ def _is_job_title_with_dates(line: str) -> bool:
     - "Senior Developer | Company - 2020-2022"
     - "Manager (2018 – Present)"
     """
+    # Exclude certification-related lines first
+    cert_keywords_pattern = r"\b(istqb|certified|certification|certificate|foundation|advanced|test\s+analyst)\b"
+    if re.search(cert_keywords_pattern, line, re.IGNORECASE):
+        return False
+    
     # Check for date patterns
     if not re.search(r"\b(20\d{2}|19\d{2}|present|current|now)\b", line, re.IGNORECASE):
         return False
     
     # Check for job-related keywords
-    job_keywords_pattern = r"\b(developer|engineer|manager|director|analyst|consultant|architect|lead|specialist|officer|executive|associate|coordinator|administrator)\b"
+    job_keywords_pattern = r"\b(developer|engineer|manager|director|consultant|architect|lead|specialist|officer|executive|associate|coordinator|administrator)\b"
     return bool(re.search(job_keywords_pattern, line, re.IGNORECASE))
 
 
@@ -418,11 +428,15 @@ def extract_certifications(text: str) -> ExtractionResult:
                     inline_lines.append(part.strip())
 
     # 2️⃣ STRICT BOUNDARY SECTION DETECTION
+    cert_start_idx = -1
     for idx, line in enumerate(lines):
+        print(f"🔍 CHECKING LINE {idx}: '{line.strip()}'")
         if _is_heading(line, CERTIFICATION_HEADINGS):
             cert_start_idx = idx
-            logger.debug(f"Certification section found at line {idx}")
+            print(f"🎯 CERT SECTION FOUND: '{line.strip()}' at line {idx}")
             break
+    
+    print(f"🔍 CERT SEARCH: Checked {len(lines)} lines, cert_start_idx = {cert_start_idx}")
 
     if cert_start_idx == -1:
         # No strict section; return inline content if found
@@ -446,14 +460,21 @@ def extract_certifications(text: str) -> ExtractionResult:
     # =====================================================
     for idx in range(cert_start_idx + 1, len(lines)):
         line = lines[idx]
+        
+        clean_line = line.strip()
+
+        # Stop if line looks like summary/experience content (prevent bleeding) - CHECK FIRST
+        if re.search(r"\b(years?|experience|expertise|led|managed|developed|designed|implemented|proven|strong)\b", clean_line, re.IGNORECASE):
+            print(f"🛑 CERT EXTRACTION STOP: Summary/experience content detected at line {idx}: '{clean_line[:50]}...'")
+            break
 
         # if _is_stop_heading(line):
         #     break
         if _is_stop_heading(line) or _is_major_section_heading(line):
-              break
+            stop_reason = "STOP_HEADING" if _is_stop_heading(line) else "MAJOR_SECTION_HEADING"
+            print(f"🛑 CERT EXTRACTION STOP: {stop_reason} at line {idx}: '{line.strip()}'")
+            break
         
-        clean_line = line.strip()
-
         if re.match(r"^Page\s+\d+", clean_line, re.IGNORECASE):
             break
 
@@ -481,10 +502,12 @@ def extract_certifications(text: str) -> ExtractionResult:
         if len(clean_line) > 200:
             continue
 
+        # DEBUG: Log what's being extracted
+        print(f"🔍 CERT EXTRACTION: Adding line: '{clean_line}'")
         extracted_lines.append(clean_line)
 
-    # Merge inline + strict boundary content (preserve order, dedupe)
-    merged = list(dict.fromkeys(inline_lines + extracted_lines))
+    # Only use strict boundary content (ignore inline detection to avoid pre-section content)
+    merged = extracted_lines
 
     if not merged:
         return ExtractionResult(

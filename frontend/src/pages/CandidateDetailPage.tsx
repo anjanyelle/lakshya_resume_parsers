@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useLayout } from '../contexts/LayoutContext'
 import { toast } from 'react-hot-toast'
@@ -20,14 +20,13 @@ import {
   submitCorrections,
 } from '../services/api/candidates'
 import { fetchJobExtractionDebug } from '../services/api/uploads'
-import {
-  skillsFromParsed,
-  contactFromParsed,
-  shouldUseParsedDataFallback,
-  getDisplayWorkHistory,
-  getDisplayEducation,
-  getDisplaySummary,
-  getDisplayCertifications
+import { 
+  getDisplaySummary, 
+  shouldUseParsedDataFallback, 
+  contactFromParsed, 
+  getDisplayWorkHistory, 
+  getDisplayEducation, 
+  getDisplayCertifications 
 } from '../utils/parsedDataFallback'
 
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
@@ -55,23 +54,6 @@ export default function CandidateDetailPage() {
   const [autoEditFieldId, setAutoEditFieldId] = useState<string | null>(null)
   const { collapseSidebar } = useLayout()
 
-  // Refs for scrollIntoView: name, email, phone, skills, experience
-  const fieldRefsMap = useRef<Record<string, HTMLDivElement | null>>({
-    full_name: null,
-    email: null,
-    phone: null,
-    skills: null,
-    experience: null,
-  })
-
-  // Prepare scrollToField for later use (highlight not implemented yet)
-  const scrollToField = useCallback((fieldId: string) => {
-    const el = fieldRefsMap.current[fieldId]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [])
-    
   useEffect(() => {
     if (!id) return
     const fetchData = async () => {
@@ -81,7 +63,7 @@ export default function CandidateDetailPage() {
           fetchCandidate(id),
           fetchCandidateReview(id),
         ])
-        setCandidate(candidateData)
+        setCandidate(candidateData) 
         setOriginalCandidate(candidateData)
         setLatestJob(reviewData.latest_job)
         setParsedData(clone(reviewData.latest_job?.parsed_data || {}))
@@ -303,7 +285,7 @@ export default function CandidateDetailPage() {
         },
       ])
 
-      // 🔥 Always use backend response
+      // Always use backend response
       setCandidate(updatedCandidate)
       setOriginalCandidate(updatedCandidate)
       setParsedData((prev) => ({
@@ -313,10 +295,9 @@ export default function CandidateDetailPage() {
           summary: {
             ...(prev.sections?.summary || {}),
             content: value,
+          },
         },
-      },
-    }))
-      // setCandidate((prev) => (prev ? { ...prev, summary: value } : prev))
+      }))
       toast.success('Summary updated')
     } catch (error) {
       toast.error(
@@ -401,6 +382,18 @@ export default function CandidateDetailPage() {
       setActiveFieldId(fieldId)
       setPanelScrollToFieldId(fieldId)
       setAutoEditFieldId(fieldId)
+      
+      // ✅ Only navigate for specific field types, not all fields
+      if (fieldId.includes('skill') || fieldId === 'skills') {
+        // Skills - navigate to Skills section
+      } else if (fieldId === 'full_name' || fieldId === 'email' || fieldId === 'phone' || fieldId === 'location') {
+        // Candidate Details - navigate to Candidate Details section
+      } else if (fieldId.includes('education') || fieldId === 'degree' || fieldId === 'institution') {
+        // Education - navigate to Education section
+      } else if (fieldId.includes('experience') || fieldId === 'work_history') {
+        // Experience - navigate to Experience section
+      }
+      // Skills, Clients, Experience Roles, Work History - no navigation (just highlight)
     },
     [collapseSidebar]
   )
@@ -449,7 +442,16 @@ export default function CandidateDetailPage() {
   const displayWorkHistory = getDisplayWorkHistory(parsedData, dbHistory)
   const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
   const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
-  const displaySummary = getDisplaySummary(parsedData, candidate.summary)
+  const displaySummary = getDisplaySummary(parsedData, candidate.summary, candidate.summary_manually_edited ?? false)
+  
+  // Debug logging for summary
+  console.log('🔍 SUMMARY DEBUG:', {
+    candidateId: id,
+    dbSummary: candidate.summary,
+    summaryManuallyEdited: candidate.summary_manually_edited,
+    // parsedSummary: summaryFromParsed(parsedData),
+    displaySummary
+  })
   const displaySkills = candidate.skills ?? []
   const displayCandidateSkills = candidate.candidate_skills ?? []
 
@@ -480,30 +482,40 @@ export default function CandidateDetailPage() {
     (displaySummary ?? '').trim().length > 3
       ? (displaySummary ?? '').trim().slice(0, 60)
       : ''
+  
   const fieldMappings: FieldMapping[] = [
+  // 🟢 Candidate details → green
     { id: 'full_name', value: displayCandidate.full_name ?? '', label: 'Candidate Name' },
     { id: 'email', value: displayCandidate.email ?? '', label: 'Candidate Email' },
     { id: 'phone', value: displayCandidate.phone ?? '', label: 'Candidate Phone' },
     { id: 'location', value: displayCandidate.location ?? '', label: 'Location' },
-    { id: 'linkedin_url', value: displayCandidate.linkedin_url ?? '', label: 'LinkedIn' },
-    { id: 'github_url', value: displayCandidate.github_url ?? '', label: 'GitHub' },
+    { id: 'full_name', value: displayCandidate.linkedin_url ?? '', label: 'LinkedIn' },
+    { id: 'full_name', value: displayCandidate.github_url ?? '', label: 'GitHub' },
     ...(summaryExcerpt
       ? [{ id: 'summary' as const, value: summaryExcerpt, label: 'Summary' }]
       : []),
+  // 🔵 Skills → light blue
     ...displaySkills
       .filter((s) => s.name?.trim().length > 2)
-      .map((s) => ({ id: 'skills' as const, value: s.name, label: 'Skills' })),
+      .map((s) => ({ id: 'skills' as const, value: s.name })),
+  // 🟡 Experience company names → light yellow
     ...displayWorkHistory
       .filter((wh) => (wh.company_name ?? '').trim().length > 2)
-      .map((wh) => ({ id: 'experience' as const, value: wh.company_name ?? '', label: 'Experience' })),
+      .map((wh) => ({ id: 'experience_company' as const, value: wh.company_name ?? '' })),
+  // 🟡 Experience job titles → light yellow
     ...displayWorkHistory
       .filter((wh) => (wh.job_title ?? '').trim().length > 2)
-      .map((wh) => ({ id: 'experience' as const, value: wh.job_title ?? '', label: 'Experience' })),
+      .map((wh) => ({ id: 'experience_role' as const, value: wh.job_title ?? '' })),
+  // 🟠 Education institution → light orange
     ...displayEducation
       .filter((e) => (e.institution ?? '').trim().length > 2)
-      .map((e) => ({ id: 'education' as const, value: e.institution ?? '', label: 'Education' })),
-  ]
-
+      .map((e) => ({ id: 'education_institution' as const, value: e.institution ?? '' })),
+  // 🟠 Education degree → light orange
+    ...displayEducation
+      .filter((e) => (e.degree ?? '').trim().length > 2)
+      .map((e) => ({ id: 'education_degree' as const, value: e.degree ?? '' })),
+  ]    
+      
   // Debug: log data availability for troubleshooting missing UI data
   if (import.meta.env.DEV) {
     console.log('[CandidateDetail] Data loaded:', {

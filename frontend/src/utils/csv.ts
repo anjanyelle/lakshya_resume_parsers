@@ -11,7 +11,7 @@ export const exportCandidatesCsv = (candidates: Candidate[]) => {
     'years_experience',
   ]
   const rows = candidates.map((candidate) =>
-    headers.map((key) => JSON.stringify((candidate as Record<string, unknown>)[key] ?? '')),
+    headers.map((key) => JSON.stringify((candidate as unknown as Record<string, unknown>)[key] ?? '')),
   )
   const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
