@@ -50,7 +50,9 @@ TITLE_AT_COMPANY_RE = re.compile(
 TITLE_PIPE_COMPANY_RE = re.compile(
     r"^(?P<title>[^|]{3,80})\s*\|\s*(?P<company>[^|]{3,80})$",
 )
-LOCATION_RE = re.compile(r"\b([A-Za-z \.]{2,40},\s*[A-Z]{2})\b")
+# Strict Location Regex: City, ST (e.g. San Francisco, CA or New York, NY)
+# Avoid matching technical fragments like "Swift, UI" or "Spring Boot, AI"
+LOCATION_RE = re.compile(r"\b(?!(?:Swift|UI|IT|AI|ML|SQL|AWS|API|JDBC|JSON|NoSQL|REST|GraphQL|SOAP|CI/CD)\b)([A-Za-z \.]{2,40},\s*[A-Z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist|officer|associate|head|executive|technician|representative|administrator|coordinator|principal|scientist|researcher|expert|intern|partner|programmer|coder|tester|qa|quality assurance|support|scrum master|product owner|founder|co-founder|vp|cto|cio|cfo|ceo)\b", re.IGNORECASE)
 # Job title keywords for splitting single-chunk experience (capitalized at line start)
 TITLE_SPLIT_KEYWORDS = (
@@ -1092,8 +1094,42 @@ class WorkExperienceParser:
 
         return final_location, company_clean, title_clean
 
+    def _clean_header_text(self, text: str | None) -> str:
+        if not text:
+            return ""
+        # 1. Strip markdown headers
+        cleaned = re.sub(r"^#+\s*", "", text.strip())
+        
+        # 2. Strip parentheticals that look like dates or locations
+        # Handles: "(Atlanta, GA August 2020 - May 2023)", "(Contract)", "(Jan 2020 - Present)"
+        # Use a non-greedy approach to catch multiple parentheticals
+        def clean_parenthetical(match):
+            content = match.group(1).lower()
+            # If it contains a date token, a location pattern, or is just a status like "contract"
+            if DATE_ANCHOR_RE.search(content) or LOCATION_RE.search(content) or any(kw in content for kw in {"contract", "remote", "onsite", "hybrid", "freelance"}):
+                return ""
+            return match.group(0) # Keep it if it doesn't look like noise
+
+        cleaned = re.sub(r"\(([^)]+)\)", clean_parenthetical, cleaned)
+        
+        # 3. Strip literal labels aggressively (even without colons)
+        # Handles "Company Home Depot" or "Role Senior Developer"
+        # We only strip at the beginning of the string to avoid stripping valid words mid-name
+        label_match = PLACEHOLDER_ORG_RE.match(cleaned)
+        if label_match:
+            # Check if there is a colon or enough trailing text to justify stripping
+            if ":" in cleaned:
+                cleaned = cleaned.split(":", 1)[1]
+            else:
+                # Fallback: strip the label word if it's followed by a space
+                cleaned = cleaned[label_match.end():]
+        
+        # Final cleanup of stray markers and extra whitespace
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return cleaned.strip(" -–—|,;:")
+
     def _parse_company_title(self, header: str) -> tuple[str | None, str | None]:
-        cleaned = (header or "").strip().strip(": ")
+        cleaned = self._clean_header_text(header)
         if not cleaned:
             return None, None
 
@@ -1161,8 +1197,20 @@ class WorkExperienceParser:
                 break
 
         location = None
+        # Priority 1: Check for explicit "Location:" markers
         for line in header_window:
-            location = self._parse_location(line) or location
+            m = LOCATION_MARKER_RE.search(line)
+            if m:
+                location = m.group("loc").strip()
+                break
+        
+        # Priority 2: Fallback to implicit City, ST patterns if no explicit location found
+        if not location:
+            for line in header_window:
+                loc = self._parse_location(line)
+                if loc:
+                    location = loc
+                    break
 
         body_start = 1
         title: str | None = None
@@ -1285,6 +1333,13 @@ class WorkExperienceParser:
 
         title = self.normalize_job_titles(title)
         company = self.normalize_company_names(company)
+        
+        # One last check for DOCX vertical headers: "Role" as company or "Company" as title
+        if company and any(kw in company.lower() for kw in {"role", "position", "title", "designation"}):
+            company = None
+        if title and any(kw in title.lower() for kw in {"company", "client", "employer"}):
+            title = None
+
         return company, title, location, start_date, end_date, is_current, body_start
 
     @staticmethod
@@ -1313,6 +1368,9 @@ class WorkExperienceParser:
                 return True
 
         if 2 <= len(cleaned) <= 40 and cleaned.isupper() and not TITLE_HINT_RE.search(cleaned):
+            # Reject strings that look like dates (e.g. "AUG 2020")
+            if DATE_ANCHOR_RE.search(cleaned):
+                return False
             return True
             
         # 2-4 words Title Case without title hints (e.g. "Acme Corp", "Morgan Stanley")
@@ -1348,7 +1406,8 @@ class WorkExperienceParser:
         lowered = cleaned.lower()
         if len(lowered) < 2:
             return False
-        if PLACEHOLDER_ORG_RE.match(lowered):
+        # Reject literal labels like "Role", "Company", etc.
+        if PLACEHOLDER_ORG_RE.match(lowered.rstrip(": ")):
             return False
 
         # Reject location patterns like "Minneapolis, Mn" or "Boston, MA" from being titles
@@ -1497,7 +1556,7 @@ class WorkExperienceParser:
         # Match "Some Company (Some Client) Some Role"
         paren_match = re.match(r"^(?P<company>[^\(]+)\s*\((?P<client>[^\)]+)\)\s*(?P<title>.+)$", cleaned)
         if paren_match:
-            return paren_match.group("company").strip(), paren_match.group("title").strip()
+            return self._clean_header_text(paren_match.group("company")), self._clean_header_text(paren_match.group("title"))
 
         cleaned = cleaned.replace("·", "|")
         
@@ -1505,23 +1564,23 @@ class WorkExperienceParser:
             parts = [p.strip() for p in cleaned.split("|") if p.strip()]
             if len(parts) >= 2:
                 left, right = parts[0], parts[1]
-                right_l = right.lower().strip(":")
-                left_l = left.lower().strip(":")
+                left_l = left.lower()
+                right_l = right.lower()
                 
-                # Check for placeholders on either side - discard the placeholder or strip label
-                if PLACEHOLDER_ORG_RE.search(left_l) and ":" in left:
-                    left = left.split(":", 1)[1].strip()
-                    left_l = left.lower()
-                if PLACEHOLDER_ORG_RE.search(right_l) and ":" in right:
-                    right = right.split(":", 1)[1].strip()
-                    right_l = right.lower()
-
                 # If after stripping one side is still a placeholder, discard it
-                if PLACEHOLDER_ORG_RE.fullmatch(right_l.strip(":- ")) or right_l.strip(":- ") in {"role", "client"}:
-                    return left, None
-                if PLACEHOLDER_ORG_RE.fullmatch(left_l.strip(":- ")) or left_l.strip(":- ") in {"role", "client"}:
-                    return right, None
+                if not left or PLACEHOLDER_ORG_RE.fullmatch(left_l.strip(":- ")) or left_l.strip(":- ") in {"role", "client", "company"}:
+                    return self._clean_header_text(right), None
+                if not right or PLACEHOLDER_ORG_RE.fullmatch(right_l.strip(":- ")) or right_l.strip(":- ") in {"role", "client", "company"}:
+                    return self._clean_header_text(left), None
                 
+                # Independent cleaning for both sides
+                left = self._clean_header_text(left)
+                right = self._clean_header_text(right)
+                if not left and not right:
+                    return None, None
+                if not left: return None, right
+                if not right: return left, None
+
                 # Verify plausibility
                 l_is_title = self._looks_like_title(left)
                 r_is_title = self._looks_like_title(right)
@@ -1543,14 +1602,16 @@ class WorkExperienceParser:
         if match:
             company = match.group("company").strip()
             title = match.group("title").strip()
-            title_l = title.lower().strip(" :")
-            company_l = company.lower().strip(" :")
             
-            if PLACEHOLDER_ORG_RE.fullmatch(title_l) or title_l in {"role", "client"}:
-                return company, None
-            if PLACEHOLDER_ORG_RE.fullmatch(company_l) or company_l in {"role", "client"}:
-                return title, None
-                
+            # Independent cleaning for both sides
+            company = self._clean_header_text(company)
+            title = self._clean_header_text(title)
+            
+            if not company and not title:
+                return None, None
+            if not company: return None, title
+            if not title: return company, None
+
             if self._looks_like_title(title) and self._looks_like_company(company):
                 return company, title
             if self._looks_like_title(company) and self._looks_like_company(title):
@@ -1572,8 +1633,20 @@ class WorkExperienceParser:
         return cleaned
 
     def _parse_location(self, text: str) -> str | None:
+        if not text:
+            return None
+        # Avoid bullet points or lines that look like descriptions
+        if text.lstrip().startswith(("-", "•", "*")):
+            return None
+            
         match = LOCATION_RE.search(text)
-        return match.group(1).strip() if match else None
+        if match:
+            candidate = match.group(1).strip()
+            # Double check: if it's "Swift, UI", discard it
+            if re.search(r"\b(Swift|UI|IT|AI|ML|SQL|AWS|API|JDBC|JSON|NoSQL|REST|GraphQL|SOAP|CI/CD)\b", candidate):
+                return None
+            return candidate
+        return None
 
     def _extract_bullets(self, lines: list[str]) -> list[str]:
         bullets = []
