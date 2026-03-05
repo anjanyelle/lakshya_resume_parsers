@@ -99,6 +99,17 @@ CERT_LINE_MARKERS = (
     "cissp",
     "ceh",
     "scrum master",
+    
+    # Testing certifications
+    "istqb",
+    "test analyst",
+    "advanced level",
+    "foundation level",
+    "certified tester",
+    "cste",
+    "cstae",
+    "cmst",
+    "test manager",
 )
 
 TRAINING_FALSE_POSITIVES = (
@@ -166,7 +177,7 @@ class CertificationParser:
             return []
 
         keyword_re = re.compile(
-            r"\b(?:certified|certification|certificate|certificates|license|licence|credentials?|aws|azure|google\s+cloud|gcp|scrum|pmp|project\s+management\s+professional)\b",
+            r"\b(?:certified|certification|certificate|certificates|license|licence|credentials?|aws|azure|google\s+cloud|gcp|scrum|pmp|project\s+management\s+professional|istqb|test\s+analyst|advanced\s+level|foundation\s+level|certified\s+tester)\b",
             re.IGNORECASE,
         )
 
@@ -328,15 +339,15 @@ class CertificationParser:
     # Remove leading bullets
         normalized = re.sub(r"^[\-\*•\u2022]+\s*", "", normalized)
 
-        if not normalized:
+        if not normalized: 
             return []
 
     # --------------------------------------------------
     # 1️⃣ Split when dash is followed by CAPITAL letter
     # Example:
     #   ASCM – LSSBB: Lean Six Sigma
-    # --------------------------------------------------
-        normalized = re.sub(r"\s*[-–—]\s*(?=[A-Z])", "\n", normalized)
+    # DISABLED: This breaks certification names like "PMP: Project Management Professional- Project Management Institute"
+    # normalized = re.sub(r"\s*[-–—]\s*(?=[A-Z])", "\n", normalized)
 
     # --------------------------------------------------
     # 2️⃣ Split when new cert starts after colon prefix

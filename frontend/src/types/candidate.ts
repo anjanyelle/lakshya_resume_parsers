@@ -77,6 +77,7 @@ export interface Candidate {
   linkedin_url?: string | null
   github_url?: string | null
   summary?: string | null
+  summary_manually_edited?: boolean | null
   years_experience?: number | null
   current_title?: string | null
   current_company?: string | null

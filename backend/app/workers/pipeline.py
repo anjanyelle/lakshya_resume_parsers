@@ -3679,7 +3679,11 @@ def task_parse_certifications(self, job_id: str) -> str:
         # 5️⃣ PARSE USING YOUR HYBRID CERTIFICATION PARSER
         # ====================================================
         parser = CertificationParser()
+        print(f"🔍 CERT PARSER INPUT: '{cert_text}'")
         entries = parser.parse(cert_text)
+        print(f"🔍 CERT PARSER OUTPUT: {len(entries)} entries")
+        for i, entry in enumerate(entries):
+            print(f"🔍 CERT PARSER ENTRY {i}: {entry}")
 
         payload = [
             {

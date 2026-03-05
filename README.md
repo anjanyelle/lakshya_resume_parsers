@@ -45,6 +45,26 @@ poetry run python scripts/init_db.py
 
 Then start the API: `poetry run uvicorn app.main:app --reload`
 
+### Deployed on Render – 503 or "Database schema not ready"
+
+**Root cause:** The APIs return 503 or 400 when the database is **missing tables** (`candidates`, `parsing_jobs`, `audit_logs`, etc.). This often happens if:
+
+- The database was created empty and Alembic reports "Migrations completed" but the schema was never applied (e.g. DB already marked at `head` from another app), or
+- Migrations failed silently or ran against a different `DATABASE_URL`.
+
+**What we do automatically:**
+
+- Startup runs `alembic upgrade head` then `Base.metadata.create_all(..., checkfirst=True)` so missing tables are created if possible.
+- Register/login/upload catch missing-table errors and either return a clear 503 or, for register, still return success and only skip audit logging.
+
+**Permanent fix (recommended):**
+
+1. In Render Dashboard, create a **new PostgreSQL** instance (or use one that has never had this app’s migrations run).
+2. Set the backend service’s **DATABASE_URL** to that new database.
+3. Redeploy. On first start, `alembic upgrade head` will run from scratch and create all tables.
+
+After that, register, login, and upload should work without 503.
+
 ---
 
 Quick Start
