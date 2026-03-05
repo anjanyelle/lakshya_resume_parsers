@@ -572,14 +572,6 @@ def submit_corrections(
 
         # ---------- SUMMARY SPECIAL HANDLING ----------
         if field == "summary":
-            print(f"🔧 SUMMARY EDIT: Processing summary correction")
-            print(f"🔧 SUMMARY EDIT: Candidate ID: {candidate.id}")
-            
-            # Safe access to the attribute
-            before_flag = getattr(candidate, 'summary_manually_edited', False)
-            print(f"🔧 SUMMARY EDIT: BEFORE - summary_manually_edited: {before_flag}")
-            print(f"🔧 SUMMARY EDIT: BEFORE - summary length: {len(candidate.summary) if candidate.summary else 0}")
-            
             record_correction(
                 db,
                 candidate_id=candidate.id,
@@ -594,11 +586,6 @@ def submit_corrections(
             
             # Ensure the flag is flushed to database before continue
             db.flush()
-            
-            after_flag = getattr(candidate, 'summary_manually_edited', False)
-            print(f"🔧 SUMMARY EDIT: AFTER - summary_manually_edited: {after_flag}")
-            print(f"🔧 SUMMARY EDIT: AFTER - summary length: {len(candidate.summary) if candidate.summary else 0}")
-            print(f"🔧 SUMMARY EDIT: New summary: {candidate.summary}")
 
             # Skip general logic since we handled everything here
             continue  
