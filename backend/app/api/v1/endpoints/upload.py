@@ -10,10 +10,12 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Up
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from starlette.background import BackgroundTask
 from sqlalchemy import select
+from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db
 from app.core.config import get_settings
+from app.models import Base
 from app.models.candidate import Candidate, CandidateStatus
 from app.models.parsing_job import ParsingJob, ParsingJobStatus
 from app.schemas.upload import BatchUploadResponse, UploadJobResponse
@@ -121,22 +123,50 @@ async def _process_uploads(
         finally:
             await upload.close()
 
-        candidate = Candidate(
-            status=CandidateStatus.PENDING,
-            tenant_id=current_user.tenant_id if current_user else "default",
-        )
-        db.add(candidate)
-        db.flush()
+        def _create_candidate_and_job():
+            candidate = Candidate(
+                status=CandidateStatus.PENDING,
+                tenant_id=current_user.tenant_id if current_user else "default",
+            )
+            db.add(candidate)
+            db.flush()
+            job = ParsingJob(
+                candidate_id=candidate.id,
+                filename=upload.filename,
+                file_path=file_path,
+                status=ParsingJobStatus.PENDING,
+            )
+            db.add(job)
+            db.commit()
+            db.refresh(job)
+            return candidate, job
 
-        job = ParsingJob(
-            candidate_id=candidate.id,
-            filename=upload.filename,
-            file_path=file_path,
-            status=ParsingJobStatus.PENDING,
-        )
-        db.add(job)
-        db.commit()
-        db.refresh(job)
+        candidate, job = None, None
+        for attempt in range(2):
+            try:
+                candidate, job = _create_candidate_and_job()
+                break
+            except ProgrammingError as e:
+                db.rollback()
+                err_msg = str(getattr(e, "orig", None) or e).lower()
+                if "does not exist" in err_msg or "candidates" in err_msg or "parsing_jobs" in err_msg:
+                    if attempt == 0:
+                        try:
+                            engine = db.get_bind()
+                            Base.metadata.create_all(bind=engine, checkfirst=True)
+                        except Exception as create_err:
+                            logger.warning("Could not create missing tables: %s", create_err)
+                        continue
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Database schema not ready. Please try again in a moment or contact support.",
+                    ) from e
+                raise
+        if candidate is None or job is None:
+            raise HTTPException(
+                status_code=503,
+                detail="Database schema not ready. Please try again in a moment or contact support.",
+            )
 
         try:
             base_key = f"resumes/{candidate.tenant_id}/{candidate.id}/{job.id}"
@@ -165,14 +195,17 @@ async def _process_uploads(
             background_tasks.add_task(start_parsing_workflow, str(job.id))
         else:
             background_tasks.add_task(start_parsing_workflow, str(job.id))
-        log_audit(
-            db,
-            user_id=str(current_user.id) if current_user else None,
-            action="upload_resume",
-            resource_type="candidate",
-            resource_id=str(candidate.id),
-            ip_address=None,
-        )
+        try:
+            log_audit(
+                db,
+                user_id=str(current_user.id) if current_user else None,
+                action="upload_resume",
+                resource_type="candidate",
+                resource_id=str(candidate.id),
+                ip_address=None,
+            )
+        except Exception as e:
+            logger.warning("Audit log failed (upload still succeeded): %s", e)
         jobs.append(UploadJobResponse(job_id=str(job.id), status=job.status.value))
 
     return BatchUploadResponse(message="Upload successful", jobs=jobs)
