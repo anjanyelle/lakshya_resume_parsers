@@ -14,6 +14,29 @@ _PLACEHOLDER_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Strip common "(Client: ...)", "(Client)", "End Client: ...", "(Client:" garbage garbage appended to company names
+_COMPANY_CLIENT_SUFFIX_RE = re.compile(
+    r"\s*[\(\[]\s*(?:end\s+)?client[:\s].*$|\s*[\(\[]\s*client\s*[\)\]]?.*$|\s+\(client[:\s].*$",
+    re.IGNORECASE,
+)
+
+# Strip "End Client:" label prefix used when whole string is a client label
+_COMPANY_CLIENT_PREFIX_RE = re.compile(
+    r"^(?:end\s+)?client\s*[:\-–—]\s*",
+    re.IGNORECASE,
+)
+
+
+def _clean_company_name(value: str) -> str:
+    """Remove client-label suffixes/prefixes from a company name string."""
+    if not value:
+        return value
+    cleaned = _COMPANY_CLIENT_SUFFIX_RE.sub("", value).strip().strip("([ ")
+    cleaned = _COMPANY_CLIENT_PREFIX_RE.sub("", cleaned).strip()
+    return cleaned
+
+_LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z ]+,\s*[A-Z][a-z]?$")
+
 
 def _collapse_spaces(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
@@ -215,11 +238,15 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             continue
 
-        company = _normalize_text(item.get("company"))
-        title = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
+        company = _clean_company_name(_normalize_text(item.get("company")))
+        title_raw = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
+        # Reject locations mistakenly stored as titles (e.g. "Minneapolis, Mn")
+        if title_raw and _LOCATION_AS_TITLE_RE.match(title_raw.strip()):
+            title_raw = ""
+        title = title_raw
         # Use client as company when company is empty (e.g. "CLIENT: Home Depot" format)
         if not company:
-            company = _normalize_text(item.get("client"))
+            company = _clean_company_name(_normalize_text(item.get("client")))
 
         if not company and not title:
             continue

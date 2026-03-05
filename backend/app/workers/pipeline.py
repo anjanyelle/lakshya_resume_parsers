@@ -77,7 +77,7 @@ from app.services.parser.skill_extractor import (
     strip_skill_token,
     tokenize_skills_by_comma,
 )
-from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
+from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser, TITLE_HINT_RE, COMPANY_HINT_RE
 from app.services.parser.work_experience_sanitizer import (
     deduplicate_work_entries,
     sanitize_work_experience_entries,
@@ -603,9 +603,28 @@ def _normalize_work_experience_company_title(work_entries: list[dict[str, Any]])
         t_str = str(title).strip()
         if not c_str or not t_str:
             continue
-        if WorkExperienceParser._looks_like_title(c_str) and WorkExperienceParser._looks_like_company(t_str):
+        
+        # IMPROVEMENT: Only swap if both heuristics are very strong.
+        # title hint in company field AND company hint in title field.
+        # This prevents aggressive swapping for ambiguous strings.
+        is_c_title = WorkExperienceParser._looks_like_title(c_str)
+        is_t_company = WorkExperienceParser._looks_like_company(t_str)
+        
+        # Also check for strong hints to be extra sure
+        has_c_title_hint = bool(TITLE_HINT_RE.search(c_str))
+        has_t_company_hint = bool(COMPANY_HINT_RE.search(t_str))
+        
+        if is_c_title and is_t_company:
+            # If both directions look swapped, we are very confident
             entry["company"] = title
             entry["title"] = company
+            logger.info("Swapped company/title: %r <-> %r", c_str, t_str)
+        elif has_c_title_hint and is_t_company and not WorkExperienceParser._looks_like_company(c_str):
+            # Company field has a strong title hint and looks like a title, 
+            # while Title field looks like a company.
+            entry["company"] = title
+            entry["title"] = company
+            logger.info("Swapped company/title (hint-based): %r <-> %r", c_str, t_str)
 
 
 def _is_raw_text_entry(entry: dict[str, Any]) -> bool:
