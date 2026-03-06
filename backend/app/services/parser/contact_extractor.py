@@ -1058,7 +1058,7 @@ class ContactExtractor:
         if re.search(r"\b(and|with|for|to|in|across|optimizing|automating)\b", lowered):
             return False
         if re.match(
-            r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered)\b",
+            r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered|proactively|successfully|consistently|effectively|expertly|collaborated|facilitated|streamlined|accelerated|increased|reduced|improved|transformed|orchestrated|spearheaded)\b",
             re.sub(r"^[^A-Za-z0-9]+", "", lowered),
         ):
             return False

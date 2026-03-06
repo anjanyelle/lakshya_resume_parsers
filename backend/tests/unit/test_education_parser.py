@@ -962,7 +962,7 @@ def test_education_extract_date_range_mm_yy():
         ("Feb '19", date(2019, 2, 1)),
         ("2020.01", date(2020, 1, 1)),
         ("01.2020", date(2020, 1, 1)),
-        ("2020", date(2020, 2, 1)),  # dateparser returns Feb 1 for bare year
+        ("2020", date(2020, 1, 1)),  # Fixed to Jan 1 for consistency
     ],
 )
 def test_education_parse_date_extended_formats(date_str, expected):

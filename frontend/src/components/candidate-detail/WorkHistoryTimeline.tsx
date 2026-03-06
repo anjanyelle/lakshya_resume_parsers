@@ -149,9 +149,8 @@ export default function WorkHistoryTimeline({
       onKeyDown={(e) => {
         if (e.key === 'Enter') onFieldSelect?.('experience')
       }}
-      className={`rounded-lg border p-6 transition-all duration-200 ${
-        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
-      }`}
+      className={`rounded-lg border p-6 transition-all duration-200 ${isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
+        }`}
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Work history</h2>
@@ -183,16 +182,13 @@ export default function WorkHistoryTimeline({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-slate-900">
-                      {item.job_title || 'Role'} · {item.company_name || 'Company'}
+                      {item.job_title || 'Role'} · {item.company_name || item.client_name || 'Company'}
                       {item.location ? (
                         <span className="ml-2 whitespace-nowrap text-xs font-medium text-slate-500">
                           ({item.location})
                         </span>
                       ) : null}
                     </p>
-                    {item.client_name && (
-                      <p className="text-xs text-slate-600">{item.client_name}</p>
-                    )}
                     <p className="text-xs text-slate-500">
                       {item.start_date || '—'} →{' '}
                       {item.is_current ? 'Present' : item.end_date || '—'}
