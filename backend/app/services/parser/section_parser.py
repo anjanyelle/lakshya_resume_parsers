@@ -443,6 +443,7 @@ SECTION_ALIASES: dict[str, list[str]] = {
         "professional experience & achievements", "work experience & achievements",
         "experience summary", "career progression", "professional journey",
         "positions", "roles", "appointments", "engagements",
+        "working experience", "work background", "job experience",
         
         # Spanish
         "experiencia profesional", "experiencia laboral", "experiencia",
@@ -579,15 +580,9 @@ SECTION_ALIASES: dict[str, list[str]] = {
         "habilidades profissionais", "conhecimentos técnicos",
         
         # Italian
-        "competenze", "competenze tecniche", "abilità", "capacità",
-        "competenze professionali", "conoscenze", "conoscenze tecniche",
-        "expertise", "qualifiche", "abilità tecniche",
-        
-        # Chinese
-        "技能", "专业技能", "技术技能", "核心技能", "专长",
-        
-        # Japanese
-        "スキル", "技術スキル", "専門スキル", "能力", "専門知識"
+        "スキル", "技術スキル", "専門スキル", "能力", "専門知識",
+        "technical skills", "technical expertise", "programming languages",
+        "software skills", "technologies", "frameworks", "tools", "tech stack"
     ],
     
     "certifications": [
@@ -2724,6 +2719,29 @@ class SectionParser:
             sections["certifications"] = self._dedupe_preserve_order(certifications)
         if skills or "skills" in sections:
             sections["skills"] = self._dedupe_preserve_order(skills)
+
+        summary = list(sections.get("summary", []) or [])
+        if summary:
+            cleaned_summary: list[str] = []
+            for line in summary:
+                # 1. Strip raw HTML tags (e.g., <div>, <span style="...">)
+                cleaned = re.sub(r"<[^>]*>", "", line)
+                
+                # 2. Deduplicate keywords within the line if it looks like a list
+                if "," in cleaned and len(cleaned) < 300:
+                    parts = [p.strip() for p in re.split(r",\s*", cleaned) if p.strip()]
+                    seen_parts: set[str] = set()
+                    unique_parts: list[str] = []
+                    for p in parts:
+                        p_low = p.lower()
+                        if p_low not in seen_parts:
+                            seen_parts.add(p_low)
+                            unique_parts.append(p)
+                    cleaned = ", ".join(unique_parts)
+                
+                if cleaned.strip():
+                    cleaned_summary.append(cleaned.strip())
+            sections["summary"] = self._dedupe_preserve_order(cleaned_summary)
 
         return sections
 

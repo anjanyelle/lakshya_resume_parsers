@@ -10,10 +10,32 @@ logger = logging.getLogger(__name__)
 
 
 _PLACEHOLDER_RE = re.compile(
-    r"^(company|client|organization|organisation|employer|designation|title|role|position|"
-    r"job\s*title|professional\s+experience\b|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|title(?:\s*role)?|role(?:\s*title)?|position|description)\b",
     re.IGNORECASE,
 )
+
+# Strip common "(Client: ...)", "(Client)", "End Client: ...", "(Client:" garbage garbage appended to company names
+_COMPANY_CLIENT_SUFFIX_RE = re.compile(
+    r"\s*[\(\[]\s*(?:end\s+)?client[:\s].*$|\s*[\(\[]\s*client\s*[\)\]]?.*$|\s+\(client[:\s].*$",
+    re.IGNORECASE,
+)
+
+# Strip "End Client:" label prefix used when whole string is a client label
+_COMPANY_CLIENT_PREFIX_RE = re.compile(
+    r"^(?:end\s+)?client\s*[:\-–—]\s*",
+    re.IGNORECASE,
+)
+
+
+def _clean_company_name(value: str) -> str:
+    """Remove client-label suffixes/prefixes from a company name string."""
+    if not value:
+        return value
+    cleaned = _COMPANY_CLIENT_SUFFIX_RE.sub("", value).strip().strip("([ ")
+    cleaned = _COMPANY_CLIENT_PREFIX_RE.sub("", cleaned).strip()
+    return cleaned
+
+_LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z ]+,\s*[A-Z][a-z]?$")
 
 
 def _collapse_spaces(value: str) -> str:
@@ -184,6 +206,8 @@ def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, An
         return list(entries) if isinstance(entries, list) else []
 
     seen: dict[tuple[str, str, str], dict[str, Any]] = {}
+    order: list[tuple[str, str, str]] = []
+    
     for entry in entries:
         if not isinstance(entry, dict):
             continue
@@ -194,13 +218,14 @@ def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, An
 
         if key not in seen:
             seen[key] = entry
+            order.append(key)
             continue
 
         existing = seen[key]
         if _count_filled_fields(entry) > _count_filled_fields(existing):
             seen[key] = entry
 
-    result = list(seen.values())
+    result = [seen[k] for k in order]
     removed = len(entries) - len(result)
     if removed > 0:
         logger.info("deduplicate_work_entries removed %d duplicate(s)", removed)
@@ -216,11 +241,15 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
         if not isinstance(item, dict):
             continue
 
-        company = _normalize_text(item.get("company"))
-        title = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
+        company = _clean_company_name(_normalize_text(item.get("company")))
+        title_raw = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
+        # Reject locations mistakenly stored as titles (e.g. "Minneapolis, Mn")
+        if title_raw and _LOCATION_AS_TITLE_RE.match(title_raw.strip()):
+            title_raw = ""
+        title = title_raw
         # Use client as company when company is empty (e.g. "CLIENT: Home Depot" format)
         if not company:
-            company = _normalize_text(item.get("client"))
+            company = _clean_company_name(_normalize_text(item.get("client")))
 
         if not company and not title:
             continue

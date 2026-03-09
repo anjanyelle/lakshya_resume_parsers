@@ -366,6 +366,7 @@ class LLMParsingService:
             return validated.model_dump()
         return validated
 
+
     def normalize_structured_resume(self, payload: dict[str, Any]) -> dict[str, Any]:
         adapter = TypeAdapter(StructuredResumeModel)
         default_payload = self._structured_resume_default_payload()

@@ -77,7 +77,7 @@ from app.services.parser.skill_extractor import (
     strip_skill_token,
     tokenize_skills_by_comma,
 )
-from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser
+from app.services.parser.work_experience_parser import JobEntry, WorkExperienceParser, TITLE_HINT_RE, COMPANY_HINT_RE
 from app.services.parser.work_experience_sanitizer import (
     deduplicate_work_entries,
     sanitize_work_experience_entries,
@@ -232,17 +232,22 @@ def sanitize_final_output(parsed_data: dict[str, Any]) -> dict[str, Any]:
             cert_after,
         )
 
-    # 4. Validate name is not None or empty
+    # 4. Validate name is not None or empty, and ensure it's not a massive block of text
     contact = parsed_data.get("contact") or {}
     if isinstance(contact, dict):
         name_obj = contact.get("name")
         name_val = (
             name_obj.get("name") if isinstance(name_obj, dict) else name_obj 
         )
+        if type(name_val) is str and (len(name_val) > 60 or "\n" in name_val or "##" in name_val):
+            name_val = None  # Force reset if obviously corrupted
+
         if name_val is None:
             contact.setdefault("name", {})
             if isinstance(contact["name"], dict) and "name" not in contact["name"]: 
                 contact["name"] = {"name": "", "confidence": 0.0}
+            elif isinstance(contact["name"], dict):
+                contact["name"]["name"] = ""
             parsed_data["contact"] = contact
 
     # 5. Log summary; warn if name empty after parsing
@@ -592,6 +597,8 @@ def _normalize_work_description(description: str | None) -> str | None:
 
 def _normalize_work_experience_company_title(work_entries: list[dict[str, Any]]) -> None:
     """Fix swapped company/title in work entries (PDF/LLM often reverse them)."""
+    from app.services.parser.work_experience_parser import WorkExperienceParser
+    parser = WorkExperienceParser()
     for entry in work_entries:
         if not isinstance(entry, dict):
             continue
@@ -603,9 +610,28 @@ def _normalize_work_experience_company_title(work_entries: list[dict[str, Any]])
         t_str = str(title).strip()
         if not c_str or not t_str:
             continue
-        if WorkExperienceParser._looks_like_title(c_str) and WorkExperienceParser._looks_like_company(t_str):
+        
+        # IMPROVEMENT: Only swap if both heuristics are very strong.
+        # title hint in company field AND company hint in title field.
+        # This prevents aggressive swapping for ambiguous strings.
+        is_c_title = parser._looks_like_title(c_str)
+        is_t_company = parser._looks_like_company(t_str)
+        
+        # Also check for strong hints to be extra sure
+        has_c_title_hint = bool(TITLE_HINT_RE.search(c_str))
+        has_t_company_hint = bool(COMPANY_HINT_RE.search(t_str))
+        
+        if is_c_title and is_t_company:
+            # If both directions look swapped, we are very confident
             entry["company"] = title
             entry["title"] = company
+            logger.info("Swapped company/title: %r <-> %r", c_str, t_str)
+        elif has_c_title_hint and is_t_company and not parser._looks_like_company(c_str):
+            # Company field has a strong title hint and looks like a title, 
+            # while Title field looks like a company.
+            entry["company"] = title
+            entry["title"] = company
+            logger.info("Swapped company/title (hint-based): %r <-> %r", c_str, t_str)
 
 
 def _is_raw_text_entry(entry: dict[str, Any]) -> bool:
