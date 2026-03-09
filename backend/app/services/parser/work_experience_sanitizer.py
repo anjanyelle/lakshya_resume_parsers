@@ -252,15 +252,19 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
             company = _clean_company_name(_normalize_text(item.get("client")))
 
         if not company and not title:
+            logger.debug("Dropping work entry: missing company and title initially")
             continue
 
         if _is_placeholder(company) or _is_placeholder(title):
+            logger.debug("Dropping work entry: placeholder detected", extra={"company": company, "title": title})
             continue
 
         if _is_skillish(company) or _is_skillish(title):
+            logger.debug("Dropping work entry: skillish header detected", extra={"company": company, "title": title})
             continue
 
         if len(company) > 180 or len(title) > 180:
+            logger.debug("Dropping work entry: company or title exceeds 180 chars")
             continue
 
         normalized: dict[str, Any] = dict(item)
@@ -292,11 +296,13 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         # Drop only if we have nothing at all
         if not company and not title and not has_date and not has_body:
+            logger.debug("Dropping work entry: completely empty after normalization")
             continue
 
         # Allow through if company+title exist, even without date/body
         if not has_date and not has_body:
             if not company or not title:
+                logger.debug("Dropping work entry: missing date, body, and either company or title", extra={"company": company, "title": title})
                 continue
             normalized["_needs_review"] = True  # flag for QA but keep it
 

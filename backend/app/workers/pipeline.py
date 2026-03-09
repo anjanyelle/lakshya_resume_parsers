@@ -946,6 +946,11 @@ def _parse_date_str(value: str | None) -> date | None:
     if apostrophe_match:
         raw = f"{apostrophe_match.group(1)} 20{apostrophe_match.group(2)}"
 
+    # MMM YY (without ' or ') -> normalize to MMM 20YY
+    mmm_yy_match = re.match(r"^([A-Za-z]{3,})\s+(\d{2})$", raw)
+    if mmm_yy_match:
+        raw = f"{mmm_yy_match.group(1)} 20{mmm_yy_match.group(2)}"
+
     # DD.MM.YYYY, DD/MM/YYYY, DD-MM-YYYY (day first)
     dmy_match = re.match(r"(\d{1,2})[./\-](\d{1,2})[./\-](\d{2,4})\b", raw)
     if dmy_match:
@@ -962,6 +967,17 @@ def _parse_date_str(value: str | None) -> date | None:
     ym_match = re.match(r"(\d{4})[./\-](\d{1,2})\b", raw)
     if ym_match:
         y, m = int(ym_match.group(1)), int(ym_match.group(2))
+        if 1 <= m <= 12:
+            try:
+                return date(y, m, 1)
+            except ValueError:
+                pass
+
+    # YY.MM, YY/MM, YY-MM (year first, 2-digit year)
+    yy_m_match = re.match(r"^(\d{2})[./\-](\d{1,2})\b", raw)
+    if yy_m_match:
+        yy, m = int(yy_m_match.group(1)), int(yy_m_match.group(2))
+        y = 2000 + yy if yy < 50 else 1900 + yy
         if 1 <= m <= 12:
             try:
                 return date(y, m, 1)

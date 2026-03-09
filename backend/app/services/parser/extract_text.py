@@ -1308,6 +1308,12 @@ def _strip_rtf(text: str) -> str:
         except ValueError:
             return ""
 
+    text = re.sub(r"\\'([0-9a-fA-F]{2})", _hex_replace, text)
+    text = text.replace("{", "").replace("}", "")
+    text = text.replace("\\line", "\n").replace("\\par", "\n")
+    text = re.sub(r"\\[a-zA-Z]+\d*\s*", "", text)
+    return text.strip()
+
 
 # ============================================================
 # DOC CONVERSION

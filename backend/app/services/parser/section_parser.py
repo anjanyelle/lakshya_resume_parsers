@@ -3216,7 +3216,7 @@ class SectionParser:
 
         if key == "experience":
             if char_count < 220:
-                return -0.12
+                return -0.02
             if line_count >= 90:
                 return -0.10
             return 0.05

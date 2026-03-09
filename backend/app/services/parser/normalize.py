@@ -104,7 +104,9 @@ def _repair_common_urls(text: str) -> str:
     return cleaned
 
 
-def normalize_text(text: str) -> str:
+def normalize_text(text: str | None) -> str:
+    if not text:
+        return ""
     cleaned = unicodedata.normalize("NFKC", text)
     cleaned = split_camel_case(cleaned)
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
@@ -132,10 +134,12 @@ def _apply_ocr_fixes(text: str, fixes: dict[str, str]) -> str:
 
 
 def normalize_resume_text(
-    text: str,
+    text: str | None,
     *,
     source_format: str | None = None,
 ) -> str:
+    if not text:
+        return ""
     cleaned = unicodedata.normalize("NFKC", text)
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
     cleaned = _ZERO_WIDTH_RE.sub("", cleaned)
