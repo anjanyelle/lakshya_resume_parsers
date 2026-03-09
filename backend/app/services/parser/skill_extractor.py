@@ -19,9 +19,15 @@ try:
 except Exception:  # noqa: BLE001
     KeywordProcessor = None
 
+from app.core.config import get_settings
+from app.services.parser.cleaning_utils import get_spacy_model
 from app.services.parser.work_experience_parser import JobEntry
 
 logger = logging.getLogger(__name__)
+
+SKILLS_DICT_PATH = Path(__file__).resolve().parents[2] / "data" / "skills_dictionary.json"
+RESUME_NER_MODEL_PATH = Path(__file__).resolve().parents[4] / "backend" / "models" / "resume_ner_model" / "model-best"
+
 
 
 def clean_text_for_skills(text: str) -> str:
@@ -1479,7 +1485,7 @@ class SkillExtractor:
         self._matcher = None
         if self.use_spacy:
             try:
-                self._nlp = spacy.load("en_core_web_sm")
+                self._nlp = get_spacy_model("en_core_web_sm")
             except Exception:  # noqa: BLE001
                 self._nlp = spacy.blank("xx")
             self._matcher = PhraseMatcher(self._nlp.vocab, attr="LOWER")
@@ -1497,6 +1503,49 @@ class SkillExtractor:
                 for syn in item.get("synonyms") or []:
                     if syn and syn != name:
                         self._flashtext_processor.add_keyword(syn, norm)
+            
+            # Add supplemental skills from dictionary
+            self._load_additional_skills()
+
+        # Load trained NER model if available
+        self._ner_nlp = self._load_ner_model()
+
+    def _load_additional_skills(self) -> None:
+        """Load supplemental skills from skills_dictionary.json into flashtext and normalized_map."""
+        if not SKILLS_DICT_PATH.exists():
+            return
+        try:
+            with SKILLS_DICT_PATH.open("r", encoding="utf-8") as f:
+                additional_skills = json.load(f)
+                for skill in additional_skills:
+                    norm = normalize_skill_name(skill)
+                    # Add to FlashText if available
+                    if self._flashtext_processor:
+                        self._flashtext_processor.add_keyword(skill, norm)
+                    
+                    # Add to normalized_map and known_skills for the raw text parser
+                    if norm not in self.normalized_map:
+                        self.normalized_map[norm] = {
+                            "name": skill,
+                            "normalized_name": norm,
+                            "category": "Technical Skills"
+                        }
+                    self._known_skills.add(norm)
+        except Exception as e:
+            logger.error(f"Error loading additional skills: {e}")
+
+    def _load_ner_model(self) -> spacy.Language | None:
+        """Load the trained NER model if it exists (model-best or model-last)."""
+        if spacy is None:
+            return None
+        for suffix in ["model-best", "model-last"]:
+            path = RESUME_NER_MODEL_PATH.parent / suffix
+            if path.exists():
+                try:
+                    return get_spacy_model(str(path))
+                except Exception as e:
+                    logger.warning(f"Could not load custom NER model from {suffix}: {e}")
+        return None
 
     def get_known_normalized_skills(self) -> set[str]:
         """Return set of known normalized skill names for atomic validation."""
@@ -1784,27 +1833,72 @@ class SkillExtractor:
                     version=match.version,
                 )
             )
+        
+        # Integrate NER-extracted skills
+        if self._ner_nlp and raw_text:
+            ner_matches = self._extract_skills_from_ner(raw_text)
+            enriched = self.normalize_skills(enriched + ner_matches)
+
         enriched = self.categorize_skills(enriched)
         return self.normalize_skills(enriched)
+
+    def _extract_skills_from_ner(self, text: str) -> list[SkillMatch]:
+        """Extract skills using the custom NER model."""
+        if not self._ner_nlp:
+            return []
+        
+        doc = self._ner_nlp(text)
+        matches = []
+        for ent in doc.ents:
+            if ent.label_ == "Skills":
+                norm = normalize_skill_name(ent.text)
+                matches.append(
+                    SkillMatch(
+                        name=ent.text,
+                        normalized_name=norm,
+                        category="Technical Skills",
+                        confidence=0.85,
+                        years_experience=None,
+                        proficiency=None,
+                        source="ner_model",
+                    )
+                )
+            elif ent.label_ == "Companies worked at":
+                # Optionally handle companies here or in another extractor
+                pass
+        return matches
 
     def extract_from_raw_text(self, text: str) -> list[SkillMatch]:
         if not text:
             return []
-        text = clean_text_for_skills(text)
-        if not text:
-            return []
+
+        raw_text_source = "raw_text"
         matches: list[SkillMatch] = []
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        if not lines:
+        
+        # Determine lines - if no newlines, check for commas
+        lines = []
+        if "\n" in text:
+            lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        elif "," in text:
             lines = [s.strip() for s in text.split(",") if s.strip()]
+        else:
+            lines = [text.strip()]
+
         for line in lines:
             if len(line) > 200:
                 continue
-            lowered = line.lower()
-            if ":" in line:
+            
+            clean_line = clean_text_for_skills(line)
+            if not clean_line:
+                continue
+            
+            lowered = clean_line.lower()
+            tokens = []
+
+            if ":" in clean_line:
                 if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
                     continue
-                label, _, values = line.partition(":")
+                label, _, values = clean_line.partition(":")
                 label_lower = label.lower()
                 if (
                     "skill" not in label_lower
@@ -1815,10 +1909,10 @@ class SkillExtractor:
                     continue
                 tokens = self._split_skills(values)
             else:
-                delim_count = sum(int(d in line) for d in (",", "|", "•", "-", ";"))
+                delim_count = sum(line.count(d) for d in (",", "|", "•", "-", ";"))
                 if delim_count < 2:
-                    # Try token-line extraction for space-separated skills (no verb skip)
-                    token_hits = self._extract_from_token_line(line)
+                    # Try token-line extraction
+                    token_hits = self._extract_from_token_line(clean_line)
                     if token_hits:
                         tokens = token_hits
                     else:
@@ -1826,9 +1920,8 @@ class SkillExtractor:
                 else:
                     if any(re.search(rf"\b{re.escape(v)}\b", lowered) for v in FALLBACK_SKIP_VERBS):
                         continue
-                    tokens = self._split_skills(line)
+                    tokens = self._split_skills(clean_line)
 
-            raw_text_source = "raw_text"
             for token in tokens:
                 for name, canonical, category in self._expand_and_canonicalize(token):
                     base = 0.55 if canonical in self.normalized_map else 0.45
@@ -1845,7 +1938,6 @@ class SkillExtractor:
                     )
 
         return matches
-
     def _expand_and_canonicalize(self, token: str) -> list[tuple[str, str, str | None]]:
         """Expand compound skills, then canonicalize. Keep original if no parts in taxonomy."""
         expanded = self._expand_compound_skill(token)

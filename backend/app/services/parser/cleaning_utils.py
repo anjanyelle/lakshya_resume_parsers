@@ -3,6 +3,11 @@ Utilities for cleaning and normalizing resume text.
 """
 import re
 import unicodedata
+import logging
+
+logger = logging.getLogger(__name__)
+
+_NLP_CACHE = {}
 
 
 def clean_resume_text(text: str) -> str:
@@ -112,3 +117,18 @@ def clean_company_name(company: str | None) -> str | None:
     if cleaned.lower() in {"inc", "llc", "ltd", "corp"}:
         return None
     return cleaned if len(cleaned) > 2 else None
+
+
+def get_spacy_model(model_name: str):
+    """
+    Load a SpaCy model and cache it to avoid repeated loading.
+    """
+    if model_name not in _NLP_CACHE:
+        try:
+            import spacy
+            logger.info(f"Loading SpaCy model: {model_name}")
+            _NLP_CACHE[model_name] = spacy.load(model_name)
+        except Exception as e:
+            logger.warning(f"Could not load SpaCy model {model_name}: {e}")
+            return None
+    return _NLP_CACHE[model_name]

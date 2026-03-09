@@ -16,6 +16,11 @@ except Exception:  # noqa: BLE001
 
 logger = logging.getLogger(__name__)
 
+from pathlib import Path
+from app.services.parser.cleaning_utils import get_spacy_model
+RESUME_NER_MODEL_PATH = Path(__file__).resolve().parents[4] / "backend" / "models" / "resume_ner_model" / "model-best"
+
+
 
 # FREE_EMAIL_DOMAINS = {
 #     "gmail.com",
@@ -730,10 +735,21 @@ class ContactExtractor:
         self.default_region = default_region
         self._nlp = None
         if spacy is not None:
-            try:
-                self._nlp = spacy.load("en_core_web_sm")
-            except Exception:  # noqa: BLE001
-                self._nlp = spacy.blank("en")
+            if spacy:
+                self._nlp = get_spacy_model("en_core_web_sm") or spacy.blank("en")
+        
+        # Load trained NER model if available
+        self._ner_nlp = self._load_ner_model()
+
+    def _load_ner_model(self) -> spacy.Language | None:
+        """Load the trained NER model if it exists."""
+        if spacy is None:
+            return None
+        for suffix in ["model-best", "model-last"]:
+            path = RESUME_NER_MODEL_PATH.parent / suffix
+            if path.exists():
+                return get_spacy_model(str(path))
+        return None
 
     @staticmethod
     def _contains_country_hint(text: str, hint: str) -> bool:
@@ -745,6 +761,33 @@ class ContactExtractor:
         urls = self.extract_urls(raw_text)
         location = self.extract_location(raw_text)
         name = self.extract_name(raw_text)
+        
+        # Fallback to email or linkedin if name not found
+        if not name.name or len(name.name.strip()) < 2:
+            candidate_name = None
+            if urls and urls.linkedin:
+                # e.g., linkedin.com/in/chandra-shyam-123 -> Chandra Shyam
+                parts = [p for p in urls.linkedin.split('/') if p]
+                if parts:
+                    handle = parts[-1]
+                    clean_handle = re.sub(r'[\d\-]+$', '', handle)
+                    if not clean_handle:
+                        clean_handle = handle
+                    candidate = clean_handle.replace('-', ' ').title().strip()
+                    if candidate and len(candidate) >= 3:
+                        candidate_name = candidate
+
+            if not candidate_name and emails:
+                # e.g., shyamchandra1912@gmail.com -> Shyamchandra
+                email_prefix = emails[0].email.split('@')[0]
+                clean_email = re.sub(r'\d+$', '', email_prefix)
+                clean_email = clean_email.replace('.', ' ').replace('_', ' ').replace('-', ' ').title().strip()
+                if clean_email and len(clean_email) >= 3:
+                    candidate_name = clean_email
+
+            if candidate_name:
+                name = NameResult(name=self._normalize_name_case(candidate_name), confidence=0.45)
+
         return ContactResult(
             emails=emails,
             phones=phones,
@@ -756,6 +799,14 @@ class ContactExtractor:
     def extract_emails(self, text: str) -> list[EmailResult]:
         repaired = self._repair_common_emails(text)
         candidates = [m.group("email") for m in EMAIL_REGEX.finditer(repaired)]
+        
+        # NER model email extraction supplement
+        if self._ner_nlp:
+            ner_doc = self._ner_nlp(text)
+            for ent in ner_doc.ents:
+                if ent.label_ == "Email Address":
+                    if ent.text not in candidates:
+                        candidates.append(ent.text)
         normalized = []
         for email in candidates:
             try:
@@ -900,13 +951,24 @@ class ContactExtractor:
                     return NameResult(
                         name=self._normalize_name_case(candidate), confidence=0.85
                     )
-            stripped = line.lower().strip(":- ")
-            if stripped == "name" and i + 1 < len(top_lines):
                 next_val = top_lines[i + 1].strip()
                 if self._is_probable_name(next_val):
                     return NameResult(
                         name=self._normalize_name_case(next_val), confidence=0.8
                     )
+        
+        # 2. NER Model Name Extraction
+        if self._ner_nlp:
+            ner_doc = self._ner_nlp(text[:2000]) # Scan top part of resume
+            for ent in ner_doc.ents:
+                if ent.label_ == "Name":
+                    candidate = ent.text.strip()
+                    # Filter out massive blocks of text mistakenly labeled as Name
+                    if 1 <= len(candidate.split()) <= 6 and len(candidate) < 60 and "\n" not in candidate:
+                        # Reject if it obviously contains resume section headers
+                        lower_candidate = candidate.lower()
+                        if not any(bad in lower_candidate for bad in ["summary", "experience", "developer", "engineer"]):
+                            return NameResult(name=self._normalize_name_case(candidate), confidence=0.9)
 
         first_five = lines[:5]
         logger.debug("extract_name input first 5 lines: %s", first_five)
@@ -1058,7 +1120,7 @@ class ContactExtractor:
         if re.search(r"\b(and|with|for|to|in|across|optimizing|automating)\b", lowered):
             return False
         if re.match(
-            r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered)\b",
+            r"^(implemented|designed|developed|managed|led|built|created|migrated|deployed|optimized|configured|maintained|delivered|proactively|successfully|consistently|effectively|expertly|collaborated|facilitated|streamlined|accelerated|increased|reduced|improved|transformed|orchestrated|spearheaded)\b",
             re.sub(r"^[^A-Za-z0-9]+", "", lowered),
         ):
             return False

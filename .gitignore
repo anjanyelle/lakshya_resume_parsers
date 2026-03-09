@@ -1,0 +1,7 @@
+# .gitignore for Lakshya-LLM-Resume-Parser
+
+# Large data files
+data/*.zip
+
+# Model files
+backend/models/resume_ner_model/model-last/

@@ -1,11 +1,21 @@
 from __future__ import annotations
 
+from app.core.config import get_settings
+from app.services.parser.cleaning_utils import get_spacy_model
+
 import logging
 import re
 from dataclasses import dataclass
 from datetime import date
 
 import dateparser
+import spacy
+import json
+from pathlib import Path
+try:
+    from flashtext import KeywordProcessor
+except ImportError:
+    KeywordProcessor = None
 
 from app.data.taxonomy.degree_taxonomy import DEGREE_ALIASES, DEGREE_KEYWORDS
 from app.data.taxonomy.universities_top import TOP_UNIVERSITIES
@@ -128,7 +138,8 @@ _NOISE_SUFFIX_RE = re.compile(
 # PDF (cid:NN) character reference artifacts from text extraction (e.g. "(cid:17) Karpagam College")
 _CID_RE = re.compile(r"\(cid:\d+\)")
 
-
+RESUME_NER_MODEL_PATH = Path(__file__).resolve().parents[3] / "models" / "resume_ner_model" / "model-best"
+DEGREES_DICT_PATH = Path(__file__).resolve().parents[2] / "data" / "degrees_dictionary.json"
 @dataclass(frozen=True)
 class EducationEntry:
     institution: str | None
@@ -182,6 +193,33 @@ def _normalize_text_for_display(s: str | None) -> str | None:
 
 
 class EducationParser:
+    def __init__(self) -> None:
+        self._ner_nlp = self._load_ner_model()
+        self._degrees_processor = self._load_degrees_dict()
+
+    def _load_ner_model(self) -> spacy.Language | None:
+        """Load the trained NER model if it exists."""
+        for suffix in ["model-best", "model-last"]:
+            path = RESUME_NER_MODEL_PATH.parent / suffix
+            if path.exists():
+                return get_spacy_model(str(path))
+        return None
+
+    def _load_degrees_dict(self) -> KeywordProcessor | None:
+        """Load the degrees dictionary into FlashText."""
+        if KeywordProcessor is None or not DEGREES_DICT_PATH.exists():
+            return None
+        try:
+            processor = KeywordProcessor(case_sensitive=False)
+            with DEGREES_DICT_PATH.open("r", encoding="utf-8") as f:
+                degrees = json.load(f)
+                for deg in degrees:
+                    processor.add_keyword(deg)
+            return processor
+        except Exception as e:
+            logger.error(f"Error loading degrees dictionary: {e}")
+            return None
+
     def parse(self, text: str) -> list[EducationEntry]:
         # Strip PDF (cid:NN) artifacts so e.g. "(cid:17) Karpagam College" -> " Karpagam College"
         text = _CID_RE.sub(" ", text)
@@ -199,6 +237,10 @@ class EducationParser:
         # Post-parse merge: merge adjacent entries where one has institution
         # but no degree and the other has degree but no institution.
         entries = self._merge_adjacent_entries(entries)
+        
+        # Deduplication: Remove exact duplicates (Institution + Degree)
+        entries = self._dedupe_entries(entries)
+        
         return entries
 
     # ------------------------------------------------------------------
@@ -318,6 +360,24 @@ class EducationParser:
             merged.append(current)
 
         return merged
+
+    def _dedupe_entries(self, entries: list[EducationEntry]) -> list[EducationEntry]:
+        """Remove duplicate education entries based on institution and degree."""
+        if not entries:
+            return entries
+        seen: set[str] = set()
+        deduped: list[EducationEntry] = []
+        for entry in entries:
+            inst = (entry.institution or "").strip().lower()
+            deg = (entry.degree or "").strip().lower()
+            if not inst and not deg:
+                deduped.append(entry)
+                continue
+            key = f"{inst}|{deg}"
+            if key not in seen:
+                seen.add(key)
+                deduped.append(entry)
+        return deduped
 
     def _combine_entries(self, degree_entry: EducationEntry, inst_entry: EducationEntry) -> EducationEntry:
         """Combine two entries, preferring the degree_entry for degree/field/dates
@@ -525,6 +585,13 @@ class EducationParser:
     def _extract_institution(self, text: str) -> str | None:
         lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
 
+        # Pass -1: NER Model check (highest priority for core entity detection)
+        if self._ner_nlp:
+            doc = self._ner_nlp(text)
+            for ent in doc.ents:
+                if ent.label_ in {"College Name", "ORG", "University"}:
+                    return ent.text.strip()
+
         # Pass 0: labeled lines "College: MRCET", "University: X"
         for line in lines:
             label_match = re.match(
@@ -536,7 +603,8 @@ class EducationParser:
                 value = label_match.group(1).strip().rstrip(".,").strip()
                 if value and len(value) > 1 and value.lower() != "institution":
                     return value
-        # Pass 0b: "College: MRCET" anywhere in block (allow newlines after colon; capture until newline, 2+ spaces, or GPA)
+
+        # Pass 0b: "College: MRCET" anywhere in block
         college_in_text = re.search(
             r"(?:^|\s)(?:College|University|Institution)\s*:\s*(?:\s|\n)*([A-Za-z][^\n]+?)(?=\s*\n|\s{2,}|\bGPA\b|$)",
             text,
@@ -547,15 +615,16 @@ class EducationParser:
             if value and len(value) > 1 and value.lower() != "institution":
                 return value
 
-        # Pass 0c: line starts with year or year range then institution (e.g. "2016 – 2020  Karpagam College", "2016  S.B.O.A MHSS CBE")
+        # Pass 0c: line starts with year or year range then institution
         for line in lines:
             m = re.match(r"^\s*\d{4}(?:\s*[-–—]\s*\d{4})?\s{1,}(.+)$", line)
             if m:
                 candidate = m.group(1).strip().rstrip(".,")
-                if len(candidate) > 3 and not re.match(r"^\d", candidate) and candidate.lower() != "institution":
+                # Reject if candidate looks like a date fragment (e.g. "- 2022")
+                if len(candidate) > 3 and not re.match(r"^[-–—]?\s*\d", candidate) and candidate.lower() != "institution":
                     return candidate
 
-        # Pass 1: "from <Institution>" e.g. "from Gokaraju Rangaraju Institute of Engineering & Technology"
+        # Pass 1: "from <Institution>"
         from_match = re.search(
             r"\bfrom\s+([A-Za-z][A-Za-z0-9\s&.,'()\-]+?(?:"
             + "|".join(re.escape(k) for k in _INSTITUTION_KEYWORDS)
@@ -571,14 +640,14 @@ class EducationParser:
 
         # Pass 2: TOP_UNIVERSITIES and lines with institution keywords
         for line in lines:
-            lowered = line.lower()
+            lowered = line.lower().strip()
             for top_uni in TOP_UNIVERSITIES:
                 if top_uni in lowered:
                     cleaned = self._clean_institution_line(line)
                     if cleaned and cleaned.lower() != "institution":
                         return cleaned
 
-        # Pass 3: lines with institution keywords (university, college, institute, etc.)
+        # Pass 3: lines with institution keywords
         for line in lines:
             lowered = line.lower()
             if any(kw in lowered for kw in _INSTITUTION_KEYWORDS):
@@ -591,7 +660,6 @@ class EducationParser:
                         return inst
                     continue
                 cleaned = self._clean_institution_line(line)
-                # ENTERPRISE FIX: If name ends in 'of' or 'at', it's likely split across lines
                 if re.search(r"\b(?:of|at)\s*$", cleaned, re.IGNORECASE):
                     current_idx = -1
                     for idx, candidate_line in enumerate(lines):
@@ -600,9 +668,7 @@ class EducationParser:
                             break
                     if current_idx != -1 and current_idx + 1 < len(lines):
                         next_line = lines[current_idx + 1]
-                        # Don't append if next line STARTS with a year or degree
                         if not re.match(r"^\s*(?:19|20)\d{2}\b", next_line) and not _DEGREE_LINE_RE.search(next_line):
-                            # Append the name part of the next line (don't split by dash here, keep name like Colorado Boulder - Leeds)
                             name_part = next_line.strip().split("|")[0].strip()
                             if name_part:
                                 cleaned += " " + name_part
@@ -614,7 +680,7 @@ class EducationParser:
                 ):
                     return cleaned
 
-        # Pass 4: any line or span containing institution keyword (avoid generic "Institution")
+        # Pass 4: any line or span containing institution keyword
         candidate = self._extract_institution_from_any_line(text)
         if candidate and candidate.lower() != "institution":
             return candidate
@@ -774,6 +840,19 @@ class EducationParser:
             return None
 
         lowered = text.lower()
+
+        # Pass 0: Dictionary check (highest priority for standardized degrees)
+        if self._degrees_processor:
+            found = self._degrees_processor.extract_keywords(text)
+            if found:
+                return found[0]
+
+        # Pass 0.5: NER Model check
+        if self._ner_nlp:
+            doc = self._ner_nlp(text)
+            for ent in doc.ents:
+                if ent.label_ == "Degree":
+                    return ent.text.strip()
 
         # Check for common degree abbreviations first (highest priority)
         for abbr, full in DEGREE_ALIASES.items():
@@ -1139,6 +1218,10 @@ class EducationParser:
             )
             return parsed.date() if parsed else None
             
+        year_only = re.match(r"^(\d{4})$", raw)
+        if year_only:
+            return date(int(year_only.group(1)), 1, 1)
+            
         parsed = dateparser.parse(
             raw, 
             settings={
@@ -1149,24 +1232,22 @@ class EducationParser:
         )
         if parsed:
             return parsed.date()
+
         # Fallback for "July-2010", "June 2014", "Aug. 2018", "Dec 2019" when dateparser fails (allow period after month)
         month_year = re.match(
             r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z.]*[\s\-/.]*(\d{2,4})",
-            value,
+            raw,
             re.IGNORECASE,
         )
         if month_year:
             y = int(month_year.group(1))
             if y < 100:
                 y = 2000 + y if y < 50 else 1900 + y
-            month_str = value[:3].lower()
+            month_str = raw[:3].lower()
             months = "jan feb mar apr may jun jul aug sep oct nov dec".split()
-            for i, m in enumerate(months, 1):
-                if month_str == m:
+            for i, mo in enumerate(months, 1):
+                if month_str == mo:
                     return date(y, i, 1)
-        year_only = re.match(r"^(\d{4})$", value)
-        if year_only:
-            return date(int(year_only.group(1)), 1, 1)
         return None
 
     def _extract_gpa(self, text: str) -> str | None:
