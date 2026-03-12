@@ -43,6 +43,10 @@ class MLWorkExperienceParser:
     
     def parse_work_experience(self, text: str) -> List[JobEntry]:
         """Parse work experience using ML models"""
+        return self.parse_experience_section(text)
+    
+    def parse_experience_section(self, text: str) -> List[JobEntry]:
+        """Parse experience section using ML models"""
         if not text or not text.strip():
             return []
         

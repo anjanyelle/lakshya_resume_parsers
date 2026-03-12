@@ -28,15 +28,32 @@ class HybridWorkExperienceParser:
         self._initialize_parsers()
     
     def _initialize_parsers(self):
-        """Initialize different parsing strategies"""
+        """Initialize different parsing strategies in priority order"""
+        self.parsers = []
+        
+        # 1. ML Parser (Highest priority for complex patterns)
         try:
             from app.services.parser.ml_work_experience_parser import MLWorkExperienceParser
             self.parsers.append(("ML", MLWorkExperienceParser()))
+            logger.info("ML parser initialized")
         except ImportError:
             logger.warning("ML parser not available")
         
-        # Add rule-based parser as fallback
-        self.parsers.append(("Rule-based", self))
+        # 2. Rule-based Parser (Standard patterns)
+        try:
+            from app.services.parser.work_experience_parser import WorkExperienceParser
+            self.parsers.append(("Rule-based", WorkExperienceParser()))
+            logger.info("Rule-based parser initialized")
+        except ImportError:
+            logger.warning("Rule-based parser not available")
+        
+        # 3. LLM Parser (Final fallback for edge cases)
+        try:
+            from app.services.llm_service import LLMParsingService
+            self.parsers.append(("LLM", LLMParsingService()))
+            logger.info("LLM parser initialized")
+        except ImportError:
+            logger.warning("LLM parser not available")
     
     def parse_work_experience(self, text: str) -> List[JobEntry]:
         """Parse work experience using hybrid approach"""
@@ -48,22 +65,100 @@ class HybridWorkExperienceParser:
         
         for method_name, parser in self.parsers:
             try:
-                if method_name == "Rule-based":
-                    jobs = self._rule_based_parse(text)
+                if method_name == "ML":
+                    # ML gets first chance with confidence boost
+                    jobs = parser.parse_experience_section(text)
+                    method_confidence = 1.0  # Highest priority
+                elif method_name == "Rule-based":
+                    # Rule-based gets second chance
+                    jobs = parser.parse_experience_section(text)
+                    method_confidence = 0.8  # Medium priority
+                elif method_name == "LLM":
+                    # LLM gets final chance
+                    jobs = self._llm_parse(text, parser)
+                    method_confidence = 0.6  # Lowest priority
                 else:
-                    jobs = parser.parse_work_experience(text)
+                    jobs = self._rule_based_parse(text)
+                    method_confidence = 0.5
                 
                 if jobs:
-                    confidence = self._calculate_confidence(jobs, text)
-                    if confidence > best_confidence:
-                        best_confidence = confidence
+                    base_confidence = self._calculate_confidence(jobs, text)
+                    # Apply method priority weighting
+                    weighted_confidence = base_confidence * method_confidence
+                    
+                    logger.info(f"{method_name} parser: {len(jobs)} jobs, confidence={weighted_confidence:.2f}")
+                    
+                    if weighted_confidence > best_confidence:
+                        best_confidence = weighted_confidence
                         best_result = jobs
+                        self.method_used = method_name
                         
             except Exception as e:
                 logger.error(f"Parser {method_name} failed: {e}")
                 continue
         
         return best_result or []
+    
+    def parse_experience_section(self, text: str, source_format: str = None) -> List[JobEntry]:
+        """Parse experience section - compatibility method for pipeline"""
+        return self.parse_work_experience(text)
+    
+    @staticmethod
+    def build_date_anchor_excerpt(text: str, *, context_lines: int = 5) -> str:
+        """Build date anchor excerpt - compatibility method for pipeline"""
+        try:
+            # Import the original method for compatibility
+            from app.services.parser.work_experience_parser import WorkExperienceParser
+            return WorkExperienceParser.build_date_anchor_excerpt(text, context_lines=context_lines)
+        except ImportError:
+            # Fallback: return first few lines
+            lines = text.split('\n')
+            if len(lines) <= context_lines * 2:
+                return text
+            return '\n'.join(lines[:context_lines * 2])
+    
+    def _llm_parse(self, text: str, llm_service) -> List[JobEntry]:
+        """LLM parsing implementation"""
+        try:
+            # Use LLM service to extract work experience
+            llm_result = llm_service.extract_work_experience(text)
+            if not llm_result:
+                return []
+            
+            jobs = []
+            for item in llm_result:
+                if isinstance(item, dict):
+                    job = JobEntry(
+                        company=item.get("company"),
+                        title=item.get("title") or item.get("job_title"),
+                        start_date=self._parse_date(item.get("start_date")),
+                        end_date=self._parse_date(item.get("end_date")),
+                        location=item.get("location"),
+                        description=item.get("description", ""),
+                        is_current=item.get("end_date") in ["present", "current", None],
+                        bullets=[],
+                        duration_months=None,
+                        client=item.get("client"),
+                        employment_type=item.get("employment_type"),
+                        confidence=0.6
+                    )
+                    jobs.append(job)
+            
+            return jobs
+        except Exception as e:
+            logger.error(f"LLM parsing failed: {e}")
+            return []
+    
+    def _parse_date(self, date_str: Optional[str]) -> Optional[datetime]:
+        """Parse date string to datetime"""
+        if not date_str:
+            return None
+        
+        try:
+            import dateparser
+            return dateparser.parse(date_str)
+        except Exception:
+            return None
     
     def _calculate_confidence(self, jobs: List[JobEntry], original_text: str) -> float:
         """Calculate confidence score for parsed jobs"""

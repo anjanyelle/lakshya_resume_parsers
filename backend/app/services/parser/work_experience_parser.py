@@ -52,7 +52,7 @@ TITLE_PIPE_COMPANY_RE = re.compile(
 )
 # Strict Location Regex: City, ST (e.g. San Francisco, CA or New York, NY)
 # Avoid matching technical fragments like "Swift, UI" or "Spring Boot, AI"
-LOCATION_RE = re.compile(r"\b(?!(?:Swift|UI|IT|AI|ML|SQL|AWS|API|JDBC|JSON|NoSQL|REST|GraphQL|SOAP|CI/CD)\b)([A-Za-z \.]{2,40},\s*[A-Z]{2})\b")
+LOCATION_RE = re.compile(r"\b([A-Za-z\s\.]{2,40}),\s*([A-Za-z]{2})\b")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist|officer|associate|head|executive|technician|representative|administrator|coordinator|principal|scientist|researcher|expert|intern|partner|programmer|coder|tester|qa|quality assurance|support|scrum master|product owner|founder|co-founder|vp|cto|cio|cfo|ceo)\b", re.IGNORECASE)
 # Job title keywords for splitting single-chunk experience (capitalized at line start)
 TITLE_SPLIT_KEYWORDS = (
@@ -1362,7 +1362,7 @@ class WorkExperienceParser:
             return False
 
         # Length check: company names are rarely very long sentences
-        words = cleaned.split()
+        words = [w.strip().strip('.,') for w in cleaned.split() if w.strip().strip('.,')]
         if len(words) > 8:
             return bool(COMPANY_HINT_RE.search(text))
 
@@ -1394,15 +1394,16 @@ class WorkExperienceParser:
             return True
 
         # State/Location pattern (e.g. "Louisville, KY") is NOT a company
-        if re.search(r",\s*[A-Z]{2}\b", text):
+        if re.search(r",\s*[A-Za-z]{1,2}(?:\s|$)", text):
             return False
             
         # Reject labels (Role:, Designation:, etc.) as part of company name
         if PLACEHOLDER_ORG_RE.match(text):
             return False
 
-        # If it has 2-5 words and none are title hints, be lenient
-        if 2 <= len(words) <= 5 and not TITLE_HINT_RE.search(text):
+        # If it has 2-5 words and None are title hints, be lenient
+        # But exclude if it looks like a location pattern
+        if 2 <= len(words) <= 5 and not TITLE_HINT_RE.search(text) and not re.search(r",\s*[A-Za-z]{1,2}(?:\s|$)", text):
             return True
 
         return False
@@ -1598,15 +1599,19 @@ class WorkExperienceParser:
                 if not left: return None, right
                 if not right: return left, None
 
-                # Verify plausibility
+                # Verify plausibility with additional checks
                 l_is_title = self._looks_like_title(left)
                 r_is_title = self._looks_like_title(right)
                 l_is_company = self._looks_like_company(left)
                 r_is_company = self._looks_like_company(right)
                 
-                if r_is_title and l_is_company and not l_is_title:
+                # Additional check: if left looks like location, it's probably not a company
+                l_is_location = self._parse_location(left) is not None
+                r_is_location = self._parse_location(right) is not None
+                
+                if r_is_title and l_is_company and not l_is_title and not l_is_location:
                     return left, right
-                if l_is_title and r_is_company and not r_is_title:
+                if l_is_title and r_is_company and not r_is_title and not r_is_location:
                     return right, left
                 
                 # If one part looks like a sentence (contains a period mid-sentence), reject it as header part

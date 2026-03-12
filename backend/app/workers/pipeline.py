@@ -2684,7 +2684,14 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             exp_conf = 0.0
         has_experience_section = bool(experience_text.strip())
 
-        parser = WorkExperienceParser()
+        # Use Hybrid Parser for ML → Rule-based → LLM approach
+        try:
+            from app.services.parser.hybrid_work_experience_parser import HybridWorkExperienceParser
+            parser = HybridWorkExperienceParser()
+            logger.info("Using Hybrid Work Experience Parser (ML → Rule-based → LLM)")
+        except ImportError:
+            parser = WorkExperienceParser()
+            logger.warning("Falling back to standard Work Experience Parser")
         raw_text = job.raw_text or ""
 
         source_format = _source_format_from_path(
@@ -2707,10 +2714,21 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
 
         excerpt = ""
         if raw_text.strip():
-            excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5) or ""
+            excerpt = parser.build_date_anchor_excerpt(raw_text, context_lines=5) or ""
 
         chosen_experience_text = experience_text if has_experience_section else raw_text
-        primary_jobs = _parse_deterministic(experience_text) if has_experience_section else _parse_deterministic(raw_text)
+        
+        # Use Hybrid Parser for ML → Rule-based → LLM approach
+        if isinstance(parser, HybridWorkExperienceParser):
+            # Hybrid parser handles all strategies internally
+            primary_jobs = parser.parse_work_experience(chosen_experience_text)
+            method_used = getattr(parser, 'method_used', 'Hybrid')
+            logger.info(f"Hybrid parser used method: {method_used}")
+        else:
+            # Fallback to deterministic parsing
+            primary_jobs = _parse_deterministic(experience_text) if has_experience_section else _parse_deterministic(raw_text)
+            method_used = "Deterministic"
+            
         primary_score = score_work_experience_jobs(primary_jobs)
         logger.info(
             "DIAG primary_jobs count=%d first=%s",
