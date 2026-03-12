@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import { createServer } from 'http'
 import app from './app'
 import pool from './database/db'
@@ -5,7 +6,19 @@ import parseWorker from './workers/parseWorker'
 import { closeQueue } from './queues/parseQueue'
 import createSocketServer, { setSocketInstance } from './socket'
 
+// Load environment variables
+dotenv.config()
+
 const PORT = process.env.PORT || 3001
+
+// Debug: Print DATABASE_URL (without password)
+const databaseUrl = process.env.DATABASE_URL
+if (databaseUrl) {
+  const maskedUrl = databaseUrl.replace(/:([^:@]+)@/, ':***@')
+  console.log('🔍 DATABASE_URL:', maskedUrl)
+} else {
+  console.log('❌ DATABASE_URL is undefined')
+}
 
 async function startServer(): Promise<void> {
   try {

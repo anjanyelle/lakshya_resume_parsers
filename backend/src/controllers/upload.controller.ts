@@ -1,4 +1,5 @@
 import { Request, Response } from 'express'
+import { v4 as uuidv4 } from 'uuid'
 import { getClient } from '../database/db'
 import { addParsingJob } from '../queues/parseQueue'
 import { validateUploadedFile, getFileInfo, getFileType, deleteUploadedFile } from '../middleware/upload.middleware'
@@ -32,31 +33,32 @@ export const uploadResume = async (req: Request, res: Response): Promise<void> =
       await client.query('BEGIN')
 
       // 3. Create candidate record in database (status: 'pending')
+      const candidateId = uuidv4()
       const candidateQuery = `
-        INSERT INTO candidates (file_path, file_type, raw_resume_text, created_at, updated_at)
-        VALUES ($1, $2, $3, NOW(), NOW())
+        INSERT INTO candidates (id, status, created_at, updated_at)
+        VALUES ($1, 'pending', NOW(), NOW())
         RETURNING *
       `
       
-      const candidateValues = [
-        fileInfo.path,
-        fileInfo.type,
-        null // raw_resume_text will be populated by AI service
-      ]
-      
-      const candidateResult = await client.query(candidateQuery, candidateValues)
+      const candidateResult = await client.query(candidateQuery, [candidateId])
       const candidate = candidateResult.rows[0]
       
       console.log(`✅ Created candidate record: ${candidate.id}`)
 
-      // 4. Create parsing_job record (status: 'queued')
+      // 4. Create parsing_job record (status: 'pending')
+      const parsingJobId = uuidv4()
       const parsingJobQuery = `
-        INSERT INTO parsing_jobs (candidate_id, status, progress, created_at)
-        VALUES ($1, 'queued', 0, NOW())
+        INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, started_at)
+        VALUES ($1, $2, $3, $4, 'pending', NOW())
         RETURNING *
       `
       
-      const parsingJobResult = await client.query(parsingJobQuery, [candidate.id])
+      const parsingJobResult = await client.query(parsingJobQuery, [
+        parsingJobId,
+        candidate.id,
+        fileInfo.originalname,
+        fileInfo.path
+      ])
       const parsingJob = parsingJobResult.rows[0]
       
       console.log(`✅ Created parsing job record: ${parsingJob.id}`)

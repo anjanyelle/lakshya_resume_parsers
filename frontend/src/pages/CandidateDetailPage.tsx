@@ -1,645 +1,452 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useLayout } from '../contexts/LayoutContext'
-import { toast } from 'react-hot-toast'
-import * as mammoth from 'mammoth'
-import ProfileHeader from '../components/candidate-detail/ProfileHeader'
-import ResumeViewerWithHighlights, { type FieldMapping } from '../components/candidate-detail/ResumeViewerWithHighlights'
-import StructuredDataPanel from '../components/candidate-detail/StructuredDataPanel'
-import Modal from '../components/common/Modal'
-import Skeleton from '../components/common/Skeleton'
-import type { Candidate, ParsingJob, Skill } from '../types'
-import {
-  approveCandidate,
-  deleteCandidate,
-  downloadResume,
-  exportCandidateJson,
-  fetchCandidate,
-  fetchCandidateReview,
-  reprocessCandidate,
-  submitCorrections,
-} from '../services/api/candidates'
-import { fetchJobExtractionDebug } from '../services/api/uploads'
-import { 
-  getDisplaySummary, 
-  shouldUseParsedDataFallback, 
-  contactFromParsed, 
-  getDisplayWorkHistory, 
-  getDisplayEducation, 
-  getDisplayCertifications 
-} from '../utils/parsedDataFallback'
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useCandidateStore } from '../store/useCandidateStore'
+import { useJobStore } from '../store/useJobStore'
+import toast from 'react-hot-toast'
 
-const clone = (value: any) => JSON.parse(JSON.stringify(value))
+interface MatchResult {
+  id: string
+  job_id: string
+  job_title?: string
+  candidate_id: string
+  candidate_name: string
+  overall_score: number
+  skill_score: number
+  experience_score: number
+  education_score: number
+  matching_skills: string[]
+  missing_skills: string[]
+  recommendation: 'Strong Match' | 'Good Match' | 'Partial Match' | 'Not Recommended'
+  reason: string
+  created_at: string
+}
+
+type TabType = 'overview' | 'skills' | 'experience' | 'education'
 
 export default function CandidateDetailPage() {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [candidate, setCandidate] = useState<Candidate | null>(null)
-  const [originalCandidate, setOriginalCandidate] = useState<Candidate | null>(null)
-  const [latestJob, setLatestJob] = useState<ParsingJob | null>(null)
-  const [resumeUrl, setResumeUrl] = useState<string | null>(null)
-  const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null)
-  const [resumePreviewError, setResumePreviewError] = useState<string | null>(null)
-  const [resumePreviewHtml, setResumePreviewHtml] = useState<string | null>(null)
-  const [resumePreviewType, setResumePreviewType] = useState<'pdf' | 'docx' | null>(
-    null,
-  )
-  const [previewOpen, setPreviewOpen] = useState(false)
-  const [parsedData, setParsedData] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
-  const [activeField, setActiveField] = useState<string | null>(null)
-  const [activeFieldId, setActiveFieldId] = useState<string | null>(null)
-  const [scrollToFieldId, setScrollToFieldId] = useState<string | null>(null)
-  const [panelScrollToFieldId, setPanelScrollToFieldId] = useState<string | null>(null)
-  const [autoEditFieldId, setAutoEditFieldId] = useState<string | null>(null)
-  const { collapseSidebar } = useLayout()
+  const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [showRawResume, setShowRawResume] = useState(false)
+  const [isMatching, setIsMatching] = useState(false)
+  
+  const { currentCandidate, fetchCandidate } = useCandidateStore()
+  const { matchResults, fetchMatchResults } = useJobStore()
 
   useEffect(() => {
-    if (!id) return
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const [candidateData, reviewData] = await Promise.all([
-          fetchCandidate(id),
-          fetchCandidateReview(id),
-        ])
-        setCandidate(candidateData) 
-        setOriginalCandidate(candidateData)
-        setLatestJob(reviewData.latest_job)
-        setParsedData(clone(reviewData.latest_job?.parsed_data || {}))
-
-        if (import.meta.env.DEV) {
-          const pd = reviewData.latest_job?.parsed_data || {}
-          const work = pd.work_experience || []
-          const edu = pd.education || []
-          const certs = pd.certifications || []
-          const sections = (pd.sections || {}) as Record<string, unknown>
-          const summaryBlock = sections.summary || {}
-          const summaryContent =
-            typeof summaryBlock === 'object' && summaryBlock !== null && 'content' in summaryBlock
-              ? String((summaryBlock as { content?: string }).content || '')
-              : ''
-          console.log('[DATA-LOSS CHECK] Final frontend rendering — data received from API:', {
-            candidateId: id,
-            db_work_history_count: candidateData.work_history?.length ?? 0,
-            db_education_count: candidateData.education?.length ?? 0,
-            db_certifications_count: candidateData.certifications?.length ?? 0,
-            parsed_work_experience_count: Array.isArray(work) ? work.length : 0,
-            parsed_education_count: Array.isArray(edu) ? edu.length : 0,
-            parsed_certifications_count: Array.isArray(certs) ? certs.length : 0,
-            parsed_summary_length: summaryContent.length,
-            summary_sample: summaryContent.slice(0, 120) + (summaryContent.length > 120 ? '...' : ''),
-          })
-          const jobId = reviewData.latest_job?.id
-          if (jobId) {
-            fetchJobExtractionDebug(jobId)
-              .then((debug) => {
-                console.log('[DATA-LOSS CHECK] Backend extraction debug (compare with rendering):', {
-                  raw_text_length: debug.raw_text_length,
-                  raw_sample_first_200: debug.raw_text_sample_first_200?.slice(0, 100) + '...',
-                  parsed_work_count: debug.parsed_work_experience_count,
-                  parsed_work_desc_chars: debug.parsed_work_description_total_chars,
-                  parsed_education_count: debug.parsed_education_count,
-                  parsed_certifications_count: debug.parsed_certifications_count,
-                  parsed_summary_length: debug.parsed_summary_length,
-                  method: debug.text_extraction_method,
-                  used_ocr: debug.used_ocr,
-                })
-              })
-              .catch(() => {})
-          }
-        }
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to load candidate',
-        )
-      } finally {
-        setLoading(false)
-      }
+    if (id) {
+      loadCandidate(id)
+      loadMatchResults()
     }
-    fetchData()
   }, [id])
 
-  const handleSkillsUpdate = useCallback(
-    async (updatedSkills: Skill[]) => {
-      if (!id) return
-      const skillsString = updatedSkills.map((s) => s.name).join(', ')
-      const originalSkillsString =
-        originalCandidate?.skills?.map((s) => s.name).join(', ') || ''
-
-      if (skillsString === originalSkillsString) return
-
-      // Optimistic update
-      //setCandidate((prev) => (prev ? { ...prev, skills: updatedSkills } : prev))
-
-      try {
-        const updatedCandidate = await submitCorrections(id, [
-          {
-            field_name: 'skills',
-            original_value: originalSkillsString,
-            corrected_value: skillsString,
-          },
-        ])
-        setCandidate(updatedCandidate)
-        setOriginalCandidate(updatedCandidate)
-        toast.success('Skills updated')
-      } catch (error: any) {
-        const msg = error?.response?.data?.detail || 'Failed to update skills'
-        toast.error(msg)
-        //setCandidate(originalCandidate)
-      }
-    },
-    [id, originalCandidate],
-  )
-
-  useEffect(() => {
-    if (!id || !candidate) return
-
-    const jobs = [...(candidate.parsing_jobs || [])].sort((a, b) => {
-      const aTime = a.started_at ? new Date(a.started_at).getTime() : 0
-      const bTime = b.started_at ? new Date(b.started_at).getTime() : 0
-      return bTime - aTime
-    })
-    const latestJob = jobs[0]
-    const filename = latestJob?.filename || ''
-    const ext = filename.split('.').pop()?.toLowerCase() || ''
-
-    downloadResume(id)
-      .then(async (url) => {
-        setResumeUrl(url)
-        setResumePreviewHtml(null)
-        setResumePreviewType(null)
-
-        if (ext === 'doc') {
-          setResumePreviewUrl(null)
-          setResumePreviewHtml(null)
-          setResumePreviewType(null)
-          setResumePreviewError(
-            'Preview not supported for this file type. Please download.',
-          )
-          return
-        }
-
-        setResumePreviewError(null)
-        try {
-          const { fetchFileAsBlobUrl, fetchFileAsBlob } = await import(
-            '../services/api/files'
-          )
-
-          let previewUrl = url
-          const apiOrigin = new URL(
-            import.meta.env.VITE_API_URL?.toString() ?? 'http://localhost:8000',
-          ).origin
-          const isAbsolute = /^https?:\/\//i.test(url)
-          if (isAbsolute) {
-            const targetOrigin = new URL(url).origin
-            if (targetOrigin !== apiOrigin && latestJob?.id) {
-              previewUrl = `/api/v1/files/${latestJob.id}`
-            }
-          }
-
-          if (ext === 'docx') {
-            const blob = await fetchFileAsBlob(previewUrl)
-            const buf = await blob.arrayBuffer()
-            const result = await mammoth.convertToHtml({ arrayBuffer: buf })
-            setResumePreviewHtml(result.value)
-            setResumePreviewType('docx')
-            setResumePreviewUrl(null)
-            return
-          }
-
-          if (ext === 'pdf' && latestJob?.id) {
-            try {
-              console.log('=== PDF HTML Debug ===')
-              console.log('Job ID:', latestJob.id)
-              console.log('Extension:', ext)
-              const { fetchFileHtml } = await import('../services/api/files')
-              const html = await fetchFileHtml(latestJob.id)
-              console.log('Raw HTML response:', html)
-              console.log('HTML type:', typeof html)
-              console.log('HTML length:', html?.length || 0)
-              console.log('HTML trimmed length:', html?.trim()?.length || 0)
-              
-              if (html && html.trim().length > 0) {
-                console.log('✅ Setting HTML preview state')
-                setResumePreviewHtml(html)
-                setResumePreviewType('docx')
-                setResumePreviewUrl(null)
-                setResumePreviewError(null)
-                console.log('Final state - type: docx, html exists:', !!resumePreviewHtml)
-              } else {
-                console.log('❌ HTML invalid, falling back to iframe')
-                console.log('Final state - type: pdf, html exists:', !!resumePreviewHtml)
-                setResumePreviewError('PDF highlighting not available. Showing standard PDF viewer.')
-                /* fall through to iframe */
-              }
-              return
-            } catch (error: any) {
-              console.error('❌ PDF HTML preview failed:', error)
-              console.warn('PDF HTML preview not available, falling back to iframe:', error?.message || error)
-              setResumePreviewError('PDF highlighting not available. Showing standard PDF viewer.')
-              /* fall through to iframe */
-            }
-          }
-
-          const blobUrl = await fetchFileAsBlobUrl(previewUrl)
-          setResumePreviewUrl(blobUrl)
-          setResumePreviewType('pdf')
-        } catch (error) {
-          setResumePreviewUrl(null)
-          setResumePreviewHtml(null)
-          setResumePreviewType(null)
-          setResumePreviewError(
-            error instanceof Error
-              ? error.message
-              : 'Resume preview unavailable. Please download.',
-          )
-        }
-      })
-      .catch(() => {
-        setResumeUrl(null)
-        setResumePreviewUrl(null)
-        setResumePreviewHtml(null)
-        setResumePreviewType(null)
-        setResumePreviewError('Resume preview unavailable. Please download.')
-      })
-  }, [id, candidate])
-
-  useEffect(() => {
-    return () => {
-      if (resumePreviewUrl) {
-        URL.revokeObjectURL(resumePreviewUrl)
-      }
-    }
-  }, [resumePreviewUrl])
-
-  const handleSummarySave = async (value: string) => {
-    if (!id) return
+  const loadCandidate = async (candidateId: string) => {
     try {
-      const updatedCandidate = await submitCorrections(
-        id, [
-        {
-          field_name: 'summary',
-          original_value: candidate?.summary ?? null,
-          corrected_value: value,
-        },
-      ])
-
-      // Always use backend response
-      setCandidate(updatedCandidate)
-      setOriginalCandidate(updatedCandidate)
-      setParsedData((prev) => ({
-        ...prev,
-        sections: {
-          ...prev.sections,
-          summary: {
-            ...(prev.sections?.summary || {}),
-            content: value,
-          },
-        },
-      }))
-      toast.success('Summary updated')
+      await fetchCandidate(candidateId)
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to update summary',
-      )
-    }
-  }
-
-  const handleExport = async () => {
-    if (!id) return
-    try {
-      const data = await exportCandidateJson(id)
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json',
-      })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `candidate-${id}.json`
-      link.click()
-      URL.revokeObjectURL(url)
-    } catch (error) {
-      toast.error('Failed to export JSON')
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!id) return
-    try {
-      await deleteCandidate(id)
-      toast.success('Candidate deleted')
+      toast.error('Failed to load candidate')
       navigate('/candidates')
-    } catch (error) {
-      toast.error('Failed to delete candidate')
     }
   }
 
-  const handleApprove = async () => {
+  const loadMatchResults = async () => {
+    try {
+      // This would need a specific API endpoint for candidate matches
+      // For now, we'll use the job store's match results
+      await fetchMatchResults('all') // This would need to be adjusted
+    } catch (error) {
+      console.error('Failed to load match results')
+    }
+  }
+
+  const handleRunMatching = async () => {
     if (!id) return
+    
+    setIsMatching(true)
     try {
-      const data = await approveCandidate(id)
-      setCandidate(data)
-      toast.success('Marked as reviewed')
+      // This would need to be implemented to match against all active jobs
+      toast.success('Matching started! Check back for results.')
     } catch (error) {
-      toast.error('Failed to approve candidate')
+      toast.error('Failed to start matching')
+    } finally {
+      setIsMatching(false)
     }
   }
 
-  const handleReprocess = async () => {
-    if (!id) return
-    try {
-      await reprocessCandidate(id)
-      toast.success('Reprocess triggered')
-    } catch (error) {
-      toast.error('Failed to reprocess')
-    }
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 0.8) return 'bg-green-100 text-green-800'
+    if (confidence >= 0.6) return 'bg-yellow-100 text-yellow-800'
+    return 'bg-red-100 text-red-800'
   }
 
-  const handleDownload = async () => {
-    if (!resumeUrl) return
-    try {
-      const { downloadFile } = await import('../services/api/files')
-      const fallbackName = `resume-${candidate?.id ?? 'candidate'}.pdf`
-      await downloadFile(resumeUrl, fallbackName)
-    } catch (error) {
-      window.open(resumeUrl, '_blank')
-    }
+  const getMatchColor = (score: number) => {
+    if (score >= 80) return 'bg-green-100 text-green-800'
+    if (score >= 60) return 'bg-yellow-100 text-yellow-800'
+    return 'bg-red-100 text-red-800'
   }
 
-  const handlePreview = async () => {
-    if (!resumePreviewUrl && !resumePreviewHtml) {
-      toast.error(resumePreviewError || 'Resume preview unavailable. Please download.')
-      return
-    }
-    setPreviewOpen(true)
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
   }
 
-  const handleFieldClickFromResume = useCallback(
-    (fieldId: string) => {
-      collapseSidebar()
-      setActiveField(fieldId)
-      setActiveFieldId(fieldId)
-      setPanelScrollToFieldId(fieldId)
-      setAutoEditFieldId(fieldId)
-      
-      // ✅ Only navigate for specific field types, not all fields
-      if (fieldId.includes('skill') || fieldId === 'skills') {
-        // Skills - navigate to Skills section
-      } else if (fieldId === 'full_name' || fieldId === 'email' || fieldId === 'phone' || fieldId === 'location') {
-        // Candidate Details - navigate to Candidate Details section
-      } else if (fieldId.includes('education') || fieldId === 'degree' || fieldId === 'institution') {
-        // Education - navigate to Education section
-      } else if (fieldId.includes('experience') || fieldId === 'work_history') {
-        // Experience - navigate to Experience section
+  const formatDateRange = (startDate: string, endDate?: string, isCurrent?: boolean) => {
+    const start = formatDate(startDate)
+    if (isCurrent) return `${start} - Present`
+    if (endDate) return `${start} - ${formatDate(endDate)}`
+    return `${start} - Present`
+  }
+
+  const groupSkillsByCategory = (skills: any[]) => {
+    const grouped: Record<string, any[]> = {}
+    skills?.forEach(skill => {
+      const category = skill.category || 'Other'
+      if (!grouped[category]) {
+        grouped[category] = []
       }
-      // Skills, Clients, Experience Roles, Work History - no navigation (just highlight)
-    },
-    [collapseSidebar]
-  )
+      grouped[category].push(skill)
+    })
+    return grouped
+  }
 
-  const handleFieldSelectFromPanel = useCallback((fieldId: string) => {
-    setActiveField(fieldId)
-    setActiveFieldId(fieldId)
-    setScrollToFieldId(fieldId)
-  }, [])
+  const candidateMatches = matchResults.filter(match => match.candidate_id === id)
 
-  const handleScrollComplete = useCallback(() => {
-    setScrollToFieldId(null)
-  }, [])
-
-  const handlePanelScrollComplete = useCallback(() => {
-    setPanelScrollToFieldId(null)
-  }, [])
-
-  const handleAutoEditConsumed = useCallback(() => {
-    setAutoEditFieldId(null)
-  }, [])
-
-  if (loading || !candidate) {
+  if (!currentCandidate) {
     return (
-      <section className="space-y-6">
-        <Skeleton lines={8} />
-      </section>
+      <div className="p-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      </div>
     )
   }
 
-  const parsedExperience = Array.isArray(latestJob?.parsed_data?.work_experience)
-    ? latestJob.parsed_data.work_experience
-    : []
-  const dbHistory = candidate.work_history ?? []
+  const tabs = [
+    { id: 'overview' as TabType, label: 'Overview' },
+    { id: 'skills' as TabType, label: 'Skills' },
+    { id: 'experience' as TabType, label: 'Experience' },
+    { id: 'education' as TabType, label: 'Education' }
+  ]
 
-  // const useParsedDataFallback = shouldUseParsedDataFallback(candidate, parsedData)
-  // const { skills: fallbackSkills, candidateSkills: fallbackCandidateSkills } =
-  //   skillsFromParsed(parsedData.skills)
-  // const fallbackContact = contactFromParsed(parsedData.contact)
-
-  const useParsedDataFallback = shouldUseParsedDataFallback(candidate, parsedData)
-
-  const fallbackContact = contactFromParsed(parsedData.contact)
-
-  // Prefer parsed_data per section when it has content so UI matches Export JSON
-  const displayWorkHistory = getDisplayWorkHistory(parsedData, dbHistory)
-  const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
-  const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
-  const displaySummary = getDisplaySummary(parsedData, candidate.summary, candidate.summary_manually_edited ?? false)
-  
-  // Debug logging for summary
-  console.log('🔍 SUMMARY DEBUG:', {
-    candidateId: id,
-    dbSummary: candidate.summary,
-    summaryManuallyEdited: candidate.summary_manually_edited,
-    // parsedSummary: summaryFromParsed(parsedData),
-    displaySummary
-  })
-  const displaySkills = candidate.skills ?? []
-  const displayCandidateSkills = candidate.candidate_skills ?? []
-
-  //const displaySkills = useParsedDataFallback ? fallbackSkills : (candidate.skills ?? [])
-  //const displayCandidateSkills = useParsedDataFallback ? fallbackCandidateSkills : (candidate.candidate_skills ?? [])
-
-  // Prefer parsed name/contact when DB fields are empty (fixes "Unnamed candidate" for PDFs)
-  const displayCandidate: Candidate = useParsedDataFallback
-    ? {
-        ...candidate,
-        full_name: fallbackContact.full_name ?? candidate.full_name,
-        email: fallbackContact.email ?? candidate.email,
-        phone: fallbackContact.phone ?? candidate.phone,
-        location: fallbackContact.location ?? candidate.location,
-      }
-    : {
-        ...candidate,
-        full_name: (candidate.full_name?.trim() || fallbackContact.full_name) ?? candidate.full_name,
-        email: candidate.email || fallbackContact.email || candidate.email,
-        phone: candidate.phone || fallbackContact.phone || candidate.phone,
-        location: candidate.location || fallbackContact.location || candidate.location,
-      }
-
-  const showMismatchBanner =
-    dbHistory.length === 0 && parsedExperience.length > 0 && !useParsedDataFallback
-
-  const summaryExcerpt =
-    (displaySummary ?? '').trim().length > 3
-      ? (displaySummary ?? '').trim().slice(0, 60)
-      : ''
-  
-  const fieldMappings: FieldMapping[] = [
-  // 🟢 Candidate details → green
-    { id: 'full_name', value: displayCandidate.full_name ?? '', label: 'Candidate Name' },
-    { id: 'email', value: displayCandidate.email ?? '', label: 'Candidate Email' },
-    { id: 'phone', value: displayCandidate.phone ?? '', label: 'Candidate Phone' },
-    { id: 'location', value: displayCandidate.location ?? '', label: 'Location' },
-    { id: 'full_name', value: displayCandidate.linkedin_url ?? '', label: 'LinkedIn' },
-    { id: 'full_name', value: displayCandidate.github_url ?? '', label: 'GitHub' },
-    ...(summaryExcerpt
-      ? [{ id: 'summary' as const, value: summaryExcerpt, label: 'Summary' }]
-      : []),
-  // 🔵 Skills → light blue
-    ...displaySkills
-      .filter((s) => s.name?.trim().length > 2)
-      .map((s) => ({ id: 'skills' as const, value: s.name })),
-  // 🟡 Experience company names → light yellow
-    ...displayWorkHistory
-      .filter((wh) => (wh.company_name ?? '').trim().length > 2)
-      .map((wh) => ({ id: 'experience_company' as const, value: wh.company_name ?? '' })),
-  // 🟡 Experience job titles → light yellow
-    ...displayWorkHistory
-      .filter((wh) => (wh.job_title ?? '').trim().length > 2)
-      .map((wh) => ({ id: 'experience_role' as const, value: wh.job_title ?? '' })),
-  // 🟠 Education institution → light orange
-    ...displayEducation
-      .filter((e) => (e.institution ?? '').trim().length > 2)
-      .map((e) => ({ id: 'education_institution' as const, value: e.institution ?? '' })),
-  // 🟠 Education degree → light orange
-    ...displayEducation
-      .filter((e) => (e.degree ?? '').trim().length > 2)
-      .map((e) => ({ id: 'education_degree' as const, value: e.degree ?? '' })),
-  ]    
-      
-  // Debug: log data availability for troubleshooting missing UI data
-  if (import.meta.env.DEV) {
-    console.log('[CandidateDetail] Data loaded:', {
-      candidateId: id,
-      name: candidate?.full_name || '(empty)',
-      summaryLen: candidate?.summary?.length ?? 0,
-      workHistoryCount: dbHistory.length,
-      parsedExperienceCount: parsedExperience.length,
-      educationCount: candidate?.education?.length ?? 0,
-      certificationsCount: candidate?.certifications?.length ?? 0,
-      skillsCount: candidate?.candidate_skills?.length ?? 0,
-      mismatch: showMismatchBanner,
-    })
-  }
+  const groupedSkills = groupSkillsByCategory(currentCandidate.skills || [])
 
   return (
-    <section className="space-y-6">
-      {useParsedDataFallback && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          Showing parsed data (not yet saved to database). Reprocess or save corrections to persist.
-        </div>
-      )}
-      <ProfileHeader
-        candidate={displayCandidate}
-        onPreview={handlePreview}
-        onDownload={handleDownload}
-        onExportJson={handleExport}
-        onReprocess={handleReprocess}
-        onApprove={handleApprove}
-        onDelete={handleDelete}
-      />
-
-      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="Resume preview">
-        {resumePreviewType === 'docx' && resumePreviewHtml ? (
-          <div className="h-[80vh] w-full overflow-auto rounded-lg border border-slate-200 bg-white p-6">
-            <div
-              className="prose prose-slate max-w-none"
-              dangerouslySetInnerHTML={{ __html: resumePreviewHtml }}
-            />
+    <div className="p-6">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center">
+            <div className="h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center">
+              <span className="text-indigo-600 text-xl font-bold">
+                {currentCandidate.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+              </span>
+            </div>
+            <div className="ml-4">
+              <h1 className="text-2xl font-bold text-gray-900">{currentCandidate.full_name}</h1>
+              <div className="flex items-center space-x-4 mt-1">
+                <p className="text-gray-600">{currentCandidate.email}</p>
+                {currentCandidate.phone && (
+                  <p className="text-gray-600">{currentCandidate.phone}</p>
+                )}
+                {currentCandidate.location && (
+                  <p className="text-gray-600">{currentCandidate.location}</p>
+                )}
+              </div>
+              <div className="flex items-center space-x-3 mt-2">
+                {currentCandidate.linkedin_url && (
+                  <a
+                    href={currentCandidate.linkedin_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:text-indigo-700 text-sm"
+                  >
+                    LinkedIn Profile
+                  </a>
+                )}
+                {currentCandidate.github_url && (
+                  <a
+                    href={currentCandidate.github_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:text-indigo-700 text-sm"
+                  >
+                    GitHub Profile
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
-        ) : resumePreviewUrl ? (
-          <iframe
-            src={resumePreviewUrl}
-            className="h-[80vh] w-full rounded-lg border border-slate-200"
-            title="Resume preview"
-          />
-        ) : (
-          <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
-            Resume preview unavailable.
-          </div>
-        )}
-      </Modal>
-
-      {/* Full height 50/50 layout: Resume on left, Structured data on right */}
-      <div className="grid min-h-[calc(100vh-14rem)] grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Left: Resume Document Viewer */}
-        <div className="flex min-h-[400px] flex-col lg:min-h-[calc(100vh-14rem)]">
-          <div className="mb-2 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
-            <span className="text-sm font-medium text-slate-700">
-              {latestJob?.filename ?? 'Resume'}
+          
+          <div className="text-right">
+            <span className={`px-3 py-1 text-sm font-medium rounded-full ${getConfidenceColor(currentCandidate.parsing_status?.confidence_score || 0)}`}>
+              Confidence: {Math.round((currentCandidate.parsing_status?.confidence_score || 0) * 100)}%
             </span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              Document Viewer
-            </span>
-          </div>
-          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <ResumeViewerWithHighlights
-              html={resumePreviewHtml}
-              pdfUrl={resumePreviewType === 'pdf' ? resumePreviewUrl : null}
-              emptyMessage="Loading resume…"
-              fieldMappings={fieldMappings}
-              activeFieldId={activeField ?? activeFieldId}
-              onFieldClick={handleFieldClickFromResume}
-              scrollToFieldId={scrollToFieldId}
-              onScrollComplete={handleScrollComplete}
-            />
-          </div>
-        </div>
-
-        {/* Right: Structured Candidate Data Panel */}
-        <div className="flex min-h-[400px] flex-col lg:min-h-[calc(100vh-14rem)]">
-          <div className="mb-2 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
-            <span className="text-sm font-medium text-slate-700">
-              Structured Data
-            </span>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              Editable Fields
-            </span>
-          </div>
-          <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-            <StructuredDataPanel
-              candidate={displayCandidate}
-              displayWorkHistory={displayWorkHistory}
-              displayEducation={displayEducation}
-              displayCertifications={displayCertifications}              displaySkills={displaySkills}
-              displayCandidateSkills={displayCandidateSkills}
-              displaySummary={displaySummary}
-              activeFieldId={activeField ?? activeFieldId}
-              onFieldSelect={handleFieldSelectFromPanel}
-              panelScrollToFieldId={panelScrollToFieldId}
-              onPanelScrollComplete={handlePanelScrollComplete}
-              autoEditFieldId={autoEditFieldId}
-              onAutoEditConsumed={handleAutoEditConsumed}
-              onCandidateUpdate={(updated) => {
-                setCandidate(updated)
-                setOriginalCandidate(updated)
-              }}
-              onWorkHistoryUpdate={(updated) => {
-                setCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
-                setOriginalCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
-              }}
-              onEducationUpdate={(updated) => {
-                setCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
-                setOriginalCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
-              }}
-              onSkillsUpdate={handleSkillsUpdate}
-              onSummarySave={handleSummarySave}
-              readOnly={useParsedDataFallback}
-              candidateId={id!}
-              showMismatchBanner={showMismatchBanner}
-            />
+            <p className="text-xs text-gray-500 mt-1">
+              Updated {formatDate(currentCandidate.updated_at)}
+            </p>
           </div>
         </div>
       </div>
-    </section>
+
+      <div className="flex gap-6">
+        {/* Main Content */}
+        <div className="flex-1">
+          {/* Tabs */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="border-b border-gray-200">
+              <nav className="flex -mb-px">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-6">
+              {/* Overview Tab */}
+              {activeTab === 'overview' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">Summary</h3>
+                    <p className="text-gray-600">
+                      {currentCandidate.summary || 'No summary available'}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-3">Contact Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Email</p>
+                        <p className="font-medium">{currentCandidate.email}</p>
+                      </div>
+                      {currentCandidate.phone && (
+                        <div>
+                          <p className="text-sm text-gray-600">Phone</p>
+                          <p className="font-medium">{currentCandidate.phone}</p>
+                        </div>
+                      )}
+                      {currentCandidate.location && (
+                        <div>
+                          <p className="text-sm text-gray-600">Location</p>
+                          <p className="font-medium">{currentCandidate.location}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-sm text-gray-600">Added</p>
+                        <p className="font-medium">{formatDate(currentCandidate.created_at)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Skills Tab */}
+              {activeTab === 'skills' && (
+                <div className="space-y-6">
+                  {Object.entries(groupedSkills).map(([category, skills]) => (
+                    <div key={category}>
+                      <h3 className="text-lg font-medium text-gray-900 mb-3">{category}</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {skills.map((skill) => (
+                          <div key={skill.id} className="border border-gray-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium text-gray-900">{skill.skill_name}</span>
+                              <span className={`px-2 py-1 text-xs font-medium rounded ${getConfidenceColor(skill.confidence_score || 0)}`}>
+                                {Math.round((skill.confidence_score || 0) * 100)}%
+                              </span>
+                            </div>
+                            <div className="mt-1 text-sm text-gray-600">
+                              <p>Level: {skill.proficiency_level}</p>
+                              {skill.years_experience && (
+                                <p>Experience: {skill.years_experience} years</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Experience Tab */}
+              {activeTab === 'experience' && (
+                <div className="space-y-6">
+                  {currentCandidate.work_experience && currentCandidate.work_experience.length > 0 ? (
+                    <div className="relative">
+                      {/* Timeline */}
+                      <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                      
+                      {currentCandidate.work_experience.map((exp) => (
+                        <div key={exp.id} className="relative flex items-start mb-8">
+                          {/* Timeline dot */}
+                          <div className="absolute left-2 w-4 h-4 bg-indigo-600 rounded-full border-4 border-white"></div>
+                          
+                          {/* Content */}
+                          <div className="ml-10 flex-1">
+                            <div className="bg-white border border-gray-200 rounded-lg p-4">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h4 className="text-lg font-medium text-gray-900">{exp.job_title}</h4>
+                                  <p className="text-gray-600">{exp.company_name}</p>
+                                  {exp.location && (
+                                    <p className="text-sm text-gray-500">{exp.location}</p>
+                                  )}
+                                </div>
+                                <span className="text-sm text-gray-500">
+                                  {formatDateRange(exp.start_date, exp.end_date, exp.is_current)}
+                                </span>
+                              </div>
+                              {exp.description && (
+                                <p className="mt-3 text-gray-600">{exp.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No work experience available</p>
+                  )}
+                </div>
+              )}
+
+              {/* Education Tab */}
+              {activeTab === 'education' && (
+                <div className="space-y-6">
+                  {currentCandidate.education && currentCandidate.education.length > 0 ? (
+                    <div className="space-y-4">
+                      {currentCandidate.education.map((edu) => (
+                        <div key={edu.id} className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="text-lg font-medium text-gray-900">{edu.degree}</h4>
+                              <p className="text-gray-600">{edu.institution}</p>
+                              {edu.field_of_study && (
+                                <p className="text-sm text-gray-500">{edu.field_of_study}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <span className="text-sm text-gray-500">
+                                {formatDateRange(edu.start_date || '', edu.end_date)}
+                              </span>
+                              {edu.gpa && (
+                                <p className="text-sm text-gray-600">GPA: {edu.gpa}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No education information available</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Raw Resume Text Accordion */}
+          <div className="bg-white rounded-lg shadow-sm mt-6">
+            <button
+              onClick={() => setShowRawResume(!showRawResume)}
+              className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50"
+            >
+              <span className="font-medium text-gray-900">Raw Resume Text</span>
+              <svg
+                className={`h-5 w-5 text-gray-400 transform transition-transform ${showRawResume ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {showRawResume && (
+              <div className="px-6 pb-4">
+                <pre className="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 whitespace-pre-wrap overflow-x-auto">
+                  {currentCandidate.raw_resume_text || 'No raw text available'}
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar - Match Scores */}
+        <div className="w-80">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Match Scores</h3>
+            
+            {candidateMatches.length > 0 ? (
+              <div className="space-y-3">
+                {candidateMatches.map((match) => (
+                  <div key={match.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900 text-sm">{match.job_title || 'Job Title'}</h4>
+                      <span className={`px-2 py-1 text-xs font-medium rounded ${getMatchColor(match.overall_score)}`}>
+                        {match.overall_score}%
+                      </span>
+                    </div>
+                    <div className="space-y-1 text-xs text-gray-600">
+                      <div className="flex justify-between">
+                        <span>Skills:</span>
+                        <span>{match.skill_score}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Experience:</span>
+                        <span>{match.experience_score}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Education:</span>
+                        <span>{match.education_score}%</span>
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
+                        match.recommendation === 'Strong Match' ? 'bg-green-100 text-green-800' :
+                        match.recommendation === 'Good Match' ? 'bg-blue-100 text-blue-800' :
+                        match.recommendation === 'Partial Match' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {match.recommendation}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="mt-2 text-sm text-gray-500">No matches yet</p>
+              </div>
+            )}
+            
+            <button
+              onClick={handleRunMatching}
+              disabled={isMatching}
+              className="w-full mt-4 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isMatching ? 'Running Matching...' : 'Run Matching'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -1,9 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth.routes'
-import candidateRoutes from './candidate.routes'
-import jobRoutes from './job.routes'
-import uploadRoutes from './routes/upload.routes.js'
+import candidateRoutes from './routes/candidate.routes'
+import jobRoutes from './routes/job.routes'
+import uploadRoutes from './routes/upload.routes'
+import matchingRoutes from './routes/matching.routes'
+import labelingRoutes from './routes/labeling.routes'
 
 const app: Application = express()
 
@@ -39,6 +41,8 @@ app.use('/api/auth', authRoutes)
 app.use('/api/candidates', candidateRoutes)
 app.use('/api/jobs', jobRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/matching', matchingRoutes)
+app.use('/api/labeling', labelingRoutes)
 
 // 404 handler
 app.use('*', (req: Request, res: Response) => {

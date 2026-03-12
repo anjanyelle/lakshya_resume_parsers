@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
-import { transaction, getClient } from './database/db'
-import { CandidateModel, Candidate, CandidateWithDetails } from './candidate.model'
-import { addParsingJob } from './queues/parseQueue'
+import { transaction, getClient } from '../database/db'
+import { CandidateModel, Candidate, CandidateWithDetails } from '../models/candidate.model'
+import { addParsingJob } from '../queues/parseQueue'
 
 interface CreateCandidateRequest {
   full_name?: string

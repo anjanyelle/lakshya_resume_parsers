@@ -14,3 +14,9 @@ Pillow==10.4.0           # Image processing for OCR
 transformers==4.40.0     # Hugging Face transformers
 torch                    # PyTorch
 spacy                    # NLP library
+
+# Additional parsing utilities
+dateparser==1.2.0        # Date parsing
+phonenumbers==8.13.43    # Phone number parsing
+scikit-learn==1.5.0      # Machine learning utilities
+aiofiles==23.2.1         # Async file operations

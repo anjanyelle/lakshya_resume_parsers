@@ -5,9 +5,11 @@ import {
   getJobById, 
   updateJob, 
   deleteJob, 
-  getJobOptions
-} from './job.controller'
-import { authenticateToken, requireRole } from './middleware/auth.middleware'
+  getJobOptions,
+  createJobValidation,
+  updateJobValidation
+} from '../controllers/job.controller'
+import { authenticateToken, requireRole } from '../middleware/auth.middleware'
 
 const router = Router()
 
@@ -91,7 +93,7 @@ router.use(authenticateToken)
  *       401:
  *         description: Unauthorized
  */
-router.post('/', createJob)
+router.post('/', createJobValidation, createJob)
 
 /**
  * @swagger
@@ -277,7 +279,7 @@ router.get('/:id', getJobById)
  *       401:
  *         description: Unauthorized
  */
-router.put('/:id', updateJob)
+router.put('/:id', updateJobValidation, updateJob)
 
 /**
  * @swagger

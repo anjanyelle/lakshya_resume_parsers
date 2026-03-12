@@ -6,8 +6,8 @@ import {
   updateCandidate, 
   deleteCandidate, 
   getCandidateParsingStatus 
-} from './candidate.controller'
-import { authenticateToken, requireRole } from './middleware/auth.middleware'
+} from '../controllers/candidate.controller'
+import { authenticateToken, requireRole } from '../middleware/auth.middleware'
 
 const router = Router()
 

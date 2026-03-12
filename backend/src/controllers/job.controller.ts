@@ -1,109 +1,149 @@
 import { Request, Response } from 'express'
-import { getClient } from './database/db'
-import { JobModel, JobDescription, JobFilter } from './job.model'
+import { body, validationResult } from 'express-validator'
+import { getClient } from '../database/db'
+import { JobModel, JobDescription, JobFilter } from '../models/job.model'
 
-// Validation functions
-const validateJobData = (data: Partial<JobDescription>, isUpdate: boolean = false): { isValid: boolean; errors: string[] } => {
-  const errors: string[] = []
-
-  if (!isUpdate) {
-    // Required fields for creation
-    if (!data.title || data.title.trim().length < 3) {
-      errors.push('Title must be at least 3 characters long')
-    }
-    if (!data.description || data.description.trim().length < 50) {
-      errors.push('Description must be at least 50 characters long')
-    }
-    if (!data.required_skills || !Array.isArray(data.required_skills)) {
-      errors.push('Required skills must be an array')
-    } else {
-      data.required_skills.forEach((skill, index) => {
-        if (typeof skill !== 'string' || skill.trim().length === 0) {
-          errors.push(`Skill at index ${index} must be a non-empty string`)
-        }
-        if (skill.length > 100) {
-          errors.push(`Skill at index ${index} must be less than 100 characters`)
-        }
-      })
-    }
-  } else {
-    // Optional fields for update
-    if (data.title !== undefined && (data.title.trim().length < 3 || data.title.length > 255)) {
-      errors.push('Title must be between 3 and 255 characters')
-    }
-    if (data.description !== undefined && data.description.trim().length < 50) {
-      errors.push('Description must be at least 50 characters long')
-    }
-    if (data.required_skills !== undefined) {
-      if (!Array.isArray(data.required_skills)) {
-        errors.push('Required skills must be an array')
-      } else {
-        data.required_skills.forEach((skill, index) => {
-          if (typeof skill !== 'string' || skill.trim().length === 0) {
-            errors.push(`Skill at index ${index} must be a non-empty string`)
-          }
-          if (skill.length > 100) {
-            errors.push(`Skill at index ${index} must be less than 100 characters`)
-          }
-        })
+// Validation rules
+export const createJobValidation = [
+  body('title')
+    .isLength({ min: 3, max: 255 })
+    .withMessage('Title must be between 3 and 255 characters')
+    .trim(),
+  body('description')
+    .isLength({ min: 50 })
+    .withMessage('Description must be at least 50 characters long')
+    .trim(),
+  body('required_skills')
+    .isArray({ min: 1 })
+    .withMessage('Required skills must be a non-empty array'),
+  body('required_skills.*')
+    .isString()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Each skill must be between 1 and 100 characters'),
+  body('department')
+    .optional()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Department must be between 1 and 100 characters')
+    .trim(),
+  body('location')
+    .optional()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Location must be between 1 and 100 characters')
+    .trim(),
+  body('employment_type')
+    .optional()
+    .isIn(['full-time', 'part-time', 'contract', 'internship', 'temporary'])
+    .withMessage('Employment type must be one of: full-time, part-time, contract, internship, temporary'),
+  body('min_experience_years')
+    .optional()
+    .isInt({ min: 0, max: 50 })
+    .withMessage('Minimum experience must be between 0 and 50 years'),
+  body('max_experience_years')
+    .optional()
+    .isInt({ min: 0, max: 50 })
+    .withMessage('Maximum experience must be between 0 and 50 years'),
+  body('education_level')
+    .optional()
+    .isIn(['high-school', 'bachelor', 'master', 'phd', 'any'])
+    .withMessage('Education level must be one of: high-school, bachelor, master, phd, any'),
+  body('salary_min')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Minimum salary must be a positive integer'),
+  body('salary_max')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Maximum salary must be a positive integer')
+    .custom((value: number, { req }: { req: any }) => {
+      if (req.body.salary_min !== undefined && value !== undefined && req.body.salary_min > value) {
+        throw new Error('Minimum salary cannot be greater than maximum salary')
       }
-    }
-  }
+      return true
+    })
+]
 
-  // Validate optional fields
-  if (data.department !== undefined && (data.department.trim().length === 0 || data.department.length > 100)) {
-    errors.push('Department must be between 1 and 100 characters')
-  }
-  if (data.location !== undefined && (data.location.trim().length === 0 || data.location.length > 100)) {
-    errors.push('Location must be between 1 and 100 characters')
-  }
-  if (data.employment_type !== undefined && !['full-time', 'part-time', 'contract', 'internship', 'temporary'].includes(data.employment_type)) {
-    errors.push('Employment type must be one of: full-time, part-time, contract, internship, temporary')
-  }
-  if (data.min_experience_years !== undefined && (data.min_experience_years < 0 || data.min_experience_years > 50)) {
-    errors.push('Minimum experience must be between 0 and 50 years')
-  }
-  if (data.max_experience_years !== undefined && (data.max_experience_years < 0 || data.max_experience_years > 50)) {
-    errors.push('Maximum experience must be between 0 and 50 years')
-  }
-  if (data.education_level !== undefined && !['high-school', 'bachelor', 'master', 'phd', 'any'].includes(data.education_level)) {
-    errors.push('Education level must be one of: high-school, bachelor, master, phd, any')
-  }
-  if (data.salary_min !== undefined && data.salary_min < 0) {
-    errors.push('Minimum salary must be a positive integer')
-  }
-  if (data.salary_max !== undefined && data.salary_max < 0) {
-    errors.push('Maximum salary must be a positive integer')
-  }
-
-  // Cross-field validation
-  if (data.salary_min !== undefined && data.salary_max !== undefined && data.salary_min > data.salary_max) {
-    errors.push('Minimum salary cannot be greater than maximum salary')
-  }
-  if (data.min_experience_years !== undefined && data.max_experience_years !== undefined && data.min_experience_years > data.max_experience_years) {
-    errors.push('Minimum experience cannot be greater than maximum experience')
-  }
-
-  return {
-    isValid: errors.length === 0,
-    errors
-  }
-}
+export const updateJobValidation = [
+  body('title')
+    .optional()
+    .isLength({ min: 3, max: 255 })
+    .withMessage('Title must be between 3 and 255 characters')
+    .trim(),
+  body('description')
+    .optional()
+    .isLength({ min: 50 })
+    .withMessage('Description must be at least 50 characters long')
+    .trim(),
+  body('required_skills')
+    .optional()
+    .isArray()
+    .withMessage('Required skills must be an array'),
+  body('required_skills.*')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Each skill must be between 1 and 100 characters'),
+  body('department')
+    .optional()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Department must be between 1 and 100 characters')
+    .trim(),
+  body('location')
+    .optional()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Location must be between 1 and 100 characters')
+    .trim(),
+  body('employment_type')
+    .optional()
+    .isIn(['full-time', 'part-time', 'contract', 'internship', 'temporary'])
+    .withMessage('Employment type must be one of: full-time, part-time, contract, internship, temporary'),
+  body('min_experience_years')
+    .optional()
+    .isInt({ min: 0, max: 50 })
+    .withMessage('Minimum experience must be between 0 and 50 years'),
+  body('max_experience_years')
+    .optional()
+    .isInt({ min: 0, max: 50 })
+    .withMessage('Maximum experience must be between 0 and 50 years')
+    .custom((value: number, { req }: { req: any }) => {
+      if (req.body.min_experience_years !== undefined && value !== undefined && req.body.min_experience_years > value) {
+        throw new Error('Minimum experience cannot be greater than maximum experience')
+      }
+      return true
+    }),
+  body('education_level')
+    .optional()
+    .isIn(['high-school', 'bachelor', 'master', 'phd', 'any'])
+    .withMessage('Education level must be one of: high-school, bachelor, master, phd, any'),
+  body('salary_min')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Minimum salary must be a positive integer'),
+  body('salary_max')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Maximum salary must be a positive integer')
+    .custom((value: number, { req }: { req: any }) => {
+      if (req.body.salary_min !== undefined && value !== undefined && req.body.salary_min > value) {
+        throw new Error('Minimum salary cannot be greater than maximum salary')
+      }
+      return true
+    })
+]
 
 // Controller functions
 export const createJob = async (req: Request, res: Response): Promise<void> => {
   try {
-    const jobData: Partial<JobDescription> = req.body
-
-    // Validate input
-    const validation = validateJobData(jobData, false)
-    if (!validation.isValid) {
+    // Check validation errors
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
       res.status(400).json({
         error: 'Validation failed',
-        details: validation.errors
+        details: errors.array().map((err: any) => err.msg)
       })
       return
     }
+
+    const jobData: Partial<JobDescription> = req.body
 
     const client = await getClient()
     try {
@@ -208,12 +248,12 @@ export const updateJob = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Validate input
-    const validation = validateJobData(updates, true)
-    if (!validation.isValid) {
+    // Check validation errors
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
       res.status(400).json({
         error: 'Validation failed',
-        details: validation.errors
+        details: errors.array().map((err: any) => err.msg)
       })
       return
     }

@@ -11,14 +11,17 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",
-    "axios": "^1.7.9",
+    "axios": "^1.13.6",
     "lucide-react": "^0.468.0",
     "mammoth": "^1.6.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-dropzone": "^15.0.0",
     "react-hook-form": "^7.53.2",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^6.28.0",
+    "recharts": "^3.8.0",
+    "socket.io-client": "^4.8.3",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

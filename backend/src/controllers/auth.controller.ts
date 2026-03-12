@@ -85,7 +85,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // Find user
     const result = await query(
-      'SELECT id, email, password_hash, role, created_at FROM users WHERE email = $1',
+      'SELECT id, email, hashed_password, role, created_at FROM users WHERE email = $1',
       [email]
     )
 
@@ -97,7 +97,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const user = result.rows[0]
 
     // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash)
+    const isPasswordValid = await bcrypt.compare(password, user.hashed_password)
 
     if (!isPasswordValid) {
       res.status(401).json({ error: 'Invalid email or password' })

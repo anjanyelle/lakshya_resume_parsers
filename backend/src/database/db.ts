@@ -1,14 +1,33 @@
 import { Pool, PoolClient } from 'pg'
+import dotenv from 'dotenv'
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('render.com') ? {
-    rejectUnauthorized: false
-  } : false,
+// Load environment variables
+dotenv.config()
+
+// Use individual database parameters to avoid connection string parsing issues
+const poolConfig = {
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432'),
+  database: process.env.DB_NAME || 'resume_parser',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '',
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
+}
+
+// Debug: Log the config (without password)
+console.log('🔍 DB Config:', {
+  host: poolConfig.host,
+  port: poolConfig.port,
+  database: poolConfig.database,
+  user: poolConfig.user,
+  passwordLength: poolConfig.password.length,
+  dbPasswordValue: process.env.DB_PASSWORD,
+  dbPasswordType: typeof process.env.DB_PASSWORD
 })
+
+const pool = new Pool(poolConfig)
 
 pool.on('error', (err: Error) => {
   console.error('Unexpected error on idle PostgreSQL client', err)

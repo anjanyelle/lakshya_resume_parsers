@@ -1,0 +1,661 @@
+"""
+Hybrid merger engine that intelligently combines rule-based and AI parsing results.
+Implements field-specific merging strategies with confidence-based conflict resolution.
+"""
+
+import logging
+from typing import Dict, List, Any, Optional, Tuple, Union
+from collections import Counter, defaultdict
+import re
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+
+class HybridMerger:
+    """
+    Intelligent merger that combines rule-based and AI parsing results.
+    Uses field-specific strategies and confidence-based conflict resolution.
+    """
+    
+    # Field priority configuration
+    RULE_PRIORITY_FIELDS = ['email', 'phone', 'linkedin', 'github', 'dates', 'websites']
+    AI_PRIORITY_FIELDS = ['name', 'companies', 'locations', 'organizations']
+    UNION_FIELDS = ['skills', 'job_titles', 'education_institutions', 'degrees']
+    
+    # Confidence thresholds
+    AI_HIGH_CONFIDENCE = 0.85
+    AI_MEDIUM_CONFIDENCE = 0.70
+    AI_LOW_CONFIDENCE = 0.50
+    
+    # Field-specific confidence thresholds
+    FIELD_THRESHOLDS = {
+        'name': 0.80,           # Name needs high confidence
+        'companies': 0.75,      # Companies need medium-high confidence
+        'locations': 0.70,      # Locations can be lower confidence
+        'skills': 0.60,         # Skills can be lower confidence (union approach)
+        'job_titles': 0.75,     # Job titles need medium-high confidence
+        'email': 0.90,          # Email needs very high confidence (but rules are perfect)
+        'phone': 0.90,          # Phone needs very high confidence (but rules are perfect)
+    }
+    
+    def __init__(self):
+        """Initialize the hybrid merger."""
+        self.logger = logging.getLogger(__name__)
+        
+        # Compile patterns for validation
+        self._compile_validation_patterns()
+        
+        # Field importance weights for sorting
+        self.field_importance = {
+            'skills': {
+                'high': ['python', 'javascript', 'java', 'react', 'node.js', 'aws', 'docker'],
+                'medium': ['sql', 'git', 'linux', 'html', 'css', 'typescript'],
+                'low': ['microsoft office', 'excel', 'word', 'powerpoint']
+            },
+            'job_titles': {
+                'high': ['senior', 'lead', 'principal', 'director', 'manager', 'head'],
+                'medium': ['engineer', 'developer', 'analyst', 'specialist'],
+                'low': ['intern', 'junior', 'assistant', 'coordinator']
+            }
+        }
+    
+    def _compile_validation_patterns(self):
+        """Compile regex patterns for field validation."""
+        
+        # Email validation pattern
+        self.email_pattern = re.compile(
+            r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        )
+        
+        # Phone validation pattern
+        self.phone_pattern = re.compile(
+            r'^\+?[\d\s\-\(\)]{10,}$'
+        )
+        
+        # LinkedIn URL pattern
+        self.linkedin_pattern = re.compile(
+            r'(linkedin\.com/in/|linkedin\.com/profile/)[\w\-]+'
+        )
+        
+        # GitHub URL pattern
+        self.github_pattern = re.compile(
+            r'github\.com/[\w\-]+'
+        )
+    
+    def merge(self, rule_result: Dict[str, Any], ai_result: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Merge rule-based and AI parsing results using intelligent strategies.
+        
+        Args:
+            rule_result: Results from rule-based parsing
+            ai_result: Results from AI parsing (with confidence scores)
+            
+        Returns:
+            Merged dictionary with combined results
+        """
+        try:
+            self.logger.info("Starting hybrid merge of rule and AI results")
+            
+            merged_result = {}
+            merge_stats = {
+                'rule_priority_used': 0,
+                'ai_priority_used': 0,
+                'union_fields_used': 0,
+                'conflicts_resolved': 0
+            }
+            
+            # Get all unique fields from both results
+            all_fields = set(rule_result.keys()) | set(ai_result.keys())
+            
+            for field in all_fields:
+                rule_value = rule_result.get(field)
+                ai_value = ai_result.get(field)
+                
+                # Skip if both are empty
+                if not rule_value and not ai_value:
+                    merged_result[field] = [] if field in self.UNION_FIELDS else None
+                    continue
+                
+                # Apply field-specific merging strategy
+                if field in self.RULE_PRIORITY_FIELDS:
+                    merged_result[field] = self._merge_rule_priority(field, rule_value, ai_value, merge_stats)
+                
+                elif field in self.AI_PRIORITY_FIELDS:
+                    merged_result[field] = self._merge_ai_priority(field, rule_value, ai_value, merge_stats)
+                
+                elif field in self.UNION_FIELDS:
+                    merged_result[field] = self._merge_union_fields(field, rule_value, ai_value, merge_stats)
+                
+                else:
+                    # Default: use conflict resolution
+                    merged_result[field] = self._resolve_conflict(field, rule_value, ai_value, merge_stats)
+            
+            # Add merge metadata
+            merged_result['_merge_metadata'] = {
+                'strategy_used': merge_stats,
+                'total_fields': len(all_fields),
+                'rule_fields_count': len(self.RULE_PRIORITY_FIELDS),
+                'ai_fields_count': len(self.AI_PRIORITY_FIELDS),
+                'union_fields_count': len(self.UNION_FIELDS)
+            }
+            
+            self.logger.info(f"Hybrid merge completed: {merge_stats}")
+            return merged_result
+            
+        except Exception as e:
+            self.logger.error(f"Error during hybrid merge: {e}")
+            # Return rule result as fallback
+            return rule_result
+    
+    def _merge_rule_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> Any:
+        """
+        Merge rule priority fields - always prefer rule results.
+        
+        Args:
+            field: Field name
+            rule_value: Rule-based result
+            ai_value: AI result
+            stats: Merge statistics
+            
+        Returns:
+            Merged value (rule result preferred)
+        """
+        stats['rule_priority_used'] += 1
+        
+        # For rule priority fields, always use rule result if valid
+        if self._validate_field(field, rule_value):
+            self.logger.debug(f"Using rule result for {field}: {rule_value}")
+            return rule_value
+        elif ai_value and self._validate_field(field, ai_value):
+            self.logger.debug(f"Rule result invalid, using AI result for {field}: {ai_value}")
+            return ai_value
+        else:
+            self.logger.debug(f"Both results invalid for {field}, using rule result")
+            return rule_value
+    
+    def _merge_ai_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> Any:
+        """
+        Merge AI priority fields - prefer AI if confidence is high enough.
+        
+        Args:
+            field: Field name
+            rule_value: Rule-based result
+            ai_value: AI result
+            stats: Merge statistics
+            
+        Returns:
+            Merged value (AI result preferred if confident)
+        """
+        # Get AI confidence score
+        ai_confidence = self._extract_ai_confidence(ai_value)
+        threshold = self.FIELD_THRESHOLDS.get(field, self.AI_HIGH_CONFIDENCE)
+        
+        if ai_value and ai_confidence >= threshold:
+            stats['ai_priority_used'] += 1
+            self.logger.debug(f"Using AI result for {field} (confidence: {ai_confidence:.3f}): {ai_value}")
+            return ai_value
+        
+        elif rule_value:
+            stats['rule_priority_used'] += 1
+            self.logger.debug(f"AI confidence too low ({ai_confidence:.3f}), using rule result for {field}: {rule_value}")
+            return rule_value
+        
+        else:
+            # Use AI result even with low confidence as last resort
+            stats['ai_priority_used'] += 1
+            self.logger.debug(f"No rule result, using low-confidence AI result for {field}: {ai_value}")
+            return ai_value
+    
+    def _merge_union_fields(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> List[str]:
+        """
+        Merge union fields - combine both results and deduplicate.
+        
+        Args:
+            field: Field name
+            rule_value: Rule-based result
+            ai_value: AI result
+            stats: Merge statistics
+            
+        Returns:
+            Deduplicated and sorted list
+        """
+        stats['union_fields_used'] += 1
+        
+        # Convert both to lists
+        rule_list = self._ensure_list(rule_value)
+        ai_list = self._ensure_list(ai_value)
+        
+        # Combine and deduplicate
+        combined = rule_list + ai_list
+        deduplicated = self.deduplicate_list(combined)
+        
+        # Sort by importance/frequency
+        sorted_list = self._sort_by_importance(field, deduplicated)
+        
+        self.logger.debug(f"Union merge for {field}: {len(rule_list)} rule + {len(ai_list)} AI → {len(sorted_list)} unique")
+        
+        return sorted_list
+    
+    def _resolve_conflict(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> Any:
+        """
+        Resolve conflicts between rule and AI results.
+        
+        Args:
+            field: Field name
+            rule_value: Rule-based result
+            ai_value: AI result
+            stats: Merge statistics
+            
+        Returns:
+            Resolved value
+        """
+        stats['conflicts_resolved'] += 1
+        
+        # If only one has a value, use it
+        if rule_value and not ai_value:
+            return rule_value
+        elif ai_value and not rule_value:
+            return ai_value
+        elif not rule_value and not ai_value:
+            return None
+        
+        # Both have values - resolve based on confidence and validation
+        resolved = self.resolve_conflict(rule_value, ai_value, field, stats)
+        
+        self.logger.debug(f"Conflict resolved for {field}: rule={rule_value}, ai={ai_value} → {resolved}")
+        
+        return resolved
+    
+    def resolve_conflict(self, rule_val: Any, ai_val: Any, field: str, stats: Dict[str, int]) -> Any:
+        """
+        Resolve conflict between rule and AI values for a specific field.
+        
+        Args:
+            rule_val: Rule-based value
+            ai_val: AI value
+            field: Field name for context
+            stats: Merge statistics
+            
+        Returns:
+            Best value based on confidence and validation
+        """
+        # Extract AI confidence
+        ai_confidence = self._extract_ai_confidence(ai_val)
+        threshold = self.FIELD_THRESHOLDS.get(field, self.AI_HIGH_CONFIDENCE)
+        
+        # Special handling for name field
+        if field == 'name':
+            return self._resolve_name_conflict(rule_val, ai_val, ai_confidence)
+        
+        # Validate both results
+        rule_valid = self._validate_field(field, rule_val)
+        ai_valid = self._validate_field(field, ai_val)
+        
+        # Decision matrix
+        if ai_valid and ai_confidence >= threshold:
+            return ai_val
+        elif rule_valid and (not ai_valid or ai_confidence < threshold):
+            return rule_val
+        elif ai_valid and not rule_valid:
+            return ai_val
+        elif rule_valid and not ai_valid:
+            return rule_val
+        else:
+            # Both invalid - prefer AI if confidence is reasonable
+            return ai_val if ai_confidence > self.AI_LOW_CONFIDENCE else rule_val
+    
+    def _resolve_name_conflict(self, rule_val: Any, ai_val: Any, ai_confidence: float) -> Any:
+        """
+        Special conflict resolution for name field.
+        
+        Args:
+            rule_val: Rule-based name result
+            ai_val: AI name result
+            ai_confidence: AI confidence score
+            
+        Returns:
+            Best name result
+        """
+        # AI needs high confidence for names
+        name_threshold = self.FIELD_THRESHOLDS['name']
+        
+        if ai_val and ai_confidence >= name_threshold:
+            # Validate AI name format
+            if self._validate_name_format(str(ai_val)):
+                return ai_val
+        
+        # Fall back to rule result
+        if rule_val and self._validate_name_format(str(rule_val)):
+            return rule_val
+        
+        # Last resort: use AI result if available
+        return ai_val if ai_val else rule_val
+    
+    def _validate_name_format(self, name: str) -> bool:
+        """
+        Validate name format.
+        
+        Args:
+            name: Name string to validate
+            
+        Returns:
+            True if name format is valid
+        """
+        if not name or len(name.strip()) < 2:
+            return False
+        
+        # Check for reasonable name characteristics
+        name_words = name.strip().split()
+        
+        # Should have 2-4 words
+        if len(name_words) < 2 or len(name_words) > 4:
+            return False
+        
+        # Should contain only letters, spaces, hyphens, and periods
+        valid_chars = re.match(r'^[A-Za-z\s\-\.\']+$', name.strip())
+        if not valid_chars:
+            return False
+        
+        # Each word should start with capital letter (proper name format)
+        for word in name_words:
+            if not word[0].isupper():
+                return False
+        
+        return True
+    
+    def _validate_field(self, field: str, value: Any) -> bool:
+        """
+        Validate a field value based on field-specific rules.
+        
+        Args:
+            field: Field name
+            value: Value to validate
+            
+        Returns:
+            True if value is valid for the field
+        """
+        if not value:
+            return False
+        
+        value_str = str(value).strip()
+        
+        if field == 'email':
+            return bool(self.email_pattern.match(value_str))
+        
+        elif field == 'phone':
+            return bool(self.phone_pattern.match(value_str))
+        
+        elif field == 'linkedin':
+            return bool(self.linkedin_pattern.search(value_str))
+        
+        elif field == 'github':
+            return bool(self.github_pattern.search(value_str))
+        
+        elif field == 'name':
+            return self._validate_name_format(value_str)
+        
+        elif field in ['companies', 'locations', 'organizations']:
+            return len(value_str) > 2 and not value_str.isdigit()
+        
+        elif field in ['skills', 'job_titles']:
+            return len(value_str) > 1
+        
+        else:
+            return len(value_str) > 0
+    
+    def _extract_ai_confidence(self, ai_value: Any) -> float:
+        """
+        Extract confidence score from AI result.
+        
+        Args:
+            ai_value: AI result (may include confidence)
+            
+        Returns:
+            Confidence score between 0.0 and 1.0
+        """
+        if not ai_value:
+            return 0.0
+        
+        # If AI value is a dict with confidence
+        if isinstance(ai_value, dict) and 'confidence' in ai_value:
+            try:
+                return float(ai_value['confidence'])
+            except (ValueError, TypeError):
+                pass
+        
+        # If AI value is a list of entities with scores
+        if isinstance(ai_value, list) and ai_value:
+            # Average confidence of all entities
+            confidences = []
+            for item in ai_value:
+                if isinstance(item, dict) and 'score' in item:
+                    try:
+                        confidences.append(float(item['score']))
+                    except (ValueError, TypeError):
+                        pass
+            if confidences:
+                return sum(confidences) / len(confidences)
+        
+        # Default medium confidence
+        return self.AI_MEDIUM_CONFIDENCE
+    
+    def _ensure_list(self, value: Any) -> List[str]:
+        """
+        Ensure value is a list of strings.
+        
+        Args:
+            value: Value to convert to list
+            
+        Returns:
+            List of strings
+        """
+        if not value:
+            return []
+        
+        if isinstance(value, list):
+            return [str(item).strip() for item in value if item and str(item).strip()]
+        
+        if isinstance(value, str):
+            # Split by common separators
+            items = re.split(r'[,;•\n|]', value)
+            return [item.strip() for item in items if item.strip()]
+        
+        return [str(value).strip()]
+    
+    def deduplicate_list(self, items: List[str]) -> List[str]:
+        """
+        Remove duplicates from list case-insensitively.
+        Keeps the most common capitalization.
+        
+        Args:
+            items: List of items to deduplicate
+            
+        Returns:
+            Deduplicated list
+        """
+        if not items:
+            return []
+        
+        # Count occurrences of each case-insensitive variant
+        variant_counts = defaultdict(list)
+        
+        for item in items:
+            normalized = item.lower().strip()
+            if normalized:
+                variant_counts[normalized].append(item.strip())
+        
+        # For each normalized item, pick the most common variant
+        deduplicated = []
+        for normalized, variants in variant_counts.items():
+            if len(variants) == 1:
+                deduplicated.append(variants[0])
+            else:
+                # Count occurrences of each variant
+                variant_counter = Counter(variants)
+                most_common = variant_counter.most_common(1)[0][0]
+                deduplicated.append(most_common)
+        
+        return deduplicated
+    
+    def _sort_by_importance(self, field: str, items: List[str]) -> List[str]:
+        """
+        Sort items by importance/frequency for a specific field.
+        
+        Args:
+            field: Field name
+            items: List of items to sort
+            
+        Returns:
+            Sorted list
+        """
+        if not items:
+            return []
+        
+        # Get importance rules for this field
+        importance_rules = self.field_importance.get(field, {})
+        
+        # Calculate importance score for each item
+        scored_items = []
+        for item in items:
+            score = 0
+            item_lower = item.lower()
+            
+            # High importance items
+            for high_item in importance_rules.get('high', []):
+                if high_item in item_lower:
+                    score += 3
+                    break
+            
+            # Medium importance items
+            for medium_item in importance_rules.get('medium', []):
+                if medium_item in item_lower:
+                    score += 2
+                    break
+            
+            # Low importance items
+            for low_item in importance_rules.get('low', []):
+                if low_item in item_lower:
+                    score += 1
+                    break
+            
+            # Length bonus (shorter items might be more specific)
+            if len(item) <= 10:
+                score += 0.5
+            
+            scored_items.append((item, score))
+        
+        # Sort by score (descending), then by original order
+        scored_items.sort(key=lambda x: (-x[1], items.index(x[0])))
+        
+        return [item for item, score in scored_items]
+    
+    def get_merge_summary(self, merged_result: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Get summary of merge decisions and statistics.
+        
+        Args:
+            merged_result: Merged result dictionary
+            
+        Returns:
+            Merge summary statistics
+        """
+        metadata = merged_result.get('_merge_metadata', {})
+        strategy_used = metadata.get('strategy_used', {})
+        
+        summary = {
+            'total_fields_processed': metadata.get('total_fields', 0),
+            'rule_priority_fields_used': strategy_used.get('rule_priority_used', 0),
+            'ai_priority_fields_used': strategy_used.get('ai_priority_used', 0),
+            'union_fields_used': strategy_used.get('union_fields_used', 0),
+            'conflicts_resolved': strategy_used.get('conflicts_resolved', 0),
+            'merge_strategy_distribution': {
+                'rule_priority': strategy_used.get('rule_priority_used', 0),
+                'ai_priority': strategy_used.get('ai_priority_used', 0),
+                'union_merge': strategy_used.get('union_fields_used', 0),
+                'conflict_resolution': strategy_used.get('conflicts_resolved', 0)
+            }
+        }
+        
+        # Add field-specific statistics
+        field_stats = {}
+        for field in merged_result.keys():
+            if field != '_merge_metadata':
+                value = merged_result[field]
+                if isinstance(value, list):
+                    field_stats[field] = {
+                        'type': 'list',
+                        'count': len(value),
+                        'sample': value[:3] if value else []
+                    }
+                else:
+                    field_stats[field] = {
+                        'type': 'scalar',
+                        'value': value,
+                        'is_empty': not bool(value)
+                    }
+        
+        summary['field_statistics'] = field_stats
+        
+        return summary
+
+
+# Example usage and testing
+if __name__ == "__main__":
+    # Sample rule-based and AI results for testing
+    rule_result = {
+        'name': None,  # Rules can't extract names well
+        'email': 'john.doe@email.com',
+        'phone': '+1 (555) 123-4567',
+        'linkedin': 'linkedin.com/in/johndoe',
+        'github': 'github.com/johndoe',
+        'skills': ['Python', 'JavaScript', 'React'],
+        'companies': [],  # Rules can't extract companies well
+        'locations': [],  # Rules can't extract locations well
+        'job_titles': ['Software Engineer', 'Senior Developer']
+    }
+    
+    ai_result = {
+        'name': 'John Doe',  # AI can extract names
+        'email': 'john.doe@different.com',  # AI might get wrong email
+        'phone': None,
+        'linkedin': 'linkedin.com/in/johndoe',
+        'github': None,
+        'skills': ['python', 'react', 'node.js', 'aws'],  # AI might find more skills
+        'companies': ['Tech Corp', 'StartupXYZ'],  # AI can extract companies
+        'locations': ['San Francisco', 'CA'],  # AI can extract locations
+        'job_titles': ['Senior Software Engineer']
+    }
+    
+    # Test the merger
+    merger = HybridMerger()
+    
+    print("🔀 Testing Hybrid Merger")
+    print("=" * 50)
+    
+    # Merge results
+    merged = merger.merge(rule_result, ai_result)
+    
+    print("📊 Merged Results:")
+    for field, value in merged.items():
+        if field != '_merge_metadata':
+            print(f"  {field}: {value}")
+    
+    # Get merge summary
+    summary = merger.get_merge_summary(merged)
+    
+    print("\n📈 Merge Summary:")
+    print(f"  Total fields: {summary['total_fields_processed']}")
+    print(f"  Rule priority used: {summary['rule_priority_fields_used']}")
+    print(f"  AI priority used: {summary['ai_priority_fields_used']}")
+    print(f"  Union fields used: {summary['union_fields_used']}")
+    print(f"  Conflicts resolved: {summary['conflicts_resolved']}")
+    
+    print("\n🎯 Field Statistics:")
+    for field, stats in summary['field_statistics'].items():
+        if stats['type'] == 'list':
+            print(f"  {field}: {stats['count']} items")
+        else:
+            print(f"  {field}: {stats['value']} ({'empty' if stats['is_empty'] else 'filled'})")
+    
+    print("\n✅ Hybrid merger test completed!")

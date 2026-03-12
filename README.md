@@ -141,61 +141,127 @@ ALLOWED_UPLOAD_EXTENSIONS=["pdf","doc","docx","txt","rtf","png","jpg","jpeg"]
 
 CLAMAV_ENABLED=false
 CLAMAV_PATH=clamscan
-
-PARSING_MODE=deterministic
-LLM_PROVIDER=none
-
-
-
-
-
-
-ption B (If you are using MinIO/S3 for storage)
-Deterministic + no LLM + MinIO enabled
-env
-APP_NAME="Resume Parser API"
-ENVIRONMENT=development
-API_V1_STR=/api/v1
-LOG_LEVEL=INFO
+1. Install Prerequisites
+bash
+# Install Node.js 18+ (if not installed)
+# macOS: brew install node
+# Ubuntu: sudo apt install nodejs npm
  
-DATABASE_URL="postgresql+psycopg2://postgres:Anjan%24123@localhost:5432/resume_parser"
-DB_POOL_SIZE=5
-DB_MAX_OVERFLOW=10
-DB_POOL_TIMEOUT=30
+# Install Python 3.10+ (if not installed)
+# macOS: brew install python@3.10
+# Ubuntu: sudo apt install python3.10 python3.10-venv
  
-SECRET_KEY=change_me
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
+# Install PostgreSQL 14+ (if not installed)
+# macOS: brew install postgresql@14 && brew services start postgresql@14
+# Ubuntu: sudo apt install postgresql postgresql-contrib
  
-STORAGE_DIR=./storage
-UPLOAD_MAX_SIZE_MB=20
-CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
-ALLOWED_UPLOAD_EXTENSIONS=["pdf","doc","docx","txt","rtf","png","jpg","jpeg"]
+# Install Redis 7+ (if not installed)
+# macOS: brew install redis && brew services start redis
+# Ubuntu: sudo apt install redis-server && sudo systemctl start redis
+2. Setup Database
+bash
+# Create database
+psql -U postgres -c "CREATE DATABASE resume_parser;"
  
-S3_BUCKET=resume-parser
-S3_ENDPOINT_URL=http://localhost:9000
-S3_ACCESS_KEY_ID=minioadmin
-S3_SECRET_ACCESS_KEY=minioadmin
-S3_REGION=us-east-1
-S3_USE_SSL=false
+# Run schema setup
+cd /Users/anjanyelle/Desktop/untitled\ folder\ 3/Lakshya-LLM-Resume-Parser
+psql -U postgres -d resume_parser -f backend/src/database/setup.sql
  
-CLAMAV_ENABLED=false
-CLAMAV_PATH=clamscan
+# Run migrations
+psql -U postgres -d resume_parser -f backend/migrations/003_add_labeling_table.sql
+3. Setup Backend (Node.js)
+bash
+cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend/src"
  
-PARSING_MODE=deterministic
-LLM_PROVIDER=none
-Important
+# Copy and edit environment file
+cp .env.example .env
+# Edit .env with your settings:
+# DATABASE_URL=postgresql://postgres:password@localhost:5432/resume_parser
+# JWT_SECRET=your_secret_key_here
+# REDIS_URL=redis://localhost:6379
+# AI_SERVICE_URL=http://localhost:8000
+ 
+# Install dependencies
+npm install
+ 
+# Start backend (keep this terminal open)
+npm run dev
+# Backend runs on http://localhost:3001
+4. Setup AI Service (Python)
+bash
+cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service"
+ 
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+ 
+# Install dependencies
+pip install -r requirements.txt
+ 
+# Download spaCy model
+python -m spacy download en_core_web_sm
+ 
+# Copy environment file
+cp .env.example .env
+ 
+# Start AI service (keep this terminal open)
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# AI service runs on http://localhost:8000
+5. Setup Frontend (React)
+bash
+cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/frontend"
+ 
+# Install dependencies
+npm install
+ 
+# Start frontend (keep this terminal open)
+npm run dev
+# Frontend runs on http://localhost:5173
+6. Create Admin User
+bash
+cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend"
+ 
+# Create admin account
+python create_admin_user.py
+# Follow prompts to set email and password
+7. Verify Everything Works
+Open your browser and go to http://localhost:5173
 
+You should see the login page. Use the admin credentials you created to log in.
 
+Quick Terminal Summary (3 terminals needed)
+Terminal 1 (Backend):
 
-cd /Users/anjanyelle/Desktop/untitled\ folder\ 3/Lakshya-LLM-Resume-Parser/backend
-poetry lock
-poetry install
+bash
+cd backend/src
+npm run dev
+Terminal 2 (AI Service):
 
+bash
+cd ai-service
+source venv/bin/activate
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+Terminal 3 (Frontend):
 
-poetry run python -c "import fitz; print('OK')"
+source venv/bin/activate
+ 
+# Start the AI service
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+ 
+# Start the AI service
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-poetry run python ../scripts/build_ground_truth.py \
-  --resumes-dir ../resumes \
-  --output ../data/ground_truth.json \
-  --limit 200
+bash
+cd backend
+python create_admin_user.py
+Then visit http://localhost:5173 and log in.
+
+If Something Goes Wrong
+Error	Fix
+psql: command not found	Install PostgreSQL client tools: brew install postgresql
+python: command not found	Use python3 instead of python
+uvicorn: command not found	Make sure you activated the venv: source ai-service/venv/bin/activate
+Frontend shows blank page	Check that backend and AI service are running first
+Database connection failed	Verify PostgreSQL is running and DATABASE_URL is correct in .env
+The app should now be fully running locally on your machine.
+python3 create_admin_simple.py

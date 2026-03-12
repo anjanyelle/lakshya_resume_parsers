@@ -1,8 +1,52 @@
 import { Worker, Job, Processor } from 'bullmq'
 import IORedis from 'ioredis'
+import path from 'path'
 import { getClient } from '../database/db'
 import { ParseJobData } from '../queues/parseQueue'
 import { emitParsingProgress, emitParsingComplete, emitParsingFailed } from '../socket'
+
+// Type definitions for AI service response
+interface AIServiceResponse {
+  status: string
+  candidate_id: string
+  name?: string
+  email?: string
+  phone?: string
+  linkedin?: string
+  github?: string
+  summary?: string
+  websites?: string[]
+  skills?: string[]
+  work_experience?: Array<{
+    job_title?: string
+    title?: string
+    company_name?: string
+    company?: string
+    start_date?: string
+    end_date?: string
+    is_current?: boolean
+    description?: string
+    location?: string
+  }>
+  education?: Array<{
+    degree?: string
+    degree_name?: string
+    institution?: string
+    institution_name?: string
+    field_of_study?: string
+    start_year?: string
+    end_year?: string
+    start_date?: string
+    end_date?: string
+    gpa?: number
+  }>
+  locations?: string[]
+  confidence?: {
+    overall: number
+    [key: string]: any
+  }
+  error?: string
+}
 
 // Redis connection configuration
 const redisConfig = {
@@ -29,23 +73,20 @@ const updateParsingJobStatus = async (
   confidenceScore?: number,
   parsedData?: any,
   errorMessage?: string
-) => {
+): Promise<any> => {
   try {
     const updateQuery = `
       UPDATE parsing_jobs 
       SET status = $1, 
-          progress = $2,
-          confidence_score = $3,
-          parsed_data = $4,
-          error_message = $5,
-          updated_at = NOW()
-      WHERE candidate_id = $6
+          confidence_score = $2,
+          parsed_data = $3,
+          error_message = $4
+      WHERE candidate_id = $5
       RETURNING *
     `
     
     const values = [
       status,
-      progress || null,
       confidenceScore || null,
       parsedData ? JSON.stringify(parsedData) : null,
       errorMessage || null,
@@ -64,8 +105,8 @@ const updateParsingJobStatus = async (
 const updateCandidateWithParsedData = async (
   client: any,
   candidateId: string,
-  parsedData: any
-) => {
+  parsedData: AIServiceResponse
+): Promise<any> => {
   try {
     const updateQuery = `
       UPDATE candidates 
@@ -82,15 +123,20 @@ const updateCandidateWithParsedData = async (
       RETURNING *
     `
     
+    // Extract location from locations array or use first location
+    const location = parsedData.locations && Array.isArray(parsedData.locations) 
+      ? parsedData.locations[0] 
+      : null
+    
     const values = [
-      parsedData.full_name || null,
+      parsedData.name || null,
       parsedData.email || null,
       parsedData.phone || null,
-      parsedData.location || null,
-      parsedData.linkedin_url || null,
-      parsedData.github_url || null,
+      location || null,
+      parsedData.linkedin || null,
+      parsedData.github || null,
       parsedData.summary || null,
-      parsedData.raw_resume_text || null,
+      null, // raw_resume_text - not stored as a separate field
       candidateId
     ]
     
@@ -109,11 +155,11 @@ const updateCandidateWithParsedData = async (
         `
         await client.query(skillQuery, [
           candidateId,
-          skill.name || skill.skill_name,
-          skill.category || 'technical',
-          skill.proficiency_level || 'intermediate',
-          skill.years_experience || null,
-          skill.confidence_score || null
+          typeof skill === 'string' ? skill : skill.name || skill.skill_name,
+          'technical', // Default category
+          'intermediate', // Default proficiency
+          null, // years_experience - not provided
+          null  // confidence_score - not provided
         ])
       }
     }
@@ -131,8 +177,8 @@ const updateCandidateWithParsedData = async (
         `
         await client.query(workQuery, [
           candidateId,
-          work.job_title,
-          work.company_name,
+          work.job_title || work.title,
+          work.company_name || work.company,
           work.start_date || null,
           work.end_date || null,
           work.is_current || false,
@@ -155,11 +201,11 @@ const updateCandidateWithParsedData = async (
         `
         await client.query(eduQuery, [
           candidateId,
-          edu.degree,
-          edu.institution,
+          edu.degree || edu.degree_name,
+          edu.institution || edu.institution_name,
           edu.field_of_study || null,
-          edu.start_date || null,
-          edu.end_date || null,
+          edu.start_year || edu.start_date || null,
+          edu.end_year || edu.end_date || null,
           edu.gpa || null
         ])
       }
@@ -173,24 +219,25 @@ const updateCandidateWithParsedData = async (
 }
 
 // Call AI service for resume parsing
-const callAIService = async (filePath: string, fileType: string): Promise<any> => {
+const callAIService = async (filePath: string, fileType: string, candidateId: string): Promise<AIServiceResponse> => {
   try {
-    const response = await fetch(`${AI_SERVICE_URL}/parse`, {
+    const apiResponse = await fetch(`${AI_SERVICE_URL}/parse`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        file_path: filePath,
-        file_type: fileType
+        file_path: path.resolve(filePath),
+        candidate_id: candidateId
       })
     })
 
-    if (!response.ok) {
-      throw new Error(`AI service returned ${response.status}: ${response.statusText}`)
+    if (!apiResponse.ok) {
+      const errorText = await apiResponse.text()
+      throw new Error(`AI service returned ${apiResponse.status}: ${errorText}`)
     }
 
-    const result = await response.json()
+    const result: AIServiceResponse = await apiResponse.json()
     return result
   } catch (error) {
     console.error('Error calling AI service:', error)
@@ -208,7 +255,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
   
   try {
     // Update initial status and emit Socket.io event
-    await updateParsingJobStatus(client, candidateId, 'processing', 0)
+    await updateParsingJobStatus(client, candidateId, 'processing')
     await job.updateProgress(0)
     
     if (userId) {
@@ -221,7 +268,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     
     // Step 1: Validate file exists (10%)
     await job.updateProgress(10)
-    await updateParsingJobStatus(client, candidateId, 'processing', 10)
+    await updateParsingJobStatus(client, candidateId, 'processing')
     
     if (userId) {
       emitParsingProgress(userId, {
@@ -235,7 +282,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     await new Promise(resolve => setTimeout(resolve, 1000))
     
     // Step 2: Call AI service (10% - 70%)
-    await updateParsingJobStatus(client, candidateId, 'processing', 25)
+    await updateParsingJobStatus(client, candidateId, 'processing')
     await job.updateProgress(25)
     
     if (userId) {
@@ -247,9 +294,9 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     }
     
     console.log(`🤖 Calling AI service for ${filePath}`)
-    const aiResult = await callAIService(filePath, fileType)
+    const aiResult = await callAIService(filePath, fileType, candidateId)
     
-    await updateParsingJobStatus(client, candidateId, 'processing', 50)
+    await updateParsingJobStatus(client, candidateId, 'processing')
     await job.updateProgress(50)
     
     if (userId) {
@@ -261,11 +308,11 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     }
     
     // Step 3: Process AI results (50% - 80%)
-    if (!aiResult || !aiResult.data) {
-      throw new Error('AI service returned invalid data')
+    if (!aiResult || aiResult.status !== 'success') {
+      throw new Error(`AI service returned ${aiResult?.status || 'unknown'} status: ${aiResult?.error || 'Unknown error'}`)
     }
     
-    await updateParsingJobStatus(client, candidateId, 'processing', 75)
+    await updateParsingJobStatus(client, candidateId, 'processing')
     await job.updateProgress(75)
     
     if (userId) {
@@ -277,12 +324,12 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     }
     
     // Step 4: Update database with parsed data (80% - 100%)
-    const confidenceScore = aiResult.confidence_score || 0.8
+    const confidenceScore: number = aiResult.confidence?.overall || 0.8
     
     // Update candidate with parsed information
-    await updateCandidateWithParsedData(client, candidateId, aiResult.data)
+    await updateCandidateWithParsedData(client, candidateId, aiResult)
     
-    await updateParsingJobStatus(client, candidateId, 'processing', 90)
+    await updateParsingJobStatus(client, candidateId, 'processing')
     await job.updateProgress(90)
     
     if (userId) {
@@ -300,7 +347,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
       'completed', 
       100, 
       confidenceScore, 
-      aiResult.data
+      aiResult
     )
     
     await job.updateProgress(100)
@@ -311,7 +358,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     if (userId) {
       emitParsingComplete(userId, {
         candidateId,
-        data: aiResult.data
+        data: aiResult
       })
     }
     
@@ -319,7 +366,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
       success: true,
       candidateId,
       confidenceScore,
-      parsedData: aiResult.data
+      parsedData: aiResult
     }
     
   } catch (error) {
