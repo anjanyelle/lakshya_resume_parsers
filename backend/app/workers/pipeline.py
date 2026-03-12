@@ -2989,13 +2989,38 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
 
         payload = parsed_entries
 
+        # Convert to Kick Resume format for work[] array
+        kick_resume_work = []
+        for entry in payload:
+            if isinstance(entry, dict):
+                kick_entry = {
+                    "jobTitle": entry.get("title"),
+                    "company": entry.get("company"),
+                    "city": None,
+                    "country": None,
+                    "startDate": entry.get("start_date"),
+                    "endDate": entry.get("end_date"),
+                    "description": entry.get("description"),
+                }
+                # Extract city/country from location if available
+                location = entry.get("location")
+                if location and isinstance(location, str):
+                    if "," in location:
+                        parts = location.split(",", 1)
+                        kick_entry["city"] = parts[0].strip()
+                        kick_entry["country"] = parts[1].strip()
+                    else:
+                        kick_entry["city"] = location
+                kick_resume_work.append(kick_entry)
+
         _update_job(
             job_id,
             last_stage="parse_work_experience",
             parsed_data=_merge_parsed(
                 job,
                 {
-                    "work_experience": payload,
+                    "work": kick_resume_work,  # Kick Resume format
+                    "work_experience": payload,  # Standard format
                     "total_experience_years": total_years,
                     "total_experience_months": total_months,
                     "debug": {
@@ -4709,7 +4734,7 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             )
         )
 
-        raw_we = parsed.get("work_experience", [])
+        raw_we = parsed.get("work", [])
         raw_certs = parsed.get("certifications", [])
         raw_edu = parsed.get("education", [])
         logger.info(
@@ -4766,21 +4791,48 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             },
         )
         for entry in work_entries:
-            company = entry.get("company") or entry.get("client")
-            session.add(
-                WorkHistory(
-                    candidate_id=job.candidate_id,
-                    company_name=company,
-                    client_name=entry.get("client"),
-                    job_title=entry.get("title"),
-                    start_date=_parse_date_str(entry.get("start_date")),
-                    end_date=_parse_date_str(entry.get("end_date")),
-                    is_current=entry.get("is_current", False),
-                    location=entry.get("location"),
-                    description=entry.get("description"),
-                    display_order=None,
+            # Handle Kick Resume format (work[] array)
+            if "jobTitle" in entry:
+                # Kick Resume format
+                company = entry.get("company")
+                location_parts = []
+                if entry.get("city"):
+                    location_parts.append(entry.get("city"))
+                if entry.get("country"):
+                    location_parts.append(entry.get("country"))
+                location = ", ".join(location_parts) if location_parts else None
+                
+                session.add(
+                    WorkHistory(
+                        candidate_id=job.candidate_id,
+                        company_name=company,
+                        client_name=entry.get("client"),
+                        job_title=entry.get("jobTitle"),
+                        start_date=_parse_date_str(entry.get("startDate")),
+                        end_date=_parse_date_str(entry.get("endDate")),
+                        is_current=entry.get("endDate") is None,
+                        location=location,
+                        description=entry.get("description"),
+                        display_order=None,
+                    )
                 )
-            )
+            else:
+                # Standard work_experience format
+                company = entry.get("company") or entry.get("client")
+                session.add(
+                    WorkHistory(
+                        candidate_id=job.candidate_id,
+                        company_name=company,
+                        client_name=entry.get("client"),
+                        job_title=entry.get("title"),
+                        start_date=_parse_date_str(entry.get("start_date")),
+                        end_date=_parse_date_str(entry.get("end_date")),
+                        is_current=entry.get("is_current", False),
+                        location=entry.get("location"),
+                        description=entry.get("description"),
+                        display_order=None,
+                    )
+                )
 
         if candidate and work_entries:
             first = work_entries[0] if isinstance(work_entries, list) else None
@@ -4789,7 +4841,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                 for item in work_entries:
                     if not isinstance(item, dict):
                         continue
-                    title_val = item.get("title")
+                    # Handle both Kick Resume and standard formats
+                    title_val = item.get("jobTitle") or item.get("title")
                     company_val = item.get("company")
                     if title_val and company_val and _is_plausible_headline(title_val) and _is_plausible_headline(company_val):
                         chosen = item
@@ -4797,7 +4850,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             if not chosen and isinstance(first, dict):
                 chosen = first
             if isinstance(chosen, dict):
-                next_title = chosen.get("title")
+                # Handle both Kick Resume and standard formats
+                next_title = chosen.get("jobTitle") or chosen.get("title")
                 next_company = chosen.get("company")
                 if (not candidate.current_title or not _is_plausible_headline(candidate.current_title)) and _is_plausible_headline(next_title):
                     candidate.current_title = next_title

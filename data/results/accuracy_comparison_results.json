@@ -1,0 +1,380 @@
+{
+  "test_cases": [
+    {
+      "resume_id": "test_1",
+      "before_enhancement": {
+        "metrics": {
+          "work_experience_accuracy": 1.0,
+          "certifications_accuracy": 1.0,
+          "skills_accuracy": 0.0,
+          "overall_accuracy": 1.0,
+          "details": {
+            "work_experience": {
+              "correct": 2,
+              "total": 2
+            },
+            "certifications": {
+              "correct": 2,
+              "total": 2
+            },
+            "skills": {
+              "correct": 0,
+              "total": 0
+            }
+          }
+        },
+        "parsed": {
+          "work_experience": [
+            {
+              "job_title": "Senior Software Engineer",
+              "company": "Google"
+            },
+            {
+              "job_title": "Software Engineer",
+              "company": "Microsoft"
+            }
+          ],
+          "certifications": [
+            {
+              "name": "AWS Certified Solutions Architect",
+              "issuer": "Unknown",
+              "confidence": 0.6
+            },
+            {
+              "name": "Google Cloud Professional Architect",
+              "issuer": "Unknown",
+              "confidence": 0.6
+            }
+          ],
+          "skills": [
+            "Python",
+            "JavaScript",
+            "React",
+            "Node.js",
+            "AWS",
+            "Docker",
+            "Kubernetes",
+            "",
+            "Jenkins",
+            "Git",
+            "SQL",
+            "NoSQL",
+            "MongoDB",
+            "PostgreSQL"
+          ],
+          "parsing_method": "basic_keyword"
+        }
+      },
+      "after_enhancement": {
+        "metrics": {
+          "work_experience_accuracy": 0.0,
+          "certifications_accuracy": 0.5,
+          "skills_accuracy": 0.0,
+          "overall_accuracy": 0.25,
+          "details": {
+            "work_experience": {
+              "correct": 0,
+              "total": 2
+            },
+            "certifications": {
+              "correct": 1,
+              "total": 2
+            },
+            "skills": {
+              "correct": 0,
+              "total": 0
+            }
+          }
+        },
+        "parsed": {
+          "work_experience": [
+            {
+              "job_title": "software_engineer",
+              "company": "google",
+              "start_date": "2020-01-01T00:00:00",
+              "end_date": null,
+              "duration_months": 74,
+              "responsibilities": [],
+              "skills_used": [],
+              "description": "",
+              "raw_text": "WORK EXPERIENCE\nSenior Software Engineer\nGoogle\nMountain View, CA\nJan 2020 - Present"
+            },
+            {
+              "job_title": "\u2022 Led team of 5 engineers on cloud migration project",
+              "company": "\u2022 Implemented CI/CD pipelines with Jenkins and Docker",
+              "start_date": null,
+              "end_date": null,
+              "duration_months": null,
+              "responsibilities": [
+                "Developed scalable web applications using React and Node.js",
+                "Led team of 5 engineers on cloud migration project",
+                "Implemented CI/CD pipelines with Jenkins and Docker",
+                "Worked with AWS and Kubernetes for deployment"
+              ],
+              "skills_used": [
+                "react",
+                "node.js",
+                "aws",
+                "docker",
+                "kubernetes",
+                "jenkins"
+              ],
+              "description": "Developed scalable web applications using React and Node.js Led team of 5 engineers on cloud migration project Implemented CI/CD pipelines with Jenkins and Docker Worked with AWS and Kubernetes for deployment",
+              "raw_text": "\u2022 Developed scalable web applications using React and Node.js\n\u2022 Led team of 5 engineers on cloud migration project\n\u2022 Implemented CI/CD pipelines with Jenkins and Docker\n\u2022 Worked with AWS and Kubernetes for deployment"
+            },
+            {
+              "job_title": "software_engineer",
+              "company": "microsoft",
+              "start_date": "2018-06-01T00:00:00",
+              "end_date": "2019-12-01T00:00:00",
+              "duration_months": 18,
+              "responsibilities": [],
+              "skills_used": [],
+              "description": "",
+              "raw_text": "Software Engineer\nMicrosoft\nRedmond, WA\nJun 2018 - Dec 2019"
+            },
+            {
+              "job_title": "",
+              "company": "",
+              "start_date": null,
+              "end_date": null,
+              "duration_months": null,
+              "responsibilities": [
+                "Built RESTful APIs using Python and Django",
+                "Optimized database queries improving performance by 40%",
+                "Collaborated with cross-functional teams on feature development"
+              ],
+              "skills_used": [
+                "python"
+              ],
+              "description": "Built RESTful APIs using Python and Django Optimized database queries improving performance by 40% Collaborated with cross-functional teams on feature development",
+              "raw_text": "\u2022 Built RESTful APIs using Python and Django\n\u2022 Optimized database queries improving performance by 40%\n\u2022 Collaborated with cross-functional teams on feature development"
+            }
+          ],
+          "certifications": [
+            {
+              "name": "CERTIFICATIONS",
+              "issuer": "amazon",
+              "issue_date": "2023-06-01T00:00:00",
+              "expiration_date": "2026-06-01T00:00:00",
+              "credential_id": "AWS-123456",
+              "raw_text": "CERTIFICATIONS\nAWS Certified Solutions Architect\nAmazon Web Services\nIssued: June 2023 Expires: June 2026\nID: AWS-123456"
+            },
+            {
+              "name": "Google Cloud Professional Architect",
+              "issuer": "google",
+              "issue_date": "2022-03-01T00:00:00",
+              "expiration_date": "2025-03-01T00:00:00",
+              "credential_id": "GCP-789012",
+              "raw_text": "Google Cloud Professional Architect\nGoogle Cloud\nIssued: March 2022 Expires: March 2025\nID: GCP-789012"
+            }
+          ],
+          "other_sections": {
+            "other": "JOHN DOE\nSenior Software Engineer\njohn.doe@email.com | (555) 123-4567 | LinkedIn: johndoe",
+            "education": "EDUCATION\nBachelor of Science in Computer Science\nStanford University\n2014-2018",
+            "skills": "SKILLS\nPython, JavaScript, React, Node.js, AWS, Docker, Kubernetes,\nJenkins, Git, SQL, NoSQL, MongoDB, PostgreSQL"
+          },
+          "parsing_method": "enhanced_kickresume"
+        }
+      },
+      "improvement": {
+        "overall": -0.75,
+        "work_experience": -1.0,
+        "certifications": -0.5
+      }
+    },
+    {
+      "resume_id": "test_2",
+      "before_enhancement": {
+        "metrics": {
+          "work_experience_accuracy": 1.0,
+          "certifications_accuracy": 1.0,
+          "skills_accuracy": 0.0,
+          "overall_accuracy": 1.0,
+          "details": {
+            "work_experience": {
+              "correct": 2,
+              "total": 2
+            },
+            "certifications": {
+              "correct": 3,
+              "total": 3
+            },
+            "skills": {
+              "correct": 0,
+              "total": 0
+            }
+          }
+        },
+        "parsed": {
+          "work_experience": [
+            {
+              "job_title": "Senior Data Scientist",
+              "company": "IBM"
+            },
+            {
+              "job_title": "Data Analyst",
+              "company": "Amazon"
+            }
+          ],
+          "certifications": [
+            {
+              "name": "IBM Data Science Professional",
+              "issuer": "Unknown",
+              "confidence": 0.6
+            },
+            {
+              "name": "Google Data Analytics Professional Certificate",
+              "issuer": "Unknown",
+              "confidence": 0.6
+            },
+            {
+              "name": "Microsoft Certified: Azure Data Scientist",
+              "issuer": "Unknown",
+              "confidence": 0.6
+            }
+          ],
+          "skills": [],
+          "parsing_method": "basic_keyword"
+        }
+      },
+      "after_enhancement": {
+        "metrics": {
+          "work_experience_accuracy": 0.0,
+          "certifications_accuracy": 0.6666666666666666,
+          "skills_accuracy": 0.0,
+          "overall_accuracy": 0.4,
+          "details": {
+            "work_experience": {
+              "correct": 0,
+              "total": 2
+            },
+            "certifications": {
+              "correct": 2,
+              "total": 3
+            },
+            "skills": {
+              "correct": 0,
+              "total": 0
+            }
+          }
+        },
+        "parsed": {
+          "work_experience": [
+            {
+              "job_title": "data_scientist",
+              "company": "IBM",
+              "start_date": "2019-03-01T00:00:00",
+              "end_date": null,
+              "duration_months": 84,
+              "responsibilities": [],
+              "skills_used": [],
+              "description": "",
+              "raw_text": "WORK EXPERIENCE\nSenior Data Scientist\nIBM\nArmonk, NY\nMar 2019 - Present"
+            },
+            {
+              "job_title": "data_scientist",
+              "company": "\u2022 Implemented predictive analytics using Python and TensorFlow",
+              "start_date": null,
+              "end_date": null,
+              "duration_months": null,
+              "responsibilities": [
+                "Developed machine learning models for fraud detection",
+                "Led data science team of 3 analysts",
+                "Implemented predictive analytics using Python and TensorFlow",
+                "Created data pipelines using Apache Spark"
+              ],
+              "skills_used": [
+                "python",
+                "tensorflow"
+              ],
+              "description": "Developed machine learning models for fraud detection Led data science team of 3 analysts Implemented predictive analytics using Python and TensorFlow Created data pipelines using Apache Spark",
+              "raw_text": "\u2022 Developed machine learning models for fraud detection\n\u2022 Led data science team of 3 analysts\n\u2022 Implemented predictive analytics using Python and TensorFlow\n\u2022 Created data pipelines using Apache Spark"
+            },
+            {
+              "job_title": "data_scientist",
+              "company": "amazon",
+              "start_date": "2017-08-01T00:00:00",
+              "end_date": "2019-02-01T00:00:00",
+              "duration_months": 18,
+              "responsibilities": [],
+              "skills_used": [],
+              "description": "",
+              "raw_text": "Data Analyst\nAmazon\nSeattle, WA\nAug 2017 - Feb 2019"
+            },
+            {
+              "job_title": "",
+              "company": "",
+              "start_date": null,
+              "end_date": null,
+              "duration_months": null,
+              "responsibilities": [
+                "Analyzed large datasets using SQL and Python",
+                "Built dashboards using Tableau and Power BI",
+                "Generated insights for business strategy"
+              ],
+              "skills_used": [
+                "python",
+                "sql"
+              ],
+              "description": "Analyzed large datasets using SQL and Python Built dashboards using Tableau and Power BI Generated insights for business strategy",
+              "raw_text": "\u2022 Analyzed large datasets using SQL and Python\n\u2022 Built dashboards using Tableau and Power BI\n\u2022 Generated insights for business strategy"
+            }
+          ],
+          "certifications": [
+            {
+              "name": "CERTIFICATIONS",
+              "issuer": "",
+              "issue_date": null,
+              "expiration_date": null,
+              "credential_id": null,
+              "raw_text": "CERTIFICATIONS\nIBM Data Science Professional\nIBM\nIssued: Nov 2021"
+            },
+            {
+              "name": "Google Data Analytics Professional Certificate",
+              "issuer": "google",
+              "issue_date": null,
+              "expiration_date": null,
+              "credential_id": null,
+              "raw_text": "Google Data Analytics Professional Certificate\nGoogle\nIssued: May 2020"
+            },
+            {
+              "name": "Microsoft Certified: Azure Data Scientist",
+              "issuer": "microsoft",
+              "issue_date": null,
+              "expiration_date": null,
+              "credential_id": null,
+              "raw_text": "Microsoft Certified: Azure Data Scientist\nMicrosoft\nIssued: Aug 2022"
+            }
+          ],
+          "other_sections": {
+            "other": "JANE SMITH\nData Scientist\njane.smith@email.com | (555) 987-6543"
+          },
+          "parsing_method": "enhanced_kickresume"
+        }
+      },
+      "improvement": {
+        "overall": -0.6,
+        "work_experience": -1.0,
+        "certifications": -0.33333333333333337
+      }
+    }
+  ],
+  "summary": {
+    "before_enhancement": {
+      "avg_accuracy": 1.0,
+      "work_exp": 1.0,
+      "certs": 1.0
+    },
+    "after_enhancement": {
+      "avg_accuracy": 0.325,
+      "work_exp": 0.0,
+      "certs": 0.5833333333333333
+    },
+    "improvement": {
+      "overall": -0.675,
+      "work_exp": -1.0,
+      "certs": -0.41666666666666674
+    }
+  }
+}

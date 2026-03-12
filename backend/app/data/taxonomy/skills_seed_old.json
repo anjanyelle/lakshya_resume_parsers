@@ -1,0 +1,638 @@
+[
+  {
+    "name": "Java",
+    "category": "programming_languages",
+    "synonyms": [
+      "java"
+    ],
+    "frequency": 6171,
+    "type": "technical"
+  },
+  {
+    "name": "Javascript",
+    "category": "programming_languages",
+    "synonyms": [
+      "javascript"
+    ],
+    "frequency": 3687,
+    "type": "technical"
+  },
+  {
+    "name": "Python",
+    "category": "programming_languages",
+    "synonyms": [
+      "python"
+    ],
+    "frequency": 3640,
+    "type": "technical"
+  },
+  {
+    "name": "Mongodb",
+    "category": "programming_languages",
+    "synonyms": [
+      "mongodb"
+    ],
+    "frequency": 656,
+    "type": "technical"
+  },
+  {
+    "name": "Typescript",
+    "category": "programming_languages",
+    "synonyms": [
+      "typescript"
+    ],
+    "frequency": 350,
+    "type": "technical"
+  },
+  {
+    "name": "Angular",
+    "category": "frameworks_libraries",
+    "synonyms": [
+      "angular"
+    ],
+    "frequency": 1856,
+    "type": "technical"
+  },
+  {
+    "name": "React",
+    "category": "frameworks_libraries",
+    "synonyms": [
+      "react"
+    ],
+    "frequency": 1472,
+    "type": "technical"
+  },
+  {
+    "name": "Express",
+    "category": "frameworks_libraries",
+    "synonyms": [
+      "express"
+    ],
+    "frequency": 441,
+    "type": "technical"
+  },
+  {
+    "name": "Node.Js",
+    "category": "frameworks_libraries",
+    "synonyms": [
+      "node.js"
+    ],
+    "frequency": 406,
+    "type": "technical"
+  },
+  {
+    "name": "Vue",
+    "category": "frameworks_libraries",
+    "synonyms": [
+      "vue"
+    ],
+    "frequency": 79,
+    "type": "technical"
+  },
+  {
+    "name": "Sql",
+    "category": "databases",
+    "synonyms": [
+      "sql"
+    ],
+    "frequency": 19268,
+    "type": "technical"
+  },
+  {
+    "name": "Oracle",
+    "category": "databases",
+    "synonyms": [
+      "oracle"
+    ],
+    "frequency": 5723,
+    "type": "technical"
+  },
+  {
+    "name": "Mysql",
+    "category": "databases",
+    "synonyms": [
+      "mysql"
+    ],
+    "frequency": 1547,
+    "type": "technical"
+  },
+  {
+    "name": "Postgresql",
+    "category": "databases",
+    "synonyms": [
+      "postgresql"
+    ],
+    "frequency": 500,
+    "type": "technical"
+  },
+  {
+    "name": "Nosql",
+    "category": "databases",
+    "synonyms": [
+      "nosql"
+    ],
+    "frequency": 288,
+    "type": "technical"
+  },
+  {
+    "name": "Aws",
+    "category": "cloud_platforms",
+    "synonyms": [
+      "aws"
+    ],
+    "frequency": 3724,
+    "type": "technical"
+  },
+  {
+    "name": "Azure",
+    "category": "cloud_platforms",
+    "synonyms": [
+      "azure"
+    ],
+    "frequency": 2329,
+    "type": "technical"
+  },
+  {
+    "name": "Gcp",
+    "category": "cloud_platforms",
+    "synonyms": [
+      "gcp"
+    ],
+    "frequency": 171,
+    "type": "technical"
+  },
+  {
+    "name": "Jenkins",
+    "category": "devops_tools",
+    "synonyms": [
+      "jenkins"
+    ],
+    "frequency": 1943,
+    "type": "technical"
+  },
+  {
+    "name": "Git",
+    "category": "devops_tools",
+    "synonyms": [
+      "git"
+    ],
+    "frequency": 1894,
+    "type": "technical"
+  },
+  {
+    "name": "Docker",
+    "category": "devops_tools",
+    "synonyms": [
+      "docker"
+    ],
+    "frequency": 1427,
+    "type": "technical"
+  },
+  {
+    "name": "Github",
+    "category": "devops_tools",
+    "synonyms": [
+      "github"
+    ],
+    "frequency": 984,
+    "type": "technical"
+  },
+  {
+    "name": "Kubernetes",
+    "category": "devops_tools",
+    "synonyms": [
+      "kubernetes"
+    ],
+    "frequency": 717,
+    "type": "technical"
+  },
+  {
+    "name": "Ci/Cd",
+    "category": "devops_tools",
+    "synonyms": [
+      "ci/cd"
+    ],
+    "frequency": 692,
+    "type": "technical"
+  },
+  {
+    "name": "Machine Learning",
+    "category": "data_science",
+    "synonyms": [
+      "machinelearning",
+      "machine learning"
+    ],
+    "frequency": 640,
+    "type": "technical"
+  },
+  {
+    "name": "Data Science",
+    "category": "data_science",
+    "synonyms": [
+      "datascience",
+      "data science"
+    ],
+    "frequency": 588,
+    "type": "technical"
+  },
+  {
+    "name": "Pandas",
+    "category": "data_science",
+    "synonyms": [
+      "pandas"
+    ],
+    "frequency": 221,
+    "type": "technical"
+  },
+  {
+    "name": "Numpy",
+    "category": "data_science",
+    "synonyms": [
+      "numpy"
+    ],
+    "frequency": 151,
+    "type": "technical"
+  },
+  {
+    "name": "Tensorflow",
+    "category": "data_science",
+    "synonyms": [
+      "tensorflow"
+    ],
+    "frequency": 91,
+    "type": "technical"
+  },
+  {
+    "name": "Pytorch",
+    "category": "data_science",
+    "synonyms": [
+      "pytorch"
+    ],
+    "frequency": 24,
+    "type": "technical"
+  },
+  {
+    "name": "Html",
+    "category": "web_technologies",
+    "synonyms": [
+      "html"
+    ],
+    "frequency": 3037,
+    "type": "technical"
+  },
+  {
+    "name": "Css",
+    "category": "web_technologies",
+    "synonyms": [
+      "css"
+    ],
+    "frequency": 2471,
+    "type": "technical"
+  },
+  {
+    "name": "Database",
+    "category": "other_technical",
+    "synonyms": [
+      "database"
+    ],
+    "frequency": 14458,
+    "type": "technical"
+  },
+  {
+    "name": "Sap",
+    "category": "other_technical",
+    "synonyms": [
+      "sap"
+    ],
+    "frequency": 5880,
+    "type": "technical"
+  },
+  {
+    "name": "Excel",
+    "category": "other_technical",
+    "synonyms": [
+      "excel"
+    ],
+    "frequency": 4271,
+    "type": "technical"
+  },
+  {
+    "name": "Agile",
+    "category": "other_technical",
+    "synonyms": [
+      "agile"
+    ],
+    "frequency": 4175,
+    "type": "technical"
+  },
+  {
+    "name": "Windows",
+    "category": "other_technical",
+    "synonyms": [
+      "windows"
+    ],
+    "frequency": 4021,
+    "type": "technical"
+  },
+  {
+    "name": "Api",
+    "category": "other_technical",
+    "synonyms": [
+      "api"
+    ],
+    "frequency": 2537,
+    "type": "technical"
+  },
+  {
+    "name": "Linux",
+    "category": "other_technical",
+    "synonyms": [
+      "linux"
+    ],
+    "frequency": 2329,
+    "type": "technical"
+  },
+  {
+    "name": "Scrum",
+    "category": "other_technical",
+    "synonyms": [
+      "scrum"
+    ],
+    "frequency": 2298,
+    "type": "technical"
+  },
+  {
+    "name": "Jquery",
+    "category": "other_technical",
+    "synonyms": [
+      "jquery"
+    ],
+    "frequency": 1996,
+    "type": "technical"
+  },
+  {
+    "name": "Unix",
+    "category": "other_technical",
+    "synonyms": [
+      "unix"
+    ],
+    "frequency": 1877,
+    "type": "technical"
+  },
+  {
+    "name": "Devops",
+    "category": "other_technical",
+    "synonyms": [
+      "devops"
+    ],
+    "frequency": 1779,
+    "type": "technical"
+  },
+  {
+    "name": "Ajax",
+    "category": "other_technical",
+    "synonyms": [
+      "ajax"
+    ],
+    "frequency": 1565,
+    "type": "technical"
+  },
+  {
+    "name": "Jira",
+    "category": "other_technical",
+    "synonyms": [
+      "jira"
+    ],
+    "frequency": 1400,
+    "type": "technical"
+  },
+  {
+    "name": "Restful",
+    "category": "other_technical",
+    "synonyms": [
+      "restful"
+    ],
+    "frequency": 1176,
+    "type": "technical"
+  },
+  {
+    "name": "Tableau",
+    "category": "other_technical",
+    "synonyms": [
+      "tableau"
+    ],
+    "frequency": 1127,
+    "type": "technical"
+  },
+  {
+    "name": "Bootstrap",
+    "category": "other_technical",
+    "synonyms": [
+      "bootstrap"
+    ],
+    "frequency": 1031,
+    "type": "technical"
+  },
+  {
+    "name": "Salesforce",
+    "category": "other_technical",
+    "synonyms": [
+      "salesforce"
+    ],
+    "frequency": 851,
+    "type": "technical"
+  },
+  {
+    "name": "Power Bi",
+    "category": "other_technical",
+    "synonyms": [
+      "power bi",
+      "powerbi"
+    ],
+    "frequency": 718,
+    "type": "technical"
+  },
+  {
+    "name": "Backend",
+    "category": "other_technical",
+    "synonyms": [
+      "backend"
+    ],
+    "frequency": 682,
+    "type": "technical"
+  },
+  {
+    "name": "Microservices",
+    "category": "other_technical",
+    "synonyms": [
+      "microservices"
+    ],
+    "frequency": 493,
+    "type": "technical"
+  },
+  {
+    "name": "Wordpress",
+    "category": "other_technical",
+    "synonyms": [
+      "wordpress"
+    ],
+    "frequency": 433,
+    "type": "technical"
+  },
+  {
+    "name": "Bash",
+    "category": "other_technical",
+    "synonyms": [
+      "bash"
+    ],
+    "frequency": 396,
+    "type": "technical"
+  },
+  {
+    "name": "Powershell",
+    "category": "other_technical",
+    "synonyms": [
+      "powershell"
+    ],
+    "frequency": 274,
+    "type": "technical"
+  },
+  {
+    "name": "Confluence",
+    "category": "other_technical",
+    "synonyms": [
+      "confluence"
+    ],
+    "frequency": 247,
+    "type": "technical"
+  },
+  {
+    "name": "Sass",
+    "category": "other_technical",
+    "synonyms": [
+      "sass"
+    ],
+    "frequency": 221,
+    "type": "technical"
+  },
+  {
+    "name": "Frontend",
+    "category": "other_technical",
+    "synonyms": [
+      "frontend"
+    ],
+    "frequency": 216,
+    "type": "technical"
+  },
+  {
+    "name": "Ubuntu",
+    "category": "other_technical",
+    "synonyms": [
+      "ubuntu"
+    ],
+    "frequency": 198,
+    "type": "technical"
+  },
+  {
+    "name": "Ai",
+    "category": "other_technical",
+    "synonyms": [
+      "ai"
+    ],
+    "frequency": 196,
+    "type": "technical"
+  },
+  {
+    "name": "Matplotlib",
+    "category": "other_technical",
+    "synonyms": [
+      "matplotlib"
+    ],
+    "frequency": 135,
+    "type": "technical"
+  },
+  {
+    "name": "Slack",
+    "category": "other_technical",
+    "synonyms": [
+      "slack"
+    ],
+    "frequency": 107,
+    "type": "technical"
+  },
+  {
+    "name": "Deep Learning",
+    "category": "other_technical",
+    "synonyms": [
+      "deep learning",
+      "deeplearning"
+    ],
+    "frequency": 86,
+    "type": "technical"
+  },
+  {
+    "name": "Artificial Intelligence",
+    "category": "other_technical",
+    "synonyms": [
+      "artificialintelligence",
+      "artificial intelligence"
+    ],
+    "frequency": 83,
+    "type": "technical"
+  },
+  {
+    "name": "Scikit-Learn",
+    "category": "other_technical",
+    "synonyms": [
+      "scikitlearn",
+      "scikit-learn"
+    ],
+    "frequency": 75,
+    "type": "technical"
+  },
+  {
+    "name": "Macos",
+    "category": "other_technical",
+    "synonyms": [
+      "macos"
+    ],
+    "frequency": 70,
+    "type": "technical"
+  },
+  {
+    "name": "Keras",
+    "category": "other_technical",
+    "synonyms": [
+      "keras"
+    ],
+    "frequency": 52,
+    "type": "technical"
+  },
+  {
+    "name": "Shopify",
+    "category": "other_technical",
+    "synonyms": [
+      "shopify"
+    ],
+    "frequency": 40,
+    "type": "technical"
+  },
+  {
+    "name": "Graphql",
+    "category": "other_technical",
+    "synonyms": [
+      "graphql"
+    ],
+    "frequency": 32,
+    "type": "technical"
+  },
+  {
+    "name": "Fullstack",
+    "category": "other_technical",
+    "synonyms": [
+      "fullstack"
+    ],
+    "frequency": 18,
+    "type": "technical"
+  }
+]

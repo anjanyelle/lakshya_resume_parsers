@@ -1,0 +1,433 @@
+{
+  "candidate": {
+    "full_name": "Vaishnavi Korvi",
+    "email": "Vaishnavi127806@gmail.com",
+    "phone": "+19545010556",
+    "linkedin": "https://www.linkedin.com/in/vaishnavi0212k",
+    "location": "",
+    "summary": "•\tLed technical implementation and management of Apigee Hybrid runtimes across enterprise environments, executing complex platform migrations with zero downtime by designing phased transition strategies addressing legacy dependencies using Apigee Hybrid, Hybrid Cloud, and API Platform Engineering. •\tApplied advanced expertise deploying and configuring Apigee Hybrid clusters, implementing high-availability architectures and enterprise-grade security controls while optimizing runtime plane configurations to meet business requirements using Kubernetes, Apigee Runtime Planes, and Enterprise Security Standards. •\tEngineered secure API integration designs connecting critical systems across hybrid cloud architectures, implementing authentication, encryption, and threat protection while establishing governance models ensuring consistent security across large-scale API ecosystems using Apigee, OAuth 2.0, and API Security. •\tEstablished DevOps automation workflows for Apigee deployments by designing CI/CD pipelines integrated with enterprise tooling, enabling reliable platform updates, reduced service disruption, and comprehensive pre-production validation using CI/CD, Jenkins, and Automated API Testing. •\tManaged production-grade Kubernetes orchestration for Apigee workloads, implementing scaling strategies, network optimization, and resource management to support high transaction volumes and regional traffic variability using Kubernetes, Autoscaling, and Cloud Networking. •\tCollaborated with engineering teams to standardize Kubernetes tooling for Apigee workloads, defining deployment patterns, operational procedures, and documentation aligned with enterprise roadmaps using Kubernetes Toolchains, Platform Engineering, and Operational Best Practices. •\tImplemented operational analytics frameworks delivering real-time visibility into API performance, usage, errors, and security events, leveraging telemetry insights to drive targeted optimizations using Apigee Analytics, Monitoring Dashboards, and Alerting Systems. •\tArchitected microservices deployment strategies within Kubernetes environments, designing service mesh integrations, network policies, and secure communication models supporting Apigee integrations using Microservices Architecture, Istio, and Container Security Standards. •\tDelivered optimized Apigee Hybrid runtime plane configurations by implementing advanced routing, caching, and load balancing strategies, supported by detailed capacity planning models for current and projected API demand using Traffic Management, Caching, and Load Balancing. •\tEstablished secure cloud integration practices across hybrid Apigee deployments, implementing identity management, network security, and data protection controls documented to meet enterprise and regulatory requirements using IAM, Hybrid Cloud Security, and Compliance Architecture. •\tDesigned and implemented API lifecycle management processes within Apigee, standardizing workflows for design, development, deployment, versioning, and retirement aligned with governance and consumer impact mitigation using API Lifecycle Management, Version Control, and Governance Frameworks. •\tEngineered automated deployment patterns for Apigee configurations using infrastructure-as-code and CI/CD pipelines, implementing validation checks, testing automation, and rollback mechanisms ensuring configuration consistency using Terraform, CI/CD, and IaC Practices. •\tDeveloped comprehensive monitoring solutions integrating Apigee with enterprise observability platforms, enabling proactive detection of performance degradation, availability risks, and security anomalies using Observability Platforms, Metrics, and Proactive Alerting. •\tCreated detailed technical documentation for Apigee Hybrid implementations, including architecture diagrams, configuration standards, operational runbooks, and troubleshooting guides to support scalable platform operations using Technical Documentation, Runbooks, and Knowledge Repositories. •\tConducted technical mentoring and enablement sessions for development teams, promoting API engineering best practices, secure design patterns, and performance optimization within the Apigee ecosystem using API Design Patterns, Security Best Practices, and Developer Enablement. •\tEngineered and maintained multi-region Apigee Hybrid runtimes, configuring runtime planes, message processors, and synchronizers to ensure fault tolerance and secure integration for sensitive data using Apigee Hybrid, Multi-Region Architecture, and Secure Integration Design. •\tOrchestrated API engineering workflows for regulated financial services environments, implementing secure authentication, automated credential rotation, and compliance-aligned pipelines using OAuth 2.0, PCI-DSS, Secure CI/CD, and Secrets Management. •\tDesigned microservices deployment frameworks for Apigee Hybrid on Kubernetes, integrating service mesh traffic control, security enforcement, self-healing monitoring, and governance frameworks using Kubernetes, Istio, DevOps Automation, and API Governance."
+  },
+  "certifications": [
+    {
+      "name": "AWS",
+      "issuing_organization": "Amazon Web Services",
+      "issue_date": null,
+      "expiry_date": null,
+      "credential_id": "",
+      "is_active": null,
+      "confidence": 0.8
+    }
+  ],
+  "skills": [
+    {
+      "name": "AWS",
+      "category": "technical"
+    },
+    {
+      "name": "Azure",
+      "category": "technical"
+    },
+    {
+      "name": "GCP",
+      "category": "technical"
+    },
+    {
+      "name": "Ant",
+      "category": "technical"
+    },
+    {
+      "name": "Maven",
+      "category": "technical"
+    },
+    {
+      "name": "Gradle",
+      "category": "technical"
+    },
+    {
+      "name": "Git",
+      "category": "technical"
+    },
+    {
+      "name": "Bit Bucket",
+      "category": "technical"
+    },
+    {
+      "name": "Azure Repos",
+      "category": "technical"
+    },
+    {
+      "name": "Jenkins",
+      "category": "technical"
+    },
+    {
+      "name": "Azure DevOps Pipelines",
+      "category": "technical"
+    },
+    {
+      "name": "Gitlab",
+      "category": "technical"
+    },
+    {
+      "name": "Terraform",
+      "category": "technical"
+    },
+    {
+      "name": "Ansible",
+      "category": "technical"
+    },
+    {
+      "name": "Chef",
+      "category": "technical"
+    },
+    {
+      "name": "Puppet",
+      "category": "technical"
+    },
+    {
+      "name": "Cloud Formation",
+      "category": "technical"
+    },
+    {
+      "name": "Docker",
+      "category": "technical"
+    },
+    {
+      "name": "Kubernetes",
+      "category": "technical"
+    },
+    {
+      "name": "OpenShift",
+      "category": "technical"
+    },
+    {
+      "name": "Splunk",
+      "category": "technical"
+    },
+    {
+      "name": "Prometheus",
+      "category": "technical"
+    },
+    {
+      "name": "Grafana",
+      "category": "technical"
+    },
+    {
+      "name": "Kibana",
+      "category": "technical"
+    },
+    {
+      "name": "Datadog",
+      "category": "technical"
+    },
+    {
+      "name": "CloudWatch",
+      "category": "technical"
+    },
+    {
+      "name": "Dynatrace",
+      "category": "technical"
+    },
+    {
+      "name": "AppDynamics",
+      "category": "technical"
+    },
+    {
+      "name": "ELK",
+      "category": "technical"
+    },
+    {
+      "name": "New Relic",
+      "category": "technical"
+    },
+    {
+      "name": "Dynatrace",
+      "category": "technical"
+    },
+    {
+      "name": "Nginx",
+      "category": "technical"
+    },
+    {
+      "name": "Tomcat",
+      "category": "technical"
+    },
+    {
+      "name": "WebSphere",
+      "category": "technical"
+    },
+    {
+      "name": "IIS",
+      "category": "technical"
+    },
+    {
+      "name": "Confluence",
+      "category": "technical"
+    },
+    {
+      "name": "SharePoint",
+      "category": "technical"
+    },
+    {
+      "name": "Red Hat Linux",
+      "category": "technical"
+    },
+    {
+      "name": "Ubuntu",
+      "category": "technical"
+    },
+    {
+      "name": "CentOS",
+      "category": "technical"
+    },
+    {
+      "name": "Windows",
+      "category": "technical"
+    },
+    {
+      "name": "UNIX",
+      "category": "technical"
+    },
+    {
+      "name": "Cosmos DB",
+      "category": "technical"
+    },
+    {
+      "name": "MySQL",
+      "category": "technical"
+    },
+    {
+      "name": "Oracle",
+      "category": "technical"
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "technical"
+    },
+    {
+      "name": "RDS",
+      "category": "technical"
+    },
+    {
+      "name": "Dynamo DB",
+      "category": "technical"
+    },
+    {
+      "name": "Mongo DB",
+      "category": "technical"
+    },
+    {
+      "name": "Azure Boards",
+      "category": "technical"
+    },
+    {
+      "name": "Jira",
+      "category": "technical"
+    },
+    {
+      "name": "ServiceNow",
+      "category": "technical"
+    },
+    {
+      "name": "SonarQube",
+      "category": "technical"
+    },
+    {
+      "name": "Jfrog X-ray",
+      "category": "technical"
+    },
+    {
+      "name": "ECR Inspector",
+      "category": "technical"
+    },
+    {
+      "name": "Python",
+      "category": "technical"
+    },
+    {
+      "name": "Shell",
+      "category": "technical"
+    },
+    {
+      "name": "Java",
+      "category": "technical"
+    },
+    {
+      "name": "PowerShell",
+      "category": "technical"
+    },
+    {
+      "name": "YAML",
+      "category": "technical"
+    },
+    {
+      "name": "Perl",
+      "category": "technical"
+    },
+    {
+      "name": "Ruby",
+      "category": "technical"
+    },
+    {
+      "name": "JFrog",
+      "category": "technical"
+    },
+    {
+      "name": "Nexus",
+      "category": "technical"
+    },
+    {
+      "name": "Registry Hub",
+      "category": "technical"
+    },
+    {
+      "name": "Networking/ Protocol's, DHCP, NFS, WAN, SMTP, LAN, FTP/TFTP, TCP/IP, ICMP, SSH.",
+      "category": "technical"
+    }
+  ],
+  "work_experience": [
+    {
+      "company": "Cardinal Health",
+      "location": "Dublin, OH",
+      "title": "DevOps Engineer                                                                                                                               October 2022",
+      "start_date": "Current",
+      "end_date": "Current",
+      "responsibilities": [
+        "Led enterprise-wide migration from Apigee Edge to Apigee Hybrid for a healthcare provider, designing a secure hybrid cloud architecture enabling compliant access across 15+ clinical systems using Apigee Hybrid, Hybrid Cloud, and HIPAA Compliance.",
+        "Engineered secure integration design patterns for Apigee Hybrid, standardizing connectivity between legacy healthcare platforms and modern microservices while integrating Kubernetes toolsets and enforcing regulatory controls using API Engineering, Kubernetes, and HITECH Standards.",
+        "Established enterprise DevOps automation pipelines managing Apigee API Proxies and Policies, enabling automated deployments, version control, and approvals while reducing release timelines using Jenkins, Argo CD, Terraform, and CI/CD.",
+        "Designed Kubernetes cluster configurations optimized for Apigee runtimes, implementing custom resource allocation, network policies, and security contexts to support high-volume healthcare transactions using Kubernetes, Container Security, and Healthcare Data Protection.",
+        "Developed operational analytics frameworks delivering real-time visibility into API performance, security, and compliance, enabling proactive HIPAA monitoring using Prometheus, Grafana, Apigee Analytics, and Monitoring Dashboards.",
+        "Implemented secure cloud integration practices connecting Apigee Hybrid with third-party healthcare providers, enforcing encryption, mutual TLS, and audit logging using mTLS, Data Encryption, and Healthcare Interoperability Standards.",
+        "Established microservices deployment strategies using containerization and service mesh to manage dependencies and prevent cascading failures during patient data processing using Docker, Istio, Traffic Management, and Resilience Patterns.",
+        "Created infrastructure-as-code templates for consistent Apigee Hybrid deployments across environments, enforcing automated compliance validation using Terraform, Ansible, IaC, and HL7 Integration Standards.",
+        "Designed secure API proxy patterns enforcing transformation, validation, and access controls for healthcare workflows using Apigee API Proxies, Policies, Data Validation, and HIPAA-Compliant Security Controls.",
+        "Established comprehensive security frameworks for Apigee Hybrid using centralized secrets management, certificate rotation, and governance controls with HashiCorp Vault, Secrets Management, and Automated Compliance Scanning.",
+        "Optimized Kubernetes resource utilization for Apigee workloads through autoscaling, scheduling, and topology constraints to ensure availability during maintenance and outages using Kubernetes Autoscaling, Node Affinity, and High Availability.",
+        "Developed disaster recovery strategies for Apigee Hybrid environments, implementing cross-region replication, automated backups, and failover testing using Disaster Recovery, Ansible Playbooks, and Business Continuity Planning.",
+        "Established Git-based workflows for managing Apigee configurations, enforcing branch protections, reviews, and automated testing using Git, Jenkins, Policy Validation, and Healthcare Compliance Automation.",
+        "Designed API governance frameworks enforcing standardized authentication, authorization, and validation across healthcare endpoints using Apigee Edge Policies, API Governance, and Security Enforcement Models.",
+        "Implemented advanced operational analytics integrated with security monitoring platforms, enabling detection of anomalous API behavior involving protected health data using SIEM Integration, Grafana Dashboards, and Compliance Alerting.",
+        "Implemented hybrid cloud architectures integrating on-premises healthcare systems with cloud services, enabling encrypted data exchange and automated recovery using Hybrid Cloud Architecture, Data Encryption, and Disaster Recovery Automation.",
+        "Engineered secure cloud integration frameworks for medical imaging platforms, enabling high-volume data exchange with access controls and audit logging using RBAC, Audit Logging, and Healthcare Data Exchange.",
+        "Developed containerized microservices pipelines for patient management systems, enabling zero-downtime updates and environment consistency using Docker, Kubernetes, Microservices Architecture, and Healthcare Privacy Controls.",
+        "Established DevOps automation frameworks for healthcare claims processing platforms, enabling rapid, compliant releases with continuous security validation using DevOps Automation, Compliance Testing, and Audit Trail Management.",
+        "Configured high-availability database clusters for electronic health record systems, implementing containerized deployments, encrypted storage, and automated failover using Docker, HA Databases, Backup Automation, and HIPAA Data Protection."
+      ]
+    },
+    {
+      "company": "Huntington:",
+      "location": "Columbus, OH",
+      "title": "DevOps Engineer    \t\t\t\t\t\t\t\t     December 2019",
+      "start_date": "September 2022",
+      "end_date": "",
+      "responsibilities": [
+        "Led technical implementation and management of Apigee Hybrid for a banking institution, designing runtime plane architecture supporting 200+ TPS while enforcing regulatory controls using Apigee Hybrid, Hybrid Cloud, PCI-DSS, and SOX Compliance.",
+        "Engineered migration from Apigee Edge to Apigee Hybrid, maintaining zero downtime while automating deployment of 350+ APIs through production-grade orchestration using Kubernetes, GitLab CI/CD, and API Proxy Automation.",
+        "Designed enterprise API engineering solutions for payment processing platforms, securing sensitive financial data while implementing real-time monitoring using Apigee Analytics, Datadog, Secure Cloud Integration, and GLBA Compliance.",
+        "Collaborated with engineering teams to integrate Kubernetes tooling for Apigee workloads, automating configuration management using FLUX, GitHub Actions, Kubernetes Runtime Planes, and Regulatory-Compliant CI/CD.",
+        "Established DevOps automation workflows for API platforms, integrating vulnerability scanning and infrastructure provisioning using GitLab Pipelines, Snyk, CloudFormation, and SOX-Aligned Infrastructure Automation.",
+        "Architected hybrid cloud solutions connecting on-premises banking systems with Apigee Hybrid, configuring advanced traffic routing and security controls using Envoy Proxy, TLS, Hybrid Cloud Architecture, and PCI-DSS Standards.",
+        "Created operational analytics frameworks providing real-time API visibility and compliance tracking, enabling proactive remediation using ELK Stack, Apigee Analytics, Monitoring Dashboards, and Banking Operations Telemetry.",
+        "Implemented secure integration patterns for connecting core transaction systems with external payment networks, enforcing strong authentication and threat protection using OAuth 2.0, JWT Validation, Apigee Policies, and GLBA Controls.",
+        "Established enterprise CI/CD pipelines automating deployment and validation of Apigee configurations across environments using GitLab, GitHub Actions, Compliance Gates, and Security Testing Automation.",
+        "Designed containerized microservices architectures integrating with Apigee Hybrid, implementing secure networking and workload isolation using Kubernetes, Podman, Service Mesh Patterns, and Banking Security Standards.",
+        "Configured and optimized Apigee Runtime Plane Architecture to achieve 99.99% availability for payment APIs, implementing automated failover and audit logging using Kubernetes HA, Disaster Recovery, and SOX Compliance Controls.",
+        "Developed DevOps automation strategies for Apigee environments, reducing configuration errors through standardized templates using PUPPET, GitHub Actions, Configuration Management, and Regulatory Audit Readiness.",
+        "Implemented unified API interface layers connecting legacy banking systems with digital services, enforcing transaction validation and secure data handling using Apigee API Proxies, Policy Enforcement, and PCI-DSS Compliance.",
+        "Established comprehensive monitoring and alerting systems for banking APIs, enabling proactive issue resolution using Datadog, Apigee Monitoring, Custom Dashboards, and GLBA-Aligned Alerting Frameworks.",
+        "Collaborated with security teams to implement secure cloud integration practices across Apigee Hybrid, enforcing encryption, auditing, and continuous scanning using Snyk, Data Encryption, and Security Governance Frameworks.",
+        "Designed hybrid cloud architectures integrating on-premises and cloud services, reducing latency and improving resilience using Hybrid Cloud Architecture, Disaster Recovery, PCI-DSS, and SOX Compliance Controls.",
+        "Engineered operational analytics platforms processing 10M+ daily transactions, enabling fraud detection and risk analysis using Operational Analytics, Real-Time Monitoring, and Financial Data Compliance Standards.",
+        "Developed infrastructure-as-code solutions automating secure banking deployments, enforcing configuration consistency and auditability using CloudFormation, IaC Practices, and Financial Security Controls.",
+        "Implemented configuration management automation across 200+ servers, standardizing compliance baselines and reducing drift using PUPPET, Change Control Automation, and SOX-Compliant Infrastructure Management.",
+        "Deployed secure service mesh and API management platforms for open banking initiatives, protecting third-party integrations using Apigee Edge, Envoy, mTLS, and Open Banking Security Standards."
+      ]
+    },
+    {
+      "company": "Allstate:",
+      "location": "Northbrook,IL",
+      "title": "DevOps Engineer                                                                                                                    February 2017",
+      "start_date": "November 2019",
+      "end_date": "",
+      "responsibilities": [
+        "Led technical implementation and management of Apigee Hybrid runtimes for an insurance provider, engineering scalable runtime plane architecture processing 5M+ daily transactions while ensuring compliance with Apigee Hybrid, Kubernetes, PCI-DSS, and GDPR.",
+        "Designed enterprise API engineering solutions for claims processing, integrating legacy mainframe systems with microservices through secure patterns using Apigee API Proxies, Policies, Secure Integration Design, and HIPAA Compliance.",
+        "Orchestrated migration from on-premises API platforms to hybrid cloud architecture, enabling scalable digital transformation with automated scaling, high availability, and disaster recovery using Kubernetes, Hybrid Cloud, and Business Continuity Engineering.",
+        "Developed DevOps automation pipelines enabling continuous deployment of Apigee configurations, integrating security scanning and compliance validation using GitLab CI, Spinnaker, Aqua Security, and PCI-DSS Controls.",
+        "Engineered optimized Apigee runtime plane setups using custom Kubernetes configurations, balancing high concurrency and transactional integrity across insurance workflows with Kubernetes Scheduling, Resource Optimization, and Runtime Plane Architecture.",
+        "Established operational analytics frameworks providing real-time observability into API performance and usage, implementing predictive alerting during peak enrollment periods using New Relic, Splunk, Apigee Analytics, and Monitoring Dashboards.",
+        "Collaborated with engineering teams to integrate Kubernetes toolsets for Apigee workloads, implementing containerd runtimes, custom operators, and secure network segmentation using Kubernetes, containerd, and Network Security Controls.",
+        "Implemented secure cloud integration practices connecting Apigee with third-party verification and payment services, enforcing encrypted communication and auditability using mTLS, Secure APIs, Microservices Architecture, and SOX Compliance.",
+        "Utilized infrastructure-as-code to automate provisioning of hybrid cloud environments, standardizing deployments and enforcing policy controls using Pulumi, IaC, Policy-as-Code, and Compliance Automation.",
+        "Designed CI/CD pipelines supporting automated, governed deployment of Apigee API configurations, integrating version control and approval workflows using Bitbucket, GitLab CI, Automated Testing, and Regulatory Governance.",
+        "Engineered fault-tolerant Apigee runtime architectures achieving 99.99% availability, implementing advanced routing, throttling, and circuit breaker patterns using Apigee Runtime Plane, Traffic Management, and High Availability Design.",
+        "Implemented secure integration design patterns integrating Apigee with CHEF-managed infrastructure, enforcing hardened configurations and payment security using CHEF, Configuration Management, and PCI-DSS Hardening Standards.",
+        "Developed comprehensive observability solutions for claims APIs, integrating detailed logging and compliance reporting using Apigee Analytics, Splunk, Custom Logging, and Sensitive Data Masking.",
+        "Designed Kubernetes-based microservices deployment strategies enabling gradual transition from monolithic systems to API-first architecture using Kubernetes, Microservices, Secure Cloud Integration, and Legacy Modernization.",
+        "Collaborated with security teams to implement API security monitoring and anomaly detection, creating dashboards tracking authentication behavior and data risks using New Relic, Apigee Monitoring, and GDPR Controls.",
+        "Engineered end-to-end DevOps automation for claims systems, reducing processing timelines while enforcing regulatory compliance using DevOps Automation, Pulumi, NAIC Compliance, and Auditable Infrastructure.",
+        "Implemented container orchestration strategies for sensitive policyholder workloads, optimizing runtime security and availability using containerd, Kubernetes, Secure Containers, and Insurance Data Protection Standards.",
+        "Developed disaster recovery solutions for policy management platforms, automating failover and resilience testing using Infrastructure as Code, DevOps Automation, ISO 22301, and Operational Resilience Frameworks."
+      ]
+    },
+    {
+      "company": "Equifax:",
+      "location": "Atlanta, GA",
+      "title": "Cloud DevOps Engineer                                  \t\t\t       \t       \t  January 2016",
+      "start_date": "January 2017",
+      "end_date": "",
+      "responsibilities": [
+        "Implemented CI/CD pipelines using Jenkins, Git, and Bitbucket for seamless version control. Automated processes in AWS for enhanced deployment efficiency within the credit reporting ecosystem.",
+        "Managed Kubernetes orchestration with Helm, ensuring consistent application deployment and scalability. Improved microservices architecture reliability for consumer credit data processing.",
+        "Automated infrastructure provisioning with Terraform and configuration management via Ansible. Achieved consistent deployments across multiple AWS accounts for secure data handling.",
+        "Deployed containerized applications on Amazon EKS using AWS CloudFormation templates, automating infrastructure provisioning. Ensured consistent environments across development, staging, and production for credit scoring applications.",
+        "Configured AWS IAM policies for fine-grained access control, enhancing security by implementing least privilege principles. Ensured compliance with regulatory requirements across cloud resources handling sensitive financial data.",
+        "Automated deployment pipelines for web applications using AWS Elastic Beanstalk, integrating CI/CD processes. Utilized AWS CloudTrail for comprehensive monitoring and logging of deployment activities and system changes in the credit reporting platform.",
+        "Utilized AWS CloudTrail to monitor and log API calls, enabling auditing and compliance checks. Integrated with Amazon EKS for enhanced visibility of container orchestration activities and security events in the financial data processing system.",
+        "Managed artifact repositories using JFrog/Nexus Artifactory for efficient storage, version control, and distribution across environments. Streamlined the deployment process for credit report generation services.",
+        "Monitored application performance using AWS CloudWatch, Nagios, and custom alerts for critical financial data systems. Developed automation scripts in Python, Shell, and Perl to optimize system management tasks for credit report processing.",
+        "Streamlined project management through Jira, facilitating agile methodologies and sprint planning for credit scoring algorithm development. Improved team collaboration and project visibility.",
+        "Deployed containerized applications using Docker, orchestrated with Kubernetes for enhanced application delivery of credit reporting services. Ensured consistent environment configurations across stages for data integrity.",
+        "Implemented build automation using Ant for Java applications, resulting in faster build times for consumer credit analysis tools. Improved developer productivity and reduced time-to-market for new features.",
+        "Created deployment scripts in Shell, Perl, and Python for automating system tasks in the credit reporting infrastructure. Configured AWS CloudWatch for resource monitoring and alerting, ensuring quick incident responses for critical financial data systems.",
+        "Utilized SVN for version control in legacy projects, maintaining code integrity and collaboration for established credit scoring models. Integrated automated testing within Jenkins to enhance code quality and reliability of financial data processing applications.",
+        "Managed infrastructure as code with Terraform for consistent AWS resource deployments in the credit reporting environment. Facilitated proactive issue detection using Nagios, improving system availability and performance metrics for consumer data processing."
+      ]
+    },
+    {
+      "company": "Inno Minds:",
+      "location": "Pune, India",
+      "title": "Linux System Administrator                                                                                                                May 2014",
+      "start_date": "November 2015",
+      "end_date": "",
+      "responsibilities": [
+        "Expert in creating depot for patches and installing packages using depot in HP-UX and building RPM using RPMBuild in Linux. Streamlined software deployment processes for enterprise-level applications.",
+        "Demonstrated excellent knowledge in installation, configuration, file system, and RAID volume management through VXVM and Solaris Volume Manager (SVM) in Solaris and LVM in Linux and HP-UX. Optimized storage performance and reliability for critical business systems.",
+        "Showcased excellent knowledge of Linux/Unix tuning and building customized kernels. Improved system performance and stability for high-traffic web applications.",
+        "Created a Zettabyte file system (ZFS) in Solaris 10, including pools, snapshots, and clones. Exported ZFS from local zones to local zones, enhancing data management capabilities.",
+        "Maintained DNS & NTP services, ensuring accurate timekeeping and name resolution across the network. Managed MySQL database servers, optimizing performance for data-intensive applications.",
+        "Installed and configured system network monitoring tool using Nagios for proactive issue detection. Troubleshooted virtual machine issues, minimizing downtime and improving overall system reliability.",
+        "Compiled, built, and installed PostgreSQL database 8.3.1 on SUSE Enterprise Linux 10sp1 super micro dedicated server 6015B-3R. Wrote a shell script for automated startup, supporting development, app, and QA teams.",
+        "Demonstrated expertise in applying new patches and packages on Linux systems. Maintained system security and stability through regular updates and patch management.",
+        "Implemented RAID configurations to enhance data redundancy and performance. Utilized volume management tools to optimize storage allocation and utilization across diverse platforms.",
+        "Developed and maintained custom shell scripts for automating routine system administration tasks. Improved operational efficiency and reduced manual errors in day-to-day IT operations."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "SCSVMV University",
+      "degree": "",
+      "start_date": "Bachelor's in Computer Science                                 \t\t\t   June 2010",
+      "end_date": "",
+      "field_of_study": ""
+    }
+  ],
+  "parsing_metadata": {
+    "total_skills": 66,
+    "total_certifications": 1,
+    "total_jobs": 5,
+    "total_education": 1,
+    "parsing_date": "2026-03-10"
+  }
+}
