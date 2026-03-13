@@ -10,9 +10,17 @@ This script:
 """
 
 import os
+import sys
 import json
 import numpy as np
 from typing import List, Dict, Any
+
+# Remove this directory from sys.path to prevent importing the local evaluate.py
+# script instead of the 'evaluate' pip package
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+if _this_dir in sys.path:
+    sys.path.remove(_this_dir)
+
 from datasets import Dataset
 from transformers import (
     AutoTokenizer, 
@@ -27,10 +35,11 @@ import torch
 from datetime import datetime
 
 # Configuration
-MODEL_NAME = 'microsoft/deberta-v3-base'
+_LOCAL_PRETRAINED = os.path.join(os.path.dirname(__file__), '..', 'models', 'deberta-v3-base-pretrained')
+MODEL_NAME = _LOCAL_PRETRAINED if os.path.exists(_LOCAL_PRETRAINED) else 'microsoft/deberta-v3-base'
 OUTPUT_DIR = './training/checkpoints'
-FINAL_MODEL_DIR = '../models/resume-ner-deberta'
-DATA_DIR = './data'
+FINAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models', 'resume-ner-deberta')
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 # Entity labels
 LABELS = [
@@ -87,9 +96,7 @@ class ResumeNERTrainer:
         # Initialize data collator
         self.data_collator = DataCollatorForTokenClassification(
             tokenizer=self.tokenizer,
-            padding=True,
-            truncation=True,
-            return_tensors='pt'
+            padding=True
         )
         
         print(f"✅ Model initialized with {len(LABELS)} labels")
@@ -163,35 +170,25 @@ class ResumeNERTrainer:
         """Compute evaluation metrics"""
         predictions, labels = eval_pred
         predictions = np.argmax(predictions, axis=2)
-        
-        # Remove ignored index (-100)
-        true_predictions = [
-            [LABELS[p] for (p, l) in zip(prediction, label) if l != -100]
-            for prediction, label in zip(predictions, labels)
-        ]
-        true_labels = [
-            [LABELS[l] for (p, l) in zip(prediction, label) if l != -100]
-            for prediction, label in zip(predictions, labels)
-        ]
-        
-        # Flatten lists
-        true_predictions_flat = [item for sublist in true_predictions for item in sublist]
-        true_labels_flat = [item for sublist in true_labels for item in sublist]
-        
-        # Load metrics
-        precision_metric = evaluate.load("precision")
-        recall_metric = evaluate.load("recall")
-        f1_metric = evaluate.load("f1")
-        
-        # Compute metrics
-        precision = precision_metric.compute(predictions=true_predictions_flat, references=true_labels_flat, average="weighted")["precision"]
-        recall = recall_metric.compute(predictions=true_predictions_flat, references=true_labels_flat, average="weighted")["recall"]
-        f1 = f1_metric.compute(predictions=true_predictions_flat, references=true_labels_flat, average="weighted")["f1"]
-        
+
+        # Flatten, removing ignored index (-100) — keep as integer IDs
+        true_predictions_flat = []
+        true_labels_flat = []
+        for pred_seq, label_seq in zip(predictions, labels):
+            for p, l in zip(pred_seq, label_seq):
+                if l != -100:
+                    true_predictions_flat.append(int(p))
+                    true_labels_flat.append(int(l))
+
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            true_labels_flat, true_predictions_flat,
+            average='weighted', zero_division=0
+        )
+
         return {
-            "precision": precision,
-            "recall": recall,
-            "f1": f1
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1": float(f1)
         }
         
     def setup_training_arguments(self) -> TrainingArguments:
@@ -207,12 +204,9 @@ class ResumeNERTrainer:
             logging_dir='./logs',
             logging_steps=50,
             evaluation_strategy='epoch',
-            save_strategy='best',
-            load_best_model_at_end=True,
-            metric_for_best_model='f1',
-            greater_is_better=True,
-            save_total_limit=3,
-            dataloader_num_workers=4,
+            save_strategy='no',           # Skip intermediate checkpoints (saves ~700MB/epoch)
+            load_best_model_at_end=False, # Cannot load best without saved checkpoints
+            dataloader_num_workers=0,
             fp16=torch.cuda.is_available(),  # Use mixed precision if GPU available
             report_to=[],  # Disable wandb/tensorboard for now
         )
@@ -321,27 +315,27 @@ class ResumeNERTrainer:
         print("-" * 40)
         
     def save_model(self, trainer):
-        """Save the best model"""
+        """Save the fine-tuned model"""
         print(f"💾 Saving model to {FINAL_MODEL_DIR}...")
         
         # Create directory if it doesn't exist
         os.makedirs(FINAL_MODEL_DIR, exist_ok=True)
         
-        # Save the best model
-        trainer.save_model(FINAL_MODEL_DIR)
+        # Save the model directly (avoid trainer.save_model which may trigger checkpoint logic)
+        self.model.save_pretrained(FINAL_MODEL_DIR, safe_serialization=True)
+        
+        # Save tokenizer
         self.tokenizer.save_pretrained(FINAL_MODEL_DIR)
         
-        # Save label mapping
-        label_config = {
-            'labels': LABELS,
-            'id2label': ID_TO_LABEL,
-            'label2id': LABEL_TO_ID
-        }
+        # Save label mappings
+        with open(os.path.join(FINAL_MODEL_DIR, 'label_mappings.json'), 'w') as f:
+            json.dump({
+                'label_to_id': LABEL_TO_ID,
+                'id_to_label': ID_TO_LABEL,
+                'labels': LABELS
+            }, f, indent=2)
         
-        with open(os.path.join(FINAL_MODEL_DIR, 'labels.json'), 'w') as f:
-            json.dump(label_config, f, indent=2)
-            
-        print(f"✅ Model saved successfully to {FINAL_MODEL_DIR}")
+        print(f"✅ Model saved to {FINAL_MODEL_DIR}")
         
     def train(self):
         """Main training pipeline"""

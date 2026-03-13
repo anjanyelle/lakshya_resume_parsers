@@ -6,6 +6,7 @@ Extracts names, organizations, job titles, skills, education, dates, and locatio
 
 import torch
 import os
+import datetime
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 import logging
 from typing import Dict, List, Optional, Tuple
@@ -17,59 +18,88 @@ logger = logging.getLogger(__name__)
 
 # Model paths
 FINE_TUNED_MODEL_PATH = './models/resume-ner-deberta'
-BASE_MODEL_NAME = 'dslim/bert-base-NER'
+PRETRAINED_MODEL_PATH = './models/deberta-v3-base-pretrained'
+FALLBACK_MODEL_NAME = 'dslim/bert-large-NER'
 
-# Entity labels for fine-tuned model
+# Entity labels
 FINE_TUNED_LABELS = ['O', 'B-NAME', 'I-NAME', 'B-ORG', 'I-ORG', 'B-TITLE', 'I-TITLE',
                     'B-SKILL', 'I-SKILL', 'B-EDU', 'I-EDU', 'B-DATE', 'I-DATE', 'B-LOC', 'I-LOC']
+FALLBACK_LABELS = ['O', 'B-PER', 'I-PER', 'B-ORG', 'I-ORG', 'B-LOC', 'I-LOC', 'B-MISC', 'I-MISC']
 
 class AINamedEntityParser:
     """
     AI-powered Named Entity Recognition parser.
-    Uses fine-tuned DeBERTa-v3 for resume-specific entities with fallback to bert-base-NER.
+    Three-state model selection:
+      1. Fine-tuned DeBERTa-v3  — ./models/resume-ner-deberta/        (~88-92% F1)
+      2. Pre-trained DeBERTa base — ./models/deberta-v3-base-pretrained/ (needs fine-tuning)
+      3. Fallback bert-large-NER  — dslim/bert-large-NER               (~70-75% F1)
     Handles long texts through chunking and provides confidence-based filtering.
     """
     
     def __init__(self):
-        """Initialize the NER model and pipeline."""
-        # Check if fine-tuned model exists
+        """Initialize the NER model and pipeline with three-state model selection."""
+        self._loaded_at = datetime.datetime.now().isoformat()
+        self.device = 0 if torch.cuda.is_available() else -1
+        _device_name = 'GPU' if self.device == 0 else 'CPU'
+
+        # --- State 1: Fine-tuned DeBERTa (best accuracy) ---
         if os.path.exists(FINE_TUNED_MODEL_PATH):
             self.model_name = FINE_TUNED_MODEL_PATH
             self.model_type = 'fine-tuned-deberta'
-            logger.info('Loading fine-tuned DeBERTa-v3 model — higher accuracy')
+            self.supported_labels = FINE_TUNED_LABELS
+            logger.info('Loading fine-tuned DeBERTa-v3 model — highest accuracy')
+            print(f'[NER] ✅ Fine-tuned DeBERTa-v3 loaded — Expected accuracy: ~88-92% F1 | Device: {_device_name}')
+
+        # --- State 2: Pre-trained DeBERTa base (downloaded, not yet fine-tuned) ---
+        elif os.path.exists(PRETRAINED_MODEL_PATH):
+            self.model_name = PRETRAINED_MODEL_PATH
+            self.model_type = 'deberta-pretrained'
+            self.supported_labels = FALLBACK_LABELS
+            logger.warning(
+                'DeBERTa loaded but not fine-tuned. SKILL/TITLE labels not supported yet. '
+                'Run training/train.py to fine-tune.'
+            )
+            print(f'[NER] ⚠️  DeBERTa base loaded but NOT fine-tuned — SKILL/TITLE labels not active | Device: {_device_name}')
+            print('[NER]    → Run training/train.py to fine-tune for resume-specific entities.')
+
+        # --- State 3: Fallback to bert-large-NER ---
         else:
-            self.model_name = BASE_MODEL_NAME
-            self.model_type = 'base-bert'
-            logger.info('Fine-tuned model not found, using bert-base-NER')
-        
+            self.model_name = FALLBACK_MODEL_NAME
+            self.model_type = 'fallback-bert-large'
+            self.supported_labels = FALLBACK_LABELS
+            logger.info(
+                'Using bert-large-NER fallback. Run download_and_prepare_model.py '
+                'then training/train.py to upgrade accuracy.'
+            )
+            print(f'[NER] ⚠️  Using bert-large-NER fallback — Expected accuracy: ~70-75% F1 | Device: {_device_name}')
+            print('[NER]    → Run download_and_prepare_model.py then training/train.py to upgrade accuracy.')
+
         try:
             logger.info(f"Loading NER model: {self.model_name}")
-            
+
             # Load tokenizer and model
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForTokenClassification.from_pretrained(self.model_name)
-            
-            # Determine device (GPU if available, otherwise CPU)
-            device = 0 if torch.cuda.is_available() else -1
-            logger.info(f"Using device: {'GPU' if device == 0 else 'CPU'}")
-            
+
+            logger.info(f"Using device: {_device_name}")
+
             # Create NER pipeline with aggregation strategy
             self.ner_pipeline = pipeline(
                 task='ner',
                 model=self.model,
                 tokenizer=self.tokenizer,
                 aggregation_strategy='max',  # Merges B-/I- sub-tokens automatically
-                device=device
+                device=self.device
             )
-            
+
             # Set label mapping based on model type
             if self.model_type == 'fine-tuned-deberta':
                 self.setup_fine_tuned_labels()
             else:
                 self.setup_base_labels()
-            
+
             logger.info(f"NER model loaded successfully (type: {self.model_type})")
-            
+
         except Exception as e:
             logger.error(f"Failed to load NER model: {e}")
             raise
@@ -88,21 +118,23 @@ class AINamedEntityParser:
         self.supported_entities = list(self.entity_mapping.keys())
         
     def setup_base_labels(self):
-        """Setup label mapping for base bert-base-NER model."""
+        """Setup label mapping for bert-large-NER / pre-trained DeBERTa fallback."""
         self.entity_mapping = {
             'PER': 'names',
             'ORG': 'organizations',
             'LOC': 'locations',
-            'MISC': 'miscellaneous'
+            'MISC': 'misc'
         }
         self.supported_entities = list(self.entity_mapping.keys())
     
     def get_model_info(self) -> Dict[str, str]:
         """Get information about the currently loaded model."""
         return {
-            'model_name': self.model_name,
             'model_type': self.model_type,
-            'supported_entities': self.supported_entities
+            'model_name': self.model_name,
+            'supported_labels': self.supported_labels,
+            'device': 'GPU' if self.device == 0 else 'CPU',
+            'loaded_at': self._loaded_at
         }
     
     def extract_entities(self, text: str) -> Dict[str, List[Dict[str, any]]]:
@@ -139,11 +171,11 @@ class AINamedEntityParser:
                 # Return empty structure based on model type
                 if self.model_type == 'fine-tuned-deberta':
                     return {
-                        'names': [], 'organizations': [], 'job_titles': [], 
+                        'names': [], 'organizations': [], 'job_titles': [],
                         'skills': [], 'education': [], 'dates': [], 'locations': []
                     }
                 else:
-                    return {'names': [], 'organizations': [], 'locations': [], 'miscellaneous': []}
+                    return {'names': [], 'organizations': [], 'locations': [], 'misc': []}
             
             # Handle long texts by chunking
             chunks = self._chunk_text(text, max_words=300, overlap=50)
@@ -172,7 +204,7 @@ class AINamedEntityParser:
                     'names': [],
                     'organizations': [],
                     'locations': [],
-                    'miscellaneous': []
+                    'misc': []
                 }
             
             # Group and deduplicate entities
@@ -200,7 +232,7 @@ class AINamedEntityParser:
             total_entities = sum(len(entities) for entities in categorized_entities.values())
             
             if self.model_type == 'fine-tuned-deberta':
-                logger.info(f"Extracted {total_entities} entities with DeBERTa-v3: "
+                logger.info(f"Extracted {total_entities} entities with fine-tuned DeBERTa-v3: "
                            f"names={len(categorized_entities['names'])}, "
                            f"organizations={len(categorized_entities['organizations'])}, "
                            f"job_titles={len(categorized_entities['job_titles'])}, "
@@ -209,11 +241,11 @@ class AINamedEntityParser:
                            f"dates={len(categorized_entities['dates'])}, "
                            f"locations={len(categorized_entities['locations'])}")
             else:
-                logger.info(f"Extracted {total_entities} entities with bert-base-NER: "
+                logger.info(f"Extracted {total_entities} entities with {self.model_type}: "
                            f"names={len(categorized_entities['names'])}, "
                            f"organizations={len(categorized_entities['organizations'])}, "
                            f"locations={len(categorized_entities['locations'])}, "
-                           f"miscellaneous={len(categorized_entities['miscellaneous'])}")
+                           f"misc={len(categorized_entities['misc'])}")
             
             return categorized_entities
             
@@ -222,11 +254,11 @@ class AINamedEntityParser:
             # Return empty structure based on model type
             if self.model_type == 'fine-tuned-deberta':
                 return {
-                    'names': [], 'organizations': [], 'job_titles': [], 
+                    'names': [], 'organizations': [], 'job_titles': [],
                     'skills': [], 'education': [], 'dates': [], 'locations': []
                 }
             else:
-                return {'names': [], 'organizations': [], 'locations': [], 'miscellaneous': []}
+                return {'names': [], 'organizations': [], 'locations': [], 'misc': []}
     
     def _chunk_text(self, text: str, max_words: int, overlap: int) -> List[str]:
         """
