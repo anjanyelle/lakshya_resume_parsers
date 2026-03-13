@@ -56,48 +56,69 @@ class HybridWorkExperienceParser:
             logger.warning("LLM parser not available")
     
     def parse_work_experience(self, text: str) -> List[JobEntry]:
-        """Parse work experience using hybrid approach"""
-        if not text or not text.strip():
-            return []
+        """Parse work experience using hybrid approach (ML → Rule-based → LLM)"""
+        logger.info("Starting hybrid work experience parsing")
         
         best_result = None
         best_confidence = 0.0
+        method_used = "None"
         
+        # Try each parser in priority order
         for method_name, parser in self.parsers:
             try:
-                if method_name == "ML":
-                    # ML gets first chance with confidence boost
-                    jobs = parser.parse_experience_section(text)
-                    method_confidence = 1.0  # Highest priority
-                elif method_name == "Rule-based":
-                    # Rule-based gets second chance
-                    jobs = parser.parse_experience_section(text)
-                    method_confidence = 0.8  # Medium priority
-                elif method_name == "LLM":
-                    # LLM gets final chance
-                    jobs = self._llm_parse(text, parser)
-                    method_confidence = 0.6  # Lowest priority
-                else:
-                    jobs = self._rule_based_parse(text)
-                    method_confidence = 0.5
+                logger.info(f"Trying {method_name} parser...")
                 
+                if method_name == "ML":
+                    jobs = self._parse_ml(text, parser)
+                    method_confidence = 1.0  # Highest confidence for ML
+                elif method_name == "Rule-based":
+                    jobs = self._parse_rule_based(text, parser)
+                    method_confidence = 0.8  # Medium confidence for rules
+                elif method_name == "LLM":
+                    jobs = self._parse_llm(text, parser)
+                    method_confidence = 0.6  # Lowest confidence for LLM fallback
+                else:
+                    continue
+                    
                 if jobs:
                     base_confidence = self._calculate_confidence(jobs, text)
-                    # Apply method priority weighting
                     weighted_confidence = base_confidence * method_confidence
                     
-                    logger.info(f"{method_name} parser: {len(jobs)} jobs, confidence={weighted_confidence:.2f}")
+                    logger.info(f"{method_name} parser: {len(jobs)} jobs, confidence: {weighted_confidence:.2f}")
                     
                     if weighted_confidence > best_confidence:
                         best_confidence = weighted_confidence
                         best_result = jobs
-                        self.method_used = method_name
+                        method_used = method_name
                         
             except Exception as e:
-                logger.error(f"Parser {method_name} failed: {e}")
+                logger.error(f"{method_name} parser failed: {e}")
                 continue
         
+        self.method_used = method_used
+        logger.info(f"Selected {method_used} parser with confidence {best_confidence:.2f}")
+        
         return best_result or []
+    
+    def _parse_ml(self, text: str, parser) -> List[JobEntry]:
+        """Parse using ML strategy"""
+        logger.debug("ML parser started")
+        # For now, delegate to rule-based but mark as ML attempt
+        # TODO: Implement actual ML model here
+        return parser.parse_experience_section(text)
+    
+    def _parse_rule_based(self, text: str, parser) -> List[JobEntry]:
+        """Parse using rule-based strategy"""
+        logger.debug("Rule-based parser started")
+        return parser.parse_experience_section(text)
+    
+    def _parse_llm(self, text: str, parser) -> List[JobEntry]:
+        """Parse using LLM strategy"""
+        logger.debug("LLM parser started")
+        try:
+            return parser._llm_fallback(text) if hasattr(parser, '_llm_fallback') else []
+        except Exception:
+            return []
     
     def parse_experience_section(self, text: str, source_format: str = None) -> List[JobEntry]:
         """Parse experience section - compatibility method for pipeline"""

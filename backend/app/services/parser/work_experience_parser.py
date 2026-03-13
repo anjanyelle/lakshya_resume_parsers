@@ -726,45 +726,54 @@ class WorkExperienceParser:
             key=lambda j: j.start_date,
         )
         out = list(jobs)
+        total_overlap = 0
         for i in range(len(sorted_jobs) - 1):
             a, b = sorted_jobs[i], sorted_jobs[i + 1]
             if b.start_date < a.end_date:
                 overlap_days = (a.end_date - b.start_date).days
-                if overlap_days > 30:
-                    b_idx = out.index(b)
-                    out[b_idx] = replace(b, date_flag=f"overlap_{overlap_days}d_with_prev")
+                total_overlap += overlap_days
         return out
-
+        
     def extract_individual_jobs(self, text: str, source_format: str | None = None) -> list[str]:
-        # Pre-split: when resume uses CLIENT:/ROLE:/Location format, split by CLIENT: blocks first.
-        # Handles consulting resumes where multiple roles are in one section.
-        _client_split_re = re.compile(
-            r"(?:\n|^)\s*(?=(?:CLIENT|client|project)\s*[:\-–—])",
-            re.IGNORECASE,
-        )
-        if _client_split_re.search(text):
-            parts = _client_split_re.split(text)
-            # parts[0] might be empty if match was at index 0, or it might be preamble or the first job
+        # Enhanced client splitting for multiple formats
+        logger.info(f"Extracting individual jobs from text length: {len(text)}")
+        
+        # PATTERN 1: Client: format (highest priority)
+        client_pattern = re.compile(r'\n\s*Client\s*[:\-\-–]', re.IGNORECASE)
+        client_matches = client_pattern.findall(text)
+        
+        if len(client_matches) >= 2:
+            logger.info(f"Found {len(client_matches)} client markers, splitting by client")
+            parts = client_pattern.split(text)
             client_blocks = []
             for p in parts:
                 p_strip = p.strip()
-                if not p_strip:
-                    continue
-                # If it's the first part and doesn't contain a client header, it might be preamble.
-                # But if it contains a Role: or designation, it's likely the first job.
-                if p == parts[0] and not CLIENT_HEADER_RE.search(p_strip):
-                    if not (LABELED_TITLE_RE.search(p_strip) or DATE_RANGE_RE.search(p_strip)):
-                        continue
-                client_blocks.append(p_strip)
-            
+                if p_strip:
+                    client_blocks.append(p_strip)
             if len(client_blocks) >= 1:
                 return client_blocks
-
+        
+        # PATTERN 2: Company: Date Range (Location: City, State) format
+        # Format: "Humana: August 2023 - Current (Location: Louisville, KY)"
+        company_date_pattern = re.compile(r'^[^:]+:\s*[A-Z][a-z]+\s+\d{4}\s*-\s*[^-\n]+', re.MULTILINE)
+        if company_date_pattern.search(text):
+            logger.info("Found Company: Date Range format, splitting")
+            # Split by company names that match the pattern
+            parts = re.split(r'\n(?=[A-Z][a-zA-Z\s&]+:\s*[A-Z][a-z]+\s*\d{4})', text)
+            company_blocks = []
+            for p in parts:
+                p_strip = p.strip()
+                if p_strip:
+                    company_blocks.append(p_strip)
+            if len(company_blocks) >= 1:
+                return company_blocks
+        
+        # PATTERN 3: Standard job boundaries
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         if not lines:
             return []
-
-        boundaries: list[int] = []
+            
+        boundaries = []
         for idx, line in enumerate(lines):
             if CLIENT_HEADER_RE.match(line):
                 boundaries.append(idx)
@@ -772,88 +781,18 @@ class WorkExperienceParser:
             if DATE_ANCHOR_RE.search(line) and idx + 1 < len(lines) and PRESENT_RE.search(lines[idx + 1]):
                 boundaries.append(idx)
                 continue
-            if PRESENT_RE.search(line) and idx > 0 and DATE_ANCHOR_RE.search(lines[idx - 1]):
-                boundaries.append(idx - 1)
-                continue
-            if self._has_date_anchor(line, source_format=source_format):
-                boundaries.append(idx)
-
+        
+        # Create job chunks from boundaries
         if not boundaries:
-            chunks = ["\n".join(lines)]
-            if len(lines) >= 4 and len(text) > 200:
-                fallback = self._split_single_chunk_fallback(lines)
-                if len(fallback) > 1:
-                    logger.warning(
-                        "Only 1 block found in experience section — possible miss; split by heuristics into %d chunks",
-                        len(fallback),
-                    )
-                    return fallback
-            return chunks
-
-        starts: list[int] = []
-        last_start = -1
-        for idx in boundaries:
-            start = idx
-            line = lines[idx]
-            if CLIENT_HEADER_RE.match(line):
-                if start <= last_start:
-                    start = idx
-                starts.append(start)
-                last_start = start
-                continue
+            return [text]
             
-            # Look back to see if the company name or title is on the lines ABOVE the date line
-            for back in range(1, 4):
-                j = idx - back
-                if j < 0:
-                    break
-                prev = lines[j]
-                
-                # Stop if we hit a boundary marker or bullet
-                if ENVIRONMENT_LINE_RE.match(prev) or prev.strip().lower() in RESPONSIBILITY_MARKERS:
-                    break
-                if DATE_RANGE_RE.search(prev):
-                    break
-                if prev.startswith(("-", "•", "*")):
-                    break
-                if self._looks_like_skillish_header(prev):
-                    break
-                if prev.startswith("##"): # Section header
-                    break
-                    
-                # If the line looks like a title/company, it might be the start
-                p_is_title = self._looks_like_title(prev)
-                p_is_company = self._looks_like_company(prev)
-                
-                if p_is_company or p_is_title:
-                    start = j
-                else:
-                    # If it doesn't look like anything, stop going back
-                    break
-                    
-            if start <= last_start:
-                start = idx
-            starts.append(start)
-            last_start = start
-
-        chunks: list[str] = []
-        for i, start in enumerate(starts):
-            end = starts[i + 1] if i + 1 < len(starts) else len(lines)
-            if end <= start:
-                continue
+        chunks = []
+        for i, start in enumerate(boundaries):
+            end = boundaries[i + 1] if i + 1 < len(boundaries) else len(lines)
             chunk = "\n".join(lines[start:end])
             if chunk.strip():
-                chunks.append(chunk)
-
-        if len(chunks) == 1 and len(lines) >= 4 and len(text) > 200:
-            fallback = self._split_single_chunk_fallback(lines)
-            if len(fallback) > 1:
-                logger.warning(
-                    "Only 1 block found in experience section — possible miss; split by heuristics into %d chunks",
-                    len(fallback),
-                )
-                return fallback
-
+                chunks.append(chunk.strip())
+            
         return chunks
 
     def _split_single_chunk_fallback(self, lines: list[str]) -> list[str]:
@@ -1135,14 +1074,6 @@ class WorkExperienceParser:
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned.strip(" -–—|,;:")
 
-    def _parse_company_title(self, header: str) -> tuple[str | None, str | None]:
-        # Do NOT strip labels yet, as we need them for identification (Client: X, Role: Y)
-        cleaned = self._clean_header_text(header, strip_labels=False)
-        if not cleaned:
-            return None, None
-
-        # Robust splitting logic handles |, -, --, ·, etc.
-        c_split, t_split = self._split_company_title(cleaned)
         if c_split or t_split:
             return c_split, t_split
 

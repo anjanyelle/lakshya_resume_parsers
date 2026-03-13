@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "Resume Parser API"
     ENVIRONMENT: str = "development"
     API_V1_STR: str = "/api/v1"
-    LOG_LEVEL: str = "INFO"
+    LOG_LEVEL: str = "DEBUG"
     LOG_DIR: str = "./logs"
     LOG_MAX_BYTES: int = 10 * 1024 * 1024
     LOG_BACKUP_COUNT: int = 7

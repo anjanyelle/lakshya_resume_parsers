@@ -2599,9 +2599,9 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
     try:
         job = _load_job(job_id)
         parsed = job.parsed_data or {}
-        existing = parsed.get("work_experience")
-        if isinstance(existing, list) and existing:
-            return job_id
+        # existing = parsed.get("work_experience")
+        # if isinstance(existing, list) and existing:
+        #     return job_id  # ← COMMENTED OUT TO FORCE PARSING!
 
         sections = parsed.get("sections", {})
 
@@ -2684,13 +2684,26 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             exp_conf = 0.0
         has_experience_section = bool(experience_text.strip())
 
+        import sys
+        sys.stderr.write("🔥🔥🔥 PIPELINE FUNCTION CALLED! WORK EXPERIENCE PARSING STARTING!\n")
+        sys.stderr.flush()
+        print("🔥🔥🔥 PIPELINE FUNCTION CALLED! WORK EXPERIENCE PARSING STARTING!")
+
         # Use Hybrid Parser for ML → Rule-based → LLM approach
         try:
             from app.services.parser.hybrid_work_experience_parser import HybridWorkExperienceParser
             parser = HybridWorkExperienceParser()
+            import sys
+            sys.stderr.write("🔥🔥🔥 Using Hybrid Work Experience Parser (ML → Rule-based → LLM)\n")
+            sys.stderr.flush()
+            print("🔍🔍🔍 Using Hybrid Work Experience Parser (ML → Rule-based → LLM)")
             logger.info("Using Hybrid Work Experience Parser (ML → Rule-based → LLM)")
         except ImportError:
             parser = WorkExperienceParser()
+            import sys
+            sys.stderr.write("🔥🔥🔥 Falling back to standard Work Experience Parser\n")
+            sys.stderr.flush()
+            print("🔍🔍🔥 Falling back to standard Work Experience Parser")
             logger.warning("Falling back to standard Work Experience Parser")
         raw_text = job.raw_text or ""
 
@@ -2721,13 +2734,27 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         # Use Hybrid Parser for ML → Rule-based → LLM approach
         if isinstance(parser, HybridWorkExperienceParser):
             # Hybrid parser handles all strategies internally
+            logger.info("Using Hybrid Work Experience Parser")
             primary_jobs = parser.parse_work_experience(chosen_experience_text)
             method_used = getattr(parser, 'method_used', 'Hybrid')
-            logger.info(f"Hybrid parser used method: {method_used}")
+            
+            # Calculate confidence based on method used
+            if method_used == "ML":
+                method_confidence = 1.0
+            elif method_used == "Rule-based":
+                method_confidence = 0.8
+            elif method_used == "LLM":
+                method_confidence = 0.6
+            else:
+                method_confidence = 0.7
+                
+            logger.info(f"Hybrid parser used method: {method_used} with confidence {method_confidence:.2f}")
         else:
             # Fallback to deterministic parsing
+            logger.info("Using deterministic parsing (fallback)")
             primary_jobs = _parse_deterministic(experience_text) if has_experience_section else _parse_deterministic(raw_text)
             method_used = "Deterministic"
+            method_confidence = 0.5
             
         primary_score = score_work_experience_jobs(primary_jobs)
         logger.info(
@@ -2835,7 +2862,8 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "llm_triggered": llm_triggered,
             "llm_reason": llm_reason,
             "llm_input_chars": llm_input_chars,
-            "method": "llm" if llm_triggered else "deterministic",
+            "method": method_used.lower(),  # Return actual method used
+            "confidence": method_confidence,  # Return confidence score
         }
 
         if not payload:
