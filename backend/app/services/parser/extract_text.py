@@ -1074,12 +1074,12 @@ def _extract_docx(file_path: Path) -> ExtractedText:
         """Extract text from cell: paragraphs first, then nested tables (document order)."""
         lines: list[str] = []
         paragraphs = getattr(cell, "paragraphs", [])
-        if isinstance(paragraphs, list):
+        if paragraphs:
             for p in paragraphs:
                 lines.extend(_emit_paragraph_lines(p))
         # Nested tables: extract in order (fixes Issue 8 - DOCX table order)
         nested_tables = getattr(cell, "tables", [])
-        if isinstance(nested_tables, list):
+        if nested_tables:
             for nt in nested_tables:
                 lines.extend(_table_to_lines(nt))
         return [ln for ln in lines if ln.strip()]
@@ -1100,7 +1100,7 @@ def _extract_docx(file_path: Path) -> ExtractedText:
         non_empty_cells_per_row: list[int] = []
         for r in rows[:12]:
             cells = getattr(r, "cells", [])
-            if not isinstance(cells, list) or not cells:
+            if not cells:
                 continue
             count = 0
             for c in cells:
@@ -1121,14 +1121,14 @@ def _extract_docx(file_path: Path) -> ExtractedText:
     def _table_to_lines(table: object) -> list[str]:
         out_lines: list[str] = []
         rows = getattr(table, "rows", [])
-        if not isinstance(rows, list) or not rows:
+        if not rows:
             return out_lines
 
         is_data_table = _looks_like_data_table(table)
 
         for row in rows:
             cells = getattr(row, "cells", [])
-            if not isinstance(cells, list) or not cells:
+            if not cells:
                 continue
 
             if is_data_table:

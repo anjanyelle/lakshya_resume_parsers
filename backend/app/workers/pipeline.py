@@ -2793,6 +2793,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         if ambiguous_headers >= 2:
             llm_reason.append("ambiguous_headers")
 
+        llm_payload: list[dict[str, Any]] = []
         if (exp_conf < 0.55 or primary_score < 1.2 or ambiguous_headers >= 2) and raw_text.strip():
             settings = get_settings()
             llm_source = _cap_llm_text(chosen_experience_text or excerpt)
@@ -2813,7 +2814,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                                 if rr:
                                     bullets.append(rr)
                         description = "\n".join(f"- {b}" for b in bullets).strip() if bullets else None
-                        payload.append(
+                        llm_payload.append(
                             {
                                 "company": item.get("company") or item.get("company_name"),
                                 "title": item.get("title") or item.get("job_title"),
@@ -2824,8 +2825,43 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                                 "description": description,
                                 "bullets": bullets,
                                 "client": item.get("client") or item.get("client_name"),
+                                "source": "llm"
                             }
                         )
+
+        # Always get deterministic results
+        if not has_experience_section and raw_text.strip():
+            deterministic_experience_text = raw_text
+        elif exp_conf < 0.55 and raw_text.strip():
+            deterministic_experience_text = chosen_experience_text or excerpt or raw_text
+        else:
+            deterministic_experience_text = chosen_experience_text or experience_text or raw_text
+
+        deterministic_jobs = parser.parse_experience_section(deterministic_experience_text, source_format=source_format)
+        deterministic_payload = [
+            {
+                **job_entry.__dict__,
+                "start_date": job_entry.start_date.isoformat()
+                if job_entry.start_date
+                else None,
+                "end_date": job_entry.end_date.isoformat() if job_entry.end_date else None,
+                "source": "deterministic"
+            }
+            for job_entry in deterministic_jobs
+        ]
+
+        if not llm_payload:
+            payload = deterministic_payload
+        else:
+            # MERGE LOGIC: Combine deterministic and LLM results
+            # We want to keep all deterministic results but augment them with LLM details 
+            # and add any jobs LLM found that deterministic missed.
+            from app.services.parser.work_experience_sanitizer import sanitize_work_experience_entries
+            
+            # Simple merge: concatenate and let sanitizer/deduplicator handle it
+            # Sanitizer will merge entries with same company/title/date
+            payload = deterministic_payload + llm_payload
+            payload = sanitize_work_experience_entries(payload)
 
         debug_bundle["work_experience"] = {
             "chosen_source": chosen_source,
@@ -2840,28 +2876,8 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "llm_triggered": llm_triggered,
             "llm_reason": llm_reason,
             "llm_input_chars": llm_input_chars,
-            "method": "llm" if llm_triggered else "deterministic",
+            "method": "merged" if llm_triggered else "deterministic",
         }
-
-        if not payload:
-            if not has_experience_section and raw_text.strip():
-                experience_text = raw_text
-            elif exp_conf < 0.55 and raw_text.strip():
-                experience_text = chosen_experience_text or excerpt or raw_text
-            else:
-                experience_text = chosen_experience_text or experience_text or raw_text
-
-            jobs = parser.parse_experience_section(experience_text, source_format=source_format)
-            payload = [
-                {
-                    **job_entry.__dict__,
-                    "start_date": job_entry.start_date.isoformat()
-                    if job_entry.start_date
-                    else None,
-                    "end_date": job_entry.end_date.isoformat() if job_entry.end_date else None,
-                }
-                for job_entry in jobs
-            ]
 
         today = date.today()
 
