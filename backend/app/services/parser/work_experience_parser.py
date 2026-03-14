@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import csv
 import logging
+import os
 import re
 from dataclasses import dataclass, replace
 from datetime import date
@@ -415,6 +417,11 @@ class WorkExperienceParser:
     def __init__(self) -> None:
         self.settings = get_settings()
         self.llm = LLMParsingService()
+        self.locations_data = self._load_locations_data()
+        self.job_titles_data = self._load_job_titles_data()
+        self.skills_data = self._load_skills_data()
+        self.companies_data = self._load_companies_data()
+        self.education_data = self._load_education_data()
 
     @staticmethod
     def build_date_anchor_excerpt(text: str, *, context_lines: int = 5) -> str:
@@ -847,21 +854,328 @@ class WorkExperienceParser:
                 return True
         return False
 
+    def _load_locations_data(self) -> dict:
+        """Load locations data from CSV for validation and normalization"""
+        locations = {}
+        try:
+            # Get project root - go up from parser to backend to project root
+            base_dir = os.path.dirname(__file__)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))))  # parser -> services -> app -> backend -> project root
+            csv_path = os.path.join(project_root, "data/external/locations.csv")
+            
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    city_state = f"{row['city'].strip()}, {row['state'].strip()}"
+                    locations[city_state.lower()] = {
+                        'city': row['city'].strip(),
+                        'state': row['state'].strip(),
+                        'country': row['country'].strip(),
+                        'country_code': row['country_code'].strip(),
+                        'latitude': float(row['latitude']),
+                        'longitude': float(row['longitude'])
+                    }
+                    # Also add city only for matching
+                    locations[row['city'].strip().lower()] = {
+                        'city': row['city'].strip(),
+                        'state': row['state'].strip(),
+                        'country': row['country'].strip(),
+                        'country_code': row['country_code'].strip(),
+                        'latitude': float(row['latitude']),
+                        'longitude': float(row['longitude'])
+                    }
+        except Exception as e:
+            logger.warning(f"Could not load locations data: {e}")
+        return locations
+
+    def _load_job_titles_data(self) -> dict:
+        """Load job titles data from CSV for normalization"""
+        job_titles = {}
+        try:
+            base_dir = os.path.dirname(__file__)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))))
+            csv_path = os.path.join(project_root, "data/external/job_titles.csv")
+            
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    job_titles[row['raw_title'].strip().lower()] = {
+                        'normalized': row['normalized_title'].strip(),
+                        'category': row['category'].strip()
+                    }
+        except Exception as e:
+            logger.warning(f"Could not load job titles data: {e}")
+        return job_titles
+
+    def _load_skills_data(self) -> dict:
+        """Load skills data from CSV for validation"""
+        skills = {}
+        try:
+            base_dir = os.path.dirname(__file__)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))))
+            csv_path = os.path.join(project_root, "data/external/skills.csv")
+            
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    skills[row['skill_name'].strip().lower()] = {
+                        'category': row['category'].strip(),
+                        'subcategory': row['subcategory'].strip(),
+                        'level': row['level'].strip()
+                    }
+        except Exception as e:
+            logger.warning(f"Could not load skills data: {e}")
+        return skills
+
+    def _load_companies_data(self) -> dict:
+        """Load companies data from multiple CSV files for validation"""
+        companies = {}
+        
+        # List of company CSV files to load
+        company_files = [
+            ("data/external/companies/fortune500_companies/csv/fortune500-2019.csv", "fortune500"),
+            ("data/external/companies/startups_companies.csv", "startups"),
+            ("data/external/companies/consulting_companies.csv", "consulting"),
+            ("data/external/companies/healthcare_companies.csv", "healthcare")
+        ]
+        
+        try:
+            base_dir = os.path.dirname(__file__)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))))
+            
+            for csv_file, file_type in company_files:
+                csv_path = os.path.join(project_root, csv_file)
+                if not os.path.exists(csv_path):
+                    logger.warning(f"Company file not found: {csv_path}")
+                    continue
+                    
+                with open(csv_path, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        # Handle different CSV formats
+                        if file_type == "fortune500":
+                            company_name = row['company'].strip().lower()
+                            companies[company_name] = {
+                                'name': row['company'].strip(),
+                                'type': 'fortune500',
+                                'rank': int(row['rank']),
+                                'revenue': float(row['revenue ($ millions)'] or 0),
+                                'profit': float(row['profit ($ millions)'] or 0)
+                            }
+                        elif file_type in ["startups", "consulting", "healthcare"]:
+                            # Use 'company' field as primary, fallback to 'normalized_company'
+                            company_name = row.get('company', row.get('normalized_company', '')).strip().lower()
+                            if company_name:
+                                companies[company_name] = {
+                                    'name': row.get('company', row.get('normalized_company', '')).strip(),
+                                    'type': file_type,
+                                    'normalized_company': row.get('normalized_company', '').strip(),
+                                    'industry': row.get('industry', '').strip(),
+                                    'specialization': row.get('specialization', '').strip(),
+                                    'employee_count': row.get('employee_count', '').strip(),
+                                    'headquarters': row.get('headquarters', '').strip(),
+                                    'funding_stage': row.get('funding_stage', '').strip()
+                                }
+        except Exception as e:
+            logger.warning(f"Could not load companies data: {e}")
+        return companies
+
     def normalize_company_names(self, name: str | None) -> str | None:
         if not name:
             return None
+        
+        # First check external companies data for exact matches
+        name_lower = name.strip().lower()
+        if name_lower in self.companies_data:
+            company_data = self.companies_data[name_lower]
+            # Use normalized_company if available, otherwise use name
+            if company_data.get('normalized_company'):
+                return company_data['normalized_company']
+            return company_data['name']
+        
+        # Apply existing normalization logic
         key = name.strip().lower()
-        return COMPANY_NORMALIZATION.get(key, name.strip())
+        normalized = COMPANY_NORMALIZATION.get(key, name.strip())
+        
+        # Check if normalized name exists in external data
+        if normalized.lower() in self.companies_data:
+            company_data = self.companies_data[normalized.lower()]
+            # Use normalized_company if available, otherwise use name
+            if company_data.get('normalized_company'):
+                return company_data['normalized_company']
+            return company_data['name']
+        
+        return normalized
+
+    def _load_education_data(self) -> dict:
+        """Load education data from CSV for university normalization"""
+        education = {}
+        try:
+            base_dir = os.path.dirname(__file__)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))))
+            csv_path = os.path.join(project_root, "data/external/education.csv")
+            
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    institution_name = row['institution'].strip().lower()
+                    education[institution_name] = {
+                        'name': row['institution'].strip(),
+                        'normalized': row['normalized_institution'].strip(),
+                        'type': row['type'].strip(),
+                        'country': row['country'].strip(),
+                        'state': row['state'].strip(),
+                        'city': row['city'].strip(),
+                        'ranking': row.get('ranking', '').strip()
+                    }
+        except Exception as e:
+            logger.warning(f"Could not load education data: {e}")
+        return education
+
+    def normalize_education_institutions(self, name: str | None) -> str | None:
+        """Normalize education institution names using external data"""
+        if not name:
+            return None
+        
+        # Check external education data for exact matches
+        name_lower = name.strip().lower()
+        if name_lower in self.education_data:
+            return self.education_data[name_lower]['normalized']
+        
+        # Check for partial matches (common abbreviations)
+        abbreviations = {
+            'mit': 'Massachusetts Institute of Technology',
+            'caltech': 'California Institute of Technology',
+            'ucla': 'University of California Los Angeles',
+            'uc berkeley': 'University of California Berkeley',
+            'ucsd': 'University of California San Diego',
+            'uc davis': 'University of California Davis',
+            'uc irvine': 'University of California Irvine',
+            'ucsb': 'University of California Santa Barbara',
+            'ucr': 'University of California Riverside',
+            'ucsc': 'University of California Santa Cruz',
+            'ut austin': 'University of Texas Austin',
+            'ut dallas': 'University of Texas Dallas',
+            'uw madison': 'University of Wisconsin Madison',
+            'uw milwaukee': 'University of Wisconsin Milwaukee',
+            'um ann arbor': 'University of Michigan Ann Arbor',
+            'uiuc': 'University of Illinois Urbana-Champaign',
+            'unc chapel hill': 'University of North Carolina Chapel Hill',
+            'um twin cities': 'University of Minnesota Twin Cities',
+            'cu boulder': 'University of Colorado Boulder',
+            'umd college park': 'University of Maryland College Park',
+            'ua tucson': 'University of Arizona',
+            'uf gainesville': 'University of Florida',
+            'ur rochester': 'University of Rochester',
+            'usc los angeles': 'University of Southern California',
+            'uva charlottesville': 'University of Virginia',
+            'u utah': 'University of Utah',
+            'upitt': 'University of Pittsburgh',
+            'bu boston': 'Boston University',
+            'osu columbus': 'Ohio State University',
+            'uga athens': 'University of Georgia',
+            'ua tuscaloosa': 'University of Alabama',
+            'u arkansas': 'University of Arkansas',
+            'u hawaii': 'University of Hawaii',
+            'u idaho': 'University of Idaho',
+            'u iowa': 'University of Iowa',
+            'u kansas': 'University of Kansas',
+            'u kentucky': 'University of Kentucky',
+            'u louisiana': 'University of Louisiana',
+            'u maine': 'University of Maine',
+            'u mass': 'University of Massachusetts',
+            'u mississippi': 'University of Mississippi',
+            'u missouri': 'University of Missouri',
+            'u montana': 'University of Montana',
+            'u nebraska': 'University of Nebraska',
+            'u nevada': 'University of Nevada',
+            'u new hampshire': 'University of New Hampshire',
+            'u new mexico': 'University of New Mexico',
+            'u north dakota': 'University of North Dakota',
+            'u oklahoma': 'University of Oklahoma',
+            'u oregon': 'University of Oregon',
+            'u rhode island': 'University of Rhode Island',
+            'u south carolina': 'University of South Carolina',
+            'u south dakota': 'University of South Dakota',
+            'u tennessee': 'University of Tennessee',
+            'u vermont': 'University of Vermont',
+            'u virginia': 'University of Virginia',
+            'u washington': 'University of Washington',
+            'u west virginia': 'University of West Virginia',
+            'u wyoming': 'University of Wyoming',
+            'u alaska': 'University of Alaska',
+            'u connecticut': 'University of Connecticut',
+            'u delaware': 'University of Delaware',
+            'u district of columbia': 'University of District of Columbia',
+            'u florida': 'University of Florida',
+            'u georgia': 'University of Georgia',
+            'stanford': 'Stanford University',
+            'harvard': 'Harvard University',
+            'yale': 'Yale University',
+            'princeton': 'Princeton University',
+            'columbia': 'Columbia University',
+            'upenn': 'University of Pennsylvania',
+            'brown': 'Brown University',
+            'dartmouth': 'Dartmouth College',
+            'cornell': 'Cornell University',
+            'nyu': 'New York University',
+            'northwestern': 'Northwestern University',
+            'duke': 'Duke University',
+            'vanderbilt': 'Vanderbilt University',
+            'rice': 'Rice University',
+            'wustl': 'Washington University in St. Louis',
+            'emory': 'Emory University',
+            'georgetown': 'Georgetown University',
+            'oxford': 'University of Oxford',
+            'cambridge': 'University of Cambridge',
+            'ucl': 'University College London',
+            'imperial': 'Imperial College London',
+            'edinburgh': 'University of Edinburgh',
+            'eth zurich': 'ETH Zurich',
+            'nus': 'National University of Singapore',
+            'toronto': 'University of Toronto',
+            'ubc': 'University of British Columbia',
+            'mcgill': 'McGill University',
+            'hku': 'University of Hong Kong',
+            'unsw': 'University of New South Wales',
+            'uq': 'University of Queensland',
+            'melbourne': 'University of Melbourne',
+            'sydney': 'University of Sydney',
+            'anu': 'Australian National University',
+            'tsinghua': 'Tsinghua University',
+            'peking': 'Peking University',
+            'tokyo': 'University of Tokyo'
+        }
+        
+        # Check abbreviation mappings
+        if name_lower in abbreviations:
+            normalized_name = abbreviations[name_lower]
+            if normalized_name.lower() in self.education_data:
+                return self.education_data[normalized_name.lower()]['normalized']
+        
+        return name.strip()
 
     def normalize_job_titles(self, title: str | None) -> str | None:
         if not title:
             return None
+        
+        # First check external CSV data for exact matches
+        title_lower = title.strip().lower()
+        if title_lower in self.job_titles_data:
+            return self.job_titles_data[title_lower]['normalized'].title()
+        
+        # Apply existing normalization logic
         normalized = title.strip().lower()
         normalized = re.sub(r"[./]", " ", normalized)
         normalized = re.sub(r"\s+", " ", normalized).strip()
         for short, long in TITLE_NORMALIZATION.items():
             normalized = re.sub(rf"\b{re.escape(short)}\b", long, normalized)
         normalized = re.sub(r"\s+", " ", normalized).strip()
+        
+        # Check if normalized title exists in external data
+        if normalized in self.job_titles_data:
+            return self.job_titles_data[normalized]['normalized'].title()
+        
         return normalized.title()
 
     def calculate_total_experience(self, jobs: Iterable[JobEntry]) -> int:

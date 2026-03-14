@@ -1,0 +1,274 @@
+institution,normalized_institution,type,country,state,city,ranking
+Harvard University,Harvard University,University,USA,MA,Cambridge,1
+Stanford University,Stanford University,University,USA,CA,Stanford,2
+Massachusetts Institute of Technology,Massachusetts Institute of Technology,University,USA,MA,Cambridge,3
+University of California Berkeley,University of California Berkeley,University,USA,CA,Berkeley,4
+University of Oxford,University of Oxford,University,UK,Oxford,Oxford,5
+California Institute of Technology,California Institute of Technology,University,USA,CA,Pasadena,6
+University of Cambridge,University of Cambridge,University,UK,Cambridge,Cambridge,7
+University of Washington,University of Washington,University,USA,WA,Seattle,8
+Princeton University,Princeton University,University,USA,NJ,Princeton,9
+University of Tokyo,University of Tokyo,University,Japan,Tokyo,Tokyo,10
+Yale University,Yale University,University,USA,CT,New Haven,11
+Johns Hopkins University,Johns Hopkins University,University,USA,MD,Baltimore,12
+Columbia University,Columbia University,University,USA,NY,New York,13
+University of California Los Angeles,University of California Los Angeles,University,USA,CA,Los Angeles,14
+University of Pennsylvania,University of Pennsylvania,University,USA,PA,Philadelphia,15
+University College London,University College London,University,UK,London,London,16
+University of Chicago,University of Chicago,University,USA,IL,Chicago,17
+Imperial College London,Imperial College London,University,UK,London,London,18
+ETH Zurich,ETH Zurich,University,Switzerland,Zurich,Zurich,19
+National University of Singapore,National University of Singapore,University,Singapore,Singapore,Singapore,20
+Cornell University,Cornell University,University,USA,NY,Ithaca,21
+University of Michigan Ann Arbor,University of Michigan Ann Arbor,University,USA,MI,Ann Arbor,22
+Tsinghua University,Tsinghua University,University,China,Beijing,Beijing,23
+Peking University,Peking University,University,China,Beijing,Beijing,24
+University of Toronto,University of Toronto,University,Canada,Toronto,Toronto,25
+University of Edinburgh,University of Edinburgh,University,UK,Edinburgh,Edinburgh,26
+Carnegie Mellon University,Carnegie Mellon University,University,USA,PA,Pittsburgh,27
+University of British Columbia,University of British Columbia,University,Canada,Vancouver,Vancouver,28
+University of Melbourne,University of Melbourne,University,Australia,Melbourne,Melbourne,29
+University of Sydney,University of Sydney,University,Australia,Sydney,Sydney,30
+Duke University,Duke University,University,USA,NC,Durham,31
+McGill University,McGill University,University,Canada,Montreal,Montreal,32
+University of Hong Kong,University of Hong Kong,University,Hong Kong,Hong Kong,Hong Kong,33
+University of New South Wales,University of New South Wales,University,Australia,Sydney,Sydney,34
+University of Queensland,University of Queensland,University,Australia,Brisbane,Brisbane,35
+University of California San Diego,University of California San Diego,University,USA,CA,San Diego,36
+Australian National University,Australian National University,University,Australia,Canberra,Canberra,37
+University of Wisconsin Madison,University of Wisconsin Madison,University,USA,WI,Madison,38
+University of Texas Austin,University of Texas Austin,University,USA,TX,Austin,39
+New York University,New York University,University,USA,NY,New York,40
+University of Illinois Urbana-Champaign,University of Illinois Urbana-Champaign,University,USA,IL,Urbana-Champaign,41
+University of North Carolina Chapel Hill,University of North Carolina Chapel Hill,University,USA,NC,Chapel Hill,42
+University of Minnesota Twin Cities,University of Minnesota Twin Cities,University,USA,MN,Minneapolis,43
+University of Colorado Boulder,University of Colorado Boulder,University,USA,CO,Boulder,44
+University of Maryland College Park,University of Maryland College Park,University,USA,MD,College Park,45
+University of Arizona,University of Arizona,University,USA,AZ,Tucson,46
+University of Florida,University of Florida,University,USA,FL,Gainesville,47
+University of Rochester,University of Rochester,University,USA,NY,Rochester,48
+University of Southern California,University of Southern California,University,USA,CA,Los Angeles,49
+University of Virginia,University of Virginia,University,USA,VA,Charlottesville,50
+Brown University,Brown University,University,USA,RI,Providence,51
+Northwestern University,Northwestern University,University,USA,IL,Evanston,52
+University of California Davis,University of California Davis,University,USA,CA,Davis,53
+University of California Irvine,University of California Irvine,University,USA,CA,Irvine,54
+University of California Santa Barbara,University of California Santa Barbara,University,USA,CA,Santa Barbara,55
+University of Utah,University of Utah,University,USA,UT,Salt Lake City,56
+University of Pittsburgh,University of Pittsburgh,University,USA,PA,Pittsburgh,57
+Boston University,Boston University,University,USA,MA,Boston,58
+Ohio State University,Ohio State University,University,USA,OH,Columbus,59
+University of Georgia,University of Georgia,University,USA,GA,Athens,60
+University of Alabama,University of Alabama,University,USA,AL,Tuscaloosa,61
+University of Arkansas,University of Arkansas,University,USA,AR,Fayetteville,62
+University of Hawaii Manoa,University of Hawaii Manoa,University,USA,HI,Honolulu,63
+University of Idaho,University of Idaho,University,USA,ID,Moscow,64
+University of Iowa,University of Iowa,University,USA,IA,Iowa City,65
+University of Kansas,University of Kansas,University,USA,KS,Lawrence,66
+University of Kentucky,University of Kentucky,University,USA,KY,Lexington,67
+University of Louisiana Lafayette,University of Louisiana Lafayette,University,USA,LA,Lafayette,68
+University of Maine,University of Maine,University,USA,ME,Orono,69
+University of Massachusetts Amherst,University of Massachusetts Amherst,University,USA,MA,Amherst,70
+University of Mississippi,University of Mississippi,University,USA,MS,Oxford,71
+University of Missouri,University of Missouri,University,USA,MO,Columbia,72
+University of Montana,University of Montana,University,USA,MT,Missoula,73
+University of Nebraska Lincoln,University of Nebraska Lincoln,University,USA,NE,Lincoln,74
+University of Nevada Reno,University of Nevada Reno,University,USA,NV,Reno,75
+University of New Hampshire,University of New Hampshire,University,USA,NH,Durham,76
+University of New Mexico,University of New Mexico,University,USA,NM,Albuquerque,77
+University of North Dakota,University of North Dakota,University,USA,ND,Grand Forks,78
+University of Oklahoma,University of Oklahoma,University,USA,OK,Norman,79
+University of Oregon,University of Oregon,University,USA,OR,Eugene,80
+University of Rhode Island,University of Rhode Island,University,USA,RI,Kingston,81
+University of South Carolina,University of South Carolina,University,USA,SC,Columbia,82
+University of South Dakota,University of South Dakota,University,USA,SD,Vermillion,83
+University of Tennessee Knoxville,University of Tennessee Knoxville,University,USA,TN,Knoxville,84
+University of Texas Dallas,University of Texas Dallas,University,USA,TX,Dallas,85
+University of Vermont,University of Vermont,University,USA,VT,Burlington,86
+University of Virginia Commonwealth,University of Virginia Commonwealth,University,USA,VA,Richmond,87
+University of Washington Seattle,University of Washington Seattle,University,USA,WA,Seattle,88
+University of West Virginia,University of West Virginia,University,USA,WV,Morgantown,89
+University of Wisconsin Milwaukee,University of Wisconsin Milwaukee,University,USA,WI,Milwaukee,90
+University of Wyoming,University of Wyoming,University,USA,WY,Laramie,91
+University of Alaska Anchorage,University of Alaska Anchorage,University,USA,AK,Anchorage,92
+University of Arizona Tucson,University of Arizona Tucson,University,USA,AZ,Tucson,93
+University of California Riverside,University of California Riverside,University,USA,CA,Riverside,94
+University of California Santa Cruz,University of California Santa Cruz,University,USA,CA,Santa Cruz,95
+University of Connecticut,University of Connecticut,University,USA,CT,Storrs,96
+University of Delaware,University of Delaware,University,USA,DE,Newark,97
+University of District of Columbia,University of District of Columbia,University,USA,DC,Washington,98
+University of Florida Gainesville,University of Florida Gainesville,University,USA,FL,Gainesville,99
+University of Georgia Athens,University of Georgia Athens,University,USA,GA,Athens,100
+MIT,Massachusetts Institute of Technology,University,USA,MA,Cambridge,3
+Caltech,California Institute of Technology,University,USA,CA,Pasadena,6
+UCLA,University of California Los Angeles,University,USA,CA,Los Angeles,14
+UC Berkeley,University of California Berkeley,University,USA,CA,Berkeley,4
+UCSD,University of California San Diego,University,USA,CA,San Diego,36
+UC Davis,University of California Davis,University,USA,CA,Davis,53
+UC Irvine,University of California Irvine,University,USA,CA,Irvine,54
+UC Santa Barbara,University of California Santa Barbara,University,USA,CA,Santa Barbara,55
+UC Riverside,University of California Riverside,University,USA,CA,Riverside,94
+UC Santa Cruz,University of California Santa Cruz,University,USA,CA,Santa Cruz,95
+UT Austin,University of Texas Austin,University,USA,TX,Austin,39
+UT Dallas,University of Texas Dallas,University,USA,TX,Dallas,85
+UW Madison,University of Wisconsin Madison,University,USA,WI,Madison,38
+UW Milwaukee,University of Wisconsin Milwaukee,University,USA,WI,Milwaukee,90
+UM Ann Arbor,University of Michigan Ann Arbor,University,USA,MI,Ann Arbor,22
+UIUC,University of Illinois Urbana-Champaign,University,USA,IL,Urbana-Champaign,41
+UNC Chapel Hill,University of North Carolina Chapel Hill,University,USA,NC,Chapel Hill,42
+UM Twin Cities,University of Minnesota Twin Cities,University,USA,MN,Minneapolis,43
+CU Boulder,University of Colorado Boulder,University,USA,CO,Boulder,44
+UMD College Park,University of Maryland College Park,University,USA,MD,College Park,45
+UA Tucson,University of Arizona,University,USA,AZ,Tucson,46
+UF Gainesville,University of Florida,University,USA,FL,Gainesville,47
+UR Rochester,University of Rochester,University,USA,NY,Rochester,48
+USC Los Angeles,University of Southern California,University,USA,CA,Los Angeles,49
+UVA Charlottesville,University of Virginia,University,USA,VA,Charlottesville,50
+UC Davis,University of California Davis,University,USA,CA,Davis,53
+UC Irvine,University of California Irvine,University,USA,CA,Irvine,54
+UCSB,University of California Santa Barbara,University,USA,CA,Santa Barbara,55
+U Utah,University of Utah,University,USA,UT,Salt Lake City,56
+UPitt,University of Pittsburgh,University,USA,PA,Pittsburgh,57
+BU Boston,Boston University,University,USA,MA,Boston,58
+OSU Columbus,Ohio State University,University,USA,OH,Columbus,59
+UGA Athens,University of Georgia,University,USA,GA,Athens,60
+UA Tuscaloosa,University of Alabama,University,USA,AL,Tuscaloosa,61
+UAR Fayetteville,University of Arkansas,University,USA,AR,Fayetteville,62
+UH Manoa,University of Hawaii Manoa,University,USA,HI,Honolulu,63
+UI Moscow,University of Idaho,University,USA,ID,Moscow,64
+UI Iowa City,University of Iowa,University,USA,IA,Iowa City,65
+UK Lawrence,University of Kansas,University,USA,KS,Lawrence,66
+UK Lexington,University of Kentucky,University,USA,KY,Lexington,67
+ULL Lafayette,University of Louisiana Lafayette,University,USA,LA,Lafayette,68
+UM Orono,University of Maine,University,USA,ME,Orono,69
+UMass Amherst,University of Massachusetts Amherst,University,USA,MA,Amherst,70
+UM Oxford,University of Mississippi,University,USA,MS,Oxford,71
+UM Columbia,University of Missouri,University,USA,MO,Columbia,72
+UM Missoula,University of Montana,University,USA,MT,Missoula,73
+UNL Lincoln,University of Nebraska Lincoln,University,USA,NE,Lincoln,74
+UNR Reno,University of Nevada Reno,University,USA,NV,Reno,75
+UNH Durham,University of New Hampshire,University,USA,NH,Durham,76
+UNM Albuquerque,University of New Mexico,University,USA,NM,Albuquerque,77
+UND Grand Forks,University of North Dakota,University,USA,ND,Grand Forks,78
+OU Norman,University of Oklahoma,University,USA,OK,Norman,79
+UO Eugene,University of Oregon,University,USA,OR,Eugene,80
+URI Kingston,University of Rhode Island,University,USA,RI,Kingston,81
+USC Columbia,University of South Carolina,University,USA,SC,Columbia,82
+USD Vermillion,University of South Dakota,University,USA,SD,Vermillion,83
+UT Knoxville,University of Tennessee Knoxville,University,USA,TN,Knoxville,84
+UV Burlington,University of Vermont,University,USA,VT,Burlington,86
+UVC Richmond,University of Virginia Commonwealth,University,USA,VA,Richmond,87
+UW Seattle,University of Washington Seattle,University,USA,WA,Seattle,88
+UWV Morgantown,University of West Virginia,University,USA,WV,Morgantown,89
+UWY Laramie,University of Wyoming,University,USA,WY,Laramie,91
+UAA Anchorage,University of Alaska Anchorage,University,USA,AK,Anchorage,92
+UAR Tucson,University of Arizona Tucson,University,USA,AZ,Tucson,93
+UCR Riverside,University of California Riverside,University,USA,CA,Riverside,94
+UCSC Santa Cruz,University of California Santa Cruz,University,USA,CA,Santa Cruz,95
+UConn Storrs,University of Connecticut,University,USA,CT,Storrs,96
+UD Newark,University of Delaware,University,USA,DE,Newark,97
+UDC Washington,University of District of Columbia,University,USA,DC,Washington,98
+UFG Gainesville,University of Florida Gainesville,University,USA,FL,Gainesville,99
+UGA Athens,University of Georgia Athens,University,USA,GA,Athens,100
+Stanford,Stanford University,University,USA,CA,Stanford,2
+Harvard,Harvard University,University,USA,MA,Cambridge,1
+MIT,Massachusetts Institute of Technology,University,USA,MA,Cambridge,3
+Caltech,California Institute of Technology,University,USA,CA,Pasadena,6
+Yale,Yale University,University,USA,CT,New Haven,11
+Princeton,Princeton University,University,USA,NJ,Princeton,9
+Columbia,Columbia University,University,USA,NY,New York,13
+UPenn,University of Pennsylvania,University,USA,PA,Philadelphia,15
+Brown,Brown University,University,USA,RI,Providence,51
+Dartmouth,Dartmouth College,University,USA,NH,Hanover,101
+Cornell,Cornell University,University,USA,NY,Ithaca,20
+NYU,New York University,University,USA,NY,New York,39
+Northwestern,Northwestern University,University,USA,IL,Evanston,52
+Duke,Duke University,University,USA,NC,Durham,30
+Vanderbilt,Vanderbilt University,University,USA,TN,Nashville,102
+Rice,Rice University,University,USA,TX,Houston,103
+Washington University in St. Louis,Washington University in St. Louis,University,USA,MO,St. Louis,104
+Emory,Emory University,University,USA,GA,Atlanta,105
+Georgetown,Georgetown University,University,USA,DC,Washington,106
+University of California Berkeley,University of California Berkeley,University,USA,CA,Berkeley,4
+University of California Los Angeles,University of California Los Angeles,University,USA,CA,Los Angeles,14
+University of California San Diego,University of California San Diego,University,USA,CA,San Diego,36
+University of California Davis,University of California Davis,University,USA,CA,Davis,53
+University of California Irvine,University of California Irvine,University,USA,CA,Irvine,54
+University of California Santa Barbara,University of California Santa Barbara,University,USA,CA,Santa Barbara,55
+University of California Riverside,University of California Riverside,University,USA,CA,Riverside,94
+University of California Santa Cruz,University of California Santa Cruz,University,USA,CA,Santa Cruz,95
+University of Michigan Ann Arbor,University of Michigan Ann Arbor,University,USA,MI,Ann Arbor,22
+University of Wisconsin Madison,University of Wisconsin Madison,University,USA,WI,Madison,38
+University of Illinois Urbana-Champaign,University of Illinois Urbana-Champaign,University,USA,IL,Urbana-Champaign,41
+University of North Carolina Chapel Hill,University of North Carolina Chapel Hill,University,USA,NC,Chapel Hill,42
+University of Minnesota Twin Cities,University of Minnesota Twin Cities,University,USA,MN,Minneapolis,43
+University of Colorado Boulder,University of Colorado Boulder,University,USA,CO,Boulder,44
+University of Maryland College Park,University of Maryland College Park,University,USA,MD,College Park,45
+University of Arizona,University of Arizona,University,USA,AZ,Tucson,46
+University of Florida,University of Florida,University,USA,FL,Gainesville,47
+University of Rochester,University of Rochester,University,USA,NY,Rochester,48
+University of Southern California,University of Southern California,University,USA,CA,Los Angeles,49
+University of Virginia,University of Virginia,University,USA,VA,Charlottesville,50
+University of Texas Austin,University of Texas Austin,University,USA,TX,Austin,39
+University of Texas Dallas,University of Texas Dallas,University,USA,TX,Dallas,85
+University of Washington Seattle,University of Washington Seattle,University,USA,WA,Seattle,88
+University of Pittsburgh,University of Pittsburgh,University,USA,PA,Pittsburgh,57
+Boston University,Boston University,University,USA,MA,Boston,58
+Ohio State University,Ohio State University,University,USA,OH,Columbus,59
+University of Georgia,University of Georgia,University,USA,GA,Athens,60
+University of Alabama,University of Alabama,University,USA,AL,Tuscaloosa,61
+University of Arkansas,University of Arkansas,University,USA,AR,Fayetteville,62
+University of Hawaii Manoa,University of Hawaii Manoa,University,USA,HI,Honolulu,63
+University of Idaho,University of Idaho,University,USA,ID,Moscow,64
+University of Iowa,University of Iowa,University,USA,IA,Iowa City,65
+University of Kansas,University of Kansas,University,USA,KS,Lawrence,66
+University of Kentucky,University of Kentucky,University,USA,KY,Lexington,67
+University of Louisiana Lafayette,University of Louisiana Lafayette,University,USA,LA,Lafayette,68
+University of Maine,University of Maine,University,USA,ME,Orono,69
+University of Massachusetts Amherst,University of Massachusetts Amherst,University,USA,MA,Amherst,70
+University of Mississippi,University of Mississippi,University,USA,MS,Oxford,71
+University of Missouri,University of Missouri,University,USA,MO,Columbia,72
+University of Montana,University of Montana,University,USA,MT,Missoula,73
+University of Nebraska Lincoln,University of Nebraska Lincoln,University,USA,NE,Lincoln,74
+University of Nevada Reno,University of Nevada Reno,University,USA,NV,Reno,75
+University of New Hampshire,University of New Hampshire,University,USA,NH,Durham,76
+University of New Mexico,University of New Mexico,University,USA,NM,Albuquerque,77
+University of North Dakota,University of North Dakota,University,USA,ND,Grand Forks,78
+University of Oklahoma,University of Oklahoma,University,USA,OK,Norman,79
+University of Oregon,University of Oregon,University,USA,OR,Eugene,80
+University of Rhode Island,University of Rhode Island,University,USA,RI,Kingston,81
+University of South Carolina,University of South Carolina,University,USA,SC,Columbia,82
+University of South Dakota,University of South Dakota,University,USA,SD,Vermillion,83
+University of Tennessee Knoxville,University of Tennessee Knoxville,University,USA,TN,Knoxville,84
+University of Vermont,University of Vermont,University,USA,VT,Burlington,86
+University of West Virginia,University of West Virginia,University,USA,WV,Morgantown,89
+University of Wisconsin Milwaukee,University of Wisconsin Milwaukee,University,USA,WI,Milwaukee,90
+University of Wyoming,University of Wyoming,University,USA,WY,Laramie,91
+University of Alaska Anchorage,University of Alaska Anchorage,University,USA,AK,Anchorage,92
+University of Arizona Tucson,University of Arizona Tucson,University,USA,AZ,Tucson,93
+University of California Riverside,University of California Riverside,University,USA,CA,Riverside,94
+University of California Santa Cruz,University of California Santa Cruz,University,USA,CA,Santa Cruz,95
+University of Connecticut,University of Connecticut,University,USA,CT,Storrs,96
+University of Delaware,University of Delaware,University,USA,DE,Newark,97
+University of District of Columbia,University of District of Columbia,University,USA,DC,Washington,98
+University of Florida Gainesville,University of Florida Gainesville,University,USA,FL,Gainesville,99
+University of Georgia Athens,University of Georgia Athens,University,USA,GA,Athens,100
+Oxford,University of Oxford,University,UK,Oxford,Oxford,5
+Cambridge,University of Cambridge,University,UK,Cambridge,Cambridge,7
+UCL,University College London,University,UK,London,London,16
+Imperial College,Imperial College London,University,UK,London,London,18
+Edinburgh,University of Edinburgh,University,UK,Edinburgh,Edinburgh,26
+ETH Zurich,ETH Zurich,University,Switzerland,Zurich,Zurich,19
+NUS,National University of Singapore,University,Singapore,Singapore,Singapore,20
+Toronto,University of Toronto,University,Canada,Toronto,Toronto,25
+UBC,University of British Columbia,University,Canada,Vancouver,Vancouver,28
+McGill,McGill University,University,Canada,Montreal,Montreal,32
+HKU,University of Hong Kong,University,Hong Kong,Hong Kong,Hong Kong,33
+UNSW,University of New South Wales,University,Australia,Sydney,Sydney,34
+UQ,University of Queensland,University,Australia,Brisbane,Brisbane,35
+Melbourne,University of Melbourne,University,Australia,Melbourne,Melbourne,29
+Sydney,University of Sydney,University,Australia,Sydney,Sydney,30
+ANU,Australian National University,University,Australia,Canberra,Canberra,37
+Tsinghua,Tsinghua University,University,China,Beijing,Beijing,22
+Peking,Peking University,University,China,Beijing,Beijing,24
+Tokyo,University of Tokyo,University,Japan,Tokyo,Tokyo,10

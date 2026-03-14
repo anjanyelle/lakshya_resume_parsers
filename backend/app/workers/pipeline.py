@@ -2788,7 +2788,7 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         # - the primary parse quality is low (even if confidence was high)
         if excerpt_score is not None:
             borderline = 0.45 <= exp_conf <= 0.72
-            low_quality = primary_score < 1.6
+            low_quality = primary_score < 1.0
             if has_experience_section and (borderline or low_quality) and excerpt_score > primary_score:
                 chosen_experience_text = excerpt
 
@@ -2810,12 +2810,10 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         llm_input_chars: int | None = None
         if exp_conf < 0.55:
             llm_reason.append("low_section_confidence")
-        if primary_score < 1.2:
+        if primary_score < 0.8:
             llm_reason.append("low_quality_score")
-        if ambiguous_headers >= 2:
-            llm_reason.append("ambiguous_headers")
 
-        if (exp_conf < 0.55 or primary_score < 1.2 or ambiguous_headers >= 2) and raw_text.strip():
+        if (exp_conf < 0.55 or primary_score < 0.8 or ambiguous_headers >= 2) and raw_text.strip():
             settings = get_settings()
             llm_source = _cap_llm_text(chosen_experience_text or excerpt)
             if llm_source and settings.LLM_PROVIDER != "none":
@@ -4259,6 +4257,121 @@ def task_calculate_confidence(self, job_id: str) -> str:  # noqa: ANN001
         observe_stage_duration("calculate_confidence", time.perf_counter() - start_time)
 
 
+def _looks_like_skillish_header(value: str | None) -> bool:
+    """Check if value looks like a skills header rather than actual content."""
+    cleaned = str(value or "").strip()
+    if not cleaned:
+        return False
+    lowered = cleaned.lower()
+    if re.fullmatch(
+        r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
+        lowered,
+    ) and len(cleaned) <= 24:
+        return True
+    if "·" in cleaned and len(cleaned) <= 120:
+        return True
+    if cleaned.count(",") >= 2 and len(cleaned) <= 140:
+        return True
+    if re.search(
+        r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
+        lowered,
+    ):
+        parts = [p.strip() for p in re.split(r"[,/|·]", lowered) if p.strip()]
+        if len(parts) >= 3 and len(cleaned) <= 140:
+            return True
+    return False
+
+
+def _looks_like_placeholder_org(value: str | None) -> bool:
+    """Check if value looks like a placeholder organization name."""
+    cleaned = str(value or "").strip().lower()
+    if not cleaned:
+        return False
+    return bool(
+        re.match(
+            r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+            cleaned,
+        )
+    )
+
+
+def _work_experience_is_low_quality(value: Any) -> bool:
+    """Check if work experience list contains only low-quality entries."""
+    if not isinstance(value, list) or not value:
+        return True
+    good = 0
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        company = str(item.get("company") or "").strip()
+        title = str(item.get("title") or "").strip()
+        if not company and not title:
+            continue
+        if _looks_like_placeholder_org(company) or _looks_like_placeholder_org(title):
+            continue
+        if _looks_like_skillish_header(company) or _looks_like_skillish_header(title):
+            continue
+        if len(company) > 180 or len(title) > 180:
+            continue
+        good += 1
+    return good == 0
+
+
+def _convert_to_kick_resume_format(parsed: dict) -> dict:
+    """Convert Lakshya parser format to Kick Resume format for UI compatibility"""
+    kick_format = {}
+
+    # Convert contact to basics
+    contact = parsed.get("contact", {})
+    if contact:
+        name = contact.get("name", {})
+        if isinstance(name, dict):
+            name_parts = name.get("name", "").split()
+            kick_format["basics"] = {
+                "firstName": name_parts[0] if name_parts else "",
+                "lastName": " ".join(name_parts[1:]) if len(name_parts) > 1 else "",
+                "email": [email.get("email") for email in contact.get("emails", []) if email.get("email")],
+                "phone": [phone.get("phone") for phone in contact.get("phones", []) if phone.get("phone")],
+                "city": contact.get("location", {}).get("city"),
+                "country": contact.get("location", {}).get("country")
+            }
+    
+    # Convert work_experience to work
+    work_experience = parsed.get("work_experience", [])
+    if work_experience:
+        kick_format["work"] = []
+        for job in work_experience:
+            work_entry = {
+                "jobTitle": job.get("title", ""),
+                "company": job.get("company", ""),
+                "city": job.get("location", ""),
+                "country": None,
+                "startDate": job.get("start_date"),
+                "endDate": job.get("end_date"),
+                "description": job.get("description", "")
+            }
+            kick_format["work"].append(work_entry)
+    
+    # Copy other fields directly
+    if "skills" in parsed:
+        kick_format["skills"] = parsed["skills"]
+    
+    if "education" in parsed:
+        kick_format["education"] = parsed["education"]
+    
+    if "certifications" in parsed:
+        kick_format["certifications"] = parsed["certifications"]
+    
+    if "projects" in parsed:
+        kick_format["projects"] = parsed["projects"]
+    
+    # Add profile from summary if available
+    if "summary" in parsed:
+        kick_format["profile"] = parsed["summary"]
+    
+    return kick_format
+
+
 @celery_app.task(
     bind=True,
     autoretry_for=(Exception,),
@@ -4293,6 +4406,9 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         )
         parsed = _apply_llm_resume(parsed_data)
         parsed = sanitize_final_output(parsed)
+        
+        # Convert Lakshya format to Kick Resume format for UI compatibility
+        parsed = _convert_to_kick_resume_format(parsed)
 
         # If contact name is still empty, try "Name: ..." or "Page X - Name" from raw text so we don't show "Unnamed candidate"
         raw_text = getattr(job, "raw_text", None) or ""
@@ -4317,59 +4433,8 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                         parsed["contact"]["name"] = {"name": val, "confidence": 0.55}
                         break
 
-        def _looks_like_skillish_header(value: str | None) -> bool:
-            cleaned = str(value or "").strip()
-            if not cleaned:
-                return False
-            lowered = cleaned.lower()
-            if re.fullmatch(
-                r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
-                lowered,
-            ) and len(cleaned) <= 24:
-                return True
-            if "·" in cleaned and len(cleaned) <= 120:
-                return True
-            if cleaned.count(",") >= 2 and len(cleaned) <= 140:
-                return True
-            if re.search(
-                r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
-                lowered,
-            ):
-                parts = [p.strip() for p in re.split(r"[,/|·]", lowered) if p.strip()]
-                if len(parts) >= 3 and len(cleaned) <= 140:
-                    return True
-            return False
+        
 
-        def _looks_like_placeholder_org(value: str | None) -> bool:
-            cleaned = str(value or "").strip().lower()
-            if not cleaned:
-                return False
-            return bool(
-                re.match(
-                    r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
-                    cleaned,
-                )
-            )
-
-        def _work_experience_is_low_quality(value: Any) -> bool:
-            if not isinstance(value, list) or not value:
-                return True
-            good = 0
-            for item in value:
-                if not isinstance(item, dict):
-                    continue
-                company = str(item.get("company") or "").strip()
-                title = str(item.get("title") or "").strip()
-                if not company and not title:
-                    continue
-                if _looks_like_placeholder_org(company) or _looks_like_placeholder_org(title):
-                    continue
-                if _looks_like_skillish_header(company) or _looks_like_skillish_header(title):
-                    continue
-                if len(company) > 180 or len(title) > 180:
-                    continue
-                good += 1
-            return good == 0
 
         if isinstance(structured, dict):
             for key in ("contact", "work_experience", "education", "skills"):

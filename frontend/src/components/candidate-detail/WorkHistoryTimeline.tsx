@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import type { WorkHistory } from '../../types'
 import Modal from '../common/Modal'
@@ -8,6 +8,7 @@ import {
   deleteWorkHistory,
   type WorkHistoryPayload,
 } from '../../services/api/candidates'
+import { fetchCandidateReview } from '../../services/api/candidates'
 
 type WorkHistoryTimelineProps = {
   candidateId: string
@@ -61,6 +62,40 @@ export default function WorkHistoryTimeline({
   activeFieldId = null,
   onFieldSelect,
 }: WorkHistoryTimelineProps) {
+  // Fetch JSON data from parsing-debug endpoint
+  const [jsonWorkHistory, setJsonWorkHistory] = useState<WorkHistory[]>([])
+
+  useEffect(() => {
+    const loadJsonWorkHistory = async () => {
+      try {
+        const reviewData = await fetchCandidateReview(candidateId)
+        const parsedData = reviewData.latest_job?.parsed_data as any
+        
+        if (parsedData?.work) {
+          // Convert Kick Resume JSON format to WorkHistory format
+          const converted: WorkHistory[] = parsedData.work.map((job: any, index: number) => ({
+            id: `parsed-we-${index}`,
+            company_name: job.company,
+            client_name: job.client_name || null,
+            job_title: job.jobTitle,
+            start_date: job.startDate,
+            end_date: job.endDate,
+            location: job.city,
+            description: job.description,
+            is_current: !job.endDate
+          }))
+          setJsonWorkHistory(converted)
+        }
+      } catch (error) {
+        console.error('Failed to load JSON work history:', error)
+      }
+    }
+
+    loadJsonWorkHistory()
+  }, [candidateId])
+
+  // Use JSON data if available, fallback to database data
+  const displayItems = jsonWorkHistory.length > 0 ? jsonWorkHistory : items
   const isActive = activeFieldId === 'experience'
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -126,7 +161,7 @@ export default function WorkHistoryTimeline({
       if (!window.confirm('Remove this work history entry? This cannot be undone.')) return
       try {
         if (isParsedId(entry.id)) {
-          const filtered = items.filter((i) => i.id !== entry.id)
+          const filtered = displayItems.filter((i) => i.id !== entry.id)
           onUpdate?.(filtered)
           toast.success('Work history removed')
         } else {
@@ -138,7 +173,7 @@ export default function WorkHistoryTimeline({
         toast.error(err instanceof Error ? err.message : 'Failed to delete')
       }
     },
-    [candidateId, items, onUpdate],
+    [candidateId, displayItems, onUpdate],
   )
 
   return (
@@ -168,14 +203,14 @@ export default function WorkHistoryTimeline({
         )}
       </div>
 
-      {items.length === 0 ? (
+      {displayItems.length === 0 ? (
         <p className="mt-3 text-sm text-slate-600">No work history available.</p>
       ) : (
         <div className="mt-4 space-y-4">
-          {items.map((item, idx) => (
+          {displayItems.map((item, idx) => (
             <div key={item.id} className="relative pl-6">
               <span className="absolute left-0 top-1.5 h-3 w-3 rounded-full bg-brand-500" />
-              {idx !== items.length - 1 && (
+              {idx !== displayItems.length - 1 && (
                 <span className="absolute left-[5px] top-5 h-full w-px bg-slate-200" />
               )}
               <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import csv
 import json
 import logging
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -1469,6 +1471,7 @@ def _build_known_skills_set(
 class SkillExtractor:
     def __init__(self, taxonomy_path: str | None = None, use_spacy: bool = True) -> None:
         self.taxonomy = self._load_taxonomy(taxonomy_path)
+        self.external_skills_data = self._load_external_skills_data()
         self.normalized_map = {
             item["normalized_name"]: item for item in self.taxonomy
         }
@@ -2111,6 +2114,27 @@ class SkillExtractor:
         with path.open("r", encoding="utf-8") as handle:
             data = json.load(handle)
         return data.get("skills", [])
+
+    def _load_external_skills_data(self) -> dict:
+        """Load skills data from external CSV for validation and enhancement"""
+        skills = {}
+        try:
+            base_dir = os.path.dirname(__file__)
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(base_dir))))
+            csv_path = os.path.join(project_root, "data/external/skills.csv")
+            
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    skill_name = row['skill_name'].strip().lower()
+                    skills[skill_name] = {
+                        'category': row['category'].strip(),
+                        'subcategory': row['subcategory'].strip(),
+                        'level': row['level'].strip()
+                    }
+        except Exception as e:
+            logger.warning(f"Could not load external skills data: {e}")
+        return skills
 
     @staticmethod
     def _build_synonym_map(taxonomy: list[dict]) -> dict[str, str]:

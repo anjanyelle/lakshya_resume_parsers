@@ -521,6 +521,46 @@ class LLMParsingService:
         return merged
 
     def extract_work_experience_details(self, text: str) -> list[dict[str, Any]]:
+        # Check if we should use enhanced parser for specific formats
+        if ("Client:" in text and "Role:" in text) or ("|" in text and any(year in text for year in ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024"])) or ("##" in text and ":" in text and any(year in text for year in ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024"])):
+            try:
+                from app.services.parser.enhanced_parser_integration import EnhancedParserIntegration
+                
+                parser = EnhancedParserIntegration()
+                
+                # Try client role format first
+                if "Client:" in text and "Role:" in text:
+                    experiences = parser._parse_client_role_format(text)
+                elif "##" in text and ":" in text:
+                    # Try company: title date location format (Sai Bhargav's resume)
+                    experiences = parser._parse_company_colon_dates_format(text)
+                else:
+                    # Try company | dates | location format
+                    experiences = parser._parse_company_dates_location_format(text)
+                
+                work_history = parser._convert_experiences_to_work_history(experiences)
+                
+                # Convert to Lakshya work_experience format for pipeline compatibility
+                results = []
+                for work_entry in work_history:
+                    result = {
+                        "company": work_entry.get("company_name"),  # ← Changed from company_name
+                        "title": work_entry.get("job_title"),      # ← Changed from job_title
+                        "start_date": work_entry.get("start_date"),
+                        "end_date": work_entry.get("end_date"),
+                        "is_current": work_entry.get("end_date") is None,
+                        "location": work_entry.get("location"),
+                        "description": work_entry.get("description"),
+                        "responsibilities": [work_entry.get("description")] if work_entry.get("description") else []
+                    }
+                    results.append(result)
+                
+                return results
+                
+            except Exception as e:
+                logger.warning(f"Enhanced parser failed, falling back to LLM: {e}")
+        
+        # Fallback to original LLM method
         chunks = self._chunk_text(text)
         adapter = TypeAdapter(list[WorkExperienceDetailsModel])
         default_payload: list[dict[str, Any]] = []
@@ -2211,6 +2251,40 @@ class LLMParsingService:
         return unique
 
     def extract_work_experience(self, text: str) -> list[dict[str, Any]]:
+        # Check if we should use enhanced parser for specific formats
+        if ("Client:" in text and "Role:" in text) or ("|" in text and any(year in text for year in ["2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024"])):
+            try:
+                from app.services.parser.enhanced_parser_integration import EnhancedResumeParser
+                
+                parser = EnhancedResumeParser()
+                
+                # Try client role format first
+                if "Client:" in text and "Role:" in text:
+                    experiences = parser._parse_client_role_format(text)
+                else:
+                    # Try company | dates | location format
+                    experiences = parser._parse_company_dates_location_format(text)
+                
+                work_history = parser._convert_experiences_to_work_history(experiences)
+                
+                # Convert to expected format
+                result = []
+                for work_entry in work_history:
+                    result.append({
+                        "company_name": work_entry.get("company_name"),
+                        "job_title": work_entry.get("job_title"),
+                        "start_date": work_entry.get("start_date"),
+                        "end_date": work_entry.get("end_date"),
+                        "is_current": work_entry.get("end_date") is None,
+                        "location": work_entry.get("location"),
+                        "responsibilities": [work_entry.get("description")] if work_entry.get("description") else []
+                    })
+                return result
+                
+            except Exception as e:
+                logger.warning(f"Enhanced parser failed, falling back to LLM: {e}")
+        
+        # Fallback to original LLM method
         prompt = (
             "Extract work experience from this resume section. "
             "Return JSON array of objects with: company_name, job_title, "
