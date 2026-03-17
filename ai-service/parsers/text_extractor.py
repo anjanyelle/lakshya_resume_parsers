@@ -249,16 +249,16 @@ class TextExtractor:
         if not text:
             return ""
         
-        # Remove email addresses for privacy
-        text = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '[EMAIL_REMOVED]', text)
+        # DO NOT remove emails/phones here - they need to be extracted first!
+        # Privacy removal should happen after parsing, not before
         
-        # Remove phone numbers (basic patterns)
-        text = re.sub(r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b', '[PHONE_REMOVED]', text)
-        text = re.sub(r'\b\+?1?[-.]?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}\b', '[PHONE_REMOVED]', text)
-        
-        # Normalize whitespace
-        text = re.sub(r'\s+', ' ', text)  # Multiple spaces to single space
-        text = re.sub(r'\n\s*\n', '\n\n', text)  # Multiple newlines to double newline
+        # Normalize whitespace - preserve newlines
+        # First normalize multiple newlines to double newline
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        # Then normalize spaces on same line (but keep newlines)
+        lines = text.split('\n')
+        lines = [re.sub(r'[ \t]+', ' ', line) for line in lines]
+        text = '\n'.join(lines)
         
         # Remove non-printable characters except newlines and tabs
         text = ''.join(char for char in text if char.isprintable() or char in '\n\t')
@@ -266,8 +266,8 @@ class TextExtractor:
         # Normalize unicode characters
         text = unicodedata.normalize('NFKC', text)
         
-        # Remove excessive punctuation
-        text = re.sub(r'[^\w\s\n\t.,;:!?()[\]{}"\'-]', '', text)
+        # Remove excessive punctuation (keep @ for emails)
+        text = re.sub(r'[^\w\s\n\t.,;:!?()[\]{}"\'\-@]', '', text)
         
         # Fix spacing around punctuation
         text = re.sub(r'\s+([.,;:!?])', r'\1', text)

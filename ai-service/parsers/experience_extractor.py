@@ -95,17 +95,25 @@ class ExperienceExtractor:
         """
         try:
             if not experience_section_text or not experience_section_text.strip():
+                self.logger.warning("Experience section text is empty")
                 return {'work_experience': [], 'inline_skills': []}
+            
+            self.logger.info(f"Processing experience section with {len(experience_section_text)} characters")
             
             # Split into individual job blocks
             job_blocks = self._split_into_job_blocks(experience_section_text)
+            self.logger.info(f"Split into {len(job_blocks)} job blocks")
             
             experiences = []
             
-            for block in job_blocks:
+            for idx, block in enumerate(job_blocks):
+                self.logger.debug(f"Processing job block {idx + 1}/{len(job_blocks)}: {block[:100]}...")
                 experience = self._parse_job_experience(block)
                 if experience:
+                    self.logger.info(f"Extracted job: {experience.get('job_title', 'Unknown')} at {experience.get('company_name', 'Unknown')}")
                     experiences.append(experience)
+                else:
+                    self.logger.warning(f"Failed to extract experience from block {idx + 1}")
             
             # Sort by start date (most recent first)
             from datetime import datetime
@@ -120,7 +128,7 @@ class ExperienceExtractor:
             # Extract inline skills from work experience descriptions
             inline_skills = self.extract_inline_skills(experiences, self.skill_taxonomy)
             
-            self.logger.info(f"Extracted {len(experiences)} work experiences and {len(inline_skills)} inline skills")
+            self.logger.info(f"Successfully extracted {len(experiences)} work experiences and {len(inline_skills)} inline skills")
             
             return {
                 'work_experience': experiences,
@@ -128,12 +136,13 @@ class ExperienceExtractor:
             }
             
         except Exception as e:
-            self.logger.error(f"Error extracting work experience: {e}")
+            self.logger.error(f"Error extracting work experience: {e}", exc_info=True)
             return {'work_experience': [], 'inline_skills': []}
     
     def _split_into_job_blocks(self, text: str) -> List[str]:
         """
         Split experience text into individual job blocks.
+        Handles multiple formats: bullet points, date-based splits, blank line splits.
         
         Args:
             text: Experience section text
@@ -141,48 +150,89 @@ class ExperienceExtractor:
         Returns:
             List of job blocks
         """
-        # Find all job titles first
-        job_title_pattern = r'^([A-Z][a-zA-Z\s]*\s*(?:Engineer|Developer|Manager|Director|Analyst|Specialist|Consultant|Architect))\s*$'
-        job_titles = re.finditer(job_title_pattern, text, re.MULTILINE)
+        # Strategy 1: Split by date ranges (most reliable indicator of new job)
+        # Look for patterns like "Jan 2020 - Present" or "2020 - 2023"
+        date_range_pattern = r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\s*[-–—]\s*(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}|Present|Current|Now)|\d{4}\s*[-–—]\s*(?:\d{4}|Present|Current|Now)'
         
-        blocks = []
-        last_end = 0
+        # Find all date ranges
+        date_matches = list(re.finditer(date_range_pattern, text, re.IGNORECASE))
         
-        for match in job_titles:
-            # If we have content before this job title, add it as a block
-            if match.start() > last_end:
-                block = text[last_end:match.start()].strip()
-                if block:
+        if len(date_matches) >= 2:
+            # Split by date ranges
+            blocks = []
+            for i, match in enumerate(date_matches):
+                if i == 0:
+                    # First block: from start to first date
+                    start = 0
+                else:
+                    # Subsequent blocks: from previous date to current date
+                    start = date_matches[i-1].end()
+                
+                # Find the start of this job entry (go back to find job title)
+                # Look backwards for the last newline before the date
+                block_start = text.rfind('\n', start, match.start())
+                if block_start == -1:
+                    block_start = start
+                
+                # Determine end of this block
+                if i < len(date_matches) - 1:
+                    # End at the start of next job (look for newline before next date)
+                    next_match = date_matches[i + 1]
+                    block_end = text.rfind('\n', match.end(), next_match.start())
+                    if block_end == -1:
+                        block_end = next_match.start()
+                else:
+                    # Last block goes to end of text
+                    block_end = len(text)
+                
+                block = text[block_start:block_end].strip()
+                if block and len(block) > 20:  # Minimum viable job block
                     blocks.append(block)
-            last_end = match.start()
+            
+            if blocks:
+                return blocks
         
-        # Add the remaining content
-        if last_end < len(text):
-            blocks.append(text[last_end:].strip())
+        # Strategy 2: Split by double newlines (paragraph-based)
+        blocks = re.split(r'\n\s*\n', text)
+        blocks = [b.strip() for b in blocks if b.strip() and len(b.strip()) > 20]
         
-        # Now properly group each job title with its content
-        grouped_blocks = []
-        current_job = None
+        if len(blocks) >= 2:
+            return blocks
         
-        for block in blocks:
-            lines = block.split('\n')
-            if lines and re.match(job_title_pattern, lines[0]):
-                # This is a new job
-                if current_job:
-                    grouped_blocks.append(current_job)
-                current_job = block
-            elif current_job:
-                # This is continuation of current job
-                current_job += '\n\n' + block
+        # Strategy 3: Split by lines that look like job headers
+        # Job headers typically have: Title | Company | Date or Title at Company (Date)
+        lines = text.split('\n')
+        blocks = []
+        current_block = []
+        
+        for line in lines:
+            line_stripped = line.strip()
+            
+            # Check if this line looks like a job header
+            is_header = (
+                ('|' in line_stripped and re.search(r'\d{4}', line_stripped)) or
+                (re.search(r'\bat\b', line_stripped, re.IGNORECASE) and re.search(r'\d{4}', line_stripped)) or
+                (re.search(r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}', line_stripped, re.IGNORECASE))
+            )
+            
+            if is_header and current_block:
+                # Save previous block and start new one
+                blocks.append('\n'.join(current_block))
+                current_block = [line]
             else:
-                # No current job, treat as standalone
-                grouped_blocks.append(block)
+                current_block.append(line)
         
-        # Add the last job
-        if current_job:
-            grouped_blocks.append(current_job)
+        # Add last block
+        if current_block:
+            blocks.append('\n'.join(current_block))
         
-        return [block.strip() for block in grouped_blocks if block.strip()]
+        blocks = [b.strip() for b in blocks if b.strip() and len(b.strip()) > 20]
+        
+        if blocks:
+            return blocks
+        
+        # Fallback: return entire text as single block
+        return [text.strip()] if text.strip() else []
     
     def _load_skill_taxonomy(self) -> list:
         """Load skill taxonomy from data file."""
@@ -973,34 +1023,63 @@ class ExperienceExtractor:
     
     def _extract_job_title(self, lines: List[str]) -> str:
         """Extract job title from lines."""
-        for line in lines:
+        if not lines:
+            return ''
+        
+        # Strategy 1: Look for line with pipe separator (common format: Title | Company | Date)
+        for line in lines[:5]:  # Check first 5 lines only
             line = line.strip()
-            # Skip bullet points and descriptions
-            if line.startswith('•') or line.startswith('-') or len(line.split()) > 8:
+            if '|' in line:
+                # Extract part before first pipe
+                parts = line.split('|')
+                potential_title = parts[0].strip()
+                # Clean and validate
+                cleaned_title = self._clean_job_title(potential_title)
+                if cleaned_title and len(cleaned_title.split()) <= 6:
+                    return cleaned_title
+        
+        # Strategy 2: Look for lines matching job title patterns
+        for line in lines[:5]:
+            line = line.strip()
+            # Skip bullet points and very long lines
+            if line.startswith('•') or line.startswith('-') or len(line.split()) > 10:
                 continue
             
-            # Check for patterns first
+            # Check for patterns
             for pattern in self.job_title_patterns:
                 if re.search(pattern, line, re.IGNORECASE):
                     cleaned_title = self._clean_job_title(line)
+                    if cleaned_title and len(cleaned_title.split()) <= 6:
+                        return cleaned_title
+        
+        # Strategy 3: Look for title-like lines (short, no dates, capitalized)
+        for line in lines[:5]:
+            line = line.strip()
+            # Skip if has dates
+            if re.search(r'\d{4}', line):
+                continue
+            # Skip if has company suffixes
+            if any(suffix in line.lower() for suffix in ['inc', 'llc', 'ltd', 'corp', 'company', 'pvt', 'technologies', 'solutions']):
+                continue
+            # Skip bullet points
+            if line.startswith('•') or line.startswith('-'):
+                continue
+            # Check if it's short and looks like a title
+            if 2 <= len(line.split()) <= 6:
+                # Check if it has title-like keywords
+                title_keywords = ['engineer', 'developer', 'manager', 'director', 'analyst', 'specialist', 'consultant', 'architect', 'lead', 'senior', 'junior', 'associate', 'coordinator']
+                if any(keyword in line.lower() for keyword in title_keywords):
+                    cleaned_title = self._clean_job_title(line)
                     if cleaned_title:
                         return cleaned_title
-            
-            # Check if line looks like a job title (no dates, no company suffixes)
-            if '|' not in line and not re.search(r'\d{4}', line):
-                # Skip if it's a company name (has Inc, LLC, etc.)
-                if not any(suffix in line.lower() for suffix in ['inc', 'llc', 'ltd', 'corp', 'company', 'pvt']):
-                    # Skip if it's too long (likely a description)
-                    if len(line.split()) <= 5:
-                        cleaned_title = self._clean_job_title(line)
-                        if cleaned_title:
-                            return cleaned_title
         
-        # Try first line with cleanup as fallback
-        if lines:
-            cleaned_title = self._clean_job_title(lines[0].strip())
-            if cleaned_title:
-                return cleaned_title
+        # Fallback: try first non-empty line
+        for line in lines[:3]:
+            line = line.strip()
+            if line and not line.startswith('•') and not line.startswith('-'):
+                cleaned_title = self._clean_job_title(line)
+                if cleaned_title and 2 <= len(cleaned_title.split()) <= 8:
+                    return cleaned_title
         
         return ''
     

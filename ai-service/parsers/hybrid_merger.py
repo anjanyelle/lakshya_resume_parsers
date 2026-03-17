@@ -19,8 +19,8 @@ class HybridMerger:
     """
     
     # Field priority configuration
-    RULE_PRIORITY_FIELDS = ['email', 'phone', 'linkedin', 'github', 'dates', 'websites']
-    AI_PRIORITY_FIELDS = ['name', 'companies', 'locations', 'organizations']
+    RULE_PRIORITY_FIELDS = ['email', 'phone', 'linkedin', 'github', 'dates', 'websites', 'name']
+    AI_PRIORITY_FIELDS = ['companies', 'locations', 'organizations']
     UNION_FIELDS = ['skills', 'job_titles', 'education_institutions', 'degrees']
     LIST_MERGE_FIELDS = ['work_experience', 'education']
     

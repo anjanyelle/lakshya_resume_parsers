@@ -9,6 +9,7 @@ import {
   subscribeToParsingFailed,
 } from "../services/socket";
 import toast from "react-hot-toast";
+import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 
 interface UploadFile {
   file: File;
@@ -521,6 +522,12 @@ export default function UploadPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Debug View - Full Parsed JSON */}
+              <ParsedDataDebugView 
+                data={currentUpload.result} 
+                candidateId={currentUpload.candidateId}
+              />
             </div>
           )}
         </div>

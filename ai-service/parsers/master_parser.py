@@ -263,14 +263,14 @@ class MasterParser:
         sections = self._split_sections(text)
         metrics['section_splitting_ms'] = (time.time() - step_start) * 1000
         
-        # Step 3: Rule-based parsing
+        # Step 3: Rule-based parsing (pass sections for skills extraction)
         step_start = time.time()
-        rule_results = self._run_rule_parsing(text)
+        rule_results = self._run_rule_parsing(text, sections)
         metrics['rule_parsing_ms'] = (time.time() - step_start) * 1000
         
-        # Step 4: AI entity extraction
+        # Step 4: AI entity extraction (pass sections for skills extraction)
         step_start = time.time()
-        ai_results = self._run_ai_parsing(text)
+        ai_results = self._run_ai_parsing(text, sections)
         metrics['ai_parsing_ms'] = (time.time() - step_start) * 1000
         
         # Step 5: Extract structured experience
@@ -328,7 +328,7 @@ class MasterParser:
         
         return self.section_splitter.split_sections(text)
     
-    def _run_rule_parsing(self, text: str) -> Dict[str, Any]:
+    def _run_rule_parsing(self, text: str, sections: Dict[str, str] = None) -> Dict[str, Any]:
         """Run rule-based parsing on text."""
         if not self.rule_parser:
             self.logger.warning("RuleBasedParser not available, returning empty results")
@@ -344,9 +344,15 @@ class MasterParser:
             'years_of_experience': self.rule_parser.extract_years_of_experience(text)
         }
         
-        # Add skills extraction if available
+        # Add skills extraction if available - use skills section if present
         if hasattr(self.rule_parser, 'extract_skills'):
-            result['skills'] = self.rule_parser.extract_skills(text)
+            skills_text = text
+            if sections and sections.get('skills'):
+                skills_text = sections.get('skills')
+                self.logger.info(f"Extracting skills from skills section ({len(skills_text)} chars)")
+            else:
+                self.logger.warning("No skills section found, using full text for skills extraction")
+            result['skills'] = self.rule_parser.extract_skills(skills_text)
         
         # Add name extraction if available
         if hasattr(self.rule_parser, 'extract_name'):
@@ -354,20 +360,32 @@ class MasterParser:
         
         return result
     
-    def _run_ai_parsing(self, text: str) -> Dict[str, Any]:
+    def _run_ai_parsing(self, text: str, sections: Dict[str, str] = None) -> Dict[str, Any]:
         """Run AI entity extraction on text."""
         if not self.ai_parser:
             self.logger.warning("AINamedEntityParser not available, returning empty results")
             return {}
         
+        # Extract entities from full text for names, companies, locations
         entities = self.ai_parser.extract_entities(text)
+        
+        # Extract skills from skills section if available
+        skills = []
+        if sections and sections.get('skills'):
+            skills_text = sections.get('skills')
+            self.logger.info(f"Extracting AI skills from skills section ({len(skills_text)} chars)")
+            skills_entities = self.ai_parser.extract_entities(skills_text)
+            skills = self.ai_parser.get_skills(skills_entities)
+        else:
+            self.logger.warning("No skills section found, using full text for AI skills extraction")
+            skills = self.ai_parser.get_skills(entities)
         
         return {
             'name': self.ai_parser.get_top_person(entities),
             'companies': self.ai_parser.get_organizations(entities),
             'locations': self.ai_parser.get_locations(entities),
             'misc_entities': self.ai_parser.get_misc_entities(entities),
-            'skills': self.ai_parser.get_skills(entities),
+            'skills': skills,
             'ai_entities': entities  # Keep raw entities for reference
         }
     

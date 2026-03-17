@@ -34,6 +34,26 @@ class AINamedEntityParser:
 
         logger.info("All NER models loaded successfully")
 
+    def _clean_entity_value(self, value: str) -> str:
+        """Clean entity value by removing BERT tokenization artifacts and normalizing."""
+        if not value:
+            return ""
+        
+        # Remove ## prefix from BERT WordPiece tokens
+        value = value.replace('##', '')
+        
+        # Remove leading/trailing whitespace
+        value = value.strip()
+        
+        # Remove special characters that shouldn't be in entity names
+        value = value.replace('[CLS]', '').replace('[SEP]', '').replace('[PAD]', '')
+        
+        # Normalize multiple spaces to single space
+        import re
+        value = re.sub(r'\s+', ' ', value)
+        
+        return value
+    
     def extract_entities(self, text: str) -> dict:
         chunks = self._chunk_text(text, max_words=300, overlap=50)
 
@@ -52,7 +72,7 @@ class AINamedEntityParser:
                 results = self.ner_pipeline(chunk)
                 for entity in results:
                     label = entity['entity_group']
-                    value = entity['word'].strip()
+                    value = self._clean_entity_value(entity['word'])
                     score = float(entity['score'])
                     if not value or len(value) < 2:
                         continue
@@ -74,7 +94,7 @@ class AINamedEntityParser:
                 try:
                     results = self.skill_pipeline(chunk)
                     for entity in results:
-                        value = entity['word'].strip()
+                        value = self._clean_entity_value(entity['word'])
                         score = float(entity['score'])
                         if score > 0.75 and len(value) > 1:
                             entities['skills'].append({'value': value, 'score': score})

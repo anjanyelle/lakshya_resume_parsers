@@ -218,6 +218,7 @@ class SectionSplitter:
             'key capabilities', 'professional capabilities',
             'proficiencies', 'technical proficiencies',
             'technical skills', 'technical expertise',
+            'technical skills matrix', 'skills matrix', 'technology matrix',
             'key skills', 'core skills', 'primary skills',
             'specialized skills', 'specializations', 'specialties',
             'professional skills',
@@ -841,10 +842,24 @@ class SectionSplitter:
         """Remove common PDF extraction artifacts that break section detection."""
         # Remove cid: font encoding artifacts
         text = re.sub(r'\(cid:\d+\)', '', text)
+        
+        # Normalize bullet points to standard format
+        text = re.sub(r'[●○■□▪▫•‣⁃◦⦾⦿]', '•', text)
+        
         # Normalize runs of 3+ spaces to newlines (multi-column PDF artifacts)
         text = re.sub(r' {3,}', '\n', text)
+        
         # Remove zero-width and other invisible characters
         text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
+        
+        # Normalize multiple consecutive newlines to max 2
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        # Remove trailing/leading whitespace from each line while preserving structure
+        lines = text.split('\n')
+        lines = [line.rstrip() for line in lines]
+        text = '\n'.join(lines)
+        
         return text
 
     def split_sections(self, text: str) -> Dict[str, str]:
@@ -859,6 +874,13 @@ class SectionSplitter:
         """
         try:
             text = self._clean_pdf_artifacts(text)
+            
+            # Pre-process: Split ALL CAPS headers that are merged with content
+            # e.g., "some text. PROFESSIONAL EXPERIENCE" -> "some text.\nPROFESSIONAL EXPERIENCE"
+            # Match: lowercase/punctuation + space + 2+ ALL CAPS words
+            text = re.sub(r'([a-z.!?])\s+([A-Z]{2,}(?:\s+[A-Z]{2,})+)\s*$', r'\1\n\2', text, flags=re.MULTILINE)
+            text = re.sub(r'([a-z.!?])\s+([A-Z]{2,}(?:\s+[A-Z]{2,})+)(?=\s)', r'\1\n\2', text)
+            
             sections = {}
             current_section = 'other'
             current_content = []
@@ -874,7 +896,12 @@ class SectionSplitter:
                 if section_name:
                     # Save previous section content
                     if current_content:
-                        sections[current_section] = '\n'.join(current_content).strip()
+                        content_text = '\n'.join(current_content).strip()
+                        # If section already exists, append with separator
+                        if current_section in sections:
+                            sections[current_section] += '\n\n' + content_text
+                        else:
+                            sections[current_section] = content_text
                     
                     # Start new section
                     current_section = section_name
@@ -916,31 +943,42 @@ class SectionSplitter:
             # Remove extra whitespace and check patterns
             clean_line = line.strip()
             
-            # Check for ALL CAPS headers (more permissive)
-            if clean_line.isupper() and len(clean_line) > 2:
-                return self._match_section_keywords(clean_line.lower())
+            # STRICT HEADER DETECTION - Only detect actual section headers, not content
             
-            # Check for headers with special characters
-            if any(char in clean_line for char in [':', '-', '=', '_', '|']):
-                header_text = re.sub(r'[:\-=_\|\s]+$', '', clean_line).strip()
-                return self._match_section_keywords(header_text.lower())
+            # Exclude lines with colons followed by content (these are labels, not headers)
+            # e.g., "Programming: Python, Java" or "Skills: AWS, Docker"
+            if ':' in clean_line:
+                parts = clean_line.split(':', 1)
+                if len(parts) == 2 and len(parts[1].strip()) > 0:
+                    # This is a label with content, not a header
+                    return None
             
-            # Check for Title Case headers with common section words
-            if any(word in clean_line.lower() for word in ['experience', 'education', 'skills', 'summary', 'projects', 'certifications']):
-                return self._match_section_keywords(clean_line.lower())
+            # Strategy 1: ALL CAPS headers (most reliable)
+            if clean_line.isupper() and len(clean_line) > 2 and len(clean_line.split()) <= 10:
+                result = self._match_section_keywords(clean_line.lower())
+                if result:
+                    self.logger.info(f"✅ Detected ALL CAPS header: '{clean_line}' → section: {result}")
+                    return result
             
-            # Check for title case headers
+            # Strategy 2: Short standalone lines that match section keywords exactly
+            # Must be ≤ 6 words to avoid matching descriptive sentences
+            if len(clean_line.split()) <= 6:
+                result = self._match_section_keywords(clean_line.lower())
+                if result:
+                    self.logger.info(f"✅ Detected short header: '{clean_line}' → section: {result}")
+                    return result
+            
+            # Strategy 3: Title Case headers (short only)
             if clean_line.istitle() and len(clean_line.split()) <= 5:
-                return self._match_section_keywords(clean_line.lower())
-            
-            # Check against section keywords directly
-            keyword_result = self._match_section_keywords(clean_line.lower())
-            if keyword_result:
-                return keyword_result
+                result = self._match_section_keywords(clean_line.lower())
+                if result:
+                    self.logger.info(f"✅ Detected title case header: '{clean_line}' → section: {result}")
+                    return result
             
             # No keyword matched — try semantic matching as fallback
             semantic_result = self.detect_section_header_semantic(clean_line)
             if semantic_result:
+                self.logger.info(f"✅ Detected via semantic matching: '{clean_line}' → section: {semantic_result}")
                 return semantic_result
 
             return None
