@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "resume_text": "# Version 1: Standard format\n        JOHN DOE\n        Senior Software Engineer\n        San Francisco, CA • (555) 555-5555 • john.doe@example.com\n        \n        PROFESSIONAL SUMMARY\n        Experienced software engineer with 5+ years...",
+    "expected_output": {
+      "basics": {
+        "name": "JOHN DOE",
+        "email": "john.doe@example.com",
+        "phone": "(555) 555-5555",
+        "location": " Standard format\n        JOHN DOE\n        Senior Software Engineer\n        San Francisco, CA"
+      },
+      "profile": {
+        "summary": "Experienced software engineer with 5+ years..."
+      },
+      "work": [],
+      "education": [],
+      "skills": [],
+      "certifications": [],
+      "projects": [],
+      "achievements": [],
+      "volunteer": [],
+      "publications": [],
+      "awards": [],
+      "hobbies": [],
+      "languages": [],
+      "references": [],
+      "texts": {
+        "additional_text": "\n        # Version 1: Standard format\n        JOHN DOE\n        Senior Software Engineer\n        San Francisco, CA • (555) 555-5555 • john.doe@example.com\n        \n        PROFESSIONAL SUMMARY\n        Experienced software engineer with 5+ years...\n        "
+      }
+    },
+    "metadata": {
+      "created_at": "2026-03-16T10:55:58.287081",
+      "source": "my_resume_collection",
+      "quality_score": 1.0,
+      "verified": true,
+      "format_type": "resume_version_1",
+      "industry": "my_industry"
+    }
+  },
+  {
+    "id": 2,
+    "resume_text": "# Version 2: Different format\n        Jane Smith\n        Data Scientist\n        New York, NY • (555) 555-5555 • jane.smith@example.com\n        \n        SUMMARY\n        Data scientist with expertise in machine learning...",
+    "expected_output": {
+      "basics": {
+        "email": "jane.smith@example.com",
+        "phone": "(555) 555-5555",
+        "location": " Different format\n        Jane Smith\n        Data Scientist\n        New York, NY"
+      },
+      "profile": {
+        "summary": "Data scientist with expertise in machine learning..."
+      },
+      "work": [],
+      "education": [],
+      "skills": [],
+      "certifications": [],
+      "projects": [],
+      "achievements": [],
+      "volunteer": [],
+      "publications": [],
+      "awards": [],
+      "hobbies": [],
+      "languages": [],
+      "references": [],
+      "texts": {
+        "additional_text": "\n        # Version 2: Different format\n        Jane Smith\n        Data Scientist\n        New York, NY • (555) 555-5555 • jane.smith@example.com\n        \n        SUMMARY\n        Data scientist with expertise in machine learning...\n        "
+      }
+    },
+    "metadata": {
+      "created_at": "2026-03-16T10:55:59.898910",
+      "source": "my_resume_collection",
+      "quality_score": 1.0,
+      "verified": true,
+      "format_type": "resume_version_2",
+      "industry": "my_industry"
+    }
+  },
+  {
+    "id": 3,
+    "resume_text": "# Version 3: Add your other resume versions\n        [ADD YOUR OTHER RESUME VERSIONS HERE]",
+    "expected_output": {
+      "basics": {
+        "name": "[ADD YOUR OTHER RESUME VERSIONS HERE]"
+      },
+      "profile": {},
+      "work": [],
+      "education": [],
+      "skills": [],
+      "certifications": [],
+      "projects": [],
+      "achievements": [],
+      "volunteer": [],
+      "publications": [],
+      "awards": [],
+      "hobbies": [],
+      "languages": [],
+      "references": [],
+      "texts": {
+        "additional_text": "\n        # Version 3: Add your other resume versions\n        [ADD YOUR OTHER RESUME VERSIONS HERE]\n        "
+      }
+    },
+    "metadata": {
+      "created_at": "2026-03-16T10:56:00.508812",
+      "source": "my_resume_collection",
+      "quality_score": 1.0,
+      "verified": true,
+      "format_type": "resume_version_3",
+      "industry": "my_industry"
+    }
+  }
+]

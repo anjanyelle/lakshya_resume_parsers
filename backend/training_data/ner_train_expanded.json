@@ -1,0 +1,9854 @@
+[
+  [
+    "Working as Senior Data Analyst",
+    {
+      "entities": [
+        [
+          11,
+          30,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Hired as Sr Data Analyst",
+    {
+      "entities": [
+        [
+          9,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Title is Sr. Data Analyst",
+    {
+      "entities": [
+        [
+          9,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position of Principal Data Analyst",
+    {
+      "entities": [
+        [
+          12,
+          34,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role of Lead Data Analyst",
+    {
+      "entities": [
+        [
+          8,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Analytics Lead position",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Analyst internship",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Business Data Analyst role",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Business Analyst",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Business Analyst position",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Principal Business Analyst",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr. Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Java Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Lead Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Principal Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Java Backend Developer",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Backend Developer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Frontend Developer position",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Frontend Developer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Machine Learning Engineer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "ML Engineer position",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "ML Eng role",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior ML Engineer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr ML Engineer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Lead ML Engineer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Principal ML Engineer",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Machine Learning Developer",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "AI Engineer position",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior AI Engineer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Software Engineer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Software Engineer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Software Engineer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Lead Software Engineer",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Principal Software Engineer",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "DevOps Engineer",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior DevOps Engineer",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Scientist",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Data Scientist",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Data Scientist",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Product Manager",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Product Manager",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Technical Lead",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Solutions Architect",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cloud Architect",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Security Engineer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "QA Engineer",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Database Administrator",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "System Administrator",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Network Engineer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Mobile Developer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "UI/UX Designer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Project Manager",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Scrum Master",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Business Analyst",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Engineer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Data Engineer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Big Data Engineer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Platform Engineer",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Analytics Engineer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Research Scientist",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Software Architect",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Enterprise Architect",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Technical Architect",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Infrastructure Engineer",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Platform Engineer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Site Reliability Engineer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Full Stack Engineer",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Backend Engineer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Frontend Engineer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Test Engineer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automation Engineer",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Performance Engineer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Quality Engineer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Release Engineer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Build Engineer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Configuration Engineer",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Integration Engineer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Solutions Consultant",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Technical Consultant",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Systems Analyst",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "IT Manager",
+    {
+      "entities": [
+        [
+          0,
+          10,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Engineering Manager",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Director of Engineering",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "VP of Engineering",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "CTO",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Chief Technology Officer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Chief Architect",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Chief Data Officer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Manager",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Analytics Manager",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "BI Manager",
+    {
+      "entities": [
+        [
+          0,
+          10,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Reporting Manager",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Team Lead",
+    {
+      "entities": [
+        [
+          0,
+          9,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tech Lead",
+    {
+      "entities": [
+        [
+          0,
+          9,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Engineering Lead",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Development Lead",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Product Lead",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Program Manager",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Program Director",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Delivery Manager",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Client Manager",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Account Manager",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sales Engineer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Pre-sales Engineer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Field Engineer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Support Engineer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Maintenance Engineer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Operations Engineer",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cloud Engineer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Security Architect",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Network Architect",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Architect",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "ML Architect",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "AI Architect",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Solutions Developer",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Enterprise Developer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Core Developer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Platform Developer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Application Developer",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Web Developer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Mobile App Developer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "iOS Developer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Android Developer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "React Developer",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Angular Developer",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Vue Developer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Node Developer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Python Developer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "C# Developer",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "C++ Developer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Go Developer",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Ruby Developer",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "PHP Developer",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Scala Developer",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Kotlin Developer",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Swift Developer",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "TypeScript Developer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "JavaScript Developer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Lead Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Principal Full Stack Developer",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Google",
+    {
+      "entities": [
+        [
+          10,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed by Microsoft",
+    {
+      "entities": [
+        [
+          12,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Amazon",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Apple",
+    {
+      "entities": [
+        [
+          12,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Facebook",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Netflix",
+    {
+      "entities": [
+        [
+          14,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at IBM",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Oracle",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Cisco",
+    {
+      "entities": [
+        [
+          12,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Intel",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at NVIDIA",
+    {
+      "entities": [
+        [
+          14,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Salesforce",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Adobe",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Twitter",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at LinkedIn",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Uber",
+    {
+      "entities": [
+        [
+          14,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Airbnb",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Spotify",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Slack",
+    {
+      "entities": [
+        [
+          12,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Zoom",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Dropbox",
+    {
+      "entities": [
+        [
+          14,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at GitHub",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at GitLab",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Docker",
+    {
+      "entities": [
+        [
+          12,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at RedHat",
+    {
+      "entities": [
+        [
+          14,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at VMware",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Citrix",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Palantir",
+    {
+      "entities": [
+        [
+          12,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Accenture",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Deloitte",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at PwC",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at KPMG",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at EY",
+    {
+      "entities": [
+        [
+          14,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Capgemini",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Infosys",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at TCS",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Wipro",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at HCL",
+    {
+      "entities": [
+        [
+          14,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Cognizant",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Tech Mahindra",
+    {
+      "entities": [
+        [
+          7,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at HCLTech",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at LTI",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Mphasis",
+    {
+      "entities": [
+        [
+          14,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at JPMorgan Chase",
+    {
+      "entities": [
+        [
+          8,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Goldman Sachs",
+    {
+      "entities": [
+        [
+          7,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Bank of America",
+    {
+      "entities": [
+        [
+          12,
+          27,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Wells Fargo",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Citibank",
+    {
+      "entities": [
+        [
+          14,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Morgan Stanley",
+    {
+      "entities": [
+        [
+          8,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Barclays",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at HSBC",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Walmart",
+    {
+      "entities": [
+        [
+          8,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Target",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Home Depot",
+    {
+      "entities": [
+        [
+          12,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Lowe's",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Starbucks",
+    {
+      "entities": [
+        [
+          14,
+          23,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at McDonald's",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Coca-Cola",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at PepsiCo",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at UnitedHealth",
+    {
+      "entities": [
+        [
+          8,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Pfizer",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Johnson & Johnson",
+    {
+      "entities": [
+        [
+          12,
+          29,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Merck",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Roche",
+    {
+      "entities": [
+        [
+          14,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at Tesla",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Ford",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at GM",
+    {
+      "entities": [
+        [
+          12,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Toyota",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Honda",
+    {
+      "entities": [
+        [
+          14,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at AT&T",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Verizon",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at T-Mobile",
+    {
+      "entities": [
+        [
+          12,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Sprint",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Comcast",
+    {
+      "entities": [
+        [
+          14,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at ExxonMobil",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Chevron",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Shell",
+    {
+      "entities": [
+        [
+          12,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at BP",
+    {
+      "entities": [
+        [
+          8,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at ConocoPhillips",
+    {
+      "entities": [
+        [
+          14,
+          28,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Work at GE",
+    {
+      "entities": [
+        [
+          8,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Job at Boeing",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Lockheed Martin",
+    {
+      "entities": [
+        [
+          12,
+          27,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role at Raytheon",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience at Northrop Grumman",
+    {
+      "entities": [
+        [
+          14,
+          30,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Home Depot",
+    {
+      "entities": [
+        [
+          7,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Huntington Bank",
+    {
+      "entities": [
+        [
+          7,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Walgreens",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT T-Mobile",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Ceva Logistics",
+    {
+      "entities": [
+        [
+          7,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Bank of America",
+    {
+      "entities": [
+        [
+          7,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Starbucks",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Amazon",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Google",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Microsoft",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Apple",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Facebook",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Netflix",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT IBM",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Oracle",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Cisco",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Intel",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT NVIDIA",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Salesforce",
+    {
+      "entities": [
+        [
+          7,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Adobe",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Twitter",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT LinkedIn",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Uber",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Airbnb",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Spotify",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Slack",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Zoom",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Dropbox",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT GitHub",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT GitLab",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Docker",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT VMware",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Citrix",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Palantir",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Accenture",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Deloitte",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT PwC",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT KPMG",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT EY",
+    {
+      "entities": [
+        [
+          7,
+          9,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Infosys",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT TCS",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Wipro",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT HCL",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Cognizant",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Capgemini",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Tech Mahindra",
+    {
+      "entities": [
+        [
+          7,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT HCLTech",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked from January 2020 to December 2022",
+    {
+      "entities": [
+        [
+          12,
+          24,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked from January 2020 to December 2022",
+    {
+      "entities": [
+        [
+          28,
+          41,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "June 2023 to Present",
+    {
+      "entities": [
+        [
+          0,
+          9,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "June 2023 to Present",
+    {
+      "entities": [
+        [
+          13,
+          20,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2020 – 2023",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2020 – 2023",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "August 2020 – May 2023",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "August 2020 – May 2023",
+    {
+      "entities": [
+        [
+          14,
+          22,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2018 - Current",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2018 - Current",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2017 to 2020",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2017 to 2020",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Started in Jan 2020",
+    {
+      "entities": [
+        [
+          11,
+          19,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Left in Dec 2022",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From Feb 2018",
+    {
+      "entities": [
+        [
+          5,
+          13,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Until Mar 2021",
+    {
+      "entities": [
+        [
+          6,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined Apr 2019",
+    {
+      "entities": [
+        [
+          7,
+          15,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Resigned May 2023",
+    {
+      "entities": [
+        [
+          9,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Began Jun 2020",
+    {
+      "entities": [
+        [
+          6,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Jul 2022",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Started Aug 2021",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished Sep 2023",
+    {
+      "entities": [
+        [
+          9,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Commenced Oct 2018",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Concluded Nov 2020",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked during 2019",
+    {
+      "entities": [
+        [
+          14,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed in 2020",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position in 2021",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Role in 2022",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience from 2023",
+    {
+      "entities": [
+        [
+          16,
+          20,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Period 2020-2023",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Period 2020-2023",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Duration 2018-2021",
+    {
+      "entities": [
+        [
+          9,
+          13,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Duration 2018-2021",
+    {
+      "entities": [
+        [
+          14,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Timeframe 2019-2022",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Timeframe 2019-2022",
+    {
+      "entities": [
+        [
+          15,
+          19,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Span 2020-2023",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Span 2020-2023",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2020 - Present",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2020 - Present",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2021 - Current",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2021 - Current",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2022 - Ongoing",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2022 - Ongoing",
+    {
+      "entities": [
+        [
+          7,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2023 - Till date",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "2023 - Till date",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Education from 2016 to 2020",
+    {
+      "entities": [
+        [
+          15,
+          19,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Education from 2016 to 2020",
+    {
+      "entities": [
+        [
+          23,
+          27,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Graduated in 2019",
+    {
+      "entities": [
+        [
+          13,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Degree completed 2018",
+    {
+      "entities": [
+        [
+          17,
+          21,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Batch 2017-2021",
+    {
+      "entities": [
+        [
+          6,
+          10,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Batch 2017-2021",
+    {
+      "entities": [
+        [
+          11,
+          15,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certified in 2020",
+    {
+      "entities": [
+        [
+          13,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certificate obtained 2021",
+    {
+      "entities": [
+        [
+          21,
+          25,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Valid from 2022",
+    {
+      "entities": [
+        [
+          11,
+          15,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Valid until 2025",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Expires 2024",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Renewed 2023",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "March 2017",
+    {
+      "entities": [
+        [
+          0,
+          10,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "April 2018",
+    {
+      "entities": [
+        [
+          0,
+          10,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "May 2019",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "June 2020",
+    {
+      "entities": [
+        [
+          0,
+          9,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "July 2021",
+    {
+      "entities": [
+        [
+          0,
+          9,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "August 2022",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "September 2023",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "October 2024",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "November 2016",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "December 2017",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Jan 2020",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Feb 2021",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Mar 2022",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Apr 2023",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "May 2019",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Jun 2018",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Jul 2017",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Aug 2016",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sep 2020",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oct 2021",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Nov 2022",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Dec 2023",
+    {
+      "entities": [
+        [
+          0,
+          8,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From 2020 to 2023",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From 2020 to 2023",
+    {
+      "entities": [
+        [
+          13,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Between 2018 and 2021",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Between 2018 and 2021",
+    {
+      "entities": [
+        [
+          17,
+          21,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "During 2019-2022",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "During 2019-2022",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Throughout 2020-2023",
+    {
+      "entities": [
+        [
+          11,
+          15,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Throughout 2020-2023",
+    {
+      "entities": [
+        [
+          16,
+          20,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Python for data processing",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Expert in Java development",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Skilled in JavaScript",
+    {
+      "entities": [
+        [
+          11,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Experience with Node",
+    {
+      "entities": [
+        [
+          16,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Knowledge of SQL",
+    {
+      "entities": [
+        [
+          13,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Redis for caching",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Deployed Docker containers",
+    {
+      "entities": [
+        [
+          9,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Managed Kubernetes clusters",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked with AWS cloud",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Azure pipelines",
+    {
+      "entities": [
+        [
+          6,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used GCP platform",
+    {
+      "entities": [
+        [
+          5,
+          8,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Wrote Terraform scripts",
+    {
+      "entities": [
+        [
+          6,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Configured Jenkins CI",
+    {
+      "entities": [
+        [
+          11,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Git version control",
+    {
+      "entities": [
+        [
+          5,
+          8,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Managed Linux servers",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Installed Apache web server",
+    {
+      "entities": [
+        [
+          10,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Configured Nginx proxy",
+    {
+      "entities": [
+        [
+          11,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Spark big data",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked with Hadoop",
+    {
+      "entities": [
+        [
+          12,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Kafka streaming",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Elasticsearch search",
+    {
+      "entities": [
+        [
+          6,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Trained TensorFlow models",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used PyTorch framework",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Analyzed with Pandas",
+    {
+      "entities": [
+        [
+          14,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Computed with NumPy",
+    {
+      "entities": [
+        [
+          14,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Created Power reports",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Tableau dashboards",
+    {
+      "entities": [
+        [
+          6,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Excel spreadsheets",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Wrote VBA macros",
+    {
+      "entities": [
+        [
+          6,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Programmed in Python",
+    {
+      "entities": [
+        [
+          14,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automated with Python",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used AWS Glue",
+    {
+      "entities": [
+        [
+          5,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with PySpark",
+    {
+      "entities": [
+        [
+          15,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Queried Snowflake",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Analyzed with Databricks",
+    {
+      "entities": [
+        [
+          14,
+          24,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Orchestrated Airflow",
+    {
+      "entities": [
+        [
+          13,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Streamed with Kafka",
+    {
+      "entities": [
+        [
+          14,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Transformed with Dbt",
+    {
+      "entities": [
+        [
+          17,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automated GitHub Actions",
+    {
+      "entities": [
+        [
+          10,
+          24,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Implemented DevOps",
+    {
+      "entities": [
+        [
+          12,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built MicroStrategy",
+    {
+      "entities": [
+        [
+          6,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Analyzed with Looker",
+    {
+      "entities": [
+        [
+          14,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Power BI",
+    {
+      "entities": [
+        [
+          5,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Streamed with Beam",
+    {
+      "entities": [
+        [
+          14,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with Spark",
+    {
+      "entities": [
+        [
+          15,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automated Jenkins",
+    {
+      "entities": [
+        [
+          10,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Managed GitLab",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Bitbucket",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Containerized with Docker",
+    {
+      "entities": [
+        [
+          19,
+          25,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Orchestrated Kubernetes",
+    {
+      "entities": [
+        [
+          13,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Wrote Terraform",
+    {
+      "entities": [
+        [
+          6,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Configured Ansible",
+    {
+      "entities": [
+        [
+          11,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automated with Puppet",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Chef",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Monitored Prometheus",
+    {
+      "entities": [
+        [
+          10,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Grafana",
+    {
+      "entities": [
+        [
+          6,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Logged with ELK",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Visualized with Kibana",
+    {
+      "entities": [
+        [
+          16,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with Logstash",
+    {
+      "entities": [
+        [
+          15,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used React",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Angular",
+    {
+      "entities": [
+        [
+          6,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Created Vue",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Express",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Spring",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Spring Boot",
+    {
+      "entities": [
+        [
+          11,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Hibernate ORM",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Spring MVC",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Maven build",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Gradle",
+    {
+      "entities": [
+        [
+          11,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tested with JUnit",
+    {
+      "entities": [
+        [
+          12,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Mockito framework",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automated with Selenium",
+    {
+      "entities": [
+        [
+          15,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tested with Cypress",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Postman API",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built RabbitMQ messaging",
+    {
+      "entities": [
+        [
+          6,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used IBM MQ",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Apache Beam",
+    {
+      "entities": [
+        [
+          6,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Delta Lake",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Apache Iceberg",
+    {
+      "entities": [
+        [
+          6,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Parquet format",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with Hadoop",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Hive queries",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Cassandra",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built DynamoDB",
+    {
+      "entities": [
+        [
+          6,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Elasticsearch",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Monitored with Splunk",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Confluence docs",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tracked with JIRA",
+    {
+      "entities": [
+        [
+          13,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Followed Agile",
+    {
+      "entities": [
+        [
+          9,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Scrum",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied TDD",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built REST APIs",
+    {
+      "entities": [
+        [
+          6,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used GraphQL",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Implemented OAuth",
+    {
+      "entities": [
+        [
+          12,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used SonarQube",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with R",
+    {
+      "entities": [
+        [
+          15,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used MATLAB",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Keras models",
+    {
+      "entities": [
+        [
+          6,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used XGBoost",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied PCA",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Random Forest",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Linear Regression",
+    {
+      "entities": [
+        [
+          6,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Logistic Regression",
+    {
+      "entities": [
+        [
+          8,
+          27,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Decision Trees",
+    {
+      "entities": [
+        [
+          5,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Neural Networks",
+    {
+      "entities": [
+        [
+          6,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Deep Learning",
+    {
+      "entities": [
+        [
+          8,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Computer Vision",
+    {
+      "entities": [
+        [
+          5,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied NLP",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Natural Language Processing",
+    {
+      "entities": [
+        [
+          5,
+          32,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Time Series",
+    {
+      "entities": [
+        [
+          6,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Anomaly Detection",
+    {
+      "entities": [
+        [
+          8,
+          25,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Clustering",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Classification",
+    {
+      "entities": [
+        [
+          8,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Regression",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Recommendation",
+    {
+      "entities": [
+        [
+          6,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied A/B Testing",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Statistical Analysis",
+    {
+      "entities": [
+        [
+          5,
+          25,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Data Mining",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Data Visualization",
+    {
+      "entities": [
+        [
+          5,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Data Warehousing",
+    {
+      "entities": [
+        [
+          6,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied ETL",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Data Pipeline",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Data Lake",
+    {
+      "entities": [
+        [
+          6,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Data Governance",
+    {
+      "entities": [
+        [
+          8,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Data Quality",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Master Data",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Reference Data",
+    {
+      "entities": [
+        [
+          5,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Metadata",
+    {
+      "entities": [
+        [
+          6,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Data Catalog",
+    {
+      "entities": [
+        [
+          8,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Data Lineage",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Data Privacy",
+    {
+      "entities": [
+        [
+          8,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Data Security",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Compliance",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used GDPR",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied HIPAA",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used SOX",
+    {
+      "entities": [
+        [
+          5,
+          8,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied PCI",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Microservices",
+    {
+      "entities": [
+        [
+          6,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Service Mesh",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied API Gateway",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Load Balancer",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Circuit Breaker",
+    {
+      "entities": [
+        [
+          8,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Rate Limiting",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Caching",
+    {
+      "entities": [
+        [
+          8,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used CDN",
+    {
+      "entities": [
+        [
+          5,
+          8,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied CDN",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Edge Computing",
+    {
+      "entities": [
+        [
+          5,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Serverless",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used FaaS",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Lambda",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Functions",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Event Driven",
+    {
+      "entities": [
+        [
+          8,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Event Sourcing",
+    {
+      "entities": [
+        [
+          5,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied CQRS",
+    {
+      "entities": [
+        [
+          8,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Saga Pattern",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Distributed",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Microkernel",
+    {
+      "entities": [
+        [
+          5,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Monolith",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Modular",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Hexagonal",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Clean Architecture",
+    {
+      "entities": [
+        [
+          5,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied DDD",
+    {
+      "entities": [
+        [
+          8,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Domain Driven Design",
+    {
+      "entities": [
+        [
+          5,
+          25,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Bounded Context",
+    {
+      "entities": [
+        [
+          8,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Aggregate Root",
+    {
+      "entities": [
+        [
+          5,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Event Storming",
+    {
+      "entities": [
+        [
+          8,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Context Mapping",
+    {
+      "entities": [
+        [
+          5,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Anti Corruption",
+    {
+      "entities": [
+        [
+          8,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Shared Kernel",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Conformist",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Customer Supplier",
+    {
+      "entities": [
+        [
+          5,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Open Host",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Published Language",
+    {
+      "entities": [
+        [
+          5,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Ubiquitous",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Bounded Context",
+    {
+      "entities": [
+        [
+          5,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Entity",
+    {
+      "entities": [
+        [
+          8,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Value Object",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Repository",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Factory",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Strategy",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Command",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Query",
+    {
+      "entities": [
+        [
+          8,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Event",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Applied Aggregate",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Bachelor of Technology degree",
+    {
+      "entities": [
+        [
+          10,
+          32,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned B.Tech from college",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished Bachelor of Engineering course",
+    {
+      "entities": [
+        [
+          9,
+          32,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed B.E Computer Engineering",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor of Science degree",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned B.Sc Computer Science",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor of Arts degree",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed B.A. Economics",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor of Commerce degree",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned B.Com Accounting",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor of Business Administration",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed BBA Marketing",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor of Computer Applications",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned BCA Software",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor of Information Technology",
+    {
+      "entities": [
+        [
+          0,
+          34,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed BIT Networking",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Technology degree",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned M.Tech in CS",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Engineering degree",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed M.E. Software",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Science degree",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned M.Sc Data Science",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Arts degree",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed M.A. English",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Commerce degree",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned M.Com Finance",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Business Administration",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed MBA Finance",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Computer Applications",
+    {
+      "entities": [
+        [
+          0,
+          31,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned MCA Systems",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master of Information Technology",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed MIT Security",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Doctor of Philosophy degree",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Ph.D. Computer Science",
+    {
+      "entities": [
+        [
+          10,
+          15,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PhD in Machine Learning",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Doctor of Engineering",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Doctor of Science",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Doctor of Business Administration",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Associate Degree completed",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Associate of Science",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Associate of Arts",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Diploma in IT completed",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Post Graduate Diploma",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PGD in Computer Science",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certificate in Data Science",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Advanced Certificate",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bharath University Bachelor of Technology",
+    {
+      "entities": [
+        [
+          19,
+          41,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "IIT Bombay B.Tech Computer Science",
+    {
+      "entities": [
+        [
+          11,
+          17,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "IIM Ahmedabad MBA",
+    {
+      "entities": [
+        [
+          14,
+          17,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MIT Master of Science",
+    {
+      "entities": [
+        [
+          4,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Stanford University PhD",
+    {
+      "entities": [
+        [
+          20,
+          23,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Anna University B.E",
+    {
+      "entities": [
+        [
+          16,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Osmania University M.Tech",
+    {
+      "entities": [
+        [
+          19,
+          25,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BITS Pilani B.E",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "NIT Warangal B.Tech",
+    {
+      "entities": [
+        [
+          13,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "VIT University M.Tech",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Pune University B.E",
+    {
+      "entities": [
+        [
+          16,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "JNTU Hyderabad B.Tech",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Delhi University M.Sc",
+    {
+      "entities": [
+        [
+          17,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Mumbai University B.Com",
+    {
+      "entities": [
+        [
+          18,
+          23,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Calcutta University B.A",
+    {
+      "entities": [
+        [
+          20,
+          23,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Chennai University MBA",
+    {
+      "entities": [
+        [
+          19,
+          22,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bangalore University BCA",
+    {
+      "entities": [
+        [
+          21,
+          24,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Hyderabad University MCA",
+    {
+      "entities": [
+        [
+          21,
+          24,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Kolkata University MIT",
+    {
+      "entities": [
+        [
+          19,
+          22,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Computer Science",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Information Technology",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Electronics",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Mechanical",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Civil",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Electrical",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.Tech Chemical",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Computer Science",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Information Technology",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Electronics",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Mechanical",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Civil",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Electrical",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "B.E Chemical",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Computer Science",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Information Technology",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Electronics",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Mechanical",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Civil",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Electrical",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.Tech Chemical",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Computer Science",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Information Technology",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Electronics",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Mechanical",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Civil",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Electrical",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "M.E Chemical",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MBBS Bachelor of Medicine",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BDS Bachelor of Dental Surgery",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "LLB Bachelor of Laws",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BEd Bachelor of Education",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BPharm Bachelor of Pharmacy",
+    {
+      "entities": [
+        [
+          0,
+          6,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BArch Bachelor of Architecture",
+    {
+      "entities": [
+        [
+          0,
+          5,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BDes Bachelor of Design",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BFa Bachelor of Fine Arts",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BCom Bachelor of Commerce",
+    {
+      "entities": [
+        [
+          0,
+          4,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BA Bachelor of Arts",
+    {
+      "entities": [
+        [
+          0,
+          2,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BSc Bachelor of Science",
+    {
+      "entities": [
+        [
+          0,
+          3,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BTech Bachelor of Technology",
+    {
+      "entities": [
+        [
+          0,
+          5,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BE Bachelor of Engineering",
+    {
+      "entities": [
+        [
+          0,
+          2,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bachelor Degree",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Master Degree",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Doctorate Degree",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Undergraduate Degree",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Graduate Degree",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Postgraduate Degree",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Professional Degree",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Technical Degree",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Academic Degree",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Research Degree",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Solutions Architect",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Developer Associate",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Data Analytics",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Machine Learning",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Cloud Practitioner",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Security Specialty",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Networking Specialty",
+    {
+      "entities": [
+        [
+          0,
+          34,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Database Specialty",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Big Data Specialty",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Certified Alexa Skill Builder",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Expert",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Solutions Expert",
+    {
+      "entities": [
+        [
+          0,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Azure Administrator",
+    {
+      "entities": [
+        [
+          0,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Azure Developer",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Azure Data Engineer",
+    {
+      "entities": [
+        [
+          0,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Azure AI Engineer",
+    {
+      "entities": [
+        [
+          0,
+          37,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Azure Fundamentals",
+    {
+      "entities": [
+        [
+          0,
+          38,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Azure Security Engineer",
+    {
+      "entities": [
+        [
+          0,
+          43,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified DevOps Engineer",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Solutions Architect",
+    {
+      "entities": [
+        [
+          0,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Associate Cloud Engineer",
+    {
+      "entities": [
+        [
+          0,
+          31,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional Data Engineer",
+    {
+      "entities": [
+        [
+          0,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional Cloud Architect",
+    {
+      "entities": [
+        [
+          0,
+          41,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional Network Engineer",
+    {
+      "entities": [
+        [
+          0,
+          42,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional Security Engineer",
+    {
+      "entities": [
+        [
+          0,
+          43,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional Collaboration Engineer",
+    {
+      "entities": [
+        [
+          0,
+          48,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Professional Machine Learning Engineer",
+    {
+      "entities": [
+        [
+          0,
+          51,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Certified Associate",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Certified Master",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Certified Expert",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Certified Specialist",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Gen AI Certified",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Cloud Infrastructure",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Database Administrator",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Java Developer",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle PL/SQL Developer",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CISSP Information Security",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CompTIA Security Plus",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CompTIA Network Plus",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CompTIA A Plus",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CEH Certified Ethical Hacker",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CHFI Computer Hacking Forensic Investigator",
+    {
+      "entities": [
+        [
+          0,
+          43,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "ECSA EC-Council Certified Security Analyst",
+    {
+      "entities": [
+        [
+          0,
+          42,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "LPT Licensed Penetration Tester",
+    {
+      "entities": [
+        [
+          0,
+          31,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PMP Project Management Professional",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PMI ACP Agile Certified Practitioner",
+    {
+      "entities": [
+        [
+          0,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PMI PMP Project Management Professional",
+    {
+      "entities": [
+        [
+          0,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PMI RMP Risk Management Professional",
+    {
+      "entities": [
+        [
+          0,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PMI SP Scheduling Professional",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PRINCE2 Practitioner",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PRINCE2 Foundation",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AgilePM Agile Project Management",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Scrum Master Certified",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certified Scrum Master",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Professional Scrum Master",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Professional Scrum Product Owner",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "SAFe Agilist",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "SAFe Scrum Master",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "SAFe Product Owner",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certified Kubernetes Administrator",
+    {
+      "entities": [
+        [
+          0,
+          34,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certified Kubernetes Application Developer",
+    {
+      "entities": [
+        [
+          0,
+          42,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certified Kubernetes Security Specialist",
+    {
+      "entities": [
+        [
+          0,
+          40,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Red Hat Certified Engineer",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Red Hat Certified System Administrator",
+    {
+      "entities": [
+        [
+          0,
+          38,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Red Hat Certified Architect",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Docker Certified Associate",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Docker Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Jenkins Certified Engineer",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "GitLab Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "GitHub Actions certification",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "HashiCorp Certified Terraform Associate",
+    {
+      "entities": [
+        [
+          0,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "HashiCorp Certified Vault Associate",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "HashiCorp Certified Consul Associate",
+    {
+      "entities": [
+        [
+          0,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Ansible Certified Engineer",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Puppet Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Chef Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Database Administrator",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MongoDB Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MySQL Certified Database Administrator",
+    {
+      "entities": [
+        [
+          0,
+          38,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PostgreSQL Certified Associate",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cassandra Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Redis Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Neo4j Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Elasticsearch Certified Engineer",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "InfluxDB Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "SnowPro Core Certification",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "SnowPro Advanced Certification",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Databricks Certified Associate",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Databricks Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Java Certified Programmer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Oracle Java SE Programmer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Python Certified Entry Level",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Microsoft Certified Python Developer",
+    {
+      "entities": [
+        [
+          0,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "C++ Certified Programmer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "C# Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "JavaScript Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "TypeScript Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "React Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Angular Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Vue.js Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Node.js Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "TensorFlow Developer Certificate",
+    {
+      "entities": [
+        [
+          0,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "PyTorch Developer Certificate",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Scikit-learn Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Science Certificate",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Machine Learning Certificate",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Deep Learning Certificate",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Artificial Intelligence Certificate",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Engineering Certificate",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Big Data Certificate",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Analytics Certificate",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "AWS Solutions Architect",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Azure Solutions Architect",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Google Cloud Architect",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cloud Security Certificate",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cloud Native Certificate",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Multi-Cloud Certificate",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Hybrid Cloud Certificate",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cisco Certified Network Associate",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cisco Certified Network Professional",
+    {
+      "entities": [
+        [
+          0,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cisco Certified Internetwork Expert",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Juniper Certified Network Associate",
+    {
+      "entities": [
+        [
+          0,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Juniper Certified Network Professional",
+    {
+      "entities": [
+        [
+          0,
+          38,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "CompTIA Network Plus",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Network Plus Certificate",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "ITIL Foundation Certificate",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "ITIL Intermediate Certificate",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "ITIL Expert Certificate",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "ITIL Master Certificate",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Linux Professional Institute",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Linux Certified Administrator",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Linux Certified Engineer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "VMware Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          29,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "VMware Certified Advanced Professional",
+    {
+      "entities": [
+        [
+          0,
+          38,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "VMware Certified Design Expert",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Citrix Certified Administrator",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Citrix Certified Engineer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Citrix Certified Expert",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Splunk Certified Administrator",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Splunk Certified Power User",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Splunk Certified Architect",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tableau Desktop Specialist",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tableau Server Certified",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tableau Certified Associate",
+    {
+      "entities": [
+        [
+          0,
+          27,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tableau Certified Professional",
+    {
+      "entities": [
+        [
+          0,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Power BI Certified",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Power BI Data Analyst",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Power BI Developer",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "QlikView Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          28,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Qlik Sense Certified",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "LookML Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          26,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Looker Certified Analyst",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MicroStrategy Certified Developer",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MicroStrategy Certified Architect",
+    {
+      "entities": [
+        [
+          0,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ]
+]

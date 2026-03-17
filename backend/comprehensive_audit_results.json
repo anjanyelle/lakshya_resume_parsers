@@ -1,0 +1,74 @@
+{
+  "structure_backend/": false,
+  "structure_parsers/": true,
+  "structure_training_data/": true,
+  "structure_models/": true,
+  "structure_data/": true,
+  "structure_data/external/": true,
+  "ner_training_data/ner_train.json": {
+    "samples": 252,
+    "labels": [
+      "CERTIFICATION",
+      "COMPANY",
+      "DATE",
+      "EDUCATION",
+      "SKILL",
+      "TITLE"
+    ]
+  },
+  "ner_training_data/ner_train_expanded.json": {
+    "samples": 821,
+    "labels": [
+      "CERTIFICATION",
+      "COMPANY",
+      "DATE",
+      "EDUCATION",
+      "SKILL",
+      "TITLE"
+    ]
+  },
+  "ner_requirement_met": true,
+  "job_titles_dataset": {
+    "rows": 107,
+    "categories": [
+      "Business",
+      "Technology",
+      "Research"
+    ]
+  },
+  "sklearn_job_category_model.pkl": {
+    "exists": true,
+    "size": 4203
+  },
+  "sklearn_job_title_vectorizer.pkl": {
+    "exists": true,
+    "size": 6825
+  },
+  "sklearn_normalization_map.pkl": {
+    "exists": true,
+    "size": 4960
+  },
+  "job_titles_requirement_met": false,
+  "work_parser_exists": true,
+  "skill_dictionary": {
+    "size": 434,
+    "sample": [
+      "agile",
+      "airflow",
+      "airtable",
+      "alibaba cloud",
+      "android"
+    ]
+  },
+  "enhanced_skills": 89,
+  "pipeline_enhanced_pipeline_integration.py": true,
+  "pipeline_app/services/enhanced_pipeline_final.py": true,
+  "trained_ner_model": true,
+  "production_ready": true,
+  "issues": [
+    "Job titles dataset < 500 rows"
+  ],
+  "recommendations": [
+    "Expand job titles dataset to 500+ rows"
+  ]
+}

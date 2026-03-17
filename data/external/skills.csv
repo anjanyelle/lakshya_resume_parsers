@@ -1,0 +1,120 @@
+﻿skill_name,category,subcategory,level
+Python,Programming,Language,Expert
+Java,Programming,Language,Expert
+JavaScript,Programming,Language,Expert
+TypeScript,Programming,Language,Advanced
+C++,Programming,Language,Expert
+C#,Programming,Language,Advanced
+PHP,Programming,Language,Intermediate
+Ruby,Programming,Language,Intermediate
+Go,Programming,Language,Advanced
+Rust,Programming,Language,Advanced
+Swift,Programming,Language,Advanced
+Kotlin,Programming,Language,Advanced
+Scala,Programming,Language,Intermediate
+Perl,Programming,Language,Intermediate
+Shell Scripting,Programming,Language,Advanced
+PowerShell,Programming,Language,Advanced
+Bash,Programming,Language,Advanced
+SQL,Database,Language,Expert
+NoSQL,Database,Language,Advanced
+MongoDB,Database,NoSQL,Advanced
+PostgreSQL,Database,SQL,Expert
+MySQL,Database,SQL,Expert
+Oracle,Database,SQL,Advanced
+SQL Server,Database,SQL,Advanced
+SQLite,Database,SQL,Intermediate
+Redis,Database,NoSQL,Advanced
+Elasticsearch,Database,NoSQL,Advanced
+Cassandra,Database,NoSQL,Intermediate
+DynamoDB,Database,NoSQL,Intermediate
+FastAPI,Web Framework,Python,Advanced
+Django,Web Framework,Python,Expert
+Flask,Web Framework,Python,Expert
+Spring Boot,Web Framework,Java,Expert
+Express.js,Web Framework,JavaScript,Advanced
+React,Web Framework,JavaScript,Expert
+Angular,Web Framework,TypeScript,Advanced
+Vue.js,Web Framework,JavaScript,Advanced
+Next.js,Web Framework,JavaScript,Advanced
+Nuxt.js,Web Framework,JavaScript,Intermediate
+Laravel,Web Framework,PHP,Advanced
+Ruby on Rails,Web Framework,Ruby,Expert
+ASP.NET,Web Framework,C#,Advanced
+Node.js,Runtime,JavaScript,Expert
+Docker,DevOps,Containerization,Expert
+Kubernetes,DevOps,Orchestration,Expert
+Jenkins,DevOps,CI/CD,Advanced
+GitLab CI,DevOps,CI/CD,Advanced
+GitHub Actions,DevOps,CI/CD,Advanced
+Azure DevOps,DevOps,CI/CD,Advanced
+Terraform,DevOps,Infrastructure,Advanced
+Ansible,DevOps,Configuration,Advanced
+Puppet,DevOps,Configuration,Intermediate
+Chef,DevOps,Configuration,Intermediate
+AWS,Cloud,AWS,Expert
+Azure,Cloud,Azure,Advanced
+GCP,Cloud,GCP,Advanced
+Google Cloud,Cloud,GCP,Advanced
+Microsoft Azure,Cloud,Azure,Advanced
+Amazon Web Services,Cloud,AWS,Expert
+EC2,Cloud,AWS,Advanced
+S3,Cloud,AWS,Expert
+Lambda,Cloud,AWS,Advanced
+ECS,Cloud,AWS,Intermediate
+EKS,Cloud,AWS,Advanced
+RDS,Cloud,AWS,Advanced
+DynamoDB,Cloud,AWS,Intermediate
+VPC,Cloud,AWS,Advanced
+CloudFormation,Cloud,AWS,Advanced
+Azure Functions,Cloud,Azure,Advanced
+Azure DevOps,Cloud,Azure,Advanced
+Azure SQL,Cloud,Azure,Intermediate
+Blob Storage,Cloud,Azure,Advanced
+Virtual Machines,Cloud,Azure,Advanced
+Google Functions,Cloud,GCP,Intermediate
+BigQuery,Cloud,GCP,Advanced
+Cloud Storage,Cloud,GCP,Intermediate
+Compute Engine,Cloud,GCP,Advanced
+Git,Version Control,Git,Expert
+GitHub,Version Control,Git,Expert
+GitLab,Version Control,Git,Advanced
+Bitbucket,Version Control,Git,Advanced
+SVN,Version Control,SVN,Intermediate
+Mercurial,Version Control,Mercurial,Intermediate
+Machine Learning,Data Science,ML,Expert
+Deep Learning,Data Science,DL,Advanced
+Neural Networks,Data Science,DL,Advanced
+TensorFlow,Data Science,Framework,Expert
+PyTorch,Data Science,Framework,Expert
+Keras,Data Science,Framework,Advanced
+Scikit-learn,Data Science,Framework,Expert
+Pandas,Data Science,Library,Expert
+NumPy,Data Science,Library,Expert
+Matplotlib,Data Science,Visualization,Expert
+Seaborn,Data Science,Visualization,Advanced
+Plotly,Data Science,Visualization,Advanced
+Jupyter,Data Science,Tools,Expert
+Apache Spark,Data Science,Big Data,Advanced
+Hadoop,Data Science,Big Data,Intermediate
+Kafka,Data Science,Streaming,Advanced
+Airflow,Data Science,Workflow,Advanced
+Data Engineering,Data Science,Engineering,Advanced
+ETL,Data Science,Engineering,Expert
+Data Warehousing,Data Science,Engineering,Advanced
+Business Intelligence,Data Science,BI,Advanced
+Tableau,Data Science,BI,Expert
+Power BI,Data Science,BI,Expert
+Looker,Data Science,BI,Advanced
+QlikView,Data Science,BI,Intermediate
+D3.js,Data Science,Visualization,Advanced
+React Native,Mobile,Framework,Advanced
+Flutter,Mobile,Framework,Advanced
+iOS,Mobile,Platform,Advanced
+Android,Mobile,Platform,Advanced
+Swift,Mobile,Language,Advanced
+Kotlin,Mobile,Language,Advanced
+Java,Mobile,Language,Advanced
+React.js,Mobile,Framework,Advanced
+Xamarin,Mobile,Framework,Intermediate
+Cordova,Mobile,Framework,Intermediate

@@ -1,0 +1,31 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+dist/
+build/
+*.log
+.DS_Store
+storage/
+
+# AI / ML models
+backend/models/
+models/
+*.safetensors
+*.bin
+*.pt
+
+# HuggingFace cache
+.cache/
+huggingface/
+
+# datasets
+datasets/
+*.csv

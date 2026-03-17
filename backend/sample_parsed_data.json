@@ -1,0 +1,60 @@
+{
+  "basics": {
+    "name": "John Smith",
+    "email": "john.smith@email.com",
+    "phone": "(555) 123-4567",
+    "location": "New York, NY",
+    "summary": "Senior Software Engineer with 8 years of experience.",
+    "linkedin": "https://linkedin.com/in/johnsmith",
+    "github": "https://github.com/johnsmith",
+    "website": ""
+  },
+  "work": [
+    {
+      "company": "Tech Corp",
+      "title": "Senior Software Engineer",
+      "location": "New York, NY",
+      "startDate": "2020-01-01",
+      "endDate": null,
+      "description": "Led development of microservices architecture.",
+      "current": true
+    }
+  ],
+  "education": [
+    {
+      "institution": "MIT",
+      "degree": "Bachelor of Science in Computer Science",
+      "field": "Computer Science",
+      "location": "Cambridge, MA",
+      "startDate": "2014-09-01",
+      "endDate": "2018-05-30",
+      "gpa": "3.8",
+      "current": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "Python",
+      "level": "Expert",
+      "category": "Programming Languages",
+      "years_experience": "8",
+      "proficiency": "Expert"
+    },
+    {
+      "name": "React",
+      "level": "Advanced",
+      "category": "Frontend Frameworks",
+      "years_experience": "5",
+      "proficiency": "Advanced"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect",
+      "issuer": "Amazon Web Services",
+      "date": "2021-03-15",
+      "credential_id": "AWSA-123456",
+      "url": "https://aws.amazon.com/certification/"
+    }
+  ]
+}

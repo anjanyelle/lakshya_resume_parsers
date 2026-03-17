@@ -1,0 +1,6 @@
+{
+  "email": {"precision": 0.9, "recall": 0.9, "f1": 0.9},
+  "phone": {"precision": 0.85, "recall": 0.85, "f1": 0.85},
+  "name": {"precision": 0.8, "recall": 0.8, "f1": 0.8},
+  "skills": {"precision": 0.75, "recall": 0.75, "f1": 0.75}
+}

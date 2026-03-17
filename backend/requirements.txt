@@ -1,0 +1,40 @@
+# Install: pip install -r requirements.txt
+# Then: python -m spacy download en_core_web_sm  (or en_core_web_lg for better NER)
+# Optional transformer NER: pip install transformers torch
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+psycopg2-binary
+pydantic
+pydantic-settings
+email-validator
+python-multipart
+aiofiles
+python-dotenv
+dateparser
+httpx
+python-jose[cryptography]
+passlib[bcrypt]
+structlog
+prometheus-client
+sentry-sdk
+pdfplumber
+pypdf
+pymupdf
+python-docx
+pytesseract
+pillow
+pdf2image
+rapidfuzz
+spacy
+scikit-learn
+nltk
+flashtext
+phonenumbers
+celery
+redis
+boto3
+pytest
+pytest-cov
+locust

@@ -1,0 +1,171 @@
+{
+  "training_info": {
+    "created_at": "2026-03-16T13:23:27.035084",
+    "dataset_size": 3,
+    "total_examples": 3,
+    "version": "1.0"
+  },
+  "model_config": {
+    "input_format": "raw_resume_text",
+    "output_format": "structured_json",
+    "target_sections": [
+      "basics",
+      "work",
+      "education",
+      "skills",
+      "certifications"
+    ],
+    "required_fields": {
+      "basics": [
+        "name",
+        "email",
+        "phone"
+      ],
+      "work": [
+        "company",
+        "title",
+        "startDate"
+      ],
+      "education": [
+        "institution",
+        "degree"
+      ],
+      "skills": [
+        "name",
+        "level"
+      ],
+      "certifications": [
+        "name",
+        "issuer"
+      ]
+    }
+  },
+  "mapping_rules": {
+    "section_identifiers": {
+      "work": [
+        "PROFESSIONAL EXPERIENCE",
+        "WORK EXPERIENCE",
+        "EXPERIENCE",
+        "EMPLOYMENT"
+      ],
+      "education": [
+        "EDUCATION",
+        "ACADEMIC",
+        "ACADEMIC BACKGROUND"
+      ],
+      "skills": [
+        "SKILLS",
+        "TECHNICAL SKILLS",
+        "CORE COMPETENCIES",
+        "TECHNICAL EXPERTISE"
+      ],
+      "certifications": [
+        "CERTIFICATIONS",
+        "CERTIFICATION",
+        "CERTIFICATES",
+        "LICENSES"
+      ]
+    },
+    "company_patterns": [
+      "([A-Z][A-Za-z\\s&]+)\\s*\\|\\s*(\\d{4}\\s*–\\s*\\d{4}|\\d{4}\\s*–\\s*Present)",
+      "Client:\\s*([A-Z][A-Za-z\\s&]+)",
+      "Company:\\s*([A-Z][A-Za-z\\s&]+)",
+      "([A-Z][A-Za-z\\s&]+)\\s*\\|\\s*[A-Z][A-Za-z\\s&]+\\s*\\|\\s*\\d{4}"
+    ],
+    "date_patterns": [
+      "(\\d{4})\\s*–\\s*(\\d{4})",
+      "(\\d{4})\\s*–\\s*Present",
+      "(\\d{1,2})/(\\d{4})\\s*–\\s*(\\d{1,2})/(\\d{4})",
+      "(\\w{3})\\s*(\\d{4})\\s*–\\s*(\\w{3})\\s*(\\d{4})"
+    ],
+    "location_patterns": [
+      "([A-Z][a-z\\s]+,\\s*[A-Z]{2})",
+      "Location:\\s*([A-Z][a-z\\s]+,\\s*[A-Z]{2})",
+      "\\(([^)]*[A-Z]{2}[^)]*)\\)"
+    ],
+    "skill_patterns": {
+      "programming": [
+        "Python",
+        "Java",
+        "C++",
+        "JavaScript",
+        "SQL",
+        "R"
+      ],
+      "cloud": [
+        "AWS",
+        "Azure",
+        "GCP",
+        "Google Cloud"
+      ],
+      "databases": [
+        "SQL Server",
+        "PostgreSQL",
+        "MongoDB",
+        "Oracle"
+      ],
+      "tools": [
+        "Docker",
+        "Kubernetes",
+        "Jenkins",
+        "Git"
+      ]
+    }
+  },
+  "training_examples": [
+    {
+      "id": "train_001",
+      "input_length": 3244,
+      "output_sections": [
+        "basics",
+        "work",
+        "education",
+        "skills",
+        "certifications",
+        "projects",
+        "languages",
+        "volunteer",
+        "references",
+        "achievements",
+        "publications"
+      ],
+      "industry": "fintech_healthcare"
+    },
+    {
+      "id": "train_002",
+      "input_length": 14010,
+      "output_sections": [
+        "basics",
+        "work",
+        "education",
+        "skills",
+        "certifications",
+        "projects",
+        "languages",
+        "volunteer",
+        "references",
+        "achievements",
+        "publications"
+      ],
+      "industry": "critical_infrastructure_security"
+    },
+    {
+      "id": "train_003",
+      "input_length": 37174,
+      "output_sections": [
+        "basics",
+        "work",
+        "education",
+        "skills",
+        "certifications",
+        "projects",
+        "languages",
+        "volunteer",
+        "references",
+        "achievements",
+        "publications"
+      ],
+      "industry": "data_analytics"
+    }
+  ]
+}

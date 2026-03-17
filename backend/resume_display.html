@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Data Display</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; }
+        .section h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .basics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .field { margin-bottom: 15px; }
+        .field label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; }
+        .field span { color: #333; }
+        .work-item, .education-item { margin-bottom: 20px; padding: 20px; background: #fff; border-radius: 8px; border-left: 4px solid #007bff; }
+        .work-item h3, .education-item h3 { color: #007bff; margin: 0 0 8px 0; }
+        .subtitle { color: #666; font-style: italic; margin: 5px 0; }
+        .dates { color: #28a745; font-weight: bold; margin: 8px 0; }
+        .skills-grid, .certifications-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .skill-item, .certification-item { padding: 15px; background: #fff; border-radius: 8px; border: 1px solid #ddd; }
+        .current-badge { background: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; margin-left: 10px; }
+        .links a { margin-right: 15px; color: #007bff; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Data Display</h1>
+        
+        <div class="section">
+            <h2>Basic Information</h2>
+            <div class="basics-grid">
+                <div class="field">
+                    <label>Name:</label>
+                    <span>John Smith</span>
+                </div>
+                <div class="field">
+                    <label>Email:</label>
+                    <span>john.smith@email.com</span>
+                </div>
+                <div class="field">
+                    <label>Phone:</label>
+                    <span>(555) 123-4567</span>
+                </div>
+                <div class="field">
+                    <label>Location:</label>
+                    <span>New York, NY</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Work Experience</h2>
+
+            <div class="work-item">
+                <h3>Senior Software Engineer</h3>
+                <p class="subtitle">Tech Corp • New York, NY</p>
+                <p class="dates">2020-01-01 - Present <span class="current-badge">Current</span></p>
+                <p>Led development of microservices architecture.</p>
+            </div>
+
+        </div>
+        
+        <div class="section">
+            <h2>Education</h2>
+
+            <div class="education-item">
+                <h3>Bachelor of Science in Computer Science</h3>
+                <p class="subtitle">MIT • Cambridge, MA</p>
+                <p class="dates">2014-09-01 - 2018-05-30</p>
+                <p>GPA: 3.8</p>
+            </div>
+
+        </div>
+        
+        <div class="section">
+            <h2>Skills</h2>
+            <div class="skills-grid">
+
+                <div class="skill-item">
+                    <h4>Python</h4>
+                    <p><strong>Level:</strong> Expert</p>
+                    <p><strong>Category:</strong> Programming Languages</p>
+                    <p><strong>Years:</strong> 8</p>
+                </div>
+
+                <div class="skill-item">
+                    <h4>React</h4>
+                    <p><strong>Level:</strong> Advanced</p>
+                    <p><strong>Category:</strong> Frontend Frameworks</p>
+                    <p><strong>Years:</strong> 5</p>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Certifications</h2>
+            <div class="certifications-grid">
+
+                <div class="certification-item">
+                    <h4>AWS Certified Solutions Architect</h4>
+                    <p><strong>Issuer:</strong> Amazon Web Services</p>
+                    <p><strong>Date:</strong> 2021-03-15</p>
+                    <p><strong>ID:</strong> AWSA-123456</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

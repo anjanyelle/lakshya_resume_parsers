@@ -1,0 +1,3026 @@
+[
+  [
+    "Used Python for data processing",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built pipeline with PySpark",
+    {
+      "entities": [
+        [
+          20,
+          27,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Deployed application on AWS",
+    {
+      "entities": [
+        [
+          24,
+          27,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Configured Docker containers",
+    {
+      "entities": [
+        [
+          11,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Managed Kubernetes clusters",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Queried database using Snowflake",
+    {
+      "entities": [
+        [
+          23,
+          32,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Spring Boot framework",
+    {
+      "entities": [
+        [
+          11,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Apache Kafka for streaming",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Created Tableau dashboards",
+    {
+      "entities": [
+        [
+          8,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Wrote SQL queries for analysis",
+    {
+      "entities": [
+        [
+          6,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed data using Apache Spark",
+    {
+      "entities": [
+        [
+          21,
+          33,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built Angular frontend application",
+    {
+      "entities": [
+        [
+          6,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Developed React components",
+    {
+      "entities": [
+        [
+          10,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Java for backend services",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Deployed with Jenkins CI CD",
+    {
+      "entities": [
+        [
+          14,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Monitored using Grafana dashboards",
+    {
+      "entities": [
+        [
+          16,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Redis for caching data",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built infrastructure with Terraform",
+    {
+      "entities": [
+        [
+          26,
+          35,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed arrays with NumPy",
+    {
+      "entities": [
+        [
+          22,
+          27,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Created Power BI reports",
+    {
+      "entities": [
+        [
+          8,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Azure Data Factory pipelines",
+    {
+      "entities": [
+        [
+          5,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Streamed data with AWS Kinesis",
+    {
+      "entities": [
+        [
+          19,
+          30,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built models with TensorFlow",
+    {
+      "entities": [
+        [
+          18,
+          28,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Scikit-learn for ML",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with Pandas dataframes",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used PostgreSQL database",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Queried with MongoDB",
+    {
+      "entities": [
+        [
+          13,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used MySQL for storage",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Deployed on Azure Kubernetes Service",
+    {
+      "entities": [
+        [
+          12,
+          36,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Git for version control",
+    {
+      "entities": [
+        [
+          5,
+          8,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Automated with GitHub Actions",
+    {
+      "entities": [
+        [
+          15,
+          29,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Bitbucket for code review",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Node.js backend",
+    {
+      "entities": [
+        [
+          11,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used TypeScript for frontend",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built microservices with Go",
+    {
+      "entities": [
+        [
+          25,
+          27,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Scala for Spark jobs",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Queried with GraphQL API",
+    {
+      "entities": [
+        [
+          13,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built REST APIs with FastAPI",
+    {
+      "entities": [
+        [
+          21,
+          28,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Airflow for orchestration",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Transformed data using dbt",
+    {
+      "entities": [
+        [
+          23,
+          26,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Databricks for analytics",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with Hadoop cluster",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Hive for querying",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Streamed with Apache Flink",
+    {
+      "entities": [
+        [
+          14,
+          26,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Cassandra database",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with DynamoDB tables",
+    {
+      "entities": [
+        [
+          11,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Elasticsearch for search",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Monitored with Prometheus metrics",
+    {
+      "entities": [
+        [
+          15,
+          25,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Logged with ELK Stack",
+    {
+      "entities": [
+        [
+          12,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Splunk for monitoring",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built CI CD with GitLab",
+    {
+      "entities": [
+        [
+          17,
+          23,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Ansible for automation",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Managed with Puppet scripts",
+    {
+      "entities": [
+        [
+          13,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Chef for configuration",
+    {
+      "entities": [
+        [
+          5,
+          9,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Deployed on Google Cloud Platform",
+    {
+      "entities": [
+        [
+          12,
+          33,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used BigQuery for analytics",
+    {
+      "entities": [
+        [
+          5,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Angular Material",
+    {
+      "entities": [
+        [
+          11,
+          27,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Redux for state management",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Vue.js framework",
+    {
+      "entities": [
+        [
+          11,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Spring MVC framework",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Hibernate ORM",
+    {
+      "entities": [
+        [
+          11,
+          20,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Maven for build management",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Gradle automation",
+    {
+      "entities": [
+        [
+          11,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used JUnit for testing",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tested with Mockito framework",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Selenium for automation",
+    {
+      "entities": [
+        [
+          5,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Tested with Cypress framework",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Postman for API testing",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with RabbitMQ messaging",
+    {
+      "entities": [
+        [
+          11,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used IBM MQ for messaging",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Apache Beam pipeline",
+    {
+      "entities": [
+        [
+          11,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Delta Lake for storage",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built lakehouse with Apache Iceberg",
+    {
+      "entities": [
+        [
+          21,
+          35,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Parquet file format",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with AWS Glue ETL",
+    {
+      "entities": [
+        [
+          11,
+          19,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used AWS Lambda functions",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with AWS S3 storage",
+    {
+      "entities": [
+        [
+          11,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used AWS Redshift warehouse",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Azure Synapse Analytics",
+    {
+      "entities": [
+        [
+          11,
+          34,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Azure Databricks platform",
+    {
+      "entities": [
+        [
+          5,
+          21,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with GCP Pub Sub",
+    {
+      "entities": [
+        [
+          11,
+          22,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Looker for visualization",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with MicroStrategy platform",
+    {
+      "entities": [
+        [
+          11,
+          24,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used QuickSight dashboards",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Containerized with OpenShift",
+    {
+      "entities": [
+        [
+          19,
+          28,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Nginx for load balancing",
+    {
+      "entities": [
+        [
+          5,
+          10,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Apache Tomcat server",
+    {
+      "entities": [
+        [
+          11,
+          24,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Swagger for API docs",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built OAuth2 authentication",
+    {
+      "entities": [
+        [
+          6,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used SonarQube for code quality",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with JIRA tracking",
+    {
+      "entities": [
+        [
+          11,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used Confluence for documentation",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Processed with R programming",
+    {
+      "entities": [
+        [
+          15,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used MATLAB for computation",
+    {
+      "entities": [
+        [
+          5,
+          11,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built PyTorch models",
+    {
+      "entities": [
+        [
+          6,
+          13,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Used XGBoost for prediction",
+    {
+      "entities": [
+        [
+          5,
+          12,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Built with Keras neural nets",
+    {
+      "entities": [
+        [
+          11,
+          16,
+          "SKILL"
+        ]
+      ]
+    }
+  ],
+  [
+    "Working as Senior Data Analyst",
+    {
+      "entities": [
+        [
+          11,
+          30,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Hired as Sr Data Analyst",
+    {
+      "entities": [
+        [
+          9,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Title is Principal Data Analyst",
+    {
+      "entities": [
+        [
+          9,
+          31,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Java Developer needed",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Java Developer position",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Software Engineer",
+    {
+      "entities": [
+        [
+          0,
+          24,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Software Engineer job",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Machine Learning Engineer",
+    {
+      "entities": [
+        [
+          0,
+          25,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "ML Engineer position",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior ML Engineer role",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr ML Engineer needed",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "DevOps Engineer position",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Scientist role",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Data Scientist position",
+    {
+      "entities": [
+        [
+          0,
+          21,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Sr Data Scientist needed",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Business Analyst job",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Business Analyst role",
+    {
+      "entities": [
+        [
+          0,
+          23,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Software Engineer position",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Full Stack Developer needed",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Backend Developer role",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Frontend Developer position",
+    {
+      "entities": [
+        [
+          0,
+          18,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Engineer job",
+    {
+      "entities": [
+        [
+          0,
+          13,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Data Engineer needed",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Product Manager position",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Senior Product Manager role",
+    {
+      "entities": [
+        [
+          0,
+          22,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Project Manager needed",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Technical Lead position",
+    {
+      "entities": [
+        [
+          0,
+          14,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Engineering Manager role",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Solutions Architect needed",
+    {
+      "entities": [
+        [
+          0,
+          19,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Cloud Architect position",
+    {
+      "entities": [
+        [
+          0,
+          15,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Security Engineer job",
+    {
+      "entities": [
+        [
+          0,
+          17,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "QA Engineer position",
+    {
+      "entities": [
+        [
+          0,
+          11,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Data Analyst internship",
+    {
+      "entities": [
+        [
+          0,
+          12,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Junior Developer position",
+    {
+      "entities": [
+        [
+          0,
+          16,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Entry Level Engineer role",
+    {
+      "entities": [
+        [
+          0,
+          20,
+          "TITLE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Bank of America North Carolina",
+    {
+      "entities": [
+        [
+          10,
+          25,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed by Starbucks in California",
+    {
+      "entities": [
+        [
+          12,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Home Depot Location Atlanta",
+    {
+      "entities": [
+        [
+          7,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Huntington Location Columbus",
+    {
+      "entities": [
+        [
+          7,
+          17,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Amazon in Hyderabad",
+    {
+      "entities": [
+        [
+          10,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined Google in Mountain View",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Microsoft in Seattle",
+    {
+      "entities": [
+        [
+          12,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Credit Karma San Francisco",
+    {
+      "entities": [
+        [
+          10,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at ADP in Hyderabad",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Walgreens Location Deerfield",
+    {
+      "entities": [
+        [
+          7,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at T-Mobile in Bellevue",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined TCS in Hyderabad India",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at Infosys in Bangalore",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Facebook in Menlo Park",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Netflix in Los Gatos",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Apple in Cupertino",
+    {
+      "entities": [
+        [
+          10,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined Wipro in Hyderabad India",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at HCL in Noida India",
+    {
+      "entities": [
+        [
+          12,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Cognizant in Chennai",
+    {
+      "entities": [
+        [
+          10,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Accenture in Mumbai",
+    {
+      "entities": [
+        [
+          12,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT Ceva Logistics Location Mumbai",
+    {
+      "entities": [
+        [
+          7,
+          21,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at JPMorgan Chase New York",
+    {
+      "entities": [
+        [
+          10,
+          24,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined Goldman Sachs New York",
+    {
+      "entities": [
+        [
+          7,
+          20,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at Walmart in Bentonville",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Target in Minneapolis",
+    {
+      "entities": [
+        [
+          10,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at Uber in San Francisco",
+    {
+      "entities": [
+        [
+          12,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Lyft in San Francisco",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined Airbnb in San Francisco",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at Twitter in San Francisco",
+    {
+      "entities": [
+        [
+          12,
+          19,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at LinkedIn in Sunnyvale",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "CLIENT IBM Location New York",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Oracle in Redwood City",
+    {
+      "entities": [
+        [
+          10,
+          16,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined SAP in Walldorf Germany",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at Salesforce in San Francisco",
+    {
+      "entities": [
+        [
+          12,
+          22,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Adobe in San Jose",
+    {
+      "entities": [
+        [
+          10,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Position at PayPal in San Jose",
+    {
+      "entities": [
+        [
+          12,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Cisco in San Jose",
+    {
+      "entities": [
+        [
+          10,
+          15,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined Intel in Santa Clara",
+    {
+      "entities": [
+        [
+          7,
+          12,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed at NVIDIA in Santa Clara",
+    {
+      "entities": [
+        [
+          12,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked at Qualcomm in San Diego",
+    {
+      "entities": [
+        [
+          10,
+          18,
+          "COMPANY"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked from July 2021 to Present",
+    {
+      "entities": [
+        [
+          12,
+          21,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked from July 2021 to Present",
+    {
+      "entities": [
+        [
+          25,
+          32,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined in January 2020 at company",
+    {
+      "entities": [
+        [
+          10,
+          22,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Left in June 2021 from company",
+    {
+      "entities": [
+        [
+          8,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Started August 2020 at firm",
+    {
+      "entities": [
+        [
+          8,
+          19,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Employed from October 2017 onwards",
+    {
+      "entities": [
+        [
+          14,
+          26,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Started December 2015 at role",
+    {
+      "entities": [
+        [
+          8,
+          21,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Worked until May 2014 there",
+    {
+      "entities": [
+        [
+          13,
+          21,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From June 2023 to Current role",
+    {
+      "entities": [
+        [
+          5,
+          14,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From June 2023 to Current role",
+    {
+      "entities": [
+        [
+          18,
+          25,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Period August 2020 to May 2023",
+    {
+      "entities": [
+        [
+          7,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Period August 2020 to May 2023",
+    {
+      "entities": [
+        [
+          22,
+          30,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From October 2017 to July 2020",
+    {
+      "entities": [
+        [
+          5,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From October 2017 to July 2020",
+    {
+      "entities": [
+        [
+          21,
+          30,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From December 2015 to September 2017",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From December 2015 to September 2017",
+    {
+      "entities": [
+        [
+          22,
+          36,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From May 2014 to October 2015",
+    {
+      "entities": [
+        [
+          5,
+          13,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From May 2014 to October 2015",
+    {
+      "entities": [
+        [
+          17,
+          29,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Education from 2010 to 2014",
+    {
+      "entities": [
+        [
+          15,
+          19,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Education from 2010 to 2014",
+    {
+      "entities": [
+        [
+          23,
+          27,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Valid from 2024 to 2027",
+    {
+      "entities": [
+        [
+          11,
+          15,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Valid from 2024 to 2027",
+    {
+      "entities": [
+        [
+          19,
+          23,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Graduated in May 2014",
+    {
+      "entities": [
+        [
+          13,
+          21,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Certified in 2020 successfully",
+    {
+      "entities": [
+        [
+          13,
+          17,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Joined February 2018 at firm",
+    {
+      "entities": [
+        [
+          7,
+          20,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Left December 2019 from role",
+    {
+      "entities": [
+        [
+          5,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Started March 2022 new role",
+    {
+      "entities": [
+        [
+          8,
+          18,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Ended November 2023 contract",
+    {
+      "entities": [
+        [
+          6,
+          19,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From April 2016 to August 2018",
+    {
+      "entities": [
+        [
+          5,
+          15,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "From April 2016 to August 2018",
+    {
+      "entities": [
+        [
+          19,
+          30,
+          "DATE"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Bachelor of Technology degree",
+    {
+      "entities": [
+        [
+          10,
+          32,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned Master of Science degree",
+    {
+      "entities": [
+        [
+          7,
+          24,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished Bachelor of Engineering course",
+    {
+      "entities": [
+        [
+          9,
+          32,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed MBA from university",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned B.Tech from college",
+    {
+      "entities": [
+        [
+          7,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed M.Tech program",
+    {
+      "entities": [
+        [
+          10,
+          16,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished Bachelor of Science degree",
+    {
+      "entities": [
+        [
+          9,
+          28,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned Master of Computer Science",
+    {
+      "entities": [
+        [
+          7,
+          33,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Ph.D in Machine Learning",
+    {
+      "entities": [
+        [
+          10,
+          14,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished Master of Business Administration",
+    {
+      "entities": [
+        [
+          9,
+          42,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Bharath University Bachelor of Technology 2010",
+    {
+      "entities": [
+        [
+          19,
+          41,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed B.E Computer Engineering",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned BCA from university",
+    {
+      "entities": [
+        [
+          7,
+          10,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed MCA program",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished B.Sc Computer Science",
+    {
+      "entities": [
+        [
+          9,
+          13,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned M.Sc Data Science",
+    {
+      "entities": [
+        [
+          7,
+          11,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Bachelor of Commerce",
+    {
+      "entities": [
+        [
+          10,
+          30,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned Master of Arts degree",
+    {
+      "entities": [
+        [
+          7,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Finished Associate Degree program",
+    {
+      "entities": [
+        [
+          9,
+          25,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Diploma in IT",
+    {
+      "entities": [
+        [
+          10,
+          23,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Stanford University Master of Science 2018",
+    {
+      "entities": [
+        [
+          20,
+          37,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "IIT Bombay Bachelor of Technology 2015",
+    {
+      "entities": [
+        [
+          11,
+          33,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "IIM Ahmedabad MBA 2017",
+    {
+      "entities": [
+        [
+          14,
+          17,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "MIT Master of Science in CS",
+    {
+      "entities": [
+        [
+          4,
+          27,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Anna University B.Tech Computer Science",
+    {
+      "entities": [
+        [
+          16,
+          22,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Osmania University M.Tech Software",
+    {
+      "entities": [
+        [
+          19,
+          25,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "BITS Pilani Bachelor of Engineering",
+    {
+      "entities": [
+        [
+          12,
+          35,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "NIT Warangal B.Tech Electronics",
+    {
+      "entities": [
+        [
+          13,
+          19,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "VIT University M.Tech CSE",
+    {
+      "entities": [
+        [
+          15,
+          21,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Pune University Bachelor of Engineering",
+    {
+      "entities": [
+        [
+          16,
+          39,
+          "EDUCATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Holds AWS Certified Developer Associate cert",
+    {
+      "entities": [
+        [
+          6,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned Azure Certified Developer Associate",
+    {
+      "entities": [
+        [
+          7,
+          42,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Oracle Gen AI Certified program",
+    {
+      "entities": [
+        [
+          10,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Obtained PMP certification recently",
+    {
+      "entities": [
+        [
+          9,
+          12,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Holds AWS Certified Solutions Architect cert",
+    {
+      "entities": [
+        [
+          6,
+          39,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Google Cloud Professional cert",
+    {
+      "entities": [
+        [
+          10,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned Microsoft Certified Expert badge",
+    {
+      "entities": [
+        [
+          7,
+          33,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Holds Kubernetes Certified Administrator",
+    {
+      "entities": [
+        [
+          6,
+          40,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Obtained CISSP certification",
+    {
+      "entities": [
+        [
+          9,
+          14,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed CKA certification program",
+    {
+      "entities": [
+        [
+          10,
+          13,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned Oracle Certified Professional status",
+    {
+      "entities": [
+        [
+          7,
+          36,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Holds Red Hat Certified Engineer title",
+    {
+      "entities": [
+        [
+          6,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Obtained ITIL Foundation certification",
+    {
+      "entities": [
+        [
+          9,
+          24,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Certified Scrum Master course",
+    {
+      "entities": [
+        [
+          10,
+          32,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Holds Certified Kubernetes Application Developer",
+    {
+      "entities": [
+        [
+          6,
+          48,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Earned AWS Certified Data Analytics cert",
+    {
+      "entities": [
+        [
+          7,
+          35,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Google Associate Cloud Engineer",
+    {
+      "entities": [
+        [
+          10,
+          41,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Holds Azure Solutions Architect Expert",
+    {
+      "entities": [
+        [
+          6,
+          38,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Obtained CompTIA Security Plus cert",
+    {
+      "entities": [
+        [
+          9,
+          30,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ],
+  [
+    "Completed Certified Information Systems Security",
+    {
+      "entities": [
+        [
+          10,
+          48,
+          "CERTIFICATION"
+        ]
+      ]
+    }
+  ]
+]

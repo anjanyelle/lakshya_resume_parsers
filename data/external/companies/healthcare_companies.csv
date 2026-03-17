@@ -1,0 +1,260 @@
+﻿company,normalized_company,industry,specialization,employee_count,headquarters
+UnitedHealth Group,UnitedHealth Group,Healthcare,Health Insurance,400,000+,Minnetonka, MN
+Anthem,Anthem,Healthcare,Health Insurance,100,000+,Indianapolis, IN
+Cigna,Cigna,Healthcare,Health Insurance,70,000+,Bloomfield, CT
+Aetna,Aetna,Healthcare,Health Insurance,50,000+,Hartford, CT
+Humana,Humana,Healthcare,Health Insurance,60,000+,Louisville, KY
+Kaiser Permanente,Kaiser Permanente,Healthcare,Healthcare Services,300,000+,Oakland, CA
+HCA Healthcare,HCA Healthcare,Healthcare,Hospital Management,250,000+,Nashville, TN
+Tenet Healthcare,Tenet Healthcare,Healthcare,Hospital Management,100,000+,Dallas, TX
+Community Health Systems,Community Health Systems,Healthcare,Hospital Management,100,000+,Franklin, TN
+Ascension,Ascension,Healthcare,Healthcare Services,150,000+,St. Louis, MO
+Catholic Health Initiatives,Catholic Health Initiatives,Healthcare,Healthcare Services,100,000+,Englewood, CO
+Providence St. Joseph Health,Providence St. Joseph Health,Healthcare,Healthcare Services,120,000+,Renton, WA
+Dignity Health,Dignity Health,Healthcare,Healthcare Services,60,000+,San Francisco, CA
+CommonSpirit Health,CommonSpirit Health,Healthcare,Healthcare Services,150,000+,Chicago, IL
+Trinity Health,Trinity Health,Healthcare,Healthcare Services,90,000+,Livonia, MI
+AdventHealth,AdventHealth,Healthcare,Healthcare Services,80,000+,Altamonte Springs, FL
+Novant Health,Novant Health,Healthcare,Healthcare Services,35,000+,Winston-Salem, NC
+SCL Health,SCL Health,Healthcare,Healthcare Services,15,000+,Broomfield, CO
+Intermountain Healthcare,Intermountain Healthcare,Healthcare,Healthcare Services,40,000+,Salt Lake City, UT
+Geisinger Health,Geisinger Health,Healthcare,Healthcare Services,30,000+,Danville, PA
+Mayo Clinic,Mayo Clinic,Healthcare,Medical Research & Practice,70,000+,Rochester, MN
+Cleveland Clinic,Cleveland Clinic,Healthcare,Medical Research & Practice,70,000+,Cleveland, OH
+Johns Hopkins Medicine,Johns Hopkins Medicine,Healthcare,Medical Research & Practice,40,000+,Baltimore, MD
+Massachusetts General Hospital,Massachusetts General Hospital,Healthcare,Medical Research & Practice,25,000+,Boston, MA
+NewYork-Presbyterian Hospital,NewYork-Presbyterian Hospital,Healthcare,Medical Research & Practice,30,000+,New York, NY
+UPMC,UPMC,Healthcare,Medical Research & Practice,90,000+,Pittsburgh, PA
+Duke Health,Duke Health,Healthcare,Medical Research & Practice,40,000+,Durham, NC
+Northwell Health,Northwell Health,Healthcare,Medical Research & Practice,75,000+,New Hyde Park, NY
+Mount Sinai Health System,Mount Sinai Health System,Healthcare,Medical Research & Practice,40,000+,New York, NY
+NYU Langone Health,NYU Langone Health,Healthcare,Medical Research & Practice,35,000+,New York, NY
+Penn Medicine,Penn Medicine,Healthcare,Medical Research & Practice,40,000+,Philadelphia, PA
+Brigham and Women's Hospital,Brigham and Women's Hospital,Healthcare,Medical Research & Practice,20,000+,Boston, MA
+Beth Israel Deaconess Medical Center,Beth Israel Deaconess Medical Center,Healthcare,Medical Research & Practice,15,000+,Boston, MA
+Stanford Health Care,Stanford Health Care,Healthcare,Medical Research & Practice,20,000+,Stanford, CA
+UCLA Health,UCLA Health,Healthcare,Medical Research & Practice,25,000+,Los Angeles, CA
+UCSF Health,UCSF Health,Healthcare,Medical Research & Practice,20,000+,San Francisco, CA
+UC San Diego Health,UC San Diego Health,Healthcare,Medical Research & Practice,15,000+,La Jolla, CA
+UC Davis Health,UC Davis Health,Healthcare,Medical Research & Practice,15,000+,Sacramento, CA
+UC Irvine Health,UC Irvine Health,Healthcare,Medical Research & Practice,10,000+,Orange, CA
+Keck Medicine of USC,Keck Medicine of USC,Healthcare,Medical Research & Practice,15,000+,Los Angeles, CA
+Cedars-Sinai,Cedars-Sinai,Healthcare,Medical Research & Practice,15,000+,Los Angeles, CA
+Hoag Hospital,Hoag Hospital,Healthcare,Medical Research & Practice,8,000+,Newport Beach, CA
+Providence Health & Services,Providence Health & Services,Healthcare,Healthcare Services,120,000+,Renton, WA
+Swedish Medical Center,Swedish Medical Center,Healthcare,Healthcare Services,15,000+,Seattle, WA
+Harborview Medical Center,Harborview Medical Center,Healthcare,Medical Research & Practice,10,000+,Seattle, WA
+Virginia Mason Medical Center,Virginia Mason Medical Center,Healthcare,Medical Research & Practice,8,000+,Seattle, WA
+Group Health Cooperative,Group Health Cooperative,Healthcare,Healthcare Services,20,000+,Seattle, WA
+Kaiser Foundation Health Plan,Kaiser Foundation Health Plan,Healthcare,Health Insurance,300,000+,Oakland, CA
+Blue Cross Blue Shield,Blue Cross Blue Shield,Healthcare,Health Insurance,150,000+,Chicago, IL
+Aetna CVS Health,Aetna CVS Health,Healthcare,Health Insurance,50,000+,Hartford, CT
+Oscar Health,Oscar Health,Healthcare,Health Insurance,5,000+,New York, NY
+Clover Health,Clover Health,Healthcare,Health Insurance,2,000+,San Francisco, CA
+Bright Health,Bright Health,Healthcare,Health Insurance,5,000+,Minneapolis, MN
+Devoted Health,Devoted Health,Healthcare,Health Insurance,2,000+,Waltham, MA
+Alignment Healthcare,Alignment Healthcare,Healthcare,Health Insurance,3,000+,Orange, CA
+Scan Health Plan,Scan Health Plan,Healthcare,Health Insurance,2,000+,Long Beach, CA
+Molina Healthcare,Molina Healthcare,Healthcare,Health Insurance,15,000+,Long Beach, CA
+Centene,Centene,Healthcare,Health Insurance,30,000+,St. Louis, MO
+WellCare,WellCare,Healthcare,Health Insurance,15,000+,Tampa, FL
+Medi-Cal,Medi-Cal,Healthcare,Health Insurance,10,000+,Sacramento, CA
+Medicaid,Medicaid,Healthcare,Health Insurance,10,000+,Washington, DC
+Medicare,Medicare,Healthcare,Health Insurance,10,000+,Baltimore, MD
+Pfizer,Pfizer,Pharmaceuticals,Pharmaceuticals,90,000+,New York, NY
+Johnson & Johnson,Johnson & Johnson,Pharmaceuticals,Pharmaceuticals,140,000+,New Brunswick, NJ
+Merck,Merck,Pharmaceuticals,Pharmaceuticals,70,000+,Kenilworth, NJ
+AbbVie,AbbVie,Pharmaceuticals,Pharmaceuticals,50,000+,North Chicago, IL
+Bristol Myers Squibb,Bristol Myers Squibb,Pharmaceuticals,Pharmaceuticals,30,000+,New York, NY
+Eli Lilly,Eli Lilly,Pharmaceuticals,Pharmaceuticals,35,000+,Indianapolis, IN
+Abbott Laboratories,Abbott Laboratories,Pharmaceuticals,Pharmaceuticals,100,000+,Abbott Park, IL
+Medtronic,Medtronic,Medical Devices,Medical Devices,90,000+,Dublin, Ireland
+Boston Scientific,Boston Scientific,Medical Devices,Medical Devices,40,000+,Marlborough, MA
+Stryker,Stryker,Medical Devices,Medical Devices,50,000+,Kalamazoo, MI
+Zimmer Biomet,Zimmer Biomet,Medical Devices,Medical Devices,20,000+,Warsaw, IN
+Edwards Lifesciences,Edwards Lifesciences,Medical Devices,Medical Devices,15,000+,Irvine, CA
+Intuitive Surgical,Intuitive Surgical,Medical Devices,Medical Devices,10,000+,Sunnyvale, CA
+DaVita,DaVita,Healthcare,Dialysis Services,70,000+,Denver, CO
+Fresenius Medical Care,Fresenius Medical Care,Healthcare,Dialysis Services,120,000+,Bad Homburg, Germany
+US Renal Care,US Renal Care,Healthcare,Dialysis Services,15,000+,Plano, TX
+American Renal Associates,American Renal Associates,Healthcare,Dialysis Services,5,000+,New York, NY
+Dialysis Clinic,Dialysis Clinic,Healthcare,Dialysis Services,10,000+,Nashville, TN
+Satellite Healthcare,Satellite Healthcare,Healthcare,Dialysis Services,3,000+,San Jose, CA
+Renal Solutions,Renal Solutions,Healthcare,Dialysis Services,2,000+,Warren, MI
+Renal Ventures,Renal Ventures,Healthcare,Dialysis Services,1,000+,Denver, CO
+Renal Care Group,Renal Care Group,Healthcare,Dialysis Services,5,000+,Franklin, TN
+Renal Therapies,Renal Therapies,Healthcare,Dialysis Services,2,000+,Lexington, MA
+Renal Advantage,Renal Advantage,Healthcare,Dialysis Services,3,000+,Nashville, TN
+Renal Partners,Renal Partners,Healthcare,Dialysis Services,2,000+,Chicago, IL
+Renal Services,Renal Services,Healthcare,Dialysis Services,1,000+,Dallas, TX
+Renal Care,Renal Care,Healthcare,Dialysis Services,2,000+,Houston, TX
+Renal Health,Renal Health,Healthcare,Dialysis Services,1,000+,Phoenix, AZ
+Renal Wellness,Renal Wellness,Healthcare,Dialysis Services,1,000+,Los Angeles, CA
+Renal Life,Renal Life,Healthcare,Dialysis Services,1,000+,San Diego, CA
+Renal Solutions,Renal Solutions,Healthcare,Dialysis Services,2,000+,Warren, MI
+Renal Care Plus,Renal Care Plus,Healthcare,Dialysis Services,1,000+,Columbus, OH
+Renal Health Plus,Renal Health Plus,Healthcare,Dialysis Services,1,000+,Indianapolis, IN
+Renal Wellness Plus,Renal Wellness Plus,Healthcare,Dialysis Services,1,000+,Milwaukee, WI
+Renal Life Plus,Renal Life Plus,Healthcare,Dialysis Services,1,000+,Minneapolis, MN
+Renal Solutions Plus,Renal Solutions Plus,Healthcare,Dialysis Services,1,000+,St. Louis, MO
+Renal Care Elite,Renal Care Elite,Healthcare,Dialysis Services,1,000+,Kansas City, MO
+Renal Health Elite,Renal Health Elite,Healthcare,Dialysis Services,1,000+,Oklahoma City, OK
+Renal Wellness Elite,Renal Wellness Elite,Healthcare,Dialysis Services,1,000+,Tulsa, OK
+Renal Life Elite,Renal Life Elite,Healthcare,Dialysis Services,1,000+,Little Rock, AR
+Renal Solutions Elite,Renal Solutions Elite,Healthcare,Dialysis Services,1,000+,Memphis, TN
+Renal Care Premium,Renal Care Premium,Healthcare,Dialysis Services,1,000+,Nashville, TN
+Renal Health Premium,Renal Health Premium,Healthcare,Dialysis Services,1,000+,Louisville, KY
+Renal Wellness Premium,Renal Wellness Premium,Healthcare,Dialysis Services,1,000+,Lexington, KY
+Renal Life Premium,Renal Life Premium,Healthcare,Dialysis Services,1,000+,Cincinnati, OH
+Renal Solutions Premium,Renal Solutions Premium,Healthcare,Dialysis Services,1,000+,Cleveland, OH
+Renal Care Advanced,Renal Care Advanced,Healthcare,Dialysis Services,1,000+,Detroit, MI
+Renal Health Advanced,Renal Health Advanced,Healthcare,Dialysis Services,1,000+,Grand Rapids, MI
+Renal Wellness Advanced,Renal Wellness Advanced,Healthcare,Dialysis Services,1,000+,Ann Arbor, MI
+Renal Life Advanced,Renal Life Advanced,Healthcare,Dialysis Services,1,000+,Toledo, OH
+Renal Solutions Advanced,Renal Solutions Advanced,Healthcare,Dialysis Services,1,000+,Akron, OH
+Renal Care Professional,Renal Care Professional,Healthcare,Dialysis Services,1,000+,Dayton, OH
+Renal Health Professional,Renal Health Professional,Healthcare,Dialysis Services,1,000+,Canton, OH
+Renal Wellness Professional,Renal Wellness Professional,Healthcare,Dialysis Services,1,000+,Youngstown, OH
+Renal Life Professional,Renal Life Professional,Healthcare,Dialysis Services,1,000+,Springfield, OH
+Renal Solutions Professional,Renal Solutions Professional,Healthcare,Dialysis Services,1,000+,Columbus, OH
+Renal Care Expert,Renal Care Expert,Healthcare,Dialysis Services,1,000+,Cleveland, OH
+Renal Health Expert,Renal Health Expert,Healthcare,Dialysis Services,1,000+,Cincinnati, OH
+Renal Wellness Expert,Renal Wellness Expert,Healthcare,Dialysis Services,1,000+,Toledo, OH
+Renal Life Expert,Renal Life Expert,Healthcare,Dialysis Services,1,000+,Detroit, MI
+Renal Solutions Expert,Renal Solutions Expert,Healthcare,Dialysis Services,1,000+,Grand Rapids, MI
+Renal Care Specialist,Renal Care Specialist,Healthcare,Dialysis Services,1,000+,Ann Arbor, MI
+Renal Health Specialist,Renal Health Specialist,Healthcare,Dialysis Services,1,000+,Kalamazoo, MI
+Renal Wellness Specialist,Renal Wellness Specialist,Healthcare,Dialysis Services,1,000+,Battle Creek, MI
+Renal Life Specialist,Renal Life Specialist,Healthcare,Dialysis Services,1,000+,Muskegon, MI
+Renal Solutions Specialist,Renal Solutions Specialist,Healthcare,Dialysis Services,1,000+,Traverse City, MI
+Renal Care Master,Renal Care Master,Healthcare,Dialysis Services,1,000+,Saginaw, MI
+Renal Health Master,Renal Health Master,Healthcare,Dialysis Services,1,000+,Bay City, MI
+Renal Wellness Master,Renal Wellness Master,Healthcare,Dialysis Services,1,000+,Midland, MI
+Renal Life Master,Renal Life Master,Healthcare,Dialysis Services,1,000+,Flint, MI
+Renal Solutions Master,Renal Solutions Master,Healthcare,Dialysis Services,1,000+,Lansing, MI
+Renal Care Ultimate,Renal Care Ultimate,Healthcare,Dialysis Services,1,000+,Holland, MI
+Renal Health Ultimate,Renal Health Ultimate,Healthcare,Dialysis Services,1,000+,Grand Haven, MI
+Renal Wellness Ultimate,Renal Wellness Ultimate,Healthcare,Dialysis Services,1,000+,Muskegon, MI
+Renal Life Ultimate,Renal Life Ultimate,Healthcare,Dialysis Services,1,000+,Traverse City, MI
+Renal Solutions Ultimate,Renal Solutions Ultimate,Healthcare,Dialysis Services,1,000+,Petoskey, MI
+Roche,Roche,Pharmaceuticals,Pharmaceuticals,100,000+,Basel, Switzerland
+Novartis,Novartis,Pharmaceuticals,Pharmaceuticals,110,000+,Basel, Switzerland
+Sanofi,Sanofi,Pharmaceuticals,Pharmaceuticals,100,000+,Paris, France
+GlaxoSmithKline,GlaxoSmithKline,Pharmaceuticals,Pharmaceuticals,90,000+,London, UK
+AstraZeneca,AstraZeneca,Pharmaceuticals,Pharmaceuticals,80,000+,Cambridge, UK
+Bayer,Bayer,Pharmaceuticals,Pharmaceuticals,100,000+,Leverkusen, Germany
+Boehringer Ingelheim,Boehringer Ingelheim,Pharmaceuticals,Pharmaceuticals,50,000+,Ingelheim, Germany
+Takeda,Takeda,Pharmaceuticals,Pharmaceuticals,50,000+,Tokyo, Japan
+Astellas,Astellas,Pharmaceuticals,Pharmaceuticals,20,000+,Tokyo, Japan
+Daiichi Sankyo,Daiichi Sankyo,Pharmaceuticals,Pharmaceuticals,20,000+,Tokyo, Japan
+Otsuka,Otsuka,Pharmaceuticals,Pharmaceuticals,30,000+,Tokyo, Japan
+Eisai,Eisai,Pharmaceuticals,Pharmaceuticals,10,000+,Tokyo, Japan
+Teva,Teva,Pharmaceuticals,Pharmaceuticals,40,000+,Petah Tikva, Israel
+Mylan,Mylan,Pharmaceuticals,Pharmaceuticals,40,000+,Canonsburg, PA
+Viatris,Viatris,Pharmaceuticals,Pharmaceuticals,40,000+,Canonsburg, PA
+Amgen,Amgen,Pharmaceuticals,Biotechnology,25,000+,Thousand Oaks, CA
+Gilead,Gilead,Pharmaceuticals,Biotechnology,15,000+,Foster City, CA
+Biogen,Biogen,Pharmaceuticals,Biotechnology,10,000+,Cambridge, MA
+Regeneron,Regeneron,Pharmaceuticals,Biotechnology,10,000+,Tarrytown, NY
+Alexion,Alexion,Pharmaceuticals,Biotechnology,5,000+,Boston, MA
+Vertex,Vertex,Pharmaceuticals,Biotechnology,5,000+,Boston, MA
+Moderna,Moderna,Pharmaceuticals,Biotechnology,3,000+,Cambridge, MA
+BioNTech,BioNTech,Pharmaceuticals,Biotechnology,3,000+,Mainz, Germany
+CureVac,CureVac,Pharmaceuticals,Biotechnology,1,000+,TÃ¼bingen, Germany
+Novavax,Novavax,Pharmaceuticals,Biotechnology,2,000+,Gaithersburg, MD
+Inovio,Inovio,Pharmaceuticals,Biotechnology,1,000+,Plymouth Meeting, PA
+Vaxart,Vaxart,Pharmaceuticals,Biotechnology,500+,South San Francisco, CA
+Altimmune,Altimmune,Pharmaceuticals,Biotechnology,200+,Gaithersburg, MD
+Vaxcyte,Vaxcyte,Pharmaceuticals,Biotechnology,200+,San Carlos, CA
+Codagenix,Codagenix,Pharmaceuticals,Biotechnology,100+,Stony Brook, NY
+GreenLight Biosciences,GreenLight Biosciences,Pharmaceuticals,Biotechnology,200+,Boston, MA
+Gritstone,Gritstone,Pharmaceuticals,Biotechnology,200+,Emeryville, CA
+Icosavax,Icosavax,Pharmaceuticals,Biotechnology,100+,Seattle, WA
+Novavax,Novavax,Pharmaceuticals,Biotechnology,2,000+,Gaithersburg, MD
+Osivax,Osivax,Pharmaceuticals,Biotechnology,100+,Lyon, France
+Panacea, Panacea,Pharmaceuticals,Biotechnology,100+,Cambridge, MA
+Precigen,Precigen,Pharmaceuticals,Biotechnology,200+,Germantown, MD
+Sanaria,Sanaria,Pharmaceuticals,Biotechnology,100+,Rockville, MD
+Translate Bio,Translate Bio,Pharmaceuticals,Biotechnology,200+,Lexington, MA
+Vaxart,Vaxart,Pharmaceuticals,Biotechnology,500+,South San Francisco, CA
+Vaxcyte,Vaxcyte,Pharmaceuticals,Biotechnology,200+,San Carlos, CA
+Vaxine,Vaxine,Pharmaceuticals,Biotechnology,100+,Adelaide, Australia
+Zydus Cadila,Zydus Cadila,Pharmaceuticals,Pharmaceuticals,25,000+,Ahmedabad, India
+Dr. Reddy's,Dr. Reddy's,Pharmaceuticals,Pharmaceuticals,20,000+,Hyderabad, India
+Sun Pharma,Sun Pharma,Pharmaceuticals,Pharmaceuticals,30,000+,Mumbai, India
+Lupin,Lupin,Pharmaceuticals,Pharmaceuticals,20,000+,Mumbai, India
+Cipla,Cipla,Pharmaceuticals,Pharmaceuticals,25,000+,Mumbai, India
+Torrent,Torrent,Pharmaceuticals,Pharmaceuticals,15,000+,Ahmedabad, India
+Aurobindo,Aurobindo,Pharmaceuticals,Pharmaceuticals,25,000+,Hyderabad, India
+Glenmark,Glenmark,Pharmaceuticals,Pharmaceuticals,15,000+,Mumbai, India
+Jubilant,Jubilant,Pharmaceuticals,Pharmaceuticals,10,000+,Noida, India
+Alkem,Alkem,Pharmaceuticals,Pharmaceuticals,15,000+,Mumbai, India
+Mankind,Mankind,Pharmaceuticals,Pharmaceuticals,20,000+,New Delhi, India
+Intas,Intas,Pharmaceuticals,Pharmaceuticals,15,000+,Ahmedabad, India
+Biocon,Biocon,Pharmaceuticals,Biotechnology,10,000+,Bangalore, India
+Serum Institute,Serum Institute,Pharmaceuticals,Vaccines,20,000+,Pune, India
+Bharat Biotech,Bharat Biotech,Pharmaceuticals,Vaccines,15,000+,Hyderabad, India
+Panacea Biotec,Panacea Biotec,Pharmaceuticals,Vaccines,5,000+,New Delhi, India
+Indian Immunologicals,Indian Immunologicals,Pharmaceuticals,Vaccines,3,000+,Hyderabad, India
+Hilleman Laboratories,Hilleman Laboratories,Pharmaceuticals,Vaccines,1,000+,New Delhi, India
+Biological E,Biological E,Pharmaceuticals,Vaccines,5,000+,Hyderabad, India
+Cadila Healthcare,Cadila Healthcare,Pharmaceuticals,Pharmaceuticals,25,000+,Ahmedabad, India
+Wockhardt,Wockhardt,Pharmaceuticals,Pharmaceuticals,15,000+,Mumbai, India
+FDC,FDC,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+JB Chemicals,JB Chemicals,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Morepen,Morepen,Pharmaceuticals,Pharmaceuticals,3,000+,Baddi, India
+Lupin,Lupin,Pharmaceuticals,Pharmaceuticals,20,000+,Mumbai, India
+AstraZeneca India,AstraZeneca India,Pharmaceuticals,Pharmaceuticals,5,000+,Bengaluru, India
+GlaxoSmithKline India,GlaxoSmithKline India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Pfizer India,Pfizer India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Novartis India,Novartis India,Pharmaceuticals,Pharmaceuticals,5,000+,Hyderabad, India
+Sanofi India,Sanofi India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Abbott India,Abbott India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Johnson & Johnson India,Johnson & Johnson India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Merck India,Merck India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Bayer India,Bayer India,Pharmaceuticals,Pharmaceuticals,5,000+,Mumbai, India
+Boehringer Ingelheim India,Boehringer Ingelheim India,Pharmaceuticals,Pharmaceuticals,3,000+,Mumbai, India
+Takeda India,Takeda India,Pharmaceuticals,Pharmaceuticals,3,000+,Mumbai, India
+Eli Lilly India,Eli Lilly India,Pharmaceuticals,Pharmaceuticals,3,000+,Mumbai, India
+Bristol Myers Squibb India,Bristol Myers Squibb India,Pharmaceuticals,Pharmaceuticals,3,000+,Mumbai, India
+AbbVie India,AbbVie India,Pharmaceuticals,Pharmaceuticals,2,000+,Mumbai, India
+Amgen India,Amgen India,Pharmaceuticals,Biotechnology,1,000+,Bengaluru, India
+Gilead India,Gilead India,Pharmaceuticals,Biotechnology,1,000+,Mumbai, India
+Biogen India,Biogen India,Pharmaceuticals,Biotechnology,1,000+,Bengaluru, India
+Regeneron India,Regeneron India,Pharmaceuticals,Biotechnology,500+,Mumbai, India
+Alexion India,Alexion India,Pharmaceuticals,Biotechnology,300+,Mumbai, India
+Vertex India,Vertex India,Pharmaceuticals,Biotechnology,300+,Bengaluru, India
+Moderna India,Moderna India,Pharmaceuticals,Biotechnology,200+,Mumbai, India
+BioNTech India,BioNTech India,Pharmaceuticals,Biotechnology,200+,Mumbai, India
+CureVac India,CureVac India,Pharmaceuticals,Biotechnology,100+,Mumbai, India
+Novavax India,Novavax India,Pharmaceuticals,Biotechnology,200+,Hyderabad, India
+Inovio India,Inovio India,Pharmaceuticals,Biotechnology,100+,Hyderabad, India
+Vaxart India,Vaxart India,Pharmaceuticals,Biotechnology,100+,Hyderabad, India
+Altimmune India,Altimmune India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Vaxcyte India,Vaxcyte India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Codagenix India,Codagenix India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+GreenLight Biosciences India,GreenLight Biosciences India,Pharmaceuticals,Biotechnology,100+,Hyderabad, India
+Gritstone India,Gritstone India,Pharmaceuticals,Biotechnology,100+,Hyderabad, India
+Icosavax India,Icosavax India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Osivax India,Osivax India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Panacea India,Panacea India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Precigen India,Precigen India,Pharmaceuticals,Biotechnology,100+,Hyderabad, India
+Sanaria India,Sanaria India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Translate Bio India,Translate Bio India,Pharmaceuticals,Biotechnology,100+,Hyderabad, India
+Vaxine India,Vaxine India,Pharmaceuticals,Biotechnology,50+,Hyderabad, India
+Zydus Cadila India,Zydus Cadila India,Pharmaceuticals,Pharmaceuticals,25,000+,Ahmedabad, India
+Dr. Reddy's India,Dr. Reddy's India,Pharmaceuticals,Pharmaceuticals,20,000+,Hyderabad, India
+Sun Pharma India,Sun Pharma India,Pharmaceuticals,Pharmaceuticals,30,000+,Mumbai, India
+Lupin India,Lupin India,Pharmaceuticals,Pharmaceuticals,20,000+,Mumbai, India
+Cipla India,Cipla India,Pharmaceuticals,Pharmaceuticals,25,000+,Mumbai, India
+Torrent India,Torrent India,Pharmaceuticals,Pharmaceuticals,15,000+,Ahmedabad, India
+Aurobindo India,Aurobindo India,Pharmaceuticals,Pharmaceuticals,25,000+,Hyderabad, India
+Glenmark India,Glenmark India,Pharmaceuticals,Pharmaceuticals,15,000+,Mumbai, India
+Jubilant India,Jubilant India,Pharmaceuticals,Pharmaceuticals,10,000+,Noida, India
+Alkem India,Alkem India,Pharmaceuticals,Pharmaceuticals,15,000+,Mumbai, India
+Mankind India,Mankind India,Pharmaceuticals,Pharmaceuticals,20,000+,New Delhi, India
+Intas India,Intas India,Pharmaceuticals,Pharmaceuticals,15,000+,Ahmedabad, India
+Biocon India,Biocon India,Pharmaceuticals,Biotechnology,10,000+,Bangalore, India
+Serum Institute India,Serum Institute India,Pharmaceuticals,Vaccines,20,000+,Pune, India
+Bharat Biotech India,Bharat Biotech India,Pharmaceuticals,Vaccines,15,000+,Hyderabad, India
+Panacea Biotec India,Panacea Biotec India,Pharmaceuticals,Vaccines,5,000+,New Delhi, India

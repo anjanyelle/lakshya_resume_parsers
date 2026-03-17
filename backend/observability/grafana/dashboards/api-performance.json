@@ -1,0 +1,49 @@
+{
+  "title": "API Performance",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Request Rate",
+      "targets": [
+        {
+          "expr": "sum(rate(api_requests_total[5m]))",
+          "legendFormat": "rps"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency P50/P95/P99",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(api_request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(api_request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(api_request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ],
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Error Rate",
+      "targets": [
+        {
+          "expr": "sum(rate(api_request_errors_total[5m])) / sum(rate(api_requests_total[5m]))",
+          "legendFormat": "error rate"
+        }
+      ],
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 }
+    }
+  ]
+}

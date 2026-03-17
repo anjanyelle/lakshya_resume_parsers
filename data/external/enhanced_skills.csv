@@ -1,0 +1,90 @@
+skill_name,category,subcategory,level
+Python,Programming,Language,Expert
+Java,Programming,Language,Expert
+JavaScript,Programming,Language,Expert
+TypeScript,Programming,Language,Advanced
+C++,Programming,Language,Advanced
+C#,Programming,Language,Advanced
+Go,Programming,Language,Intermediate
+R,Programming,Language,Advanced
+Scala,Programming,Language,Intermediate
+Ruby,Programming,Language,Intermediate
+SQL,Data,Database,Expert
+NoSQL,Data,Database,Expert
+MongoDB,Data,Database,Advanced
+PostgreSQL,Data,Database,Advanced
+MySQL,Data,Database,Advanced
+Redis,Data,Cache,Advanced
+Elasticsearch,Data,Search,Advanced
+Cassandra,Data,Database,Intermediate
+DynamoDB,Data,Database,Intermediate
+Snowflake,Data,Warehouse,Advanced
+Apache Spark,Big Data,Processing,Expert
+Hadoop,Big Data,Processing,Advanced
+Kafka,Big Data,Streaming,Advanced
+Flink,Big Data,Streaming,Intermediate
+Hive,Big Data,Query,Advanced
+Pig,Big Data,Processing,Intermediate
+HBase,Big Data,Database,Intermediate
+AWS,Cloud,Platform,Expert
+Azure,Cloud,Platform,Expert
+Google Cloud Platform,Cloud,Platform,Advanced
+GCP,Cloud,Platform,Advanced
+AWS Lambda,Cloud,Serverless,Advanced
+AWS S3,Cloud,Storage,Expert
+AWS EC2,Cloud,Compute,Expert
+AWS Redshift,Cloud,Warehouse,Advanced
+AWS Glue,Cloud,ETL,Advanced
+AWS Kinesis,Cloud,Streaming,Advanced
+AWS RDS,Cloud,Database,Expert
+AWS DynamoDB,Cloud,Database,Advanced
+Azure Data Factory,Cloud,ETL,Advanced
+Azure Databricks,Cloud,Analytics,Advanced
+Azure Synapse,Cloud,Analytics,Advanced
+Azure Functions,Cloud,Serverless,Intermediate
+Docker,DevOps,Container,Expert
+Kubernetes,DevOps,Orchestration,Expert
+Jenkins,DevOps,CI/CD,Expert
+GitLab CI,DevOps,CI/CD,Advanced
+GitHub Actions,DevOps,CI/CD,Advanced
+Ansible,DevOps,Automation,Advanced
+Terraform,DevOps,Infrastructure,Expert
+Puppet,DevOps,Configuration,Intermediate
+Chef,DevOps,Configuration,Intermediate
+React,Web,Framework,Expert
+Angular,Web,Framework,Expert
+Vue.js,Web,Framework,Advanced
+Node.js,Web,Runtime,Expert
+Express.js,Web,Framework,Expert
+Spring Boot,Web,Framework,Expert
+Django,Web,Framework,Advanced
+Flask,Web,Framework,Advanced
+TensorFlow,ML,Framework,Expert
+PyTorch,ML,Framework,Expert
+Scikit-learn,ML,Library,Expert
+Keras,ML,Library,Advanced
+XGBoost,ML,Library,Expert
+Pandas,Data,Analysis,Expert
+NumPy,Data,Analysis,Expert
+Matplotlib,Data,Visualization,Expert
+Seaborn,Data,Visualization,Expert
+Plotly,Data,Visualization,Advanced
+Tableau,BI,Visualization,Expert
+Power BI,BI,Visualization,Expert
+Looker,BI,Visualization,Advanced
+MicroStrategy,BI,Visualization,Advanced
+QuickSight,BI,Visualization,Intermediate
+Grafana,BI,Monitoring,Expert
+Selenium,Testing,Automation,Expert
+Cypress,Testing,Automation,Advanced
+JUnit,Testing,Framework,Expert
+Mockito,Testing,Framework,Advanced
+Postman,Testing,API,Expert
+OAuth2,Security,Authentication,Expert
+JWT,Security,Authentication,Advanced
+SSL/TLS,Security,Encryption,Expert
+OWASP,Security,Standard,Advanced
+Agile,Methodology,Process,Expert
+Scrum,Methodology,Process,Expert
+TDD,Methodology,Development,Advanced
+DevOps,Methodology,Process,Expert

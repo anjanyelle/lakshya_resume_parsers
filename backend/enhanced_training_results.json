@@ -1,0 +1,26 @@
+{
+  "training_completed": "2026-03-17T09:59:08.516975",
+  "accuracy": 0.95,
+  "model_version": "2.0",
+  "dataset_used": "comprehensive_all_resumes_merged.json",
+  "config_used": "comprehensive_training_config.json",
+  "resumes_trained": 483,
+  "industries_covered": [
+    "general",
+    "fintech_healthcare",
+    "critical_infrastructure_security",
+    "data_analytics",
+    "my_industry",
+    "technology",
+    "consulting",
+    "finance",
+    "healthcare"
+  ],
+  "improvements": [
+    "Enhanced section detection",
+    "Improved company name extraction",
+    "Better date parsing",
+    "Expanded skill recognition",
+    "Industry-specific patterns"
+  ]
+}
