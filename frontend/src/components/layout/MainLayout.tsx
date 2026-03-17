@@ -1,18 +1,18 @@
-import type { ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
-import { useLayout } from '../../contexts/LayoutContext'
-import Header from './Header'
-import Sidebar from './Sidebar'
+import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { useLayout } from "../../contexts/LayoutContext";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
 
 interface MainLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
-  const location = useLocation()
-  const { sidebarOpen } = useLayout()
-  const isCandidateDetail = /^\/candidates\/[^/]+$/.test(location.pathname)
-  const maxWidth = isCandidateDetail ? 'max-w-[1600px]' : 'max-w-6xl'
+  const location = useLocation();
+  const { sidebarOpen } = useLayout();
+  const isCandidateDetail = /^\/candidates\/[^/]+$/.test(location.pathname);
+  const maxWidth = isCandidateDetail ? "max-w-[1600px]" : "max-w-6xl";
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -26,5 +26,5 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </main>
       </div>
     </div>
-  )
+  );
 }

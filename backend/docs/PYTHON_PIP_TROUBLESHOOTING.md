@@ -138,7 +138,7 @@ python -m spacy download en_core_web_sm
 
 ## Permission error (Windows)
 
-- Run CMD/PowerShell as Administrator, or  
+- Run CMD/PowerShell as Administrator, or
 - Install for your user only:
 
 ```bash
@@ -172,9 +172,9 @@ This uses `sys.executable`, so the install goes to the same Python that runs the
 
 ## Quick summary
 
-| Do this                         | Avoid this        |
-|---------------------------------|-------------------|
-| `python -m pip install package` | `pip install ...` |
+| Do this                         | Avoid this           |
+| ------------------------------- | -------------------- |
+| `python -m pip install package` | `pip install ...`    |
 | `python -m spacy download ...`  | `spacy download ...` |
 
 When not using a virtual environment, always use the interpreter explicitly: `python -m pip` and `python -m spacy`.

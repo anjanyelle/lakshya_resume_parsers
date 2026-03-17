@@ -1,31 +1,31 @@
-import { useState, useCallback } from 'react'
-import { toast } from 'react-hot-toast'
-import type { Education } from '../../types'
-import Modal from '../common/Modal'
+import { useState, useCallback } from "react";
+import { toast } from "react-hot-toast";
+import type { Education } from "../../types";
+import Modal from "../common/Modal";
 import {
   createEducation,
   updateEducation,
   deleteEducation,
   type EducationPayload,
-} from '../../services/api/candidates'
+} from "../../services/api/candidates";
 
 type EducationSectionProps = {
-  candidateId: string
-  items?: Education[]
-  onUpdate?: (updated: Education[]) => void
-  readOnly?: boolean
-  activeFieldId?: string | null
-  onFieldSelect?: (fieldId: string) => void
-}
+  candidateId: string;
+  items?: Education[];
+  onUpdate?: (updated: Education[]) => void;
+  readOnly?: boolean;
+  activeFieldId?: string | null;
+  onFieldSelect?: (fieldId: string) => void;
+};
 
 const emptyForm: EducationPayload & { id?: string } = {
-  institution: '',
-  degree: '',
-  field_of_study: '',
-  start_date: '',
-  end_date: '',
-  description: '',
-}
+  institution: "",
+  degree: "",
+  field_of_study: "",
+  start_date: "",
+  end_date: "",
+  description: "",
+};
 
 function toPayload(item: Partial<Education>): EducationPayload {
   return {
@@ -35,18 +35,18 @@ function toPayload(item: Partial<Education>): EducationPayload {
     start_date: item.start_date ?? null,
     end_date: item.end_date ?? null,
     description: item.description ?? null,
-  }
+  };
 }
 
 function formatDate(d: string | null | undefined): string {
-  if (!d) return ''
-  const parsed = new Date(d)
-  return isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10)
+  if (!d) return "";
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? "" : parsed.toISOString().slice(0, 10);
 }
 
 /** True if id is a synthetic parsed ID (parsed-edu-0, etc.), not a DB UUID */
 function isParsedId(id: string): boolean {
-  return /^parsed-/.test(id)
+  return /^parsed-/.test(id);
 }
 
 export default function EducationSection({
@@ -57,38 +57,40 @@ export default function EducationSection({
   activeFieldId = null,
   onFieldSelect,
 }: EducationSectionProps) {
-  const isActive = activeFieldId === 'education'
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [form, setForm] = useState<EducationPayload & { id?: string }>(emptyForm)
-  const [saving, setSaving] = useState(false)
+  const isActive = activeFieldId === "education";
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<EducationPayload & { id?: string }>(
+    emptyForm,
+  );
+  const [saving, setSaving] = useState(false);
 
   const openAdd = useCallback(() => {
-    setEditingId(null)
-    setForm(emptyForm)
-    setModalOpen(true)
-  }, [])
+    setEditingId(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  }, []);
 
   const openEdit = useCallback((item: Education) => {
-    setEditingId(item.id)
+    setEditingId(item.id);
     setForm({
       ...toPayload(item),
       id: item.id,
       start_date: formatDate(item.start_date) || undefined,
       end_date: formatDate(item.end_date) || undefined,
-    })
-    setModalOpen(true)
-  }, [])
+    });
+    setModalOpen(true);
+  }, []);
 
   const closeModal = useCallback(() => {
-    setModalOpen(false)
-    setEditingId(null)
-    setForm(emptyForm)
-  }, [])
+    setModalOpen(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
+    e.preventDefault();
+    setSaving(true);
     try {
       const payload: EducationPayload = {
         institution: form.institution || null,
@@ -97,59 +99,57 @@ export default function EducationSection({
         start_date: form.start_date || null,
         end_date: form.end_date || null,
         description: form.description || null,
-      }
+      };
       if (editingId && !isParsedId(editingId)) {
-        const updated = await updateEducation(candidateId, editingId, payload)
-        onUpdate?.(updated.education ?? [])
-        toast.success('Education updated')
+        const updated = await updateEducation(candidateId, editingId, payload);
+        onUpdate?.(updated.education ?? []);
+        toast.success("Education updated");
       } else {
-        const updated = await createEducation(candidateId, payload)
-        onUpdate?.(updated.education ?? [])
-        toast.success('Education added')
+        const updated = await createEducation(candidateId, payload);
+        onUpdate?.(updated.education ?? []);
+        toast.success("Education added");
       }
-      closeModal()
+      closeModal();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save')
+      toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleDelete = useCallback(
     async (entry: Education) => {
       if (
-        !window.confirm(
-          'Remove this education entry? This cannot be undone.',
-        )
+        !window.confirm("Remove this education entry? This cannot be undone.")
       )
-        return
+        return;
       try {
         if (isParsedId(entry.id)) {
-          const filtered = items.filter((i) => i.id !== entry.id)
-          onUpdate?.(filtered)
-          toast.success('Education removed')
+          const filtered = items.filter((i) => i.id !== entry.id);
+          onUpdate?.(filtered);
+          toast.success("Education removed");
         } else {
-          const updated = await deleteEducation(candidateId, entry.id)
-          onUpdate?.(updated.education ?? [])
-          toast.success('Education removed')
+          const updated = await deleteEducation(candidateId, entry.id);
+          onUpdate?.(updated.education ?? []);
+          toast.success("Education removed");
         }
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Failed to delete')
+        toast.error(err instanceof Error ? err.message : "Failed to delete");
       }
     },
     [candidateId, items, onUpdate],
-  )
+  );
 
   return (
     <div
-      role={onFieldSelect ? 'button' : undefined}
+      role={onFieldSelect ? "button" : undefined}
       tabIndex={onFieldSelect ? 0 : undefined}
-      onClick={() => onFieldSelect?.('education')}
+      onClick={() => onFieldSelect?.("education")}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onFieldSelect?.('education')
+        if (e.key === "Enter") onFieldSelect?.("education");
       }}
       className={`rounded-lg border p-6 transition-all duration-200 ${
-        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
+        isActive ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-white"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -158,8 +158,8 @@ export default function EducationSection({
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation()
-              openAdd()
+              e.stopPropagation();
+              openAdd();
             }}
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
           >
@@ -183,14 +183,14 @@ export default function EducationSection({
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-slate-900">
-                    {item.institution || 'Institution'}
+                    {item.institution || "Institution"}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {item.degree || 'Degree'}
-                    {item.field_of_study ? ` · ${item.field_of_study}` : ''}
+                    {item.degree || "Degree"}
+                    {item.field_of_study ? ` · ${item.field_of_study}` : ""}
                   </p>
                   <p className="text-xs text-slate-500">
-                    {item.start_date || '—'} → {item.end_date || '—'}
+                    {item.start_date || "—"} → {item.end_date || "—"}
                   </p>
                   {item.description && (
                     <p className="mt-1 text-xs text-slate-600">
@@ -200,7 +200,10 @@ export default function EducationSection({
                 </div>
               </div>
               {!readOnly && (
-                <div className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex shrink-0 gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
                     onClick={() => openEdit(item)}
@@ -225,7 +228,7 @@ export default function EducationSection({
       <Modal
         open={modalOpen}
         onClose={closeModal}
-        title={editingId ? 'Edit Education' : 'Add Education'}
+        title={editingId ? "Edit Education" : "Add Education"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -234,7 +237,7 @@ export default function EducationSection({
             </label>
             <input
               type="text"
-              value={form.degree ?? ''}
+              value={form.degree ?? ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, degree: e.target.value }))
               }
@@ -248,7 +251,7 @@ export default function EducationSection({
             </label>
             <input
               type="text"
-              value={form.institution ?? ''}
+              value={form.institution ?? ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, institution: e.target.value }))
               }
@@ -262,7 +265,7 @@ export default function EducationSection({
             </label>
             <input
               type="text"
-              value={form.field_of_study ?? ''}
+              value={form.field_of_study ?? ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, field_of_study: e.target.value }))
               }
@@ -277,7 +280,7 @@ export default function EducationSection({
               </label>
               <input
                 type="date"
-                value={form.start_date ?? ''}
+                value={form.start_date ?? ""}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, start_date: e.target.value }))
                 }
@@ -290,7 +293,7 @@ export default function EducationSection({
               </label>
               <input
                 type="date"
-                value={form.end_date ?? ''}
+                value={form.end_date ?? ""}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, end_date: e.target.value }))
                 }
@@ -303,7 +306,7 @@ export default function EducationSection({
               Description (optional)
             </label>
             <textarea
-              value={form.description ?? ''}
+              value={form.description ?? ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, description: e.target.value }))
               }
@@ -325,11 +328,11 @@ export default function EducationSection({
               disabled={saving}
               className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
             >
-              {saving ? 'Saving…' : editingId ? 'Update' : 'Add'}
+              {saving ? "Saving…" : editingId ? "Update" : "Add"}
             </button>
           </div>
         </form>
       </Modal>
     </div>
-  )
+  );
 }

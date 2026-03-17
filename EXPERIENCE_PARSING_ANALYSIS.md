@@ -20,6 +20,7 @@ PDF/DOC/DOCX
 ```
 
 **Key files:**
+
 - `backend/app/services/parser/extract_text.py` – raw text
 - `backend/app/services/parser/section_parser.py` – section detection
 - `backend/app/workers/pipeline.py` – `task_detect_sections`, `task_parse_work_experience`, `task_save_to_database`
@@ -38,6 +39,7 @@ PDF/DOC/DOCX
 **Location:** `section_parser.py`, `fallback_segmenter.py`
 
 **Issue:** `sections.get("experience", {})` can be empty if:
+
 - No header like "Work Experience" / "Professional Experience" is detected
 - Multi-column PDFs: text order breaks header→content mapping
 - `_slice_sections` / `_infer_sections_no_headers` mis-assigns lines
@@ -67,6 +69,7 @@ Section keys are canonicalized (`work_experience` → `experience`). If section 
 **Location:** `work_experience_parser.py:418-477` – `extract_individual_jobs`
 
 **Issue:** Boundaries depend on:
+
 - `DATE_ANCHOR_RE` / `DATE_RANGE_RE` / `PRESENT_RE`
 - `_has_date_anchor(line)` – lines with date patterns
 
@@ -81,6 +84,7 @@ If dates use non-standard formats (e.g. "Q1 2020", "20.01", regional formats), n
 **Location:** `work_experience_parser.py` – `_parse_dates`, `DATE_RANGE_RE`; `pipeline.py:567` – `_parse_date_str`
 
 **Issue:**
+
 - `_parse_date_str` uses `dateparser.parse(value, settings={"PREFER_DAY_OF_MONTH": "first"})`. `None` input → `None` output.
 - `sanitizer._normalize_date_token` only does `_collapse_spaces`; it does not parse. Dates stay as strings.
 - If `start_date` / `end_date` are `None` or unparseable, `_has_any_date` is false.
@@ -99,6 +103,7 @@ if not _has_any_date(normalized) and not _has_any_body(normalized):
 ```
 
 **Issue:** Entries are dropped if:
+
 - No `start_date` or `end_date` (or both empty after normalization)
 - No `description` and no `bullets`
 
@@ -113,6 +118,7 @@ Many resumes have "Company | Title" and "2020 – Present" on separate lines. If
 **Location:** `work_experience_sanitizer.py:145-149`, `work_experience_parser.py:336-365`
 
 **Issue:**
+
 - `_is_placeholder(company)` or `_is_placeholder(title)` → entry dropped
 - `_is_skillish(company)` or `_is_skillish(title)` → entry dropped (e.g. "Python, Java, AWS" mis-parsed as company)
 - `_is_plausible_job` requires `has_dates or (has_body and company and title and 2+ bullets)` for date-less jobs
@@ -126,6 +132,7 @@ Many resumes have "Company | Title" and "2020 – Present" on separate lines. If
 **Location:** `pipeline.py:493-521` – `_apply_llm_resume`; `pipeline.py:3454-3466` – `llm_structured_verified` merge
 
 **Issue:**
+
 - `_apply_llm_resume`: if `work_experience` is missing or empty, it is filled from `llm_resume.project_client_experience` / `client_experience` / `projects`.
 - `llm_structured` merge: if `_work_experience_is_low_quality(existing)` and `incoming_ok`, `parsed["work_experience"]` is replaced by LLM data. LLM can overwrite good deterministic results with empty or low-quality data.
 
@@ -165,15 +172,15 @@ WorkHistory(
 
 ## 3. Debugging Checkpoints
 
-| # | Location | Log | Purpose |
-|---|----------|-----|---------|
-| 1 | `task_detect_sections` end | `sections.keys()`, `sections.get("experience", {}).get("content", "")[:200]` | Section detection |
-| 2 | `task_parse_work_experience` start | `has_experience_section`, `len(experience_text)`, `exp_conf` | Section input |
-| 3 | `task_parse_work_experience` before payload | `len(primary_jobs)`, `primary_score`, `llm_triggered` | Parser output |
-| 4 | `task_parse_work_experience` end | `len(payload)`, `payload[0]` if any | Final payload |
-| 5 | `task_save_to_database` after `_apply_llm_resume` | `len(parsed.get("work_experience", []))` | Post-merge |
-| 6 | `sanitize_work_experience_entries` | Input count, output count, sample dropped entry | Sanitizer filter |
-| 7 | `task_save_to_database` before session.add | `len(work_entries)`, `work_entries[0]` if any | Pre-DB |
+| #   | Location                                          | Log                                                                          | Purpose           |
+| --- | ------------------------------------------------- | ---------------------------------------------------------------------------- | ----------------- |
+| 1   | `task_detect_sections` end                        | `sections.keys()`, `sections.get("experience", {}).get("content", "")[:200]` | Section detection |
+| 2   | `task_parse_work_experience` start                | `has_experience_section`, `len(experience_text)`, `exp_conf`                 | Section input     |
+| 3   | `task_parse_work_experience` before payload       | `len(primary_jobs)`, `primary_score`, `llm_triggered`                        | Parser output     |
+| 4   | `task_parse_work_experience` end                  | `len(payload)`, `payload[0]` if any                                          | Final payload     |
+| 5   | `task_save_to_database` after `_apply_llm_resume` | `len(parsed.get("work_experience", []))`                                     | Post-merge        |
+| 6   | `sanitize_work_experience_entries`                | Input count, output count, sample dropped entry                              | Sanitizer filter  |
+| 7   | `task_save_to_database` before session.add        | `len(work_entries)`, `work_entries[0]` if any                                | Pre-DB            |
 
 ---
 

@@ -1,32 +1,32 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Search } from 'lucide-react'
-import { useDebouncedValue } from '../../hooks/useDebouncedValue'
-import { useFilterStore } from '../../store/filterStore'
-import type { Candidate } from '../../types/candidate'
+import { useEffect, useMemo, useState } from "react";
+import { Search } from "lucide-react";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
+import { useFilterStore } from "../../store/filterStore";
+import type { Candidate } from "../../types/candidate";
 
 type SearchBarProps = {
-  candidates: Candidate[]
-}
+  candidates: Candidate[];
+};
 
 export default function SearchBar({ candidates }: SearchBarProps) {
-  const { setSearchTerm } = useFilterStore()
-  const [value, setValue] = useState('')
-  const debounced = useDebouncedValue(value, 400)
+  const { setSearchTerm } = useFilterStore();
+  const [value, setValue] = useState("");
+  const debounced = useDebouncedValue(value, 400);
 
   const suggestions = useMemo(() => {
-    if (!debounced) return []
-    const lower = debounced.toLowerCase()
+    if (!debounced) return [];
+    const lower = debounced.toLowerCase();
     const names = candidates
       .map((candidate) => candidate.full_name)
       .filter(Boolean)
       .map((name) => name as string)
-      .filter((name) => name.toLowerCase().includes(lower))
-    return Array.from(new Set(names)).slice(0, 5)
-  }, [candidates, debounced])
+      .filter((name) => name.toLowerCase().includes(lower));
+    return Array.from(new Set(names)).slice(0, 5);
+  }, [candidates, debounced]);
 
   useEffect(() => {
-    setSearchTerm(debounced)
-  }, [debounced, setSearchTerm])
+    setSearchTerm(debounced);
+  }, [debounced, setSearchTerm]);
 
   return (
     <div className="relative">
@@ -51,5 +51,5 @@ export default function SearchBar({ candidates }: SearchBarProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -188,12 +188,13 @@ def label_tokens(tokens: List[str], candidate_name: Optional[str],
             for k in range(1, min(span_len, len(labels) - span_start)):
                 labels[span_start + k] = 'I-DATE'
 
-    # 3. SKILL — exact phrase match (single and multi-word)
+    # 3. SKILL — enhanced detection with contextual patterns
     tok_lower = [t.lower() for t in tokens]
     i = 0
     while i < len(tok_lower):
         matched = False
-        # Try longest match first (up to 4 words)
+        
+        # Try longest match first (up to 4 words) for exact skill matches
         for length in range(4, 0, -1):
             if i + length > len(tok_lower):
                 continue
@@ -205,6 +206,46 @@ def label_tokens(tokens: List[str], candidate_name: Optional[str],
                 i += length
                 matched = True
                 break
+        
+        if not matched:
+            # Context-based skill detection in work experience
+            # Look for patterns like "using X", "with X", "in X", "built X", "developed X"
+            if i > 0 and tok_lower[i] in ['using', 'with', 'in', 'and', 'or', ',']:
+                # Check next 1-3 words for potential skills
+                for length in range(3, 0, -1):
+                    if i + 1 + length > len(tok_lower):
+                        continue
+                    phrase = ' '.join(tok_lower[i + 1:i + 1 + length])
+                    # Common technology indicators
+                    if any(tech in phrase.lower() for tech in ['js', '.js', 'api', 'sql', 'db', 'cloud', 'web', 'app', 'service', 'micro', 'script', 'code']):
+                        if all(labels[i + 1 + k] == 'O' for k in range(length)):
+                            labels[i + 1] = 'B-SKILL'
+                            for k in range(1, length):
+                                labels[i + 1 + k] = 'I-SKILL'
+                            i += length + 1
+                            matched = True
+                            break
+            
+            # Action verb + potential skill pattern
+            if not matched and i > 0:
+                prev_word = tok_lower[i - 1]
+                if prev_word in ['built', 'developed', 'created', 'implemented', 'designed', 'architected', 'deployed', 'optimized', 'managed', 'configured', 'integrated']:
+                    # Check current and next 2 words
+                    for length in range(3, 0, -1):
+                        if i + length > len(tok_lower):
+                            continue
+                        phrase = ' '.join(tok_lower[i:i + length])
+                        # Heuristic: if it contains tech-related terms, label as skill
+                        tech_indicators = ['python', 'java', 'javascript', 'react', 'angular', 'node', 'docker', 'kubernetes', 'aws', 'azure', 'sql', 'mongodb', 'redis', 'api', 'micro', 'service', 'web', 'app', 'cloud', 'dev', 'ops', 'ci', 'cd', 'git', 'jenkins', 'pipeline', 'data', 'ml', 'ai']
+                        if any(indicator in phrase for indicator in tech_indicators):
+                            if all(labels[i + k] == 'O' for k in range(length)):
+                                labels[i] = 'B-SKILL'
+                                for k in range(1, length):
+                                    labels[i + k] = 'I-SKILL'
+                                i += length
+                                matched = True
+                                break
+        
         if not matched:
             i += 1
 

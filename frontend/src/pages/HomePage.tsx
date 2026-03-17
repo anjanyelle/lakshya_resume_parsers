@@ -1,9 +1,9 @@
-import { ArrowRight, ShieldCheck, Sparkles, UploadCloud } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import Button from '../components/common/Button'
+import { ArrowRight, ShieldCheck, Sparkles, UploadCloud } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import Button from "../components/common/Button";
 
 export default function HomePage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <section className="space-y-10">
@@ -23,14 +23,14 @@ export default function HomePage() {
           <div className="flex flex-wrap gap-3">
             <Button
               icon={<UploadCloud className="h-4 w-4" />}
-              onClick={() => navigate('/upload')}
+              onClick={() => navigate("/upload")}
             >
               Upload a Resume
             </Button>
             <Button
               variant="secondary"
               icon={<ArrowRight className="h-4 w-4" />}
-              onClick={() => navigate('/candidates')}
+              onClick={() => navigate("/candidates")}
             >
               View Candidates
             </Button>
@@ -40,7 +40,9 @@ export default function HomePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
               <div>
-                <p className="text-xs font-semibold text-slate-500">Processed</p>
+                <p className="text-xs font-semibold text-slate-500">
+                  Processed
+                </p>
                 <p className="text-2xl font-semibold text-slate-900">1,284</p>
               </div>
               <ShieldCheck className="h-5 w-5 text-brand-600" />
@@ -67,19 +69,19 @@ export default function HomePage() {
       <div className="grid gap-6 md:grid-cols-3">
         {[
           {
-            title: 'Secure storage',
+            title: "Secure storage",
             description:
-              'Encrypted file handling, access controls, and audit-ready logs.',
+              "Encrypted file handling, access controls, and audit-ready logs.",
           },
           {
-            title: 'Structured profiles',
+            title: "Structured profiles",
             description:
-              'Normalize work history, education, and skills into clean records.',
+              "Normalize work history, education, and skills into clean records.",
           },
           {
-            title: 'Operational insights',
+            title: "Operational insights",
             description:
-              'Monitor parsing status and confidence across every upload.',
+              "Monitor parsing status and confidence across every upload.",
           },
         ].map((card) => (
           <div
@@ -96,5 +98,5 @@ export default function HomePage() {
         ))}
       </div>
     </section>
-  )
+  );
 }

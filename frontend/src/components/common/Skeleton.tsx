@@ -1,9 +1,9 @@
 type SkeletonProps = {
-  lines?: number
-  className?: string
-}
+  lines?: number;
+  className?: string;
+};
 
-export default function Skeleton({ lines = 3, className = '' }: SkeletonProps) {
+export default function Skeleton({ lines = 3, className = "" }: SkeletonProps) {
   return (
     <div className={`space-y-2 ${className}`}>
       {Array.from({ length: lines }).map((_, idx) => (
@@ -13,5 +13,5 @@ export default function Skeleton({ lines = 3, className = '' }: SkeletonProps) {
         />
       ))}
     </div>
-  )
+  );
 }

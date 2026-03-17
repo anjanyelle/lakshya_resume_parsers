@@ -1,19 +1,26 @@
-import { useMemo } from 'react'
-import { useFilterStore } from '../../store/filterStore'
-import type { Candidate } from '../../types/candidate'
+import { useMemo } from "react";
+import { useFilterStore } from "../../store/filterStore";
+import type { Candidate } from "../../types/candidate";
 
 type FilterPanelProps = {
-  candidates: Candidate[]
-}
+  candidates: Candidate[];
+};
 
 export default function FilterPanel({ candidates }: FilterPanelProps) {
-  const { skills, location, minExperience, maxExperience, setSkills, setLocation, setExperience } =
-    useFilterStore()
+  const {
+    skills,
+    location,
+    minExperience,
+    maxExperience,
+    setSkills,
+    setLocation,
+    setExperience,
+  } = useFilterStore();
 
   const skillOptions = useMemo(() => {
-    const allSkills = candidates.flatMap((candidate) => candidate.skills ?? [])
-    return Array.from(new Set(allSkills.map((skill) => skill.name)))
-  }, [candidates])
+    const allSkills = candidates.flatMap((candidate) => candidate.skills ?? []);
+    return Array.from(new Set(allSkills.map((skill) => skill.name)));
+  }, [candidates]);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -38,7 +45,7 @@ export default function FilterPanel({ candidates }: FilterPanelProps) {
           <div className="mt-2 flex gap-2">
             <input
               type="number"
-              value={minExperience ?? ''}
+              value={minExperience ?? ""}
               onChange={(event) =>
                 setExperience(
                   event.target.value ? Number(event.target.value) : null,
@@ -50,7 +57,7 @@ export default function FilterPanel({ candidates }: FilterPanelProps) {
             />
             <input
               type="number"
-              value={maxExperience ?? ''}
+              value={maxExperience ?? ""}
               onChange={(event) =>
                 setExperience(
                   minExperience,
@@ -80,8 +87,8 @@ export default function FilterPanel({ candidates }: FilterPanelProps) {
                 }
                 className={`rounded-full border px-3 py-1 text-xs font-medium ${
                   skills.includes(skill)
-                    ? 'border-brand-500 bg-brand-50 text-brand-700'
-                    : 'border-slate-200 text-slate-600'
+                    ? "border-brand-500 bg-brand-50 text-brand-700"
+                    : "border-slate-200 text-slate-600"
                 }`}
               >
                 {skill}
@@ -91,5 +98,5 @@ export default function FilterPanel({ candidates }: FilterPanelProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

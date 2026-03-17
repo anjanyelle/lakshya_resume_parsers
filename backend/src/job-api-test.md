@@ -1,7 +1,9 @@
 # Job Description CRUD API Test Guide
 
 ## Authentication Required
+
 All job endpoints require a valid JWT token in the Authorization header:
+
 ```
 Authorization: Bearer <your-jwt-token>
 ```
@@ -9,6 +11,7 @@ Authorization: Bearer <your-jwt-token>
 ## API Endpoints
 
 ### 1. Create Job Description
+
 ```bash
 POST http://localhost:3001/api/jobs
 Authorization: Bearer <token>
@@ -30,18 +33,21 @@ Content-Type: application/json
 ```
 
 ### 2. Get All Jobs (Paginated with Filters)
+
 ```bash
 GET http://localhost:3001/api/jobs?page=1&limit=10&search=engineer&department=Engineering&location=San%20Francisco&employment_type=full-time&min_experience=3&max_experience=8
 Authorization: Bearer <token>
 ```
 
 ### 3. Get Job by ID
+
 ```bash
 GET http://localhost:3001/api/jobs/<job-id>
 Authorization: Bearer <token>
 ```
 
 ### 4. Update Job Description
+
 ```bash
 PUT http://localhost:3001/api/jobs/<job-id>
 Authorization: Bearer <token>
@@ -55,12 +61,14 @@ Content-Type: application/json
 ```
 
 ### 5. Delete Job Description
+
 ```bash
 DELETE http://localhost:3001/api/jobs/<job-id>
 Authorization: Bearer <token>
 ```
 
 ### 6. Get Job Options (Filter Values)
+
 ```bash
 GET http://localhost:3001/api/jobs/options
 Authorization: Bearer <token>
@@ -69,6 +77,7 @@ Authorization: Bearer <token>
 ## Response Examples
 
 ### Create Job Response
+
 ```json
 {
   "message": "Job created successfully",
@@ -79,7 +88,14 @@ Authorization: Bearer <token>
     "location": "San Francisco, CA",
     "employment_type": "full-time",
     "description": "We are looking for a Senior Software Engineer...",
-    "required_skills": ["JavaScript", "React", "Node.js", "AWS", "PostgreSQL", "Docker"],
+    "required_skills": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "AWS",
+      "PostgreSQL",
+      "Docker"
+    ],
     "min_experience_years": 5,
     "max_experience_years": 10,
     "education_level": "bachelor",
@@ -91,6 +107,7 @@ Authorization: Bearer <token>
 ```
 
 ### Get All Jobs Response
+
 ```json
 {
   "jobs": [...],
@@ -110,11 +127,18 @@ Authorization: Bearer <token>
 ```
 
 ### Get Job Options Response
+
 ```json
 {
   "departments": ["Engineering", "Marketing", "Sales", "HR"],
   "locations": ["San Francisco, CA", "New York, NY", "Remote"],
-  "employment_types": ["full-time", "part-time", "contract", "internship", "temporary"],
+  "employment_types": [
+    "full-time",
+    "part-time",
+    "contract",
+    "internship",
+    "temporary"
+  ],
   "education_levels": ["high-school", "bachelor", "master", "phd", "any"]
 }
 ```
@@ -122,11 +146,13 @@ Authorization: Bearer <token>
 ## Validation Rules
 
 ### Required Fields (Create)
+
 - `title`: 3-255 characters, required
 - `description`: Minimum 50 characters, required
 - `required_skills`: Array of strings, required
 
 ### Optional Fields
+
 - `department`: 1-100 characters
 - `location`: 1-100 characters
 - `employment_type`: Must be one of: full-time, part-time, contract, internship, temporary
@@ -137,10 +163,12 @@ Authorization: Bearer <token>
 - `salary_max`: Positive integer
 
 ### Cross-Field Validation
+
 - `salary_min` cannot be greater than `salary_max`
 - `min_experience_years` cannot be greater than `max_experience_years`
 
 ### Error Response (Validation Failed)
+
 ```json
 {
   "error": "Validation failed",
@@ -154,16 +182,16 @@ Authorization: Bearer <token>
 
 ## Query Parameters for Filtering
 
-| Parameter | Type | Description | Example |
-|-----------|------|-------------|---------|
-| `page` | integer | Page number (default: 1) | `page=2` |
-| `limit` | integer | Items per page, 1-100 (default: 20) | `limit=50` |
-| `search` | string | Search in title, description, department | `search=engineer` |
-| `department` | string | Filter by department | `department=Engineering` |
-| `location` | string | Filter by location | `location=San%20Francisco` |
-| `employment_type` | string | Filter by employment type | `employment_type=full-time` |
-| `min_experience` | integer | Filter by minimum experience | `min_experience=3` |
-| `max_experience` | integer | Filter by maximum experience | `max_experience=8` |
+| Parameter         | Type    | Description                              | Example                     |
+| ----------------- | ------- | ---------------------------------------- | --------------------------- |
+| `page`            | integer | Page number (default: 1)                 | `page=2`                    |
+| `limit`           | integer | Items per page, 1-100 (default: 20)      | `limit=50`                  |
+| `search`          | string  | Search in title, description, department | `search=engineer`           |
+| `department`      | string  | Filter by department                     | `department=Engineering`    |
+| `location`        | string  | Filter by location                       | `location=San%20Francisco`  |
+| `employment_type` | string  | Filter by employment type                | `employment_type=full-time` |
+| `min_experience`  | integer | Filter by minimum experience             | `min_experience=3`          |
+| `max_experience`  | integer | Filter by maximum experience             | `max_experience=8`          |
 
 ## Test Workflow
 

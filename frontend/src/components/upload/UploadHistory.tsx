@@ -1,8 +1,8 @@
-import type { UploadItem } from '../../store/uploadStore'
+import type { UploadItem } from "../../store/uploadStore";
 
 type UploadHistoryProps = {
-  items: UploadItem[]
-}
+  items: UploadItem[];
+};
 
 export default function UploadHistory({ items }: UploadHistoryProps) {
   if (!items.length) {
@@ -10,7 +10,7 @@ export default function UploadHistory({ items }: UploadHistoryProps) {
       <div className="rounded-2xl border border-slate-200 bg-white p-6">
         <p className="text-sm text-slate-600">No uploads yet.</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -23,9 +23,11 @@ export default function UploadHistory({ items }: UploadHistoryProps) {
             className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
           >
             <div>
-              <p className="text-sm font-medium text-slate-900">{item.file.name}</p>
+              <p className="text-sm font-medium text-slate-900">
+                {item.file.name}
+              </p>
               <p className="text-xs text-slate-500">
-                {item.uploadedAt ?? 'Just now'}
+                {item.uploadedAt ?? "Just now"}
               </p>
             </div>
             <span className="text-xs font-semibold text-slate-600">
@@ -35,5 +37,5 @@ export default function UploadHistory({ items }: UploadHistoryProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }

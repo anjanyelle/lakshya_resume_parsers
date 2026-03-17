@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
-import { Edit2 } from 'lucide-react'
+import { useEffect, useState } from "react";
+import { Edit2 } from "lucide-react";
 
 type SummarySectionProps = {
-  summary?: string | null
-  onSave: (value: string) => void
-  readOnly?: boolean
-  activeFieldId?: string | null
-  onFieldSelect?: (fieldId: string) => void
-}
+  summary?: string | null;
+  onSave: (value: string) => void;
+  readOnly?: boolean;
+  activeFieldId?: string | null;
+  onFieldSelect?: (fieldId: string) => void;
+};
 
 export default function SummarySection({
   summary,
@@ -16,32 +16,32 @@ export default function SummarySection({
   activeFieldId = null,
   onFieldSelect,
 }: SummarySectionProps) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(summary ?? '')
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(summary ?? "");
 
   useEffect(() => {
-    setDraft(summary ?? '')
-  }, [summary])
+    setDraft(summary ?? "");
+  }, [summary]);
 
-  const isActive = activeFieldId === 'summary'
+  const isActive = activeFieldId === "summary";
 
   return (
     <div
-      role={onFieldSelect && !editing ? 'button' : undefined}
+      role={onFieldSelect && !editing ? "button" : undefined}
       tabIndex={onFieldSelect && !editing ? 0 : undefined}
       onClick={() => {
-        if (editing) return
-        if (onFieldSelect) onFieldSelect('summary')
-        else if (!readOnly) setEditing(true)
+        if (editing) return;
+        if (onFieldSelect) onFieldSelect("summary");
+        else if (!readOnly) setEditing(true);
       }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' && !editing) {
-          if (onFieldSelect) onFieldSelect('summary')
-          else if (!readOnly) setEditing(true)
+        if (e.key === "Enter" && !editing) {
+          if (onFieldSelect) onFieldSelect("summary");
+          else if (!readOnly) setEditing(true);
         }
       }}
       className={`rounded-lg border p-4 transition-all duration-200 ${
-        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
+        isActive ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-white"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -50,8 +50,8 @@ export default function SummarySection({
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation()
-              setEditing(true)
+              e.stopPropagation();
+              setEditing(true);
             }}
             className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 hover:text-slate-700"
           >
@@ -70,8 +70,8 @@ export default function SummarySection({
             <button
               type="button"
               onClick={() => {
-                onSave(draft)
-                setEditing(false)
+                onSave(draft);
+                setEditing(false);
               }}
               className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
             >
@@ -80,8 +80,8 @@ export default function SummarySection({
             <button
               type="button"
               onClick={() => {
-                setDraft(summary ?? '')
-                setEditing(false)
+                setDraft(summary ?? "");
+                setEditing(false);
               }}
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
@@ -91,9 +91,9 @@ export default function SummarySection({
         </div>
       ) : (
         <p className="mt-3 text-sm text-slate-600">
-          {summary || 'No summary provided yet.'}
+          {summary || "No summary provided yet."}
         </p>
       )}
     </div>
-  )
+  );
 }

@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, field_validator
 import logging
 import time
 import os
@@ -106,24 +107,38 @@ class BenchmarkRequest(BaseModel):
 class ParseResponse(BaseModel):
     candidate_id: str
     status: str
-    name: Optional[str]
-    email: Optional[str]
-    phone: Optional[str]
-    linkedin: Optional[str]
-    github: Optional[str]
-    websites: List[str]
-    skills: List[str]
-    work_experience: List[Dict[str, Any]]
-    education: List[Dict[str, Any]]
-    job_titles: List[str]
-    companies: List[str]
-    locations: List[str]
-    confidence: Dict[str, Any]
-    needs_review: bool
-    quality_level: str
-    processing_metrics: Dict[str, Any]
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    linkedin: Optional[str] = None
+    github: Optional[str] = None
+    websites: List[str] = []
+    skills: List[str] = []
+    work_experience: List[Dict[str, Any]] = []
+    education: List[Dict[str, Any]] = []
+    job_titles: List[str] = []
+    companies: List[str] = []
+    locations: List[str] = []
+    confidence: Dict[str, Any] = {}
+    needs_review: bool = False
+    quality_level: str = "medium"
+    processing_metrics: Dict[str, Any] = {}
+    summary: Optional[str] = None
+    years_of_experience: Optional[float] = None
+    dates: List[str] = []
     source_info: Optional[Dict[str, Any]] = None
     text_info: Optional[Dict[str, Any]] = None
+    
+    # Validators to ensure None values are converted to empty lists
+    @field_validator('websites', 'skills', 'work_experience', 'education', 'job_titles', 'companies', 'locations', 'dates', mode='before')
+    @classmethod
+    def empty_list_for_none(cls, v):
+        return [] if v is None else v
+    
+    @field_validator('confidence', 'processing_metrics', mode='before')
+    @classmethod
+    def empty_dict_for_none(cls, v):
+        return {} if v is None else v
 
 class BatchParseResponse(BaseModel):
     status: str
@@ -568,20 +583,26 @@ async def benchmark_parsing(request: BenchmarkRequest):
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with consistent error response format."""
-    return ErrorResponse(
-        error="HTTP_ERROR",
-        message=exc.detail,
-        details=f"Status code: {exc.status_code}"
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ErrorResponse(
+            error="HTTP_ERROR",
+            message=exc.detail,
+            details=f"Status code: {exc.status_code}"
+        ).dict()
     )
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle general exceptions with consistent error response format."""
     logger.error(f"Unhandled exception: {str(exc)}")
-    return ErrorResponse(
-        error="INTERNAL_ERROR",
-        message="An unexpected error occurred",
-        details=str(exc)
+    return JSONResponse(
+        status_code=500,
+        content=ErrorResponse(
+            error="INTERNAL_ERROR",
+            message="An unexpected error occurred",
+            details=str(exc)
+        ).dict()
     )
 
 @app.post("/match", response_model=MatchResponse)

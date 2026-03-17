@@ -1,22 +1,22 @@
-import { create } from 'zustand'
+import { create } from "zustand";
 
 type FilterState = {
-  searchTerm: string
-  skills: string[]
-  location: string
-  minExperience: number | null
-  maxExperience: number | null
-  setSearchTerm: (value: string) => void
-  setSkills: (skills: string[]) => void
-  setLocation: (value: string) => void
-  setExperience: (min: number | null, max: number | null) => void
-  resetFilters: () => void
-}
+  searchTerm: string;
+  skills: string[];
+  location: string;
+  minExperience: number | null;
+  maxExperience: number | null;
+  setSearchTerm: (value: string) => void;
+  setSkills: (skills: string[]) => void;
+  setLocation: (value: string) => void;
+  setExperience: (min: number | null, max: number | null) => void;
+  resetFilters: () => void;
+};
 
 export const useFilterStore = create<FilterState>((set) => ({
-  searchTerm: '',
+  searchTerm: "",
   skills: [],
-  location: '',
+  location: "",
   minExperience: null,
   maxExperience: null,
   setSearchTerm: (searchTerm) => set({ searchTerm }),
@@ -25,5 +25,11 @@ export const useFilterStore = create<FilterState>((set) => ({
   setExperience: (minExperience, maxExperience) =>
     set({ minExperience, maxExperience }),
   resetFilters: () =>
-    set({ searchTerm: '', skills: [], location: '', minExperience: null, maxExperience: null }),
-}))
+    set({
+      searchTerm: "",
+      skills: [],
+      location: "",
+      minExperience: null,
+      maxExperience: null,
+    }),
+}));

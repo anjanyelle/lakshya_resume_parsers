@@ -1,19 +1,19 @@
-import Button from '../common/Button'
-import UploadProgress from './UploadProgress'
-import type { UploadItem } from '../../store/uploadStore'
+import Button from "../common/Button";
+import UploadProgress from "./UploadProgress";
+import type { UploadItem } from "../../store/uploadStore";
 
 type BatchUploadProps = {
-  queue: UploadItem[]
-  onUpload: () => void
-}
+  queue: UploadItem[];
+  onUpload: () => void;
+};
 
 const statusLabel: Record<string, string> = {
-  queued: 'Queued',
-  uploading: 'Uploading',
-  processing: 'Processing',
-  success: 'Completed',
-  failed: 'Failed',
-}
+  queued: "Queued",
+  uploading: "Uploading",
+  processing: "Processing",
+  success: "Completed",
+  failed: "Failed",
+};
 
 export default function BatchUpload({ queue, onUpload }: BatchUploadProps) {
   return (
@@ -39,15 +39,17 @@ export default function BatchUpload({ queue, onUpload }: BatchUploadProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-slate-900">{item.file.name}</p>
-                <p className="text-xs text-slate-500">{item.file.type || 'file'}</p>
+                <p className="text-xs text-slate-500">
+                  {item.file.type || "file"}
+                </p>
               </div>
               <span
                 className={`text-xs font-semibold ${
-                  item.status === 'failed'
-                    ? 'text-red-600'
-                    : item.status === 'success'
-                      ? 'text-emerald-600'
-                      : 'text-slate-500'
+                  item.status === "failed"
+                    ? "text-red-600"
+                    : item.status === "success"
+                      ? "text-emerald-600"
+                      : "text-slate-500"
                 }`}
               >
                 {statusLabel[item.status]}
@@ -66,5 +68,5 @@ export default function BatchUpload({ queue, onUpload }: BatchUploadProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }

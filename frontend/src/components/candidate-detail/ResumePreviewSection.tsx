@@ -1,17 +1,17 @@
-import { FileText } from 'lucide-react'
+import { FileText } from "lucide-react";
 
 type ResumePreviewSectionProps = {
   /** Blob URL for PDF preview */
-  pdfUrl?: string | null
+  pdfUrl?: string | null;
   /** Rendered HTML for DOCX preview */
-  docxHtml?: string | null
+  docxHtml?: string | null;
   /** Error message when preview unavailable */
-  error?: string | null
+  error?: string | null;
   /** Document filename for display */
-  filename?: string
+  filename?: string;
   /** Hide the header bar */
-  hideHeader?: boolean
-}
+  hideHeader?: boolean;
+};
 
 export default function ResumePreviewSection({
   pdfUrl,
@@ -28,7 +28,7 @@ export default function ResumePreviewSection({
           <div className="flex min-w-0 items-center gap-2">
             <FileText className="h-5 w-5 shrink-0 text-slate-400" />
             <span className="truncate text-sm font-medium text-slate-700">
-              {filename || 'Resume'}
+              {filename || "Resume"}
             </span>
           </div>
         </div>
@@ -72,5 +72,5 @@ export default function ResumePreviewSection({
         )}
       </div>
     </div>
-  )
+  );
 }

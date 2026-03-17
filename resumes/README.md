@@ -4,14 +4,14 @@ Place resume files here for building the ground-truth evaluation dataset.
 
 ## Target Distribution (200 samples)
 
-| Format | Count | Description |
-|--------|-------|-------------|
-| PDF | 40 | Simple 1-col, 2-col, table-based, scanned image |
-| DOCX | 40 | Plain, with tables, with textboxes, with headers |
-| DOC | 20 | Legacy Word format |
-| Image | 20 | PNG/JPG: scanned, printed, handwritten notes |
-| TXT/RTF | 40 | Exported plain text, complex RTF |
-| Mixed | 40 | Multilingual, gaps in employment, academic CVs, contractor profiles, executive bios |
+| Format  | Count | Description                                                                         |
+| ------- | ----- | ----------------------------------------------------------------------------------- |
+| PDF     | 40    | Simple 1-col, 2-col, table-based, scanned image                                     |
+| DOCX    | 40    | Plain, with tables, with textboxes, with headers                                    |
+| DOC     | 20    | Legacy Word format                                                                  |
+| Image   | 20    | PNG/JPG: scanned, printed, handwritten notes                                        |
+| TXT/RTF | 40    | Exported plain text, complex RTF                                                    |
+| Mixed   | 40    | Multilingual, gaps in employment, academic CVs, contractor profiles, executive bios |
 
 ## Directory Structure
 

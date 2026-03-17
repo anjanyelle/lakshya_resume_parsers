@@ -1,37 +1,38 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState } from "react";
 
 type DebugPanelProps = {
-  debug: unknown
-}
+  debug: unknown;
+};
 
 const pretty = (value: unknown) => {
   try {
-    return JSON.stringify(value, null, 2)
+    return JSON.stringify(value, null, 2);
   } catch {
-    return String(value)
+    return String(value);
   }
-}
+};
 
 export default function DebugPanel({ debug }: DebugPanelProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false);
 
   const summary = useMemo(() => {
-    if (!debug || typeof debug !== 'object') return null
-    const obj = debug as Record<string, any>
-    const extraction = obj.text_extraction
-    const sections = obj.sections
-    const we = obj.work_experience
-    const cert = obj.certifications
+    if (!debug || typeof debug !== "object") return null;
+    const obj = debug as Record<string, any>;
+    const extraction = obj.text_extraction;
+    const sections = obj.sections;
+    const we = obj.work_experience;
+    const cert = obj.certifications;
     return {
       extraction_method: extraction?.method,
       used_ocr: extraction?.used_ocr,
       ocr_confidence: extraction?.ocr_confidence,
-      max_header_confidence: sections?.max_header_confidence ?? sections?.max_header_confidence,
+      max_header_confidence:
+        sections?.max_header_confidence ?? sections?.max_header_confidence,
       work_method: we?.method,
       cert_source: cert?.source,
       llm_section_boundary_triggered: obj.section_boundary_llm?.triggered,
-    }
-  }, [debug])
+    };
+  }, [debug]);
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
@@ -47,7 +48,7 @@ export default function DebugPanel({ debug }: DebugPanelProps) {
           onClick={() => setExpanded((prev) => !prev)}
           type="button"
         >
-          {expanded ? 'Hide' : 'Show'}
+          {expanded ? "Hide" : "Show"}
         </button>
       </div>
 
@@ -56,10 +57,12 @@ export default function DebugPanel({ debug }: DebugPanelProps) {
           {Object.entries(summary).map(([key, value]) => (
             <div key={key} className="rounded-xl bg-slate-50 px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {key.replaceAll('_', ' ')}
+                {key.replaceAll("_", " ")}
               </p>
               <p className="mt-1 break-all text-sm text-slate-900">
-                {value === undefined || value === null || value === '' ? '—' : String(value)}
+                {value === undefined || value === null || value === ""
+                  ? "—"
+                  : String(value)}
               </p>
             </div>
           ))}
@@ -76,5 +79,5 @@ export default function DebugPanel({ debug }: DebugPanelProps) {
         </pre>
       ) : null}
     </section>
-  )
+  );
 }

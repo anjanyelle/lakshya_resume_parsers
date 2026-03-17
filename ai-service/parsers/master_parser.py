@@ -17,6 +17,7 @@ from parsers.education_extractor import EducationExtractor
 from parsers.ai_ner_parser import AINamedEntityParser
 from parsers.hybrid_merger import HybridMerger
 from parsers.confidence_scorer import ConfidenceScorer
+from parsers.entity_normalizer import EntityNormalizer
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -52,7 +53,14 @@ class MasterParser:
             self.logger.info("✅ RuleBasedParser initialized")
         except Exception as e:
             self.logger.error(f"❌ Failed to initialize RuleBasedParser: {e}")
-            self.rule_parser = None
+            # Fallback to simple rule parser
+            try:
+                from parsers.simple_rule_parser import SimpleRuleParser
+                self.rule_parser = SimpleRuleParser()
+                self.logger.info("✅ SimpleRuleParser initialized as fallback")
+            except Exception as fallback_error:
+                self.logger.error(f"❌ Failed to initialize SimpleRuleParser: {fallback_error}")
+                self.rule_parser = None
         
         try:
             self.exp_extractor = ExperienceExtractor()
@@ -88,6 +96,13 @@ class MasterParser:
         except Exception as e:
             self.logger.error(f"❌ Failed to initialize ConfidenceScorer: {e}")
             self.confidence_scorer = None
+        
+        try:
+            self.entity_normalizer = EntityNormalizer()
+            self.logger.info("✅ EntityNormalizer initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize EntityNormalizer: {e}")
+            self.entity_normalizer = None
         
         # Timing metrics storage
         self.last_parse_metrics = {}
@@ -194,11 +209,9 @@ class MasterParser:
             if not text or not text.strip():
                 raise ValueError("Empty text provided")
             
-            # Clean text if text extractor is available
-            if self.text_extractor:
-                cleaned_text = self.text_extractor.clean_text(text)
-            else:
-                cleaned_text = text.strip()
+            # Use original text for parsing (cleaning removes emails/phones)
+            # We'll handle cleaning in the final result if needed
+            cleaned_text = text.strip()
             
             # Run text parsing pipeline
             result = self._parse_text_pipeline(
@@ -226,7 +239,9 @@ class MasterParser:
             return result
             
         except Exception as e:
+            import traceback
             self.logger.error(f"❌ Error parsing text for {candidate_id}: {e}")
+            self.logger.error(f"Traceback: {traceback.format_exc()}")
             return self._create_error_result(candidate_id, str(e), metrics)
     
     def _parse_text_pipeline(self, text: str, candidate_id: str, metrics: Dict[str, float], 
@@ -260,12 +275,12 @@ class MasterParser:
         
         # Step 5: Extract structured experience
         step_start = time.time()
-        experience_results = self._extract_experience(sections)
+        experience_results = self._extract_experience(sections, text)
         metrics['experience_extraction_ms'] = (time.time() - step_start) * 1000
         
         # Step 6: Extract structured education
         step_start = time.time()
-        education_results = self._extract_education(sections)
+        education_results = self._extract_education(sections, text)
         metrics['education_extraction_ms'] = (time.time() - step_start) * 1000
         
         # Step 6b: Extract summary
@@ -277,6 +292,13 @@ class MasterParser:
         step_start = time.time()
         merged_results = self._merge_results(rule_results, ai_results, experience_results, education_results)
         merged_results['summary'] = summary
+        
+        # Step 7b: Normalize entities
+        if self.entity_normalizer:
+            merged_results['skills'] = self.entity_normalizer.normalize_skills_list(merged_results.get('skills', []))
+            if merged_results.get('companies'):
+                merged_results['companies'] = [self.entity_normalizer.normalize_company(c) for c in merged_results['companies']]
+        
         metrics['merging_ms'] = (time.time() - step_start) * 1000
         
         # Step 8: Calculate confidence scores
@@ -312,7 +334,7 @@ class MasterParser:
             self.logger.warning("RuleBasedParser not available, returning empty results")
             return {}
         
-        return {
+        result = {
             'email': self.rule_parser.extract_email(text),
             'phone': self.rule_parser.extract_phone(text),
             'linkedin': self.rule_parser.extract_linkedin(text),
@@ -321,6 +343,16 @@ class MasterParser:
             'dates': self.rule_parser.extract_dates(text),
             'years_of_experience': self.rule_parser.extract_years_of_experience(text)
         }
+        
+        # Add skills extraction if available
+        if hasattr(self.rule_parser, 'extract_skills'):
+            result['skills'] = self.rule_parser.extract_skills(text)
+        
+        # Add name extraction if available
+        if hasattr(self.rule_parser, 'extract_name'):
+            result['name'] = self.rule_parser.extract_name(text)
+        
+        return result
     
     def _run_ai_parsing(self, text: str) -> Dict[str, Any]:
         """Run AI entity extraction on text."""
@@ -335,20 +367,25 @@ class MasterParser:
             'companies': self.ai_parser.get_organizations(entities),
             'locations': self.ai_parser.get_locations(entities),
             'misc_entities': self.ai_parser.get_misc_entities(entities),
+            'skills': self.ai_parser.get_skills(entities),
             'ai_entities': entities  # Keep raw entities for reference
         }
     
-    def _extract_experience(self, sections: Dict[str, str]) -> Dict[str, Any]:
+    def _extract_experience(self, sections: Dict[str, str], full_text: str = '') -> Dict[str, Any]:
         """Extract structured work experience."""
         if not self.exp_extractor:
             self.logger.warning("ExperienceExtractor not available, returning empty results")
             return {'work_experience': [], 'job_titles': []}
         
-        experience_text = sections.get('experience', '')
+        experience_text = sections.get('experience', '').strip()
+        if not experience_text:
+            self.logger.warning("No experience section detected, falling back to full text")
+            experience_text = full_text
         if not experience_text:
             return {'work_experience': [], 'job_titles': []}
         
-        work_experience = self.exp_extractor.extract_work_experience(experience_text)
+        exp_result = self.exp_extractor.extract_work_experience(experience_text)
+        work_experience = exp_result.get('work_experience', [])
         job_titles = [exp.get('job_title', '') for exp in work_experience if exp.get('job_title')]
         
         return {
@@ -382,7 +419,11 @@ class MasterParser:
                 continue
             if para.isupper():
                 continue
-            if para.startswith(('-', '*')):
+            if para.startswith(('-', '*')) or re.match(r'^[\s]*[•\-\*\+]', para):
+                continue
+            if re.search(r'\(cid:\d+\)', para):
+                continue
+            if re.search(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b|\b\d{4}\s*[-–—]\s*\d{4}\b', para, re.IGNORECASE):
                 continue
             if re.search(r'@|\d{3}[-.]\d{3}|linkedin\.com|github\.com', para, re.IGNORECASE):
                 continue
@@ -390,13 +431,16 @@ class MasterParser:
         
         return None
     
-    def _extract_education(self, sections: Dict[str, str]) -> Dict[str, Any]:
+    def _extract_education(self, sections: Dict[str, str], full_text: str = '') -> Dict[str, Any]:
         """Extract structured education information."""
         if not self.edu_extractor:
             self.logger.warning("EducationExtractor not available, returning empty results")
             return {'education': [], 'education_institutions': [], 'degrees': []}
         
-        education_text = sections.get('education', '')
+        education_text = sections.get('education', '').strip()
+        if not education_text:
+            self.logger.warning("No education section detected, falling back to full text")
+            education_text = full_text
         if not education_text:
             return {'education': [], 'education_institutions': [], 'degrees': []}
         
@@ -417,11 +461,29 @@ class MasterParser:
             self.logger.warning("HybridMerger not available, using simple combination")
             return self._simple_merge(rule_results, ai_results, experience_results, education_results)
         
-        # Combine all results for merger
-        combined_rule = {**rule_results, **experience_results, **education_results}
-        combined_ai = {**ai_results, **experience_results, **education_results}
+        self.logger.debug("Using HybridMerger for merging results")
         
-        return self.hybrid_merger.merge(combined_rule, combined_ai)
+        # Combine all results for merger
+        # Only add experience/education fields, don't override existing fields
+        self.logger.debug(f"Original rule_results has email: {rule_results.get('email')}, phone: {rule_results.get('phone')}")
+        self.logger.debug(f"Experience results keys: {list(experience_results.keys())}")
+        self.logger.debug(f"Education results keys: {list(education_results.keys())}")
+        
+        combined_rule = rule_results.copy()
+        for key, value in {**experience_results, **education_results}.items():
+            if key in combined_rule and isinstance(combined_rule[key], list) and isinstance(value, list):
+                combined_rule[key] = combined_rule[key] + value
+            elif key not in combined_rule:
+                combined_rule[key] = value
+        combined_ai = ai_results.copy()
+        for key, value in {**experience_results, **education_results}.items():
+            if key in combined_ai and isinstance(combined_ai[key], list) and isinstance(value, list):
+                combined_ai[key] = combined_ai[key] + value
+            elif key not in combined_ai:
+                combined_ai[key] = value
+        
+        merged = self.hybrid_merger.merge(combined_rule, combined_ai)
+        return merged
     
     def _simple_merge(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any],
                      experience_results: Dict[str, Any], education_results: Dict[str, Any]) -> Dict[str, Any]:

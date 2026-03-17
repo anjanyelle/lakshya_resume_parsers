@@ -2,251 +2,501 @@
   {
     "id": "resume-001",
     "text": "Alex Carter\nalex.carter@example.com\n+1 (415) 555-1001\nSan Francisco, CA\nSkills: Python, AWS, Docker",
-    "expected": {"name": "Alex Carter", "email": "alex.carter@example.com", "phone": "+14155551001", "skills": ["python", "aws", "docker"]}
+    "expected": {
+      "name": "Alex Carter",
+      "email": "alex.carter@example.com",
+      "phone": "+14155551001",
+      "skills": ["python", "aws", "docker"]
+    }
   },
   {
     "id": "resume-002",
     "text": "Bianca Lee\nbianca.lee@example.com\n+1 (415) 555-1002\nAustin, TX\nSkills: JavaScript, React, Node.js",
-    "expected": {"name": "Bianca Lee", "email": "bianca.lee@example.com", "phone": "+14155551002", "skills": ["javascript", "react", "node.js"]}
+    "expected": {
+      "name": "Bianca Lee",
+      "email": "bianca.lee@example.com",
+      "phone": "+14155551002",
+      "skills": ["javascript", "react", "node.js"]
+    }
   },
   {
     "id": "resume-003",
     "text": "Carlos Vega\ncarlos.vega@example.com\n+1 (415) 555-1003\nNew York, NY\nSkills: Python, PostgreSQL, AWS",
-    "expected": {"name": "Carlos Vega", "email": "carlos.vega@example.com", "phone": "+14155551003", "skills": ["python", "postgresql", "aws"]}
+    "expected": {
+      "name": "Carlos Vega",
+      "email": "carlos.vega@example.com",
+      "phone": "+14155551003",
+      "skills": ["python", "postgresql", "aws"]
+    }
   },
   {
     "id": "resume-004",
     "text": "Diana Singh\ndiana.singh@example.com\n+1 (415) 555-1004\nSeattle, WA\nSkills: TypeScript, React, Docker",
-    "expected": {"name": "Diana Singh", "email": "diana.singh@example.com", "phone": "+14155551004", "skills": ["typescript", "react", "docker"]}
+    "expected": {
+      "name": "Diana Singh",
+      "email": "diana.singh@example.com",
+      "phone": "+14155551004",
+      "skills": ["typescript", "react", "docker"]
+    }
   },
   {
     "id": "resume-005",
     "text": "Ethan Park\nethan.park@example.com\n+1 (415) 555-1005\nChicago, IL\nSkills: JavaScript, Node.js, AWS",
-    "expected": {"name": "Ethan Park", "email": "ethan.park@example.com", "phone": "+14155551005", "skills": ["javascript", "node.js", "aws"]}
+    "expected": {
+      "name": "Ethan Park",
+      "email": "ethan.park@example.com",
+      "phone": "+14155551005",
+      "skills": ["javascript", "node.js", "aws"]
+    }
   },
   {
     "id": "resume-006",
     "text": "Fatima Noor\nfatima.noor@example.com\n+1 (415) 555-1006\nBoston, MA\nSkills: Python, React, Docker",
-    "expected": {"name": "Fatima Noor", "email": "fatima.noor@example.com", "phone": "+14155551006", "skills": ["python", "react", "docker"]}
+    "expected": {
+      "name": "Fatima Noor",
+      "email": "fatima.noor@example.com",
+      "phone": "+14155551006",
+      "skills": ["python", "react", "docker"]
+    }
   },
   {
     "id": "resume-007",
     "text": "George Kim\ngeorge.kim@example.com\n+1 (415) 555-1007\nDenver, CO\nSkills: PostgreSQL, AWS, Docker",
-    "expected": {"name": "George Kim", "email": "george.kim@example.com", "phone": "+14155551007", "skills": ["postgresql", "aws", "docker"]}
+    "expected": {
+      "name": "George Kim",
+      "email": "george.kim@example.com",
+      "phone": "+14155551007",
+      "skills": ["postgresql", "aws", "docker"]
+    }
   },
   {
     "id": "resume-008",
     "text": "Hana Ito\nhana.ito@example.com\n+1 (415) 555-1008\nPortland, OR\nSkills: TypeScript, Node.js, AWS",
-    "expected": {"name": "Hana Ito", "email": "hana.ito@example.com", "phone": "+14155551008", "skills": ["typescript", "node.js", "aws"]}
+    "expected": {
+      "name": "Hana Ito",
+      "email": "hana.ito@example.com",
+      "phone": "+14155551008",
+      "skills": ["typescript", "node.js", "aws"]
+    }
   },
   {
     "id": "resume-009",
     "text": "Ivan Petrov\nivan.petrov@example.com\n+1 (415) 555-1009\nMiami, FL\nSkills: React, JavaScript, PostgreSQL",
-    "expected": {"name": "Ivan Petrov", "email": "ivan.petrov@example.com", "phone": "+14155551009", "skills": ["react", "javascript", "postgresql"]}
+    "expected": {
+      "name": "Ivan Petrov",
+      "email": "ivan.petrov@example.com",
+      "phone": "+14155551009",
+      "skills": ["react", "javascript", "postgresql"]
+    }
   },
   {
     "id": "resume-010",
     "text": "Julia Ramos\njulia.ramos@example.com\n+1 (415) 555-1010\nPhoenix, AZ\nSkills: Python, AWS, React",
-    "expected": {"name": "Julia Ramos", "email": "julia.ramos@example.com", "phone": "+14155551010", "skills": ["python", "aws", "react"]}
+    "expected": {
+      "name": "Julia Ramos",
+      "email": "julia.ramos@example.com",
+      "phone": "+14155551010",
+      "skills": ["python", "aws", "react"]
+    }
   },
   {
     "id": "resume-011",
     "text": "Kevin Zhou\nkevin.zhou@example.com\n+1 (415) 555-1011\nSan Jose, CA\nSkills: Node.js, JavaScript, Docker",
-    "expected": {"name": "Kevin Zhou", "email": "kevin.zhou@example.com", "phone": "+14155551011", "skills": ["node.js", "javascript", "docker"]}
+    "expected": {
+      "name": "Kevin Zhou",
+      "email": "kevin.zhou@example.com",
+      "phone": "+14155551011",
+      "skills": ["node.js", "javascript", "docker"]
+    }
   },
   {
     "id": "resume-012",
     "text": "Lina Gomez\nlina.gomez@example.com\n+1 (415) 555-1012\nDallas, TX\nSkills: Python, TypeScript, AWS",
-    "expected": {"name": "Lina Gomez", "email": "lina.gomez@example.com", "phone": "+14155551012", "skills": ["python", "typescript", "aws"]}
+    "expected": {
+      "name": "Lina Gomez",
+      "email": "lina.gomez@example.com",
+      "phone": "+14155551012",
+      "skills": ["python", "typescript", "aws"]
+    }
   },
   {
     "id": "resume-013",
     "text": "Marcus Reed\nmarcus.reed@example.com\n+1 (415) 555-1013\nAtlanta, GA\nSkills: React, Docker, PostgreSQL",
-    "expected": {"name": "Marcus Reed", "email": "marcus.reed@example.com", "phone": "+14155551013", "skills": ["react", "docker", "postgresql"]}
+    "expected": {
+      "name": "Marcus Reed",
+      "email": "marcus.reed@example.com",
+      "phone": "+14155551013",
+      "skills": ["react", "docker", "postgresql"]
+    }
   },
   {
     "id": "resume-014",
     "text": "Nina Patel\nnina.patel@example.com\n+1 (415) 555-1014\nRaleigh, NC\nSkills: JavaScript, AWS, Python",
-    "expected": {"name": "Nina Patel", "email": "nina.patel@example.com", "phone": "+14155551014", "skills": ["javascript", "aws", "python"]}
+    "expected": {
+      "name": "Nina Patel",
+      "email": "nina.patel@example.com",
+      "phone": "+14155551014",
+      "skills": ["javascript", "aws", "python"]
+    }
   },
   {
     "id": "resume-015",
     "text": "Omar Aziz\nomar.aziz@example.com\n+1 (415) 555-1015\nOrlando, FL\nSkills: TypeScript, React, Node.js",
-    "expected": {"name": "Omar Aziz", "email": "omar.aziz@example.com", "phone": "+14155551015", "skills": ["typescript", "react", "node.js"]}
+    "expected": {
+      "name": "Omar Aziz",
+      "email": "omar.aziz@example.com",
+      "phone": "+14155551015",
+      "skills": ["typescript", "react", "node.js"]
+    }
   },
   {
     "id": "resume-016",
     "text": "Priya Shah\npriya.shah@example.com\n+1 (415) 555-1016\nColumbus, OH\nSkills: Python, AWS, PostgreSQL",
-    "expected": {"name": "Priya Shah", "email": "priya.shah@example.com", "phone": "+14155551016", "skills": ["python", "aws", "postgresql"]}
+    "expected": {
+      "name": "Priya Shah",
+      "email": "priya.shah@example.com",
+      "phone": "+14155551016",
+      "skills": ["python", "aws", "postgresql"]
+    }
   },
   {
     "id": "resume-017",
     "text": "Quinn Howard\nquinn.howard@example.com\n+1 (415) 555-1017\nNashville, TN\nSkills: JavaScript, React, Docker",
-    "expected": {"name": "Quinn Howard", "email": "quinn.howard@example.com", "phone": "+14155551017", "skills": ["javascript", "react", "docker"]}
+    "expected": {
+      "name": "Quinn Howard",
+      "email": "quinn.howard@example.com",
+      "phone": "+14155551017",
+      "skills": ["javascript", "react", "docker"]
+    }
   },
   {
     "id": "resume-018",
     "text": "Rita Ali\nrita.ali@example.com\n+1 (415) 555-1018\nLas Vegas, NV\nSkills: Node.js, AWS, Python",
-    "expected": {"name": "Rita Ali", "email": "rita.ali@example.com", "phone": "+14155551018", "skills": ["node.js", "aws", "python"]}
+    "expected": {
+      "name": "Rita Ali",
+      "email": "rita.ali@example.com",
+      "phone": "+14155551018",
+      "skills": ["node.js", "aws", "python"]
+    }
   },
   {
     "id": "resume-019",
     "text": "Samir Khan\nsamir.khan@example.com\n+1 (415) 555-1019\nDetroit, MI\nSkills: React, PostgreSQL, Docker",
-    "expected": {"name": "Samir Khan", "email": "samir.khan@example.com", "phone": "+14155551019", "skills": ["react", "postgresql", "docker"]}
+    "expected": {
+      "name": "Samir Khan",
+      "email": "samir.khan@example.com",
+      "phone": "+14155551019",
+      "skills": ["react", "postgresql", "docker"]
+    }
   },
   {
     "id": "resume-020",
     "text": "Tara Nguyen\ntara.nguyen@example.com\n+1 (415) 555-1020\nCharlotte, NC\nSkills: TypeScript, Python, AWS",
-    "expected": {"name": "Tara Nguyen", "email": "tara.nguyen@example.com", "phone": "+14155551020", "skills": ["typescript", "python", "aws"]}
+    "expected": {
+      "name": "Tara Nguyen",
+      "email": "tara.nguyen@example.com",
+      "phone": "+14155551020",
+      "skills": ["typescript", "python", "aws"]
+    }
   },
   {
     "id": "resume-021",
     "text": "Uma Desai\numa.desai@example.com\n+1 (415) 555-1021\nSalt Lake City, UT\nSkills: Node.js, JavaScript, AWS",
-    "expected": {"name": "Uma Desai", "email": "uma.desai@example.com", "phone": "+14155551021", "skills": ["node.js", "javascript", "aws"]}
+    "expected": {
+      "name": "Uma Desai",
+      "email": "uma.desai@example.com",
+      "phone": "+14155551021",
+      "skills": ["node.js", "javascript", "aws"]
+    }
   },
   {
     "id": "resume-022",
     "text": "Victor Chen\nvictor.chen@example.com\n+1 (415) 555-1022\nSan Diego, CA\nSkills: Python, React, PostgreSQL",
-    "expected": {"name": "Victor Chen", "email": "victor.chen@example.com", "phone": "+14155551022", "skills": ["python", "react", "postgresql"]}
+    "expected": {
+      "name": "Victor Chen",
+      "email": "victor.chen@example.com",
+      "phone": "+14155551022",
+      "skills": ["python", "react", "postgresql"]
+    }
   },
   {
     "id": "resume-023",
     "text": "Wendy Park\nwendy.park@example.com\n+1 (415) 555-1023\nTampa, FL\nSkills: AWS, Docker, JavaScript",
-    "expected": {"name": "Wendy Park", "email": "wendy.park@example.com", "phone": "+14155551023", "skills": ["aws", "docker", "javascript"]}
+    "expected": {
+      "name": "Wendy Park",
+      "email": "wendy.park@example.com",
+      "phone": "+14155551023",
+      "skills": ["aws", "docker", "javascript"]
+    }
   },
   {
     "id": "resume-024",
     "text": "Xavier Allen\nxavier.allen@example.com\n+1 (415) 555-1024\nSacramento, CA\nSkills: React, TypeScript, Node.js",
-    "expected": {"name": "Xavier Allen", "email": "xavier.allen@example.com", "phone": "+14155551024", "skills": ["react", "typescript", "node.js"]}
+    "expected": {
+      "name": "Xavier Allen",
+      "email": "xavier.allen@example.com",
+      "phone": "+14155551024",
+      "skills": ["react", "typescript", "node.js"]
+    }
   },
   {
     "id": "resume-025",
     "text": "Yara Silva\nyara.silva@example.com\n+1 (415) 555-1025\nRichmond, VA\nSkills: Python, AWS, Docker",
-    "expected": {"name": "Yara Silva", "email": "yara.silva@example.com", "phone": "+14155551025", "skills": ["python", "aws", "docker"]}
+    "expected": {
+      "name": "Yara Silva",
+      "email": "yara.silva@example.com",
+      "phone": "+14155551025",
+      "skills": ["python", "aws", "docker"]
+    }
   },
   {
     "id": "resume-026",
     "text": "Zane Wright\nzane.wright@example.com\n+1 (415) 555-1026\nKansas City, MO\nSkills: JavaScript, Node.js, PostgreSQL",
-    "expected": {"name": "Zane Wright", "email": "zane.wright@example.com", "phone": "+14155551026", "skills": ["javascript", "node.js", "postgresql"]}
+    "expected": {
+      "name": "Zane Wright",
+      "email": "zane.wright@example.com",
+      "phone": "+14155551026",
+      "skills": ["javascript", "node.js", "postgresql"]
+    }
   },
   {
     "id": "resume-027",
     "text": "Ava Quinn\nava.quinn@example.com\n+1 (415) 555-1027\nCleveland, OH\nSkills: React, Python, AWS",
-    "expected": {"name": "Ava Quinn", "email": "ava.quinn@example.com", "phone": "+14155551027", "skills": ["react", "python", "aws"]}
+    "expected": {
+      "name": "Ava Quinn",
+      "email": "ava.quinn@example.com",
+      "phone": "+14155551027",
+      "skills": ["react", "python", "aws"]
+    }
   },
   {
     "id": "resume-028",
     "text": "Bruno Costa\nbruno.costa@example.com\n+1 (415) 555-1028\nPittsburgh, PA\nSkills: TypeScript, JavaScript, Docker",
-    "expected": {"name": "Bruno Costa", "email": "bruno.costa@example.com", "phone": "+14155551028", "skills": ["typescript", "javascript", "docker"]}
+    "expected": {
+      "name": "Bruno Costa",
+      "email": "bruno.costa@example.com",
+      "phone": "+14155551028",
+      "skills": ["typescript", "javascript", "docker"]
+    }
   },
   {
     "id": "resume-029",
     "text": "Chloe Martin\nchloe.martin@example.com\n+1 (415) 555-1029\nSt. Louis, MO\nSkills: AWS, PostgreSQL, Python",
-    "expected": {"name": "Chloe Martin", "email": "chloe.martin@example.com", "phone": "+14155551029", "skills": ["aws", "postgresql", "python"]}
+    "expected": {
+      "name": "Chloe Martin",
+      "email": "chloe.martin@example.com",
+      "phone": "+14155551029",
+      "skills": ["aws", "postgresql", "python"]
+    }
   },
   {
     "id": "resume-030",
     "text": "Derek Young\nderek.young@example.com\n+1 (415) 555-1030\nMinneapolis, MN\nSkills: React, Node.js, Docker",
-    "expected": {"name": "Derek Young", "email": "derek.young@example.com", "phone": "+14155551030", "skills": ["react", "node.js", "docker"]}
+    "expected": {
+      "name": "Derek Young",
+      "email": "derek.young@example.com",
+      "phone": "+14155551030",
+      "skills": ["react", "node.js", "docker"]
+    }
   },
   {
     "id": "resume-031",
     "text": "Elena Novak\nelena.novak@example.com\n+1 (415) 555-1031\nCincinnati, OH\nSkills: Python, TypeScript, AWS",
-    "expected": {"name": "Elena Novak", "email": "elena.novak@example.com", "phone": "+14155551031", "skills": ["python", "typescript", "aws"]}
+    "expected": {
+      "name": "Elena Novak",
+      "email": "elena.novak@example.com",
+      "phone": "+14155551031",
+      "skills": ["python", "typescript", "aws"]
+    }
   },
   {
     "id": "resume-032",
     "text": "Felix Gray\nfelix.gray@example.com\n+1 (415) 555-1032\nLouisville, KY\nSkills: JavaScript, React, PostgreSQL",
-    "expected": {"name": "Felix Gray", "email": "felix.gray@example.com", "phone": "+14155551032", "skills": ["javascript", "react", "postgresql"]}
+    "expected": {
+      "name": "Felix Gray",
+      "email": "felix.gray@example.com",
+      "phone": "+14155551032",
+      "skills": ["javascript", "react", "postgresql"]
+    }
   },
   {
     "id": "resume-033",
     "text": "Grace Liu\ngrace.liu@example.com\n+1 (415) 555-1033\nBaltimore, MD\nSkills: Node.js, AWS, Docker",
-    "expected": {"name": "Grace Liu", "email": "grace.liu@example.com", "phone": "+14155551033", "skills": ["node.js", "aws", "docker"]}
+    "expected": {
+      "name": "Grace Liu",
+      "email": "grace.liu@example.com",
+      "phone": "+14155551033",
+      "skills": ["node.js", "aws", "docker"]
+    }
   },
   {
     "id": "resume-034",
     "text": "Hector Ruiz\nhector.ruiz@example.com\n+1 (415) 555-1034\nMilwaukee, WI\nSkills: React, JavaScript, AWS",
-    "expected": {"name": "Hector Ruiz", "email": "hector.ruiz@example.com", "phone": "+14155551034", "skills": ["react", "javascript", "aws"]}
+    "expected": {
+      "name": "Hector Ruiz",
+      "email": "hector.ruiz@example.com",
+      "phone": "+14155551034",
+      "skills": ["react", "javascript", "aws"]
+    }
   },
   {
     "id": "resume-035",
     "text": "Ivy Brooks\nivy.brooks@example.com\n+1 (415) 555-1035\nNewark, NJ\nSkills: Python, Docker, PostgreSQL",
-    "expected": {"name": "Ivy Brooks", "email": "ivy.brooks@example.com", "phone": "+14155551035", "skills": ["python", "docker", "postgresql"]}
+    "expected": {
+      "name": "Ivy Brooks",
+      "email": "ivy.brooks@example.com",
+      "phone": "+14155551035",
+      "skills": ["python", "docker", "postgresql"]
+    }
   },
   {
     "id": "resume-036",
     "text": "Jonas Meier\njonas.meier@example.com\n+1 (415) 555-1036\nBoise, ID\nSkills: TypeScript, React, AWS",
-    "expected": {"name": "Jonas Meier", "email": "jonas.meier@example.com", "phone": "+14155551036", "skills": ["typescript", "react", "aws"]}
+    "expected": {
+      "name": "Jonas Meier",
+      "email": "jonas.meier@example.com",
+      "phone": "+14155551036",
+      "skills": ["typescript", "react", "aws"]
+    }
   },
   {
     "id": "resume-037",
     "text": "Kara Stein\nkara.stein@example.com\n+1 (415) 555-1037\nBoulder, CO\nSkills: JavaScript, Node.js, AWS",
-    "expected": {"name": "Kara Stein", "email": "kara.stein@example.com", "phone": "+14155551037", "skills": ["javascript", "node.js", "aws"]}
+    "expected": {
+      "name": "Kara Stein",
+      "email": "kara.stein@example.com",
+      "phone": "+14155551037",
+      "skills": ["javascript", "node.js", "aws"]
+    }
   },
   {
     "id": "resume-038",
     "text": "Lars Holm\nlars.holm@example.com\n+1 (415) 555-1038\nMadison, WI\nSkills: Python, React, Docker",
-    "expected": {"name": "Lars Holm", "email": "lars.holm@example.com", "phone": "+14155551038", "skills": ["python", "react", "docker"]}
+    "expected": {
+      "name": "Lars Holm",
+      "email": "lars.holm@example.com",
+      "phone": "+14155551038",
+      "skills": ["python", "react", "docker"]
+    }
   },
   {
     "id": "resume-039",
     "text": "Maya Iqbal\nmaya.iqbal@example.com\n+1 (415) 555-1039\nTucson, AZ\nSkills: AWS, PostgreSQL, JavaScript",
-    "expected": {"name": "Maya Iqbal", "email": "maya.iqbal@example.com", "phone": "+14155551039", "skills": ["aws", "postgresql", "javascript"]}
+    "expected": {
+      "name": "Maya Iqbal",
+      "email": "maya.iqbal@example.com",
+      "phone": "+14155551039",
+      "skills": ["aws", "postgresql", "javascript"]
+    }
   },
   {
     "id": "resume-040",
     "text": "Noah Klein\nnoah.klein@example.com\n+1 (415) 555-1040\nAlbany, NY\nSkills: Node.js, React, Docker",
-    "expected": {"name": "Noah Klein", "email": "noah.klein@example.com", "phone": "+14155551040", "skills": ["node.js", "react", "docker"]}
+    "expected": {
+      "name": "Noah Klein",
+      "email": "noah.klein@example.com",
+      "phone": "+14155551040",
+      "skills": ["node.js", "react", "docker"]
+    }
   },
   {
     "id": "resume-041",
     "text": "Olivia Tran\nolivia.tran@example.com\n+1 (415) 555-1041\nHartford, CT\nSkills: Python, AWS, React",
-    "expected": {"name": "Olivia Tran", "email": "olivia.tran@example.com", "phone": "+14155551041", "skills": ["python", "aws", "react"]}
+    "expected": {
+      "name": "Olivia Tran",
+      "email": "olivia.tran@example.com",
+      "phone": "+14155551041",
+      "skills": ["python", "aws", "react"]
+    }
   },
   {
     "id": "resume-042",
     "text": "Pablo Ortega\npablo.ortega@example.com\n+1 (415) 555-1042\nBuffalo, NY\nSkills: JavaScript, Node.js, PostgreSQL",
-    "expected": {"name": "Pablo Ortega", "email": "pablo.ortega@example.com", "phone": "+14155551042", "skills": ["javascript", "node.js", "postgresql"]}
+    "expected": {
+      "name": "Pablo Ortega",
+      "email": "pablo.ortega@example.com",
+      "phone": "+14155551042",
+      "skills": ["javascript", "node.js", "postgresql"]
+    }
   },
   {
     "id": "resume-043",
     "text": "Qi Sun\nqi.sun@example.com\n+1 (415) 555-1043\nProvidence, RI\nSkills: React, TypeScript, AWS",
-    "expected": {"name": "Qi Sun", "email": "qi.sun@example.com", "phone": "+14155551043", "skills": ["react", "typescript", "aws"]}
+    "expected": {
+      "name": "Qi Sun",
+      "email": "qi.sun@example.com",
+      "phone": "+14155551043",
+      "skills": ["react", "typescript", "aws"]
+    }
   },
   {
     "id": "resume-044",
     "text": "Rosa Diaz\nrosa.diaz@example.com\n+1 (415) 555-1044\nReno, NV\nSkills: Python, Docker, AWS",
-    "expected": {"name": "Rosa Diaz", "email": "rosa.diaz@example.com", "phone": "+14155551044", "skills": ["python", "docker", "aws"]}
+    "expected": {
+      "name": "Rosa Diaz",
+      "email": "rosa.diaz@example.com",
+      "phone": "+14155551044",
+      "skills": ["python", "docker", "aws"]
+    }
   },
   {
     "id": "resume-045",
     "text": "Soren Fisher\nsoren.fisher@example.com\n+1 (415) 555-1045\nOmaha, NE\nSkills: JavaScript, React, Node.js",
-    "expected": {"name": "Soren Fisher", "email": "soren.fisher@example.com", "phone": "+14155551045", "skills": ["javascript", "react", "node.js"]}
+    "expected": {
+      "name": "Soren Fisher",
+      "email": "soren.fisher@example.com",
+      "phone": "+14155551045",
+      "skills": ["javascript", "react", "node.js"]
+    }
   },
   {
     "id": "resume-046",
     "text": "Talia Brooks\ntalia.brooks@example.com\n+1 (415) 555-1046\nDes Moines, IA\nSkills: Python, PostgreSQL, AWS",
-    "expected": {"name": "Talia Brooks", "email": "talia.brooks@example.com", "phone": "+14155551046", "skills": ["python", "postgresql", "aws"]}
+    "expected": {
+      "name": "Talia Brooks",
+      "email": "talia.brooks@example.com",
+      "phone": "+14155551046",
+      "skills": ["python", "postgresql", "aws"]
+    }
   },
   {
     "id": "resume-047",
     "text": "Umar Haddad\numar.haddad@example.com\n+1 (415) 555-1047\nTulsa, OK\nSkills: React, Docker, JavaScript",
-    "expected": {"name": "Umar Haddad", "email": "umar.haddad@example.com", "phone": "+14155551047", "skills": ["react", "docker", "javascript"]}
+    "expected": {
+      "name": "Umar Haddad",
+      "email": "umar.haddad@example.com",
+      "phone": "+14155551047",
+      "skills": ["react", "docker", "javascript"]
+    }
   },
   {
     "id": "resume-048",
     "text": "Vera Ahmed\nvera.ahmed@example.com\n+1 (415) 555-1048\nSanta Fe, NM\nSkills: Node.js, AWS, TypeScript",
-    "expected": {"name": "Vera Ahmed", "email": "vera.ahmed@example.com", "phone": "+14155551048", "skills": ["node.js", "aws", "typescript"]}
+    "expected": {
+      "name": "Vera Ahmed",
+      "email": "vera.ahmed@example.com",
+      "phone": "+14155551048",
+      "skills": ["node.js", "aws", "typescript"]
+    }
   },
   {
     "id": "resume-049",
     "text": "Wesley Grant\nwesley.grant@example.com\n+1 (415) 555-1049\nAnchorage, AK\nSkills: Python, React, Docker",
-    "expected": {"name": "Wesley Grant", "email": "wesley.grant@example.com", "phone": "+14155551049", "skills": ["python", "react", "docker"]}
+    "expected": {
+      "name": "Wesley Grant",
+      "email": "wesley.grant@example.com",
+      "phone": "+14155551049",
+      "skills": ["python", "react", "docker"]
+    }
   },
   {
     "id": "resume-050",
     "text": "Zara Malik\nzara.malik@example.com\n+1 (415) 555-1050\nBurlington, VT\nSkills: JavaScript, PostgreSQL, AWS",
-    "expected": {"name": "Zara Malik", "email": "zara.malik@example.com", "phone": "+14155551050", "skills": ["javascript", "postgresql", "aws"]}
+    "expected": {
+      "name": "Zara Malik",
+      "email": "zara.malik@example.com",
+      "phone": "+14155551050",
+      "skills": ["javascript", "postgresql", "aws"]
+    }
   }
 ]

@@ -1,18 +1,18 @@
-import { useEffect, useState } from 'react'
-import { Check, Edit2, Flag, RotateCcw, X } from 'lucide-react'
-import { confidenceLabel, confidenceTone } from '../../utils/confidence'
+import { useEffect, useState } from "react";
+import { Check, Edit2, Flag, RotateCcw, X } from "lucide-react";
+import { confidenceLabel, confidenceTone } from "../../utils/confidence";
 
 type EditableFieldProps = {
-  label: string
-  value: string
-  compareValue?: string
-  confidence?: number | null
-  flagged?: boolean
-  showComparison?: boolean
-  onSave: (value: string) => void
-  validator?: (value: string) => string | null
-  readOnly?: boolean
-}
+  label: string;
+  value: string;
+  compareValue?: string;
+  confidence?: number | null;
+  flagged?: boolean;
+  showComparison?: boolean;
+  onSave: (value: string) => void;
+  validator?: (value: string) => string | null;
+  readOnly?: boolean;
+};
 
 export default function EditableField({
   label,
@@ -25,23 +25,23 @@ export default function EditableField({
   validator,
   readOnly = false,
 }: EditableFieldProps) {
-  const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState(value)
-  const [error, setError] = useState<string | null>(null)
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setDraft(value)
-  }, [value])
+    setDraft(value);
+  }, [value]);
 
-  const changed = compareValue !== undefined && compareValue !== value
+  const changed = compareValue !== undefined && compareValue !== value;
 
   const handleSave = () => {
-    const message = validator ? validator(draft) : null
-    setError(message)
-    if (message) return
-    onSave(draft)
-    setEditing(false)
-  }
+    const message = validator ? validator(draft) : null;
+    setError(message);
+    if (message) return;
+    onSave(draft);
+    setEditing(false);
+  };
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -87,9 +87,9 @@ export default function EditableField({
               </button>
               <button
                 onClick={() => {
-                  setDraft(value)
-                  setEditing(false)
-                  setError(null)
+                  setDraft(value);
+                  setEditing(false);
+                  setError(null);
                 }}
                 className="rounded-lg border border-slate-200 p-1 text-slate-500 hover:text-slate-700"
                 aria-label={`Cancel ${label}`}
@@ -129,5 +129,5 @@ export default function EditableField({
         </div>
       )}
     </div>
-  )
+  );
 }

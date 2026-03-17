@@ -6,11 +6,9 @@ from typing import Dict, Optional
 import unicodedata
 
 try:
-    import fitz  # PyMuPDF
-    PYMUPDF_AVAILABLE = True
+    import fitz  # pymupdf
 except ImportError:
-    PYMUPDF_AVAILABLE = False
-    logging.warning("PyMuPDF not available. PDF text extraction will be limited.")
+    fitz = None
 
 try:
     import pytesseract
@@ -51,8 +49,11 @@ class TextExtractor:
         Returns:
             Extracted text as string
         """
-        if not PYMUPDF_AVAILABLE:
-            raise ImportError("PyMuPDF is required for PDF text extraction")
+        if fitz is None:
+            import pdfplumber
+            with pdfplumber.open(file_path) as pdf:
+                text = '\n'.join(page.extract_text() or '' for page in pdf.pages)
+            return text
         
         try:
             text = ""

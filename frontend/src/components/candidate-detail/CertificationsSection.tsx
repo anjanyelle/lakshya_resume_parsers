@@ -1,71 +1,71 @@
-import { useState, useCallback } from 'react'
-import { toast } from 'react-hot-toast'
-import type { Certification } from '../../types'
-import Modal from '../common/Modal'
+import { useState, useCallback } from "react";
+import { toast } from "react-hot-toast";
+import type { Certification } from "../../types";
+import Modal from "../common/Modal";
 import {
   createCertification,
   updateCertification,
   deleteCertification,
   type CertificationPayload,
-} from '../../services/api/candidates'
+} from "../../services/api/candidates";
 
 type CertificationsSectionProps = {
-  candidateId: string
-  items?: Certification[] | null
-  rawContent?: string | null
-  onUpdate?: (updated: Certification[]) => void
-  readOnly?: boolean
-}
+  candidateId: string;
+  items?: Certification[] | null;
+  rawContent?: string | null;
+  onUpdate?: (updated: Certification[]) => void;
+  readOnly?: boolean;
+};
 
 const isExpired = (expiryDate?: string | null) => {
-  if (!expiryDate) return false
-  const date = new Date(expiryDate)
-  if (isNaN(date.getTime())) return false
-  return date.getTime() < Date.now()
-}
+  if (!expiryDate) return false;
+  const date = new Date(expiryDate);
+  if (isNaN(date.getTime())) return false;
+  return date.getTime() < Date.now();
+};
 
 const parseFallbackItems = (
   rawContent: string | null | undefined,
 ): Array<{ id: string; name: string }> => {
-  const raw = (rawContent ?? '').trim()
-  if (!raw) return []
+  const raw = (rawContent ?? "").trim();
+  if (!raw) return [];
   return raw
-    .split('\n')
+    .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => line.replace(/^[•\-\*\u2022]+\s*/u, '').trim())
+    .map((line) => line.replace(/^[•\-\*\u2022]+\s*/u, "").trim())
     .filter(Boolean)
     .filter((line) => line.length <= 250)
-    .map((name, idx) => ({ id: `fallback-${idx}`, name }))
-}
+    .map((name, idx) => ({ id: `fallback-${idx}`, name }));
+};
 
 const emptyForm: CertificationPayload & { id?: string } = {
-  name: '',
-  issuing_organization: '',
-  issue_date: '',
-  expiry_date: '',
-  credential_id: '',
-}
+  name: "",
+  issuing_organization: "",
+  issue_date: "",
+  expiry_date: "",
+  credential_id: "",
+};
 
 function toPayload(item: Partial<Certification>): CertificationPayload {
   return {
-    name: item.name ?? '',
+    name: item.name ?? "",
     issuing_organization: item.issuing_organization ?? null,
     issue_date: item.issue_date ?? null,
     expiry_date: item.expiry_date ?? null,
     credential_id: item.credential_id ?? null,
-  }
+  };
 }
 
 function formatDate(d: string | null | undefined): string {
-  if (!d) return ''
-  const parsed = new Date(d)
-  return isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10)
+  if (!d) return "";
+  const parsed = new Date(d);
+  return isNaN(parsed.getTime()) ? "" : parsed.toISOString().slice(0, 10);
 }
 
 /** True if id is a synthetic ID (parsed-cert-0, fallback-0, etc.), not a DB UUID */
 function isParsedId(id: string): boolean {
-  return /^(parsed|fallback)-/.test(id)
+  return /^(parsed|fallback)-/.test(id);
 }
 
 export default function CertificationsSection({
@@ -75,100 +75,96 @@ export default function CertificationsSection({
   onUpdate,
   readOnly = false,
 }: CertificationsSectionProps) {
-  const safeItems = items ?? []
-  const fallback = safeItems.length === 0 ? parseFallbackItems(rawContent) : []
-  const displayItems = safeItems.length > 0 ? safeItems : fallback
+  const safeItems = items ?? [];
+  const fallback = safeItems.length === 0 ? parseFallbackItems(rawContent) : [];
+  const displayItems = safeItems.length > 0 ? safeItems : fallback;
 
-  const [modalOpen, setModalOpen] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CertificationPayload & { id?: string }>(
     emptyForm,
-  )
-  const [saving, setSaving] = useState(false)
+  );
+  const [saving, setSaving] = useState(false);
 
   const openAdd = useCallback(() => {
-    setEditingId(null)
-    setForm(emptyForm)
-    setModalOpen(true)
-  }, [])
+    setEditingId(null);
+    setForm(emptyForm);
+    setModalOpen(true);
+  }, []);
 
   const openEdit = useCallback((item: Certification) => {
-    setEditingId(item.id)
+    setEditingId(item.id);
     setForm({
       ...toPayload(item),
       id: item.id,
       issue_date: formatDate(item.issue_date) || undefined,
       expiry_date: formatDate(item.expiry_date) || undefined,
-    })
-    setModalOpen(true)
-  }, [])
+    });
+    setModalOpen(true);
+  }, []);
 
   const closeModal = useCallback(() => {
-    setModalOpen(false)
-    setEditingId(null)
-    setForm(emptyForm)
-  }, [])
+    setModalOpen(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!(form.name ?? '').trim()) {
-      toast.error('Certification name is required')
-      return
+    e.preventDefault();
+    if (!(form.name ?? "").trim()) {
+      toast.error("Certification name is required");
+      return;
     }
-    setSaving(true)
+    setSaving(true);
     try {
       const payload: CertificationPayload = {
-        name: (form.name ?? '').trim(),
+        name: (form.name ?? "").trim(),
         issuing_organization: form.issuing_organization || null,
         issue_date: form.issue_date || null,
         expiry_date: form.expiry_date || null,
         credential_id: form.credential_id || null,
-      }
+      };
       if (editingId && !isParsedId(editingId)) {
         const updated = await updateCertification(
           candidateId,
           editingId,
           payload,
-        )
-        onUpdate?.(updated.certifications ?? [])
-        toast.success('Certification updated')
+        );
+        onUpdate?.(updated.certifications ?? []);
+        toast.success("Certification updated");
       } else {
-        const updated = await createCertification(candidateId, payload)
-        onUpdate?.(updated.certifications ?? [])
-        toast.success('Certification added')
+        const updated = await createCertification(candidateId, payload);
+        onUpdate?.(updated.certifications ?? []);
+        toast.success("Certification added");
       }
-      closeModal()
+      closeModal();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save')
+      toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleDelete = useCallback(
     async (entry: Certification) => {
-      if (
-        !window.confirm(
-          'Remove this certification? This cannot be undone.',
-        )
-      )
-        return
+      if (!window.confirm("Remove this certification? This cannot be undone."))
+        return;
       try {
         if (isParsedId(entry.id)) {
-          const filtered = displayItems.filter((i) => i.id !== entry.id)
-          onUpdate?.(filtered)
-          toast.success('Certification removed')
+          const filtered = displayItems.filter((i) => i.id !== entry.id);
+          onUpdate?.(filtered);
+          toast.success("Certification removed");
         } else {
-          const updated = await deleteCertification(candidateId, entry.id)
-          onUpdate?.(updated.certifications ?? [])
-          toast.success('Certification removed')
+          const updated = await deleteCertification(candidateId, entry.id);
+          onUpdate?.(updated.certifications ?? []);
+          toast.success("Certification removed");
         }
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Failed to delete')
+        toast.error(err instanceof Error ? err.message : "Failed to delete");
       }
     },
     [candidateId, displayItems, onUpdate],
-  )
+  );
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -199,15 +195,12 @@ export default function CertificationsSection({
                   {cert.name}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {cert.issuing_organization || 'Issuer'}
+                  {cert.issuing_organization || "Issuer"}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {cert.issue_date || '—'} →{' '}
-                  {cert.expiry_date || 'No expiry'}
+                  {cert.issue_date || "—"} → {cert.expiry_date || "No expiry"}
                   {cert.credential_id && (
-                    <span className="ml-2">
-                      · ID: {cert.credential_id}
-                    </span>
+                    <span className="ml-2">· ID: {cert.credential_id}</span>
                   )}
                 </p>
               </div>
@@ -215,11 +208,11 @@ export default function CertificationsSection({
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
                     isExpired(cert.expiry_date)
-                      ? 'bg-red-50 text-red-600'
-                      : 'bg-emerald-50 text-emerald-700'
+                      ? "bg-red-50 text-red-600"
+                      : "bg-emerald-50 text-emerald-700"
                   }`}
                 >
-                  {isExpired(cert.expiry_date) ? 'Expired' : 'Active'}
+                  {isExpired(cert.expiry_date) ? "Expired" : "Active"}
                 </span>
                 {!readOnly && (
                   <>
@@ -257,7 +250,7 @@ export default function CertificationsSection({
       <Modal
         open={modalOpen}
         onClose={closeModal}
-        title={editingId ? 'Edit Certification' : 'Add Certification'}
+        title={editingId ? "Edit Certification" : "Add Certification"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -266,10 +259,8 @@ export default function CertificationsSection({
             </label>
             <input
               type="text"
-              value={form.name ?? ''}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, name: e.target.value }))
-              }
+              value={form.name ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
               placeholder="e.g. AWS Certified Data Analytics"
               required
@@ -281,7 +272,7 @@ export default function CertificationsSection({
             </label>
             <input
               type="text"
-              value={form.issuing_organization ?? ''}
+              value={form.issuing_organization ?? ""}
               onChange={(e) =>
                 setForm((f) => ({
                   ...f,
@@ -299,7 +290,7 @@ export default function CertificationsSection({
               </label>
               <input
                 type="date"
-                value={form.issue_date ?? ''}
+                value={form.issue_date ?? ""}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, issue_date: e.target.value }))
                 }
@@ -312,7 +303,7 @@ export default function CertificationsSection({
               </label>
               <input
                 type="date"
-                value={form.expiry_date ?? ''}
+                value={form.expiry_date ?? ""}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, expiry_date: e.target.value }))
                 }
@@ -326,7 +317,7 @@ export default function CertificationsSection({
             </label>
             <input
               type="text"
-              value={form.credential_id ?? ''}
+              value={form.credential_id ?? ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, credential_id: e.target.value }))
               }
@@ -347,11 +338,11 @@ export default function CertificationsSection({
               disabled={saving}
               className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
             >
-              {saving ? 'Saving…' : editingId ? 'Update' : 'Add'}
+              {saving ? "Saving…" : editingId ? "Update" : "Add"}
             </button>
           </div>
         </form>
       </Modal>
     </div>
-  )
+  );
 }

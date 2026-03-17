@@ -42,10 +42,6 @@
     }
   ],
   "education": [],
-  "skills": [
-    "python",
-    "node.js",
-    "aws"
-  ],
+  "skills": ["python", "node.js", "aws"],
   "certifications": []
 }

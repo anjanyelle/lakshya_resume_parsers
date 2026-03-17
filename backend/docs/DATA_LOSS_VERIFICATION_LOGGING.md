@@ -93,14 +93,14 @@ After loading candidate and review data:
 
 ## Quick checklist
 
-| Stage              | Backend log / Frontend log | What to compare |
-|--------------------|----------------------------|-----------------|
-| Upload             | Frontend console           | File size vs later raw_text_length |
-| Extraction         | Backend `[DATA-LOSS CHECK]`| Output length and sample per method/OCR |
-| Table norm (docx)  | Backend                    | before/after chars |
-| Clean text         | Backend                    | raw_len vs cleaned_len |
-| Save to DB         | Backend                    | raw_text_chars vs work/edu/certs/summary |
-| API response       | Frontend + extraction-debug| DB vs parsed counts and summary length |
+| Stage             | Backend log / Frontend log  | What to compare                          |
+| ----------------- | --------------------------- | ---------------------------------------- |
+| Upload            | Frontend console            | File size vs later raw_text_length       |
+| Extraction        | Backend `[DATA-LOSS CHECK]` | Output length and sample per method/OCR  |
+| Table norm (docx) | Backend                     | before/after chars                       |
+| Clean text        | Backend                     | raw_len vs cleaned_len                   |
+| Save to DB        | Backend                     | raw_text_chars vs work/edu/certs/summary |
+| API response      | Frontend + extraction-debug | DB vs parsed counts and summary length   |
 
 ---
 

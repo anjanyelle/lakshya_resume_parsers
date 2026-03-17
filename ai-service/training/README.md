@@ -61,23 +61,23 @@ The script generates two JSON files in HuggingFace-compatible format:
     "record_id": "uuid",
     "candidate_id": "uuid",
     "action": "corrected",
-    "entity_stats": {"PER": 1, "TITLE": 1, "ORG": 1}
+    "entity_stats": { "PER": 1, "TITLE": 1, "ORG": 1 }
   }
 ]
 ```
 
 ## 🏷️ Entity Types
 
-| Entity Type | BIO Tag | Source Field | Description |
-|-------------|---------|--------------|-------------|
-| PER | B-PER, I-PER | name | Person names |
-| EMAIL | B-EMAIL | email | Email addresses |
-| PHONE | B-PHONE | phone | Phone numbers |
-| SKILL | B-SKILL, I-SKILL | skills | Technical skills |
-| ORG | B-ORG, I-ORG | companies | Company names |
-| TITLE | B-TITLE, I-TITLE | job_titles | Job titles |
-| DEGREE | B-DEGREE, I-DEGREE | education_degrees | Education degrees |
-| UNIVERSITY | B-UNIVERSITY, I-UNIVERSITY | universities | University names |
+| Entity Type | BIO Tag                    | Source Field      | Description       |
+| ----------- | -------------------------- | ----------------- | ----------------- |
+| PER         | B-PER, I-PER               | name              | Person names      |
+| EMAIL       | B-EMAIL                    | email             | Email addresses   |
+| PHONE       | B-PHONE                    | phone             | Phone numbers     |
+| SKILL       | B-SKILL, I-SKILL           | skills            | Technical skills  |
+| ORG         | B-ORG, I-ORG               | companies         | Company names     |
+| TITLE       | B-TITLE, I-TITLE           | job_titles        | Job titles        |
+| DEGREE      | B-DEGREE, I-DEGREE         | education_degrees | Education degrees |
+| UNIVERSITY  | B-UNIVERSITY, I-UNIVERSITY | universities      | University names  |
 
 ## 📈 Export Summary
 
@@ -90,6 +90,7 @@ The script provides a comprehensive summary including:
 - Sample data preview
 
 Example output:
+
 ```
 📊 TRAINING DATA EXPORT SUMMARY
 ============================================================
@@ -136,7 +137,7 @@ Average tokens per example:
 The script fetches data using this SQL query:
 
 ```sql
-SELECT 
+SELECT
     ld.id,
     ld.candidate_id,
     ld.corrected_fields,

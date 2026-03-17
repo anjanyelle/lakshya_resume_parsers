@@ -13,12 +13,12 @@
       "work_history": [],
       "education": [],
       "skills": [
-        {"name": "Python", "normalized_name": "python"},
-        {"name": "Node.js", "normalized_name": "node.js"},
-        {"name": "AWS", "normalized_name": "aws"},
-        {"name": "JavaScript", "normalized_name": "javascript"}
+        { "name": "Python", "normalized_name": "python" },
+        { "name": "Node.js", "normalized_name": "node.js" },
+        { "name": "AWS", "normalized_name": "aws" },
+        { "name": "JavaScript", "normalized_name": "javascript" }
       ],
-      "sections": {"skills": {"content": "Python, Node.js, AWS"}}
+      "sections": { "skills": { "content": "Python, Node.js, AWS" } }
     },
     "ground_truth": {
       "contact": {
@@ -30,7 +30,7 @@
       "work_history": [],
       "education": [],
       "skills": ["python", "node.js", "aws"],
-      "sections": {"skills": {"content": "Python Node.js AWS"}}
+      "sections": { "skills": { "content": "Python Node.js AWS" } }
     },
     "scores": {}
   }

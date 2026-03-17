@@ -1,44 +1,44 @@
-import type { RouteObject } from 'react-router-dom'
-import HomePage from '../pages/HomePage'
-import UploadPage from '../pages/UploadPage'
-import CandidatesPage from '../pages/CandidatesPage'
-import CandidateDetailPage from '../pages/CandidateDetailPage'
-import AuthPage from '../pages/AuthPage'
-import TaxonomyPage from '../pages/TaxonomyPage'
-import CorrectionsPage from '../pages/CorrectionsPage'
-import AccuracyPage from '../pages/AccuracyPage'
+import type { RouteObject } from "react-router-dom";
+import HomePage from "../pages/HomePage";
+import UploadPage from "../pages/UploadPage";
+import CandidatesPage from "../pages/CandidatesPage";
+import CandidateDetailPage from "../pages/CandidateDetailPage";
+import AuthPage from "../pages/AuthPage";
+import TaxonomyPage from "../pages/TaxonomyPage";
+import CorrectionsPage from "../pages/CorrectionsPage";
+import AccuracyPage from "../pages/AccuracyPage";
 
 export const appRoutes: RouteObject[] = [
   {
-    path: '/',
+    path: "/",
     element: <HomePage />,
   },
   {
-    path: '/upload',
+    path: "/upload",
     element: <UploadPage />,
   },
   {
-    path: '/candidates',
+    path: "/candidates",
     element: <CandidatesPage />,
   },
   {
-    path: '/candidates/:id',
+    path: "/candidates/:id",
     element: <CandidateDetailPage />,
   },
   {
-    path: '/taxonomy',
+    path: "/taxonomy",
     element: <TaxonomyPage />,
   },
   {
-    path: '/corrections',
+    path: "/corrections",
     element: <CorrectionsPage />,
   },
   {
-    path: '/accuracy',
+    path: "/accuracy",
     element: <AccuracyPage />,
   },
   {
-    path: '/auth',
+    path: "/auth",
     element: <AuthPage />,
   },
-]
+];

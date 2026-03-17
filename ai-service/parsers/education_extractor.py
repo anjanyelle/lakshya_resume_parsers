@@ -21,7 +21,7 @@ class EducationExtractor:
     # Degree patterns for recognition
     DEGREE_PATTERNS = [
         'Bachelor', 'Master', 'PhD', 'Doctorate', 'Associate',
-        'B.Sc', 'M.Sc', 'B.Tech', 'M.Tech', 'MBA', 'B.E', 'B.A', 'M.A',
+        'B.Sc', 'M.Sc', 'B.Tech', 'M.Tech', 'MBA', 'B.E', 'B.E.', 'B.A', 'M.A',
         'B.S', 'M.S', 'B.Com', 'M.Com', 'BBA', 'BCA', 'MCA'
     ]
     
@@ -105,7 +105,7 @@ class EducationExtractor:
             education_list = self._mark_highest_degree(education_list)
             
             # Sort by end year (most recent first)
-            education_list.sort(key=lambda x: x.get('end_year', 0), reverse=True)
+            education_list.sort(key=lambda x: x.get('end_year') or 0, reverse=True)
             
             self.logger.info(f"Extracted {len(education_list)} education entries")
             return education_list
@@ -127,7 +127,7 @@ class EducationExtractor:
         # Split by common education separators
         separators = [
             r'\n(?=[A-Z][a-zA-Z\s]*\s*(?:University|College|Institute|School))',
-            r'\n(?=\b(?:Bachelor|Master|PhD|Associate|Diploma|Certificate))',
+            r'\n(?=\b(?:Bachelor|Master|PhD|Associate|Diploma|Certificate)(?:\s|$))',
             r'\n(?=\d{4})',
             r'\n(?=[A-Z][A-Za-z\s]{15,})'  # Long capitalized lines (likely institutions)
         ]
@@ -135,7 +135,33 @@ class EducationExtractor:
         combined_pattern = '|'.join(separators)
         blocks = re.split(combined_pattern, text, flags=re.MULTILINE)
         
-        return [block.strip() for block in blocks if block.strip()]
+        # Try to merge degree and institution if they were split
+        merged_blocks = []
+        current_block = None
+        
+        for block in blocks:
+            block = block.strip()
+            if not block:
+                continue
+            
+            # Check if this block looks like a degree line
+            if re.search(r'\b(?:Bachelor|Master|PhD|Associate|Diploma|Certificate)', block, re.IGNORECASE):
+                # If we have a current block, add it first
+                if current_block:
+                    merged_blocks.append(current_block)
+                current_block = block
+            elif current_block:
+                # This might be the institution for the current degree
+                current_block += '\n' + block
+            else:
+                # Standalone block
+                merged_blocks.append(block)
+        
+        # Add the last block
+        if current_block:
+            merged_blocks.append(current_block)
+        
+        return [block.strip() for block in merged_blocks if block.strip()]
     
     def _parse_education_block(self, block: str) -> Optional[Dict]:
         """
@@ -158,11 +184,16 @@ class EducationExtractor:
                 'is_highest_degree': False
             }
             
-            # Extract degree
-            education['degree'] = self._extract_degree(block)
+            # Extract degree and field of study together
+            degree, field_of_study = self._extract_degree_and_field(block)
+            education['degree'] = degree
+            education['field_of_study'] = field_of_study
             
-            # Extract field of study
-            education['field_of_study'] = self._extract_field_of_study(block)
+            # If not found together, try separately
+            if not education['degree']:
+                education['degree'] = self._extract_degree(block)
+            if not education['field_of_study']:
+                education['field_of_study'] = self._extract_field_of_study(block)
             
             # Extract institution
             education['institution'] = self._extract_institution(block)
@@ -183,6 +214,20 @@ class EducationExtractor:
     
     def _extract_degree(self, block: str) -> str:
         """Extract degree from block."""
+        # First try to match full degree patterns with parentheses
+        full_degree_pattern = re.compile(
+            r'\b(Bachelor|Master)\s+(of\s+)?(Engineering|Technology|Science|Commerce|Business\s+Administration|Computer\s+Applications)\s*\([^)]+\)',
+            re.IGNORECASE
+        )
+        
+        matches = full_degree_pattern.findall(block)
+        if matches:
+            # Extract the full degree with abbreviation
+            degree_match = re.search(r'\b(Bachelor\s+(?:of\s+)?(?:Engineering|Technology|Science|Commerce|Business\s+Administration|Computer\s+Applications)\s*\([^)]+\))', block, re.IGNORECASE)
+            if degree_match:
+                return degree_match.group(1).strip()
+        
+        # Try standard degree pattern
         matches = self.degree_pattern.findall(block)
         if matches:
             degree = matches[0][0]
@@ -196,7 +241,18 @@ class EducationExtractor:
             'B.A.': 'Bachelor of Arts',
             'M.A.': 'Master of Arts',
             'B.Tech': 'Bachelor of Technology',
-            'M.Tech': 'Master of Technology'
+            'M.Tech': 'Master of Technology',
+            'B.E.': 'Bachelor of Engineering',
+            'M.E.': 'Master of Engineering',
+            'B.E': 'Bachelor of Engineering',
+            'M.E': 'Master of Engineering',
+            'B.Sc': 'Bachelor of Science',
+            'M.Sc': 'Master of Science',
+            'B.Com': 'Bachelor of Commerce',
+            'BBA': 'Bachelor of Business Administration',
+            'MBA': 'Master of Business Administration',
+            'BCA': 'Bachelor of Computer Applications',
+            'MCA': 'Master of Computer Applications'
         }
         
         for variation, normalized in degree_variations.items():
@@ -204,6 +260,26 @@ class EducationExtractor:
                 return normalized
         
         return ''
+    
+    def _extract_degree_and_field(self, block: str) -> Tuple[str, Optional[str]]:
+        """Extract both degree and field of study from a degree line."""
+        # Pattern to match: "Bachelor of Engineering (B.E.) - Computer Science"
+        degree_field_pattern = re.compile(
+            r'\b(Bachelor\s+(?:of\s+)?(?:Engineering|Technology|Science|Commerce|Business\s+Administration|Computer\s+Applications)\s*\([^)]+\))\s*[-–—]\s*(.+)',
+            re.IGNORECASE
+        )
+        
+        match = degree_field_pattern.search(block)
+        if match:
+            degree = match.group(1).strip()
+            field_of_study = match.group(2).strip()
+            return degree, field_of_study
+        
+        # Fallback: try to extract degree and field separately
+        degree = self._extract_degree(block)
+        field = self._extract_field_of_study(block)
+        
+        return degree, field
     
     def _extract_field_of_study(self, block: str) -> Optional[str]:
         """Extract field of study from block."""
@@ -220,12 +296,25 @@ class EducationExtractor:
     
     def _extract_institution(self, block: str) -> str:
         """Extract institution name from block."""
+        # Remove the degree line first to avoid false matches
+        lines = block.split('\n')
+        institution_lines = []
+        
+        # Skip the first line if it contains degree keywords
+        for line in lines:
+            if not re.search(r'\b(?:Bachelor|Master|PhD|Associate|Diploma|Certificate|Degree|B\.|M\.|B\.E|M\.E|B\.Tech|M\.Tech|B\.Sc|M\.Sc|BBA|MBA|BCA|MCA)', line, re.IGNORECASE):
+                institution_lines.append(line)
+        
+        institution_text = '\n'.join(institution_lines)
+        
         for pattern in self.institution_patterns:
-            matches = re.findall(pattern, block, re.IGNORECASE)
+            matches = re.findall(pattern, institution_text, re.IGNORECASE)
             if matches:
                 institution = matches[0].strip()
                 # Clean up institution name
                 institution = re.sub(r'[\|\-•].*$', '', institution).strip()
+                # Remove field of study words
+                institution = re.sub(r'\b(?:Computer Science|Information Technology|Engineering|Science|Arts|Commerce|Business Administration|Computer Applications)\b', '', institution, re.IGNORECASE).strip()
                 if len(institution) > 3:
                     return institution
         
@@ -304,34 +393,51 @@ class EducationExtractor:
             'B.Tech.': 'Bachelor of Technology',
             'BTech': 'Bachelor of Technology',
             
+            # Indian degree formats
             'B.E': 'Bachelor of Engineering',
             'B.E.': 'Bachelor of Engineering',
             'BE': 'Bachelor of Engineering',
             
+            'M.E': 'Master of Engineering',
+            'M.E.': 'Master of Engineering',
+            'ME': 'Master of Engineering',
+            
+            'M.Tech': 'Master of Technology',
+            'M.Tech.': 'Master of Technology',
+            'MTech': 'Master of Technology',
+            
             'B.Com': 'Bachelor of Commerce',
             'B.Com.': 'Bachelor of Commerce',
+            'BCom': 'Bachelor of Commerce',
+            
             'BBA': 'Bachelor of Business Administration',
+            'BBA.': 'Bachelor of Business Administration',
+            
+            'MBA': 'Master of Business Administration',
+            'MBA.': 'Master of Business Administration',
+            
+            'BCA': 'Bachelor of Computer Applications',
+            'BCA.': 'Bachelor of Computer Applications',
+            
+            'MCA': 'Master of Computer Applications',
+            'MCA.': 'Master of Computer Applications',
+            
+            'M.Sc': 'Master of Science',
+            'M.Sc.': 'Master of Science',
+            'MSc': 'Master of Science',
             
             # Master variations
             'MS': 'Master of Science',
             'M.S': 'Master of Science',
             'M.S.': 'Master of Science',
             'MSc': 'Master of Science',
-            'M.Sc': 'Master of Science',
-            'M.Sc.': 'Master of Science',
             
             'MA': 'Master of Arts',
             'M.A': 'Master of Arts',
             'M.A.': 'Master of Arts',
             
-            'M.Tech': 'Master of Technology',
-            'M.Tech.': 'Master of Technology',
-            'MTech': 'Master of Technology',
-            
             'M.Com': 'Master of Commerce',
             'M.Com.': 'Master of Commerce',
-            'MBA': 'Master of Business Administration',
-            'MCA': 'Master of Computer Applications',
             
             # PhD variations
             'Ph.D': 'PhD',

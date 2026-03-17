@@ -1,10 +1,10 @@
 interface ErrorMessageProps {
-  title?: string
-  message: string
+  title?: string;
+  message: string;
 }
 
 export default function ErrorMessage({
-  title = 'Something went wrong',
+  title = "Something went wrong",
   message,
 }: ErrorMessageProps) {
   return (
@@ -12,5 +12,5 @@ export default function ErrorMessage({
       <p className="font-semibold">{title}</p>
       <p className="mt-1 text-red-600">{message}</p>
     </div>
-  )
+  );
 }

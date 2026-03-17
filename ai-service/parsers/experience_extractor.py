@@ -25,6 +25,9 @@ class ExperienceExtractor:
         
         # Pre-compiled patterns for better performance
         self._compile_patterns()
+        
+        # Load skill taxonomy
+        self.skill_taxonomy = self._load_skill_taxonomy()
     
     def _compile_patterns(self):
         """Pre-compile regex patterns for experience extraction."""
@@ -80,7 +83,7 @@ class ExperienceExtractor:
             r'(?:languages?:|technologies?:|tools?:|frameworks?:)\s*([A-Za-z0-9\s,#\-\.]+)'
         ]
     
-    def extract_work_experience(self, experience_section_text: str) -> List[Dict]:
+    def extract_work_experience(self, experience_section_text: str) -> Dict:
         """
         Extract structured work experience from experience section text.
         
@@ -88,11 +91,11 @@ class ExperienceExtractor:
             experience_section_text: Text from the experience section
             
         Returns:
-            List of work experience dictionaries with detailed information
+            Dictionary with work_experience list and inline_skills list
         """
         try:
             if not experience_section_text or not experience_section_text.strip():
-                return []
+                return {'work_experience': [], 'inline_skills': []}
             
             # Split into individual job blocks
             job_blocks = self._split_into_job_blocks(experience_section_text)
@@ -105,14 +108,28 @@ class ExperienceExtractor:
                     experiences.append(experience)
             
             # Sort by start date (most recent first)
-            experiences.sort(key=lambda x: self._parse_date(x.get('start_date', '')), reverse=True)
+            from datetime import datetime
+            def get_sort_key(exp):
+                date = self._parse_date(exp.get('start_date', ''))
+                if date:
+                    return date
+                return datetime.min.date()  # Use minimum date if None
             
-            self.logger.info(f"Extracted {len(experiences)} work experiences")
-            return experiences
+            experiences.sort(key=get_sort_key, reverse=True)
+            
+            # Extract inline skills from work experience descriptions
+            inline_skills = self.extract_inline_skills(experiences, self.skill_taxonomy)
+            
+            self.logger.info(f"Extracted {len(experiences)} work experiences and {len(inline_skills)} inline skills")
+            
+            return {
+                'work_experience': experiences,
+                'inline_skills': inline_skills
+            }
             
         except Exception as e:
             self.logger.error(f"Error extracting work experience: {e}")
-            return []
+            return {'work_experience': [], 'inline_skills': []}
     
     def _split_into_job_blocks(self, text: str) -> List[str]:
         """
@@ -124,18 +141,753 @@ class ExperienceExtractor:
         Returns:
             List of job blocks
         """
-        # Split by common job separators
-        separators = [
-            r'\n(?=[A-Z][a-zA-Z\s]*\s*(?:Engineer|Developer|Manager|Director|Analyst|Specialist|Consultant))',
-            r'\n(?=\w+\s+\d{4}\s*[-–—])',
-            r'\n(?=[A-Z][a-zA-Z0-9\s&.,\-\'\"]+(?:Inc|LLC|Ltd|Corp|Company))',
-            r'\n(?=[A-Z][A-Za-z\s]{10,})\s*\n'  # All caps company names
+        # Find all job titles first
+        job_title_pattern = r'^([A-Z][a-zA-Z\s]*\s*(?:Engineer|Developer|Manager|Director|Analyst|Specialist|Consultant|Architect))\s*$'
+        job_titles = re.finditer(job_title_pattern, text, re.MULTILINE)
+        
+        blocks = []
+        last_end = 0
+        
+        for match in job_titles:
+            # If we have content before this job title, add it as a block
+            if match.start() > last_end:
+                block = text[last_end:match.start()].strip()
+                if block:
+                    blocks.append(block)
+            last_end = match.start()
+        
+        # Add the remaining content
+        if last_end < len(text):
+            blocks.append(text[last_end:].strip())
+        
+        # Now properly group each job title with its content
+        grouped_blocks = []
+        current_job = None
+        
+        for block in blocks:
+            lines = block.split('\n')
+            if lines and re.match(job_title_pattern, lines[0]):
+                # This is a new job
+                if current_job:
+                    grouped_blocks.append(current_job)
+                current_job = block
+            elif current_job:
+                # This is continuation of current job
+                current_job += '\n\n' + block
+            else:
+                # No current job, treat as standalone
+                grouped_blocks.append(block)
+        
+        # Add the last job
+        if current_job:
+            grouped_blocks.append(current_job)
+        
+        return [block.strip() for block in grouped_blocks if block.strip()]
+    
+    def _load_skill_taxonomy(self) -> list:
+        """Load skill taxonomy from data file."""
+        try:
+            import json
+            from pathlib import Path
+            
+            taxonomy_path = Path(__file__).parent.parent / 'data' / 'skills_taxonomy.json'
+            if taxonomy_path.exists():
+                with open(taxonomy_path, 'r') as f:
+                    return json.load(f)
+            else:
+                # Fallback to built-in skill taxonomy if file doesn't exist
+                self.logger.warning("Skill taxonomy file not found, using built-in fallback list")
+                return self._get_fallback_skill_taxonomy()
+        except Exception as e:
+            self.logger.error(f"Error loading skill taxonomy: {e}")
+            return self._get_fallback_skill_taxonomy()
+    
+    def _get_fallback_skill_taxonomy(self) -> list:
+        """Get a comprehensive fallback skill taxonomy."""
+        return [
+            'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'Go', 'Rust', 'PHP', 'Ruby', 'Kotlin', 'Swift',
+            'React', 'React.js', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'Svelte', 'Ember',
+            'Node.js', 'Express', 'FastAPI', 'Django', 'Flask', 'Spring Boot', 'Laravel', 'NestJS',
+            'HTML', 'HTML5', 'CSS', 'CSS3', 'Sass', 'SCSS', 'Tailwind CSS', 'Bootstrap', 'Material UI', 'Styled Components',
+            'Redux', 'Redux Toolkit', 'Redux Thunk', 'Redux Saga', 'Zustand', 'MobX', 'React Query', 'Context API', 'Recoil',
+            'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Elasticsearch', 'SQLite', 'DynamoDB', 'Cassandra',
+            'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'Terraform', 'Ansible', 'CI/CD', 'Jenkins', 'GitHub Actions',
+            'Git', 'GitHub', 'GitLab', 'Bitbucket', 'REST', 'RESTful', 'GraphQL', 'WebSocket', 'gRPC', 'Microservices',
+            'Jest', 'Pytest', 'Cypress', 'Selenium', 'React Testing Library', 'Mocha', 'Chai', 'JUnit',
+            'Webpack', 'Vite', 'Babel', 'ESLint', 'Prettier', 'npm', 'yarn', 'pnpm',
+            'Linux', 'Bash', 'PowerShell', 'Figma', 'Storybook', 'Postman', 'Firebase', 'Supabase',
+            'Machine Learning', 'Deep Learning', 'TensorFlow', 'PyTorch', 'Scikit-learn', 'NLP', 'Computer Vision',
+            'Jira', 'Confluence', 'Agile', 'Scrum', 'Kanban', 'Recharts', 'D3.js', 'Chart.js',
+            'Vercel', 'Netlify', 'Heroku', 'DigitalOcean', 'Nginx', 'Apache',
+            'Pandas', 'NumPy', 'Matplotlib', 'Seaborn', 'Keras', 'OpenCV', 'NLTK', 'spaCy',
+            'Hadoop', 'Spark', 'Airflow', 'Kafka', 'RabbitMQ', 'Tableau', 'Power BI', 'Excel',
+            'React Native', 'Flutter', 'Android', 'iOS', 'Unity', 'OpenGL', 'Swagger', 'OAuth', 'JWT', 'SAML', 'LDAP',
+            'Hibernate', '.NET', 'ASP.NET', 'Entity Framework', 'LINQ', 'Xamarin', 'Blazor',
+            'Elasticsearch', 'Logstash', 'Kibana', 'Prometheus', 'Grafana', 'Consul', 'Vault',
+            'Terraform', 'Packer', 'Vagrant', 'Chef', 'Puppet', 'SaltStack', 'Ansible Tower',
+            'Kubernetes', 'Helm', 'Istio', 'Linkerd', 'Prometheus Operator', 'ArgoCD', 'Flux',
+            'AWS Lambda', 'AWS EC2', 'AWS S3', 'AWS RDS', 'AWS DynamoDB', 'AWS CloudFormation',
+            'Azure Functions', 'Azure App Service', 'Azure Cosmos DB', 'Azure DevOps',
+            'Google Cloud Functions', 'Google App Engine', 'Google Cloud Storage', 'BigQuery',
+            'REST API', 'SOAP API', 'GraphQL API', 'gRPC', 'WebSocket', 'WebRTC',
+            'Microservices', 'Serverless', 'Event-Driven Architecture', 'CQRS', 'Event Sourcing',
+            'Domain-Driven Design', 'Test-Driven Development', 'Behavior-Driven Development',
+            'Continuous Integration', 'Continuous Deployment', 'Continuous Delivery',
+            'DevOps', 'DevSecOps', 'Site Reliability Engineering', 'Chaos Engineering',
+            'Agile', 'Scrum', 'Kanban', 'Lean', 'XP', 'SAFe', 'LeSS', 'Scrum@Scale',
+            'Product Management', 'Project Management', 'Program Management', 'Portfolio Management',
+            'Business Analysis', 'System Analysis', 'Technical Analysis', 'Data Analysis',
+            'UI Design', 'UX Design', 'Product Design', 'Service Design', 'Design Thinking',
+            'Adobe Creative Suite', 'Sketch', 'Figma', 'InVision', 'Zeplin', 'Marvel',
+            'Marketing', 'Content Marketing', 'Social Media Marketing', 'Email Marketing',
+            'SEO', 'SEM', 'PPC', 'Google Analytics', 'Google Ads', 'Facebook Ads',
+            'Sales', 'Business Development', 'Customer Success', 'Account Management',
+            'Leadership', 'Management', 'Team Management', 'Strategic Planning',
+            'Communication', 'Public Speaking', 'Presentation Skills', 'Negotiation',
+            'Problem Solving', 'Critical Thinking', 'Analytical Skills', 'Research',
+            'Writing', 'Technical Writing', 'Documentation', 'Copywriting',
+            'Teaching', 'Mentoring', 'Coaching', 'Training', 'Knowledge Sharing',
+             'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'Go', 'Rust', 'PHP', 'Ruby',
+        'Kotlin', 'Swift', 'Scala', 'Perl', 'Haskell', 'Elixir', 'Erlang', 'Clojure', 'F#', 'R',
+        'MATLAB', 'Julia', 'Lua', 'Dart', 'Groovy', 'Objective-C', 'Assembly', 'COBOL', 'Fortran',
+        'Ada', 'Prolog', 'Lisp', 'Scheme', 'Racket', 'OCaml', 'Crystal', 'Nim', 'Zig', 'V',
+        'Solidity', 'Vyper', 'Move', 'Cairo', 'Ink!', 'Cadence', 'Clarity', 'Michelson',
+        'VHDL', 'Verilog', 'SystemVerilog', 'HDL', 'FPGA Programming', 'PLC Programming',
+        'ActionScript', 'CoffeeScript', 'LiveScript', 'PureScript', 'ReasonML', 'Elm',
+        'Tcl', 'AWK', 'Sed', 'D', 'Modula-2', 'Pascal', 'Delphi', 'Visual Basic', 'VBScript',
+        'PowerShell', 'Bash', 'Zsh', 'Fish', 'Ksh', 'Csh', 'Batch Scripting',
+        'HCL', 'Jsonnet', 'Dhall', 'Nix', 'Pkl',
+
+        # ─── Frontend Frameworks & Libraries ───
+        'React', 'React.js', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'Svelte', 'SvelteKit',
+        'Ember', 'Backbone.js', 'Mithril', 'Preact', 'Inferno', 'Solid.js', 'Qwik', 'Astro',
+        'Remix', 'Gatsby', 'Gridsome', 'Eleventy', 'Hugo', 'Jekyll', 'Hexo', 'VuePress',
+        'Alpine.js', 'Stimulus', 'Hotwire', 'HTMX', 'Lit', 'Stencil', 'Web Components',
+        'Ionic', 'Capacitor', 'Cordova', 'PhoneGap', 'Electron', 'Tauri', 'NW.js',
+
+        # ─── Backend Frameworks ───
+        'Node.js', 'Express', 'Express.js', 'Fastify', 'Koa', 'Hapi', 'NestJS', 'AdonisJS',
+        'FastAPI', 'Django', 'Flask', 'Pyramid', 'Tornado', 'Sanic', 'Starlette', 'Litestar',
+        'Spring Boot', 'Spring MVC', 'Spring Cloud', 'Spring Security', 'Spring Data', 'Micronaut',
+        'Quarkus', 'Vert.x', 'Dropwizard', 'Play Framework', 'Ktor',
+        'Laravel', 'Symfony', 'CodeIgniter', 'Yii', 'CakePHP', 'Slim', 'Lumen', 'Phalcon',
+        'Ruby on Rails', 'Sinatra', 'Hanami', 'Padrino',
+        'ASP.NET', 'ASP.NET Core', 'Blazor', 'Minimal API', 'MAUI',
+        'Gin', 'Echo', 'Fiber', 'Chi', 'Gorilla Mux', 'Buffalo',
+        'Actix', 'Axum', 'Rocket', 'Warp', 'Tide',
+        'Phoenix', 'Plug', 'Absinthe', 'Ash Framework',
+        'Hono', 'Elysia', 'Bun', 'Deno',
+
+        # ─── CSS & Styling ───
+        'HTML', 'HTML5', 'CSS', 'CSS3', 'Sass', 'SCSS', 'Less', 'Stylus',
+        'Tailwind CSS', 'Bootstrap', 'Material UI', 'MUI', 'Styled Components',
+        'Chakra UI', 'Ant Design', 'Semantic UI', 'Bulma', 'Foundation', 'UIKit',
+        'Radix UI', 'shadcn/ui', 'Headless UI', 'DaisyUI', 'Flowbite',
+        'Emotion', 'CSS Modules', 'CSS-in-JS', 'Stitches', 'Vanilla Extract',
+        'Mantine', 'NextUI', 'PrimeReact', 'PrimeNG', 'PrimeVue', 'Vuetify',
+        'Quasar', 'Element UI', 'Element Plus', 'Naive UI', 'Arco Design',
+        'TDesign', 'Windi CSS', 'UnoCSS', 'Open Props',
+        'Web Animations API', 'GSAP', 'Framer Motion', 'Motion One', 'Anime.js', 'Three.js',
+        'Lottie', 'Rive', 'Spline', 'Babylon.js', 'PlayCanvas',
+
+        # ─── State Management ───
+        'Redux', 'Redux Toolkit', 'Redux Thunk', 'Redux Saga', 'Redux Observable',
+        'Zustand', 'MobX', 'Jotai', 'Recoil', 'Valtio', 'XState', 'Nanostores',
+        'React Query', 'TanStack Query', 'SWR', 'Apollo Client', 'Relay',
+        'Context API', 'NgRx', 'Akita', 'NGXS', 'Vuex', 'Pinia',
+        'Legend State', 'Effector', 'Storeon', 'Nano Stores',
+
+        # ─── Databases – Relational ───
+        'SQL', 'MySQL', 'PostgreSQL', 'SQLite', 'MariaDB', 'Oracle Database',
+        'Microsoft SQL Server', 'IBM DB2', 'Sybase', 'Teradata', 'Greenplum',
+        'CockroachDB', 'YugabyteDB', 'TiDB', 'PlanetScale', 'Neon', 'Supabase',
+        'Vercel Postgres', 'SingleStore', 'Citus', 'TimescaleDB',
+
+        # ─── Databases – NoSQL ───
+        'MongoDB', 'Redis', 'Elasticsearch', 'DynamoDB', 'Cassandra', 'HBase',
+        'CouchDB', 'CouchBase', 'Firebase Firestore', 'Firebase Realtime Database',
+        'Neo4j', 'ArangoDB', 'OrientDB', 'JanusGraph', 'Amazon Neptune',
+        'InfluxDB', 'Prometheus', 'Victoria Metrics', 'QuestDB', 'Druid',
+        'Riak', 'Aerospike', 'ScyllaDB', 'Apache Ignite',
+        'Fauna', 'Upstash', 'PocketBase', 'RethinkDB', 'RavenDB',
+        'Realm', 'ObjectBox', 'Ditto', 'WatermelonDB', 'LevelDB', 'RocksDB',
+
+        # ─── Search & Vector Databases ───
+        'Elasticsearch', 'OpenSearch', 'Solr', 'Algolia', 'Typesense', 'Meilisearch',
+        'Pinecone', 'Weaviate', 'Qdrant', 'Milvus', 'Chroma', 'FAISS', 'Annoy',
+        'pgvector', 'Redis Vector', 'Vespa', 'Marqo',
+
+        # ─── ORMs & Query Builders ───
+        'Hibernate', 'JPA', 'MyBatis', 'JOOQ', 'Flyway', 'Liquibase',
+        'SQLAlchemy', 'Tortoise ORM', 'Peewee', 'PonyORM', 'Django ORM',
+        'Prisma', 'Drizzle ORM', 'Knex.js', 'Objection.js', 'MikroORM', 'TypeORM', 'Sequelize',
+        'Active Record', 'Ecto', 'Diesel', 'SeaORM', 'GORM', 'Ent',
+        'Mongoose', 'Typegoose', 'Entity Framework', 'Dapper', 'NHibernate',
+
+        # ─── Cloud Platforms ───
+        'AWS', 'Azure', 'GCP', 'Google Cloud', 'Oracle Cloud', 'IBM Cloud',
+        'Alibaba Cloud', 'Tencent Cloud', 'Huawei Cloud', 'DigitalOcean',
+        'Linode', 'Vultr', 'Hetzner', 'OVH', 'Scaleway',
+        'Cloudflare', 'Fastly', 'Akamai', 'Vercel', 'Netlify', 'Render',
+        'Railway', 'Fly.io', 'Heroku', 'Back4App', 'Supabase', 'PlanetScale',
+        'Neon', 'Turso', 'Upstash', 'Deno Deploy', 'Bun Deploy',
+
+        # ─── AWS Services ───
+        'AWS Lambda', 'AWS EC2', 'AWS S3', 'AWS RDS', 'AWS DynamoDB',
+        'AWS CloudFormation', 'AWS CDK', 'AWS SAM', 'AWS ECS', 'AWS EKS',
+        'AWS Fargate', 'AWS Batch', 'AWS SQS', 'AWS SNS', 'AWS EventBridge',
+        'AWS API Gateway', 'AWS AppSync', 'AWS Cognito', 'AWS IAM', 'AWS KMS',
+        'AWS Secrets Manager', 'AWS Parameter Store', 'AWS Systems Manager',
+        'AWS CloudWatch', 'AWS X-Ray', 'AWS CloudTrail', 'AWS Config',
+        'AWS Route53', 'AWS CloudFront', 'AWS WAF', 'AWS Shield',
+        'AWS Elastic Beanstalk', 'AWS Lightsail', 'AWS Amplify',
+        'AWS Glue', 'AWS Athena', 'AWS EMR', 'AWS Redshift', 'AWS Kinesis',
+        'AWS Step Functions', 'AWS AppFlow', 'AWS DataSync', 'AWS Transfer Family',
+        'AWS SageMaker', 'AWS Rekognition', 'AWS Comprehend', 'AWS Textract',
+        'AWS Polly', 'AWS Transcribe', 'AWS Translate', 'AWS Lex',
+
+        # ─── Azure Services ───
+        'Azure Functions', 'Azure App Service', 'Azure Cosmos DB', 'Azure DevOps',
+        'Azure Blob Storage', 'Azure SQL Database', 'Azure Service Bus',
+        'Azure Event Hub', 'Azure Event Grid', 'Azure Logic Apps',
+        'Azure API Management', 'Azure Active Directory', 'Azure AD B2C',
+        'Azure Key Vault', 'Azure Monitor', 'Azure Application Insights',
+        'Azure Kubernetes Service', 'Azure Container Instances', 'Azure Container Apps',
+        'Azure Static Web Apps', 'Azure CDN', 'Azure Front Door',
+        'Azure Machine Learning', 'Azure Cognitive Services', 'Azure OpenAI Service',
+        'Azure Databricks', 'Azure Synapse Analytics', 'Azure Data Factory',
+        'Azure Stream Analytics', 'Azure HDInsight',
+
+        # ─── GCP Services ───
+        'Google Cloud Functions', 'Google App Engine', 'Google Cloud Storage', 'BigQuery',
+        'Google Cloud Run', 'Google Kubernetes Engine', 'Google Cloud SQL',
+        'Google Cloud Spanner', 'Google Cloud Bigtable', 'Google Cloud Firestore',
+        'Google Cloud Pub/Sub', 'Google Cloud Tasks', 'Google Cloud Scheduler',
+        'Google Cloud IAM', 'Google Cloud KMS', 'Google Cloud Armor',
+        'Google Cloud CDN', 'Google Cloud Load Balancing',
+        'Vertex AI', 'Google Cloud Vision API', 'Google Natural Language API',
+        'Google Cloud Speech-to-Text', 'Google Cloud Text-to-Speech',
+        'Google Cloud Translation', 'Google Dialogflow', 'Google Cloud Dataflow',
+        'Google Cloud Dataproc', 'Google Cloud Composer', 'Looker',
+
+        # ─── DevOps & Infrastructure ───
+        'Docker', 'Docker Compose', 'Docker Swarm', 'Podman', 'Buildah',
+        'Kubernetes', 'Helm', 'Kustomize', 'Istio', 'Linkerd', 'Envoy',
+        'ArgoCD', 'Flux', 'Spinnaker', 'Harness', 'Tekton',
+        'Terraform', 'Pulumi', 'AWS CDK', 'Crossplane', 'OpenTofu',
+        'Ansible', 'Chef', 'Puppet', 'SaltStack', 'CFEngine',
+        'Vagrant', 'Packer', 'Consul', 'Vault', 'Nomad',
+        'Jenkins', 'GitHub Actions', 'GitLab CI', 'CircleCI', 'Travis CI',
+        'Bamboo', 'TeamCity', 'Azure Pipelines', 'Bitbucket Pipelines',
+        'Drone CI', 'Buildkite', 'Concourse CI', 'Woodpecker CI',
+        'Nginx', 'Apache', 'Caddy', 'HAProxy', 'Traefik', 'Kong',
+        'CI/CD', 'GitOps', 'Infrastructure as Code', 'Site Reliability Engineering',
+        'Platform Engineering', 'FinOps', 'CloudOps', 'AIOps',
+        'Prometheus', 'Grafana', 'Alertmanager', 'Loki', 'Tempo', 'Jaeger',
+        'Zipkin', 'OpenTelemetry', 'Datadog', 'New Relic', 'Dynatrace',
+        'Splunk', 'Elastic Stack', 'ELK Stack', 'EFK Stack',
+        'PagerDuty', 'Opsgenie', 'VictorOps', 'StatusPage',
+        'Chaos Engineering', 'Chaos Monkey', 'LitmusChaos', 'Gremlin',
+
+        # ─── Version Control & Collaboration ───
+        'Git', 'GitHub', 'GitLab', 'Bitbucket', 'Azure Repos', 'AWS CodeCommit',
+        'Mercurial', 'SVN', 'Perforce', 'Plastic SCM', 'Fossil',
+        'GitHub Copilot', 'GitLab Duo', 'Tabnine', 'Cursor', 'Codeium',
+        'Code Review', 'Pull Requests', 'Merge Requests', 'Branch Strategy',
+        'Git Flow', 'GitHub Flow', 'Trunk Based Development',
+
+        # ─── API Development ───
+        'REST', 'RESTful', 'GraphQL', 'WebSocket', 'gRPC', 'tRPC', 'JSON-RPC',
+        'SOAP', 'OData', 'AsyncAPI', 'OpenAPI', 'Swagger', 'Postman', 'Insomnia',
+        'API Gateway', 'API Design', 'API Documentation', 'API Testing',
+        'API Security', 'OAuth', 'OAuth2', 'JWT', 'SAML', 'OIDC', 'LDAP',
+        'API Versioning', 'Rate Limiting', 'Throttling', 'API Monetization',
+        'Webhooks', 'Server-Sent Events', 'Long Polling', 'WebRTC',
+
+        # ─── Messaging & Event Streaming ───
+        'Kafka', 'Apache Kafka', 'RabbitMQ', 'ActiveMQ', 'NATS', 'NATS JetStream',
+        'Redis Pub/Sub', 'Redis Streams', 'AWS SQS', 'AWS SNS', 'AWS Kinesis',
+        'Azure Service Bus', 'Azure Event Hub', 'Google Cloud Pub/Sub',
+        'Pulsar', 'ZeroMQ', 'MQTT', 'AMQP', 'Stomp',
+        'Kafka Streams', 'KSQL', 'Flink', 'Spark Streaming',
+
+        # ─── Testing ───
+        'Jest', 'Vitest', 'Mocha', 'Chai', 'Jasmine', 'AVA', 'Tape',
+        'Pytest', 'Unittest', 'Nose2', 'Hypothesis', 'Locust',
+        'JUnit', 'TestNG', 'Mockito', 'PowerMock', 'AssertJ', 'Hamcrest',
+        'NUnit', 'xUnit', 'MSTest', 'SpecFlow', 'FluentAssertions',
+        'RSpec', 'Minitest', 'Capybara', 'FactoryBot',
+        'Cypress', 'Playwright', 'Selenium', 'WebdriverIO', 'Puppeteer',
+        'TestCafe', 'Nightwatch', 'Appium', 'Detox', 'Espresso', 'XCTest',
+        'React Testing Library', 'Enzyme', 'Vue Test Utils', 'Angular Testing',
+        'Storybook', 'Chromatic', 'Percy', 'BackstopJS', 'Loki',
+        'k6', 'JMeter', 'Gatling', 'Artillery', 'Vegeta',
+        'SonarQube', 'ESLint', 'Prettier', 'Checkstyle', 'PMD', 'SpotBugs',
+        'Codecov', 'Coveralls', 'Istanbul', 'NYC',
+        'Test-Driven Development', 'Behavior-Driven Development', 'Acceptance Test-Driven Development',
+        'Mutation Testing', 'Property-Based Testing', 'Contract Testing', 'Pact',
+
+        # ─── Build Tools & Package Managers ───
+        'Webpack', 'Vite', 'Rollup', 'Parcel', 'esbuild', 'Turbopack', 'Rspack',
+        'Babel', 'SWC', 'TypeScript Compiler', 'Flow',
+        'npm', 'yarn', 'pnpm', 'Bun', 'Deno',
+        'Maven', 'Gradle', 'Ant', 'SBT', 'Mill', 'Bazel',
+        'Make', 'CMake', 'Meson', 'Ninja', 'Buck', 'Pants',
+        'Cargo', 'Mix', 'Rebar3', 'Poetry', 'PDM', 'Hatch', 'uv',
+        'pip', 'conda', 'pipenv', 'virtualenv',
+        'NuGet', 'Paket', 'Composer', 'Bundler', 'CocoaPods', 'SPM',
+        'Turborepo', 'Nx', 'Lerna', 'Rush', 'Moon',
+
+        # ─── Security ───
+        'Application Security', 'Web Application Security', 'API Security',
+        'OAuth', 'OAuth2', 'JWT', 'SAML', 'OIDC', 'Kerberos', 'LDAP', 'Active Directory',
+        'SSL', 'TLS', 'mTLS', 'PKI', 'Certificates', 'Let\'s Encrypt',
+        'OWASP', 'Penetration Testing', 'Vulnerability Assessment', 'Security Auditing',
+        'SAST', 'DAST', 'IAST', 'RASP', 'SCA',
+        'Snyk', 'Checkmarx', 'Veracode', 'Fortify', 'SonarQube',
+        'Nmap', 'Metasploit', 'Burp Suite', 'OWASP ZAP', 'Wireshark',
+        'Nessus', 'Qualys', 'Rapid7', 'Tenable',
+        'Zero Trust', 'Zero Trust Architecture', 'Privileged Access Management',
+        'Identity and Access Management', 'IAM', 'PAM', 'SIEM', 'SOC',
+        'Incident Response', 'Threat Modeling', 'Risk Assessment',
+        'Cryptography', 'Encryption', 'Hashing', 'Digital Signatures',
+        'Key Management', 'Hardware Security Module', 'HSM',
+        'DevSecOps', 'Shift Left Security', 'Supply Chain Security',
+        'SBOM', 'Compliance', 'GDPR', 'HIPAA', 'PCI DSS', 'SOC 2', 'ISO 27001',
+        'Firewall', 'IDS', 'IPS', 'WAF', 'DDoS Protection',
+        'Reverse Engineering', 'Malware Analysis', 'Forensics', 'OSINT',
+        'Bug Bounty', 'Red Team', 'Blue Team', 'Purple Team', 'CTF',
+
+        # ─── Machine Learning & AI ───
+        'Machine Learning', 'Deep Learning', 'Neural Networks', 'AI', 'Artificial Intelligence',
+        'TensorFlow', 'PyTorch', 'Keras', 'JAX', 'MXNet', 'Paddle Paddle',
+        'Scikit-learn', 'XGBoost', 'LightGBM', 'CatBoost', 'H2O', 'AutoML',
+        'NLP', 'Natural Language Processing', 'Computer Vision', 'Speech Recognition',
+        'Object Detection', 'Image Segmentation', 'Image Classification',
+        'YOLO', 'Detectron2', 'MMDetection', 'Torchvision',
+        'Hugging Face', 'Transformers', 'BERT', 'GPT', 'T5', 'RoBERTa',
+        'LLM', 'Large Language Models', 'Foundation Models', 'Multimodal AI',
+        'LangChain', 'LlamaIndex', 'Semantic Kernel', 'AutoGen', 'CrewAI',
+        'OpenAI API', 'Anthropic API', 'Gemini API', 'Cohere API', 'Mistral AI',
+        'LLM Fine-Tuning', 'RLHF', 'LoRA', 'QLoRA', 'PEFT', 'DPO',
+        'RAG', 'Retrieval-Augmented Generation', 'Agentic AI', 'AI Agents',
+        'Prompt Engineering', 'Few-Shot Learning', 'Zero-Shot Learning',
+        'Transfer Learning', 'Federated Learning', 'Continual Learning',
+        'Reinforcement Learning', 'Q-Learning', 'PPO', 'SAC', 'DDPG',
+        'Stable Baselines', 'OpenAI Gym', 'Ray RLlib',
+        'Generative AI', 'Diffusion Models', 'GANs', 'VAEs',
+        'Stable Diffusion', 'Midjourney API', 'DALL-E', 'ControlNet',
+        'MLflow', 'Weights & Biases', 'DVC', 'ClearML', 'Comet ML',
+        'Kubeflow', 'MLOps', 'LLMOps', 'Model Monitoring', 'Model Serving',
+        'BentoML', 'Seldon', 'KServe', 'TorchServe', 'TFServing', 'Triton',
+        'Feature Engineering', 'Feature Store', 'Feast', 'Tecton', 'Hopsworks',
+        'Data Preprocessing', 'Data Augmentation', 'Imbalanced Learning',
+        'Dimensionality Reduction', 'PCA', 't-SNE', 'UMAP',
+        'Clustering', 'Classification', 'Regression', 'Anomaly Detection',
+        'Time Series Analysis', 'Forecasting', 'Prophet', 'ARIMA',
+        'Recommendation Systems', 'Collaborative Filtering', 'Matrix Factorization',
+        'Graph Neural Networks', 'GNN', 'Knowledge Graphs',
+        'Explainable AI', 'XAI', 'SHAP', 'LIME', 'Captum',
+        'AI Ethics', 'Responsible AI', 'Fairness in AI', 'Bias Detection',
+        'Synthetic Data', 'Data Labeling', 'Annotation', 'Label Studio', 'CVAT',
+        'OpenCV', 'PIL', 'Pillow', 'scikit-image', 'Albumentations',
+        'NLTK', 'spaCy', 'Gensim', 'FastText', 'Sentence Transformers',
+        'Speech Recognition', 'Whisper', 'TTS', 'Text-to-Speech',
+        'Audio Processing', 'Librosa', 'torchaudio', 'SoundFile',
+        'Simulation', 'Digital Twin', 'Isaac Sim', 'Mujoco',
+
+        # ─── Data Engineering & Analytics ───
+        'Data Engineering', 'Data Pipelines', 'ETL', 'ELT', 'Data Warehousing',
+        'Pandas', 'NumPy', 'Polars', 'Dask', 'Vaex', 'Modin',
+        'Matplotlib', 'Seaborn', 'Plotly', 'Bokeh', 'Altair', 'Vega',
+        'Tableau', 'Power BI', 'Looker', 'Metabase', 'Superset', 'Redash',
+        'Apache Spark', 'Apache Flink', 'Apache Beam', 'Apache Storm',
+        'Hadoop', 'HDFS', 'MapReduce', 'Hive', 'HBase', 'Pig', 'Sqoop',
+        'Airflow', 'Prefect', 'Dagster', 'Mage', 'Kedro', 'Luigi',
+        'dbt', 'Great Expectations', 'Soda', 'Monte Carlo', 'Atlan',
+        'Redshift', 'Snowflake', 'BigQuery', 'Databricks', 'Synapse',
+        'Delta Lake', 'Apache Iceberg', 'Apache Hudi', 'Apache Parquet',
+        'Apache ORC', 'Apache Avro', 'Apache Arrow',
+        'Kafka', 'Kinesis', 'Flink', 'Spark Streaming', 'Storm',
+        'Data Governance', 'Data Catalog', 'Data Lineage', 'Data Quality',
+        'DataOps', 'Analytics Engineering', 'Data Mesh', 'Data Lakehouse',
+        'Excel', 'Google Sheets', 'Jupyter Notebook', 'JupyterLab', 'Zeppelin',
+        'R Studio', 'KNIME', 'RapidMiner', 'SAS', 'SPSS', 'Stata',
+        'Data Modeling', 'Star Schema', 'Snowflake Schema', 'Data Vault',
+        'Business Intelligence', 'OLAP', 'OLTP', 'Data Lake', 'Data Lakehouse',
+
+        # ─── Mobile Development ───
+        'React Native', 'Flutter', 'Expo', 'NativeScript', 'Xamarin',
+        'Android', 'iOS', 'Swift', 'SwiftUI', 'UIKit', 'Objective-C',
+        'Kotlin', 'Jetpack Compose', 'Android SDK', 'Android NDK',
+        'Cross-Platform Development', 'Hybrid App Development',
+        'Mobile App Architecture', 'MVVM', 'MVI', 'MVP', 'MVC',
+        'Core Data', 'Core Location', 'ARKit', 'RealityKit', 'SceneKit',
+        'Metal', 'SpriteKit', 'GameplayKit', 'Core ML', 'Create ML',
+        'Jetpack', 'Room', 'Hilt', 'WorkManager', 'Navigation Component',
+        'Firebase', 'OneSignal', 'Braze', 'Amplitude', 'Mixpanel',
+        'App Store', 'Google Play', 'TestFlight', 'Fastlane',
+        'Mobile Security', 'Certificate Pinning', 'Obfuscation',
+        'App Performance', 'ANR', 'Crash Reporting', 'App Analytics',
+        'Push Notifications', 'Deep Linking', 'Universal Links',
+        'Mobile Payments', 'Apple Pay', 'Google Pay', 'In-App Purchases',
+        'Augmented Reality', 'ARCore', 'ARKit', 'Mixed Reality', 'VR Development',
+
+        # ─── Game Development ───
+        'Unity', 'Unreal Engine', 'Godot', 'CryEngine', 'GameMaker',
+        'C# (Unity)', 'C++ (Unreal)', 'GDScript', 'Lua (Gaming)',
+        'OpenGL', 'DirectX', 'Vulkan', 'Metal', 'WebGL', 'WebGPU',
+        'Pygame', 'Arcade', 'Raylib', 'SDL', 'SFML', 'LÖVE',
+        'Phaser', 'PixiJS', 'BabylonJS', 'PlayCanvas', 'Three.js',
+        'Game Design', 'Level Design', 'Game Mechanics', 'Game Economy',
+        'Game AI', 'Pathfinding', 'Behavior Trees', 'State Machines',
+        'Physics Engines', 'Box2D', 'Bullet Physics', 'Havok', 'NVIDIA PhysX',
+        'Animation', 'Rigging', 'Skinning', 'Shader Programming', 'HLSL', 'GLSL',
+        'Multiplayer', 'Netcode', 'Game Server', 'ENet', 'Mirror', 'Photon',
+        'Steam API', 'Epic Online Services', 'Xbox Live', 'PlayStation Network',
+        'Localization', 'Monetization', 'In-App Purchases', 'Ads Integration',
+        'Performance Optimization', 'Profiling', 'GPU Optimization',
+        'VR Development', 'AR Development', 'XR Development',
+        'Blender', 'Maya', '3ds Max', 'Cinema 4D', 'ZBrush', 'Substance Painter',
+
+        # ─── Embedded & Systems ───
+        'Embedded Systems', 'RTOS', 'FreeRTOS', 'Zephyr', 'VxWorks', 'QNX',
+        'Arduino', 'Raspberry Pi', 'ESP32', 'STM32', 'PIC', 'AVR',
+        'C (Embedded)', 'C++ (Embedded)', 'Rust (Embedded)', 'Assembly',
+        'UART', 'SPI', 'I2C', 'CAN', 'Modbus', 'Profibus',
+        'FPGA', 'VHDL', 'Verilog', 'Xilinx', 'Intel FPGA', 'Lattice',
+        'Bare Metal Programming', 'Device Drivers', 'BSP', 'HAL',
+        'IoT', 'Internet of Things', 'Edge Computing', 'Fog Computing',
+        'MQTT', 'CoAP', 'Zigbee', 'Z-Wave', 'LoRa', 'LoRaWAN', 'Thread',
+        'Matter', 'Bluetooth', 'BLE', 'WiFi', 'NFC', 'RFID',
+        'Automotive', 'AUTOSAR', 'CAN Bus', 'LIN', 'FlexRay', 'Ethernet AVB',
+        'ADAS', 'Functional Safety', 'ISO 26262', 'MISRA C',
+        'Industrial IoT', 'SCADA', 'PLC', 'HMI', 'OPC UA',
+        'Linux Kernel', 'Linux Device Drivers', 'Yocto', 'Buildroot',
+        'Bootloader', 'U-Boot', 'GRUB', 'UEFI', 'BIOS',
+        'Memory Management', 'DMA', 'Interrupt Handling', 'Real-Time Systems',
+
+        # ─── Blockchain & Web3 ───
+        'Blockchain', 'Web3', 'DeFi', 'NFT', 'DAO', 'DApp', 'Smart Contracts',
+        'Solidity', 'Vyper', 'Move', 'Cairo', 'Ink!', 'Rust (Solana)',
+        'Ethereum', 'Solana', 'Polygon', 'Avalanche', 'BNB Chain', 'Arbitrum',
+        'Optimism', 'Base', 'zkSync', 'StarkNet', 'TON', 'Near', 'Cosmos',
+        'Bitcoin', 'Lightning Network', 'Taproot', 'Script',
+        'Hardhat', 'Foundry', 'Truffle', 'Brownie', 'Anchor', 'Scaffold-ETH',
+        'OpenZeppelin', 'Chainlink', 'The Graph', 'IPFS', 'Arweave', 'Ceramic',
+        'ethers.js', 'web3.js', 'viem', 'wagmi', 'RainbowKit', 'ConnectKit',
+        'MetaMask', 'WalletConnect', 'Safe', 'Account Abstraction', 'ERC-4337',
+        'ERC-20', 'ERC-721', 'ERC-1155', 'ERC-4626', 'EIP-1559',
+        'AMM', 'Uniswap', 'Curve', 'Balancer', 'Aave', 'Compound', 'MakerDAO',
+        'Layer 2', 'Rollups', 'Optimistic Rollups', 'ZK Rollups', 'State Channels',
+        'Consensus Algorithms', 'PoW', 'PoS', 'DPoS', 'BFT', 'Tendermint',
+        'Tokenomics', 'Staking', 'Yield Farming', 'Liquidity Mining',
+        'Cryptography', 'ZK Proofs', 'zk-SNARKs', 'zk-STARKs', 'MPC', 'TSS',
+        'Blockchain Analytics', 'On-Chain Analysis', 'MEV', 'Flash Loans',
+
+        # ─── Architecture & Design Patterns ───
+        'Microservices', 'Serverless', 'Event-Driven Architecture',
+        'CQRS', 'Event Sourcing', 'Saga Pattern', 'Outbox Pattern',
+        'Domain-Driven Design', 'DDD', 'Hexagonal Architecture', 'Clean Architecture',
+        'Onion Architecture', 'SOLID Principles', 'Design Patterns', 'GoF Patterns',
+        'Monolithic Architecture', 'SOA', 'Service Mesh', 'BFF Pattern',
+        'API Gateway Pattern', 'Strangler Fig Pattern', 'Anti-Corruption Layer',
+        'Reactive Systems', 'Actor Model', 'CSP', 'Reactive Streams',
+        'Repository Pattern', 'Factory Pattern', 'Observer Pattern', 'Strategy Pattern',
+        'MVC', 'MVVM', 'MVP', 'MVI', 'Flux', 'Redux Pattern',
+        'Database Sharding', 'Read Replicas', 'CQRS', 'Polyglot Persistence',
+        'Distributed Systems', 'CAP Theorem', 'Eventual Consistency',
+        'Load Balancing', 'Circuit Breaker', 'Bulkhead', 'Retry Pattern',
+        'Rate Limiting', 'Throttling', 'Backpressure',
+        'High Availability', 'Fault Tolerance', 'Disaster Recovery',
+        'Blue-Green Deployment', 'Canary Deployment', 'Feature Flags',
+        'Twelve-Factor App', 'Cloud Native', 'Edge Computing',
+        'Modular Monolith', 'Micro-Frontend', 'Module Federation',
+
+        # ─── Software Development Methodologies ───
+        'Agile', 'Scrum', 'Kanban', 'Lean', 'XP', 'SAFe', 'LeSS', 'Scrum@Scale',
+        'Waterfall', 'Spiral', 'RAD', 'Prototyping', 'Incremental Development',
+        'Test-Driven Development', 'Behavior-Driven Development', 'Domain-Driven Design',
+        'Continuous Integration', 'Continuous Deployment', 'Continuous Delivery',
+        'DevOps', 'DevSecOps', 'DataOps', 'MLOps', 'FinOps', 'GitOps',
+        'Pair Programming', 'Mob Programming', 'Code Review', 'Refactoring',
+        'Technical Debt Management', 'Legacy System Modernization',
+        'Trunk Based Development', 'Feature Branch Workflow', 'Release Management',
+        'Sprint Planning', 'Backlog Grooming', 'Retrospectives', 'Daily Standup',
+        'Sprint Review', 'Velocity', 'Story Points', 'Burn Down Chart',
+        'Velocity Chart', 'Cumulative Flow Diagram', 'Cycle Time', 'Lead Time',
+
+        # ─── Project & Product Management ───
+        'Product Management', 'Project Management', 'Program Management', 'Portfolio Management',
+        'Product Strategy', 'Product Roadmap', 'Product Vision', 'Product Discovery',
+        'Product-Led Growth', 'Growth Hacking', 'OKRs', 'KPIs', 'Metrics',
+        'A/B Testing', 'Experimentation', 'Feature Prioritization', 'MVP',
+        'Product Analytics', 'Cohort Analysis', 'Funnel Analysis', 'Retention',
+        'User Research', 'User Interviews', 'Surveys', 'Usability Testing',
+        'Competitive Analysis', 'Market Research', 'Go-to-Market Strategy',
+        'Roadmapping', 'Story Mapping', 'Impact Mapping', 'Job-to-be-Done',
+        'Stakeholder Management', 'Executive Communication', 'Product Metrics',
+        'Jira', 'Confluence', 'Asana', 'Trello', 'Monday.com', 'Notion',
+        'Linear', 'Height', 'Shortcut', 'ClickUp', 'Basecamp',
+        'Figma', 'FigJam', 'Miro', 'Mural', 'Lucidchart', 'Whimsical',
+        'PMP', 'PRINCE2', 'PMI', 'Six Sigma', 'ITIL', 'COBIT',
+        'Risk Management', 'Change Management', 'Crisis Management',
+        'Budget Management', 'Resource Planning', 'Capacity Planning',
+        'Vendor Management', 'Contract Management', 'SLA Management',
+
+        # ─── UI/UX Design ───
+        'UI Design', 'UX Design', 'Product Design', 'Service Design', 'Design Thinking',
+        'Interaction Design', 'Visual Design', 'Information Architecture', 'Content Design',
+        'User Research', 'Usability Testing', 'A/B Testing', 'Eye Tracking',
+        'Wireframing', 'Prototyping', 'Mockups', 'User Flows', 'Customer Journey Maps',
+        'Figma', 'Sketch', 'Adobe XD', 'InVision', 'Zeplin', 'Marvel', 'Axure',
+        'Framer', 'Webflow', 'Wix', 'Squarespace', 'Readymag',
+        'Adobe Creative Suite', 'Photoshop', 'Illustrator', 'After Effects',
+        'InDesign', 'Lightroom', 'Premiere Pro', 'Audition', 'Animate',
+        'Affinity Designer', 'Affinity Photo', 'Affinity Publisher',
+        'Canva', 'Penpot', 'Lunacy', 'Origami Studio',
+        'Design Systems', 'Storybook', 'Chromatic', 'Zeroheight', 'Supernova',
+        'Accessibility', 'WCAG', 'ADA Compliance', 'ARIA', 'Screen Readers',
+        'Color Theory', 'Typography', 'Grid Systems', 'Responsive Design',
+        'Mobile-First Design', 'Dark Mode', 'Micro-interactions',
+        'Motion Design', 'Animation', 'Lottie', 'Rive', 'Principle',
+        'Brand Design', 'Brand Identity', 'Logo Design', 'Graphic Design',
+        'Icon Design', 'Illustration', 'Infographic Design', 'Data Visualization',
+        '3D Design', 'Blender', 'Cinema 4D', 'KeyShot', 'Rhino', 'Fusion 360',
+        'User Psychology', 'Cognitive Biases', 'Persuasion Design', 'Gamification',
+        'Heuristic Evaluation', 'Contextual Inquiry', 'Card Sorting',
+        'Tree Testing', 'First Click Testing', 'Preference Testing',
+
+        # ─── Marketing & Growth ───
+        'Digital Marketing', 'Content Marketing', 'Social Media Marketing', 'Email Marketing',
+        'Influencer Marketing', 'Affiliate Marketing', 'Performance Marketing',
+        'SEO', 'Technical SEO', 'On-Page SEO', 'Off-Page SEO', 'Local SEO',
+        'SEM', 'PPC', 'Google Ads', 'Facebook Ads', 'Instagram Ads', 'LinkedIn Ads',
+        'Twitter Ads', 'TikTok Ads', 'Pinterest Ads', 'Programmatic Advertising',
+        'Google Analytics', 'Google Analytics 4', 'Google Tag Manager',
+        'Google Search Console', 'Bing Webmaster Tools', 'Google Merchant Center',
+        'HubSpot', 'Marketo', 'Pardot', 'Salesforce Marketing Cloud', 'Braze',
+        'Mailchimp', 'Klaviyo', 'SendGrid', 'Iterable', 'Customer.io',
+        'SEMrush', 'Ahrefs', 'Moz', 'Majestic', 'Screaming Frog',
+        'Hotjar', 'FullStory', 'Heap', 'Amplitude', 'Mixpanel',
+        'Segment', 'mParticle', 'Rudderstack', 'Snowplow',
+        'Conversion Rate Optimization', 'CRO', 'Landing Page Optimization',
+        'A/B Testing', 'Multivariate Testing', 'Optimizely', 'VWO', 'LaunchDarkly',
+        'Growth Hacking', 'Viral Marketing', 'Referral Programs', 'Product-Led Growth',
+        'Copywriting', 'Content Strategy', 'Content Creation', 'Blogging',
+        'Video Marketing', 'Podcast Marketing', 'Webinar Marketing',
+        'Social Media Management', 'Community Management', 'Community Building',
+        'Brand Management', 'Brand Strategy', 'Corporate Communications',
+        'Public Relations', 'Media Relations', 'Crisis Communications',
+        'Event Marketing', 'Trade Show Marketing', 'Field Marketing',
+        'Customer Acquisition', 'Customer Retention', 'Churn Reduction',
+        'Lifecycle Marketing', 'CRM', 'Salesforce', 'HubSpot CRM', 'Pipedrive',
+
+        # ─── Sales & Business Development ───
+        'Sales', 'B2B Sales', 'B2C Sales', 'SaaS Sales', 'Enterprise Sales',
+        'Inside Sales', 'Outside Sales', 'Field Sales', 'Channel Sales',
+        'Business Development', 'Partnerships', 'Strategic Alliances',
+        'Account Management', 'Key Account Management', 'Customer Success',
+        'Sales Development', 'SDR', 'BDR', 'AE', 'Account Executive',
+        'Lead Generation', 'Prospecting', 'Cold Calling', 'Cold Emailing',
+        'Pipeline Management', 'Sales Forecasting', 'Revenue Operations',
+        'Sales Enablement', 'Sales Training', 'Sales Coaching',
+        'CRM', 'Salesforce', 'HubSpot', 'Pipedrive', 'ZoomInfo', 'Apollo',
+        'Outreach', 'Salesloft', 'Gong', 'Chorus', 'Clari',
+        'Contract Negotiation', 'Procurement', 'RFP', 'RFQ', 'SOW',
+        'Revenue Recognition', 'Deal Structuring', 'Pricing Strategy',
+        'Customer Onboarding', 'Upselling', 'Cross-Selling', 'Expansion Revenue',
+        'NPS', 'CSAT', 'Customer Health Score', 'QBR',
+
+        # ─── Finance & Accounting ───
+        'Financial Analysis', 'Financial Modeling', 'Valuation', 'DCF Analysis',
+        'Financial Reporting', 'Financial Planning', 'Budgeting', 'Forecasting',
+        'Accounting', 'Bookkeeping', 'GAAP', 'IFRS', 'Audit', 'Tax',
+        'Payroll', 'Accounts Payable', 'Accounts Receivable', 'General Ledger',
+        'Cost Accounting', 'Management Accounting', 'Fund Accounting',
+        'Investment Analysis', 'Portfolio Management', 'Risk Management',
+        'Treasury Management', 'Cash Flow Management', 'Working Capital',
+        'QuickBooks', 'Xero', 'NetSuite', 'SAP FI', 'Oracle Financials',
+        'Excel', 'Google Sheets', 'Power BI', 'Tableau', 'Bloomberg', 'Refinitiv',
+        'FP&A', 'CFO', 'Controllership', 'Internal Audit', 'External Audit',
+        'IPO', 'M&A', 'Due Diligence', 'LBO', 'Private Equity', 'Venture Capital',
+        'CFA', 'CPA', 'ACCA', 'CA', 'CMA', 'FRM',
+
+        # ─── HR & People Operations ───
+        'Human Resources', 'HR Management', 'People Operations', 'Talent Management',
+        'Recruiting', 'Talent Acquisition', 'Sourcing', 'Employer Branding',
+        'Onboarding', 'Offboarding', 'Employee Experience', 'Engagement',
+        'Performance Management', 'Goal Setting', 'OKRs', 'Performance Reviews',
+        'Learning & Development', 'Training', 'E-Learning', 'LMS',
+        'Compensation & Benefits', 'Total Rewards', 'Equity', 'Stock Options',
+        'HRIS', 'Workday', 'SAP HR', 'BambooHR', 'ADP', 'Paychex',
+        'Greenhouse', 'Lever', 'Workable', 'SmartRecruiters', 'Jobvite',
+        'LinkedIn Recruiter', 'Indeed', 'Glassdoor',
+        'Diversity & Inclusion', 'DEI', 'DEIB', 'Culture Building',
+        'Employee Relations', 'Labor Relations', 'Employment Law', 'HR Compliance',
+        'Workforce Planning', 'Succession Planning', 'Organizational Design',
+        'Change Management', 'Culture Transformation', 'Leadership Development',
+        'Coaching', 'Mentoring', 'Team Building', 'Conflict Resolution',
+
+        # ─── Leadership & Management ───
+        'Leadership', 'Executive Leadership', 'Management', 'Team Management',
+        'Engineering Management', 'Product Management', 'People Management',
+        'Strategic Planning', 'Operational Excellence', 'Business Strategy',
+        'Vision Setting', 'Mission Alignment', 'Culture Building',
+        'Decision Making', 'Problem Solving', 'Critical Thinking', 'Systems Thinking',
+        'Stakeholder Management', 'Executive Communication', 'Board Reporting',
+        'Organizational Leadership', 'Cross-Functional Leadership', 'Influence',
+        'Servant Leadership', 'Situational Leadership', 'Transformational Leadership',
+        'Emotional Intelligence', 'EQ', 'Self-Awareness', 'Empathy',
+        'Conflict Resolution', 'Negotiation', 'Facilitation', 'Mediation',
+        'Coaching', 'Mentoring', 'Feedback', 'Performance Management',
+        'Delegation', 'Prioritization', 'Time Management', 'Productivity',
+        'Meeting Facilitation', 'Workshop Facilitation', 'Retrospectives',
+        'Budget Management', 'P&L Management', 'Resource Allocation',
+
+        # ─── Communication & Soft Skills ───
+        'Communication', 'Public Speaking', 'Presentation Skills', 'Storytelling',
+        'Technical Writing', 'Business Writing', 'Copywriting', 'Editing', 'Proofreading',
+        'Documentation', 'API Documentation', 'User Guides', 'Release Notes',
+        'Proposal Writing', 'Report Writing', 'Grant Writing', 'White Papers',
+        'Active Listening', 'Feedback', 'Constructive Criticism', 'Assertiveness',
+        'Interpersonal Skills', 'Relationship Building', 'Networking',
+        'Cross-Cultural Communication', 'Remote Communication', 'Async Communication',
+        'Slack', 'Microsoft Teams', 'Zoom', 'Google Meet', 'Loom',
+        'Notion', 'Confluence', 'Coda', 'Obsidian', 'Roam Research',
+        'Research Skills', 'Data Analysis', 'Problem Solving', 'Analytical Thinking',
+        'Creativity', 'Innovation', 'Design Thinking', 'Systems Thinking',
+        'Attention to Detail', 'Organization', 'Planning', 'Execution',
+        'Adaptability', 'Resilience', 'Growth Mindset', 'Continuous Learning',
+        'Collaboration', 'Teamwork', 'Team Player', 'Cross-Functional Collaboration',
+        'Customer Focus', 'User Empathy', 'Customer Obsession',
+        'Ownership', 'Accountability', 'Initiative', 'Proactiveness',
+        'Curiosity', 'Intellectual Humility', 'Openness to Feedback',
+
+        # ─── Education & Teaching ───
+        'Teaching', 'Instruction', 'Curriculum Development', 'Course Design',
+        'E-Learning Development', 'Instructional Design', 'LMS Administration',
+        'Moodle', 'Canvas', 'Blackboard', 'Google Classroom', 'Kahoot', 'Quizlet',
+        'Mentoring', 'Coaching', 'Tutoring', 'Academic Advising',
+        'Classroom Management', 'Student Assessment', 'Grading',
+        'STEM Education', 'Coding Education', 'Bootcamp Instruction',
+        'Workshop Facilitation', 'Webinar Hosting', 'Online Teaching',
+        'Bloom\'s Taxonomy', 'Constructivism', 'Flipped Classroom',
+
+        # ─── Legal & Compliance ───
+        'Contract Law', 'Corporate Law', 'Intellectual Property', 'Patent Law',
+        'Trademark', 'Copyright', 'Trade Secret', 'Licensing',
+        'Employment Law', 'Labor Law', 'GDPR', 'CCPA', 'HIPAA', 'PCI DSS',
+        'SOC 2', 'ISO 27001', 'ISO 9001', 'ISO 14001', 'CMMI',
+        'Regulatory Compliance', 'Risk & Compliance', 'GRC', 'AML', 'KYC',
+        'Privacy Law', 'Data Protection', 'Data Governance',
+        'Legal Research', 'Contract Drafting', 'Contract Negotiation',
+        'Litigation Support', 'Legal Operations', 'CLM',
+
+        # ─── Operations & Supply Chain ───
+        'Operations Management', 'Supply Chain Management', 'Logistics',
+        'Inventory Management', 'Demand Forecasting', 'Procurement',
+        'Vendor Management', 'Supplier Relations', 'Sourcing', 'Category Management',
+        'Warehouse Management', 'Distribution', 'Last-Mile Delivery',
+        'ERP', 'SAP', 'Oracle ERP', 'NetSuite', 'Microsoft Dynamics',
+        'Lean Manufacturing', 'Six Sigma', 'Kaizen', 'Kanban', '5S', 'TPM',
+        'Quality Management', 'QA', 'QC', 'ISO 9001', 'FMEA', 'SPC',
+        'Process Improvement', 'Business Process Management', 'BPM',
+        'Robotic Process Automation', 'RPA', 'UiPath', 'Automation Anywhere', 'Blue Prism',
+
+        # ─── Healthcare & Life Sciences ───
+        'Healthcare IT', 'EHR', 'EMR', 'HL7', 'FHIR', 'DICOM',
+        'Health Informatics', 'Clinical Data Management', 'Pharmacovigilance',
+        'Clinical Trials', 'GCP', 'GLP', 'GMP', 'FDA Regulations', 'CE Marking',
+        'Medical Devices', 'IVD', 'SaMD', 'ISO 13485', 'IEC 62304',
+        'Genomics', 'Bioinformatics', 'NGS', 'CRISPR', 'Drug Discovery',
+        'Pathology', 'Radiology', 'Telemedicine', 'Digital Health',
+        'HIPAA', 'Healthcare Compliance', 'Patient Data Privacy',
+
+        # ─── Science & Research ───
+        'Research Design', 'Scientific Writing', 'Literature Review', 'Meta-Analysis',
+        'Quantitative Research', 'Qualitative Research', 'Mixed Methods',
+        'Statistical Analysis', 'Biostatistics', 'Econometrics', 'Psychometrics',
+        'SPSS', 'SAS', 'R', 'Stata', 'MATLAB', 'Python (Research)',
+        'Lab Techniques', 'PCR', 'ELISA', 'Western Blot', 'Cell Culture',
+        'Flow Cytometry', 'Microscopy', 'Spectroscopy', 'Chromatography',
+        'Physics', 'Chemistry', 'Biology', 'Neuroscience', 'Psychology',
+        'Environmental Science', 'Climate Science', 'Geology', 'Astronomy',
+        'Grant Writing', 'Ethics Approval', 'IRB', 'Peer Review',
+
+        # ─── Customer Support ───
+        'Customer Support', 'Technical Support', 'Customer Service',
+        'Help Desk', 'ITSM', 'ServiceNow', 'Zendesk', 'Freshdesk',
+        'Intercom', 'Drift', 'Front', 'Kustomer', 'Gladly',
+        'JIRA Service Management', 'Confluence', 'Knowledge Base Management',
+        'Ticketing Systems', 'SLA Management', 'Escalation Management',
+        'Customer Onboarding', 'Customer Training', 'Customer Education',
+        'Technical Account Management', 'Solutions Engineering',
+        'Pre-Sales', 'Post-Sales', 'Professional Services',
+
+        # ─── Languages ───
+        'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese',
+        'Dutch', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Russian',
+        'Polish', 'Czech', 'Hungarian', 'Romanian', 'Turkish', 'Greek',
+        'Arabic', 'Hebrew', 'Farsi', 'Urdu', 'Hindi', 'Bengali', 'Tamil',
+        'Telugu', 'Kannada', 'Marathi', 'Gujarati', 'Punjabi', 'Malayalam',
+        'Chinese (Mandarin)', 'Chinese (Cantonese)', 'Japanese', 'Korean',
+        'Vietnamese', 'Thai', 'Indonesian', 'Malay', 'Tagalog',
+        'Swahili', 'Zulu', 'Afrikaans',
+        'Translation', 'Localization', 'Interpretation',
+
+        # ─── Miscellaneous Technical ───
+        'Linux', 'Ubuntu', 'Debian', 'CentOS', 'RHEL', 'Fedora', 'Arch Linux',
+        'macOS', 'Windows Server', 'Active Directory', 'Group Policy',
+        'Networking', 'TCP/IP', 'DNS', 'DHCP', 'HTTP', 'HTTPS', 'FTP', 'SSH',
+        'VPN', 'SD-WAN', 'BGP', 'OSPF', 'Cisco', 'Juniper', 'Palo Alto',
+        'Network Security', 'Firewall Management', 'Zero Trust Network',
+        'Virtual Machines', 'VMware', 'VirtualBox', 'Hyper-V', 'KVM',
+        'Storage', 'SAN', 'NAS', 'NFS', 'iSCSI', 'Ceph', 'GlusterFS',
+        'Backup & Recovery', 'BCP', 'DR', 'RTO', 'RPO',
+        'Monitoring', 'Observability', 'Logging', 'Tracing', 'Metrics',
+        'Performance Tuning', 'Query Optimization', 'Profiling', 'Benchmarking',
+        'Technical Documentation', 'System Design', 'Technical Architecture',
+        'Whiteboarding', 'System Design Interviews', 'Coding Interviews',
+
+        # ─── Emerging Technologies ───
+        'Quantum Computing', 'Quantum Algorithms', 'Qiskit', 'Cirq', 'Q#',
+        'Edge AI', 'TinyML', 'ONNX', 'OpenVINO', 'TensorRT', 'NVIDIA Jetson',
+        'Digital Twin', 'Simulation', 'Metaverse', 'Extended Reality', 'XR',
+        'Virtual Reality', 'VR', 'Augmented Reality', 'AR', 'Mixed Reality', 'MR',
+        'Spatial Computing', 'Apple Vision Pro', 'Meta Quest', 'HoloLens',
+        '5G', '6G', 'Edge Computing', 'Fog Computing', 'MEC',
+        'Autonomous Systems', 'Robotics', 'ROS', 'ROS2', 'SLAM', 'Autonomous Driving',
+        'Drone Development', 'UAV', 'UAS', 'FPV',
+        'Synthetic Biology', 'Biotech', 'Nanotech', 'Advanced Materials',
+        'Space Tech', 'Satellite Systems', 'CubeSat', 'LoRa', 'SDR',
+        'Neuromorphic Computing', 'Photonic Computing', 'DNA Computing',
         ]
-        
-        combined_pattern = '|'.join(separators)
-        blocks = re.split(combined_pattern, text, flags=re.MULTILINE)
-        
-        return [block.strip() for block in blocks if block.strip()]
+    
+    def extract_inline_skills(self, work_experience: list, skill_taxonomy: list) -> list:
+        """
+        Scan all work experience descriptions for skills mentioned inline.
+        Example: "Built REST APIs using FastAPI and PostgreSQL" -> ["FastAPI", "PostgreSQL"]
+        """
+        found_skills = set()
+        skill_lower_map = {s.lower(): s for s in skill_taxonomy}
+
+        for job in work_experience:
+            description = job.get('description', '')
+            if not description:
+                continue
+
+            desc_lower = description.lower()
+
+            # Check each skill in taxonomy against the description text
+            for skill_lower, skill_original in skill_lower_map.items():
+                # Use word-boundary matching to avoid partial matches
+                # e.g. "Java" should not match "JavaScript"
+                pattern = r'\b' + re.escape(skill_lower) + r'\b'
+                if re.search(pattern, desc_lower):
+                    found_skills.add(skill_original)
+
+        return sorted(list(found_skills))
     
     def _parse_job_experience(self, block: str) -> Optional[Dict]:
         """
@@ -192,17 +944,139 @@ class ExperienceExtractor:
             self.logger.error(f"Error parsing job experience: {e}")
             return None
     
+    def _clean_job_title(self, title: str) -> str:
+        """Clean up extracted job title by removing company, location, and date info."""
+        if not title:
+            return title
+        
+        # Split on ' | ' first and take the left part
+        if ' | ' in title:
+            title = title.split(' | ')[0]
+        
+        # Then split on ',' and take the first part
+        if ',' in title:
+            title = title.split(',')[0]
+        
+        # Strip whitespace
+        title = title.strip()
+        
+        # Remove location names and dates using regex patterns
+        title = re.sub(r'\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b.*', '', title).strip()
+        title = re.sub(r'\b\d{4}\b.*', '', title).strip()
+        title = title.rstrip(',-|').strip()
+        
+        # If the result is longer than 60 characters, it's probably not a clean title
+        if len(title) > 60:
+            return ''
+        
+        return title
+    
     def _extract_job_title(self, lines: List[str]) -> str:
         """Extract job title from lines."""
         for line in lines:
+            line = line.strip()
+            # Skip bullet points and descriptions
+            if line.startswith('•') or line.startswith('-') or len(line.split()) > 8:
+                continue
+            
+            # Check for patterns first
             for pattern in self.job_title_patterns:
                 if re.search(pattern, line, re.IGNORECASE):
-                    return line.strip()
-        return lines[0] if lines else ''
+                    cleaned_title = self._clean_job_title(line)
+                    if cleaned_title:
+                        return cleaned_title
+            
+            # Check if line looks like a job title (no dates, no company suffixes)
+            if '|' not in line and not re.search(r'\d{4}', line):
+                # Skip if it's a company name (has Inc, LLC, etc.)
+                if not any(suffix in line.lower() for suffix in ['inc', 'llc', 'ltd', 'corp', 'company', 'pvt']):
+                    # Skip if it's too long (likely a description)
+                    if len(line.split()) <= 5:
+                        cleaned_title = self._clean_job_title(line)
+                        if cleaned_title:
+                            return cleaned_title
+        
+        # Try first line with cleanup as fallback
+        if lines:
+            cleaned_title = self._clean_job_title(lines[0].strip())
+            if cleaned_title:
+                return cleaned_title
+        
+        return ''
     
     def _extract_company_name(self, block: str, job_title: str) -> str:
         """Extract company name from block."""
-        # Remove job title from block to avoid false matches
+        lines = block.split('\n')
+        
+        # List of common city names to strip from company names
+        common_cities = [
+            'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata',
+            'Remote', 'India', 'USA', 'New York', 'San Francisco', 'London'
+        ]
+        
+        # Pattern to match: Company Name, City | Month Year - Month Year OR Company Name | Month Year - Month Year
+        line_pattern = re.compile(
+            r'^(.+?)(?:,\s*([A-Za-z\s]+))?\s*\|\s*(\w+\s+\d{4})\s*[-–—]\s*(\w+(?:\s+\d{4})?)',
+            re.IGNORECASE
+        )
+        
+        # First pass: handle multi-line format (company on one line, location/date on next)
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if job_title in line or not line:
+                continue
+            
+            # Check if this looks like a company name (no dates, no bullet points)
+            if not re.search(r'\d{4}', line) and not line.startswith('•') and not line.startswith('-'):
+                # Check if the next line has the date pattern
+                if i + 1 < len(lines):
+                    next_line = lines[i + 1].strip()
+                    if '|' in next_line and re.search(r'\w+\s+\d{4}', next_line):
+                        # This line is likely the company name
+                        company = line
+                        # Remove trailing city names
+                        for city in common_cities:
+                            if company.endswith(f' {city}'):
+                                company = company[:-len(f' {city}')].strip()
+                        if len(company) > 2:
+                            return company
+        
+        # Second pass: look for lines with the pattern
+        for line in lines:
+            line = line.strip()
+            if job_title in line:
+                continue
+                
+            # Try the specific pattern first
+            match = line_pattern.match(line)
+            if match:
+                company = match.group(1).strip()
+                # Remove trailing city names
+                for city in common_cities:
+                    if company.endswith(f' {city}'):
+                        company = company[:-len(f' {city}')].strip()
+                if len(company) > 2:
+                    return company
+            
+            # Fallback: take everything before the first '|' and before the last ','
+            if '|' in line:
+                before_pipe = line.split('|')[0].strip()
+                if ',' in before_pipe:
+                    parts = before_pipe.split(',')
+                    # Take everything except the last part (which is likely the city)
+                    company = ','.join(parts[:-1]).strip()
+                else:
+                    company = before_pipe
+                
+                # Remove trailing city names
+                for city in common_cities:
+                    if company.endswith(f' {city}'):
+                        company = company[:-len(f' {city}')].strip()
+                
+                if len(company) > 2:
+                    return company
+        
+        # Fallback to original patterns
         block_without_title = block.replace(job_title, '', 1)
         
         for pattern in self.company_patterns:
@@ -211,6 +1085,10 @@ class ExperienceExtractor:
                 company = matches[0].strip()
                 # Clean up company name
                 company = re.sub(r'[\|\-•].*$', '', company).strip()
+                # Remove trailing city names
+                for city in common_cities:
+                    if company.endswith(f' {city}'):
+                        company = company[:-len(f' {city}')].strip()
                 if len(company) > 2:  # Minimum length check
                     return company
         
@@ -218,12 +1096,17 @@ class ExperienceExtractor:
     
     def _extract_dates(self, block: str) -> Tuple[str, str]:
         """Extract start and end dates from block."""
-        # Try date range patterns first
-        for pattern in [self.date_range_pattern, self.year_range_pattern]:
-            matches = re.findall(pattern, block)
-            if matches:
-                start_date, end_date = matches[0]
-                return self._normalize_date(start_date), self._normalize_date(end_date)
+        # Try year range pattern
+        matches = re.findall(self.year_range_pattern, block)
+        if matches:
+            start_date, end_date = matches[0]
+            return self._normalize_date(start_date), self._normalize_date(end_date)
+        
+        # Look for pattern like "Nov 2024 - Present"
+        month_year_range = re.findall(r'(\w+\s+\d{4})\s*[-–—]\s*(\w+\s+\d{4}|\bPresent\b|\bCurrent\b)', block, re.IGNORECASE)
+        if month_year_range:
+            start_date, end_date = month_year_range[0]
+            return self._normalize_date(start_date), self._normalize_date(end_date)
         
         # Try individual dates
         dates = re.findall(self.single_date_pattern, block)
@@ -241,7 +1124,7 @@ class ExperienceExtractor:
         
         try:
             parsed_date = dateparse(date_str)
-            if parsed_date:
+            if parsed_date and parsed_date.year >= 1980:
                 return parsed_date.strftime('%B %Y')
         except:
             pass
@@ -260,7 +1143,8 @@ class ExperienceExtractor:
             if start and end:
                 months = (end.year - start.year) * 12 + (end.month - start.month)
                 return max(0, months)
-        except:
+        except Exception as e:
+            self.logger.error(f"Error calculating duration: {e}")
             pass
         
         return 0
@@ -272,7 +1156,7 @@ class ExperienceExtractor:
         
         try:
             parsed_date = dateparse(date_str)
-            if parsed_date:
+            if parsed_date and parsed_date.year >= 1980:
                 return parsed_date.date()
         except:
             pass
@@ -335,7 +1219,622 @@ class ExperienceExtractor:
             'SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'Elasticsearch',
             'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Jenkins', 'Git', 'Linux',
             'Machine Learning', 'AI', 'Data Science', 'TensorFlow', 'PyTorch', 'Scikit-learn',
-            'Agile', 'Scrum', 'DevOps', 'CI/CD', 'REST API', 'GraphQL', 'Microservices'
+            'Agile', 'Scrum', 'DevOps', 'CI/CD', 'REST API', 'GraphQL', 'Microservices',
+             'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'Go', 'Rust', 'PHP', 'Ruby',
+        'Kotlin', 'Swift', 'Scala', 'Perl', 'Haskell', 'Elixir', 'Erlang', 'Clojure', 'F#', 'R',
+        'MATLAB', 'Julia', 'Lua', 'Dart', 'Groovy', 'Objective-C', 'Assembly', 'COBOL', 'Fortran',
+        'Ada', 'Prolog', 'Lisp', 'Scheme', 'Racket', 'OCaml', 'Crystal', 'Nim', 'Zig', 'V',
+        'Solidity', 'Vyper', 'Move', 'Cairo', 'Ink!', 'Cadence', 'Clarity', 'Michelson',
+        'VHDL', 'Verilog', 'SystemVerilog', 'HDL', 'FPGA Programming', 'PLC Programming',
+        'ActionScript', 'CoffeeScript', 'LiveScript', 'PureScript', 'ReasonML', 'Elm',
+        'Tcl', 'AWK', 'Sed', 'D', 'Modula-2', 'Pascal', 'Delphi', 'Visual Basic', 'VBScript',
+        'PowerShell', 'Bash', 'Zsh', 'Fish', 'Ksh', 'Csh', 'Batch Scripting',
+        'HCL', 'Jsonnet', 'Dhall', 'Nix', 'Pkl',
+
+        # ─── Frontend Frameworks & Libraries ───
+        'React', 'React.js', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'Svelte', 'SvelteKit',
+        'Ember', 'Backbone.js', 'Mithril', 'Preact', 'Inferno', 'Solid.js', 'Qwik', 'Astro',
+        'Remix', 'Gatsby', 'Gridsome', 'Eleventy', 'Hugo', 'Jekyll', 'Hexo', 'VuePress',
+        'Alpine.js', 'Stimulus', 'Hotwire', 'HTMX', 'Lit', 'Stencil', 'Web Components',
+        'Ionic', 'Capacitor', 'Cordova', 'PhoneGap', 'Electron', 'Tauri', 'NW.js',
+
+        # ─── Backend Frameworks ───
+        'Node.js', 'Express', 'Express.js', 'Fastify', 'Koa', 'Hapi', 'NestJS', 'AdonisJS',
+        'FastAPI', 'Django', 'Flask', 'Pyramid', 'Tornado', 'Sanic', 'Starlette', 'Litestar',
+        'Spring Boot', 'Spring MVC', 'Spring Cloud', 'Spring Security', 'Spring Data', 'Micronaut',
+        'Quarkus', 'Vert.x', 'Dropwizard', 'Play Framework', 'Ktor',
+        'Laravel', 'Symfony', 'CodeIgniter', 'Yii', 'CakePHP', 'Slim', 'Lumen', 'Phalcon',
+        'Ruby on Rails', 'Sinatra', 'Hanami', 'Padrino',
+        'ASP.NET', 'ASP.NET Core', 'Blazor', 'Minimal API', 'MAUI',
+        'Gin', 'Echo', 'Fiber', 'Chi', 'Gorilla Mux', 'Buffalo',
+        'Actix', 'Axum', 'Rocket', 'Warp', 'Tide',
+        'Phoenix', 'Plug', 'Absinthe', 'Ash Framework',
+        'Hono', 'Elysia', 'Bun', 'Deno',
+
+        # ─── CSS & Styling ───
+        'HTML', 'HTML5', 'CSS', 'CSS3', 'Sass', 'SCSS', 'Less', 'Stylus',
+        'Tailwind CSS', 'Bootstrap', 'Material UI', 'MUI', 'Styled Components',
+        'Chakra UI', 'Ant Design', 'Semantic UI', 'Bulma', 'Foundation', 'UIKit',
+        'Radix UI', 'shadcn/ui', 'Headless UI', 'DaisyUI', 'Flowbite',
+        'Emotion', 'CSS Modules', 'CSS-in-JS', 'Stitches', 'Vanilla Extract',
+        'Mantine', 'NextUI', 'PrimeReact', 'PrimeNG', 'PrimeVue', 'Vuetify',
+        'Quasar', 'Element UI', 'Element Plus', 'Naive UI', 'Arco Design',
+        'TDesign', 'Windi CSS', 'UnoCSS', 'Open Props',
+        'Web Animations API', 'GSAP', 'Framer Motion', 'Motion One', 'Anime.js', 'Three.js',
+        'Lottie', 'Rive', 'Spline', 'Babylon.js', 'PlayCanvas',
+
+        # ─── State Management ───
+        'Redux', 'Redux Toolkit', 'Redux Thunk', 'Redux Saga', 'Redux Observable',
+        'Zustand', 'MobX', 'Jotai', 'Recoil', 'Valtio', 'XState', 'Nanostores',
+        'React Query', 'TanStack Query', 'SWR', 'Apollo Client', 'Relay',
+        'Context API', 'NgRx', 'Akita', 'NGXS', 'Vuex', 'Pinia',
+        'Legend State', 'Effector', 'Storeon', 'Nano Stores',
+
+        # ─── Databases – Relational ───
+        'SQL', 'MySQL', 'PostgreSQL', 'SQLite', 'MariaDB', 'Oracle Database',
+        'Microsoft SQL Server', 'IBM DB2', 'Sybase', 'Teradata', 'Greenplum',
+        'CockroachDB', 'YugabyteDB', 'TiDB', 'PlanetScale', 'Neon', 'Supabase',
+        'Vercel Postgres', 'SingleStore', 'Citus', 'TimescaleDB',
+
+        # ─── Databases – NoSQL ───
+        'MongoDB', 'Redis', 'Elasticsearch', 'DynamoDB', 'Cassandra', 'HBase',
+        'CouchDB', 'CouchBase', 'Firebase Firestore', 'Firebase Realtime Database',
+        'Neo4j', 'ArangoDB', 'OrientDB', 'JanusGraph', 'Amazon Neptune',
+        'InfluxDB', 'Prometheus', 'Victoria Metrics', 'QuestDB', 'Druid',
+        'Riak', 'Aerospike', 'ScyllaDB', 'Apache Ignite',
+        'Fauna', 'Upstash', 'PocketBase', 'RethinkDB', 'RavenDB',
+        'Realm', 'ObjectBox', 'Ditto', 'WatermelonDB', 'LevelDB', 'RocksDB',
+
+        # ─── Search & Vector Databases ───
+        'Elasticsearch', 'OpenSearch', 'Solr', 'Algolia', 'Typesense', 'Meilisearch',
+        'Pinecone', 'Weaviate', 'Qdrant', 'Milvus', 'Chroma', 'FAISS', 'Annoy',
+        'pgvector', 'Redis Vector', 'Vespa', 'Marqo',
+
+        # ─── ORMs & Query Builders ───
+        'Hibernate', 'JPA', 'MyBatis', 'JOOQ', 'Flyway', 'Liquibase',
+        'SQLAlchemy', 'Tortoise ORM', 'Peewee', 'PonyORM', 'Django ORM',
+        'Prisma', 'Drizzle ORM', 'Knex.js', 'Objection.js', 'MikroORM', 'TypeORM', 'Sequelize',
+        'Active Record', 'Ecto', 'Diesel', 'SeaORM', 'GORM', 'Ent',
+        'Mongoose', 'Typegoose', 'Entity Framework', 'Dapper', 'NHibernate',
+
+        # ─── Cloud Platforms ───
+        'AWS', 'Azure', 'GCP', 'Google Cloud', 'Oracle Cloud', 'IBM Cloud',
+        'Alibaba Cloud', 'Tencent Cloud', 'Huawei Cloud', 'DigitalOcean',
+        'Linode', 'Vultr', 'Hetzner', 'OVH', 'Scaleway',
+        'Cloudflare', 'Fastly', 'Akamai', 'Vercel', 'Netlify', 'Render',
+        'Railway', 'Fly.io', 'Heroku', 'Back4App', 'Supabase', 'PlanetScale',
+        'Neon', 'Turso', 'Upstash', 'Deno Deploy', 'Bun Deploy',
+
+        # ─── AWS Services ───
+        'AWS Lambda', 'AWS EC2', 'AWS S3', 'AWS RDS', 'AWS DynamoDB',
+        'AWS CloudFormation', 'AWS CDK', 'AWS SAM', 'AWS ECS', 'AWS EKS',
+        'AWS Fargate', 'AWS Batch', 'AWS SQS', 'AWS SNS', 'AWS EventBridge',
+        'AWS API Gateway', 'AWS AppSync', 'AWS Cognito', 'AWS IAM', 'AWS KMS',
+        'AWS Secrets Manager', 'AWS Parameter Store', 'AWS Systems Manager',
+        'AWS CloudWatch', 'AWS X-Ray', 'AWS CloudTrail', 'AWS Config',
+        'AWS Route53', 'AWS CloudFront', 'AWS WAF', 'AWS Shield',
+        'AWS Elastic Beanstalk', 'AWS Lightsail', 'AWS Amplify',
+        'AWS Glue', 'AWS Athena', 'AWS EMR', 'AWS Redshift', 'AWS Kinesis',
+        'AWS Step Functions', 'AWS AppFlow', 'AWS DataSync', 'AWS Transfer Family',
+        'AWS SageMaker', 'AWS Rekognition', 'AWS Comprehend', 'AWS Textract',
+        'AWS Polly', 'AWS Transcribe', 'AWS Translate', 'AWS Lex',
+
+        # ─── Azure Services ───
+        'Azure Functions', 'Azure App Service', 'Azure Cosmos DB', 'Azure DevOps',
+        'Azure Blob Storage', 'Azure SQL Database', 'Azure Service Bus',
+        'Azure Event Hub', 'Azure Event Grid', 'Azure Logic Apps',
+        'Azure API Management', 'Azure Active Directory', 'Azure AD B2C',
+        'Azure Key Vault', 'Azure Monitor', 'Azure Application Insights',
+        'Azure Kubernetes Service', 'Azure Container Instances', 'Azure Container Apps',
+        'Azure Static Web Apps', 'Azure CDN', 'Azure Front Door',
+        'Azure Machine Learning', 'Azure Cognitive Services', 'Azure OpenAI Service',
+        'Azure Databricks', 'Azure Synapse Analytics', 'Azure Data Factory',
+        'Azure Stream Analytics', 'Azure HDInsight',
+
+        # ─── GCP Services ───
+        'Google Cloud Functions', 'Google App Engine', 'Google Cloud Storage', 'BigQuery',
+        'Google Cloud Run', 'Google Kubernetes Engine', 'Google Cloud SQL',
+        'Google Cloud Spanner', 'Google Cloud Bigtable', 'Google Cloud Firestore',
+        'Google Cloud Pub/Sub', 'Google Cloud Tasks', 'Google Cloud Scheduler',
+        'Google Cloud IAM', 'Google Cloud KMS', 'Google Cloud Armor',
+        'Google Cloud CDN', 'Google Cloud Load Balancing',
+        'Vertex AI', 'Google Cloud Vision API', 'Google Natural Language API',
+        'Google Cloud Speech-to-Text', 'Google Cloud Text-to-Speech',
+        'Google Cloud Translation', 'Google Dialogflow', 'Google Cloud Dataflow',
+        'Google Cloud Dataproc', 'Google Cloud Composer', 'Looker',
+
+        # ─── DevOps & Infrastructure ───
+        'Docker', 'Docker Compose', 'Docker Swarm', 'Podman', 'Buildah',
+        'Kubernetes', 'Helm', 'Kustomize', 'Istio', 'Linkerd', 'Envoy',
+        'ArgoCD', 'Flux', 'Spinnaker', 'Harness', 'Tekton',
+        'Terraform', 'Pulumi', 'AWS CDK', 'Crossplane', 'OpenTofu',
+        'Ansible', 'Chef', 'Puppet', 'SaltStack', 'CFEngine',
+        'Vagrant', 'Packer', 'Consul', 'Vault', 'Nomad',
+        'Jenkins', 'GitHub Actions', 'GitLab CI', 'CircleCI', 'Travis CI',
+        'Bamboo', 'TeamCity', 'Azure Pipelines', 'Bitbucket Pipelines',
+        'Drone CI', 'Buildkite', 'Concourse CI', 'Woodpecker CI',
+        'Nginx', 'Apache', 'Caddy', 'HAProxy', 'Traefik', 'Kong',
+        'CI/CD', 'GitOps', 'Infrastructure as Code', 'Site Reliability Engineering',
+        'Platform Engineering', 'FinOps', 'CloudOps', 'AIOps',
+        'Prometheus', 'Grafana', 'Alertmanager', 'Loki', 'Tempo', 'Jaeger',
+        'Zipkin', 'OpenTelemetry', 'Datadog', 'New Relic', 'Dynatrace',
+        'Splunk', 'Elastic Stack', 'ELK Stack', 'EFK Stack',
+        'PagerDuty', 'Opsgenie', 'VictorOps', 'StatusPage',
+        'Chaos Engineering', 'Chaos Monkey', 'LitmusChaos', 'Gremlin',
+
+        # ─── Version Control & Collaboration ───
+        'Git', 'GitHub', 'GitLab', 'Bitbucket', 'Azure Repos', 'AWS CodeCommit',
+        'Mercurial', 'SVN', 'Perforce', 'Plastic SCM', 'Fossil',
+        'GitHub Copilot', 'GitLab Duo', 'Tabnine', 'Cursor', 'Codeium',
+        'Code Review', 'Pull Requests', 'Merge Requests', 'Branch Strategy',
+        'Git Flow', 'GitHub Flow', 'Trunk Based Development',
+
+        # ─── API Development ───
+        'REST', 'RESTful', 'GraphQL', 'WebSocket', 'gRPC', 'tRPC', 'JSON-RPC',
+        'SOAP', 'OData', 'AsyncAPI', 'OpenAPI', 'Swagger', 'Postman', 'Insomnia',
+        'API Gateway', 'API Design', 'API Documentation', 'API Testing',
+        'API Security', 'OAuth', 'OAuth2', 'JWT', 'SAML', 'OIDC', 'LDAP',
+        'API Versioning', 'Rate Limiting', 'Throttling', 'API Monetization',
+        'Webhooks', 'Server-Sent Events', 'Long Polling', 'WebRTC',
+
+        # ─── Messaging & Event Streaming ───
+        'Kafka', 'Apache Kafka', 'RabbitMQ', 'ActiveMQ', 'NATS', 'NATS JetStream',
+        'Redis Pub/Sub', 'Redis Streams', 'AWS SQS', 'AWS SNS', 'AWS Kinesis',
+        'Azure Service Bus', 'Azure Event Hub', 'Google Cloud Pub/Sub',
+        'Pulsar', 'ZeroMQ', 'MQTT', 'AMQP', 'Stomp',
+        'Kafka Streams', 'KSQL', 'Flink', 'Spark Streaming',
+
+        # ─── Testing ───
+        'Jest', 'Vitest', 'Mocha', 'Chai', 'Jasmine', 'AVA', 'Tape',
+        'Pytest', 'Unittest', 'Nose2', 'Hypothesis', 'Locust',
+        'JUnit', 'TestNG', 'Mockito', 'PowerMock', 'AssertJ', 'Hamcrest',
+        'NUnit', 'xUnit', 'MSTest', 'SpecFlow', 'FluentAssertions',
+        'RSpec', 'Minitest', 'Capybara', 'FactoryBot',
+        'Cypress', 'Playwright', 'Selenium', 'WebdriverIO', 'Puppeteer',
+        'TestCafe', 'Nightwatch', 'Appium', 'Detox', 'Espresso', 'XCTest',
+        'React Testing Library', 'Enzyme', 'Vue Test Utils', 'Angular Testing',
+        'Storybook', 'Chromatic', 'Percy', 'BackstopJS', 'Loki',
+        'k6', 'JMeter', 'Gatling', 'Artillery', 'Vegeta',
+        'SonarQube', 'ESLint', 'Prettier', 'Checkstyle', 'PMD', 'SpotBugs',
+        'Codecov', 'Coveralls', 'Istanbul', 'NYC',
+        'Test-Driven Development', 'Behavior-Driven Development', 'Acceptance Test-Driven Development',
+        'Mutation Testing', 'Property-Based Testing', 'Contract Testing', 'Pact',
+
+        # ─── Build Tools & Package Managers ───
+        'Webpack', 'Vite', 'Rollup', 'Parcel', 'esbuild', 'Turbopack', 'Rspack',
+        'Babel', 'SWC', 'TypeScript Compiler', 'Flow',
+        'npm', 'yarn', 'pnpm', 'Bun', 'Deno',
+        'Maven', 'Gradle', 'Ant', 'SBT', 'Mill', 'Bazel',
+        'Make', 'CMake', 'Meson', 'Ninja', 'Buck', 'Pants',
+        'Cargo', 'Mix', 'Rebar3', 'Poetry', 'PDM', 'Hatch', 'uv',
+        'pip', 'conda', 'pipenv', 'virtualenv',
+        'NuGet', 'Paket', 'Composer', 'Bundler', 'CocoaPods', 'SPM',
+        'Turborepo', 'Nx', 'Lerna', 'Rush', 'Moon',
+
+        # ─── Security ───
+        'Application Security', 'Web Application Security', 'API Security',
+        'OAuth', 'OAuth2', 'JWT', 'SAML', 'OIDC', 'Kerberos', 'LDAP', 'Active Directory',
+        'SSL', 'TLS', 'mTLS', 'PKI', 'Certificates', 'Let\'s Encrypt',
+        'OWASP', 'Penetration Testing', 'Vulnerability Assessment', 'Security Auditing',
+        'SAST', 'DAST', 'IAST', 'RASP', 'SCA',
+        'Snyk', 'Checkmarx', 'Veracode', 'Fortify', 'SonarQube',
+        'Nmap', 'Metasploit', 'Burp Suite', 'OWASP ZAP', 'Wireshark',
+        'Nessus', 'Qualys', 'Rapid7', 'Tenable',
+        'Zero Trust', 'Zero Trust Architecture', 'Privileged Access Management',
+        'Identity and Access Management', 'IAM', 'PAM', 'SIEM', 'SOC',
+        'Incident Response', 'Threat Modeling', 'Risk Assessment',
+        'Cryptography', 'Encryption', 'Hashing', 'Digital Signatures',
+        'Key Management', 'Hardware Security Module', 'HSM',
+        'DevSecOps', 'Shift Left Security', 'Supply Chain Security',
+        'SBOM', 'Compliance', 'GDPR', 'HIPAA', 'PCI DSS', 'SOC 2', 'ISO 27001',
+        'Firewall', 'IDS', 'IPS', 'WAF', 'DDoS Protection',
+        'Reverse Engineering', 'Malware Analysis', 'Forensics', 'OSINT',
+        'Bug Bounty', 'Red Team', 'Blue Team', 'Purple Team', 'CTF',
+
+        # ─── Machine Learning & AI ───
+        'Machine Learning', 'Deep Learning', 'Neural Networks', 'AI', 'Artificial Intelligence',
+        'TensorFlow', 'PyTorch', 'Keras', 'JAX', 'MXNet', 'Paddle Paddle',
+        'Scikit-learn', 'XGBoost', 'LightGBM', 'CatBoost', 'H2O', 'AutoML',
+        'NLP', 'Natural Language Processing', 'Computer Vision', 'Speech Recognition',
+        'Object Detection', 'Image Segmentation', 'Image Classification',
+        'YOLO', 'Detectron2', 'MMDetection', 'Torchvision',
+        'Hugging Face', 'Transformers', 'BERT', 'GPT', 'T5', 'RoBERTa',
+        'LLM', 'Large Language Models', 'Foundation Models', 'Multimodal AI',
+        'LangChain', 'LlamaIndex', 'Semantic Kernel', 'AutoGen', 'CrewAI',
+        'OpenAI API', 'Anthropic API', 'Gemini API', 'Cohere API', 'Mistral AI',
+        'LLM Fine-Tuning', 'RLHF', 'LoRA', 'QLoRA', 'PEFT', 'DPO',
+        'RAG', 'Retrieval-Augmented Generation', 'Agentic AI', 'AI Agents',
+        'Prompt Engineering', 'Few-Shot Learning', 'Zero-Shot Learning',
+        'Transfer Learning', 'Federated Learning', 'Continual Learning',
+        'Reinforcement Learning', 'Q-Learning', 'PPO', 'SAC', 'DDPG',
+        'Stable Baselines', 'OpenAI Gym', 'Ray RLlib',
+        'Generative AI', 'Diffusion Models', 'GANs', 'VAEs',
+        'Stable Diffusion', 'Midjourney API', 'DALL-E', 'ControlNet',
+        'MLflow', 'Weights & Biases', 'DVC', 'ClearML', 'Comet ML',
+        'Kubeflow', 'MLOps', 'LLMOps', 'Model Monitoring', 'Model Serving',
+        'BentoML', 'Seldon', 'KServe', 'TorchServe', 'TFServing', 'Triton',
+        'Feature Engineering', 'Feature Store', 'Feast', 'Tecton', 'Hopsworks',
+        'Data Preprocessing', 'Data Augmentation', 'Imbalanced Learning',
+        'Dimensionality Reduction', 'PCA', 't-SNE', 'UMAP',
+        'Clustering', 'Classification', 'Regression', 'Anomaly Detection',
+        'Time Series Analysis', 'Forecasting', 'Prophet', 'ARIMA',
+        'Recommendation Systems', 'Collaborative Filtering', 'Matrix Factorization',
+        'Graph Neural Networks', 'GNN', 'Knowledge Graphs',
+        'Explainable AI', 'XAI', 'SHAP', 'LIME', 'Captum',
+        'AI Ethics', 'Responsible AI', 'Fairness in AI', 'Bias Detection',
+        'Synthetic Data', 'Data Labeling', 'Annotation', 'Label Studio', 'CVAT',
+        'OpenCV', 'PIL', 'Pillow', 'scikit-image', 'Albumentations',
+        'NLTK', 'spaCy', 'Gensim', 'FastText', 'Sentence Transformers',
+        'Speech Recognition', 'Whisper', 'TTS', 'Text-to-Speech',
+        'Audio Processing', 'Librosa', 'torchaudio', 'SoundFile',
+        'Simulation', 'Digital Twin', 'Isaac Sim', 'Mujoco',
+
+        # ─── Data Engineering & Analytics ───
+        'Data Engineering', 'Data Pipelines', 'ETL', 'ELT', 'Data Warehousing',
+        'Pandas', 'NumPy', 'Polars', 'Dask', 'Vaex', 'Modin',
+        'Matplotlib', 'Seaborn', 'Plotly', 'Bokeh', 'Altair', 'Vega',
+        'Tableau', 'Power BI', 'Looker', 'Metabase', 'Superset', 'Redash',
+        'Apache Spark', 'Apache Flink', 'Apache Beam', 'Apache Storm',
+        'Hadoop', 'HDFS', 'MapReduce', 'Hive', 'HBase', 'Pig', 'Sqoop',
+        'Airflow', 'Prefect', 'Dagster', 'Mage', 'Kedro', 'Luigi',
+        'dbt', 'Great Expectations', 'Soda', 'Monte Carlo', 'Atlan',
+        'Redshift', 'Snowflake', 'BigQuery', 'Databricks', 'Synapse',
+        'Delta Lake', 'Apache Iceberg', 'Apache Hudi', 'Apache Parquet',
+        'Apache ORC', 'Apache Avro', 'Apache Arrow',
+        'Kafka', 'Kinesis', 'Flink', 'Spark Streaming', 'Storm',
+        'Data Governance', 'Data Catalog', 'Data Lineage', 'Data Quality',
+        'DataOps', 'Analytics Engineering', 'Data Mesh', 'Data Lakehouse',
+        'Excel', 'Google Sheets', 'Jupyter Notebook', 'JupyterLab', 'Zeppelin',
+        'R Studio', 'KNIME', 'RapidMiner', 'SAS', 'SPSS', 'Stata',
+        'Data Modeling', 'Star Schema', 'Snowflake Schema', 'Data Vault',
+        'Business Intelligence', 'OLAP', 'OLTP', 'Data Lake', 'Data Lakehouse',
+
+        # ─── Mobile Development ───
+        'React Native', 'Flutter', 'Expo', 'NativeScript', 'Xamarin',
+        'Android', 'iOS', 'Swift', 'SwiftUI', 'UIKit', 'Objective-C',
+        'Kotlin', 'Jetpack Compose', 'Android SDK', 'Android NDK',
+        'Cross-Platform Development', 'Hybrid App Development',
+        'Mobile App Architecture', 'MVVM', 'MVI', 'MVP', 'MVC',
+        'Core Data', 'Core Location', 'ARKit', 'RealityKit', 'SceneKit',
+        'Metal', 'SpriteKit', 'GameplayKit', 'Core ML', 'Create ML',
+        'Jetpack', 'Room', 'Hilt', 'WorkManager', 'Navigation Component',
+        'Firebase', 'OneSignal', 'Braze', 'Amplitude', 'Mixpanel',
+        'App Store', 'Google Play', 'TestFlight', 'Fastlane',
+        'Mobile Security', 'Certificate Pinning', 'Obfuscation',
+        'App Performance', 'ANR', 'Crash Reporting', 'App Analytics',
+        'Push Notifications', 'Deep Linking', 'Universal Links',
+        'Mobile Payments', 'Apple Pay', 'Google Pay', 'In-App Purchases',
+        'Augmented Reality', 'ARCore', 'ARKit', 'Mixed Reality', 'VR Development',
+
+        # ─── Game Development ───
+        'Unity', 'Unreal Engine', 'Godot', 'CryEngine', 'GameMaker',
+        'C# (Unity)', 'C++ (Unreal)', 'GDScript', 'Lua (Gaming)',
+        'OpenGL', 'DirectX', 'Vulkan', 'Metal', 'WebGL', 'WebGPU',
+        'Pygame', 'Arcade', 'Raylib', 'SDL', 'SFML', 'LÖVE',
+        'Phaser', 'PixiJS', 'BabylonJS', 'PlayCanvas', 'Three.js',
+        'Game Design', 'Level Design', 'Game Mechanics', 'Game Economy',
+        'Game AI', 'Pathfinding', 'Behavior Trees', 'State Machines',
+        'Physics Engines', 'Box2D', 'Bullet Physics', 'Havok', 'NVIDIA PhysX',
+        'Animation', 'Rigging', 'Skinning', 'Shader Programming', 'HLSL', 'GLSL',
+        'Multiplayer', 'Netcode', 'Game Server', 'ENet', 'Mirror', 'Photon',
+        'Steam API', 'Epic Online Services', 'Xbox Live', 'PlayStation Network',
+        'Localization', 'Monetization', 'In-App Purchases', 'Ads Integration',
+        'Performance Optimization', 'Profiling', 'GPU Optimization',
+        'VR Development', 'AR Development', 'XR Development',
+        'Blender', 'Maya', '3ds Max', 'Cinema 4D', 'ZBrush', 'Substance Painter',
+
+        # ─── Embedded & Systems ───
+        'Embedded Systems', 'RTOS', 'FreeRTOS', 'Zephyr', 'VxWorks', 'QNX',
+        'Arduino', 'Raspberry Pi', 'ESP32', 'STM32', 'PIC', 'AVR',
+        'C (Embedded)', 'C++ (Embedded)', 'Rust (Embedded)', 'Assembly',
+        'UART', 'SPI', 'I2C', 'CAN', 'Modbus', 'Profibus',
+        'FPGA', 'VHDL', 'Verilog', 'Xilinx', 'Intel FPGA', 'Lattice',
+        'Bare Metal Programming', 'Device Drivers', 'BSP', 'HAL',
+        'IoT', 'Internet of Things', 'Edge Computing', 'Fog Computing',
+        'MQTT', 'CoAP', 'Zigbee', 'Z-Wave', 'LoRa', 'LoRaWAN', 'Thread',
+        'Matter', 'Bluetooth', 'BLE', 'WiFi', 'NFC', 'RFID',
+        'Automotive', 'AUTOSAR', 'CAN Bus', 'LIN', 'FlexRay', 'Ethernet AVB',
+        'ADAS', 'Functional Safety', 'ISO 26262', 'MISRA C',
+        'Industrial IoT', 'SCADA', 'PLC', 'HMI', 'OPC UA',
+        'Linux Kernel', 'Linux Device Drivers', 'Yocto', 'Buildroot',
+        'Bootloader', 'U-Boot', 'GRUB', 'UEFI', 'BIOS',
+        'Memory Management', 'DMA', 'Interrupt Handling', 'Real-Time Systems',
+
+        # ─── Blockchain & Web3 ───
+        'Blockchain', 'Web3', 'DeFi', 'NFT', 'DAO', 'DApp', 'Smart Contracts',
+        'Solidity', 'Vyper', 'Move', 'Cairo', 'Ink!', 'Rust (Solana)',
+        'Ethereum', 'Solana', 'Polygon', 'Avalanche', 'BNB Chain', 'Arbitrum',
+        'Optimism', 'Base', 'zkSync', 'StarkNet', 'TON', 'Near', 'Cosmos',
+        'Bitcoin', 'Lightning Network', 'Taproot', 'Script',
+        'Hardhat', 'Foundry', 'Truffle', 'Brownie', 'Anchor', 'Scaffold-ETH',
+        'OpenZeppelin', 'Chainlink', 'The Graph', 'IPFS', 'Arweave', 'Ceramic',
+        'ethers.js', 'web3.js', 'viem', 'wagmi', 'RainbowKit', 'ConnectKit',
+        'MetaMask', 'WalletConnect', 'Safe', 'Account Abstraction', 'ERC-4337',
+        'ERC-20', 'ERC-721', 'ERC-1155', 'ERC-4626', 'EIP-1559',
+        'AMM', 'Uniswap', 'Curve', 'Balancer', 'Aave', 'Compound', 'MakerDAO',
+        'Layer 2', 'Rollups', 'Optimistic Rollups', 'ZK Rollups', 'State Channels',
+        'Consensus Algorithms', 'PoW', 'PoS', 'DPoS', 'BFT', 'Tendermint',
+        'Tokenomics', 'Staking', 'Yield Farming', 'Liquidity Mining',
+        'Cryptography', 'ZK Proofs', 'zk-SNARKs', 'zk-STARKs', 'MPC', 'TSS',
+        'Blockchain Analytics', 'On-Chain Analysis', 'MEV', 'Flash Loans',
+
+        # ─── Architecture & Design Patterns ───
+        'Microservices', 'Serverless', 'Event-Driven Architecture',
+        'CQRS', 'Event Sourcing', 'Saga Pattern', 'Outbox Pattern',
+        'Domain-Driven Design', 'DDD', 'Hexagonal Architecture', 'Clean Architecture',
+        'Onion Architecture', 'SOLID Principles', 'Design Patterns', 'GoF Patterns',
+        'Monolithic Architecture', 'SOA', 'Service Mesh', 'BFF Pattern',
+        'API Gateway Pattern', 'Strangler Fig Pattern', 'Anti-Corruption Layer',
+        'Reactive Systems', 'Actor Model', 'CSP', 'Reactive Streams',
+        'Repository Pattern', 'Factory Pattern', 'Observer Pattern', 'Strategy Pattern',
+        'MVC', 'MVVM', 'MVP', 'MVI', 'Flux', 'Redux Pattern',
+        'Database Sharding', 'Read Replicas', 'CQRS', 'Polyglot Persistence',
+        'Distributed Systems', 'CAP Theorem', 'Eventual Consistency',
+        'Load Balancing', 'Circuit Breaker', 'Bulkhead', 'Retry Pattern',
+        'Rate Limiting', 'Throttling', 'Backpressure',
+        'High Availability', 'Fault Tolerance', 'Disaster Recovery',
+        'Blue-Green Deployment', 'Canary Deployment', 'Feature Flags',
+        'Twelve-Factor App', 'Cloud Native', 'Edge Computing',
+        'Modular Monolith', 'Micro-Frontend', 'Module Federation',
+
+        # ─── Software Development Methodologies ───
+        'Agile', 'Scrum', 'Kanban', 'Lean', 'XP', 'SAFe', 'LeSS', 'Scrum@Scale',
+        'Waterfall', 'Spiral', 'RAD', 'Prototyping', 'Incremental Development',
+        'Test-Driven Development', 'Behavior-Driven Development', 'Domain-Driven Design',
+        'Continuous Integration', 'Continuous Deployment', 'Continuous Delivery',
+        'DevOps', 'DevSecOps', 'DataOps', 'MLOps', 'FinOps', 'GitOps',
+        'Pair Programming', 'Mob Programming', 'Code Review', 'Refactoring',
+        'Technical Debt Management', 'Legacy System Modernization',
+        'Trunk Based Development', 'Feature Branch Workflow', 'Release Management',
+        'Sprint Planning', 'Backlog Grooming', 'Retrospectives', 'Daily Standup',
+        'Sprint Review', 'Velocity', 'Story Points', 'Burn Down Chart',
+        'Velocity Chart', 'Cumulative Flow Diagram', 'Cycle Time', 'Lead Time',
+
+        # ─── Project & Product Management ───
+        'Product Management', 'Project Management', 'Program Management', 'Portfolio Management',
+        'Product Strategy', 'Product Roadmap', 'Product Vision', 'Product Discovery',
+        'Product-Led Growth', 'Growth Hacking', 'OKRs', 'KPIs', 'Metrics',
+        'A/B Testing', 'Experimentation', 'Feature Prioritization', 'MVP',
+        'Product Analytics', 'Cohort Analysis', 'Funnel Analysis', 'Retention',
+        'User Research', 'User Interviews', 'Surveys', 'Usability Testing',
+        'Competitive Analysis', 'Market Research', 'Go-to-Market Strategy',
+        'Roadmapping', 'Story Mapping', 'Impact Mapping', 'Job-to-be-Done',
+        'Stakeholder Management', 'Executive Communication', 'Product Metrics',
+        'Jira', 'Confluence', 'Asana', 'Trello', 'Monday.com', 'Notion',
+        'Linear', 'Height', 'Shortcut', 'ClickUp', 'Basecamp',
+        'Figma', 'FigJam', 'Miro', 'Mural', 'Lucidchart', 'Whimsical',
+        'PMP', 'PRINCE2', 'PMI', 'Six Sigma', 'ITIL', 'COBIT',
+        'Risk Management', 'Change Management', 'Crisis Management',
+        'Budget Management', 'Resource Planning', 'Capacity Planning',
+        'Vendor Management', 'Contract Management', 'SLA Management',
+
+        # ─── UI/UX Design ───
+        'UI Design', 'UX Design', 'Product Design', 'Service Design', 'Design Thinking',
+        'Interaction Design', 'Visual Design', 'Information Architecture', 'Content Design',
+        'User Research', 'Usability Testing', 'A/B Testing', 'Eye Tracking',
+        'Wireframing', 'Prototyping', 'Mockups', 'User Flows', 'Customer Journey Maps',
+        'Figma', 'Sketch', 'Adobe XD', 'InVision', 'Zeplin', 'Marvel', 'Axure',
+        'Framer', 'Webflow', 'Wix', 'Squarespace', 'Readymag',
+        'Adobe Creative Suite', 'Photoshop', 'Illustrator', 'After Effects',
+        'InDesign', 'Lightroom', 'Premiere Pro', 'Audition', 'Animate',
+        'Affinity Designer', 'Affinity Photo', 'Affinity Publisher',
+        'Canva', 'Penpot', 'Lunacy', 'Origami Studio',
+        'Design Systems', 'Storybook', 'Chromatic', 'Zeroheight', 'Supernova',
+        'Accessibility', 'WCAG', 'ADA Compliance', 'ARIA', 'Screen Readers',
+        'Color Theory', 'Typography', 'Grid Systems', 'Responsive Design',
+        'Mobile-First Design', 'Dark Mode', 'Micro-interactions',
+        'Motion Design', 'Animation', 'Lottie', 'Rive', 'Principle',
+        'Brand Design', 'Brand Identity', 'Logo Design', 'Graphic Design',
+        'Icon Design', 'Illustration', 'Infographic Design', 'Data Visualization',
+        '3D Design', 'Blender', 'Cinema 4D', 'KeyShot', 'Rhino', 'Fusion 360',
+        'User Psychology', 'Cognitive Biases', 'Persuasion Design', 'Gamification',
+        'Heuristic Evaluation', 'Contextual Inquiry', 'Card Sorting',
+        'Tree Testing', 'First Click Testing', 'Preference Testing',
+
+        # ─── Marketing & Growth ───
+        'Digital Marketing', 'Content Marketing', 'Social Media Marketing', 'Email Marketing',
+        'Influencer Marketing', 'Affiliate Marketing', 'Performance Marketing',
+        'SEO', 'Technical SEO', 'On-Page SEO', 'Off-Page SEO', 'Local SEO',
+        'SEM', 'PPC', 'Google Ads', 'Facebook Ads', 'Instagram Ads', 'LinkedIn Ads',
+        'Twitter Ads', 'TikTok Ads', 'Pinterest Ads', 'Programmatic Advertising',
+        'Google Analytics', 'Google Analytics 4', 'Google Tag Manager',
+        'Google Search Console', 'Bing Webmaster Tools', 'Google Merchant Center',
+        'HubSpot', 'Marketo', 'Pardot', 'Salesforce Marketing Cloud', 'Braze',
+        'Mailchimp', 'Klaviyo', 'SendGrid', 'Iterable', 'Customer.io',
+        'SEMrush', 'Ahrefs', 'Moz', 'Majestic', 'Screaming Frog',
+        'Hotjar', 'FullStory', 'Heap', 'Amplitude', 'Mixpanel',
+        'Segment', 'mParticle', 'Rudderstack', 'Snowplow',
+        'Conversion Rate Optimization', 'CRO', 'Landing Page Optimization',
+        'A/B Testing', 'Multivariate Testing', 'Optimizely', 'VWO', 'LaunchDarkly',
+        'Growth Hacking', 'Viral Marketing', 'Referral Programs', 'Product-Led Growth',
+        'Copywriting', 'Content Strategy', 'Content Creation', 'Blogging',
+        'Video Marketing', 'Podcast Marketing', 'Webinar Marketing',
+        'Social Media Management', 'Community Management', 'Community Building',
+        'Brand Management', 'Brand Strategy', 'Corporate Communications',
+        'Public Relations', 'Media Relations', 'Crisis Communications',
+        'Event Marketing', 'Trade Show Marketing', 'Field Marketing',
+        'Customer Acquisition', 'Customer Retention', 'Churn Reduction',
+        'Lifecycle Marketing', 'CRM', 'Salesforce', 'HubSpot CRM', 'Pipedrive',
+
+        # ─── Sales & Business Development ───
+        'Sales', 'B2B Sales', 'B2C Sales', 'SaaS Sales', 'Enterprise Sales',
+        'Inside Sales', 'Outside Sales', 'Field Sales', 'Channel Sales',
+        'Business Development', 'Partnerships', 'Strategic Alliances',
+        'Account Management', 'Key Account Management', 'Customer Success',
+        'Sales Development', 'SDR', 'BDR', 'AE', 'Account Executive',
+        'Lead Generation', 'Prospecting', 'Cold Calling', 'Cold Emailing',
+        'Pipeline Management', 'Sales Forecasting', 'Revenue Operations',
+        'Sales Enablement', 'Sales Training', 'Sales Coaching',
+        'CRM', 'Salesforce', 'HubSpot', 'Pipedrive', 'ZoomInfo', 'Apollo',
+        'Outreach', 'Salesloft', 'Gong', 'Chorus', 'Clari',
+        'Contract Negotiation', 'Procurement', 'RFP', 'RFQ', 'SOW',
+        'Revenue Recognition', 'Deal Structuring', 'Pricing Strategy',
+        'Customer Onboarding', 'Upselling', 'Cross-Selling', 'Expansion Revenue',
+        'NPS', 'CSAT', 'Customer Health Score', 'QBR',
+
+        # ─── Finance & Accounting ───
+        'Financial Analysis', 'Financial Modeling', 'Valuation', 'DCF Analysis',
+        'Financial Reporting', 'Financial Planning', 'Budgeting', 'Forecasting',
+        'Accounting', 'Bookkeeping', 'GAAP', 'IFRS', 'Audit', 'Tax',
+        'Payroll', 'Accounts Payable', 'Accounts Receivable', 'General Ledger',
+        'Cost Accounting', 'Management Accounting', 'Fund Accounting',
+        'Investment Analysis', 'Portfolio Management', 'Risk Management',
+        'Treasury Management', 'Cash Flow Management', 'Working Capital',
+        'QuickBooks', 'Xero', 'NetSuite', 'SAP FI', 'Oracle Financials',
+        'Excel', 'Google Sheets', 'Power BI', 'Tableau', 'Bloomberg', 'Refinitiv',
+        'FP&A', 'CFO', 'Controllership', 'Internal Audit', 'External Audit',
+        'IPO', 'M&A', 'Due Diligence', 'LBO', 'Private Equity', 'Venture Capital',
+        'CFA', 'CPA', 'ACCA', 'CA', 'CMA', 'FRM',
+
+        # ─── HR & People Operations ───
+        'Human Resources', 'HR Management', 'People Operations', 'Talent Management',
+        'Recruiting', 'Talent Acquisition', 'Sourcing', 'Employer Branding',
+        'Onboarding', 'Offboarding', 'Employee Experience', 'Engagement',
+        'Performance Management', 'Goal Setting', 'OKRs', 'Performance Reviews',
+        'Learning & Development', 'Training', 'E-Learning', 'LMS',
+        'Compensation & Benefits', 'Total Rewards', 'Equity', 'Stock Options',
+        'HRIS', 'Workday', 'SAP HR', 'BambooHR', 'ADP', 'Paychex',
+        'Greenhouse', 'Lever', 'Workable', 'SmartRecruiters', 'Jobvite',
+        'LinkedIn Recruiter', 'Indeed', 'Glassdoor',
+        'Diversity & Inclusion', 'DEI', 'DEIB', 'Culture Building',
+        'Employee Relations', 'Labor Relations', 'Employment Law', 'HR Compliance',
+        'Workforce Planning', 'Succession Planning', 'Organizational Design',
+        'Change Management', 'Culture Transformation', 'Leadership Development',
+        'Coaching', 'Mentoring', 'Team Building', 'Conflict Resolution',
+
+        # ─── Leadership & Management ───
+        'Leadership', 'Executive Leadership', 'Management', 'Team Management',
+        'Engineering Management', 'Product Management', 'People Management',
+        'Strategic Planning', 'Operational Excellence', 'Business Strategy',
+        'Vision Setting', 'Mission Alignment', 'Culture Building',
+        'Decision Making', 'Problem Solving', 'Critical Thinking', 'Systems Thinking',
+        'Stakeholder Management', 'Executive Communication', 'Board Reporting',
+        'Organizational Leadership', 'Cross-Functional Leadership', 'Influence',
+        'Servant Leadership', 'Situational Leadership', 'Transformational Leadership',
+        'Emotional Intelligence', 'EQ', 'Self-Awareness', 'Empathy',
+        'Conflict Resolution', 'Negotiation', 'Facilitation', 'Mediation',
+        'Coaching', 'Mentoring', 'Feedback', 'Performance Management',
+        'Delegation', 'Prioritization', 'Time Management', 'Productivity',
+        'Meeting Facilitation', 'Workshop Facilitation', 'Retrospectives',
+        'Budget Management', 'P&L Management', 'Resource Allocation',
+
+        # ─── Communication & Soft Skills ───
+        'Communication', 'Public Speaking', 'Presentation Skills', 'Storytelling',
+        'Technical Writing', 'Business Writing', 'Copywriting', 'Editing', 'Proofreading',
+        'Documentation', 'API Documentation', 'User Guides', 'Release Notes',
+        'Proposal Writing', 'Report Writing', 'Grant Writing', 'White Papers',
+        'Active Listening', 'Feedback', 'Constructive Criticism', 'Assertiveness',
+        'Interpersonal Skills', 'Relationship Building', 'Networking',
+        'Cross-Cultural Communication', 'Remote Communication', 'Async Communication',
+        'Slack', 'Microsoft Teams', 'Zoom', 'Google Meet', 'Loom',
+        'Notion', 'Confluence', 'Coda', 'Obsidian', 'Roam Research',
+        'Research Skills', 'Data Analysis', 'Problem Solving', 'Analytical Thinking',
+        'Creativity', 'Innovation', 'Design Thinking', 'Systems Thinking',
+        'Attention to Detail', 'Organization', 'Planning', 'Execution',
+        'Adaptability', 'Resilience', 'Growth Mindset', 'Continuous Learning',
+        'Collaboration', 'Teamwork', 'Team Player', 'Cross-Functional Collaboration',
+        'Customer Focus', 'User Empathy', 'Customer Obsession',
+        'Ownership', 'Accountability', 'Initiative', 'Proactiveness',
+        'Curiosity', 'Intellectual Humility', 'Openness to Feedback',
+
+        # ─── Education & Teaching ───
+        'Teaching', 'Instruction', 'Curriculum Development', 'Course Design',
+        'E-Learning Development', 'Instructional Design', 'LMS Administration',
+        'Moodle', 'Canvas', 'Blackboard', 'Google Classroom', 'Kahoot', 'Quizlet',
+        'Mentoring', 'Coaching', 'Tutoring', 'Academic Advising',
+        'Classroom Management', 'Student Assessment', 'Grading',
+        'STEM Education', 'Coding Education', 'Bootcamp Instruction',
+        'Workshop Facilitation', 'Webinar Hosting', 'Online Teaching',
+        'Bloom\'s Taxonomy', 'Constructivism', 'Flipped Classroom',
+
+        # ─── Legal & Compliance ───
+        'Contract Law', 'Corporate Law', 'Intellectual Property', 'Patent Law',
+        'Trademark', 'Copyright', 'Trade Secret', 'Licensing',
+        'Employment Law', 'Labor Law', 'GDPR', 'CCPA', 'HIPAA', 'PCI DSS',
+        'SOC 2', 'ISO 27001', 'ISO 9001', 'ISO 14001', 'CMMI',
+        'Regulatory Compliance', 'Risk & Compliance', 'GRC', 'AML', 'KYC',
+        'Privacy Law', 'Data Protection', 'Data Governance',
+        'Legal Research', 'Contract Drafting', 'Contract Negotiation',
+        'Litigation Support', 'Legal Operations', 'CLM',
+
+        # ─── Operations & Supply Chain ───
+        'Operations Management', 'Supply Chain Management', 'Logistics',
+        'Inventory Management', 'Demand Forecasting', 'Procurement',
+        'Vendor Management', 'Supplier Relations', 'Sourcing', 'Category Management',
+        'Warehouse Management', 'Distribution', 'Last-Mile Delivery',
+        'ERP', 'SAP', 'Oracle ERP', 'NetSuite', 'Microsoft Dynamics',
+        'Lean Manufacturing', 'Six Sigma', 'Kaizen', 'Kanban', '5S', 'TPM',
+        'Quality Management', 'QA', 'QC', 'ISO 9001', 'FMEA', 'SPC',
+        'Process Improvement', 'Business Process Management', 'BPM',
+        'Robotic Process Automation', 'RPA', 'UiPath', 'Automation Anywhere', 'Blue Prism',
+
+        # ─── Healthcare & Life Sciences ───
+        'Healthcare IT', 'EHR', 'EMR', 'HL7', 'FHIR', 'DICOM',
+        'Health Informatics', 'Clinical Data Management', 'Pharmacovigilance',
+        'Clinical Trials', 'GCP', 'GLP', 'GMP', 'FDA Regulations', 'CE Marking',
+        'Medical Devices', 'IVD', 'SaMD', 'ISO 13485', 'IEC 62304',
+        'Genomics', 'Bioinformatics', 'NGS', 'CRISPR', 'Drug Discovery',
+        'Pathology', 'Radiology', 'Telemedicine', 'Digital Health',
+        'HIPAA', 'Healthcare Compliance', 'Patient Data Privacy',
+
+        # ─── Science & Research ───
+        'Research Design', 'Scientific Writing', 'Literature Review', 'Meta-Analysis',
+        'Quantitative Research', 'Qualitative Research', 'Mixed Methods',
+        'Statistical Analysis', 'Biostatistics', 'Econometrics', 'Psychometrics',
+        'SPSS', 'SAS', 'R', 'Stata', 'MATLAB', 'Python (Research)',
+        'Lab Techniques', 'PCR', 'ELISA', 'Western Blot', 'Cell Culture',
+        'Flow Cytometry', 'Microscopy', 'Spectroscopy', 'Chromatography',
+        'Physics', 'Chemistry', 'Biology', 'Neuroscience', 'Psychology',
+        'Environmental Science', 'Climate Science', 'Geology', 'Astronomy',
+        'Grant Writing', 'Ethics Approval', 'IRB', 'Peer Review',
+
+        # ─── Customer Support ───
+        'Customer Support', 'Technical Support', 'Customer Service',
+        'Help Desk', 'ITSM', 'ServiceNow', 'Zendesk', 'Freshdesk',
+        'Intercom', 'Drift', 'Front', 'Kustomer', 'Gladly',
+        'JIRA Service Management', 'Confluence', 'Knowledge Base Management',
+        'Ticketing Systems', 'SLA Management', 'Escalation Management',
+        'Customer Onboarding', 'Customer Training', 'Customer Education',
+        'Technical Account Management', 'Solutions Engineering',
+        'Pre-Sales', 'Post-Sales', 'Professional Services',
+
+        # ─── Languages ───
+        'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese',
+        'Dutch', 'Swedish', 'Norwegian', 'Danish', 'Finnish', 'Russian',
+        'Polish', 'Czech', 'Hungarian', 'Romanian', 'Turkish', 'Greek',
+        'Arabic', 'Hebrew', 'Farsi', 'Urdu', 'Hindi', 'Bengali', 'Tamil',
+        'Telugu', 'Kannada', 'Marathi', 'Gujarati', 'Punjabi', 'Malayalam',
+        'Chinese (Mandarin)', 'Chinese (Cantonese)', 'Japanese', 'Korean',
+        'Vietnamese', 'Thai', 'Indonesian', 'Malay', 'Tagalog',
+        'Swahili', 'Zulu', 'Afrikaans',
+        'Translation', 'Localization', 'Interpretation',
+
+        # ─── Miscellaneous Technical ───
+        'Linux', 'Ubuntu', 'Debian', 'CentOS', 'RHEL', 'Fedora', 'Arch Linux',
+        'macOS', 'Windows Server', 'Active Directory', 'Group Policy',
+        'Networking', 'TCP/IP', 'DNS', 'DHCP', 'HTTP', 'HTTPS', 'FTP', 'SSH',
+        'VPN', 'SD-WAN', 'BGP', 'OSPF', 'Cisco', 'Juniper', 'Palo Alto',
+        'Network Security', 'Firewall Management', 'Zero Trust Network',
+        'Virtual Machines', 'VMware', 'VirtualBox', 'Hyper-V', 'KVM',
+        'Storage', 'SAN', 'NAS', 'NFS', 'iSCSI', 'Ceph', 'GlusterFS',
+        'Backup & Recovery', 'BCP', 'DR', 'RTO', 'RPO',
+        'Monitoring', 'Observability', 'Logging', 'Tracing', 'Metrics',
+        'Performance Tuning', 'Query Optimization', 'Profiling', 'Benchmarking',
+        'Technical Documentation', 'System Design', 'Technical Architecture',
+        'Whiteboarding', 'System Design Interviews', 'Coding Interviews',
+
+        # ─── Emerging Technologies ───
+        'Quantum Computing', 'Quantum Algorithms', 'Qiskit', 'Cirq', 'Q#',
+        'Edge AI', 'TinyML', 'ONNX', 'OpenVINO', 'TensorRT', 'NVIDIA Jetson',
+        'Digital Twin', 'Simulation', 'Metaverse', 'Extended Reality', 'XR',
+        'Virtual Reality', 'VR', 'Augmented Reality', 'AR', 'Mixed Reality', 'MR',
+        'Spatial Computing', 'Apple Vision Pro', 'Meta Quest', 'HoloLens',
+        '5G', '6G', 'Edge Computing', 'Fog Computing', 'MEC',
+        'Autonomous Systems', 'Robotics', 'ROS', 'ROS2', 'SLAM', 'Autonomous Driving',
+        'Drone Development', 'UAV', 'UAS', 'FPV',
+        'Synthetic Biology', 'Biotech', 'Nanotech', 'Advanced Materials',
+        'Space Tech', 'Satellite Systems', 'CubeSat', 'LoRa', 'SDR',
+        'Neuromorphic Computing', 'Photonic Computing', 'DNA Computing',
         ]
         
         # Check for skill mentions

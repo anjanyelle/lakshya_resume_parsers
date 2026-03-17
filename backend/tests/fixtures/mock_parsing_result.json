@@ -1,10 +1,13 @@
 {
   "contact": {
-    "name": {"name": "Test User"},
-    "emails": [{"email": "test.user@example.com"}],
-    "phones": [{"phone": "+14155551234"}],
-    "location": {"city": "Austin", "country": "United States"},
-    "urls": {"linkedin": "https://linkedin.com/in/testuser", "github": "https://github.com/testuser"}
+    "name": { "name": "Test User" },
+    "emails": [{ "email": "test.user@example.com" }],
+    "phones": [{ "phone": "+14155551234" }],
+    "location": { "city": "Austin", "country": "United States" },
+    "urls": {
+      "linkedin": "https://linkedin.com/in/testuser",
+      "github": "https://github.com/testuser"
+    }
   },
   "work_experience": [
     {
@@ -19,6 +22,6 @@
     }
   ],
   "education": [],
-  "skills": [{"name": "Python", "normalized_name": "python"}],
+  "skills": [{ "name": "Python", "normalized_name": "python" }],
   "certifications": []
 }

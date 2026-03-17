@@ -68,41 +68,34 @@ After that, register, login, and upload should work without 503.
 ---
 
 Quick Start
+
 - Generate dataset files:
   - python scripts/prepare_dataset.py
 
 Outputs
+
 - data/train.jsonl
 - data/val.jsonl
 
 Each JSONL line has:
 {
-  "input": "<raw resume text>",
-  "output": "<stringified JSON with structured fields>"
+"input": "<raw resume text>",
+"output": "<stringified JSON with structured fields>"
 }
 
 Notes
+
 - The dataset generator includes 5 diverse examples.
 - Intended for local experimentation and prompt/finetune iteration.
 
-
-
-
-
-
 anjanyelle@Hello backend % poetry run uvicorn app.main:app --reload
 
-
-
 poetry run uvicorn app.main:app --reload
-
 
 poetry --version
 
-
 poetry install
 poetry run uvicorn app.main:app --reload
-
 
 Fast mode added: PARSING_MODE=deterministic
 Now you have 3 modes:
@@ -115,10 +108,6 @@ In deterministic, the workflow is:
 extract_text → clean_text → detect_sections → extract_contact_info → parse_work_experience → parse_education → parse_certifications → extract_skills → taxonomy_mapping → calculate_confidence → save_to_database
 
 So you should get:
-
-
-
-
 
 APP_NAME="Resume Parser API"
 ENVIRONMENT=development
@@ -141,91 +130,129 @@ ALLOWED_UPLOAD_EXTENSIONS=["pdf","doc","docx","txt","rtf","png","jpg","jpeg"]
 
 CLAMAV_ENABLED=false
 CLAMAV_PATH=clamscan
+
 1. Install Prerequisites
-bash
+   bash
+
 # Install Node.js 18+ (if not installed)
+
 # macOS: brew install node
+
 # Ubuntu: sudo apt install nodejs npm
- 
+
 # Install Python 3.10+ (if not installed)
+
 # macOS: brew install python@3.10
+
 # Ubuntu: sudo apt install python3.10 python3.10-venv
- 
+
 # Install PostgreSQL 14+ (if not installed)
+
 # macOS: brew install postgresql@14 && brew services start postgresql@14
+
 # Ubuntu: sudo apt install postgresql postgresql-contrib
- 
+
 # Install Redis 7+ (if not installed)
+
 # macOS: brew install redis && brew services start redis
+
 # Ubuntu: sudo apt install redis-server && sudo systemctl start redis
+
 2. Setup Database
-bash
+   bash
+
 # Create database
+
 psql -U postgres -c "CREATE DATABASE resume_parser;"
- 
+
 # Run schema setup
+
 cd /Users/anjanyelle/Desktop/untitled\ folder\ 3/Lakshya-LLM-Resume-Parser
 psql -U postgres -d resume_parser -f backend/src/database/setup.sql
- 
+
 # Run migrations
-psql -U postgres -d resume_parser -f backend/migrations/003_add_labeling_table.sql
-3. Setup Backend (Node.js)
+
+psql -U postgres -d resume_parser -f backend/migrations/003_add_labeling_table.sql 3. Setup Backend (Node.js)
 bash
 cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend/src"
- 
+
 # Copy and edit environment file
+
 cp .env.example .env
+
 # Edit .env with your settings:
+
 # DATABASE_URL=postgresql://postgres:password@localhost:5432/resume_parser
+
 # JWT_SECRET=your_secret_key_here
+
 # REDIS_URL=redis://localhost:6379
+
 # AI_SERVICE_URL=http://localhost:8000
- 
+
 # Install dependencies
+
 npm install
- 
+
 # Start backend (keep this terminal open)
+
 npm run dev
+
 # Backend runs on http://localhost:3001
+
 4. Setup AI Service (Python)
-bash
-cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service"
- 
+   bash
+   cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service"
+
 # Create virtual environment
+
 python3 -m venv venv
 source venv/bin/activate
- 
+
 # Install dependencies
+
 pip install -r requirements.txt
- 
+
 # Download spaCy model
+
 python -m spacy download en_core_web_sm
- 
+
 # Copy environment file
+
 cp .env.example .env
- 
+
 # Start AI service (keep this terminal open)
+
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
 # AI service runs on http://localhost:8000
+
 5. Setup Frontend (React)
-bash
-cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/frontend"
- 
+   bash
+   cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/frontend"
+
 # Install dependencies
+
 npm install
- 
+
 # Start frontend (keep this terminal open)
+
 npm run dev
+
 # Frontend runs on http://localhost:5173
+
 6. Create Admin User
-bash
-cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend"
- 
+   bash
+   cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend"
+
 # Create admin account
+
 python create_admin_user.py
+
 # Follow prompts to set email and password
+
 7. Verify Everything Works
-Open your browser and go to http://localhost:5173
+   Open your browser and go to http://localhost:5173
 
 You should see the login page. Use the admin credentials you created to log in.
 
@@ -244,11 +271,13 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 Terminal 3 (Frontend):
 
 source venv/bin/activate
- 
+
 # Start the AI service
+
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
- 
+
 # Start the AI service
+
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 bash
@@ -257,11 +286,11 @@ python create_admin_user.py
 Then visit http://localhost:5173 and log in.
 
 If Something Goes Wrong
-Error	Fix
-psql: command not found	Install PostgreSQL client tools: brew install postgresql
-python: command not found	Use python3 instead of python
-uvicorn: command not found	Make sure you activated the venv: source ai-service/venv/bin/activate
-Frontend shows blank page	Check that backend and AI service are running first
-Database connection failed	Verify PostgreSQL is running and DATABASE_URL is correct in .env
+Error Fix
+psql: command not found Install PostgreSQL client tools: brew install postgresql
+python: command not found Use python3 instead of python
+uvicorn: command not found Make sure you activated the venv: source ai-service/venv/bin/activate
+Frontend shows blank page Check that backend and AI service are running first
+Database connection failed Verify PostgreSQL is running and DATABASE_URL is correct in .env
 The app should now be fully running locally on your machine.
 python3 create_admin_simple.py

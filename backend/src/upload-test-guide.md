@@ -1,11 +1,13 @@
 # File Upload System Test Guide
 
 ## Overview
+
 The backend now provides a complete file upload system for resumes with automatic parsing queue integration. This guide shows how to test and use the upload endpoints.
 
 ## Environment Setup
 
 ### Required Environment Variables
+
 ```bash
 # File upload configuration
 MAX_FILE_SIZE_MB=10
@@ -21,6 +23,7 @@ JWT_SECRET=your-secret-key
 ```
 
 ### Directory Structure
+
 ```
 backend/src/
 ├── uploads/                    # File storage (auto-created)
@@ -35,6 +38,7 @@ backend/src/
 ## API Endpoints
 
 ### 1. Upload Resume
+
 ```bash
 POST http://localhost:3001/api/upload/resume
 Authorization: Bearer <jwt-token>
@@ -44,6 +48,7 @@ Body: FormData with field name "resume" and file
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -63,6 +68,7 @@ Body: FormData with field name "resume" and file
 ```
 
 **Response (Error):**
+
 ```json
 {
   "error": "File too large",
@@ -72,12 +78,14 @@ Body: FormData with field name "resume" and file
 ```
 
 ### 2. Get Upload Configuration
+
 ```bash
 GET http://localhost:3001/api/upload/config
 Authorization: Bearer <jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "config": {
@@ -103,12 +111,14 @@ Authorization: Bearer <jwt-token>
 ```
 
 ### 3. Get Upload Statistics (Admin/Manager only)
+
 ```bash
 GET http://localhost:3001/api/upload/stats
 Authorization: Bearer <admin-token>
 ```
 
 **Response:**
+
 ```json
 {
   "statistics": {
@@ -134,6 +144,7 @@ Authorization: Bearer <admin-token>
 ## Testing Scenarios
 
 ### 1. Successful Upload
+
 ```bash
 # 1. Get JWT token
 curl -X POST http://localhost:3001/api/auth/login \
@@ -147,6 +158,7 @@ curl -X POST http://localhost:3001/api/upload/resume \
 ```
 
 ### 2. File Size Validation
+
 ```bash
 # Create a large file (>10MB)
 dd if=/dev/zero of=large-resume.pdf bs=1M count=15
@@ -161,6 +173,7 @@ curl -X POST http://localhost:3001/api/upload/resume \
 ```
 
 ### 3. File Type Validation
+
 ```bash
 # Try to upload an invalid file type
 curl -X POST http://localhost:3001/api/upload/resume \
@@ -172,6 +185,7 @@ curl -X POST http://localhost:3001/api/upload/resume \
 ```
 
 ### 4. Missing File
+
 ```bash
 # Try to upload without file
 curl -X POST http://localhost:3001/api/upload/resume \
@@ -183,6 +197,7 @@ curl -X POST http://localhost:3001/api/upload/resume \
 ```
 
 ### 5. Wrong Field Name
+
 ```bash
 # Try to upload with wrong field name
 curl -X POST http://localhost:3001/api/upload/resume \
@@ -196,96 +211,102 @@ curl -X POST http://localhost:3001/api/upload/resume \
 ## Real-time Processing
 
 ### Socket.io Integration
+
 When a resume is uploaded, the system automatically:
+
 1. Creates a candidate record
 2. Creates a parsing job record
 3. Adds job to Redis queue
 4. Emits real-time progress updates
 
 ### Monitor Progress
+
 ```javascript
 // Connect to Socket.io
-const socket = io('http://localhost:3001', {
-  auth: { token: 'your-jwt-token' }
-})
+const socket = io("http://localhost:3001", {
+  auth: { token: "your-jwt-token" },
+});
 
 // Listen for progress updates
-socket.on('parsing:progress', (data) => {
-  console.log(`Progress: ${data.progress}% - ${data.message}`)
-})
+socket.on("parsing:progress", (data) => {
+  console.log(`Progress: ${data.progress}% - ${data.message}`);
+});
 
 // Listen for completion
-socket.on('parsing:complete', (data) => {
-  console.log('Parsing completed!', data.data)
-})
+socket.on("parsing:complete", (data) => {
+  console.log("Parsing completed!", data.data);
+});
 
 // Listen for failures
-socket.on('parsing:failed', (data) => {
-  console.log('Parsing failed:', data.error)
-})
+socket.on("parsing:failed", (data) => {
+  console.log("Parsing failed:", data.error);
+});
 ```
 
 ## File Management
 
 ### Uploaded Files
+
 - **Location**: `./uploads/` (configurable via `FILE_UPLOAD_PATH`)
 - **Naming**: `{uuid}_{originalname}` (e.g., `123e4567-e89b-12d3-a456-426614174000_resume.pdf`)
 - **Cleanup**: Failed uploads are automatically deleted
 
 ### File Types Supported
-| Extension | MIME Type | Description |
-|-----------|-----------|-------------|
-| `.pdf` | `application/pdf` | PDF documents |
-| `.docx` | `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | Word documents |
-| `.txt` | `text/plain` | Plain text files |
+
+| Extension | MIME Type                                                                 | Description      |
+| --------- | ------------------------------------------------------------------------- | ---------------- |
+| `.pdf`    | `application/pdf`                                                         | PDF documents    |
+| `.docx`   | `application/vnd.openxmlformats-officedocument.wordprocessingml.document` | Word documents   |
+| `.txt`    | `text/plain`                                                              | Plain text files |
 
 ## Frontend Integration Examples
 
 ### React Example
+
 ```javascript
-import React, { useState } from 'react'
+import React, { useState } from "react";
 
 const ResumeUpload = () => {
-  const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(null)
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(null);
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0]
-    if (!file) return
+    const file = event.target.files[0];
+    if (!file) return;
 
-    const formData = new FormData()
-    formData.append('resume', file)
+    const formData = new FormData();
+    formData.append("resume", file);
 
     try {
-      setUploading(true)
-      const response = await fetch('/api/upload/resume', {
-        method: 'POST',
+      setUploading(true);
+      const response = await fetch("/api/upload/resume", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: formData
-      })
+        body: formData,
+      });
 
-      const result = await response.json()
-      
+      const result = await response.json();
+
       if (response.ok) {
-        console.log('Upload successful:', result.data)
+        console.log("Upload successful:", result.data);
         // Start monitoring progress via Socket.io
       } else {
-        console.error('Upload failed:', result.error)
+        console.error("Upload failed:", result.error);
       }
     } catch (error) {
-      console.error('Upload error:', error)
+      console.error("Upload error:", error);
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   return (
     <div>
-      <input 
-        type="file" 
-        accept=".pdf,.docx,.txt" 
+      <input
+        type="file"
+        accept=".pdf,.docx,.txt"
         onChange={handleFileUpload}
         disabled={uploading}
       />
@@ -297,17 +318,18 @@ const ResumeUpload = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 ```
 
 ### Vue.js Example
+
 ```javascript
 <template>
   <div>
-    <input 
-      type="file" 
-      accept=".pdf,.docx,.txt" 
+    <input
+      type="file"
+      accept=".pdf,.docx,.txt"
       @change="handleFileUpload"
       :disabled="uploading"
     />
@@ -363,7 +385,7 @@ export default {
         })
 
         const result = await response.json()
-        
+
         if (!response.ok) {
           throw new Error(result.error)
         }
@@ -388,17 +410,19 @@ export default {
 ## Error Handling
 
 ### Common Error Codes
-| Code | Description | HTTP Status |
-|------|-------------|-------------|
-| `NO_FILE_UPLOADED` | No file provided | 400 |
-| `INVALID_FILE_TYPE` | Unsupported file type | 400 |
-| `FILE_TOO_LARGE` | File exceeds size limit | 400 |
-| `TOO_MANY_FILES` | Multiple files uploaded | 400 |
-| `UNEXPECTED_FIELD` | Wrong field name | 400 |
-| `UPLOAD_FAILED` | General upload error | 400 |
-| `DATABASE_ERROR` | Database operation failed | 500 |
+
+| Code                | Description               | HTTP Status |
+| ------------------- | ------------------------- | ----------- |
+| `NO_FILE_UPLOADED`  | No file provided          | 400         |
+| `INVALID_FILE_TYPE` | Unsupported file type     | 400         |
+| `FILE_TOO_LARGE`    | File exceeds size limit   | 400         |
+| `TOO_MANY_FILES`    | Multiple files uploaded   | 400         |
+| `UNEXPECTED_FIELD`  | Wrong field name          | 400         |
+| `UPLOAD_FAILED`     | General upload error      | 400         |
+| `DATABASE_ERROR`    | Database operation failed | 500         |
 
 ### Error Response Format
+
 ```json
 {
   "error": "Error type",
@@ -411,24 +435,28 @@ export default {
 ## Production Considerations
 
 ### Security
+
 - Files are stored with UUID prefixes to prevent name collisions
 - File type validation prevents malicious uploads
 - Authentication required for all upload operations
 - File size limits prevent storage abuse
 
 ### Storage
+
 - Configure `FILE_UPLOAD_PATH` for production storage
 - Implement periodic cleanup of old files
 - Consider cloud storage (S3, Google Cloud) for scalability
 - Monitor disk usage and set up alerts
 
 ### Performance
+
 - Files are processed asynchronously via Redis queue
 - Multiple files can be uploaded concurrently
 - Progress updates provide real-time feedback
 - Failed uploads are automatically cleaned up
 
 ### Monitoring
+
 - Track upload success/failure rates
 - Monitor parsing queue depth
 - Log file size and type statistics

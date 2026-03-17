@@ -18,12 +18,14 @@ Production-ready React TypeScript frontend for the Resume Parser platform.
 ## Setup
 
 1. Install dependencies:
+
    ```bash
    cd frontend
    npm install
    ```
 
 2. Configure environment variables:
+
    ```bash
    cp .env.example .env
    ```

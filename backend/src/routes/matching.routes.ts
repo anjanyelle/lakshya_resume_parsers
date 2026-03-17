@@ -1,11 +1,12 @@
-import { Router } from 'express'
-import { 
-  matchCandidatesToJob, 
-  getMatchResultsForJob, 
-  matchSingleCandidate 
-} from '../controllers/matching.controller'
+import { Router } from "express";
+import {
+  matchCandidatesToJob,
+  getMatchResultsForJob,
+  getAllMatchResults,
+  matchSingleCandidate,
+} from "../controllers/matching.controller";
 
-const router = Router()
+const router = Router();
 
 /**
  * Matching Routes
@@ -14,14 +15,18 @@ const router = Router()
 
 // POST /api/matching/job/:jobId/candidates
 // Match all candidates to a specific job
-router.post('/job/:jobId/candidates', matchCandidatesToJob)
+router.post("/job/:jobId/candidates", matchCandidatesToJob);
 
 // GET /api/matching/job/:jobId/results
 // Get cached match results for a specific job
-router.get('/job/:jobId/results', getMatchResultsForJob)
+router.get("/job/:jobId/results", getMatchResultsForJob);
+
+// GET /api/matching/results
+// Get all match results
+router.get("/results", getAllMatchResults);
 
 // POST /api/matching/candidate/:candidateId/job/:jobId
 // Match a single candidate to a specific job
-router.post('/candidate/:candidateId/job/:jobId', matchSingleCandidate)
+router.post("/candidate/:candidateId/job/:jobId", matchSingleCandidate);
 
-export default router
+export default router;

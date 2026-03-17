@@ -1,18 +1,18 @@
-import { Router } from 'express'
-import { 
-  createCandidate, 
-  getAllCandidates, 
-  getCandidateById, 
-  updateCandidate, 
-  deleteCandidate, 
-  getCandidateParsingStatus 
-} from '../controllers/candidate.controller'
-import { authenticateToken, requireRole } from '../middleware/auth.middleware'
+import { Router } from "express";
+import {
+  createCandidate,
+  getAllCandidates,
+  getCandidateById,
+  updateCandidate,
+  deleteCandidate,
+  getCandidateParsingStatus,
+} from "../controllers/candidate.controller";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
-const router = Router()
+const router = Router();
 
 // All candidate routes require authentication
-router.use(authenticateToken)
+router.use(authenticateToken);
 
 /**
  * @swagger
@@ -61,7 +61,7 @@ router.use(authenticateToken)
  *       401:
  *         description: Unauthorized
  */
-router.post('/', createCandidate)
+router.post("/", createCandidate);
 
 /**
  * @swagger
@@ -96,7 +96,7 @@ router.post('/', createCandidate)
  *       401:
  *         description: Unauthorized
  */
-router.get('/', getAllCandidates)
+router.get("/", getAllCandidates);
 
 /**
  * @swagger
@@ -121,7 +121,7 @@ router.get('/', getAllCandidates)
  *       401:
  *         description: Unauthorized
  */
-router.get('/:id', getCandidateById)
+router.get("/:id", getCandidateById);
 
 /**
  * @swagger
@@ -172,7 +172,7 @@ router.get('/:id', getCandidateById)
  *       401:
  *         description: Unauthorized
  */
-router.put('/:id', updateCandidate)
+router.put("/:id", updateCandidate);
 
 /**
  * @swagger
@@ -197,7 +197,7 @@ router.put('/:id', updateCandidate)
  *       401:
  *         description: Unauthorized
  */
-router.delete('/:id', deleteCandidate)
+router.delete("/:id", deleteCandidate);
 
 /**
  * @swagger
@@ -222,6 +222,6 @@ router.delete('/:id', deleteCandidate)
  *       401:
  *         description: Unauthorized
  */
-router.get('/:id/parsing-status', getCandidateParsingStatus)
+router.get("/:id/parsing-status", getCandidateParsingStatus);
 
-export default router
+export default router;

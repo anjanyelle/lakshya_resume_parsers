@@ -1,81 +1,81 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-hot-toast'
-import Button from '../components/common/Button'
-import Input from '../components/common/Input'
-import { login, register } from '../services/api/auth'
-import { useAuthStore } from '../store/authStore'
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import Button from "../components/common/Button";
+import Input from "../components/common/Input";
+import { login, register } from "../services/api/auth";
+import { useAuthStore } from "../store/authStore";
 
-type Mode = 'login' | 'register'
+type Mode = "login" | "register";
 
 const validateEmail = (value: string) =>
-  value.includes('@') ? null : 'Enter a valid email'
+  value.includes("@") ? null : "Enter a valid email";
 
 const validatePassword = (value: string) =>
-  value.length >= 6 ? null : 'Password must be at least 6 characters'
+  value.length >= 6 ? null : "Password must be at least 6 characters";
 
 export default function AuthPage() {
-  const navigate = useNavigate()
-  const { setTokens } = useAuthStore()
-  const [mode, setMode] = useState<Mode>('login')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState('admin')
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
+  const { setTokens } = useAuthStore();
+  const [mode, setMode] = useState<Mode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("admin");
+  const [loading, setLoading] = useState(false);
 
   const errors = useMemo(() => {
     return {
-      email: email ? validateEmail(email) : 'Email is required',
-      password: password ? validatePassword(password) : 'Password is required',
-    }
-  }, [email, password])
+      email: email ? validateEmail(email) : "Email is required",
+      password: password ? validatePassword(password) : "Password is required",
+    };
+  }, [email, password]);
 
-  const isValid = !errors.email && !errors.password
+  const isValid = !errors.email && !errors.password;
 
   const handleSubmit = async () => {
-    if (!isValid) return
-    setLoading(true)
+    if (!isValid) return;
+    setLoading(true);
     try {
-      if (mode === 'register') {
-        await register(email, password, role)
+      if (mode === "register") {
+        await register(email, password, role);
       }
-      const tokens = await login(email, password)
-      setTokens(tokens.access_token, tokens.refresh_token)
-      toast.success(mode === 'register' ? 'Account created' : 'Logged in')
-      navigate('/upload')
+      const tokens = await login(email, password);
+      setTokens(tokens.access_token, tokens.refresh_token);
+      toast.success(mode === "register" ? "Account created" : "Logged in");
+      navigate("/upload");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Auth failed')
+      toast.error(error instanceof Error ? error.message : "Auth failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <section className="mx-auto max-w-lg space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-slate-900">
-          {mode === 'login' ? 'Welcome back' : 'Create your account'}
+          {mode === "login" ? "Welcome back" : "Create your account"}
         </h1>
         <p className="mt-2 text-sm text-slate-600">
-          {mode === 'login'
-            ? 'Log in to manage resumes and candidates.'
-            : 'Register to start uploading resumes.'}
+          {mode === "login"
+            ? "Log in to manage resumes and candidates."
+            : "Register to start uploading resumes."}
         </p>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle">
         <div className="flex rounded-xl bg-slate-100 p-1 text-sm font-medium text-slate-600">
-          {(['login', 'register'] as Mode[]).map((item) => (
+          {(["login", "register"] as Mode[]).map((item) => (
             <button
               key={item}
               onClick={() => setMode(item)}
               className={`flex-1 rounded-lg px-3 py-2 transition ${
                 mode === item
-                  ? 'bg-white text-slate-900 shadow'
-                  : 'hover:text-slate-900'
+                  ? "bg-white text-slate-900 shadow"
+                  : "hover:text-slate-900"
               }`}
             >
-              {item === 'login' ? 'Login' : 'Register'}
+              {item === "login" ? "Login" : "Register"}
             </button>
           ))}
         </div>
@@ -96,7 +96,7 @@ export default function AuthPage() {
             onChange={(event) => setPassword(event.target.value)}
             error={errors.password ?? undefined}
           />
-          {mode === 'register' && (
+          {mode === "register" && (
             <label className="block text-sm font-medium text-slate-700">
               <span className="mb-1.5 block">Role</span>
               <select
@@ -116,10 +116,10 @@ export default function AuthPage() {
             disabled={!isValid || loading}
             onClick={handleSubmit}
           >
-            {mode === 'login' ? 'Login' : 'Create account'}
+            {mode === "login" ? "Login" : "Create account"}
           </Button>
         </div>
       </div>
     </section>
-  )
+  );
 }

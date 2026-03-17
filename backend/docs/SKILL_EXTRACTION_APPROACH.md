@@ -30,8 +30,8 @@ We use a **master taxonomy** instead of a manual list:
 
 **Optional — ESCO (European Skills Database):**
 
-- Download: https://esco.ec.europa.eu/en/use-esco/download  
-- Gives 13,000+ standardized skills and an official taxonomy.  
+- Download: https://esco.ec.europa.eu/en/use-esco/download
+- Gives 13,000+ standardized skills and an official taxonomy.
 - You can load ESCO CSV and map `preferredLabel` into our seed format or use it as an extended validation list.
 
 ---
@@ -64,7 +64,7 @@ Patterns come from `skills_seed.json` (name + synonyms). No manual `MASTER_SKILL
 
 If you use an LLM to extract skills from text:
 
-- Prompt: *Extract ALL technical skills from this resume. Return only a JSON array. Do not summarize or infer; only explicitly mentioned skills.*
+- Prompt: _Extract ALL technical skills from this resume. Return only a JSON array. Do not summarize or infer; only explicitly mentioned skills._
 - **Always validate** the LLM output against the master taxonomy (and normalization) before storing.
 
 This project keeps LLM skill extraction disabled by default and relies on taxonomy + phrase matching + normalization for stable, consistent results.

@@ -1,16 +1,16 @@
-import { createContext, useCallback, useContext, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from "react";
 
 type LayoutContextValue = {
-  sidebarOpen: boolean
-  setSidebarOpen: (open: boolean) => void
-  collapseSidebar: () => void
-}
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  collapseSidebar: () => void;
+};
 
-const LayoutContext = createContext<LayoutContextValue | null>(null)
+const LayoutContext = createContext<LayoutContextValue | null>(null);
 
 export function LayoutProvider({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const collapseSidebar = useCallback(() => setSidebarOpen(false), [])
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const collapseSidebar = useCallback(() => setSidebarOpen(false), []);
   return (
     <LayoutContext.Provider
       value={{
@@ -21,16 +21,16 @@ export function LayoutProvider({ children }: { children: React.ReactNode }) {
     >
       {children}
     </LayoutContext.Provider>
-  )
+  );
 }
 
 export function useLayout() {
-  const ctx = useContext(LayoutContext)
+  const ctx = useContext(LayoutContext);
   if (!ctx)
     return {
       sidebarOpen: true,
-      setSidebarOpen: () => { },
-      collapseSidebar: () => { },
-    }
-  return ctx
+      setSidebarOpen: () => {},
+      collapseSidebar: () => {},
+    };
+  return ctx;
 }

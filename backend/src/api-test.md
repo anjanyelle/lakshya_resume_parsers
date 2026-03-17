@@ -1,7 +1,9 @@
 # Candidate CRUD API Test Guide
 
 ## Authentication Required
+
 All candidate endpoints require a valid JWT token in the Authorization header:
+
 ```
 Authorization: Bearer <your-jwt-token>
 ```
@@ -9,6 +11,7 @@ Authorization: Bearer <your-jwt-token>
 ## API Endpoints
 
 ### 1. Register User
+
 ```bash
 POST http://localhost:3001/api/auth/register
 Content-Type: application/json
@@ -21,6 +24,7 @@ Content-Type: application/json
 ```
 
 ### 2. Login
+
 ```bash
 POST http://localhost:3001/api/auth/login
 Content-Type: application/json
@@ -32,6 +36,7 @@ Content-Type: application/json
 ```
 
 ### 3. Create Candidate
+
 ```bash
 POST http://localhost:3001/api/candidates
 Authorization: Bearer <token>
@@ -49,18 +54,21 @@ Content-Type: application/json
 ```
 
 ### 4. Get All Candidates (Paginated)
+
 ```bash
 GET http://localhost:3001/api/candidates?page=1&limit=10&search=john
 Authorization: Bearer <token>
 ```
 
 ### 5. Get Candidate by ID
+
 ```bash
 GET http://localhost:3001/api/candidates/<candidate-id>
 Authorization: Bearer <token>
 ```
 
 ### 6. Update Candidate
+
 ```bash
 PUT http://localhost:3001/api/candidates/<candidate-id>
 Authorization: Bearer <token>
@@ -73,12 +81,14 @@ Content-Type: application/json
 ```
 
 ### 7. Delete Candidate (Soft Delete)
+
 ```bash
 DELETE http://localhost:3001/api/candidates/<candidate-id>
 Authorization: Bearer <token>
 ```
 
 ### 8. Get Parsing Status
+
 ```bash
 GET http://localhost:3001/api/candidates/<candidate-id>/parsing-status
 Authorization: Bearer <token>
@@ -87,6 +97,7 @@ Authorization: Bearer <token>
 ## Response Examples
 
 ### Create Candidate Response
+
 ```json
 {
   "message": "Candidate created successfully",
@@ -101,6 +112,7 @@ Authorization: Bearer <token>
 ```
 
 ### Get All Candidates Response
+
 ```json
 {
   "candidates": [...],
@@ -116,6 +128,7 @@ Authorization: Bearer <token>
 ```
 
 ### Get Candidate with Details Response
+
 ```json
 {
   "candidate": {

@@ -22,6 +22,7 @@ class HybridMerger:
     RULE_PRIORITY_FIELDS = ['email', 'phone', 'linkedin', 'github', 'dates', 'websites']
     AI_PRIORITY_FIELDS = ['name', 'companies', 'locations', 'organizations']
     UNION_FIELDS = ['skills', 'job_titles', 'education_institutions', 'degrees']
+    LIST_MERGE_FIELDS = ['work_experience', 'education']
     
     # Confidence thresholds
     AI_HIGH_CONFIDENCE = 0.85
@@ -30,7 +31,7 @@ class HybridMerger:
     
     # Field-specific confidence thresholds
     FIELD_THRESHOLDS = {
-        'name': 0.80,           # Name needs high confidence
+        'name': 0.60,           # Name needs medium confidence
         'companies': 0.75,      # Companies need medium-high confidence
         'locations': 0.70,      # Locations can be lower confidence
         'skills': 0.60,         # Skills can be lower confidence (union approach)
@@ -102,6 +103,7 @@ class HybridMerger:
                 'rule_priority_used': 0,
                 'ai_priority_used': 0,
                 'union_fields_used': 0,
+                'union_merge_used': 0,
                 'conflicts_resolved': 0
             }
             
@@ -114,11 +116,22 @@ class HybridMerger:
                 
                 # Skip if both are empty
                 if not rule_value and not ai_value:
-                    merged_result[field] = [] if field in self.UNION_FIELDS else None
+                    # Always return empty list for list fields, None for others
+                    if field in ['work_experience', 'education', 'skills', 'job_titles', 'companies', 'locations', 'websites']:
+                        merged_result[field] = []
+                    elif field in ['confidence', 'processing_metrics']:
+                        merged_result[field] = {}
+                    else:
+                        merged_result[field] = None
                     continue
                 
                 # Apply field-specific merging strategy
-                if field in self.RULE_PRIORITY_FIELDS:
+                if field in self.LIST_MERGE_FIELDS:
+                    rule_list = rule_value if isinstance(rule_value, list) else []
+                    ai_list = ai_value if isinstance(ai_value, list) else []
+                    merged_result[field] = rule_list if len(rule_list) >= len(ai_list) else ai_list
+                
+                elif field in self.RULE_PRIORITY_FIELDS:
                     merged_result[field] = self._merge_rule_priority(field, rule_value, ai_value, merge_stats)
                 
                 elif field in self.AI_PRIORITY_FIELDS:
@@ -222,6 +235,32 @@ class HybridMerger:
         """
         stats['union_fields_used'] += 1
         
+        # Special handling for skills field
+        if field == 'skills':
+            # Safely coerce both values to lists — ai_value may be None if key absent
+            rule_list = rule_value if isinstance(rule_value, list) else []
+            ai_list   = ai_value   if isinstance(ai_value,   list) else []
+
+            # Get skills from both sources
+            rule_skills = set(s.lower().strip() for s in rule_list if s)
+            ai_skills   = set(s.lower().strip() for s in ai_list   if s)
+            
+            # Union of both — take skills from either source
+            all_skills_lower = rule_skills | ai_skills
+            
+            # Rebuild with original casing — prefer rule-based casing (more precise formatting)
+            # then fall back to AI casing for skills only found by AI
+            rule_skills_original = {s.lower(): s for s in rule_list if s}
+            ai_skills_original   = {s.lower(): s for s in ai_list   if s}
+            
+            # Merge casing preference: rule first, AI as fallback
+            casing_map = {**ai_skills_original, **rule_skills_original}
+            merged_skills = sorted([casing_map[s] for s in all_skills_lower if s in casing_map])
+            
+            self.logger.debug(f"Skills merge: {len(rule_skills)} rule + {len(ai_skills)} AI → {len(merged_skills)} unique")
+            return merged_skills
+        
+        # For other union fields, use original logic
         # Convert both to lists
         rule_list = self._ensure_list(rule_value)
         ai_list = self._ensure_list(ai_value)
@@ -331,39 +370,7 @@ class HybridMerger:
         
         # Last resort: use AI result if available
         return ai_val if ai_val else rule_val
-    
-    def _validate_name_format(self, name: str) -> bool:
-        """
-        Validate name format.
-        
-        Args:
-            name: Name string to validate
-            
-        Returns:
-            True if name format is valid
-        """
-        if not name or len(name.strip()) < 2:
-            return False
-        
-        # Check for reasonable name characteristics
-        name_words = name.strip().split()
-        
-        # Should have 2-4 words
-        if len(name_words) < 2 or len(name_words) > 4:
-            return False
-        
-        # Should contain only letters, spaces, hyphens, and periods
-        valid_chars = re.match(r'^[A-Za-z\s\-\.\']+$', name.strip())
-        if not valid_chars:
-            return False
-        
-        # Each word should start with capital letter (proper name format)
-        for word in name_words:
-            if not word[0].isupper():
-                return False
-        
-        return True
-    
+
     def _validate_field(self, field: str, value: Any) -> bool:
         """
         Validate a field value based on field-specific rules.
@@ -403,6 +410,19 @@ class HybridMerger:
         
         else:
             return len(value_str) > 0
+    
+    def _validate_name_format(self, name: str) -> bool:
+        """Validate that a name looks like a proper name."""
+        if not name or len(name.strip()) < 2:
+            return False
+        name_words = name.strip().split()
+        if not (1 <= len(name_words) <= 5):
+            return False
+        for word in name_words:
+            cleaned = word.strip("'-.")
+            if not cleaned or not cleaned.replace('-', '').replace("'", '').isalpha():
+                return False
+        return True
     
     def _extract_ai_confidence(self, ai_value: Any) -> float:
         """

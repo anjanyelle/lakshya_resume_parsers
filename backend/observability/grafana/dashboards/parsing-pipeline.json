@@ -7,65 +7,110 @@
     {
       "type": "stat",
       "title": "Jobs Failed (5m)",
-      "targets": [{"expr": "sum(rate(parsing_jobs_failed_total[5m]))", "legendFormat": "failed"}],
-      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 6}
+      "targets": [
+        {
+          "expr": "sum(rate(parsing_jobs_failed_total[5m]))",
+          "legendFormat": "failed"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 6 }
     },
     {
       "type": "stat",
       "title": "Jobs Total (5m)",
-      "targets": [{"expr": "sum(rate(parsing_jobs_total[5m]))", "legendFormat": "total"}],
-      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 6}
+      "targets": [
+        { "expr": "sum(rate(parsing_jobs_total[5m]))", "legendFormat": "total" }
+      ],
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 6 }
     },
     {
       "type": "timeseries",
       "title": "Avg Processing Time",
-      "targets": [{"expr": "rate(parsing_job_processing_seconds_sum[5m]) / rate(parsing_job_processing_seconds_count[5m])", "legendFormat": "avg seconds"}],
-      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 6}
+      "targets": [
+        {
+          "expr": "rate(parsing_job_processing_seconds_sum[5m]) / rate(parsing_job_processing_seconds_count[5m])",
+          "legendFormat": "avg seconds"
+        }
+      ],
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 6 }
     },
     {
       "type": "timeseries",
       "title": "Confidence Score Distribution",
       "targets": [
-        {"expr": "histogram_quantile(0.5, sum(rate(parsing_confidence_score_bucket[10m])) by (le))", "legendFormat": "p50"},
-        {"expr": "histogram_quantile(0.9, sum(rate(parsing_confidence_score_bucket[10m])) by (le))", "legendFormat": "p90"}
+        {
+          "expr": "histogram_quantile(0.5, sum(rate(parsing_confidence_score_bucket[10m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.9, sum(rate(parsing_confidence_score_bucket[10m])) by (le))",
+          "legendFormat": "p90"
+        }
       ],
-      "gridPos": {"x": 0, "y": 6, "w": 24, "h": 8}
+      "gridPos": { "x": 0, "y": 6, "w": 24, "h": 8 }
     },
     {
       "type": "timeseries",
       "title": "Avg Processing Time by Stage",
-      "targets": [{"expr": "sum(rate(parsing_stage_duration_seconds_sum[5m])) by (stage) / sum(rate(parsing_stage_duration_seconds_count[5m])) by (stage)", "legendFormat": "{{stage}}"}],
-      "gridPos": {"x": 0, "y": 14, "w": 24, "h": 8}
+      "targets": [
+        {
+          "expr": "sum(rate(parsing_stage_duration_seconds_sum[5m])) by (stage) / sum(rate(parsing_stage_duration_seconds_count[5m])) by (stage)",
+          "legendFormat": "{{stage}}"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 14, "w": 24, "h": 8 }
     },
     {
       "type": "timeseries",
       "title": "Section Confidence p50/p95 by Section",
       "targets": [
-        {"expr": "histogram_quantile(0.5, sum(rate(resume_section_confidence_bucket[10m])) by (le, section))", "legendFormat": "{{section}} p50"},
-        {"expr": "histogram_quantile(0.95, sum(rate(resume_section_confidence_bucket[10m])) by (le, section))", "legendFormat": "{{section}} p95"}
+        {
+          "expr": "histogram_quantile(0.5, sum(rate(resume_section_confidence_bucket[10m])) by (le, section))",
+          "legendFormat": "{{section}} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(resume_section_confidence_bucket[10m])) by (le, section))",
+          "legendFormat": "{{section}} p95"
+        }
       ],
-      "gridPos": {"x": 0, "y": 22, "w": 24, "h": 8}
+      "gridPos": { "x": 0, "y": 22, "w": 24, "h": 8 }
     },
     {
       "type": "timeseries",
       "title": "Field Extracted Rate by Format",
-      "targets": [{"expr": "sum(rate(resume_field_extracted_total[5m])) by (field, format)", "legendFormat": "{{field}} ({{format}})"}],
-      "gridPos": {"x": 0, "y": 30, "w": 24, "h": 8}
+      "targets": [
+        {
+          "expr": "sum(rate(resume_field_extracted_total[5m])) by (field, format)",
+          "legendFormat": "{{field}} ({{format}})"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 30, "w": 24, "h": 8 }
     },
     {
       "type": "timeseries",
       "title": "Parse Duration by Queue",
       "targets": [
-        {"expr": "histogram_quantile(0.5, sum(rate(resume_parse_duration_seconds_bucket[10m])) by (le, format, queue))", "legendFormat": "{{format}}/{{queue}} p50"},
-        {"expr": "histogram_quantile(0.95, sum(rate(resume_parse_duration_seconds_bucket[10m])) by (le, format, queue))", "legendFormat": "{{format}}/{{queue}} p95"}
+        {
+          "expr": "histogram_quantile(0.5, sum(rate(resume_parse_duration_seconds_bucket[10m])) by (le, format, queue))",
+          "legendFormat": "{{format}}/{{queue}} p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(resume_parse_duration_seconds_bucket[10m])) by (le, format, queue))",
+          "legendFormat": "{{format}}/{{queue}} p95"
+        }
       ],
-      "gridPos": {"x": 0, "y": 38, "w": 24, "h": 8}
+      "gridPos": { "x": 0, "y": 38, "w": 24, "h": 8 }
     },
     {
       "type": "timeseries",
       "title": "Parse Errors by Stage/Format",
-      "targets": [{"expr": "sum(rate(resume_parse_errors_total[5m])) by (stage, format)", "legendFormat": "{{stage}} ({{format}})"}],
-      "gridPos": {"x": 0, "y": 46, "w": 24, "h": 8}
+      "targets": [
+        {
+          "expr": "sum(rate(resume_parse_errors_total[5m])) by (stage, format)",
+          "legendFormat": "{{stage}} ({{format}})"
+        }
+      ],
+      "gridPos": { "x": 0, "y": 46, "w": 24, "h": 8 }
     }
   ]
 }

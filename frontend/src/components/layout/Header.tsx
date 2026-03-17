@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   BarChart3,
   ClipboardCheck,
@@ -7,33 +7,33 @@ import {
   Menu,
   UploadCloud,
   Users,
-} from 'lucide-react'
-import { useLayout } from '../../contexts/LayoutContext'
-import Button from '../common/Button'
-import { NAV_ITEMS } from '../../utils/constants'
-import { useAuthStore } from '../../store/authStore'
+} from "lucide-react";
+import { useLayout } from "../../contexts/LayoutContext";
+import Button from "../common/Button";
+import { NAV_ITEMS } from "../../utils/constants";
+import { useAuthStore } from "../../store/authStore";
 
 const icons = {
-  '/': FileText,
-  '/upload': UploadCloud,
-  '/candidates': Users,
-  '/accuracy': BarChart3,
-  '/corrections': ClipboardCheck,
-  '/taxonomy': Database,
-}
+  "/": FileText,
+  "/upload": UploadCloud,
+  "/candidates": Users,
+  "/accuracy": BarChart3,
+  "/corrections": ClipboardCheck,
+  "/taxonomy": Database,
+};
 
 export default function Header() {
-  const navigate = useNavigate()
-  const { accessToken, clearTokens } = useAuthStore()
-  const { sidebarOpen, setSidebarOpen } = useLayout()
+  const navigate = useNavigate();
+  const { accessToken, clearTokens } = useAuthStore();
+  const { sidebarOpen, setSidebarOpen } = useLayout();
 
   const handleAuthClick = () => {
     if (accessToken) {
-      clearTokens()
-      return
+      clearTokens();
+      return;
     }
-    navigate('/auth')
-  }
+    navigate("/auth");
+  };
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -62,27 +62,27 @@ export default function Header() {
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
           {NAV_ITEMS.map((item) => {
-            const Icon = icons[item.path as keyof typeof icons]
+            const Icon = icons[item.path as keyof typeof icons];
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
                   `flex items-center gap-2 transition ${
-                    isActive ? 'text-brand-600' : 'hover:text-slate-900'
+                    isActive ? "text-brand-600" : "hover:text-slate-900"
                   }`
                 }
               >
                 {Icon && <Icon className="h-4 w-4" />}
                 {item.label}
               </NavLink>
-            )
+            );
           })}
           <Button variant="ghost" size="sm" onClick={handleAuthClick}>
-            {accessToken ? 'Logout' : 'Login'}
+            {accessToken ? "Logout" : "Login"}
           </Button>
         </nav>
       </div>
     </header>
-  )
+  );
 }

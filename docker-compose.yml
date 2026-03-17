@@ -43,7 +43,17 @@ services:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
-    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "doc_convert", "-c", "3"]
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app.celery_app",
+        "worker",
+        "-Q",
+        "doc_convert",
+        "-c",
+        "3",
+      ]
 
   worker_ocr:
     build:
@@ -57,7 +67,17 @@ services:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
-    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "ocr", "-c", "4"]
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app.celery_app",
+        "worker",
+        "-Q",
+        "ocr",
+        "-c",
+        "4",
+      ]
 
   worker_extract:
     build:
@@ -71,7 +91,17 @@ services:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
-    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "extract", "-c", "8"]
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app.celery_app",
+        "worker",
+        "-Q",
+        "extract",
+        "-c",
+        "8",
+      ]
 
   worker_parse:
     build:
@@ -85,7 +115,19 @@ services:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
-    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "parse", "-c", "12", "--prefetch-multiplier", "1"]
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app.celery_app",
+        "worker",
+        "-Q",
+        "parse",
+        "-c",
+        "12",
+        "--prefetch-multiplier",
+        "1",
+      ]
 
   worker_llm:
     build:
@@ -99,7 +141,17 @@ services:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
-    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "llm", "-c", "4"]
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app.celery_app",
+        "worker",
+        "-Q",
+        "llm",
+        "-c",
+        "4",
+      ]
 
   worker_persist:
     build:
@@ -113,7 +165,17 @@ services:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
-    command: ["celery", "-A", "app.workers.celery_app.celery_app", "worker", "-Q", "persist", "-c", "6"]
+    command:
+      [
+        "celery",
+        "-A",
+        "app.workers.celery_app.celery_app",
+        "worker",
+        "-Q",
+        "persist",
+        "-c",
+        "6",
+      ]
 
   frontend:
     build:

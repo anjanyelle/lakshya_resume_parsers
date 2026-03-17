@@ -1,8 +1,8 @@
-import { Router } from 'express'
-import { registerUser, loginUser, getMe } from '../controllers/auth.controller'
-import { authenticateToken } from '../middleware/auth.middleware'
+import { Router } from "express";
+import { registerUser, loginUser, getMe } from "../controllers/auth.controller";
+import { authenticateToken } from "../middleware/auth.middleware";
 
-const router = Router()
+const router = Router();
 
 /**
  * @swagger
@@ -38,7 +38,7 @@ const router = Router()
  *       409:
  *         description: User already exists
  */
-router.post('/register', registerUser)
+router.post("/register", registerUser);
 
 /**
  * @swagger
@@ -67,7 +67,7 @@ router.post('/register', registerUser)
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', loginUser)
+router.post("/login", loginUser);
 
 /**
  * @swagger
@@ -83,6 +83,6 @@ router.post('/login', loginUser)
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticateToken, getMe)
+router.get("/me", authenticateToken, getMe);
 
-export default router
+export default router;

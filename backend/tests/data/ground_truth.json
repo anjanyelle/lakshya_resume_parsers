@@ -5049,12 +5049,7 @@
         "automation",
         "testing"
       ],
-      "sections_detected": [
-        "summary",
-        "skills",
-        "experience",
-        "education"
-      ]
+      "sections_detected": ["summary", "skills", "experience", "education"]
     },
     "expected": {
       "name": "",

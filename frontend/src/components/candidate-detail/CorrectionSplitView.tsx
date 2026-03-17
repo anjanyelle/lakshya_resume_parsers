@@ -1,32 +1,40 @@
-import { useMemo } from 'react'
-import { AlertTriangle, Eye, EyeOff, Save, Undo2, Redo2 } from 'lucide-react'
-import Button from '../common/Button'
-import EditableField from './EditableField'
-import { confidenceTone, confidenceLabel } from '../../utils/confidence'
+import { useMemo } from "react";
+import { AlertTriangle, Eye, EyeOff, Save, Undo2, Redo2 } from "lucide-react";
+import Button from "../common/Button";
+import EditableField from "./EditableField";
+import { confidenceTone, confidenceLabel } from "../../utils/confidence";
 
 type CorrectionSplitViewProps = {
-  resumeUrl?: string | null
-  resumeError?: string | null
-  parsedData: Record<string, any>
-  originalData: Record<string, any>
-  workHistory: Array<any>
-  originalWorkHistory: Array<any>
-  onWorkHistoryChange: (workHistoryId: string, field: string, value: string) => void
-  certifications: Array<any>
-  originalCertifications: Array<any>
-  onCertificationChange: (certificationId: string, field: string, value: string) => void
-  flaggedFields: Record<string, number>
-  discrepancies: string[]
-  compareMode: boolean
-  onToggleCompare: () => void
-  onFieldChange: (path: string, value: string) => void
-  onUndo: () => void
-  onRedo: () => void
-  onSave: () => void
-  canUndo: boolean
-  canRedo: boolean
-  readOnly?: boolean
-}
+  resumeUrl?: string | null;
+  resumeError?: string | null;
+  parsedData: Record<string, any>;
+  originalData: Record<string, any>;
+  workHistory: Array<any>;
+  originalWorkHistory: Array<any>;
+  onWorkHistoryChange: (
+    workHistoryId: string,
+    field: string,
+    value: string,
+  ) => void;
+  certifications: Array<any>;
+  originalCertifications: Array<any>;
+  onCertificationChange: (
+    certificationId: string,
+    field: string,
+    value: string,
+  ) => void;
+  flaggedFields: Record<string, number>;
+  discrepancies: string[];
+  compareMode: boolean;
+  onToggleCompare: () => void;
+  onFieldChange: (path: string, value: string) => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onSave: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  readOnly?: boolean;
+};
 
 export default function CorrectionSplitView({
   resumeUrl: _resumeUrl,
@@ -51,51 +59,51 @@ export default function CorrectionSplitView({
   canRedo,
   readOnly = false,
 }: CorrectionSplitViewProps) {
-  const contact = parsedData.contact || {}
-  const originalContact = originalData.contact || {}
+  const contact = parsedData.contact || {};
+  const originalContact = originalData.contact || {};
 
   const fields = useMemo(
     () => [
       {
-        label: 'Full name',
-        path: 'contact.name.name',
-        flagKey: 'name',
-        value: contact?.name?.name || '',
-        compare: originalContact?.name?.name || '',
+        label: "Full name",
+        path: "contact.name.name",
+        flagKey: "name",
+        value: contact?.name?.name || "",
+        compare: originalContact?.name?.name || "",
         confidence: contact?.name?.confidence,
       },
       {
-        label: 'Primary email',
-        path: 'contact.emails.0.email',
-        flagKey: 'email',
-        value: contact?.emails?.[0]?.email || '',
-        compare: originalContact?.emails?.[0]?.email || '',
+        label: "Primary email",
+        path: "contact.emails.0.email",
+        flagKey: "email",
+        value: contact?.emails?.[0]?.email || "",
+        compare: originalContact?.emails?.[0]?.email || "",
         confidence: contact?.emails?.[0]?.confidence,
       },
       {
-        label: 'Primary phone',
-        path: 'contact.phones.0.phone',
-        flagKey: 'phone',
-        value: contact?.phones?.[0]?.phone || '',
-        compare: originalContact?.phones?.[0]?.phone || '',
+        label: "Primary phone",
+        path: "contact.phones.0.phone",
+        flagKey: "phone",
+        value: contact?.phones?.[0]?.phone || "",
+        compare: originalContact?.phones?.[0]?.phone || "",
         confidence: contact?.phones?.[0]?.confidence,
       },
       {
-        label: 'Location',
-        path: 'contact.location.city',
-        flagKey: 'location',
-        value: contact?.location?.city || '',
-        compare: originalContact?.location?.city || '',
+        label: "Location",
+        path: "contact.location.city",
+        flagKey: "location",
+        value: contact?.location?.city || "",
+        compare: originalContact?.location?.city || "",
         confidence: contact?.location?.confidence,
       },
     ],
     [contact, originalContact, compareMode],
-  )
+  );
 
-  const skills = parsedData.skills || []
-  const originalSkills = originalData.skills || []
-  const education = parsedData.education || []
-  const originalEducation = originalData.education || []
+  const skills = parsedData.skills || [];
+  const originalSkills = originalData.skills || [];
+  const education = parsedData.education || [];
+  const originalEducation = originalData.education || [];
 
   return (
     <div className="grid gap-6 lg:grid-cols-">
@@ -124,14 +132,30 @@ export default function CorrectionSplitView({
               <Button
                 variant="secondary"
                 onClick={onToggleCompare}
-                icon={compareMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                icon={
+                  compareMode ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )
+                }
               >
-                {compareMode ? 'Hide comparison' : 'Compare original'}
+                {compareMode ? "Hide comparison" : "Compare original"}
               </Button>
-              <Button variant="secondary" onClick={onUndo} disabled={!canUndo} icon={<Undo2 className="h-4 w-4" />}>
+              <Button
+                variant="secondary"
+                onClick={onUndo}
+                disabled={!canUndo}
+                icon={<Undo2 className="h-4 w-4" />}
+              >
                 Undo
               </Button>
-              <Button variant="secondary" onClick={onRedo} disabled={!canRedo} icon={<Redo2 className="h-4 w-4" />}>
+              <Button
+                variant="secondary"
+                onClick={onRedo}
+                disabled={!canRedo}
+                icon={<Redo2 className="h-4 w-4" />}
+              >
                 Redo
               </Button>
             </div>
@@ -164,11 +188,12 @@ export default function CorrectionSplitView({
               showComparison={compareMode}
               confidence={field.confidence}
               flagged={Boolean(
-                flaggedFields[field.flagKey] ??
-                  (field.confidence ?? 1) < 0.6,
+                flaggedFields[field.flagKey] ?? (field.confidence ?? 1) < 0.6,
               )}
               onSave={(next) => onFieldChange(field.path, next)}
-              validator={(value) => (value.trim() ? null : 'Value cannot be empty')}
+              validator={(value) =>
+                value.trim() ? null : "Value cannot be empty"
+              }
               readOnly={readOnly}
             />
           ))}
@@ -178,78 +203,118 @@ export default function CorrectionSplitView({
           <h4 className="text-sm font-semibold text-slate-900">Work history</h4>
           <div className="mt-3 space-y-3">
             {workHistory.map((item: any) => (
-              <div key={item.id} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div
+                key={item.id}
+                className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3"
+              >
                 <EditableField
                   label="Company"
-                  value={item.company_name || ''}
-                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.company_name || ''}
+                  value={item.company_name || ""}
+                  compareValue={
+                    originalWorkHistory?.find((o: any) => o.id === item.id)
+                      ?.company_name || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onWorkHistoryChange(item.id, 'company_name', next)}
-                  validator={(value) => (value.trim() ? null : 'Company required')}
+                  onSave={(next) =>
+                    onWorkHistoryChange(item.id, "company_name", next)
+                  }
+                  validator={(value) =>
+                    value.trim() ? null : "Company required"
+                  }
                   readOnly={readOnly}
                 />
                 <EditableField
                   label="Title"
-                  value={item.job_title || ''}
-                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.job_title || ''}
+                  value={item.job_title || ""}
+                  compareValue={
+                    originalWorkHistory?.find((o: any) => o.id === item.id)
+                      ?.job_title || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onWorkHistoryChange(item.id, 'job_title', next)}
+                  onSave={(next) =>
+                    onWorkHistoryChange(item.id, "job_title", next)
+                  }
                   readOnly={readOnly}
                 />
                 <EditableField
                   label="Client"
-                  value={item.client_name || ''}
-                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.client_name || ''}
+                  value={item.client_name || ""}
+                  compareValue={
+                    originalWorkHistory?.find((o: any) => o.id === item.id)
+                      ?.client_name || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onWorkHistoryChange(item.id, 'client_name', next)}
+                  onSave={(next) =>
+                    onWorkHistoryChange(item.id, "client_name", next)
+                  }
                   readOnly={readOnly}
                 />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <EditableField
                     label="Start date"
-                    value={item.start_date || ''}
-                    compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.start_date || ''}
+                    value={item.start_date || ""}
+                    compareValue={
+                      originalWorkHistory?.find((o: any) => o.id === item.id)
+                        ?.start_date || ""
+                    }
                     showComparison={compareMode}
                     confidence={null}
                     flagged={false}
-                    onSave={(next) => onWorkHistoryChange(item.id, 'start_date', next)}
+                    onSave={(next) =>
+                      onWorkHistoryChange(item.id, "start_date", next)
+                    }
                     readOnly={readOnly}
                   />
                   <EditableField
                     label="End date"
-                    value={item.end_date || ''}
-                    compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.end_date || ''}
+                    value={item.end_date || ""}
+                    compareValue={
+                      originalWorkHistory?.find((o: any) => o.id === item.id)
+                        ?.end_date || ""
+                    }
                     showComparison={compareMode}
                     confidence={null}
                     flagged={false}
-                    onSave={(next) => onWorkHistoryChange(item.id, 'end_date', next)}
+                    onSave={(next) =>
+                      onWorkHistoryChange(item.id, "end_date", next)
+                    }
                     readOnly={readOnly}
                   />
                 </div>
                 <EditableField
                   label="Location"
-                  value={item.location || ''}
-                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.location || ''}
+                  value={item.location || ""}
+                  compareValue={
+                    originalWorkHistory?.find((o: any) => o.id === item.id)
+                      ?.location || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onWorkHistoryChange(item.id, 'location', next)}
+                  onSave={(next) =>
+                    onWorkHistoryChange(item.id, "location", next)
+                  }
                   readOnly={readOnly}
                 />
                 <EditableField
                   label="Description"
-                  value={item.description || ''}
-                  compareValue={originalWorkHistory?.find((o: any) => o.id === item.id)?.description || ''}
+                  value={item.description || ""}
+                  compareValue={
+                    originalWorkHistory?.find((o: any) => o.id === item.id)
+                      ?.description || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onWorkHistoryChange(item.id, 'description', next)}
+                  onSave={(next) =>
+                    onWorkHistoryChange(item.id, "description", next)
+                  }
                   readOnly={readOnly}
                 />
               </div>
@@ -264,8 +329,8 @@ export default function CorrectionSplitView({
               <EditableField
                 key={`skill-${index}`}
                 label={`Skill ${index + 1}`}
-                value={item.name || ''}
-                compareValue={originalSkills?.[index]?.name || ''}
+                value={item.name || ""}
+                compareValue={originalSkills?.[index]?.name || ""}
                 showComparison={compareMode}
                 confidence={item.confidence}
                 flagged={false}
@@ -280,25 +345,32 @@ export default function CorrectionSplitView({
           <h4 className="text-sm font-semibold text-slate-900">Education</h4>
           <div className="mt-3 space-y-2">
             {education.map((item: any, index: number) => (
-              <div key={`education-${index}`} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div
+                key={`education-${index}`}
+                className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3"
+              >
                 <EditableField
                   label="Institution"
-                  value={item.institution || ''}
-                  compareValue={originalEducation?.[index]?.institution || ''}
+                  value={item.institution || ""}
+                  compareValue={originalEducation?.[index]?.institution || ""}
                   showComparison={compareMode}
                   confidence={item.confidence}
                   flagged={false}
-                  onSave={(next) => onFieldChange(`education.${index}.institution`, next)}
+                  onSave={(next) =>
+                    onFieldChange(`education.${index}.institution`, next)
+                  }
                   readOnly={readOnly}
                 />
                 <EditableField
                   label="Degree"
-                  value={item.degree || ''}
-                  compareValue={originalEducation?.[index]?.degree || ''}
+                  value={item.degree || ""}
+                  compareValue={originalEducation?.[index]?.degree || ""}
                   showComparison={compareMode}
                   confidence={item.confidence}
                   flagged={false}
-                  onSave={(next) => onFieldChange(`education.${index}.degree`, next)}
+                  onSave={(next) =>
+                    onFieldChange(`education.${index}.degree`, next)
+                  }
                   readOnly={readOnly}
                 />
               </div>
@@ -307,61 +379,91 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Certifications</h4>
+          <h4 className="text-sm font-semibold text-slate-900">
+            Certifications
+          </h4>
           <div className="mt-3 space-y-2">
             {certifications.map((item: any) => (
-              <div key={item.id} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
+              <div
+                key={item.id}
+                className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3"
+              >
                 <EditableField
                   label="Certification"
-                  value={item.name || ''}
-                  compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.name || ''}
+                  value={item.name || ""}
+                  compareValue={
+                    originalCertifications?.find((o: any) => o.id === item.id)
+                      ?.name || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onCertificationChange(item.id, 'name', next)}
-                  validator={(value) => (value.trim() ? null : 'Name required')}
+                  onSave={(next) =>
+                    onCertificationChange(item.id, "name", next)
+                  }
+                  validator={(value) => (value.trim() ? null : "Name required")}
                   readOnly={readOnly}
                 />
                 <EditableField
                   label="Issuer"
-                  value={item.issuing_organization || ''}
-                  compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.issuing_organization || ''}
+                  value={item.issuing_organization || ""}
+                  compareValue={
+                    originalCertifications?.find((o: any) => o.id === item.id)
+                      ?.issuing_organization || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onCertificationChange(item.id, 'issuing_organization', next)}
+                  onSave={(next) =>
+                    onCertificationChange(item.id, "issuing_organization", next)
+                  }
                   readOnly={readOnly}
                 />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <EditableField
                     label="Issue date"
-                    value={item.issue_date || ''}
-                    compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.issue_date || ''}
+                    value={item.issue_date || ""}
+                    compareValue={
+                      originalCertifications?.find((o: any) => o.id === item.id)
+                        ?.issue_date || ""
+                    }
                     showComparison={compareMode}
                     confidence={null}
                     flagged={false}
-                    onSave={(next) => onCertificationChange(item.id, 'issue_date', next)}
+                    onSave={(next) =>
+                      onCertificationChange(item.id, "issue_date", next)
+                    }
                     readOnly={readOnly}
                   />
                   <EditableField
                     label="Expiry date"
-                    value={item.expiry_date || ''}
-                    compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.expiry_date || ''}
+                    value={item.expiry_date || ""}
+                    compareValue={
+                      originalCertifications?.find((o: any) => o.id === item.id)
+                        ?.expiry_date || ""
+                    }
                     showComparison={compareMode}
                     confidence={null}
                     flagged={false}
-                    onSave={(next) => onCertificationChange(item.id, 'expiry_date', next)}
+                    onSave={(next) =>
+                      onCertificationChange(item.id, "expiry_date", next)
+                    }
                     readOnly={readOnly}
                   />
                 </div>
                 <EditableField
                   label="Credential ID"
-                  value={item.credential_id || ''}
-                  compareValue={originalCertifications?.find((o: any) => o.id === item.id)?.credential_id || ''}
+                  value={item.credential_id || ""}
+                  compareValue={
+                    originalCertifications?.find((o: any) => o.id === item.id)
+                      ?.credential_id || ""
+                  }
                   showComparison={compareMode}
                   confidence={null}
                   flagged={false}
-                  onSave={(next) => onCertificationChange(item.id, 'credential_id', next)}
+                  onSave={(next) =>
+                    onCertificationChange(item.id, "credential_id", next)
+                  }
                   readOnly={readOnly}
                 />
               </div>
@@ -370,12 +472,19 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Confidence summary</h4>
+          <h4 className="text-sm font-semibold text-slate-900">
+            Confidence summary
+          </h4>
           <div className="mt-2 text-xs text-slate-500">
             {Object.entries(flaggedFields).map(([field, value]) => (
-              <div key={field} className="flex items-center justify-between py-1">
+              <div
+                key={field}
+                className="flex items-center justify-between py-1"
+              >
                 <span>{field}</span>
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${confidenceTone(value)}`}>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${confidenceTone(value)}`}
+                >
                   {confidenceLabel(value)}
                 </span>
               </div>
@@ -384,5 +493,5 @@ export default function CorrectionSplitView({
         </div>
       </div>
     </div>
-  )
+  );
 }

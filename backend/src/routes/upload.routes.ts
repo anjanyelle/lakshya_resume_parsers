@@ -1,12 +1,20 @@
-import { Router } from 'express'
-import { uploadResume, getUploadConfig, getUploadStats } from '../controllers/upload.controller'
-import { uploadResume as multerMiddleware, handleUploadError, addFileInfo } from '../middleware/upload.middleware'
-import { authenticateToken, requireRole } from '../middleware/auth.middleware'
+import { Router } from "express";
+import {
+  uploadResume,
+  getUploadConfig,
+  getUploadStats,
+} from "../controllers/upload.controller";
+import {
+  uploadResume as multerMiddleware,
+  handleUploadError,
+  addFileInfo,
+} from "../middleware/upload.middleware";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
-const router = Router()
+const router = Router();
 
 // All upload routes require authentication
-router.use(authenticateToken)
+router.use(authenticateToken);
 
 /**
  * @swagger
@@ -81,12 +89,13 @@ router.use(authenticateToken)
  *       500:
  *         description: Internal server error
  */
-router.post('/resume', 
-  multerMiddleware,           // Handle file upload with multer
-  handleUploadError,          // Handle multer errors
-  addFileInfo,                // Add file info to request
-  uploadResume                // Process the upload
-)
+router.post(
+  "/resume",
+  multerMiddleware, // Handle file upload with multer
+  handleUploadError, // Handle multer errors
+  addFileInfo, // Add file info to request
+  uploadResume, // Process the upload
+);
 
 /**
  * @swagger
@@ -152,7 +161,7 @@ router.post('/resume',
  *       500:
  *         description: Internal server error
  */
-router.get('/config', getUploadConfig)
+router.get("/config", getUploadConfig);
 
 /**
  * @swagger
@@ -203,9 +212,10 @@ router.get('/config', getUploadConfig)
  *       500:
  *         description: Internal server error
  */
-router.get('/stats', 
-  requireRole(['admin', 'manager']),  // Require admin or manager role
-  getUploadStats
-)
+router.get(
+  "/stats",
+  requireRole(["admin", "manager"]), // Require admin or manager role
+  getUploadStats,
+);
 
-export default router
+export default router;

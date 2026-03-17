@@ -1,29 +1,29 @@
-const MAX_BYTES = 10 * 1024 * 1024
+const MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'text/plain',
-  'application/rtf',
-]
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain",
+  "application/rtf",
+];
 
 type FileValidatorProps = {
-  files: File[]
-}
+  files: File[];
+};
 
 export default function FileValidator({ files }: FileValidatorProps) {
   const errors = files.flatMap((file) => {
-    const issues: string[] = []
+    const issues: string[] = [];
     if (!ALLOWED_TYPES.includes(file.type)) {
-      issues.push('Unsupported file type')
+      issues.push("Unsupported file type");
     }
     if (file.size > MAX_BYTES) {
-      issues.push('File exceeds 10MB limit')
+      issues.push("File exceeds 10MB limit");
     }
-    return issues.map((issue) => `${file.name}: ${issue}`)
-  })
+    return issues.map((issue) => `${file.name}: ${issue}`);
+  });
 
-  if (!errors.length) return null
+  if (!errors.length) return null;
 
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
@@ -34,5 +34,5 @@ export default function FileValidator({ files }: FileValidatorProps) {
         ))}
       </ul>
     </div>
-  )
+  );
 }

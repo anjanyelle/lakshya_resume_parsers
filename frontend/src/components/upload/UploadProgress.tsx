@@ -1,9 +1,12 @@
 type UploadProgressProps = {
-  progress: number
-  status: string
-}
+  progress: number;
+  status: string;
+};
 
-export default function UploadProgress({ progress, status }: UploadProgressProps) {
+export default function UploadProgress({
+  progress,
+  status,
+}: UploadProgressProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs text-slate-500">
@@ -17,5 +20,5 @@ export default function UploadProgress({ progress, status }: UploadProgressProps
         />
       </div>
     </div>
-  )
+  );
 }

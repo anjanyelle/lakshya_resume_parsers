@@ -1,4 +1,5 @@
 # FASTAPI BACKEND DEPLOYMENT GUIDE
+
 ## Complete Production Deployment on Render.com
 
 This guide provides step-by-step instructions for deploying your FastAPI resume parser backend to Render with ML models, file uploads, and database integration.
@@ -45,6 +46,7 @@ backend/
 ```
 
 **✅ Production-Ready Features:**
+
 - FastAPI with async support
 - SQLAlchemy ORM with Alembic migrations
 - Comprehensive error handling
@@ -61,6 +63,7 @@ backend/
 ### 1. Core Configuration Files
 
 #### `render.yaml` ✅ ALREADY EXISTS
+
 ```yaml
 services:
   - type: web
@@ -76,6 +79,7 @@ services:
 ```
 
 #### `Dockerfile.render` ✅ ALREADY EXISTS
+
 ```dockerfile
 FROM python:3.11-slim
 # Production optimizations included
@@ -83,6 +87,7 @@ FROM python:3.11-slim
 ```
 
 #### `pyproject.toml` ✅ ALREADY EXISTS
+
 ```toml
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -92,14 +97,14 @@ fastapi = "^0.115.0"
 
 ### 2. Essential Files Status
 
-| File | Status | Purpose |
-|------|---------|---------|
-| `render.yaml` | ✅ Complete | Render service configuration |
-| `Dockerfile.render` | ✅ Complete | Production Docker image |
-| `start.sh` | ✅ Complete | Production startup script |
-| `.dockerignore` | ✅ Complete | Docker build optimization |
-| `requirements.txt` | ✅ Complete | Fallback dependencies |
-| `alembic.ini` | ✅ Complete | Database migrations |
+| File                | Status      | Purpose                      |
+| ------------------- | ----------- | ---------------------------- |
+| `render.yaml`       | ✅ Complete | Render service configuration |
+| `Dockerfile.render` | ✅ Complete | Production Docker image      |
+| `start.sh`          | ✅ Complete | Production startup script    |
+| `.dockerignore`     | ✅ Complete | Docker build optimization    |
+| `requirements.txt`  | ✅ Complete | Fallback dependencies        |
+| `alembic.ini`       | ✅ Complete | Database migrations          |
 
 ---
 
@@ -117,6 +122,7 @@ fastapi = "^0.115.0"
    - **Root Directory**: `backend`
 
 3. **Configure Service**
+
    ```
    Name: Lakshya-LLM-Resume-Parser
    Environment: Docker
@@ -136,6 +142,7 @@ fastapi = "^0.115.0"
 ### Step 2: Add Database
 
 1. **Create PostgreSQL Database**
+
    ```
    Name: resume-parser-db
    Database Name: resume_parser
@@ -154,6 +161,7 @@ fastapi = "^0.115.0"
 ### Step 3: Add Redis (Optional but Recommended)
 
 1. **Create Redis Instance**
+
    ```
    Name: resume-parser-redis
    Plan: Free (25MB)
@@ -172,6 +180,7 @@ fastapi = "^0.115.0"
 ### Core Environment Variables
 
 #### Database Configuration
+
 ```bash
 DATABASE_URL=postgresql+psycopg2://postgres:password@host:5432/resume_parser
 DB_POOL_SIZE=20
@@ -181,6 +190,7 @@ DB_POOL_RECYCLE=1800
 ```
 
 #### Application Settings
+
 ```bash
 APP_NAME="Resume Parser API"
 ENVIRONMENT=production
@@ -192,6 +202,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=60
 ```
 
 #### File Upload & Storage
+
 ```bash
 STORAGE_DIR=./storage
 UPLOAD_MAX_SIZE_MB=20
@@ -199,6 +210,7 @@ ALLOWED_UPLOAD_EXTENSIONS=["pdf","doc","docx","txt","rtf","png","jpg","jpeg"]
 ```
 
 #### ML & OCR Settings
+
 ```bash
 OCR_MIN_TEXT_CHARS=100
 OCR_MAX_PAGES=15
@@ -207,11 +219,13 @@ TESSERACT_CMD=/usr/bin/tesseract
 ```
 
 #### CORS Configuration
+
 ```bash
 CORS_ORIGINS=["https://your-frontend-domain.vercel.app"]
 ```
 
 ### Render-Specific Variables
+
 ```bash
 # Render provides these automatically
 PORT=10000
@@ -241,6 +255,7 @@ except Exception:
 ### Production Model Loading Strategy
 
 #### 1. Model Pre-loading
+
 ```python
 # In app/main.py or startup event
 @app.on_event("startup")
@@ -252,6 +267,7 @@ async def startup_event():
 ```
 
 #### 2. Model Caching
+
 ```python
 # Cache models in memory for performance
 MODEL_CACHE = {}
@@ -263,6 +279,7 @@ def get_model(model_name: str):
 ```
 
 #### 3. Model Storage
+
 ```python
 # Store models in /app/models/ directory
 # Mount as volume in Docker for persistence
@@ -271,6 +288,7 @@ def get_model(model_name: str):
 ### Render ML Model Deployment
 
 1. **Include Models in Docker**
+
    ```dockerfile
    # In Dockerfile.render
    COPY ./models/ ./app/models/
@@ -291,6 +309,7 @@ def get_model(model_name: str):
 ### PostgreSQL Setup
 
 #### 1. Migration Strategy
+
 ```python
 # Run migrations on startup
 # In start.sh or startup event
@@ -298,6 +317,7 @@ alembic upgrade head
 ```
 
 #### 2. Connection Pooling
+
 ```python
 # Already configured in config.py
 DB_POOL_SIZE=20
@@ -306,6 +326,7 @@ DB_POOL_TIMEOUT=30
 ```
 
 #### 3. Database Health Check
+
 ```python
 @app.get("/health")
 async def health_check():
@@ -327,6 +348,7 @@ async def health_check():
    - Format: `postgresql://username:password@host:port/database`
 
 2. **Migration Execution**
+
    ```bash
    # Via start.sh
    alembic upgrade head
@@ -358,6 +380,7 @@ async def upload_file(
 ### File Upload Features
 
 #### 1. Validation
+
 ```python
 # Magic byte validation
 from app.utils.file_validation import validate_magic
@@ -370,6 +393,7 @@ ALLOWED_UPLOAD_EXTENSIONS=["pdf","doc","docx","txt","rtf","png","jpg","jpeg"]
 ```
 
 #### 2. Storage Options
+
 ```python
 # Local storage
 STORAGE_DIR=./storage
@@ -382,6 +406,7 @@ S3_BUCKET
 ```
 
 #### 3. Security Scanning
+
 ```python
 # Virus scanning
 CLAMAV_ENABLED=true
@@ -391,6 +416,7 @@ CLAMAV_PATH=/usr/bin/clamscan
 ### Render File Upload Configuration
 
 1. **Persistent Storage**
+
    ```yaml
    # In render.yaml
    disk:
@@ -425,6 +451,7 @@ app.add_middleware(
 ### Production CORS Configuration
 
 #### 1. Environment-Specific Origins
+
 ```bash
 # Development
 CORS_ORIGINS=["http://localhost:3000","http://localhost:5173"]
@@ -437,6 +464,7 @@ CORS_ORIGINS=["https://app.vercel.app","https://www.app.vercel.app"]
 ```
 
 #### 2. Security Headers
+
 ```python
 # Additional security headers
 @app.middleware("https_redirect")
@@ -472,6 +500,7 @@ async def ready_check():
 ### Monitoring Integration
 
 #### 1. Prometheus Metrics
+
 ```python
 # Already implemented
 from prometheus_client import generate_latest
@@ -482,6 +511,7 @@ async def metrics():
 ```
 
 #### 2. Sentry Error Tracking
+
 ```python
 # Already configured
 init_sentry()
@@ -489,6 +519,7 @@ instrument_db(engine)
 ```
 
 #### 3. Structured Logging
+
 ```python
 # Already implemented
 import structlog
@@ -516,18 +547,21 @@ logger = structlog.get_logger(__name__)
 ### Pre-Deployment Checklist
 
 #### 1. Code Preparation
+
 - [ ] Push latest code to `main` branch
 - [ ] Verify `render.yaml` is in backend root
 - [ ] Confirm `Dockerfile.render` exists
 - [ ] Test local build: `docker build -f Dockerfile.render .`
 
 #### 2. Environment Setup
+
 - [ ] Prepare environment variables
 - [ ] Generate secure `SECRET_KEY`
 - [ ] Configure CORS origins
 - [ ] Set database connection parameters
 
 #### 3. Database Preparation
+
 - [ ] Create PostgreSQL service on Render
 - [ ] Note connection string
 - [ ] Plan migration strategy
@@ -535,6 +569,7 @@ logger = structlog.get_logger(__name__)
 ### Step-by-Step Deployment
 
 #### Step 1: Create Web Service
+
 1. Go to Render Dashboard → **New → Web Service**
 2. Connect GitHub repository
 3. Configure:
@@ -547,6 +582,7 @@ logger = structlog.get_logger(__name__)
    ```
 
 #### Step 2: Add Database
+
 1. Go to **New → PostgreSQL**
 2. Configure:
    ```
@@ -557,6 +593,7 @@ logger = structlog.get_logger(__name__)
 3. Connect to web service
 
 #### Step 3: Configure Environment
+
 1. Go to web service → **Environment**
 2. Add required variables:
    ```bash
@@ -566,6 +603,7 @@ logger = structlog.get_logger(__name__)
    ```
 
 #### Step 4: Deploy
+
 1. Push changes to trigger deployment
 2. Monitor build logs
 3. Verify health endpoint
@@ -578,7 +616,9 @@ logger = structlog.get_logger(__name__)
 ### Common Deployment Issues
 
 #### 1. Build Failures
+
 **Problem**: Docker build fails
+
 ```
 Solution:
 1. Check Dockerfile.render syntax
@@ -587,7 +627,9 @@ Solution:
 ```
 
 #### 2. Database Connection Issues
+
 **Problem**: Can't connect to PostgreSQL
+
 ```
 Solution:
 1. Verify DATABASE_URL format
@@ -597,7 +639,9 @@ Solution:
 ```
 
 #### 3. Health Check Failures
+
 **Problem**: Health check returns 503
+
 ```
 Solution:
 1. Verify /health endpoint exists
@@ -607,7 +651,9 @@ Solution:
 ```
 
 #### 4. ML Model Loading Issues
+
 **Problem**: Models fail to load
+
 ```
 Solution:
 1. Verify model files in Docker image
@@ -617,7 +663,9 @@ Solution:
 ```
 
 #### 5. File Upload Issues
+
 **Problem**: Uploads fail or files not saved
+
 ```
 Solution:
 1. Check storage directory permissions
@@ -627,7 +675,9 @@ Solution:
 ```
 
 #### 6. CORS Errors
+
 **Problem**: Frontend can't access API
+
 ```
 Solution:
 1. Update CORS_ORIGINS environment variable
@@ -639,6 +689,7 @@ Solution:
 ### Debugging Commands
 
 #### 1. Local Testing
+
 ```bash
 # Test Docker build
 docker build -f Dockerfile.render -t resume-parser .
@@ -651,6 +702,7 @@ curl http://localhost:8000/health
 ```
 
 #### 2. Render Logs
+
 ```bash
 # View real-time logs
 # Via Render dashboard → Logs tab
@@ -661,6 +713,7 @@ curl http://localhost:8000/health
 ```
 
 #### 3. Database Debugging
+
 ```bash
 # Connect to Render database
 psql $DATABASE_URL
@@ -677,9 +730,10 @@ alembic history
 ### FastAPI Production Settings
 
 #### 1. Gunicorn Configuration
+
 ```dockerfile
 # In Dockerfile.render
-CMD ["gunicorn", "app.main:app", 
+CMD ["gunicorn", "app.main:app",
        "-w", "2",                    # Workers
        "-k", "uvicorn.workers.UvicornWorker",
        "-b", "0.0.0.0:8000",
@@ -689,6 +743,7 @@ CMD ["gunicorn", "app.main:app",
 ```
 
 #### 2. Memory Management
+
 ```python
 # Connection pooling
 DB_POOL_SIZE=20
@@ -700,6 +755,7 @@ PDF_MAX_PAGES=50
 ```
 
 #### 3. Caching Strategy
+
 ```python
 # Redis caching (if configured)
 from app.core.cache import cache
@@ -717,24 +773,28 @@ def expensive_ml_operation(data):
 ### Production Security Measures
 
 #### 1. Authentication & Authorization
+
 - [ ] JWT tokens implemented
 - [ ] Rate limiting configured
 - [ ] User authentication enforced
 - [ ] API key authentication for services
 
 #### 2. Input Validation
+
 - [ ] File type validation (magic bytes)
 - [ ] File size limits enforced
 - [ ] SQL injection protection (ORM)
 - [ ] XSS prevention
 
 #### 3. Infrastructure Security
+
 - [ ] HTTPS enforced
 - [ ] Security headers configured
 - [ ] CORS properly configured
 - [ ] Virus scanning enabled
 
 #### 4. Data Protection
+
 - [ ] Environment variables secured
 - [ ] Database encryption enabled
 - [ ] Audit logging implemented
@@ -747,18 +807,21 @@ def expensive_ml_operation(data):
 ### Key Metrics to Monitor
 
 #### 1. Application Metrics
+
 - Request rate and response times
 - Error rates by endpoint
 - File upload success/failure rates
 - ML model inference times
 
 #### 2. Infrastructure Metrics
+
 - CPU and memory usage
 - Database connection pool status
 - Disk space usage
 - Network latency
 
 #### 3. Business Metrics
+
 - Resume parsing success rate
 - Average parsing time
 - User registration/activity
@@ -767,12 +830,14 @@ def expensive_ml_operation(data):
 ### Alert Configuration
 
 #### 1. Render Alerts
+
 - Service health failures
 - Build/deployment failures
 - High error rates
 - Resource exhaustion
 
 #### 2. Custom Alerts
+
 ```python
 # Custom health checks
 @app.get("/health/detailed")
@@ -795,6 +860,7 @@ async def detailed_health():
 ### CI/CD Pipeline
 
 #### 1. Automated Testing
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy to Render
@@ -824,6 +890,7 @@ jobs:
 ```
 
 #### 2. Blue-Green Deployment
+
 ```yaml
 # Render supports zero-downtime deployments
 # Configure in render.yaml
@@ -836,20 +903,22 @@ postDeployHook: ./scripts/post-deploy.sh
 ## 📚 REFERENCE DOCUMENTATION
 
 ### Quick Links
+
 - [Render Documentation](https://render.com/docs)
 - [FastAPI Documentation](https://fastapi.tiangolo.com)
 - [SQLAlchemy Documentation](https://docs.sqlalchemy.org)
 - [Docker Best Practices](https://docs.docker.com)
 
 ### Environment Variable Reference
-| Variable | Required | Default | Description |
-|----------|-----------|---------|-------------|
-| `DATABASE_URL` | ✅ | - | PostgreSQL connection string |
-| `SECRET_KEY` | ✅ | `change_me` | JWT signing key |
-| `CORS_ORIGINS` | ✅ | `[]` | Allowed frontend origins |
-| `STORAGE_DIR` | ❌ | `./storage` | File upload directory |
-| `UPLOAD_MAX_SIZE_MB` | ❌ | `20` | Max file size in MB |
-| `LOG_LEVEL` | ❌ | `INFO` | Logging verbosity |
+
+| Variable             | Required | Default     | Description                  |
+| -------------------- | -------- | ----------- | ---------------------------- |
+| `DATABASE_URL`       | ✅       | -           | PostgreSQL connection string |
+| `SECRET_KEY`         | ✅       | `change_me` | JWT signing key              |
+| `CORS_ORIGINS`       | ✅       | `[]`        | Allowed frontend origins     |
+| `STORAGE_DIR`        | ❌       | `./storage` | File upload directory        |
+| `UPLOAD_MAX_SIZE_MB` | ❌       | `20`        | Max file size in MB          |
+| `LOG_LEVEL`          | ❌       | `INFO`      | Logging verbosity            |
 
 ---
 
@@ -871,11 +940,13 @@ Your deployment is successful when:
 ## 🆘 SUPPORT
 
 ### Render Support
+
 - Documentation: https://render.com/docs
 - Status Page: https://status.render.com
 - Support: support@render.com
 
 ### Common Issues
+
 - **Build Failures**: Check Dockerfile and dependencies
 - **Database Issues**: Verify connection string and migrations
 - **Performance**: Optimize database queries and caching

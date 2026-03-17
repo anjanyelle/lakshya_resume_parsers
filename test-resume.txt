@@ -1,0 +1,16 @@
+John Doe
+Email: john.doe@example.com
+Phone: +91-8790439333
+LinkedIn: https://linkedin.com/in/johndoe
+GitHub: https://github.com/johndoe
+
+EXPERIENCE
+Senior Software Engineer at Google (2020-Present)
+- Developed React applications
+- Used Python and TypeScript
+
+EDUCATION
+B.Tech Computer Science from IIT Delhi (2016-2020)
+
+SKILLS
+React, Python, TypeScript, AWS, Docker, Node.js

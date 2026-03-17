@@ -8,4 +8,4 @@ export type {
   Education,
   Certification,
   ParsingJob,
-} from './candidate'
+} from "./candidate";

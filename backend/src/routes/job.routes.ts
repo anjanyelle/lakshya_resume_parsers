@@ -1,20 +1,20 @@
-import { Router } from 'express'
-import { 
-  createJob, 
-  getAllJobs, 
-  getJobById, 
-  updateJob, 
-  deleteJob, 
+import { Router } from "express";
+import {
+  createJob,
+  getAllJobs,
+  getJobById,
+  updateJob,
+  deleteJob,
   getJobOptions,
   createJobValidation,
-  updateJobValidation
-} from '../controllers/job.controller'
-import { authenticateToken, requireRole } from '../middleware/auth.middleware'
+  updateJobValidation,
+} from "../controllers/job.controller";
+import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
-const router = Router()
+const router = Router();
 
 // All job routes require authentication
-router.use(authenticateToken)
+router.use(authenticateToken);
 
 /**
  * @swagger
@@ -93,7 +93,7 @@ router.use(authenticateToken)
  *       401:
  *         description: Unauthorized
  */
-router.post('/', createJobValidation, createJob)
+router.post("/", createJobValidation, createJob);
 
 /**
  * @swagger
@@ -163,7 +163,7 @@ router.post('/', createJobValidation, createJob)
  *       401:
  *         description: Unauthorized
  */
-router.get('/', getAllJobs)
+router.get("/", getAllJobs);
 
 /**
  * @swagger
@@ -179,7 +179,7 @@ router.get('/', getAllJobs)
  *       401:
  *         description: Unauthorized
  */
-router.get('/options', getJobOptions)
+router.get("/options", getJobOptions);
 
 /**
  * @swagger
@@ -205,7 +205,7 @@ router.get('/options', getJobOptions)
  *       401:
  *         description: Unauthorized
  */
-router.get('/:id', getJobById)
+router.get("/:id", getJobById);
 
 /**
  * @swagger
@@ -279,7 +279,7 @@ router.get('/:id', getJobById)
  *       401:
  *         description: Unauthorized
  */
-router.put('/:id', updateJobValidation, updateJob)
+router.put("/:id", updateJobValidation, updateJob);
 
 /**
  * @swagger
@@ -305,6 +305,6 @@ router.put('/:id', updateJobValidation, updateJob)
  *       401:
  *         description: Unauthorized
  */
-router.delete('/:id', deleteJob)
+router.delete("/:id", deleteJob);
 
-export default router
+export default router;

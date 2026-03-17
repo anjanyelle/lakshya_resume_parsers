@@ -1,9 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect } from "react";
 
 const SCROLL_OPTIONS: ScrollIntoViewOptions = {
-  behavior: 'smooth',
-  block: 'center',
-}
+  behavior: "smooth",
+  block: "center",
+};
 
 /**
  * Scrolls a target element into view when scrollToFieldId changes.
@@ -16,16 +16,16 @@ const SCROLL_OPTIONS: ScrollIntoViewOptions = {
 export function useScrollToField(
   scrollToFieldId: string | null,
   getElement: (fieldId: string) => HTMLElement | null,
-  onComplete?: () => void
+  onComplete?: () => void,
 ) {
   useEffect(() => {
-    if (!scrollToFieldId) return
-    const el = getElement(scrollToFieldId)
+    if (!scrollToFieldId) return;
+    const el = getElement(scrollToFieldId);
     if (el) {
-      el.scrollIntoView(SCROLL_OPTIONS)
-      onComplete?.()
+      el.scrollIntoView(SCROLL_OPTIONS);
+      onComplete?.();
     }
-  }, [scrollToFieldId, getElement, onComplete])
+  }, [scrollToFieldId, getElement, onComplete]);
 }
 
 /**
@@ -35,14 +35,14 @@ export function useScrollToField(
 export function scrollToResumeSpan(
   container: HTMLElement | null,
   fieldId: string,
-  onComplete?: () => void
+  onComplete?: () => void,
 ): void {
-  if (!container) return
+  if (!container) return;
   const el = container.querySelector(
-    `[data-resume-field="${fieldId}"]`
-  ) as HTMLElement | null
+    `[data-resume-field="${fieldId}"]`,
+  ) as HTMLElement | null;
   if (el) {
-    el.scrollIntoView(SCROLL_OPTIONS)
-    onComplete?.()
+    el.scrollIntoView(SCROLL_OPTIONS);
+    onComplete?.();
   }
 }

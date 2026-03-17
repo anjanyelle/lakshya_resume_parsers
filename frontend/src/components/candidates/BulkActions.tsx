@@ -1,20 +1,22 @@
-import Button from '../common/Button'
-import { exportCandidatesCsv } from '../../utils/csv'
-import type { Candidate } from '../../types/candidate'
+import Button from "../common/Button";
+import { exportCandidatesCsv } from "../../utils/csv";
+import type { Candidate } from "../../types/candidate";
 
 type BulkActionsProps = {
-  selectedIds: Set<string>
-  candidates: Candidate[]
-  onDelete: () => void
-}
+  selectedIds: Set<string>;
+  candidates: Candidate[];
+  onDelete: () => void;
+};
 
 export default function BulkActions({
   selectedIds,
   candidates,
   onDelete,
 }: BulkActionsProps) {
-  const selected = candidates.filter((candidate) => selectedIds.has(candidate.id))
-  if (!selected.length) return null
+  const selected = candidates.filter((candidate) =>
+    selectedIds.has(candidate.id),
+  );
+  if (!selected.length) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
@@ -28,5 +30,5 @@ export default function BulkActions({
         Delete
       </Button>
     </div>
-  )
+  );
 }

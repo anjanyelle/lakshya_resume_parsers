@@ -1,35 +1,37 @@
-import { useCallback, useState } from 'react'
-import { UploadCloud } from 'lucide-react'
+import { useCallback, useState } from "react";
+import { UploadCloud } from "lucide-react";
 
 type DragDropZoneProps = {
-  onFilesSelected: (files: File[]) => void
-}
+  onFilesSelected: (files: File[]) => void;
+};
 
 export default function DragDropZone({ onFilesSelected }: DragDropZoneProps) {
-  const [isDragging, setIsDragging] = useState(false)
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleFiles = useCallback(
     (fileList: FileList | null) => {
-      if (!fileList) return
-      onFilesSelected(Array.from(fileList))
+      if (!fileList) return;
+      onFilesSelected(Array.from(fileList));
     },
     [onFilesSelected],
-  )
+  );
 
   return (
     <label
       className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 text-center transition ${
-        isDragging ? 'border-brand-400 bg-brand-50' : 'border-slate-200 bg-white'
+        isDragging
+          ? "border-brand-400 bg-brand-50"
+          : "border-slate-200 bg-white"
       }`}
       onDragOver={(event) => {
-        event.preventDefault()
-        setIsDragging(true)
+        event.preventDefault();
+        setIsDragging(true);
       }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={(event) => {
-        event.preventDefault()
-        setIsDragging(false)
-        handleFiles(event.dataTransfer.files)
+        event.preventDefault();
+        setIsDragging(false);
+        handleFiles(event.dataTransfer.files);
       }}
     >
       <input
@@ -51,5 +53,5 @@ export default function DragDropZone({ onFilesSelected }: DragDropZoneProps) {
         Browse files
       </span>
     </label>
-  )
+  );
 }

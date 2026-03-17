@@ -20,17 +20,20 @@ Production-ready FastAPI backend for uploading and parsing resumes.
 ## Setup
 
 1. Install dependencies:
+
    ```bash
    cd backend
    poetry install
    ```
 
 2. Configure environment:
+
    ```bash
    cp .env.example .env
    ```
 
    Or export variables directly:
+
    ```bash
    export DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/resume_parser
    export SECRET_KEY=change_me
@@ -38,6 +41,7 @@ Production-ready FastAPI backend for uploading and parsing resumes.
    ```
 
 3. Create database and run migrations:
+
    ```bash
    poetry run alembic upgrade head
    ```
@@ -76,4 +80,4 @@ Environment variables available in `.env.example`:
 
 - Uploaded files are stored in `STORAGE_DIR` (default `./storage`).
 - Update `DATABASE_URL` in `.env` to your Postgres instance.
- - `CORS_ORIGINS` accepts a comma-separated list like `http://localhost:3000`.
+- `CORS_ORIGINS` accepts a comma-separated list like `http://localhost:3000`.
