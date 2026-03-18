@@ -1,0 +1,1289 @@
+company_name,normalized_name
+McKinsey & Company,McKinsey & Company
+McKinsey,McKinsey & Company
+McKinsey and Company,McKinsey & Company
+Boston Consulting Group,Boston Consulting Group
+BCG,Boston Consulting Group
+The Boston Consulting Group,Boston Consulting Group
+Bain & Company,Bain & Company
+Bain and Company,Bain & Company
+Bain,Bain & Company
+Deloitte Consulting,Deloitte Consulting
+Deloitte,Deloitte
+Deloitte LLP,Deloitte
+Deloitte Touche Tohmatsu,Deloitte
+PricewaterhouseCoopers,PwC
+PwC,PwC
+Price Waterhouse Coopers,PwC
+PricewaterhouseCoopers LLP,PwC
+Ernst & Young,EY
+EY,EY
+Ernst and Young,EY
+Ernst & Young LLP,EY
+KPMG,KPMG
+KPMG LLP,KPMG
+KPMG International,KPMG
+Accenture,Accenture
+Accenture plc,Accenture
+Accenture Consulting,Accenture
+Capgemini,Capgemini
+Cap Gemini,Capgemini
+Capgemini SE,Capgemini
+Cognizant,Cognizant
+Cognizant Technology Solutions,Cognizant
+CTS,Cognizant
+Infosys,Infosys
+Infosys BPM,Infosys
+Infosys Limited,Infosys
+Infosys Technologies,Infosys
+Wipro,Wipro
+Wipro Limited,Wipro
+Wipro Technologies,Wipro
+Tata Consultancy Services,Tata Consultancy Services
+TCS,Tata Consultancy Services
+Tata Consultancy,Tata Consultancy Services
+HCL Technologies,HCL Technologies
+HCL,HCL Technologies
+HCL Tech,HCL Technologies
+HCLTech,HCL Technologies
+Tech Mahindra,Tech Mahindra
+TechMahindra,Tech Mahindra
+Tech Mahindra Limited,Tech Mahindra
+Mphasis,Mphasis
+Mphasis Limited,Mphasis
+Hexaware,Hexaware
+Hexaware Technologies,Hexaware
+Mindtree,Mindtree
+Mindtree Limited,Mindtree
+L&T Technology Services,L&T Technology Services
+LTTS,L&T Technology Services
+Larsen & Toubro,Larsen & Toubro
+L&T,Larsen & Toubro
+L and T,Larsen & Toubro
+Booz Allen Hamilton,Booz Allen Hamilton
+Booz Allen,Booz Allen Hamilton
+Oliver Wyman,Oliver Wyman
+Oliver Wyman Group,Oliver Wyman
+Roland Berger,Roland Berger
+Roland Berger Strategy Consultants,Roland Berger
+A.T. Kearney,Kearney
+Kearney,Kearney
+AT Kearney,Kearney
+Strategy&,Strategy&
+Strategy& (PwC),Strategy&
+IBM Consulting,IBM Consulting
+IBM Global Services,IBM Consulting
+Gartner,Gartner
+Gartner Inc,Gartner
+Gartner Inc.,Gartner
+Forrester,Forrester
+Forrester Research,Forrester
+IDC,IDC
+International Data Corporation,IDC
+PA Consulting,PA Consulting
+PA Consulting Group,PA Consulting
+Slalom,Slalom
+Slalom Consulting,Slalom
+West Monroe,West Monroe
+West Monroe Partners,West Monroe
+Protiviti,Protiviti
+Protiviti Inc,Protiviti
+FTI Consulting,FTI Consulting
+FTI,FTI Consulting
+Huron Consulting,Huron Consulting
+Huron,Huron Consulting
+ZS Associates,ZS Associates
+ZS,ZS Associates
+LEK Consulting,LEK Consulting
+L.E.K. Consulting,LEK Consulting
+Amazon,Amazon
+Amazon.com,Amazon
+Amazon.com Inc,Amazon
+Amazon.com Inc.,Amazon
+Amazon India,Amazon India
+Amazon India Pvt Ltd,Amazon India
+Amazon India Private Limited,Amazon India
+Apple,Apple
+Apple Inc,Apple
+Apple Inc.,Apple
+Apple Computer,Apple
+Google,Google
+Google LLC,Google
+Google Inc,Google
+Google Inc.,Google
+Google India,Google India
+Google India Pvt Ltd,Google India
+Meta,Meta
+Meta Platforms,Meta
+Meta Platforms Inc,Meta
+Facebook,Meta
+Facebook Inc,Meta
+Microsoft,Microsoft
+Microsoft Corporation,Microsoft
+Microsoft Corp,Microsoft
+Microsoft India,Microsoft India
+Microsoft India Pvt Ltd,Microsoft India
+Netflix,Netflix
+Netflix Inc,Netflix
+Netflix Inc.,Netflix
+Tesla,Tesla
+Tesla Inc,Tesla
+Tesla Motors,Tesla
+"Tesla, Inc.",Tesla
+Alphabet,Alphabet
+Alphabet Inc,Alphabet
+Alphabet Inc.,Alphabet
+NVIDIA,NVIDIA
+NVIDIA Corporation,NVIDIA
+Nvidia Corp,NVIDIA
+Intel,Intel
+Intel Corporation,Intel
+Intel Corp,Intel
+AMD,AMD
+Advanced Micro Devices,AMD
+AMD Inc,AMD
+Qualcomm,Qualcomm
+Qualcomm Inc,Qualcomm
+Broadcom,Broadcom
+Broadcom Inc,Broadcom
+Broadcom Corporation,Broadcom
+Texas Instruments,Texas Instruments
+TI,Texas Instruments
+Micron Technology,Micron Technology
+Micron,Micron Technology
+Arm Holdings,Arm Holdings
+ARM,Arm Holdings
+Arm Ltd,Arm Holdings
+Cisco,Cisco
+Cisco Systems,Cisco
+Cisco Systems Inc,Cisco
+Oracle,Oracle
+Oracle Corporation,Oracle
+Oracle Corp,Oracle
+SAP,SAP
+SAP SE,SAP
+SAP AG,SAP
+Salesforce,Salesforce
+Salesforce.com,Salesforce
+Salesforce Inc,Salesforce
+Adobe,Adobe
+Adobe Inc,Adobe
+Adobe Systems,Adobe
+ServiceNow,ServiceNow
+ServiceNow Inc,ServiceNow
+Workday,Workday
+Workday Inc,Workday
+Palantir,Palantir
+Palantir Technologies,Palantir
+Snowflake,Snowflake
+Snowflake Inc,Snowflake
+Databricks,Databricks
+Databricks Inc,Databricks
+Twilio,Twilio
+Twilio Inc,Twilio
+Stripe,Stripe
+Stripe Inc,Stripe
+Stripe Payments,Stripe
+Square,Block
+Block Inc,Block
+Block,Block
+PayPal,PayPal
+PayPal Holdings,PayPal
+PayPal Inc,PayPal
+Uber,Uber
+Uber Technologies,Uber
+Uber Technologies Inc,Uber
+Lyft,Lyft
+Lyft Inc,Lyft
+Airbnb,Airbnb
+Airbnb Inc,Airbnb
+DoorDash,DoorDash
+DoorDash Inc,DoorDash
+Instacart,Instacart
+Maplebear Inc,Instacart
+Dropbox,Dropbox
+Dropbox Inc,Dropbox
+Box,Box
+Box Inc,Box
+Box.com,Box
+Zoom,Zoom
+Zoom Video Communications,Zoom
+Zoom Inc,Zoom
+Slack,Slack
+Slack Technologies,Slack
+Slack Inc,Slack
+Atlassian,Atlassian
+Atlassian Corporation,Atlassian
+Atlassian Corp,Atlassian
+GitHub,GitHub
+GitHub Inc,GitHub
+GitLab,GitLab
+GitLab Inc,GitLab
+HashiCorp,HashiCorp
+HashiCorp Inc,HashiCorp
+MongoDB,MongoDB
+MongoDB Inc,MongoDB
+Elastic,Elastic
+Elastic NV,Elastic
+Elasticsearch,Elastic
+Cloudflare,Cloudflare
+Cloudflare Inc,Cloudflare
+Fastly,Fastly
+Fastly Inc,Fastly
+Akamai,Akamai
+Akamai Technologies,Akamai
+Vercel,Vercel
+Vercel Inc,Vercel
+Netlify,Netlify
+Netlify Inc,Netlify
+DigitalOcean,DigitalOcean
+Digital Ocean,DigitalOcean
+DigitalOcean Holdings,DigitalOcean
+Linode,Linode
+Linode LLC,Linode
+Akamai Linode,Linode
+Heroku,Heroku
+Heroku Inc,Heroku
+Salesforce Heroku,Heroku
+HubSpot,HubSpot
+HubSpot Inc,HubSpot
+Zendesk,Zendesk
+Zendesk Inc,Zendesk
+Freshworks,Freshworks
+Freshworks Inc,Freshworks
+Zoho,Zoho
+Zoho Corporation,Zoho
+Zoho Corp,Zoho
+Intuit,Intuit
+Intuit Inc,Intuit
+Splunk,Splunk
+Splunk Inc,Splunk
+Datadog,Datadog
+Datadog Inc,Datadog
+New Relic,New Relic
+New Relic Inc,New Relic
+PagerDuty,PagerDuty
+PagerDuty Inc,PagerDuty
+Okta,Okta
+Okta Inc,Okta
+CrowdStrike,CrowdStrike
+CrowdStrike Holdings,CrowdStrike
+CrowdStrike Inc,CrowdStrike
+Palo Alto Networks,Palo Alto Networks
+PANW,Palo Alto Networks
+Fortinet,Fortinet
+Fortinet Inc,Fortinet
+SentinelOne,SentinelOne
+SentinelOne Inc,SentinelOne
+Zscaler,Zscaler
+Zscaler Inc,Zscaler
+Wiz,Wiz
+Wiz Inc,Wiz
+Lacework,Lacework
+Lacework Inc,Lacework
+Snyk,Snyk
+Snyk Ltd,Snyk
+Dynatrace,Dynatrace
+Dynatrace Inc,Dynatrace
+Sumo Logic,Sumo Logic
+Sumo Logic Inc,Sumo Logic
+Nutanix,Nutanix
+Nutanix Inc,Nutanix
+Pure Storage,Pure Storage
+Pure Storage Inc,Pure Storage
+NetApp,NetApp
+NetApp Inc,NetApp
+VMware,VMware
+VMware Inc,VMware
+VMware LLC,VMware
+Broadcom VMware,VMware
+Juniper Networks,Juniper Networks
+Juniper,Juniper Networks
+F5,F5
+F5 Networks,F5
+F5 Inc,F5
+Arista Networks,Arista Networks
+Arista,Arista Networks
+Palo Alto,Palo Alto Networks
+Rackspace,Rackspace
+Rackspace Technology,Rackspace
+OpenAI,OpenAI
+OpenAI Inc,OpenAI
+Open AI,OpenAI
+Anthropic,Anthropic
+Anthropic PBC,Anthropic
+Mistral AI,Mistral AI
+Mistral,Mistral AI
+Cohere,Cohere
+Cohere Inc,Cohere
+Scale AI,Scale AI
+Scale AI Inc,Scale AI
+Hugging Face,Hugging Face
+HuggingFace,Hugging Face
+Stability AI,Stability AI
+Stability AI Ltd,Stability AI
+Midjourney,Midjourney
+Midjourney Inc,Midjourney
+Runway,Runway
+Runway ML,Runway
+Runway AI,Runway
+Perplexity,Perplexity
+Perplexity AI,Perplexity
+xAI,xAI
+X.AI,xAI
+Elon Musk xAI,xAI
+JPMorgan Chase,JPMorgan Chase
+JP Morgan Chase,JPMorgan Chase
+JPMorgan,JPMorgan Chase
+J.P. Morgan,JPMorgan Chase
+JPMorgan Chase & Co,JPMorgan Chase
+Goldman Sachs,Goldman Sachs
+The Goldman Sachs Group,Goldman Sachs
+Goldman Sachs Group,Goldman Sachs
+Morgan Stanley,Morgan Stanley
+Morgan Stanley & Co,Morgan Stanley
+Bank of America,Bank of America
+BofA,Bank of America
+Bank of America Corp,Bank of America
+BOA,Bank of America
+Citibank,Citigroup
+Citigroup,Citigroup
+Citi,Citigroup
+Citibank NA,Citigroup
+Wells Fargo,Wells Fargo
+Wells Fargo & Company,Wells Fargo
+Wells Fargo Bank,Wells Fargo
+BlackRock,BlackRock
+BlackRock Inc,BlackRock
+Vanguard,Vanguard
+The Vanguard Group,Vanguard
+Vanguard Group,Vanguard
+Fidelity,Fidelity Investments
+Fidelity Investments,Fidelity Investments
+FMR LLC,Fidelity Investments
+Charles Schwab,Charles Schwab
+Schwab,Charles Schwab
+The Charles Schwab Corporation,Charles Schwab
+American Express,American Express
+Amex,American Express
+American Express Company,American Express
+Visa,Visa
+Visa Inc,Visa
+Mastercard,Mastercard
+Mastercard Inc,Mastercard
+BNY Mellon,BNY Mellon
+Bank of New York Mellon,BNY Mellon
+The Bank of New York Mellon,BNY Mellon
+State Street,State Street
+State Street Corporation,State Street
+State Street Bank,State Street
+Barclays,Barclays
+Barclays Bank,Barclays
+Barclays PLC,Barclays
+HSBC,HSBC
+HSBC Holdings,HSBC
+HSBC Bank,HSBC
+Deutsche Bank,Deutsche Bank
+Deutsche Bank AG,Deutsche Bank
+UBS,UBS
+UBS Group,UBS
+UBS AG,UBS
+Credit Suisse,Credit Suisse
+Credit Suisse Group,Credit Suisse
+BNP Paribas,BNP Paribas
+BNP Paribas SA,BNP Paribas
+Société Générale,Société Générale
+SocGen,Société Générale
+Societe Generale,Société Générale
+Crédit Agricole,Crédit Agricole
+Credit Agricole,Crédit Agricole
+Lloyds Banking Group,Lloyds Banking Group
+Lloyds,Lloyds Banking Group
+Lloyds Bank,Lloyds Banking Group
+NatWest,NatWest
+NatWest Group,NatWest
+National Westminster Bank,NatWest
+Standard Chartered,Standard Chartered
+Standard Chartered Bank,Standard Chartered
+StanChart,Standard Chartered
+Santander,Santander
+Banco Santander,Santander
+Santander Bank,Santander
+BBVA,BBVA
+Banco Bilbao Vizcaya Argentaria,BBVA
+UniCredit,UniCredit
+UniCredit SpA,UniCredit
+ING,ING
+ING Group,ING
+ING Bank,ING
+ABN AMRO,ABN AMRO
+ABN AMRO Bank,ABN AMRO
+Rabobank,Rabobank
+Rabobank Group,Rabobank
+Nordea,Nordea
+Nordea Bank,Nordea
+Handelsbanken,Handelsbanken
+Svenska Handelsbanken,Handelsbanken
+SEB,SEB
+Skandinaviska Enskilda Banken,SEB
+Swedbank,Swedbank
+DNB,DNB
+DNB Bank,DNB
+Macquarie,Macquarie
+Macquarie Group,Macquarie
+Commonwealth Bank,Commonwealth Bank
+CBA,Commonwealth Bank
+CommBank,Commonwealth Bank
+ANZ,ANZ
+ANZ Bank,ANZ
+Australia and New Zealand Banking Group,ANZ
+Westpac,Westpac
+Westpac Banking Corporation,Westpac
+NAB,NAB
+National Australia Bank,NAB
+DBS Bank,DBS Bank
+DBS,DBS Bank
+Development Bank of Singapore,DBS Bank
+OCBC,OCBC
+OCBC Bank,OCBC
+Oversea-Chinese Banking Corporation,OCBC
+UOB,UOB
+United Overseas Bank,UOB
+ICBC,ICBC
+Industrial and Commercial Bank of China,ICBC
+China Construction Bank,China Construction Bank
+CCB,China Construction Bank
+Agricultural Bank of China,Agricultural Bank of China
+ABC,Agricultural Bank of China
+Bank of China,Bank of China
+BOC,Bank of China
+CITIC,CITIC
+CITIC Group,CITIC
+Ping An,Ping An
+Ping An Insurance,Ping An
+Ping An Group,Ping An
+Axis Bank,Axis Bank
+Axis Bank Limited,Axis Bank
+HDFC Bank,HDFC Bank
+HDFC,HDFC Bank
+ICICI Bank,ICICI Bank
+ICICI,ICICI Bank
+State Bank of India,State Bank of India
+SBI,State Bank of India
+Kotak Mahindra Bank,Kotak Mahindra Bank
+Kotak,Kotak Mahindra Bank
+IndusInd Bank,IndusInd Bank
+IndusInd,IndusInd Bank
+Yes Bank,Yes Bank
+Citibank India,Citibank India
+Standard Bank,Standard Bank
+Standard Bank Group,Standard Bank
+FirstRand,FirstRand
+FirstRand Bank,FirstRand
+FNB,FirstRand
+Nedbank,Nedbank
+Nedbank Group,Nedbank
+Absa,Absa
+Absa Group,Absa
+Itaú Unibanco,Itaú Unibanco
+Itau,Itaú Unibanco
+Itaú,Itaú Unibanco
+Bradesco,Bradesco
+Banco Bradesco,Bradesco
+Banco do Brasil,Banco do Brasil
+BTG Pactual,BTG Pactual
+Banco BTG Pactual,BTG Pactual
+Nubank,Nubank
+Nu Holdings,Nubank
+Revolut,Revolut
+Revolut Ltd,Revolut
+N26,N26
+N26 GmbH,N26
+Monzo,Monzo
+Monzo Bank,Monzo
+Starling Bank,Starling Bank
+Starling,Starling Bank
+Chime,Chime
+Chime Financial,Chime
+Robinhood,Robinhood
+Robinhood Markets,Robinhood
+Coinbase,Coinbase
+Coinbase Global,Coinbase
+Binance,Binance
+Binance Holdings,Binance
+Kraken,Kraken
+Kraken Exchange,Kraken
+SoFi,SoFi
+SoFi Technologies,SoFi
+Affirm,Affirm
+Affirm Holdings,Affirm
+Klarna,Klarna
+Klarna Bank,Klarna
+Adyen,Adyen
+Adyen NV,Adyen
+Checkout.com,Checkout.com
+Checkout,Checkout.com
+Braintree,Braintree
+Braintree Payments,Braintree
+PayPal Braintree,Braintree
+Plaid,Plaid
+Plaid Inc,Plaid
+Two Sigma,Two Sigma
+Two Sigma Investments,Two Sigma
+Citadel,Citadel
+Citadel LLC,Citadel
+Citadel Securities,Citadel
+D.E. Shaw,D.E. Shaw
+DE Shaw,D.E. Shaw
+D. E. Shaw,D.E. Shaw
+Jane Street,Jane Street
+Jane Street Capital,Jane Street
+Renaissance Technologies,Renaissance Technologies
+RenTech,Renaissance Technologies
+Bridgewater,Bridgewater
+Bridgewater Associates,Bridgewater
+Man Group,Man Group
+Man Investments,Man Group
+AQR Capital,AQR Capital
+AQR,AQR Capital
+Johnson & Johnson,Johnson & Johnson
+J&J,Johnson & Johnson
+Johnson and Johnson,Johnson & Johnson
+JNJ,Johnson & Johnson
+Pfizer,Pfizer
+Pfizer Inc,Pfizer
+Roche,Roche
+Roche Holdings,Roche
+Hoffmann-La Roche,Roche
+Novartis,Novartis
+Novartis AG,Novartis
+AstraZeneca,AstraZeneca
+AstraZeneca PLC,AstraZeneca
+AZ,AstraZeneca
+Merck,Merck
+Merck & Co,Merck
+Merck Sharp & Dohme,Merck
+MSD,Merck
+Merck KGaA,Merck KGaA
+Merck Germany,Merck KGaA
+Abbott Laboratories,Abbott Laboratories
+Abbott,Abbott Laboratories
+Medtronic,Medtronic
+Medtronic PLC,Medtronic
+Becton Dickinson,Becton Dickinson
+BD,Becton Dickinson
+Boston Scientific,Boston Scientific
+Boston Scientific Corp,Boston Scientific
+Stryker,Stryker
+Stryker Corporation,Stryker
+Zimmer Biomet,Zimmer Biomet
+Zimmer,Zimmer Biomet
+Edwards Lifesciences,Edwards Lifesciences
+Edwards,Edwards Lifesciences
+Danaher,Danaher
+Danaher Corporation,Danaher
+Thermo Fisher Scientific,Thermo Fisher Scientific
+Thermo Fisher,Thermo Fisher Scientific
+ThermoFisher,Thermo Fisher Scientific
+Agilent Technologies,Agilent Technologies
+Agilent,Agilent Technologies
+Bio-Rad Laboratories,Bio-Rad Laboratories
+Bio-Rad,Bio-Rad Laboratories
+Illumina,Illumina
+Illumina Inc,Illumina
+Moderna,Moderna
+Moderna Inc,Moderna
+BioNTech,BioNTech
+BioNTech SE,BioNTech
+Gilead Sciences,Gilead Sciences
+Gilead,Gilead Sciences
+Amgen,Amgen
+Amgen Inc,Amgen
+Biogen,Biogen
+Biogen Inc,Biogen
+Regeneron,Regeneron
+Regeneron Pharmaceuticals,Regeneron
+Bristol-Myers Squibb,Bristol-Myers Squibb
+BMS,Bristol-Myers Squibb
+Bristol Myers Squibb,Bristol-Myers Squibb
+Eli Lilly,Eli Lilly
+Eli Lilly and Company,Eli Lilly
+Lilly,Eli Lilly
+Baxter International,Baxter International
+Baxter,Baxter International
+Cigna Health,Cigna Health
+Cigna,Cigna
+Cigna Corporation,Cigna
+Cigna Group,Cigna
+Anthem,Elevance Health
+Elevance Health,Elevance Health
+Anthem Inc,Elevance Health
+UnitedHealth Group,UnitedHealth Group
+UnitedHealth,UnitedHealth Group
+UHG,UnitedHealth Group
+CVS Health,CVS Health
+CVS,CVS Health
+CVS Pharmacy,CVS Health
+Walgreens,Walgreens Boots Alliance
+Walgreens Boots Alliance,Walgreens Boots Alliance
+WBA,Walgreens Boots Alliance
+Humana,Humana
+Humana Inc,Humana
+Aetna,Aetna
+Aetna Inc,Aetna
+CVS Aetna,Aetna
+Sun Pharma,Sun Pharma
+Sun Pharmaceutical,Sun Pharma
+Sun Pharmaceutical Industries,Sun Pharma
+Dr. Reddy's Laboratories,Dr. Reddy's Laboratories
+Dr Reddys,Dr. Reddy's Laboratories
+DRL,Dr. Reddy's Laboratories
+Cipla,Cipla
+Cipla Limited,Cipla
+Lupin,Lupin
+Lupin Limited,Lupin
+Biocon,Biocon
+Biocon Limited,Biocon
+Wockhardt,Wockhardt
+Wockhardt Limited,Wockhardt
+Apollo Hospitals,Apollo Hospitals
+Apollo Hospital,Apollo Hospitals
+Apollo Hospitals Enterprise,Apollo Hospitals
+Fortis Healthcare,Fortis Healthcare
+Fortis,Fortis Healthcare
+Max Healthcare,Max Healthcare
+Max Health,Max Healthcare
+Narayana Health,Narayana Health
+Narayana Hrudayalaya,Narayana Health
+Nike,Nike
+Nike Inc,Nike
+Adidas,Adidas
+Adidas AG,Adidas
+Puma,Puma
+PUMA SE,Puma
+Under Armour,Under Armour
+Under Armour Inc,Under Armour
+UA,Under Armour
+Lululemon,Lululemon
+Lululemon Athletica,Lululemon
+LULU,Lululemon
+H&M,H&M
+Hennes & Mauritz,H&M
+H and M,H&M
+Zara,Zara
+Inditex,Inditex
+Zara Inditex,Zara
+Uniqlo,Uniqlo
+Fast Retailing,Fast Retailing
+LVMH,LVMH
+LVMH Moët Hennessy,LVMH
+Louis Vuitton Moet Hennessy,LVMH
+Gucci,Gucci
+Gucci Kering,Gucci
+Kering,Kering
+Hermès,Hermès
+Hermes,Hermès
+Hermès International,Hermès
+Chanel,Chanel
+Chanel S.A.,Chanel
+Richemont,Richemont
+Compagnie Financière Richemont,Richemont
+Walmart,Walmart
+Wal-Mart,Walmart
+Walmart Inc,Walmart
+Wal-Mart Stores,Walmart
+Target,Target
+Target Corporation,Target
+Costco,Costco
+Costco Wholesale,Costco
+Costco Wholesale Corporation,Costco
+The Home Depot,The Home Depot
+Home Depot,The Home Depot
+Lowe's,Lowe's
+Lowes,Lowe's
+Lowe's Companies,Lowe's
+Best Buy,Best Buy
+Best Buy Co,Best Buy
+Ikea,IKEA
+IKEA Group,IKEA
+Carrefour,Carrefour
+Carrefour SA,Carrefour
+Tesco,Tesco
+Tesco PLC,Tesco
+Sainsbury's,Sainsbury's
+J Sainsbury,Sainsbury's
+Lidl,Lidl
+Lidl Stiftung,Lidl
+Aldi,Aldi
+Amazon Retail,Amazon
+Flipkart,Flipkart
+Flipkart Private Limited,Flipkart
+Walmart Flipkart,Flipkart
+Reliance Retail,Reliance Retail
+Reliance Industries,Reliance Industries
+RIL,Reliance Industries
+D-Mart,D-Mart
+DMart,D-Mart
+Avenue Supermarts,D-Mart
+Alibaba,Alibaba
+Alibaba Group,Alibaba
+Alibaba Group Holding,Alibaba
+JD.com,JD.com
+JD,JD.com
+Jingdong,JD.com
+Pinduoduo,Pinduoduo
+PDD Holdings,Pinduoduo
+Rakuten,Rakuten
+Rakuten Group,Rakuten
+Lazada,Lazada
+Lazada Group,Lazada
+Shopee,Shopee
+Sea Limited,Sea Limited
+ExxonMobil,ExxonMobil
+Exxon Mobil,ExxonMobil
+Exxon,ExxonMobil
+ExxonMobil Corporation,ExxonMobil
+Chevron,Chevron
+Chevron Corporation,Chevron
+Shell,Shell
+Shell PLC,Shell
+Royal Dutch Shell,Shell
+Shell Oil,Shell
+BP,BP
+BP PLC,BP
+British Petroleum,BP
+TotalEnergies,TotalEnergies
+Total,TotalEnergies
+Total SA,TotalEnergies
+Equinor,Equinor
+Equinor ASA,Equinor
+Statoil,Equinor
+Eni,Eni
+Eni SpA,Eni
+Repsol,Repsol
+Repsol SA,Repsol
+ConocoPhillips,ConocoPhillips
+Conoco Phillips,ConocoPhillips
+Conoco,ConocoPhillips
+Halliburton,Halliburton
+Halliburton Company,Halliburton
+Schlumberger,SLB
+SLB,SLB
+Schlumberger Limited,SLB
+Baker Hughes,Baker Hughes
+Baker Hughes Company,Baker Hughes
+BHGE,Baker Hughes
+Saudi Aramco,Saudi Aramco
+Aramco,Saudi Aramco
+Saudi Arabian Oil Company,Saudi Aramco
+ADNOC,ADNOC
+Abu Dhabi National Oil Company,ADNOC
+ONGC,ONGC
+Oil and Natural Gas Corporation,ONGC
+Indian Oil,Indian Oil
+Indian Oil Corporation,Indian Oil
+IOC,Indian Oil
+BPCL,BPCL
+Bharat Petroleum,BPCL
+Bharat Petroleum Corporation,BPCL
+HPCL,HPCL
+Hindustan Petroleum,HPCL
+Hindustan Petroleum Corporation,HPCL
+Petrobras,Petrobras
+Petróleo Brasileiro,Petrobras
+CNOOC,CNOOC
+China National Offshore Oil Corporation,CNOOC
+Sinopec,Sinopec
+China Petroleum & Chemical Corporation,Sinopec
+PetroChina,PetroChina
+CNPC,PetroChina
+China National Petroleum Corporation,PetroChina
+NextEra Energy,NextEra Energy
+NextEra,NextEra Energy
+FPL Group,NextEra Energy
+Enel,Enel
+Enel SpA,Enel
+Iberdrola,Iberdrola
+Iberdrola SA,Iberdrola
+EDF,EDF
+Électricité de France,EDF
+Electricite de France,EDF
+Duke Energy,Duke Energy
+Duke Energy Corporation,Duke Energy
+Toyota,Toyota
+Toyota Motor,Toyota
+Toyota Motor Corporation,Toyota
+Volkswagen,Volkswagen
+VW,Volkswagen
+Volkswagen AG,Volkswagen
+Volkswagen Group,Volkswagen
+Mercedes-Benz,Mercedes-Benz
+Mercedes,Mercedes-Benz
+Daimler,Mercedes-Benz
+Mercedes-Benz Group,Mercedes-Benz
+BMW,BMW
+Bayerische Motoren Werke,BMW
+BMW AG,BMW
+Ford,Ford
+Ford Motor,Ford
+Ford Motor Company,Ford
+General Motors,General Motors
+GM,General Motors
+Stellantis,Stellantis
+Stellantis NV,Stellantis
+FCA,Stellantis
+Fiat Chrysler,Stellantis
+Honda,Honda
+Honda Motor,Honda
+Honda Motor Co,Honda
+Nissan,Nissan
+Nissan Motor,Nissan
+Hyundai,Hyundai
+Hyundai Motor,Hyundai
+Hyundai Motor Company,Hyundai
+Kia,Kia
+Kia Corporation,Kia
+Kia Motors,Kia
+Renault,Renault
+Renault SA,Renault
+Peugeot,Peugeot
+PSA Group,Peugeot
+Volvo,Volvo
+Volvo Cars,Volvo
+Volvo Group,Volvo
+Rivian,Rivian
+Rivian Automotive,Rivian
+Lucid Motors,Lucid Motors
+Lucid,Lucid Motors
+NIO,NIO
+NIO Inc,NIO
+BYD,BYD
+BYD Company,BYD
+BYD Auto,BYD
+Tata Motors,Tata Motors
+Tata Motors Limited,Tata Motors
+Mahindra,Mahindra
+Mahindra & Mahindra,Mahindra
+M&M,Mahindra
+Maruti Suzuki,Maruti Suzuki
+Maruti,Maruti Suzuki
+Maruti Suzuki India,Maruti Suzuki
+Bajaj Auto,Bajaj Auto
+Bajaj,Bajaj Auto
+AT&T,AT&T
+AT and T,AT&T
+American Telephone and Telegraph,AT&T
+Verizon,Verizon
+Verizon Communications,Verizon
+T-Mobile,T-Mobile
+T-Mobile US,T-Mobile
+T Mobile,T-Mobile
+Comcast,Comcast
+Comcast Corporation,Comcast
+Xfinity,Comcast
+Deutsche Telekom,Deutsche Telekom
+T-Systems,Deutsche Telekom
+Telekom,Deutsche Telekom
+Vodafone,Vodafone
+Vodafone Group,Vodafone
+Vodafone PLC,Vodafone
+Orange,Orange
+Orange SA,Orange
+France Telecom,Orange
+Telefonica,Telefónica
+Telefónica,Telefónica
+Telefonica SA,Telefónica
+BT Group,BT Group
+BT,BT Group
+British Telecom,BT Group
+Nokia,Nokia
+Nokia Corporation,Nokia
+Nokia Oyj,Nokia
+Ericsson,Ericsson
+Telefonaktiebolaget LM Ericsson,Ericsson
+Huawei,Huawei
+Huawei Technologies,Huawei
+ZTE,ZTE
+ZTE Corporation,ZTE
+Reliance Jio,Reliance Jio
+Jio,Reliance Jio
+Jio Platforms,Reliance Jio
+Airtel,Airtel
+Bharti Airtel,Airtel
+Bharti Airtel Limited,Airtel
+BSNL,BSNL
+Bharat Sanchar Nigam Limited,BSNL
+Vi,Vi
+Vodafone Idea,Vi
+Idea Cellular,Vi
+SingTel,SingTel
+Singapore Telecommunications,SingTel
+SoftBank,SoftBank
+SoftBank Group,SoftBank
+SoftBank Corp,SoftBank
+Disney,The Walt Disney Company
+The Walt Disney Company,The Walt Disney Company
+Walt Disney,The Walt Disney Company
+Warner Bros,Warner Bros. Discovery
+Warner Bros. Discovery,Warner Bros. Discovery
+WBD,Warner Bros. Discovery
+Paramount,Paramount
+Paramount Global,Paramount
+Paramount Pictures,Paramount
+Universal,Universal Studios
+Universal Studios,Universal Studios
+NBCUniversal,NBCUniversal
+Comcast NBCUniversal,NBCUniversal
+Sony Pictures,Sony Pictures
+Sony Entertainment,Sony Pictures
+Sony,Sony
+Sony Group,Sony
+Sony Corporation,Sony
+Spotify,Spotify
+Spotify AB,Spotify
+YouTube,YouTube
+YouTube LLC,YouTube
+Google YouTube,YouTube
+TikTok,TikTok
+ByteDance,ByteDance
+TikTok Inc,TikTok
+Twitter,X
+X Corp,X
+X (Twitter),X
+X.com,X
+LinkedIn,LinkedIn
+LinkedIn Corporation,LinkedIn
+Microsoft LinkedIn,LinkedIn
+Reddit,Reddit
+Reddit Inc,Reddit
+Pinterest,Pinterest
+Pinterest Inc,Pinterest
+Snap,Snap
+Snapchat,Snap
+Snap Inc,Snap
+News Corp,News Corp
+News Corporation,News Corp
+NewsCorp,News Corp
+Zee Entertainment,Zee Entertainment
+Zee,Zee Entertainment
+ZEEL,Zee Entertainment
+Times Group,Times Group
+The Times Group,Times Group
+Bennett Coleman,Times Group
+HT Media,HT Media
+Hindustan Times,HT Media
+NDTV,NDTV
+New Delhi Television,NDTV
+Sun TV Network,Sun TV Network
+Sun TV,Sun TV Network
+Boeing,Boeing
+The Boeing Company,Boeing
+Boeing Co,Boeing
+Airbus,Airbus
+Airbus SE,Airbus
+Airbus Group,Airbus
+Lockheed Martin,Lockheed Martin
+Lockheed Martin Corporation,Lockheed Martin
+Raytheon,Raytheon
+Raytheon Technologies,RTX
+RTX,RTX
+RTX Corporation,RTX
+Northrop Grumman,Northrop Grumman
+Northrop Grumman Corporation,Northrop Grumman
+General Dynamics,General Dynamics
+General Dynamics Corporation,General Dynamics
+BAE Systems,BAE Systems
+BAE,BAE Systems
+L3Harris,L3Harris
+L3Harris Technologies,L3Harris
+L3,L3Harris
+Thales,Thales
+Thales Group,Thales
+Thales SA,Thales
+Leonardo,Leonardo
+Leonardo SpA,Leonardo
+Leonardo DRS,Leonardo
+ISRO,ISRO
+Indian Space Research Organisation,ISRO
+SpaceX,SpaceX
+Space Exploration Technologies,SpaceX
+Blue Origin,Blue Origin
+Blue Origin LLC,Blue Origin
+Rocket Lab,Rocket Lab
+Rocket Lab USA,Rocket Lab
+FedEx,FedEx
+Federal Express,FedEx
+FedEx Corporation,FedEx
+UPS,UPS
+United Parcel Service,UPS
+UPS Inc,UPS
+DHL,DHL
+Deutsche Post DHL,DHL
+DHL Express,DHL
+Maersk,Maersk
+A.P. Moller-Maersk,Maersk
+AP Moller Maersk,Maersk
+MSC,MSC
+Mediterranean Shipping Company,MSC
+XPO Logistics,XPO Logistics
+XPO,XPO Logistics
+XPO Inc,XPO Logistics
+DB Schenker,DB Schenker
+Schenker,DB Schenker
+Kuehne+Nagel,Kuehne+Nagel
+Kuhne Nagel,Kuehne+Nagel
+Kuehne and Nagel,Kuehne+Nagel
+Panalpina,Kuehne+Nagel
+DSV,DSV
+DSV Panalpina,DSV
+DSV A/S,DSV
+Siemens Logistics,Siemens Logistics
+Delhivery,Delhivery
+Delhivery Limited,Delhivery
+Blue Dart,Blue Dart
+Blue Dart Express,Blue Dart
+DTDC,DTDC
+DTDC Express,DTDC
+Ekart,Ekart
+Ekart Logistics,Ekart
+Flipkart Ekart,Ekart
+ADP,ADP
+Automatic Data Processing,ADP
+ADP Inc,ADP
+Manpower,ManpowerGroup
+ManpowerGroup,ManpowerGroup
+Manpower Group,ManpowerGroup
+Randstad,Randstad
+Randstad NV,Randstad
+Randstad Group,Randstad
+Adecco,Adecco
+The Adecco Group,Adecco
+Adecco Group,Adecco
+Hays,Hays
+Hays PLC,Hays
+Hays Recruitment,Hays
+Robert Half,Robert Half
+Robert Half International,Robert Half
+Kelly Services,Kelly Services
+Kelly,Kelly Services
+Kforce,Kforce
+Kforce Inc,Kforce
+Allegis Group,Allegis Group
+Aerotek,Aerotek
+TEKsystems,TEKsystems
+Wipro BPS,Wipro BPS
+Wipro Business Process Services,Wipro BPS
+Quess Corp,Quess Corp
+Quess,Quess Corp
+TeamLease,TeamLease
+TeamLease Services,TeamLease
+Naukri,Naukri
+Info Edge,Info Edge
+Info Edge India,Info Edge
+Instahyre,Instahyre
+iimjobs,iimjobs
+Coursera,Coursera
+Coursera Inc,Coursera
+Udemy,Udemy
+Udemy Inc,Udemy
+edX,edX
+edX Inc,edX
+2U edX,edX
+LinkedIn Learning,LinkedIn Learning
+Lynda,LinkedIn Learning
+Pluralsight,Pluralsight
+Pluralsight LLC,Pluralsight
+Udacity,Udacity
+Udacity Inc,Udacity
+BYJU'S,BYJU'S
+Byjus,BYJU'S
+Think and Learn,BYJU'S
+Unacademy,Unacademy
+Unacademy Learning,Unacademy
+Vedantu,Vedantu
+Vedantu Innovations,Vedantu
+upGrad,upGrad
+upGrad Education,upGrad
+Great Learning,Great Learning
+Great Lakes E-Learning,Great Learning
+Jones Lang LaSalle,Jones Lang LaSalle
+JLL,Jones Lang LaSalle
+CBRE,CBRE
+CBRE Group,CBRE
+CB Richard Ellis,CBRE
+Cushman & Wakefield,Cushman & Wakefield
+Cushman and Wakefield,Cushman & Wakefield
+Colliers,Colliers
+Colliers International,Colliers
+Savills,Savills
+Savills PLC,Savills
+DLF,DLF
+DLF Limited,DLF
+Godrej Properties,Godrej Properties
+Godrej,Godrej Properties
+Prestige Group,Prestige Group
+Prestige Estates,Prestige Group
+Oberoi Realty,Oberoi Realty
+Sobha,Sobha
+Sobha Limited,Sobha
+Sobha Developers,Sobha
+Turner Construction,Turner Construction
+Turner,Turner Construction
+Bechtel,Bechtel
+Bechtel Corporation,Bechtel
+Bechtel Group,Bechtel
+Fluor,Fluor
+Fluor Corporation,Fluor
+KBR,KBR
+KBR Inc,KBR
+AECOM,AECOM
+AECOM Technology,AECOM
+Jacobs Engineering,Jacobs Engineering
+Jacobs,Jacobs Engineering
+Jacobs Solutions,Jacobs Engineering
+WSP Global,WSP Global
+WSP,WSP Global
+Arup,Arup
+Arup Group,Arup
+General Electric,General Electric
+GE,General Electric
+GE Inc,General Electric
+Honeywell,Honeywell
+Honeywell International,Honeywell
+3M,3M
+3M Company,3M
+Minnesota Mining and Manufacturing,3M
+Siemens,Siemens
+Siemens AG,Siemens
+ABB,ABB
+ABB Ltd,ABB
+ASEA Brown Boveri,ABB
+Emerson,Emerson
+Emerson Electric,Emerson
+Emerson Electric Co,Emerson
+Rockwell Automation,Rockwell Automation
+Rockwell,Rockwell Automation
+Schneider Electric,Schneider Electric
+Schneider,Schneider Electric
+Schneider Electric SE,Schneider Electric
+Bosch,Bosch
+Robert Bosch,Bosch
+Robert Bosch GmbH,Bosch
+Philips,Philips
+Royal Philips,Philips
+Philips NV,Philips
+Panasonic,Panasonic
+Panasonic Corporation,Panasonic
+Samsung,Samsung
+Samsung Electronics,Samsung
+Samsung Group,Samsung
+LG,LG
+LG Electronics,LG
+LG Group,LG
+SK Group,SK Group
+SK Hynix,SK Hynix
+SK Telecom,SK Telecom
+POSCO,POSCO
+POSCO Holdings,POSCO
+Tata Group,Tata Group
+Tata Sons,Tata Group
+Tata,Tata Group
+Reliance Group,Reliance Group
+Mukesh Ambani Reliance,Reliance Industries
+Adani Group,Adani Group
+Adani Enterprises,Adani Group
+Birla Group,Aditya Birla Group
+Aditya Birla Group,Aditya Birla Group
+Bajaj Group,Bajaj Group
+Muthoot Finance,Muthoot Finance
+Muthoot,Muthoot Finance
+HDFC Group,HDFC Group
+HDFC Ltd,HDFC Group
+Flipkart Group,Flipkart Group
+Ola,Ola
+ANI Technologies,Ola
+Ola Cabs,Ola
+Paytm,Paytm
+One97 Communications,Paytm
+Paytm Payments Bank,Paytm
+PhonePe,PhonePe
+PhonePe Pvt Ltd,PhonePe
+Razorpay,Razorpay
+Razorpay Software,Razorpay
+Zomato,Zomato
+Zomato Limited,Zomato
+Swiggy,Swiggy
+Bundl Technologies,Swiggy
+MakeMyTrip,MakeMyTrip
+MakeMyTrip Limited,MakeMyTrip
+MMT,MakeMyTrip
+Oyo,OYO
+OYO Rooms,OYO
+Oravel Stays,OYO
+Meesho,Meesho
+Fashnear Technologies,Meesho
+Nykaa,Nykaa
+FSN E-Commerce Ventures,Nykaa
+Dream11,Dream11
+Dream Sports,Dream11
+Zepto,Zepto
+Kiranakart Technologies,Zepto
+Blinkit,Blinkit
+Grofers,Blinkit
+Zomato Blinkit,Blinkit
+Dunzo,Dunzo
+Dunzo Digital,Dunzo
+CRED,CRED
+Dreamplug Technologies,CRED
+ShareChat,ShareChat
+Mohalla Tech,ShareChat
+Groww,Groww
+Nextbillion Technology,Groww
+Zerodha,Zerodha
+Zerodha Broking,Zerodha
+AngelOne,AngelOne
+Angel Broking,AngelOne
+Angel One,AngelOne
+Upstox,Upstox
+RKSV,Upstox
+Navi,Navi
+Navi Technologies,Navi
+Freshpaint,Freshpaint
+Gojek,Gojek
+GoTo Group,GoTo Group
+Tokopedia,Tokopedia
+Grab,Grab
+Grab Holdings,Grab
+Garena,Garena
+Bukalapak,Bukalapak
+PT Bukalapak.com,Bukalapak
+PT Tokopedia,Tokopedia
+Traveloka,Traveloka
+PT Traveloka,Traveloka
+Careem,Careem
+Careem Networks,Careem
+Jumia,Jumia
+Jumia Technologies,Jumia
+Andela,Andela
+Andela Inc,Andela
+Interswitch,Interswitch
+Interswitch Group,Interswitch
+Flutterwave,Flutterwave
+Flutterwave Inc,Flutterwave
+Paystack,Paystack
+Paystack Inc,Paystack
+M-Pesa,M-Pesa
+Safaricom M-Pesa,M-Pesa
+Safaricom,Safaricom
+Safaricom PLC,Safaricom
+MercadoLibre,MercadoLibre
+Mercado Libre,MercadoLibre
+MELI,MercadoLibre
+iFood,iFood
+iFood Inc,iFood
+Rappi,Rappi
+Rappi Inc,Rappi
+Totvs,TOTVS
+TOTVS SA,TOTVS
+Vtex,VTEX
+VTEX Commerce Cloud,VTEX

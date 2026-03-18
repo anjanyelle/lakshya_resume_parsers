@@ -1,13 +1,413 @@
 """
-Hybrid Work Experience Parser
-Combines multiple parsing strategies for better accuracy
+Unified Work Experience Parser - Uses ALL Datasets Simultaneously
+Combines pattern matching, NER, and existing parser using all unified datasets
 """
 
 import re
 import logging
-from typing import List, Dict, Any, Optional
+from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from datetime import datetime
+
+from app.services.parser.utils.enhanced_dataset_loader import unified_loader
+from app.services.parser.work_experience_parser import WorkExperienceParser, JobEntry
+
+logger = logging.getLogger(__name__)
+
+@dataclass(frozen=True)
+class UnifiedJobEntry(JobEntry):
+    """Extended JobEntry with unified dataset metadata"""
+    sources_used: List[str] = None  # All sources that contributed
+    confidence: float = 0.0
+    normalized_company: str = ""
+    normalized_title: str = ""
+    pattern_matched: str = ""
+    ner_entities_found: List[str] = None
+
+class UnifiedWorkExperienceParser:
+    """
+    Unified work experience parser that uses ALL datasets simultaneously:
+    1. Pattern matching (unified patterns)
+    2. NER extraction (unified NER entities)
+    3. Existing parser logic
+    4. Combine results from ALL sources
+    5. Merge intelligently (no priority)
+    """
+    
+    def __init__(self):
+        self.existing_parser = WorkExperienceParser()
+        self.unified_loader = unified_loader
+        self.patterns = self.unified_loader.get_patterns()
+        self.ner_entities = self.unified_loader.get_ner_entities()
+        
+        # Load pattern templates
+        self._compile_patterns()
+        
+        logger.info("Unified Work Experience Parser initialized")
+        logger.info(f"Loaded {len(self.patterns)} unified patterns")
+        logger.info(f"Loaded {len(self.ner_entities)} unified NER entities")
+    
+    def _compile_patterns(self):
+        """Compile regex patterns from unified dataset"""
+        self.compiled_patterns = []
+        
+        for pattern_str in self.patterns:
+            try:
+                # Convert pattern template to regex
+                regex_pattern = self._template_to_regex(pattern_str)
+                if regex_pattern:
+                    self.compiled_patterns.append({
+                        'template': pattern_str,
+                        'regex': re.compile(regex_pattern, re.IGNORECASE),
+                        'type': 'pattern'
+                    })
+            except Exception as e:
+                logger.warning(f"Failed to compile pattern: {pattern_str} - {e}")
+    
+    def _template_to_regex(self, template: str) -> str:
+        """Convert template pattern to regex"""
+        # Replace placeholders with regex groups
+        regex = template
+        
+        # Common replacements
+        replacements = {
+            '<jobTitle>': r'(?P<job_title>[^|,–—()]+?)',
+            '<company>': r'(?P<company>[^|,–—()]+?)',
+            '<location>': r'(?P<location>[^|,–—()]+?)',
+            '<date>': r'(?P<date>[^|,–—()]+?)',
+        }
+        
+        for placeholder, pattern in replacements.items():
+            regex = regex.replace(placeholder, pattern)
+        
+        return regex
+    
+    def _apply_all_pattern_matching(self, text: str) -> List[UnifiedJobEntry]:
+        """Apply ALL pattern matching using unified patterns"""
+        if not text or not text.strip():
+            return []
+        
+        text = text.strip()
+        matches = []
+        
+        for pattern_info in self.compiled_patterns:
+            match = pattern_info['regex'].search(text)
+            if match:
+                try:
+                    job_entry = self._create_job_from_pattern_match(match, pattern_info)
+                    if job_entry:
+                        matches.append(job_entry)
+                        logger.debug(f"Pattern matched: {pattern_info['template']}")
+                except Exception as e:
+                    logger.warning(f"Error processing pattern match: {e}")
+                    continue
+        
+        return matches
+    
+    def _create_job_from_pattern_match(self, match: re.Match, pattern_info: Dict) -> UnifiedJobEntry:
+        """Create UnifiedJobEntry from pattern match"""
+        groups = match.groupdict()
+        
+        job_entry = UnifiedJobEntry()
+        job_entry.sources_used = ['pattern']
+        job_entry.pattern_matched = pattern_info['template']
+        job_entry.confidence = 0.8  # Base confidence for pattern matches
+        
+        # Extract job title
+        job_title = groups.get('job_title', '').strip()
+        if job_title:
+            # Normalize using unified datasets
+            normalized_title = self.unified_loader.normalize_job_title(job_title)
+            job_entry.title = normalized_title
+            job_entry.normalized_title = normalized_title
+            job_entry.confidence += 0.1
+        
+        # Extract company
+        company = groups.get('company', '').strip()
+        if company:
+            # Normalize using unified datasets
+            normalized_company = self.unified_loader.normalize_company_name(company)
+            job_entry.company = normalized_company
+            job_entry.normalized_company = normalized_company
+            job_entry.confidence += 0.1
+        
+        # Extract location
+        location = groups.get('location', '').strip()
+        if location:
+            job_entry.location = location
+        
+        # Extract date
+        date = groups.get('date', '').strip()
+        if date:
+            job_entry.date_range = date
+        
+        # Set confidence cap
+        job_entry.confidence = min(job_entry.confidence, 1.0)
+        
+        return job_entry
+    
+    def _apply_all_ner_extraction(self, text: str) -> List[UnifiedJobEntry]:
+        """Apply ALL NER extraction using unified entities"""
+        if not text or not text.strip():
+            return []
+        
+        text = text.strip()
+        job_entry = UnifiedJobEntry()
+        job_entry.sources_used = ['ner']
+        job_entry.confidence = 0.6  # Base confidence for NER
+        job_entry.ner_entities_found = []
+        
+        found_entities = False
+        
+        # Lookup companies from ALL NER entities
+        for entity in self.ner_entities.get('COMPANY', []):
+            if entity.lower() in text.lower():
+                normalized_company = self.unified_loader.normalize_company_name(entity)
+                job_entry.company = normalized_company
+                job_entry.normalized_company = normalized_company
+                job_entry.ner_entities_found.append(entity)
+                found_entities = True
+                break
+        
+        # Lookup job titles from ALL NER entities
+        for entity in self.ner_entities.get('JOB_TITLE', []):
+            if entity.lower() in text.lower():
+                normalized_title = self.unified_loader.normalize_job_title(entity)
+                job_entry.title = normalized_title
+                job_entry.normalized_title = normalized_title
+                job_entry.ner_entities_found.append(entity)
+                found_entities = True
+                break
+        
+        # Lookup locations from ALL NER entities
+        for entity in self.ner_entities.get('CITY', []):
+            if entity.lower() in text.lower():
+                job_entry.location = entity
+                job_entry.ner_entities_found.append(entity)
+                found_entities = True
+                break
+        
+        if found_entities:
+            logger.debug(f"NER extraction found entities: {job_entry.ner_entities_found}")
+            return [job_entry]
+        
+        return []
+    
+    def _enhance_existing_with_unified_datasets(self, entry: JobEntry) -> UnifiedJobEntry:
+        """Enhance existing parser entry with ALL unified datasets"""
+        enhanced_entry = UnifiedJobEntry()
+        enhanced_entry.sources_used = ['existing']
+        
+        # Copy existing data
+        enhanced_entry.title = entry.title
+        enhanced_entry.company = entry.company
+        enhanced_entry.location = entry.location
+        enhanced_entry.start_date = entry.start_date
+        enhanced_entry.end_date = entry.end_date
+        enhanced_entry.description = entry.description
+        enhanced_entry.date_range = entry.date_range
+        enhanced_entry.confidence = 0.9  # Base confidence for existing parser
+        
+        # Apply normalization from ALL unified datasets
+        if entry.company:
+            normalized_company = self.unified_loader.normalize_company_name(entry.company)
+            if normalized_company != entry.company:
+                enhanced_entry.normalized_company = normalized_company
+                logger.debug(f"Company normalized: {entry.company} -> {normalized_company}")
+        
+        if entry.title:
+            normalized_title = self.unified_loader.normalize_job_title(entry.title)
+            if normalized_title != entry.title:
+                enhanced_entry.normalized_title = normalized_title
+                logger.debug(f"Job title normalized: {entry.title} -> {normalized_title}")
+        
+        return enhanced_entry
+    
+    def _merge_all_results_intelligently(self, all_results: List[UnifiedJobEntry]) -> List[UnifiedJobEntry]:
+        """
+        Merge results from ALL sources intelligently:
+        - Combine information from multiple sources
+        - Choose best values for each field
+        - Track all sources used
+        """
+        if not all_results:
+            return []
+        
+        # Group by company+title combinations
+        grouped = {}
+        
+        for result in all_results:
+            # Create grouping key
+            company_key = (result.normalized_company or result.company or '').lower()
+            title_key = (result.normalized_title or result.title or '').lower()
+            
+            if company_key and title_key:
+                group_key = (company_key, title_key)
+            elif company_key:
+                group_key = (company_key, '')
+            elif title_key:
+                group_key = ('', title_key)
+            else:
+                continue  # Skip entries without company or title
+            
+            if group_key not in grouped:
+                grouped[group_key] = []
+            grouped[group_key].append(result)
+        
+        # Merge each group
+        merged_results = []
+        for group_key, entries in grouped.items():
+            merged_entry = self._merge_entry_group(entries)
+            if merged_entry:
+                merged_results.append(merged_entry)
+        
+        # Sort by confidence
+        merged_results.sort(key=lambda x: x.confidence, reverse=True)
+        
+        return merged_results
+    
+    def _merge_entry_group(self, entries: List[UnifiedJobEntry]) -> Optional[UnifiedJobEntry]:
+        """Merge a group of entries for the same job"""
+        if not entries:
+            return None
+        
+        # Start with the highest confidence entry as base
+        entries.sort(key=lambda x: x.confidence, reverse=True)
+        base_entry = entries[0]
+        
+        # Create merged entry
+        merged = UnifiedJobEntry()
+        merged.sources_used = []
+        merged.confidence = base_entry.confidence
+        merged.ner_entities_found = []
+        
+        # Collect all unique sources
+        for entry in entries:
+            if entry.sources_used:
+                for source in entry.sources_used:
+                    if source not in merged.sources_used:
+                        merged.sources_used.append(source)
+        
+        # Merge each field with best value selection
+        merged.title = self._select_best_field(entries, 'title', 'normalized_title')
+        merged.company = self._select_best_field(entries, 'company', 'normalized_company')
+        merged.location = self._select_best_field(entries, 'location')
+        merged.start_date = self._select_best_field(entries, 'start_date')
+        merged.end_date = self._select_best_field(entries, 'end_date')
+        merged.description = self._select_best_field(entries, 'description')
+        merged.date_range = self._select_best_field(entries, 'date_range')
+        
+        # Set normalized values
+        if merged.company:
+            merged.normalized_company = self.unified_loader.normalize_company_name(merged.company)
+        if merged.title:
+            merged.normalized_title = self.unified_loader.normalize_job_title(merged.title)
+        
+        # Collect all NER entities found
+        for entry in entries:
+            if entry.ner_entities_found:
+                for entity in entry.ner_entities_found:
+                    if entity not in merged.ner_entities_found:
+                        merged.ner_entities_found.append(entity)
+        
+        # Adjust confidence based on number of sources
+        source_boost = min(len(merged.sources_used) * 0.05, 0.2)  # Max 20% boost
+        merged.confidence = min(base_entry.confidence + source_boost, 1.0)
+        
+        return merged
+    
+    def _select_best_field(self, entries: List[UnifiedJobEntry], field_name: str, 
+                          normalized_field: str = None) -> str:
+        """Select the best value for a field from all entries"""
+        candidates = []
+        
+        for entry in entries:
+            # Check normalized field first
+            if normalized_field and hasattr(entry, normalized_field):
+                norm_value = getattr(entry, normalized_field, '')
+                if norm_value:
+                    candidates.append(('normalized', norm_value, entry.confidence))
+            
+            # Check regular field
+            if hasattr(entry, field_name):
+                value = getattr(entry, field_name, '')
+                if value:
+                    candidates.append(('regular', value, entry.confidence))
+        
+        if not candidates:
+            return ""
+        
+        # Sort by priority: normalized > regular, then by confidence
+        candidates.sort(key=lambda x: (x[0] != 'normalized', -x[2]))
+        
+        # Return the best candidate
+        best = candidates[0]
+        return best[1]
+    
+    def parse_experience_section(self, text: str, source_format: str = None) -> List[UnifiedJobEntry]:
+        """
+        Parse experience section using ALL datasets simultaneously:
+        1. Apply pattern matching (ALL patterns)
+        2. Apply NER extraction (ALL entities)
+        3. Use existing parser logic
+        4. Combine results from ALL sources
+        5. Merge intelligently
+        """
+        logger.info(f"Parsing experience section with ALL unified datasets")
+        
+        all_results = []
+        
+        # Step 1: Apply ALL pattern matching
+        pattern_results = self._apply_all_pattern_matching(text)
+        all_results.extend(pattern_results)
+        logger.info(f"Pattern matching found: {len(pattern_results)} entries")
+        
+        # Step 2: Apply ALL NER extraction
+        ner_results = self._apply_all_ner_extraction(text)
+        all_results.extend(ner_results)
+        logger.info(f"NER extraction found: {len(ner_results)} entries")
+        
+        # Step 3: Use existing parser and enhance with unified datasets
+        existing_entries = self.existing_parser.parse_experience_section(text, source_format)
+        enhanced_existing = []
+        for entry in existing_entries:
+            enhanced_entry = self._enhance_existing_with_unified_datasets(entry)
+            enhanced_existing.append(enhanced_entry)
+        all_results.extend(enhanced_existing)
+        logger.info(f"Enhanced existing parser: {len(enhanced_existing)} entries")
+        
+        # Step 4: Merge all results intelligently
+        final_results = self._merge_all_results_intelligently(all_results)
+        
+        logger.info(f"Final unified entries: {len(final_results)}")
+        
+        # Log source usage statistics
+        source_counts = {}
+        for entry in final_results:
+            for source in entry.sources_used:
+                source_counts[source] = source_counts.get(source, 0) + 1
+        logger.info(f"Source usage: {source_counts}")
+        
+        return final_results
+    
+    def get_unified_parsing_stats(self) -> Dict[str, Any]:
+        """Get comprehensive statistics about unified parsing performance"""
+        dataset_stats = self.unified_loader.get_unified_dataset_stats()
+        
+        return {
+            'patterns_loaded': len(self.compiled_patterns),
+            'ner_entities_loaded': len(self.ner_entities),
+            'dataset_stats': dataset_stats,
+            'unified_sources': {
+                'companies': dataset_stats.get('companies', {}).get('source_type_counts', {}),
+                'job_titles': dataset_stats.get('job_titles', {}).get('source_type_counts', {}),
+                'skills': dataset_stats.get('skills', {}).get('source_type_counts', {}),
+                'total_datasets_used': sum(len(stats.get('all_source_files', [])) for stats in dataset_stats.values())
+            }
+        }
+
+# Global instance
+unified_parser = UnifiedWorkExperienceParser()
 
 from app.services.parser.work_experience_parser import JobEntry
 

@@ -1,0 +1,10 @@
+{
+  "lang": "en",
+  "name": "resume_parser",
+  "version": "1.0.0",
+  "description": "Custom spaCy model for resume parsing",
+  "author": "Resume Parser System",
+  "email": "admin@resumeparser.com",
+  "url": "https://github.com/resume-parser",
+  "license": "MIT"
+}

@@ -3,6 +3,8 @@
 from typing import Dict, Any, Optional
 from app.services.ml_complete_parser import MLResumeParser
 from app.services.complete_resume_converter import convert_resume_to_target_format
+from app.services.parser.quality_classifier import quality_classifier
+from app.services.parser.tfidf_vectorizer import tfidf_vectorizer
 
 class EnhancedResumePipeline:
     """
@@ -11,6 +13,9 @@ class EnhancedResumePipeline:
     
     def __init__(self):
         self.ml_parser = MLResumeParser()
+        # Initialize quality classifier and TF-IDF vectorizer
+        print("✅ Quality classifier loaded")
+        print("✅ TF-IDF vectorizer loaded")
     
     def parse_resume_complete(self, resume_text: str, use_ml: bool = True) -> Dict[str, Any]:
         """

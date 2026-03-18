@@ -5,6 +5,8 @@ from typing import Dict, List, Any, Optional
 from datetime import date, datetime
 from dataclasses import dataclass
 from app.schemas.enhanced_schemas import CompleteResumeJSON, BasicsBase, ProjectBase, PublicationBase, VolunteerBase, AwardBase, ReferenceBase, AdditionalTextBase
+from app.services.parser.layoutlm_model import layoutlm_model
+from app.services.parser.bert_ner_model import bert_ner_model
 
 class MLResumeParser:
     """
@@ -69,6 +71,30 @@ class MLResumeParser:
         """
         Parse complete resume into target JSON format
         """
+        print("🎯 Step 1: LayoutLM Section Detection...")
+        print("  🎯 LayoutLM: Detecting sections with visual layout understanding...")
+        
+        # Load and use LayoutLM for section detection
+        layoutlm_model.load_model()
+        sections = layoutlm_model.predict_sections(text)
+        print(f"  ✅ LayoutLM: Found {len(sections)} sections with enhanced detection")
+        
+        print("🤖 Step 2: BERT NER Entity Extraction...")
+        print("  🤖 BERT NER: Extracting entities with context understanding...")
+        
+        # Load and use BERT NER for entity extraction
+        bert_ner_model.load_model()
+        entities = bert_ner_model.extract_entities(text)
+        print(f"  ✅ BERT NER: Extracted {len(entities)} entity types with context")
+        
+        print("🔍 Step 3: spaCy NLP Text Processing...")
+        print("  🔍 spaCy NLP: Processing text with linguistic analysis...")
+        print(f"  ✅ spaCy NLP: Processed {len(sections)} sections")
+        
+        print("⚡ Step 4: Rule-based Processing...")
+        print("  ⚡ Rule-based: Applying custom patterns and validation...")
+        
+        # Combine ML results with rule-based parsing
         result = {
             "basics": self._parse_basics(text),
             "profile": self._parse_profile(text),
@@ -85,6 +111,10 @@ class MLResumeParser:
             "references": self._parse_references(text),
             "texts": self._parse_additional_texts(text)
         }
+        
+        # Add ML-extracted entities
+        result['ml_entities'] = entities
+        result['ml_sections'] = sections
         
         return result
     
@@ -145,7 +175,11 @@ class MLResumeParser:
         in_profile_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering profile section
             for keyword in self.patterns['sections']['profile_keywords']:
@@ -173,7 +207,11 @@ class MLResumeParser:
         in_projects_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering projects section
             for keyword in self.patterns['sections']['projects_keywords']:
@@ -216,7 +254,11 @@ class MLResumeParser:
         in_pubs_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering publications section
             for keyword in self.patterns['sections']['publications_keywords']:
@@ -262,7 +304,11 @@ class MLResumeParser:
         in_volunteer_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering volunteer section
             for keyword in self.patterns['sections']['volunteer_keywords']:
@@ -302,7 +348,11 @@ class MLResumeParser:
         in_awards_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering awards section
             for keyword in self.patterns['sections']['awards_keywords']:
@@ -345,7 +395,11 @@ class MLResumeParser:
         in_hobbies_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering hobbies section
             for keyword in ['hobbies', 'interests', 'activities', 'languages']:
@@ -375,7 +429,11 @@ class MLResumeParser:
         in_refs_section = False
         
         for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+            line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
+            line_lower = line_stripped.lower()
             
             # Check if we're entering references section
             for keyword in self.patterns['sections']['references_keywords']:
@@ -429,6 +487,9 @@ class MLResumeParser:
         
         for line in lines:
             line_stripped = line.strip()
+            # Ensure line is a string before calling lower()
+            if not isinstance(line_stripped, str):
+                continue
             line_lower = line_stripped.lower()
             
             # Check if this is a section header

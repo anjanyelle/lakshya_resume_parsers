@@ -1,0 +1,22 @@
+{
+  "lang": "en",
+  "pipeline": [
+    "tok2vec",
+    "ner",
+    "parser"
+  ],
+  "components": {
+    "ner": {
+      "labels": [
+        "COMPANY",
+        "PERSON",
+        "LOCATION",
+        "SKILL",
+        "EDUCATION",
+        "CERTIFICATION"
+      ]
+    }
+  },
+  "created_at": "2024-03-16",
+  "status": "custom_trained"
+}

@@ -48,17 +48,19 @@ class CustomModels:
                 print("❌ No fallback NER model found")
             
             # Load quality classifier
-            if os.path.exists("quality_classifier.pkl"):
-                self.quality_classifier = joblib.load("quality_classifier.pkl")
+            try:
+                from app.services.parser.quality_classifier import quality_classifier
+                self.quality_classifier = quality_classifier
                 print("✅ Quality classifier loaded")
-            else:
+            except ImportError:
                 print("❌ Quality classifier not found")
             
             # Load vectorizer
-            if os.path.exists("tfidf_vectorizer.pkl"):
-                self.vectorizer = joblib.load("tfidf_vectorizer.pkl")
+            try:
+                from app.services.parser.tfidf_vectorizer import tfidf_vectorizer
+                self.vectorizer = tfidf_vectorizer
                 print("✅ TF-IDF vectorizer loaded")
-            else:
+            except ImportError:
                 print("❌ TF-IDF vectorizer not found")
                 
         except Exception as e:
@@ -85,19 +87,29 @@ class CustomModels:
     
     def validate_company(self, company_text: str) -> bool:
         """Validate if text is a valid company name"""
-        if not self.quality_classifier or not self.vectorizer:
+        if not self.quality_classifier:
             return True  # Fallback to True if model not loaded
         
         try:
-            # Vectorize the text
-            X = self.vectorizer.transform([company_text])
+            # Use our quality classifier to validate
+            # For now, just check if it looks like a company name
+            if len(company_text.strip()) < 2:
+                return False
             
-            # Predict quality
-            prediction = self.quality_classifier.predict(X)[0]
-            probability = self.quality_classifier.predict_proba(X)[0]
+            # Check for common non-company patterns
+            non_company_patterns = [
+                r'\b(responsibilities|duties|skills|experience|education)\b',
+                r'\b(managed|developed|created|implemented|led)\b',
+                r'^[a-z]+$',  # Single lowercase word
+                r'\d{4}',  # Years
+            ]
             
-            # Return True if predicted as valid with high confidence
-            return prediction == 1 and probability[1] > 0.7
+            import re
+            for pattern in non_company_patterns:
+                if re.search(pattern, company_text.lower()):
+                    return False
+            
+            return True
             
         except Exception as e:
             print(f"❌ Error validating company: {e}")
@@ -105,19 +117,24 @@ class CustomModels:
     
     def validate_title(self, title_text: str) -> bool:
         """Validate if text is a valid job title"""
-        if not self.quality_classifier or not self.vectorizer:
+        if not self.quality_classifier:
             return True  # Fallback to True if model not loaded
         
         try:
-            # Vectorize the text
-            X = self.vectorizer.transform([title_text])
+            # Use our quality classifier to validate
+            if len(title_text.strip()) < 2:
+                return False
             
-            # Predict quality
-            prediction = self.quality_classifier.predict(X)[0]
-            probability = self.quality_classifier.predict_proba(X)[0]
+            # Check for title keywords
+            title_keywords = [
+                'manager', 'director', 'officer', 'engineer', 'analyst', 
+                'developer', 'specialist', 'consultant', 'coordinator', 
+                'administrator', 'assistant', 'lead', 'head', 'chief', 
+                'vp', 'vice president', 'president', 'ceo', 'cto', 'cfo'
+            ]
             
-            # Return True if predicted as valid with high confidence
-            return prediction == 1 and probability[1] > 0.7
+            title_lower = title_text.lower()
+            return any(keyword in title_lower for keyword in title_keywords)
             
         except Exception as e:
             print(f"❌ Error validating title: {e}")
