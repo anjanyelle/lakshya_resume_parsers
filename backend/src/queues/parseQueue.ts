@@ -38,6 +38,7 @@ export interface ParseJobData {
   filePath: string;
   fileType: string;
   userId?: string;
+  llmProvider?: string;
 }
 
 // Add a new parsing job to the queue
@@ -46,12 +47,14 @@ export const addParsingJob = async (
   filePath: string,
   fileType: string,
   userId?: string,
+  llmProvider?: string,
 ): Promise<string> => {
   const jobData: ParseJobData = {
     candidateId,
     filePath,
     fileType,
     userId,
+    llmProvider,
   };
 
   const job = await parseQueue.add("parse-resume", jobData, {

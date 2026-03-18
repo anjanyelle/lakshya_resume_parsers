@@ -61,7 +61,7 @@ interface CandidateState {
 interface CandidateActions {
   fetchCandidates: () => Promise<void>;
   fetchCandidate: (id: string) => Promise<void>;
-  uploadResume: (file: File, candidateId?: string) => Promise<Candidate>;
+  uploadResume: (file: File, llmProvider?: string, candidateId?: string) => Promise<Candidate>;
   deleteCandidate: (id: string) => Promise<void>;
   setUploadProgress: (percent: number) => void;
   setCurrentCandidate: (candidate: Candidate | null) => void;
@@ -106,7 +106,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
       }
     },
 
-    uploadResume: async (file: File, candidateId?: string) => {
+    uploadResume: async (file: File, llmProvider?: string, candidateId?: string) => {
       set({ isUploading: true, uploadProgress: 0, error: null });
 
       try {
@@ -114,6 +114,9 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
         formData.append("resume", file);
         if (candidateId) {
           formData.append("candidate_id", candidateId);
+        }
+        if (llmProvider) {
+          formData.append("llm_provider", llmProvider);
         }
 
         const response = await api.post("/upload/resume", formData, {

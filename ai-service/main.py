@@ -93,6 +93,7 @@ parse_metrics = {
 class ParseRequest(BaseModel):
     file_path: str
     candidate_id: str
+    llm_provider: Optional[str] = None
 
 class ParseTextRequest(BaseModel):
     text: str
@@ -291,9 +292,11 @@ async def parse_resume(request: ParseRequest):
             )
         
         logger.info(f"Parsing file: {request.file_path} for candidate: {request.candidate_id}")
+        if request.llm_provider:
+            logger.info(f"Using LLM provider: {request.llm_provider}")
         
         # Parse using MasterParser
-        result = master_parser.parse_file(request.file_path, request.candidate_id)
+        result = master_parser.parse_file(request.file_path, request.candidate_id, request.llm_provider)
         
         # Update metrics
         parse_time = (time.time() - start_time) * 1000

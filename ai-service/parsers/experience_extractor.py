@@ -1168,8 +1168,72 @@ class ExperienceExtractor:
                 for city in common_cities:
                     if company.endswith(f' {city}'):
                         company = company[:-len(f' {city}')].strip()
-                if len(company) > 2:  # Minimum length check
+                
+                # Validate: company name should be single line and reasonable length
+                if '\n' not in company and 2 < len(company) < 100:
                     return company
+        
+        # Final fallback: try to extract from first few non-title lines
+        lines = block.split('\n')
+        for i, line in enumerate(lines[:5]):  # Check first 5 lines only
+            line = line.strip()
+            
+            # Skip empty lines
+            if not line:
+                continue
+            
+            # Skip job title line
+            if job_title and job_title in line:
+                continue
+            
+            # Skip lines with bullet points or descriptions
+            if line.startswith('•') or line.startswith('-') or line.startswith('*'):
+                continue
+            
+            # Skip lines that are too long (likely descriptions)
+            if len(line) > 100:
+                continue
+            
+            # Skip lines with common action verbs (these are descriptions, not company names)
+            action_verbs = [
+                'built', 'developed', 'created', 'managed', 'led', 'designed', 
+                'implemented', 'responsible', 'worked', 'wrote', 'integrated',
+                'deployed', 'maintained', 'established', 'coordinated', 'executed',
+                'delivered', 'achieved', 'improved', 'optimized', 'reduced',
+                'increased', 'collaborated', 'supported', 'assisted', 'conducted'
+            ]
+            # Check if line starts with an action verb
+            line_lower = line.lower()
+            if any(line_lower.startswith(verb) for verb in action_verbs):
+                continue
+            
+            # Skip lines with dates
+            if re.search(r'\d{4}', line):
+                continue
+            
+            # Company names usually have certain indicators
+            company_indicators = ['inc', 'corp', 'ltd', 'llc', 'company', 'technologies', 'systems', 'solutions', 'services', 'group']
+            has_indicator = any(indicator in line_lower for indicator in company_indicators)
+            
+            # If line has company indicator and reasonable length, likely a company
+            if has_indicator and 2 < len(line) < 100:
+                company = re.sub(r'[\|\-•].*$', '', line).strip()
+                if company:
+                    return company
+            
+            # If no indicator found, check if line looks like a proper noun (Title Case)
+            # and doesn't contain common description words
+            words = line.split()
+            if len(words) <= 6:  # Company names are usually short
+                # Check if most words are capitalized (proper noun pattern)
+                capitalized_words = sum(1 for w in words if w and w[0].isupper())
+                if capitalized_words >= len(words) * 0.5:  # At least 50% capitalized
+                    # Additional check: not a sentence (no common sentence words)
+                    sentence_words = ['the', 'a', 'an', 'for', 'to', 'in', 'on', 'at', 'by', 'with']
+                    if not any(word.lower() in sentence_words for word in words):
+                        company = re.sub(r'[\|\-•].*$', '', line).strip()
+                        if company and len(company) > 2:
+                            return company
         
         return ''
     
@@ -1988,6 +2052,45 @@ class ExperienceExtractor:
                 'has_gaps': False,
                 'gap_months': 0
             }
+    
+    def extract_experience_with_llm(self, experience_text: str, llm_provider: str) -> List[Dict]:
+        """
+        Extract work experience using LLM provider.
+        
+        Args:
+            experience_text: Text from the experience section
+            llm_provider: LLM provider ID
+            
+        Returns:
+            List of experience objects
+        """
+        from parsers.llm_experience_extractor import extract_experience_with_llm
+        
+        try:
+            self.logger.info(f"Extracting experience with LLM: {llm_provider}")
+            experiences = extract_experience_with_llm(experience_text, llm_provider)
+            
+            # Normalize field names to match existing schema
+            normalized = []
+            for exp in experiences:
+                normalized_exp = {
+                    'company_name': exp.get('company'),
+                    'job_title': exp.get('role'),
+                    'start_date': exp.get('start_date'),
+                    'end_date': exp.get('end_date'),
+                    'is_current': exp.get('is_current', False),
+                    'location': exp.get('location'),
+                    'description': exp.get('summary'),
+                    'skills_mentioned': []
+                }
+                normalized.append(normalized_exp)
+            
+            self.logger.info(f"LLM extracted {len(normalized)} experiences")
+            return normalized
+            
+        except Exception as e:
+            self.logger.error(f"LLM extraction failed: {e}")
+            return []
 
 
 # Example usage and testing

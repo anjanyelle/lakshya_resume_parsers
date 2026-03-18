@@ -442,17 +442,24 @@ const callAIService = async (
   filePath: string,
   fileType: string,
   candidateId: string,
+  llmProvider?: string,
 ): Promise<AIServiceResponse> => {
   try {
+    const requestBody: any = {
+      file_path: path.resolve(filePath),
+      candidate_id: candidateId,
+    };
+    
+    if (llmProvider) {
+      requestBody.llm_provider = llmProvider;
+    }
+    
     const apiResponse = await fetch(`${AI_SERVICE_URL}/parse`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        file_path: path.resolve(filePath),
-        candidate_id: candidateId,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!apiResponse.ok) {
@@ -473,9 +480,12 @@ const callAIService = async (
 
 // The processor function for the worker
 const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
-  const { candidateId, filePath, fileType, userId } = job.data;
+  const { candidateId, filePath, fileType, userId, llmProvider } = job.data;
 
   console.log(`🔄 Starting resume parsing for candidate ${candidateId}`);
+  if (llmProvider) {
+    console.log(`🤖 Using LLM provider: ${llmProvider}`);
+  }
 
   const client = await getClient();
 
@@ -520,7 +530,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     }
 
     console.log(`🤖 Calling AI service for ${filePath}`);
-    const aiResult = await callAIService(filePath, fileType, candidateId);
+    const aiResult = await callAIService(filePath, fileType, candidateId, llmProvider);
 
     // Log parse trace to verify which fields came from which source
     console.log('[PARSE TRACE]', 

@@ -3092,6 +3092,10 @@ class EducationExtractor:
             # Extract GPA
             education['gpa'] = self._extract_gpa(block)
             
+            # Validate the education entry before returning
+            if not self._is_valid_education_entry(education, block):
+                return None
+            
             return education if education['degree'] or education['institution'] else None
             
         except Exception as e:
@@ -4826,6 +4830,54 @@ class EducationExtractor:
         
         # Return original if no mapping found
         return clean_degree
+    
+    def _is_valid_education_entry(self, education: Dict, block: str) -> bool:
+        """
+        Validate if an education entry is legitimate and not a false positive.
+        
+        Args:
+            education: Extracted education dictionary
+            block: Original text block
+            
+        Returns:
+            True if valid education entry, False otherwise
+        """
+        degree = education.get('degree', '')
+        institution = education.get('institution', '')
+        
+        # Filter out invalid degrees
+        invalid_degrees = ['AWS', 'Pe', 'CA', 'CPA', 'PMP', 'CISSP', 'CEH', 'CCNA', 'CCNP']
+        if degree in invalid_degrees:
+            return False
+        
+        # Degree must be at least 3 characters
+        if degree and len(degree) < 3:
+            return False
+        
+        # Filter out medical/dental degrees that are unlikely for tech resumes
+        # (unless there's a clear institution indicating it's real)
+        medical_degrees = [
+            'Doctor of Optometry', 'Doctor of Osteopathic Medicine', 
+            'Doctor of Dental Surgery', 'Doctor of Dental Medicine',
+            'Doctor of Veterinary Medicine', 'Doctor of Podiatric Medicine',
+            'Doctor of Chiropractic', 'Doctor of Pharmacy'
+        ]
+        if degree in medical_degrees and not institution:
+            # If no institution, likely a false match from certifications
+            return False
+        
+        # Block should have some minimum content (not just a keyword)
+        if len(block.strip()) < 15:
+            return False
+        
+        # If degree exists but no institution and no years, likely invalid
+        if degree and not institution and not education.get('start_year') and not education.get('end_year'):
+            # Check if block has typical education indicators
+            education_indicators = ['university', 'college', 'institute', 'school', 'gpa', 'graduated']
+            if not any(indicator in block.lower() for indicator in education_indicators):
+                return False
+        
+        return True
     
     def _mark_highest_degree(self, education_list: List[Dict]) -> List[Dict]:
         """

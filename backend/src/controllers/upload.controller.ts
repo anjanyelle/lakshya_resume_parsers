@@ -31,10 +31,14 @@ export const uploadResume = async (
 
     const fileInfo = getFileInfo(req.file);
     const userId = (req as any).user?.id;
+    const llmProvider = req.body.llm_provider || '';
 
     console.log(
       `📄 Processing resume upload: ${fileInfo.originalname} (${fileInfo.type})`,
     );
+    if (llmProvider) {
+      console.log(`🤖 Using LLM provider: ${llmProvider}`);
+    }
 
     // 2. Create database client and start transaction
     client = await getClient();
@@ -79,6 +83,7 @@ export const uploadResume = async (
         fileInfo.path,
         fileInfo.type,
         userId,
+        llmProvider,
       );
 
       console.log(`✅ Added job to Redis queue: ${jobId}`);

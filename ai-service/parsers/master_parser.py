@@ -126,13 +126,14 @@ class MasterParser:
         optional_count = sum(optional_status)
         self.logger.info(f"📊 Optional parsers: {optional_count}/{len(optional_parsers)} available")
     
-    def parse_file(self, file_path: str, candidate_id: str) -> Dict[str, Any]:
+    def parse_file(self, file_path: str, candidate_id: str, llm_provider: Optional[str] = None) -> Dict[str, Any]:
         """
         Parse resume file through the complete pipeline.
         
         Args:
             file_path: Path to resume file
             candidate_id: Unique candidate identifier
+            llm_provider: Optional LLM provider for experience extraction
             
         Returns:
             Complete parsed resume data with confidence scores and metrics
@@ -142,6 +143,8 @@ class MasterParser:
         
         try:
             self.logger.info(f"🚀 Starting file parse pipeline for {candidate_id}: {file_path}")
+            if llm_provider:
+                self.logger.info(f"🤖 Using LLM provider: {llm_provider}")
             
             # Validate file exists
             if not Path(file_path).exists():
@@ -160,6 +163,7 @@ class MasterParser:
                 text_result['text'], 
                 candidate_id, 
                 metrics,
+                llm_provider=llm_provider,
                 file_info={
                     'file_path': file_path,
                     'extraction_method': text_result.get('method', 'unknown'),
@@ -245,7 +249,7 @@ class MasterParser:
             return self._create_error_result(candidate_id, str(e), metrics)
     
     def _parse_text_pipeline(self, text: str, candidate_id: str, metrics: Dict[str, float], 
-                           file_info: Dict[str, Any] = None) -> Dict[str, Any]:
+                           llm_provider: Optional[str] = None, file_info: Dict[str, Any] = None) -> Dict[str, Any]:
         """
         Core text parsing pipeline (shared by file and text parsing).
         
@@ -253,6 +257,7 @@ class MasterParser:
             text: Text to parse
             candidate_id: Candidate identifier
             metrics: Timing metrics dictionary
+            llm_provider: Optional LLM provider for experience extraction
             file_info: File-specific information
             
         Returns:
@@ -280,7 +285,7 @@ class MasterParser:
         
         # Step 5: Extract structured experience
         step_start = time.time()
-        experience_results = self._extract_experience(sections, text)
+        experience_results = self._extract_experience(sections, text, llm_provider)
         metrics['experience_extraction_ms'] = (time.time() - step_start) * 1000
         
         # Step 6: Extract structured education
@@ -470,8 +475,8 @@ class MasterParser:
                 'ai_entities': entities
             }
     
-    def _extract_experience(self, sections: Dict[str, str], full_text: str = '') -> Dict[str, Any]:
-        """Extract structured work experience."""
+    def _extract_experience(self, sections: Dict[str, str], full_text: str = '', llm_provider: Optional[str] = None) -> Dict[str, Any]:
+        """Extract structured work experience using LLM if provider specified, otherwise use regex."""
         if not self.exp_extractor:
             self.logger.warning("ExperienceExtractor not available, returning empty results")
             return {'work_experience': [], 'job_titles': []}
@@ -483,6 +488,20 @@ class MasterParser:
         if not experience_text:
             return {'work_experience': [], 'job_titles': []}
         
+        # Use LLM extraction if provider is specified
+        if llm_provider and hasattr(self.exp_extractor, 'extract_experience_with_llm'):
+            self.logger.info(f"Using LLM extraction with provider: {llm_provider}")
+            try:
+                work_experience = self.exp_extractor.extract_experience_with_llm(experience_text, llm_provider)
+                job_titles = [exp.get('role', '') or exp.get('job_title', '') for exp in work_experience if exp.get('role') or exp.get('job_title')]
+                return {
+                    'work_experience': work_experience,
+                    'job_titles': job_titles
+                }
+            except Exception as e:
+                self.logger.error(f"LLM extraction failed: {e}, falling back to regex")
+        
+        # Fallback to regex-based extraction
         exp_result = self.exp_extractor.extract_work_experience(experience_text)
         work_experience = exp_result.get('work_experience', [])
         job_titles = [exp.get('job_title', '') for exp in work_experience if exp.get('job_title')]
@@ -538,9 +557,7 @@ class MasterParser:
         
         education_text = sections.get('education', '').strip()
         if not education_text:
-            self.logger.warning("No education section detected, falling back to full text")
-            education_text = full_text
-        if not education_text:
+            self.logger.warning("No education section detected, skipping education extraction")
             return {'education': [], 'education_institutions': [], 'degrees': []}
         
         education = self.edu_extractor.extract_education(education_text)

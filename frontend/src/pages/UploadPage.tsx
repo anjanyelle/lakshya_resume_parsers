@@ -11,6 +11,14 @@ import {
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 
+interface LLMModel {
+  id: string;
+  name: string;
+  badge: string;
+  inputPrice: string;
+  outputPrice: string;
+}
+
 interface UploadFile {
   file: File;
   id: string;
@@ -22,10 +30,50 @@ interface UploadFile {
   error?: string;
 }
 
+const LLM_MODELS: LLMModel[] = [
+  {
+    id: "own-model",
+    name: "Our Own Model",
+    badge: "Default",
+    inputPrice: "Free",
+    outputPrice: "Free",
+  },
+  {
+    id: "gemini-2.0-flash-lite",
+    name: "Gemini 2.0 Flash-Lite",
+    badge: "Cheapest",
+    inputPrice: "$0.075",
+    outputPrice: "$0.30",
+  },
+  {
+    id: "deepseek-v3",
+    name: "DeepSeek V3.2",
+    badge: "Best value",
+    inputPrice: "$0.14",
+    outputPrice: "$0.28",
+  },
+  {
+    id: "claude-haiku-4-5",
+    name: "Claude Haiku 4.5",
+    badge: "Reliable",
+    inputPrice: "$1.00",
+    outputPrice: "$5.00",
+  },
+  {
+    id: "gpt-4o-mini",
+    name: "GPT-4o Mini",
+    badge: "Fallback",
+    inputPrice: "$0.15",
+    outputPrice: "$0.60",
+  },
+];
+
 export default function UploadPage() {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
+  const [selectedLLM, setSelectedLLM] = useState<string>("own-model");
+  const [showLLMDropdown, setShowLLMDropdown] = useState(false);
 
   const { uploadResume } = useCandidateStore();
   const navigate = useNavigate();
@@ -194,8 +242,9 @@ export default function UploadPage() {
         });
       }
 
-      // Start upload
-      const candidate = await uploadResume(uploadFile.file);
+      // Start upload with selected LLM (send empty string for own-model)
+      const llmProvider = selectedLLM === "own-model" ? "" : selectedLLM;
+      const candidate = await uploadResume(uploadFile.file, llmProvider);
 
       // Check if candidate was returned successfully
       if (!candidate || !candidate.id) {
@@ -321,6 +370,105 @@ export default function UploadPage() {
             Bulk Upload
           </button>
         </div>
+      </div>
+
+      {/* LLM Model Selector */}
+      <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Select AI Model for Experience Extraction
+        </label>
+        <div className="relative">
+          <button
+            onClick={() => setShowLLMDropdown(!showLLMDropdown)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="flex-1 text-left">
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium text-gray-900">
+                    {LLM_MODELS.find((m) => m.id === selectedLLM)?.name}
+                  </span>
+                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    selectedLLM === "own-model" ? "bg-gray-100 text-gray-800" : "bg-indigo-100 text-indigo-800"
+                  }`}>
+                    {LLM_MODELS.find((m) => m.id === selectedLLM)?.badge}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {LLM_MODELS.find((m) => m.id === selectedLLM)?.inputPrice} input / {LLM_MODELS.find((m) => m.id === selectedLLM)?.outputPrice} output per 1M tokens
+                </div>
+              </div>
+            </div>
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                showLLMDropdown ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {showLLMDropdown && (
+            <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+              {LLM_MODELS.map((model) => (
+                <button
+                  key={model.id}
+                  onClick={() => {
+                    setSelectedLLM(model.id);
+                    setShowLLMDropdown(false);
+                  }}
+                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    selectedLLM === model.id ? "bg-indigo-50" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium text-gray-900">
+                          {model.name}
+                        </span>
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                          model.id === "own-model" ? "bg-gray-100 text-gray-800" : "bg-indigo-100 text-indigo-800"
+                        }`}>
+                          {model.badge}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {model.inputPrice} input / {model.outputPrice} output per 1M tokens
+                      </div>
+                    </div>
+                    {selectedLLM === model.id && (
+                      <svg
+                        className="w-5 h-5 text-indigo-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {selectedLLM === "own-model" && (
+          <p className="mt-2 text-sm text-gray-600">
+            Using built-in rule-based + BERT NER pipeline — no API call made
+          </p>
+        )}
       </div>
 
       {/* Upload Area */}
