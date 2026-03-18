@@ -1,0 +1,1001 @@
+degree,fieldOfStudy,institution,startDate,endDate,grade,city,country
+PhD,Business Administration,JNTU Hyderabad,2007-06-01,2012-05-30,6.7,Bangalore,USA
+MBA,Business Administration,JNTU Hyderabad,2009-06-01,2012-05-30,8.67,Delhi,India
+Bachelor of Technology,Data Science,IIT Bombay,2010-06-01,2015-05-30,6.75,Pune,USA
+MCA,Business Administration,IIT Bombay,2005-06-01,2008-05-30,6.84,Pune,India
+PhD,Electronics,IIT Delhi,2018-06-01,2020-05-30,6.26,Hyderabad,India
+BCA,Mechanical Engineering,JNTU Hyderabad,2020-06-01,2024-05-30,8.58,Mumbai,India
+Bachelor of Science,Business Administration,IISc Bangalore,2014-06-01,2018-05-30,7.69,Mumbai,USA
+Bachelor of Technology,Electronics,Anna University,2016-06-01,2021-05-30,6.47,Delhi,USA
+Master of Science,Computer Science,Delhi University,2017-06-01,2022-05-30,6.47,Hyderabad,India
+MBA,Mechanical Engineering,Stanford University,2004-06-01,2008-05-30,6.65,Delhi,USA
+PhD,Business Administration,IIT Delhi,2001-06-01,2006-05-30,6.56,Mumbai,India
+MCA,Information Technology,Anna University,2002-06-01,2007-05-30,7.34,Delhi,USA
+BCA,Business Administration,JNTU Hyderabad,2014-06-01,2018-05-30,8.12,Chennai,India
+Master of Technology,Mechanical Engineering,IIT Bombay,2012-06-01,2016-05-30,9.61,Delhi,USA
+Bachelor of Science,Data Science,Stanford University,2012-06-01,2015-05-30,7.0,Bangalore,USA
+MCA,Business Administration,MIT,2019-06-01,2023-05-30,6.49,Bangalore,India
+BCA,Computer Science,Anna University,2010-06-01,2014-05-30,8.09,Hyderabad,USA
+BCA,Data Science,IIT Bombay,2014-06-01,2018-05-30,7.38,Hyderabad,India
+PhD,Business Administration,IISc Bangalore,2006-06-01,2010-05-30,7.55,Chennai,India
+Master of Science,Computer Science,IIT Bombay,2005-06-01,2007-05-30,7.8,Bangalore,USA
+MBA,Information Technology,Delhi University,2014-06-01,2017-05-30,9.15,Bangalore,India
+Bachelor of Technology,Electronics,Anna University,2001-06-01,2005-05-30,8.8,Pune,USA
+MBA,Data Science,IIT Delhi,2003-06-01,2008-05-30,9.44,Chennai,India
+BCA,Business Administration,Delhi University,2001-06-01,2003-05-30,8.08,Pune,USA
+BCA,Information Technology,IIT Delhi,2003-06-01,2005-05-30,6.23,Hyderabad,USA
+Master of Technology,Mechanical Engineering,MIT,2020-06-01,2022-05-30,8.06,Hyderabad,USA
+BCA,Business Administration,Delhi University,2011-06-01,2013-05-30,7.29,Chennai,USA
+MBA,Business Administration,Delhi University,2007-06-01,2011-05-30,8.92,Pune,India
+Bachelor of Technology,Mechanical Engineering,IIT Bombay,2005-06-01,2009-05-30,6.25,Mumbai,India
+Bachelor of Technology,Information Technology,IIT Delhi,2020-06-01,2025-05-30,8.53,Hyderabad,India
+Master of Science,Computer Science,IIT Bombay,2002-06-01,2004-05-30,9.29,Hyderabad,USA
+Bachelor of Science,Computer Science,Anna University,2006-06-01,2009-05-30,7.42,Mumbai,USA
+MCA,Electronics,IISc Bangalore,2011-06-01,2014-05-30,9.73,Delhi,USA
+Master of Technology,Computer Science,IISc Bangalore,2004-06-01,2007-05-30,8.46,Mumbai,India
+Bachelor of Science,Mechanical Engineering,MIT,2000-06-01,2003-05-30,8.72,Delhi,India
+PhD,Data Science,IIT Delhi,2016-06-01,2019-05-30,6.99,Pune,USA
+PhD,Data Science,IIT Delhi,2011-06-01,2016-05-30,8.94,Bangalore,India
+Master of Technology,Data Science,IIT Delhi,2014-06-01,2019-05-30,6.62,Hyderabad,USA
+Bachelor of Science,Information Technology,IIT Bombay,2015-06-01,2018-05-30,6.26,Bangalore,India
+Bachelor of Technology,Mechanical Engineering,IISc Bangalore,2004-06-01,2008-05-30,9.15,Mumbai,India
+PhD,Electronics,IISc Bangalore,2005-06-01,2009-05-30,6.56,Delhi,USA
+Bachelor of Technology,Computer Science,IIT Delhi,2001-06-01,2003-05-30,8.23,Delhi,India
+Bachelor of Science,Computer Science,Delhi University,2013-06-01,2018-05-30,9.6,Hyderabad,USA
+Master of Technology,Business Administration,IIT Bombay,2013-06-01,2015-05-30,9.56,Pune,USA
+BCA,Computer Science,IIT Bombay,2018-06-01,2021-05-30,8.46,Hyderabad,USA
+PhD,Mechanical Engineering,IIT Delhi,2011-06-01,2013-05-30,7.47,Chennai,India
+PhD,Electronics,Anna University,2010-06-01,2013-05-30,8.1,Chennai,USA
+Bachelor of Science,Business Administration,Stanford University,2020-06-01,2025-05-30,8.62,Hyderabad,USA
+Bachelor of Science,Data Science,IIT Delhi,2001-06-01,2005-05-30,8.81,Chennai,India
+Master of Technology,Mechanical Engineering,Stanford University,2015-06-01,2019-05-30,9.67,Hyderabad,India
+BCA,Information Technology,IIT Delhi,2003-06-01,2007-05-30,7.09,Pune,India
+Bachelor of Technology,Information Technology,Anna University,2015-06-01,2020-05-30,6.5,Bangalore,USA
+MCA,Data Science,Anna University,2017-06-01,2019-05-30,9.02,Delhi,USA
+PhD,Data Science,IIT Bombay,2012-06-01,2017-05-30,7.4,Delhi,USA
+Master of Science,Electronics,IISc Bangalore,2020-06-01,2024-05-30,7.97,Pune,India
+Bachelor of Technology,Data Science,MIT,2002-06-01,2007-05-30,7.64,Hyderabad,USA
+PhD,Electronics,Anna University,2012-06-01,2017-05-30,9.56,Bangalore,India
+BCA,Computer Science,IISc Bangalore,2015-06-01,2019-05-30,9.37,Mumbai,India
+Master of Science,Computer Science,Stanford University,2010-06-01,2015-05-30,7.17,Bangalore,India
+PhD,Mechanical Engineering,Delhi University,2018-06-01,2023-05-30,7.05,Hyderabad,USA
+Master of Technology,Data Science,IIT Delhi,2014-06-01,2017-05-30,6.76,Chennai,USA
+Master of Technology,Mechanical Engineering,Stanford University,2011-06-01,2014-05-30,7.88,Pune,India
+Bachelor of Technology,Computer Science,IIT Delhi,2005-06-01,2008-05-30,8.73,Hyderabad,India
+Bachelor of Science,Data Science,Stanford University,2018-06-01,2021-05-30,9.23,Mumbai,USA
+MBA,Information Technology,Delhi University,2018-06-01,2023-05-30,9.8,Mumbai,USA
+Bachelor of Technology,Computer Science,MIT,2000-06-01,2002-05-30,8.86,Delhi,India
+Bachelor of Technology,Computer Science,Delhi University,2018-06-01,2020-05-30,7.6,Mumbai,USA
+Bachelor of Technology,Business Administration,JNTU Hyderabad,2015-06-01,2019-05-30,7.26,Pune,USA
+Master of Science,Business Administration,IIT Bombay,2011-06-01,2013-05-30,8.82,Pune,India
+Bachelor of Science,Electronics,Anna University,2007-06-01,2012-05-30,7.37,Pune,India
+Bachelor of Technology,Data Science,Delhi University,2012-06-01,2017-05-30,9.12,Mumbai,India
+MCA,Electronics,IIT Delhi,2003-06-01,2006-05-30,9.09,Pune,USA
+BCA,Electronics,IIT Delhi,2018-06-01,2023-05-30,8.89,Mumbai,USA
+Master of Science,Information Technology,JNTU Hyderabad,2004-06-01,2007-05-30,7.04,Bangalore,India
+MBA,Information Technology,IIT Bombay,2017-06-01,2021-05-30,6.72,Bangalore,USA
+MBA,Electronics,Anna University,2017-06-01,2019-05-30,6.43,Bangalore,USA
+PhD,Data Science,Delhi University,2006-06-01,2009-05-30,7.02,Hyderabad,USA
+Master of Technology,Data Science,Anna University,2009-06-01,2014-05-30,8.42,Chennai,USA
+Master of Science,Information Technology,Anna University,2003-06-01,2007-05-30,7.08,Chennai,USA
+PhD,Computer Science,Delhi University,2016-06-01,2019-05-30,6.63,Pune,India
+Master of Technology,Business Administration,IIT Delhi,2012-06-01,2014-05-30,7.92,Hyderabad,India
+Bachelor of Technology,Information Technology,Anna University,2001-06-01,2004-05-30,7.99,Mumbai,India
+PhD,Data Science,IISc Bangalore,2010-06-01,2012-05-30,9.36,Bangalore,India
+Bachelor of Science,Information Technology,Anna University,2007-06-01,2010-05-30,9.3,Delhi,India
+Bachelor of Science,Information Technology,IIT Delhi,2012-06-01,2017-05-30,8.88,Hyderabad,USA
+PhD,Business Administration,IIT Bombay,2012-06-01,2014-05-30,6.64,Chennai,India
+MBA,Computer Science,MIT,2018-06-01,2021-05-30,7.94,Pune,USA
+MBA,Mechanical Engineering,IIT Bombay,2001-06-01,2005-05-30,6.56,Mumbai,India
+PhD,Information Technology,Stanford University,2008-06-01,2013-05-30,6.94,Pune,India
+MCA,Mechanical Engineering,Delhi University,2019-06-01,2021-05-30,9.53,Chennai,India
+Bachelor of Science,Data Science,Anna University,2011-06-01,2016-05-30,6.1,Delhi,India
+MBA,Mechanical Engineering,JNTU Hyderabad,2002-06-01,2007-05-30,8.81,Delhi,India
+MCA,Electronics,IISc Bangalore,2012-06-01,2015-05-30,6.6,Chennai,USA
+Bachelor of Science,Mechanical Engineering,Delhi University,2020-06-01,2023-05-30,8.31,Delhi,India
+BCA,Mechanical Engineering,Anna University,2005-06-01,2009-05-30,9.24,Bangalore,USA
+Master of Technology,Business Administration,JNTU Hyderabad,2013-06-01,2016-05-30,8.32,Delhi,India
+Master of Technology,Mechanical Engineering,IIT Bombay,2007-06-01,2010-05-30,9.33,Mumbai,India
+MBA,Information Technology,MIT,2000-06-01,2005-05-30,9.52,Delhi,India
+MCA,Information Technology,MIT,2007-06-01,2009-05-30,8.58,Mumbai,USA
+Bachelor of Technology,Computer Science,MIT,2001-06-01,2005-05-30,9.11,Bangalore,India
+Bachelor of Science,Business Administration,Stanford University,2016-06-01,2018-05-30,7.69,Bangalore,India
+Master of Science,Business Administration,IISc Bangalore,2011-06-01,2013-05-30,9.68,Bangalore,India
+Master of Technology,Business Administration,JNTU Hyderabad,2005-06-01,2009-05-30,9.71,Pune,USA
+MCA,Data Science,IISc Bangalore,2017-06-01,2022-05-30,7.58,Delhi,USA
+Master of Science,Business Administration,IIT Delhi,2010-06-01,2013-05-30,9.09,Hyderabad,USA
+MCA,Business Administration,IIT Bombay,2002-06-01,2005-05-30,9.05,Delhi,USA
+Master of Science,Data Science,Anna University,2018-06-01,2021-05-30,8.96,Mumbai,India
+MCA,Information Technology,MIT,2013-06-01,2017-05-30,7.91,Hyderabad,India
+PhD,Data Science,IIT Delhi,2001-06-01,2005-05-30,8.5,Delhi,India
+MBA,Business Administration,Delhi University,2001-06-01,2004-05-30,6.16,Hyderabad,India
+MCA,Mechanical Engineering,Stanford University,2012-06-01,2015-05-30,8.39,Pune,USA
+Bachelor of Science,Data Science,Stanford University,2002-06-01,2007-05-30,8.21,Pune,USA
+Master of Technology,Electronics,Anna University,2012-06-01,2017-05-30,7.94,Hyderabad,USA
+MCA,Business Administration,IIT Delhi,2001-06-01,2004-05-30,6.91,Hyderabad,USA
+BCA,Information Technology,IIT Delhi,2012-06-01,2014-05-30,7.1,Delhi,USA
+MCA,Computer Science,IIT Delhi,2005-06-01,2007-05-30,9.52,Bangalore,USA
+MBA,Mechanical Engineering,Stanford University,2017-06-01,2021-05-30,8.16,Pune,USA
+Master of Technology,Electronics,IISc Bangalore,2005-06-01,2010-05-30,8.37,Chennai,USA
+Master of Technology,Computer Science,Stanford University,2002-06-01,2006-05-30,9.56,Hyderabad,USA
+Master of Technology,Information Technology,Anna University,2015-06-01,2018-05-30,8.93,Pune,USA
+Bachelor of Science,Business Administration,JNTU Hyderabad,2000-06-01,2004-05-30,8.06,Mumbai,India
+PhD,Data Science,IIT Bombay,2018-06-01,2022-05-30,8.07,Hyderabad,USA
+MCA,Mechanical Engineering,JNTU Hyderabad,2013-06-01,2018-05-30,7.28,Mumbai,USA
+Master of Science,Information Technology,Anna University,2008-06-01,2013-05-30,8.82,Bangalore,India
+Bachelor of Science,Computer Science,IIT Bombay,2017-06-01,2022-05-30,9.4,Chennai,USA
+MCA,Business Administration,JNTU Hyderabad,2000-06-01,2002-05-30,6.1,Mumbai,USA
+MBA,Computer Science,Stanford University,2007-06-01,2009-05-30,8.99,Pune,India
+BCA,Mechanical Engineering,Stanford University,2012-06-01,2017-05-30,6.74,Delhi,India
+Master of Technology,Information Technology,JNTU Hyderabad,2002-06-01,2005-05-30,9.53,Chennai,USA
+BCA,Information Technology,IIT Delhi,2015-06-01,2019-05-30,6.29,Mumbai,India
+PhD,Data Science,Stanford University,2019-06-01,2023-05-30,9.06,Bangalore,India
+Bachelor of Science,Information Technology,Stanford University,2003-06-01,2008-05-30,8.99,Hyderabad,India
+Bachelor of Science,Electronics,JNTU Hyderabad,2005-06-01,2007-05-30,7.98,Mumbai,USA
+MCA,Computer Science,IISc Bangalore,2010-06-01,2012-05-30,9.64,Bangalore,India
+Master of Science,Information Technology,Stanford University,2004-06-01,2007-05-30,6.95,Hyderabad,India
+MCA,Information Technology,IISc Bangalore,2005-06-01,2009-05-30,8.91,Chennai,USA
+MBA,Computer Science,IIT Delhi,2002-06-01,2004-05-30,9.53,Mumbai,India
+Bachelor of Technology,Business Administration,MIT,2013-06-01,2015-05-30,6.74,Chennai,India
+MBA,Mechanical Engineering,Delhi University,2009-06-01,2011-05-30,6.09,Delhi,India
+Bachelor of Technology,Data Science,Stanford University,2000-06-01,2002-05-30,6.12,Hyderabad,USA
+Bachelor of Technology,Electronics,JNTU Hyderabad,2014-06-01,2019-05-30,6.03,Mumbai,India
+MCA,Data Science,IISc Bangalore,2013-06-01,2017-05-30,6.09,Mumbai,USA
+MCA,Computer Science,JNTU Hyderabad,2002-06-01,2007-05-30,6.25,Delhi,India
+BCA,Mechanical Engineering,Stanford University,2008-06-01,2013-05-30,6.89,Mumbai,USA
+BCA,Computer Science,Stanford University,2001-06-01,2005-05-30,9.53,Mumbai,India
+Bachelor of Technology,Electronics,Anna University,2020-06-01,2022-05-30,9.08,Pune,India
+MBA,Mechanical Engineering,IIT Delhi,2013-06-01,2018-05-30,7.39,Pune,India
+MBA,Information Technology,Anna University,2018-06-01,2020-05-30,7.07,Pune,India
+Master of Technology,Business Administration,IIT Bombay,2019-06-01,2023-05-30,6.14,Chennai,USA
+MBA,Business Administration,Stanford University,2013-06-01,2016-05-30,6.05,Chennai,India
+BCA,Mechanical Engineering,IIT Delhi,2017-06-01,2021-05-30,8.08,Hyderabad,USA
+MCA,Mechanical Engineering,MIT,2004-06-01,2008-05-30,8.26,Pune,India
+BCA,Computer Science,MIT,2007-06-01,2009-05-30,9.18,Bangalore,USA
+MBA,Computer Science,MIT,2001-06-01,2006-05-30,7.7,Bangalore,USA
+MBA,Mechanical Engineering,Stanford University,2016-06-01,2018-05-30,7.87,Bangalore,USA
+MCA,Business Administration,Stanford University,2009-06-01,2013-05-30,6.41,Mumbai,USA
+Bachelor of Science,Business Administration,Stanford University,2001-06-01,2006-05-30,6.02,Mumbai,USA
+MBA,Computer Science,Delhi University,2013-06-01,2018-05-30,9.24,Delhi,India
+BCA,Business Administration,IISc Bangalore,2020-06-01,2024-05-30,7.86,Mumbai,USA
+PhD,Electronics,Stanford University,2002-06-01,2004-05-30,7.81,Bangalore,USA
+Master of Technology,Business Administration,MIT,2014-06-01,2017-05-30,8.35,Pune,India
+Master of Technology,Business Administration,MIT,2002-06-01,2005-05-30,8.1,Pune,India
+PhD,Business Administration,IIT Delhi,2001-06-01,2005-05-30,6.33,Chennai,USA
+MBA,Mechanical Engineering,IISc Bangalore,2008-06-01,2013-05-30,8.21,Mumbai,USA
+Bachelor of Science,Computer Science,Anna University,2005-06-01,2007-05-30,9.47,Bangalore,USA
+MBA,Data Science,Delhi University,2011-06-01,2014-05-30,8.45,Delhi,USA
+PhD,Computer Science,Stanford University,2010-06-01,2013-05-30,6.53,Pune,USA
+PhD,Data Science,IIT Delhi,2015-06-01,2018-05-30,9.54,Mumbai,USA
+Master of Science,Computer Science,IISc Bangalore,2012-06-01,2014-05-30,8.89,Hyderabad,USA
+MBA,Data Science,IIT Bombay,2017-06-01,2021-05-30,9.4,Pune,India
+MBA,Computer Science,MIT,2011-06-01,2016-05-30,8.21,Chennai,India
+BCA,Mechanical Engineering,MIT,2002-06-01,2005-05-30,7.93,Delhi,USA
+BCA,Mechanical Engineering,Delhi University,2014-06-01,2019-05-30,9.68,Mumbai,India
+Bachelor of Technology,Data Science,Delhi University,2015-06-01,2017-05-30,8.13,Chennai,India
+Bachelor of Technology,Data Science,MIT,2002-06-01,2007-05-30,9.44,Delhi,India
+Bachelor of Technology,Business Administration,Delhi University,2020-06-01,2023-05-30,9.31,Bangalore,USA
+BCA,Mechanical Engineering,MIT,2011-06-01,2015-05-30,8.33,Pune,India
+MBA,Computer Science,IIT Delhi,2016-06-01,2021-05-30,8.91,Pune,India
+Bachelor of Science,Electronics,MIT,2010-06-01,2013-05-30,9.58,Delhi,India
+Master of Science,Business Administration,MIT,2015-06-01,2018-05-30,8.37,Mumbai,India
+Bachelor of Science,Data Science,Stanford University,2004-06-01,2007-05-30,8.45,Chennai,USA
+BCA,Data Science,IISc Bangalore,2010-06-01,2015-05-30,6.58,Hyderabad,USA
+MBA,Data Science,Anna University,2008-06-01,2010-05-30,8.54,Delhi,USA
+PhD,Information Technology,IIT Bombay,2011-06-01,2013-05-30,6.87,Pune,India
+BCA,Mechanical Engineering,Stanford University,2008-06-01,2013-05-30,8.17,Delhi,India
+Master of Technology,Information Technology,IISc Bangalore,2010-06-01,2013-05-30,8.37,Pune,India
+MCA,Information Technology,JNTU Hyderabad,2013-06-01,2017-05-30,9.16,Mumbai,USA
+Master of Technology,Electronics,IIT Bombay,2004-06-01,2008-05-30,6.82,Pune,USA
+Master of Technology,Mechanical Engineering,IIT Delhi,2017-06-01,2021-05-30,7.52,Chennai,USA
+Bachelor of Science,Business Administration,IISc Bangalore,2004-06-01,2007-05-30,8.12,Pune,USA
+Bachelor of Science,Data Science,Delhi University,2017-06-01,2021-05-30,7.97,Mumbai,India
+Master of Technology,Electronics,IISc Bangalore,2015-06-01,2017-05-30,9.58,Pune,India
+Master of Science,Business Administration,Stanford University,2001-06-01,2003-05-30,8.82,Hyderabad,USA
+Master of Science,Computer Science,Delhi University,2019-06-01,2022-05-30,7.64,Delhi,USA
+Master of Technology,Information Technology,IIT Bombay,2019-06-01,2021-05-30,9.31,Pune,USA
+Master of Science,Electronics,Anna University,2002-06-01,2007-05-30,8.47,Chennai,India
+Bachelor of Technology,Information Technology,IISc Bangalore,2001-06-01,2003-05-30,9.21,Pune,USA
+Bachelor of Technology,Data Science,Delhi University,2007-06-01,2012-05-30,6.51,Hyderabad,USA
+BCA,Electronics,IISc Bangalore,2009-06-01,2012-05-30,7.18,Chennai,USA
+BCA,Information Technology,JNTU Hyderabad,2003-06-01,2006-05-30,6.14,Pune,USA
+PhD,Data Science,Stanford University,2007-06-01,2009-05-30,8.38,Mumbai,India
+Bachelor of Science,Mechanical Engineering,IISc Bangalore,2018-06-01,2023-05-30,6.49,Chennai,USA
+MBA,Data Science,IIT Delhi,2019-06-01,2024-05-30,6.75,Delhi,India
+MBA,Business Administration,MIT,2012-06-01,2015-05-30,7.7,Hyderabad,India
+MCA,Electronics,Anna University,2007-06-01,2012-05-30,6.97,Bangalore,USA
+Bachelor of Science,Data Science,IISc Bangalore,2008-06-01,2010-05-30,8.06,Bangalore,India
+Master of Technology,Electronics,Delhi University,2016-06-01,2020-05-30,7.28,Bangalore,USA
+MBA,Business Administration,IIT Bombay,2020-06-01,2025-05-30,7.27,Pune,USA
+Master of Science,Information Technology,MIT,2012-06-01,2015-05-30,6.11,Bangalore,India
+Bachelor of Science,Electronics,Stanford University,2010-06-01,2012-05-30,8.24,Chennai,USA
+MCA,Business Administration,Anna University,2018-06-01,2020-05-30,6.32,Mumbai,India
+Bachelor of Technology,Business Administration,IISc Bangalore,2007-06-01,2011-05-30,6.18,Delhi,India
+Bachelor of Science,Business Administration,IISc Bangalore,2002-06-01,2005-05-30,7.55,Hyderabad,USA
+MBA,Business Administration,JNTU Hyderabad,2012-06-01,2017-05-30,6.32,Chennai,India
+BCA,Data Science,IIT Delhi,2003-06-01,2007-05-30,8.92,Delhi,India
+Bachelor of Technology,Information Technology,IISc Bangalore,2007-06-01,2009-05-30,7.08,Delhi,India
+Master of Science,Business Administration,MIT,2007-06-01,2010-05-30,6.67,Chennai,India
+Bachelor of Science,Data Science,IIT Bombay,2015-06-01,2017-05-30,6.93,Delhi,USA
+MCA,Electronics,Stanford University,2019-06-01,2024-05-30,7.71,Bangalore,USA
+Bachelor of Science,Computer Science,MIT,2010-06-01,2014-05-30,8.67,Mumbai,India
+Master of Science,Data Science,IIT Bombay,2013-06-01,2015-05-30,6.45,Hyderabad,India
+BCA,Electronics,Delhi University,2001-06-01,2003-05-30,6.71,Delhi,India
+MBA,Business Administration,Anna University,2011-06-01,2016-05-30,7.84,Delhi,India
+Master of Technology,Data Science,IIT Delhi,2020-06-01,2024-05-30,9.13,Hyderabad,USA
+MCA,Data Science,Stanford University,2014-06-01,2016-05-30,8.86,Chennai,USA
+BCA,Computer Science,Anna University,2001-06-01,2004-05-30,8.22,Mumbai,India
+Bachelor of Technology,Information Technology,JNTU Hyderabad,2015-06-01,2019-05-30,6.44,Pune,India
+Master of Technology,Electronics,MIT,2017-06-01,2020-05-30,6.67,Bangalore,USA
+MBA,Information Technology,Delhi University,2016-06-01,2021-05-30,7.31,Bangalore,USA
+Master of Science,Mechanical Engineering,Delhi University,2006-06-01,2011-05-30,7.58,Mumbai,India
+Bachelor of Science,Computer Science,JNTU Hyderabad,2018-06-01,2021-05-30,8.06,Mumbai,India
+Bachelor of Science,Mechanical Engineering,MIT,2001-06-01,2004-05-30,6.46,Chennai,India
+Bachelor of Technology,Information Technology,Delhi University,2003-06-01,2007-05-30,8.18,Pune,India
+BCA,Mechanical Engineering,Anna University,2006-06-01,2011-05-30,9.0,Chennai,USA
+Master of Technology,Information Technology,Delhi University,2014-06-01,2018-05-30,8.3,Hyderabad,USA
+MCA,Information Technology,MIT,2011-06-01,2013-05-30,6.41,Mumbai,India
+MBA,Business Administration,IIT Bombay,2013-06-01,2018-05-30,8.07,Hyderabad,India
+MCA,Business Administration,IIT Bombay,2006-06-01,2009-05-30,7.8,Bangalore,USA
+Bachelor of Technology,Information Technology,IIT Bombay,2012-06-01,2015-05-30,6.4,Chennai,USA
+Bachelor of Technology,Data Science,IIT Delhi,2014-06-01,2019-05-30,8.68,Delhi,India
+Master of Technology,Business Administration,IISc Bangalore,2000-06-01,2003-05-30,7.16,Bangalore,India
+Master of Science,Computer Science,Stanford University,2008-06-01,2013-05-30,7.49,Chennai,USA
+Bachelor of Technology,Computer Science,IIT Delhi,2003-06-01,2005-05-30,9.58,Chennai,India
+Master of Technology,Computer Science,Delhi University,2001-06-01,2006-05-30,9.29,Mumbai,USA
+Master of Technology,Data Science,Stanford University,2019-06-01,2023-05-30,6.47,Pune,USA
+MCA,Information Technology,MIT,2013-06-01,2018-05-30,9.67,Delhi,USA
+Bachelor of Science,Information Technology,MIT,2010-06-01,2012-05-30,6.2,Mumbai,USA
+MCA,Mechanical Engineering,IIT Delhi,2010-06-01,2015-05-30,9.15,Hyderabad,India
+MBA,Electronics,Anna University,2017-06-01,2019-05-30,7.17,Bangalore,India
+PhD,Mechanical Engineering,JNTU Hyderabad,2004-06-01,2009-05-30,8.46,Delhi,India
+Bachelor of Technology,Business Administration,Delhi University,2020-06-01,2025-05-30,7.42,Pune,India
+Master of Technology,Electronics,IISc Bangalore,2017-06-01,2022-05-30,6.0,Bangalore,India
+BCA,Electronics,MIT,2020-06-01,2025-05-30,9.56,Delhi,India
+Master of Science,Business Administration,MIT,2009-06-01,2014-05-30,6.25,Delhi,USA
+Bachelor of Science,Mechanical Engineering,IIT Bombay,2000-06-01,2002-05-30,7.79,Delhi,India
+Master of Science,Electronics,Delhi University,2006-06-01,2008-05-30,7.66,Mumbai,India
+Bachelor of Technology,Business Administration,MIT,2010-06-01,2015-05-30,8.73,Delhi,India
+Bachelor of Science,Mechanical Engineering,IISc Bangalore,2002-06-01,2004-05-30,6.1,Mumbai,India
+Bachelor of Technology,Electronics,Delhi University,2007-06-01,2010-05-30,8.88,Bangalore,USA
+Bachelor of Technology,Data Science,IIT Bombay,2013-06-01,2017-05-30,9.44,Mumbai,India
+Bachelor of Science,Data Science,Anna University,2017-06-01,2021-05-30,8.7,Pune,India
+MBA,Computer Science,JNTU Hyderabad,2017-06-01,2022-05-30,7.4,Chennai,India
+MBA,Business Administration,Anna University,2007-06-01,2009-05-30,7.48,Pune,USA
+Master of Technology,Computer Science,Anna University,2012-06-01,2015-05-30,8.2,Pune,India
+Master of Science,Electronics,MIT,2004-06-01,2007-05-30,6.17,Delhi,USA
+Bachelor of Technology,Information Technology,IIT Bombay,2005-06-01,2007-05-30,8.28,Bangalore,USA
+Master of Science,Mechanical Engineering,IIT Delhi,2000-06-01,2002-05-30,9.75,Pune,USA
+Master of Technology,Electronics,JNTU Hyderabad,2018-06-01,2023-05-30,6.56,Hyderabad,USA
+PhD,Business Administration,Stanford University,2003-06-01,2008-05-30,6.2,Hyderabad,India
+BCA,Information Technology,IISc Bangalore,2000-06-01,2005-05-30,7.32,Delhi,USA
+Master of Science,Computer Science,Delhi University,2016-06-01,2018-05-30,6.62,Bangalore,India
+Bachelor of Technology,Electronics,JNTU Hyderabad,2009-06-01,2014-05-30,8.94,Mumbai,USA
+Master of Technology,Business Administration,Delhi University,2013-06-01,2016-05-30,6.1,Hyderabad,India
+MCA,Electronics,Stanford University,2001-06-01,2005-05-30,7.06,Bangalore,India
+Bachelor of Technology,Electronics,JNTU Hyderabad,2009-06-01,2014-05-30,9.58,Bangalore,USA
+Master of Technology,Mechanical Engineering,IIT Delhi,2003-06-01,2006-05-30,7.5,Pune,India
+MCA,Information Technology,Delhi University,2016-06-01,2021-05-30,8.7,Delhi,India
+Bachelor of Technology,Data Science,Delhi University,2006-06-01,2011-05-30,9.49,Pune,India
+PhD,Data Science,IIT Bombay,2012-06-01,2014-05-30,9.59,Chennai,USA
+Bachelor of Technology,Electronics,JNTU Hyderabad,2015-06-01,2020-05-30,6.2,Bangalore,India
+MCA,Data Science,Stanford University,2005-06-01,2009-05-30,9.46,Hyderabad,India
+MBA,Information Technology,Stanford University,2011-06-01,2016-05-30,9.49,Mumbai,India
+PhD,Business Administration,IIT Bombay,2000-06-01,2005-05-30,7.37,Chennai,USA
+MCA,Computer Science,Delhi University,2010-06-01,2014-05-30,6.14,Delhi,USA
+MCA,Electronics,Stanford University,2001-06-01,2004-05-30,6.29,Hyderabad,India
+BCA,Computer Science,IISc Bangalore,2003-06-01,2006-05-30,7.69,Hyderabad,India
+Master of Technology,Electronics,JNTU Hyderabad,2019-06-01,2021-05-30,9.78,Chennai,India
+MBA,Business Administration,IIT Bombay,2006-06-01,2011-05-30,8.83,Chennai,India
+PhD,Electronics,Delhi University,2020-06-01,2024-05-30,9.1,Chennai,USA
+Master of Science,Business Administration,Stanford University,2020-06-01,2022-05-30,6.59,Delhi,USA
+MBA,Data Science,Stanford University,2002-06-01,2006-05-30,7.69,Delhi,USA
+MCA,Data Science,IIT Bombay,2004-06-01,2006-05-30,6.36,Chennai,India
+MCA,Information Technology,Delhi University,2001-06-01,2005-05-30,7.66,Chennai,India
+Bachelor of Science,Data Science,Delhi University,2004-06-01,2008-05-30,7.8,Delhi,India
+Bachelor of Technology,Information Technology,Stanford University,2017-06-01,2020-05-30,9.76,Hyderabad,USA
+PhD,Information Technology,JNTU Hyderabad,2001-06-01,2004-05-30,8.02,Delhi,USA
+MBA,Information Technology,IIT Bombay,2014-06-01,2018-05-30,6.08,Bangalore,India
+PhD,Information Technology,JNTU Hyderabad,2008-06-01,2013-05-30,6.36,Delhi,India
+Bachelor of Science,Business Administration,Delhi University,2013-06-01,2018-05-30,6.98,Mumbai,India
+Master of Science,Electronics,JNTU Hyderabad,2004-06-01,2009-05-30,7.16,Bangalore,India
+MBA,Data Science,IIT Delhi,2000-06-01,2002-05-30,6.9,Hyderabad,India
+Bachelor of Science,Information Technology,IIT Delhi,2006-06-01,2011-05-30,9.15,Bangalore,USA
+Bachelor of Technology,Data Science,Delhi University,2003-06-01,2005-05-30,9.21,Hyderabad,India
+BCA,Business Administration,IIT Bombay,2007-06-01,2009-05-30,8.08,Bangalore,India
+MBA,Business Administration,IIT Delhi,2016-06-01,2018-05-30,7.35,Hyderabad,USA
+MCA,Mechanical Engineering,IIT Delhi,2002-06-01,2004-05-30,8.14,Pune,India
+Master of Science,Electronics,IISc Bangalore,2019-06-01,2022-05-30,8.9,Hyderabad,USA
+Bachelor of Technology,Mechanical Engineering,IIT Bombay,2005-06-01,2008-05-30,7.96,Hyderabad,USA
+PhD,Mechanical Engineering,JNTU Hyderabad,2008-06-01,2010-05-30,6.21,Delhi,India
+BCA,Mechanical Engineering,IISc Bangalore,2002-06-01,2004-05-30,9.07,Hyderabad,India
+MBA,Information Technology,IISc Bangalore,2013-06-01,2017-05-30,6.1,Chennai,USA
+BCA,Electronics,Stanford University,2005-06-01,2008-05-30,8.36,Mumbai,India
+Bachelor of Science,Business Administration,Stanford University,2004-06-01,2009-05-30,6.48,Delhi,India
+MCA,Computer Science,IIT Bombay,2000-06-01,2003-05-30,6.64,Mumbai,India
+Bachelor of Technology,Information Technology,JNTU Hyderabad,2007-06-01,2012-05-30,8.29,Delhi,India
+Master of Science,Information Technology,IISc Bangalore,2010-06-01,2012-05-30,6.09,Hyderabad,India
+MBA,Mechanical Engineering,IIT Bombay,2012-06-01,2016-05-30,6.63,Chennai,USA
+MBA,Business Administration,IISc Bangalore,2010-06-01,2015-05-30,9.2,Pune,USA
+Master of Science,Business Administration,IIT Delhi,2010-06-01,2013-05-30,7.2,Mumbai,India
+MBA,Information Technology,IIT Bombay,2006-06-01,2009-05-30,6.26,Bangalore,India
+Master of Technology,Mechanical Engineering,JNTU Hyderabad,2008-06-01,2010-05-30,7.16,Delhi,India
+Bachelor of Technology,Computer Science,IIT Bombay,2008-06-01,2013-05-30,6.07,Mumbai,India
+Bachelor of Science,Information Technology,Delhi University,2011-06-01,2016-05-30,7.12,Hyderabad,India
+BCA,Information Technology,Delhi University,2003-06-01,2005-05-30,9.36,Pune,India
+Bachelor of Technology,Electronics,IIT Bombay,2003-06-01,2008-05-30,8.07,Hyderabad,USA
+PhD,Data Science,MIT,2007-06-01,2011-05-30,7.31,Chennai,USA
+Bachelor of Science,Electronics,Anna University,2014-06-01,2018-05-30,6.2,Pune,India
+Bachelor of Science,Business Administration,IIT Delhi,2001-06-01,2005-05-30,7.9,Bangalore,India
+PhD,Information Technology,JNTU Hyderabad,2011-06-01,2015-05-30,8.19,Bangalore,USA
+Bachelor of Science,Data Science,IIT Bombay,2019-06-01,2022-05-30,7.53,Chennai,USA
+Master of Science,Electronics,Delhi University,2017-06-01,2020-05-30,8.57,Chennai,India
+Bachelor of Science,Mechanical Engineering,Stanford University,2019-06-01,2021-05-30,8.58,Delhi,India
+MCA,Computer Science,Anna University,2019-06-01,2024-05-30,8.61,Hyderabad,USA
+Bachelor of Science,Electronics,Stanford University,2009-06-01,2014-05-30,9.45,Delhi,USA
+Master of Technology,Electronics,IIT Bombay,2009-06-01,2014-05-30,9.37,Delhi,India
+Master of Science,Information Technology,IIT Delhi,2002-06-01,2004-05-30,6.38,Bangalore,USA
+Bachelor of Technology,Computer Science,JNTU Hyderabad,2014-06-01,2016-05-30,7.4,Hyderabad,India
+MBA,Electronics,Delhi University,2010-06-01,2015-05-30,8.16,Chennai,India
+Master of Technology,Computer Science,IIT Bombay,2019-06-01,2021-05-30,9.25,Hyderabad,USA
+Master of Science,Computer Science,Anna University,2004-06-01,2007-05-30,7.21,Chennai,India
+MCA,Computer Science,MIT,2007-06-01,2010-05-30,9.76,Mumbai,India
+BCA,Business Administration,Stanford University,2004-06-01,2006-05-30,6.17,Pune,USA
+Master of Science,Business Administration,Anna University,2014-06-01,2018-05-30,6.51,Bangalore,USA
+Bachelor of Science,Electronics,IISc Bangalore,2019-06-01,2024-05-30,8.2,Pune,USA
+Master of Technology,Data Science,IISc Bangalore,2018-06-01,2023-05-30,6.54,Delhi,India
+PhD,Computer Science,JNTU Hyderabad,2014-06-01,2017-05-30,9.17,Bangalore,USA
+Master of Technology,Electronics,Delhi University,2007-06-01,2010-05-30,7.74,Pune,India
+Bachelor of Science,Mechanical Engineering,IISc Bangalore,2004-06-01,2006-05-30,8.77,Pune,USA
+Bachelor of Technology,Information Technology,Stanford University,2017-06-01,2021-05-30,8.05,Mumbai,USA
+Bachelor of Science,Mechanical Engineering,Stanford University,2020-06-01,2022-05-30,6.13,Pune,India
+MCA,Mechanical Engineering,Delhi University,2004-06-01,2008-05-30,9.57,Bangalore,India
+Bachelor of Science,Information Technology,JNTU Hyderabad,2013-06-01,2017-05-30,6.53,Bangalore,USA
+Master of Science,Information Technology,Stanford University,2004-06-01,2006-05-30,7.74,Hyderabad,India
+MBA,Data Science,IIT Delhi,2000-06-01,2005-05-30,7.92,Delhi,India
+Bachelor of Technology,Business Administration,IIT Delhi,2018-06-01,2021-05-30,9.61,Mumbai,USA
+BCA,Computer Science,IISc Bangalore,2008-06-01,2012-05-30,8.95,Chennai,USA
+PhD,Computer Science,JNTU Hyderabad,2014-06-01,2019-05-30,9.35,Bangalore,USA
+MCA,Computer Science,JNTU Hyderabad,2016-06-01,2019-05-30,6.44,Hyderabad,India
+Bachelor of Science,Mechanical Engineering,IISc Bangalore,2003-06-01,2006-05-30,6.34,Hyderabad,India
+Bachelor of Science,Information Technology,MIT,2008-06-01,2013-05-30,8.39,Delhi,India
+MBA,Business Administration,Anna University,2011-06-01,2016-05-30,7.89,Chennai,USA
+Bachelor of Science,Computer Science,Stanford University,2008-06-01,2013-05-30,9.69,Mumbai,India
+MCA,Business Administration,Anna University,2019-06-01,2024-05-30,6.82,Chennai,India
+Bachelor of Technology,Data Science,IIT Delhi,2003-06-01,2005-05-30,8.42,Delhi,USA
+MBA,Data Science,IIT Delhi,2001-06-01,2005-05-30,8.57,Bangalore,USA
+MBA,Electronics,IIT Bombay,2014-06-01,2017-05-30,8.69,Bangalore,India
+PhD,Information Technology,IIT Bombay,2016-06-01,2019-05-30,7.53,Mumbai,India
+Bachelor of Science,Mechanical Engineering,Stanford University,2012-06-01,2016-05-30,9.59,Pune,India
+BCA,Information Technology,Anna University,2010-06-01,2013-05-30,6.51,Chennai,India
+BCA,Electronics,IISc Bangalore,2018-06-01,2020-05-30,9.76,Mumbai,USA
+Bachelor of Technology,Business Administration,Delhi University,2008-06-01,2011-05-30,7.64,Pune,India
+Master of Science,Mechanical Engineering,Delhi University,2000-06-01,2003-05-30,7.95,Hyderabad,USA
+BCA,Mechanical Engineering,IISc Bangalore,2007-06-01,2010-05-30,8.9,Hyderabad,USA
+BCA,Data Science,IIT Bombay,2017-06-01,2021-05-30,8.54,Chennai,USA
+Bachelor of Technology,Mechanical Engineering,MIT,2016-06-01,2021-05-30,9.62,Hyderabad,India
+Master of Science,Electronics,Anna University,2019-06-01,2023-05-30,9.16,Mumbai,India
+Bachelor of Science,Business Administration,IIT Bombay,2020-06-01,2024-05-30,6.44,Delhi,USA
+Bachelor of Science,Information Technology,JNTU Hyderabad,2011-06-01,2013-05-30,6.15,Mumbai,USA
+Bachelor of Science,Information Technology,Anna University,2001-06-01,2006-05-30,6.82,Mumbai,India
+Master of Science,Information Technology,Stanford University,2017-06-01,2019-05-30,6.1,Pune,USA
+Bachelor of Science,Electronics,IISc Bangalore,2007-06-01,2012-05-30,8.8,Pune,India
+Master of Science,Information Technology,Anna University,2007-06-01,2009-05-30,8.45,Mumbai,India
+Master of Science,Data Science,Stanford University,2009-06-01,2012-05-30,7.37,Delhi,USA
+MCA,Information Technology,MIT,2011-06-01,2014-05-30,6.45,Delhi,India
+BCA,Data Science,Stanford University,2018-06-01,2020-05-30,7.22,Mumbai,India
+Bachelor of Technology,Mechanical Engineering,Stanford University,2016-06-01,2018-05-30,9.54,Delhi,USA
+MCA,Business Administration,Stanford University,2016-06-01,2020-05-30,8.83,Bangalore,USA
+Bachelor of Technology,Data Science,IISc Bangalore,2013-06-01,2015-05-30,8.2,Mumbai,India
+Bachelor of Technology,Electronics,IISc Bangalore,2016-06-01,2018-05-30,6.14,Hyderabad,USA
+Bachelor of Science,Data Science,Anna University,2000-06-01,2003-05-30,6.43,Chennai,India
+Bachelor of Science,Mechanical Engineering,IIT Bombay,2016-06-01,2021-05-30,6.26,Hyderabad,India
+Master of Technology,Computer Science,Stanford University,2005-06-01,2010-05-30,7.41,Hyderabad,USA
+PhD,Information Technology,IIT Delhi,2003-06-01,2006-05-30,8.95,Pune,India
+Bachelor of Technology,Information Technology,IIT Delhi,2007-06-01,2011-05-30,8.56,Delhi,India
+MCA,Information Technology,Stanford University,2003-06-01,2007-05-30,6.6,Bangalore,India
+Master of Technology,Information Technology,MIT,2017-06-01,2020-05-30,7.57,Delhi,India
+PhD,Electronics,Stanford University,2009-06-01,2014-05-30,7.49,Bangalore,India
+BCA,Information Technology,Anna University,2006-06-01,2010-05-30,7.15,Bangalore,India
+MCA,Data Science,JNTU Hyderabad,2013-06-01,2017-05-30,6.68,Pune,India
+Master of Science,Electronics,IISc Bangalore,2011-06-01,2013-05-30,6.74,Bangalore,USA
+PhD,Information Technology,JNTU Hyderabad,2012-06-01,2017-05-30,7.18,Delhi,India
+Bachelor of Technology,Mechanical Engineering,Stanford University,2000-06-01,2002-05-30,7.43,Pune,India
+Bachelor of Science,Computer Science,IIT Delhi,2020-06-01,2025-05-30,6.1,Bangalore,India
+MCA,Data Science,IISc Bangalore,2018-06-01,2023-05-30,9.62,Chennai,India
+Master of Science,Electronics,Delhi University,2020-06-01,2022-05-30,8.24,Mumbai,India
+Bachelor of Technology,Data Science,IIT Bombay,2010-06-01,2013-05-30,8.65,Mumbai,USA
+PhD,Electronics,Stanford University,2006-06-01,2011-05-30,7.06,Hyderabad,USA
+Master of Science,Mechanical Engineering,JNTU Hyderabad,2011-06-01,2014-05-30,6.16,Mumbai,USA
+PhD,Mechanical Engineering,IISc Bangalore,2018-06-01,2021-05-30,8.04,Pune,India
+Master of Technology,Information Technology,Delhi University,2020-06-01,2024-05-30,9.52,Delhi,India
+Master of Science,Data Science,IIT Bombay,2003-06-01,2005-05-30,6.43,Bangalore,India
+MCA,Business Administration,Delhi University,2011-06-01,2013-05-30,9.56,Mumbai,India
+Master of Technology,Mechanical Engineering,Anna University,2002-06-01,2006-05-30,6.62,Chennai,USA
+PhD,Information Technology,Stanford University,2015-06-01,2019-05-30,8.27,Hyderabad,India
+PhD,Computer Science,IISc Bangalore,2017-06-01,2022-05-30,6.44,Chennai,India
+MCA,Data Science,IISc Bangalore,2020-06-01,2022-05-30,8.41,Mumbai,India
+Master of Science,Information Technology,IIT Bombay,2015-06-01,2019-05-30,6.45,Chennai,India
+BCA,Mechanical Engineering,Delhi University,2007-06-01,2011-05-30,6.76,Mumbai,India
+PhD,Information Technology,IIT Bombay,2017-06-01,2019-05-30,6.13,Chennai,USA
+BCA,Data Science,IIT Bombay,2005-06-01,2008-05-30,9.17,Bangalore,USA
+Bachelor of Technology,Mechanical Engineering,JNTU Hyderabad,2004-06-01,2006-05-30,9.72,Bangalore,India
+MCA,Computer Science,Anna University,2002-06-01,2007-05-30,9.47,Bangalore,USA
+BCA,Electronics,JNTU Hyderabad,2018-06-01,2023-05-30,7.66,Bangalore,India
+BCA,Data Science,IIT Delhi,2012-06-01,2014-05-30,8.88,Pune,USA
+MBA,Computer Science,IIT Delhi,2010-06-01,2012-05-30,7.97,Pune,India
+PhD,Data Science,IIT Bombay,2002-06-01,2006-05-30,8.31,Hyderabad,USA
+Bachelor of Science,Mechanical Engineering,JNTU Hyderabad,2017-06-01,2020-05-30,8.61,Bangalore,India
+Master of Science,Computer Science,Anna University,2013-06-01,2015-05-30,9.75,Bangalore,USA
+Master of Science,Computer Science,JNTU Hyderabad,2013-06-01,2018-05-30,8.38,Pune,USA
+Bachelor of Technology,Data Science,Delhi University,2016-06-01,2020-05-30,7.25,Pune,USA
+Master of Science,Business Administration,Delhi University,2013-06-01,2016-05-30,9.47,Delhi,USA
+MCA,Data Science,IISc Bangalore,2007-06-01,2009-05-30,8.73,Hyderabad,India
+Bachelor of Science,Computer Science,IIT Delhi,2018-06-01,2022-05-30,9.35,Chennai,USA
+Master of Science,Information Technology,Stanford University,2010-06-01,2015-05-30,6.19,Bangalore,USA
+PhD,Mechanical Engineering,IIT Delhi,2003-06-01,2007-05-30,7.57,Delhi,India
+PhD,Business Administration,IIT Delhi,2018-06-01,2021-05-30,9.58,Bangalore,USA
+PhD,Electronics,Delhi University,2010-06-01,2013-05-30,7.15,Pune,India
+PhD,Electronics,Anna University,2009-06-01,2014-05-30,6.32,Hyderabad,USA
+PhD,Computer Science,IISc Bangalore,2020-06-01,2022-05-30,9.54,Delhi,India
+Bachelor of Science,Electronics,JNTU Hyderabad,2007-06-01,2012-05-30,6.48,Hyderabad,USA
+PhD,Electronics,MIT,2020-06-01,2024-05-30,9.19,Bangalore,India
+Bachelor of Technology,Business Administration,IIT Bombay,2003-06-01,2008-05-30,7.98,Chennai,USA
+Bachelor of Science,Computer Science,Stanford University,2018-06-01,2022-05-30,7.77,Mumbai,India
+PhD,Computer Science,IIT Delhi,2020-06-01,2025-05-30,6.34,Pune,India
+MCA,Information Technology,JNTU Hyderabad,2003-06-01,2006-05-30,8.1,Bangalore,India
+PhD,Mechanical Engineering,IISc Bangalore,2002-06-01,2007-05-30,9.7,Hyderabad,USA
+MBA,Information Technology,IIT Bombay,2020-06-01,2025-05-30,7.22,Chennai,India
+BCA,Business Administration,Stanford University,2020-06-01,2022-05-30,7.44,Bangalore,India
+MBA,Computer Science,IIT Delhi,2012-06-01,2016-05-30,9.02,Pune,USA
+BCA,Information Technology,JNTU Hyderabad,2007-06-01,2012-05-30,6.27,Pune,USA
+MCA,Data Science,IISc Bangalore,2012-06-01,2015-05-30,6.25,Delhi,India
+MCA,Business Administration,Delhi University,2010-06-01,2014-05-30,9.57,Bangalore,USA
+MCA,Electronics,IISc Bangalore,2009-06-01,2013-05-30,7.53,Delhi,India
+MBA,Computer Science,IIT Bombay,2018-06-01,2023-05-30,7.86,Chennai,USA
+MCA,Electronics,Delhi University,2007-06-01,2009-05-30,7.33,Hyderabad,USA
+Bachelor of Science,Electronics,Anna University,2011-06-01,2014-05-30,9.27,Chennai,India
+Bachelor of Science,Mechanical Engineering,MIT,2000-06-01,2002-05-30,7.15,Pune,USA
+MCA,Information Technology,JNTU Hyderabad,2002-06-01,2006-05-30,7.48,Pune,USA
+Master of Technology,Data Science,JNTU Hyderabad,2006-06-01,2008-05-30,8.23,Delhi,India
+Bachelor of Technology,Business Administration,Anna University,2019-06-01,2022-05-30,8.06,Hyderabad,USA
+MCA,Business Administration,JNTU Hyderabad,2000-06-01,2002-05-30,8.78,Hyderabad,USA
+MBA,Business Administration,IIT Bombay,2017-06-01,2019-05-30,6.92,Pune,India
+MBA,Electronics,IIT Delhi,2010-06-01,2015-05-30,7.75,Chennai,India
+BCA,Information Technology,Delhi University,2009-06-01,2012-05-30,6.67,Pune,India
+Bachelor of Technology,Data Science,Anna University,2010-06-01,2012-05-30,6.34,Chennai,India
+Master of Science,Electronics,IISc Bangalore,2006-06-01,2008-05-30,7.83,Delhi,USA
+BCA,Mechanical Engineering,Anna University,2005-06-01,2007-05-30,7.72,Pune,USA
+BCA,Computer Science,IISc Bangalore,2011-06-01,2014-05-30,9.01,Pune,USA
+BCA,Mechanical Engineering,IIT Bombay,2014-06-01,2017-05-30,9.28,Delhi,India
+Bachelor of Technology,Electronics,JNTU Hyderabad,2019-06-01,2024-05-30,6.97,Bangalore,USA
+Master of Technology,Information Technology,IIT Delhi,2020-06-01,2022-05-30,8.47,Mumbai,USA
+MBA,Electronics,IIT Bombay,2011-06-01,2016-05-30,8.29,Delhi,India
+MBA,Data Science,IIT Delhi,2020-06-01,2025-05-30,7.07,Hyderabad,India
+Bachelor of Technology,Business Administration,IIT Bombay,2018-06-01,2020-05-30,8.63,Mumbai,India
+BCA,Information Technology,IIT Delhi,2005-06-01,2008-05-30,6.07,Delhi,USA
+Bachelor of Science,Electronics,Delhi University,2014-06-01,2017-05-30,8.62,Pune,USA
+Bachelor of Technology,Information Technology,Stanford University,2015-06-01,2018-05-30,9.08,Delhi,USA
+Master of Technology,Mechanical Engineering,IISc Bangalore,2008-06-01,2011-05-30,9.19,Delhi,USA
+BCA,Computer Science,IIT Delhi,2016-06-01,2018-05-30,7.5,Hyderabad,USA
+BCA,Business Administration,Stanford University,2017-06-01,2020-05-30,9.76,Hyderabad,USA
+Bachelor of Science,Electronics,IISc Bangalore,2006-06-01,2008-05-30,7.41,Delhi,USA
+Master of Science,Data Science,JNTU Hyderabad,2000-06-01,2004-05-30,8.43,Chennai,India
+MCA,Data Science,IISc Bangalore,2004-06-01,2007-05-30,7.07,Bangalore,USA
+Master of Science,Information Technology,IIT Bombay,2010-06-01,2015-05-30,8.7,Hyderabad,USA
+Bachelor of Science,Computer Science,Stanford University,2020-06-01,2022-05-30,9.25,Delhi,India
+MCA,Computer Science,Stanford University,2007-06-01,2009-05-30,9.68,Pune,USA
+MBA,Electronics,Stanford University,2015-06-01,2020-05-30,6.66,Delhi,India
+BCA,Mechanical Engineering,MIT,2015-06-01,2018-05-30,7.31,Hyderabad,India
+MBA,Computer Science,JNTU Hyderabad,2004-06-01,2007-05-30,7.93,Pune,India
+Bachelor of Technology,Computer Science,JNTU Hyderabad,2017-06-01,2022-05-30,7.23,Pune,USA
+MCA,Computer Science,Anna University,2007-06-01,2010-05-30,7.24,Hyderabad,USA
+Master of Science,Electronics,Anna University,2003-06-01,2008-05-30,7.07,Hyderabad,India
+Bachelor of Science,Data Science,Stanford University,2000-06-01,2005-05-30,7.72,Hyderabad,USA
+Master of Science,Business Administration,IIT Bombay,2006-06-01,2009-05-30,7.65,Pune,India
+MBA,Mechanical Engineering,IISc Bangalore,2000-06-01,2005-05-30,8.38,Pune,USA
+MCA,Computer Science,JNTU Hyderabad,2018-06-01,2020-05-30,8.23,Mumbai,USA
+MBA,Data Science,Anna University,2001-06-01,2004-05-30,9.21,Bangalore,India
+Master of Technology,Computer Science,JNTU Hyderabad,2005-06-01,2007-05-30,6.92,Chennai,USA
+MBA,Electronics,IIT Delhi,2006-06-01,2009-05-30,8.59,Hyderabad,USA
+BCA,Information Technology,IIT Bombay,2016-06-01,2019-05-30,9.3,Chennai,India
+Master of Science,Data Science,MIT,2014-06-01,2018-05-30,7.42,Bangalore,India
+Bachelor of Technology,Electronics,Stanford University,2002-06-01,2005-05-30,8.93,Delhi,India
+BCA,Business Administration,Delhi University,2012-06-01,2016-05-30,7.23,Mumbai,India
+Master of Technology,Information Technology,Delhi University,2010-06-01,2013-05-30,7.26,Mumbai,USA
+MCA,Computer Science,Anna University,2017-06-01,2019-05-30,9.29,Pune,USA
+Bachelor of Science,Computer Science,Anna University,2001-06-01,2005-05-30,7.81,Chennai,India
+Bachelor of Technology,Mechanical Engineering,IISc Bangalore,2000-06-01,2002-05-30,9.68,Delhi,India
+Bachelor of Technology,Information Technology,IIT Delhi,2005-06-01,2010-05-30,8.24,Chennai,India
+Master of Technology,Electronics,MIT,2003-06-01,2005-05-30,7.65,Hyderabad,India
+MBA,Computer Science,MIT,2002-06-01,2006-05-30,8.72,Delhi,USA
+Master of Science,Computer Science,JNTU Hyderabad,2005-06-01,2008-05-30,7.41,Chennai,USA
+BCA,Information Technology,IIT Bombay,2016-06-01,2020-05-30,9.17,Mumbai,USA
+Master of Science,Information Technology,Anna University,2011-06-01,2016-05-30,8.55,Pune,USA
+Master of Science,Business Administration,Anna University,2010-06-01,2015-05-30,6.61,Pune,India
+MCA,Mechanical Engineering,IIT Bombay,2018-06-01,2021-05-30,6.15,Hyderabad,USA
+MBA,Data Science,IIT Delhi,2001-06-01,2003-05-30,8.96,Mumbai,USA
+MCA,Data Science,Delhi University,2018-06-01,2022-05-30,7.94,Pune,India
+Master of Technology,Electronics,Stanford University,2011-06-01,2014-05-30,9.05,Hyderabad,USA
+PhD,Mechanical Engineering,MIT,2004-06-01,2006-05-30,8.88,Bangalore,India
+Master of Technology,Electronics,Anna University,2013-06-01,2017-05-30,9.68,Chennai,India
+BCA,Business Administration,Delhi University,2019-06-01,2021-05-30,9.32,Pune,USA
+Bachelor of Science,Electronics,IIT Bombay,2015-06-01,2017-05-30,7.36,Pune,India
+Bachelor of Technology,Business Administration,JNTU Hyderabad,2002-06-01,2004-05-30,8.44,Bangalore,USA
+BCA,Computer Science,MIT,2013-06-01,2017-05-30,7.34,Delhi,India
+Master of Science,Data Science,JNTU Hyderabad,2001-06-01,2003-05-30,6.36,Bangalore,USA
+BCA,Electronics,IISc Bangalore,2015-06-01,2020-05-30,6.8,Hyderabad,USA
+Bachelor of Technology,Data Science,Delhi University,2008-06-01,2013-05-30,7.4,Hyderabad,USA
+MCA,Electronics,IIT Delhi,2004-06-01,2008-05-30,6.54,Hyderabad,India
+MCA,Data Science,IISc Bangalore,2018-06-01,2021-05-30,7.43,Delhi,USA
+Bachelor of Science,Data Science,IISc Bangalore,2009-06-01,2014-05-30,9.7,Pune,USA
+MBA,Mechanical Engineering,IISc Bangalore,2009-06-01,2014-05-30,6.34,Delhi,India
+Bachelor of Technology,Computer Science,IIT Bombay,2014-06-01,2017-05-30,7.05,Bangalore,India
+Bachelor of Technology,Electronics,Delhi University,2002-06-01,2005-05-30,7.24,Pune,USA
+BCA,Computer Science,IIT Delhi,2012-06-01,2015-05-30,6.89,Pune,USA
+MCA,Business Administration,Anna University,2002-06-01,2004-05-30,7.47,Bangalore,India
+Master of Science,Computer Science,Stanford University,2015-06-01,2020-05-30,8.64,Chennai,USA
+Master of Technology,Mechanical Engineering,Anna University,2015-06-01,2020-05-30,6.39,Hyderabad,USA
+BCA,Computer Science,IIT Bombay,2005-06-01,2007-05-30,8.44,Pune,USA
+Bachelor of Technology,Computer Science,IIT Bombay,2004-06-01,2009-05-30,8.16,Mumbai,India
+BCA,Mechanical Engineering,Delhi University,2009-06-01,2012-05-30,8.69,Delhi,India
+Bachelor of Science,Mechanical Engineering,IISc Bangalore,2015-06-01,2017-05-30,9.04,Mumbai,India
+Bachelor of Technology,Electronics,IIT Delhi,2018-06-01,2022-05-30,9.77,Chennai,USA
+BCA,Data Science,IIT Delhi,2012-06-01,2015-05-30,7.46,Delhi,USA
+Bachelor of Technology,Mechanical Engineering,JNTU Hyderabad,2015-06-01,2018-05-30,7.79,Hyderabad,USA
+MBA,Mechanical Engineering,Stanford University,2014-06-01,2017-05-30,9.36,Hyderabad,India
+MBA,Computer Science,Anna University,2019-06-01,2023-05-30,7.7,Mumbai,India
+Bachelor of Science,Electronics,Delhi University,2010-06-01,2013-05-30,7.93,Chennai,India
+MBA,Information Technology,Delhi University,2020-06-01,2024-05-30,7.53,Mumbai,USA
+Bachelor of Technology,Data Science,IISc Bangalore,2014-06-01,2018-05-30,8.12,Delhi,USA
+BCA,Business Administration,IIT Bombay,2010-06-01,2014-05-30,7.59,Hyderabad,India
+MBA,Business Administration,IIT Delhi,2016-06-01,2021-05-30,6.35,Delhi,USA
+PhD,Mechanical Engineering,Stanford University,2002-06-01,2006-05-30,9.34,Bangalore,India
+MCA,Electronics,IIT Bombay,2003-06-01,2006-05-30,8.14,Mumbai,USA
+Master of Technology,Information Technology,MIT,2005-06-01,2007-05-30,6.41,Hyderabad,India
+PhD,Business Administration,JNTU Hyderabad,2015-06-01,2018-05-30,7.37,Chennai,USA
+Bachelor of Science,Information Technology,IIT Delhi,2007-06-01,2011-05-30,8.88,Chennai,USA
+PhD,Electronics,Anna University,2012-06-01,2015-05-30,6.98,Mumbai,USA
+Bachelor of Technology,Business Administration,Stanford University,2019-06-01,2024-05-30,8.0,Mumbai,India
+Bachelor of Science,Data Science,MIT,2020-06-01,2025-05-30,7.91,Chennai,USA
+MBA,Mechanical Engineering,JNTU Hyderabad,2019-06-01,2024-05-30,9.59,Delhi,USA
+Master of Science,Computer Science,Anna University,2015-06-01,2019-05-30,7.34,Mumbai,USA
+BCA,Mechanical Engineering,JNTU Hyderabad,2017-06-01,2022-05-30,7.49,Hyderabad,India
+Master of Science,Computer Science,JNTU Hyderabad,2001-06-01,2004-05-30,6.52,Hyderabad,USA
+BCA,Data Science,IIT Bombay,2010-06-01,2014-05-30,7.42,Mumbai,USA
+MBA,Computer Science,MIT,2017-06-01,2021-05-30,9.75,Pune,India
+Master of Science,Mechanical Engineering,IISc Bangalore,2000-06-01,2005-05-30,6.16,Mumbai,India
+Master of Technology,Mechanical Engineering,IIT Delhi,2009-06-01,2011-05-30,8.72,Delhi,India
+Bachelor of Science,Electronics,JNTU Hyderabad,2001-06-01,2003-05-30,7.21,Mumbai,USA
+MCA,Information Technology,IIT Bombay,2008-06-01,2013-05-30,7.09,Chennai,USA
+Bachelor of Science,Information Technology,Delhi University,2004-06-01,2007-05-30,6.87,Bangalore,India
+Bachelor of Technology,Business Administration,IIT Bombay,2014-06-01,2017-05-30,8.93,Hyderabad,USA
+Bachelor of Technology,Electronics,IISc Bangalore,2012-06-01,2015-05-30,9.13,Pune,India
+MCA,Electronics,MIT,2012-06-01,2016-05-30,9.41,Mumbai,USA
+BCA,Computer Science,MIT,2014-06-01,2017-05-30,8.13,Bangalore,India
+Master of Technology,Business Administration,MIT,2010-06-01,2013-05-30,9.45,Mumbai,USA
+Master of Science,Electronics,Anna University,2011-06-01,2016-05-30,8.33,Bangalore,USA
+PhD,Information Technology,IISc Bangalore,2018-06-01,2022-05-30,8.12,Hyderabad,USA
+PhD,Information Technology,Stanford University,2013-06-01,2017-05-30,8.14,Chennai,USA
+PhD,Mechanical Engineering,IISc Bangalore,2004-06-01,2007-05-30,6.19,Bangalore,USA
+MBA,Mechanical Engineering,Delhi University,2012-06-01,2017-05-30,8.48,Chennai,USA
+PhD,Computer Science,JNTU Hyderabad,2004-06-01,2008-05-30,6.73,Hyderabad,USA
+Master of Science,Information Technology,IISc Bangalore,2014-06-01,2018-05-30,9.38,Chennai,USA
+Bachelor of Science,Information Technology,IIT Delhi,2000-06-01,2005-05-30,9.76,Bangalore,India
+Bachelor of Science,Information Technology,IISc Bangalore,2015-06-01,2018-05-30,7.54,Mumbai,USA
+Bachelor of Technology,Data Science,IISc Bangalore,2014-06-01,2016-05-30,9.21,Hyderabad,USA
+BCA,Mechanical Engineering,Anna University,2001-06-01,2004-05-30,8.31,Chennai,USA
+Master of Technology,Information Technology,IISc Bangalore,2007-06-01,2011-05-30,6.09,Chennai,USA
+MBA,Information Technology,Delhi University,2007-06-01,2011-05-30,8.67,Chennai,India
+Bachelor of Science,Mechanical Engineering,Stanford University,2013-06-01,2018-05-30,8.47,Pune,India
+Bachelor of Technology,Computer Science,MIT,2017-06-01,2021-05-30,7.07,Delhi,India
+Bachelor of Science,Business Administration,MIT,2014-06-01,2019-05-30,6.61,Chennai,India
+MCA,Mechanical Engineering,MIT,2007-06-01,2009-05-30,8.56,Chennai,USA
+MBA,Computer Science,Anna University,2003-06-01,2006-05-30,9.73,Delhi,India
+BCA,Data Science,IIT Delhi,2007-06-01,2009-05-30,8.05,Delhi,India
+PhD,Business Administration,Stanford University,2015-06-01,2020-05-30,9.21,Bangalore,USA
+Master of Technology,Computer Science,IISc Bangalore,2020-06-01,2025-05-30,8.31,Bangalore,USA
+Bachelor of Technology,Information Technology,Anna University,2016-06-01,2020-05-30,7.71,Chennai,India
+Master of Science,Mechanical Engineering,JNTU Hyderabad,2000-06-01,2004-05-30,6.45,Hyderabad,USA
+Bachelor of Science,Computer Science,JNTU Hyderabad,2008-06-01,2013-05-30,7.52,Chennai,India
+Master of Science,Business Administration,IIT Bombay,2012-06-01,2016-05-30,7.4,Hyderabad,USA
+Master of Science,Data Science,Stanford University,2000-06-01,2002-05-30,7.54,Bangalore,USA
+BCA,Business Administration,IIT Bombay,2001-06-01,2005-05-30,9.12,Bangalore,India
+MBA,Electronics,IISc Bangalore,2004-06-01,2008-05-30,8.62,Bangalore,USA
+Master of Science,Computer Science,IISc Bangalore,2004-06-01,2009-05-30,6.51,Chennai,USA
+Bachelor of Technology,Computer Science,MIT,2015-06-01,2017-05-30,8.32,Delhi,USA
+Bachelor of Science,Computer Science,Delhi University,2010-06-01,2013-05-30,7.77,Hyderabad,USA
+PhD,Business Administration,IIT Delhi,2001-06-01,2004-05-30,6.93,Chennai,USA
+Bachelor of Technology,Computer Science,MIT,2006-06-01,2009-05-30,6.66,Bangalore,USA
+PhD,Data Science,Delhi University,2015-06-01,2019-05-30,6.27,Delhi,USA
+Bachelor of Technology,Information Technology,Stanford University,2007-06-01,2009-05-30,7.37,Delhi,India
+MCA,Mechanical Engineering,MIT,2019-06-01,2022-05-30,7.93,Hyderabad,India
+PhD,Information Technology,JNTU Hyderabad,2017-06-01,2021-05-30,7.43,Delhi,India
+MCA,Electronics,Anna University,2004-06-01,2006-05-30,8.59,Mumbai,India
+MCA,Business Administration,IISc Bangalore,2018-06-01,2021-05-30,6.68,Pune,USA
+PhD,Mechanical Engineering,MIT,2003-06-01,2005-05-30,8.67,Bangalore,USA
+BCA,Computer Science,IIT Delhi,2009-06-01,2014-05-30,8.13,Bangalore,India
+MBA,Information Technology,MIT,2010-06-01,2015-05-30,8.38,Hyderabad,India
+BCA,Data Science,Anna University,2012-06-01,2016-05-30,9.68,Pune,USA
+Master of Technology,Business Administration,IIT Bombay,2011-06-01,2014-05-30,7.33,Chennai,India
+Master of Science,Electronics,MIT,2017-06-01,2022-05-30,8.97,Bangalore,India
+Master of Science,Data Science,Delhi University,2007-06-01,2011-05-30,7.07,Delhi,USA
+Bachelor of Technology,Computer Science,Delhi University,2009-06-01,2012-05-30,7.58,Delhi,India
+Master of Science,Business Administration,MIT,2004-06-01,2006-05-30,9.48,Bangalore,India
+Bachelor of Science,Computer Science,MIT,2019-06-01,2023-05-30,8.57,Delhi,India
+Master of Technology,Electronics,IIT Bombay,2010-06-01,2015-05-30,8.82,Bangalore,India
+MCA,Computer Science,Stanford University,2003-06-01,2007-05-30,9.16,Mumbai,India
+MCA,Data Science,JNTU Hyderabad,2012-06-01,2017-05-30,6.59,Chennai,India
+Bachelor of Technology,Business Administration,IIT Bombay,2008-06-01,2010-05-30,8.79,Pune,India
+MCA,Data Science,Stanford University,2020-06-01,2022-05-30,8.88,Mumbai,USA
+PhD,Computer Science,Stanford University,2007-06-01,2011-05-30,9.19,Mumbai,India
+Master of Technology,Electronics,MIT,2019-06-01,2024-05-30,7.3,Delhi,India
+Master of Technology,Business Administration,IIT Bombay,2020-06-01,2025-05-30,7.32,Pune,India
+MBA,Mechanical Engineering,IIT Delhi,2012-06-01,2016-05-30,9.22,Bangalore,India
+Master of Science,Electronics,IISc Bangalore,2016-06-01,2021-05-30,8.73,Chennai,USA
+Bachelor of Science,Electronics,Stanford University,2011-06-01,2015-05-30,8.09,Hyderabad,India
+BCA,Information Technology,Anna University,2016-06-01,2020-05-30,6.74,Delhi,India
+Master of Science,Information Technology,IIT Delhi,2002-06-01,2005-05-30,9.79,Chennai,USA
+Master of Science,Computer Science,IISc Bangalore,2015-06-01,2017-05-30,9.27,Pune,USA
+MCA,Electronics,IIT Delhi,2016-06-01,2021-05-30,7.54,Delhi,USA
+Master of Technology,Electronics,IISc Bangalore,2000-06-01,2002-05-30,7.37,Hyderabad,USA
+Bachelor of Technology,Information Technology,Anna University,2009-06-01,2014-05-30,7.43,Pune,India
+MCA,Electronics,Delhi University,2006-06-01,2011-05-30,7.4,Hyderabad,USA
+PhD,Mechanical Engineering,MIT,2008-06-01,2010-05-30,9.68,Pune,USA
+BCA,Business Administration,IISc Bangalore,2019-06-01,2023-05-30,7.38,Hyderabad,India
+PhD,Electronics,Delhi University,2003-06-01,2006-05-30,8.34,Mumbai,USA
+Master of Science,Mechanical Engineering,MIT,2004-06-01,2009-05-30,7.47,Pune,USA
+Master of Technology,Computer Science,Delhi University,2019-06-01,2023-05-30,7.05,Delhi,USA
+MBA,Information Technology,Delhi University,2007-06-01,2012-05-30,8.72,Pune,USA
+Bachelor of Technology,Computer Science,IIT Delhi,2012-06-01,2015-05-30,9.05,Delhi,USA
+Bachelor of Science,Mechanical Engineering,Stanford University,2002-06-01,2004-05-30,7.72,Pune,India
+MBA,Business Administration,Stanford University,2003-06-01,2005-05-30,8.4,Pune,USA
+BCA,Business Administration,IIT Bombay,2014-06-01,2017-05-30,9.46,Hyderabad,USA
+MBA,Electronics,IIT Bombay,2004-06-01,2006-05-30,8.51,Chennai,India
+BCA,Business Administration,Stanford University,2018-06-01,2023-05-30,6.55,Pune,USA
+BCA,Computer Science,Delhi University,2015-06-01,2020-05-30,7.57,Delhi,India
+Bachelor of Science,Computer Science,Delhi University,2007-06-01,2011-05-30,9.59,Chennai,USA
+BCA,Business Administration,Anna University,2020-06-01,2024-05-30,7.49,Bangalore,USA
+MBA,Data Science,MIT,2016-06-01,2020-05-30,6.74,Pune,USA
+Bachelor of Science,Information Technology,Anna University,2015-06-01,2020-05-30,9.63,Mumbai,India
+MCA,Information Technology,IIT Bombay,2006-06-01,2009-05-30,8.44,Pune,USA
+PhD,Business Administration,IISc Bangalore,2005-06-01,2007-05-30,7.83,Pune,USA
+Master of Science,Information Technology,Anna University,2016-06-01,2020-05-30,7.36,Bangalore,India
+BCA,Electronics,MIT,2012-06-01,2014-05-30,6.01,Bangalore,USA
+MCA,Electronics,Delhi University,2015-06-01,2020-05-30,6.12,Bangalore,India
+MBA,Business Administration,JNTU Hyderabad,2018-06-01,2022-05-30,9.69,Chennai,India
+PhD,Data Science,MIT,2001-06-01,2006-05-30,8.29,Pune,USA
+MCA,Electronics,Anna University,2006-06-01,2011-05-30,8.06,Hyderabad,India
+Master of Science,Data Science,Anna University,2006-06-01,2008-05-30,8.27,Hyderabad,USA
+MCA,Mechanical Engineering,IIT Bombay,2004-06-01,2008-05-30,9.64,Mumbai,India
+Bachelor of Technology,Electronics,Stanford University,2002-06-01,2004-05-30,9.33,Pune,India
+Bachelor of Science,Information Technology,Anna University,2006-06-01,2011-05-30,8.18,Pune,USA
+MBA,Mechanical Engineering,Delhi University,2019-06-01,2023-05-30,9.24,Mumbai,India
+PhD,Information Technology,MIT,2008-06-01,2010-05-30,8.23,Hyderabad,USA
+Bachelor of Science,Business Administration,MIT,2009-06-01,2011-05-30,9.14,Hyderabad,India
+MBA,Data Science,IIT Bombay,2013-06-01,2018-05-30,8.79,Pune,India
+MCA,Computer Science,IIT Bombay,2008-06-01,2010-05-30,9.46,Mumbai,USA
+PhD,Business Administration,IISc Bangalore,2002-06-01,2005-05-30,7.38,Bangalore,India
+Master of Science,Mechanical Engineering,IISc Bangalore,2019-06-01,2021-05-30,8.41,Mumbai,USA
+Master of Science,Data Science,Delhi University,2018-06-01,2023-05-30,9.23,Pune,USA
+MCA,Data Science,Delhi University,2008-06-01,2012-05-30,6.62,Hyderabad,India
+MBA,Business Administration,JNTU Hyderabad,2000-06-01,2005-05-30,6.9,Bangalore,India
+MBA,Electronics,Stanford University,2009-06-01,2014-05-30,8.76,Delhi,USA
+Master of Technology,Data Science,IIT Bombay,2011-06-01,2014-05-30,9.56,Delhi,India
+BCA,Business Administration,IISc Bangalore,2009-06-01,2011-05-30,8.37,Bangalore,USA
+Master of Technology,Computer Science,IISc Bangalore,2001-06-01,2003-05-30,6.68,Bangalore,India
+Master of Technology,Mechanical Engineering,MIT,2014-06-01,2016-05-30,8.09,Bangalore,India
+PhD,Mechanical Engineering,Anna University,2018-06-01,2022-05-30,6.19,Chennai,India
+PhD,Information Technology,Anna University,2015-06-01,2018-05-30,8.94,Mumbai,India
+Master of Technology,Computer Science,IISc Bangalore,2008-06-01,2011-05-30,6.52,Pune,USA
+MBA,Information Technology,IIT Delhi,2001-06-01,2006-05-30,8.77,Chennai,USA
+Bachelor of Technology,Mechanical Engineering,Delhi University,2018-06-01,2023-05-30,9.33,Mumbai,USA
+MCA,Computer Science,JNTU Hyderabad,2013-06-01,2018-05-30,8.23,Hyderabad,India
+MCA,Business Administration,Anna University,2005-06-01,2010-05-30,8.19,Pune,India
+Master of Science,Electronics,IISc Bangalore,2013-06-01,2015-05-30,8.31,Chennai,India
+MBA,Business Administration,MIT,2010-06-01,2015-05-30,6.39,Pune,USA
+Master of Science,Data Science,Anna University,2014-06-01,2016-05-30,7.04,Delhi,USA
+Master of Science,Mechanical Engineering,Stanford University,2015-06-01,2018-05-30,7.84,Mumbai,India
+Master of Technology,Business Administration,IIT Bombay,2018-06-01,2020-05-30,8.83,Pune,India
+Master of Science,Computer Science,IIT Delhi,2003-06-01,2006-05-30,7.57,Chennai,USA
+PhD,Mechanical Engineering,MIT,2001-06-01,2005-05-30,7.28,Pune,India
+Bachelor of Technology,Business Administration,MIT,2020-06-01,2024-05-30,7.66,Pune,India
+BCA,Information Technology,JNTU Hyderabad,2012-06-01,2015-05-30,9.8,Mumbai,USA
+MCA,Mechanical Engineering,Anna University,2005-06-01,2008-05-30,9.07,Delhi,USA
+PhD,Business Administration,Delhi University,2005-06-01,2010-05-30,7.51,Hyderabad,India
+MCA,Information Technology,JNTU Hyderabad,2011-06-01,2014-05-30,9.37,Delhi,USA
+Master of Science,Information Technology,JNTU Hyderabad,2008-06-01,2013-05-30,9.47,Pune,India
+Master of Technology,Electronics,IIT Bombay,2018-06-01,2021-05-30,8.78,Chennai,USA
+PhD,Business Administration,IISc Bangalore,2017-06-01,2019-05-30,6.21,Hyderabad,USA
+BCA,Information Technology,IIT Bombay,2005-06-01,2009-05-30,7.12,Hyderabad,India
+Master of Technology,Data Science,Delhi University,2007-06-01,2011-05-30,7.3,Chennai,USA
+Master of Technology,Business Administration,Stanford University,2000-06-01,2003-05-30,9.58,Delhi,India
+Master of Science,Computer Science,IIT Delhi,2000-06-01,2002-05-30,9.08,Hyderabad,India
+Bachelor of Science,Mechanical Engineering,Anna University,2019-06-01,2022-05-30,9.19,Mumbai,India
+PhD,Data Science,Delhi University,2016-06-01,2021-05-30,7.32,Pune,India
+Bachelor of Science,Business Administration,Anna University,2014-06-01,2018-05-30,6.93,Hyderabad,India
+MBA,Computer Science,IISc Bangalore,2019-06-01,2021-05-30,6.02,Pune,USA
+BCA,Business Administration,IIT Bombay,2019-06-01,2022-05-30,6.63,Mumbai,USA
+BCA,Data Science,IISc Bangalore,2011-06-01,2014-05-30,8.74,Delhi,USA
+Bachelor of Science,Computer Science,IIT Delhi,2005-06-01,2008-05-30,8.89,Bangalore,India
+MBA,Electronics,Stanford University,2015-06-01,2017-05-30,7.08,Delhi,USA
+BCA,Business Administration,IIT Delhi,2003-06-01,2008-05-30,7.68,Pune,USA
+BCA,Data Science,IIT Bombay,2017-06-01,2020-05-30,7.12,Chennai,India
+MBA,Mechanical Engineering,Anna University,2010-06-01,2013-05-30,7.68,Pune,India
+PhD,Data Science,IIT Delhi,2008-06-01,2011-05-30,7.32,Pune,USA
+PhD,Computer Science,Stanford University,2002-06-01,2006-05-30,7.69,Hyderabad,USA
+Master of Technology,Electronics,IISc Bangalore,2009-06-01,2014-05-30,7.44,Pune,India
+Master of Technology,Information Technology,JNTU Hyderabad,2020-06-01,2022-05-30,9.44,Chennai,USA
+BCA,Mechanical Engineering,IIT Delhi,2013-06-01,2016-05-30,8.74,Delhi,India
+Bachelor of Science,Information Technology,MIT,2018-06-01,2023-05-30,7.41,Chennai,India
+BCA,Data Science,Stanford University,2016-06-01,2020-05-30,9.27,Pune,India
+Bachelor of Technology,Electronics,IIT Bombay,2009-06-01,2012-05-30,9.78,Chennai,India
+Master of Science,Mechanical Engineering,MIT,2019-06-01,2021-05-30,7.1,Hyderabad,India
+Master of Technology,Electronics,Stanford University,2012-06-01,2015-05-30,9.62,Pune,India
+MCA,Business Administration,Anna University,2015-06-01,2020-05-30,6.85,Bangalore,USA
+Master of Technology,Computer Science,Stanford University,2018-06-01,2020-05-30,6.77,Delhi,USA
+Master of Science,Information Technology,IIT Delhi,2012-06-01,2014-05-30,7.63,Mumbai,India
+Bachelor of Technology,Mechanical Engineering,MIT,2011-06-01,2014-05-30,8.71,Delhi,USA
+Bachelor of Science,Mechanical Engineering,Delhi University,2014-06-01,2018-05-30,7.93,Chennai,USA
+Bachelor of Technology,Data Science,Stanford University,2007-06-01,2011-05-30,6.01,Hyderabad,India
+Bachelor of Science,Information Technology,Anna University,2002-06-01,2004-05-30,6.95,Delhi,USA
+PhD,Business Administration,Anna University,2002-06-01,2006-05-30,7.64,Pune,USA
+PhD,Information Technology,Anna University,2011-06-01,2015-05-30,8.79,Mumbai,India
+MBA,Business Administration,IIT Delhi,2004-06-01,2009-05-30,6.08,Pune,India
+Master of Science,Computer Science,IIT Bombay,2009-06-01,2013-05-30,7.48,Mumbai,USA
+PhD,Electronics,Anna University,2014-06-01,2018-05-30,9.06,Chennai,India
+MCA,Information Technology,Stanford University,2016-06-01,2019-05-30,7.26,Hyderabad,USA
+BCA,Data Science,JNTU Hyderabad,2005-06-01,2008-05-30,7.8,Hyderabad,USA
+MBA,Computer Science,IISc Bangalore,2001-06-01,2005-05-30,9.27,Hyderabad,India
+Master of Technology,Business Administration,JNTU Hyderabad,2000-06-01,2004-05-30,7.01,Hyderabad,USA
+Bachelor of Technology,Computer Science,Stanford University,2012-06-01,2014-05-30,7.22,Pune,India
+MBA,Information Technology,Stanford University,2002-06-01,2007-05-30,9.76,Delhi,India
+Bachelor of Science,Data Science,JNTU Hyderabad,2016-06-01,2019-05-30,9.78,Chennai,India
+Bachelor of Science,Business Administration,Stanford University,2003-06-01,2007-05-30,8.08,Bangalore,USA
+PhD,Computer Science,JNTU Hyderabad,2004-06-01,2008-05-30,6.79,Hyderabad,India
+MBA,Data Science,Delhi University,2014-06-01,2019-05-30,9.54,Hyderabad,USA
+Bachelor of Technology,Electronics,IIT Bombay,2008-06-01,2011-05-30,7.06,Chennai,USA
+MCA,Electronics,IIT Delhi,2001-06-01,2004-05-30,6.68,Chennai,India
+Master of Science,Mechanical Engineering,Anna University,2005-06-01,2010-05-30,9.19,Hyderabad,India
+MBA,Electronics,Anna University,2001-06-01,2003-05-30,6.0,Bangalore,USA
+MCA,Computer Science,Stanford University,2013-06-01,2015-05-30,7.41,Bangalore,USA
+Master of Science,Information Technology,Anna University,2005-06-01,2009-05-30,8.11,Delhi,USA
+PhD,Business Administration,Anna University,2005-06-01,2010-05-30,7.52,Mumbai,India
+Bachelor of Science,Computer Science,Delhi University,2003-06-01,2006-05-30,7.67,Hyderabad,USA
+BCA,Business Administration,Delhi University,2003-06-01,2008-05-30,8.18,Hyderabad,India
+PhD,Information Technology,IIT Delhi,2000-06-01,2003-05-30,9.28,Mumbai,USA
+Bachelor of Technology,Business Administration,JNTU Hyderabad,2011-06-01,2014-05-30,9.28,Pune,India
+Bachelor of Science,Electronics,Stanford University,2009-06-01,2011-05-30,6.71,Hyderabad,USA
+Bachelor of Technology,Computer Science,Stanford University,2001-06-01,2005-05-30,9.7,Hyderabad,India
+MBA,Data Science,JNTU Hyderabad,2015-06-01,2019-05-30,7.09,Pune,USA
+MBA,Electronics,JNTU Hyderabad,2017-06-01,2022-05-30,9.2,Delhi,India
+Master of Technology,Mechanical Engineering,Anna University,2012-06-01,2014-05-30,7.67,Hyderabad,USA
+Bachelor of Science,Data Science,Anna University,2013-06-01,2018-05-30,9.56,Chennai,India
+MBA,Computer Science,MIT,2013-06-01,2017-05-30,6.48,Pune,India
+PhD,Computer Science,IIT Delhi,2005-06-01,2008-05-30,6.82,Chennai,USA
+Bachelor of Technology,Mechanical Engineering,IIT Delhi,2002-06-01,2004-05-30,6.97,Chennai,India
+BCA,Information Technology,IIT Delhi,2020-06-01,2024-05-30,8.35,Bangalore,USA
+Bachelor of Science,Mechanical Engineering,Delhi University,2020-06-01,2023-05-30,7.38,Pune,India
+PhD,Computer Science,MIT,2000-06-01,2003-05-30,8.88,Pune,USA
+MCA,Electronics,Delhi University,2005-06-01,2009-05-30,8.6,Hyderabad,USA
+Master of Science,Data Science,Anna University,2020-06-01,2023-05-30,6.28,Pune,USA
+Master of Technology,Mechanical Engineering,Stanford University,2017-06-01,2020-05-30,8.42,Chennai,India
+MBA,Data Science,Stanford University,2007-06-01,2010-05-30,6.92,Mumbai,USA
+Bachelor of Technology,Mechanical Engineering,IIT Bombay,2016-06-01,2018-05-30,8.65,Chennai,India
+BCA,Business Administration,IIT Bombay,2002-06-01,2007-05-30,6.48,Bangalore,USA
+MBA,Information Technology,Anna University,2018-06-01,2020-05-30,9.4,Pune,India
+Master of Technology,Information Technology,Anna University,2001-06-01,2003-05-30,6.99,Pune,India
+BCA,Electronics,Delhi University,2013-06-01,2015-05-30,8.85,Chennai,USA
+Master of Science,Business Administration,JNTU Hyderabad,2019-06-01,2021-05-30,6.29,Mumbai,USA
+MBA,Electronics,JNTU Hyderabad,2012-06-01,2015-05-30,8.07,Pune,India
+Master of Science,Data Science,IISc Bangalore,2020-06-01,2022-05-30,9.36,Hyderabad,India
+Bachelor of Science,Computer Science,IISc Bangalore,2020-06-01,2024-05-30,8.3,Hyderabad,USA
+Master of Technology,Business Administration,MIT,2012-06-01,2017-05-30,8.0,Hyderabad,India
+PhD,Business Administration,Delhi University,2004-06-01,2008-05-30,8.46,Hyderabad,USA
+PhD,Mechanical Engineering,Delhi University,2018-06-01,2020-05-30,7.72,Hyderabad,USA
+PhD,Business Administration,JNTU Hyderabad,2014-06-01,2017-05-30,7.45,Pune,India
+MCA,Business Administration,MIT,2002-06-01,2007-05-30,9.41,Mumbai,USA
+BCA,Data Science,Anna University,2012-06-01,2015-05-30,8.51,Mumbai,USA
+MCA,Information Technology,Stanford University,2001-06-01,2005-05-30,7.91,Mumbai,India
+MCA,Business Administration,MIT,2000-06-01,2003-05-30,9.7,Delhi,USA
+Bachelor of Science,Mechanical Engineering,MIT,2007-06-01,2011-05-30,7.02,Mumbai,India
+Master of Science,Computer Science,IIT Delhi,2018-06-01,2020-05-30,6.5,Pune,USA
+Master of Science,Information Technology,IIT Bombay,2002-06-01,2005-05-30,7.74,Chennai,India
+PhD,Mechanical Engineering,IIT Bombay,2012-06-01,2017-05-30,7.88,Mumbai,India
+BCA,Business Administration,IIT Bombay,2009-06-01,2012-05-30,8.58,Delhi,India
+PhD,Business Administration,Stanford University,2001-06-01,2004-05-30,9.77,Mumbai,USA
+MBA,Computer Science,JNTU Hyderabad,2011-06-01,2016-05-30,9.34,Delhi,USA
+Bachelor of Technology,Information Technology,Anna University,2012-06-01,2017-05-30,6.18,Delhi,India
+Master of Technology,Business Administration,Anna University,2008-06-01,2012-05-30,6.02,Delhi,India
+PhD,Mechanical Engineering,IIT Bombay,2020-06-01,2024-05-30,9.77,Hyderabad,India
+Bachelor of Science,Mechanical Engineering,IIT Bombay,2007-06-01,2011-05-30,8.14,Bangalore,India
+Bachelor of Technology,Information Technology,Delhi University,2017-06-01,2022-05-30,8.9,Chennai,USA
+BCA,Electronics,JNTU Hyderabad,2007-06-01,2012-05-30,7.19,Mumbai,India
+MCA,Electronics,MIT,2007-06-01,2011-05-30,7.2,Delhi,India
+MCA,Mechanical Engineering,IIT Bombay,2015-06-01,2020-05-30,6.1,Hyderabad,India
+MBA,Data Science,IIT Bombay,2008-06-01,2011-05-30,9.6,Pune,India
+Master of Technology,Mechanical Engineering,Stanford University,2010-06-01,2012-05-30,6.39,Pune,India
+MBA,Electronics,Anna University,2002-06-01,2004-05-30,8.76,Pune,India
+Master of Technology,Mechanical Engineering,Delhi University,2015-06-01,2018-05-30,8.16,Pune,USA
+Bachelor of Science,Information Technology,Anna University,2008-06-01,2011-05-30,6.69,Pune,India
+PhD,Mechanical Engineering,IIT Delhi,2012-06-01,2017-05-30,7.66,Hyderabad,USA
+Master of Technology,Data Science,Stanford University,2015-06-01,2017-05-30,8.3,Pune,USA
+Bachelor of Science,Data Science,IIT Bombay,2013-06-01,2017-05-30,7.46,Hyderabad,India
+Bachelor of Technology,Computer Science,MIT,2013-06-01,2017-05-30,8.48,Pune,India
+Master of Technology,Computer Science,MIT,2013-06-01,2015-05-30,7.22,Mumbai,India
+PhD,Computer Science,Anna University,2001-06-01,2003-05-30,6.98,Bangalore,USA
+MBA,Business Administration,IIT Bombay,2013-06-01,2015-05-30,9.33,Pune,India
+Bachelor of Science,Electronics,IIT Bombay,2018-06-01,2021-05-30,7.71,Hyderabad,India
+BCA,Electronics,IIT Bombay,2001-06-01,2003-05-30,8.17,Bangalore,India
+BCA,Electronics,Delhi University,2018-06-01,2023-05-30,8.77,Bangalore,USA
+Bachelor of Technology,Data Science,Stanford University,2003-06-01,2008-05-30,8.79,Hyderabad,USA
+MBA,Data Science,JNTU Hyderabad,2020-06-01,2022-05-30,7.71,Bangalore,India
+Master of Science,Data Science,JNTU Hyderabad,2002-06-01,2005-05-30,8.71,Pune,USA
+Bachelor of Technology,Electronics,Stanford University,2004-06-01,2009-05-30,8.37,Mumbai,USA
+Bachelor of Technology,Business Administration,MIT,2001-06-01,2005-05-30,9.75,Delhi,USA
+Bachelor of Technology,Data Science,MIT,2014-06-01,2019-05-30,8.65,Mumbai,USA
+MCA,Computer Science,Anna University,2016-06-01,2021-05-30,9.2,Pune,USA
+Master of Technology,Mechanical Engineering,IIT Delhi,2007-06-01,2009-05-30,6.92,Bangalore,India
+Master of Science,Information Technology,IISc Bangalore,2001-06-01,2004-05-30,9.01,Chennai,USA
+PhD,Data Science,Anna University,2020-06-01,2024-05-30,9.43,Pune,India
+PhD,Business Administration,Delhi University,2014-06-01,2019-05-30,8.38,Pune,India
+Master of Science,Computer Science,IISc Bangalore,2018-06-01,2020-05-30,7.3,Mumbai,India
+Master of Technology,Mechanical Engineering,Anna University,2012-06-01,2017-05-30,6.19,Hyderabad,USA
+MCA,Mechanical Engineering,IISc Bangalore,2009-06-01,2011-05-30,8.4,Bangalore,USA
+BCA,Mechanical Engineering,IISc Bangalore,2015-06-01,2018-05-30,9.39,Bangalore,USA
+BCA,Information Technology,IIT Bombay,2008-06-01,2011-05-30,7.2,Hyderabad,India
+MCA,Information Technology,Anna University,2018-06-01,2023-05-30,6.74,Hyderabad,India
+BCA,Electronics,MIT,2011-06-01,2016-05-30,9.77,Pune,USA
+Bachelor of Science,Information Technology,MIT,2019-06-01,2021-05-30,8.86,Pune,USA
+MBA,Data Science,MIT,2004-06-01,2008-05-30,8.31,Mumbai,India
+BCA,Computer Science,Anna University,2011-06-01,2014-05-30,6.01,Hyderabad,India
+MCA,Computer Science,IIT Delhi,2012-06-01,2014-05-30,7.62,Hyderabad,USA
+Master of Technology,Business Administration,Delhi University,2012-06-01,2015-05-30,6.16,Mumbai,India
+Master of Technology,Computer Science,IIT Bombay,2007-06-01,2009-05-30,9.73,Chennai,USA
+BCA,Business Administration,IISc Bangalore,2005-06-01,2010-05-30,8.37,Hyderabad,USA
+PhD,Business Administration,IISc Bangalore,2004-06-01,2009-05-30,8.4,Delhi,India
+PhD,Computer Science,Anna University,2016-06-01,2020-05-30,9.49,Hyderabad,India
+MCA,Information Technology,IIT Delhi,2003-06-01,2007-05-30,6.61,Hyderabad,USA
+BCA,Computer Science,IISc Bangalore,2012-06-01,2015-05-30,9.7,Hyderabad,India
+Bachelor of Technology,Electronics,Delhi University,2014-06-01,2019-05-30,6.5,Delhi,USA
+PhD,Computer Science,Stanford University,2005-06-01,2009-05-30,8.02,Hyderabad,India
+BCA,Information Technology,JNTU Hyderabad,2010-06-01,2012-05-30,7.93,Pune,USA
+Master of Science,Information Technology,JNTU Hyderabad,2003-06-01,2005-05-30,9.56,Hyderabad,USA
+Master of Science,Business Administration,IISc Bangalore,2018-06-01,2020-05-30,8.96,Bangalore,India
+Master of Technology,Electronics,IISc Bangalore,2020-06-01,2024-05-30,9.02,Chennai,India
+Master of Science,Business Administration,IISc Bangalore,2007-06-01,2010-05-30,9.48,Mumbai,USA
+Master of Science,Data Science,Delhi University,2011-06-01,2013-05-30,7.8,Hyderabad,India
+MBA,Computer Science,Stanford University,2007-06-01,2009-05-30,8.54,Bangalore,India
+MBA,Computer Science,IIT Bombay,2005-06-01,2008-05-30,9.24,Pune,India
+Master of Technology,Business Administration,IIT Bombay,2004-06-01,2007-05-30,7.34,Chennai,India
+MBA,Business Administration,IIT Delhi,2014-06-01,2018-05-30,8.35,Delhi,India
+MCA,Information Technology,Stanford University,2015-06-01,2017-05-30,9.54,Hyderabad,India
+MCA,Business Administration,IIT Bombay,2007-06-01,2011-05-30,6.46,Bangalore,USA
+Bachelor of Science,Information Technology,IISc Bangalore,2007-06-01,2009-05-30,7.89,Hyderabad,USA
+MCA,Data Science,Stanford University,2010-06-01,2014-05-30,8.45,Mumbai,India
+Master of Technology,Business Administration,JNTU Hyderabad,2016-06-01,2020-05-30,6.49,Pune,India
+Master of Technology,Information Technology,JNTU Hyderabad,2009-06-01,2012-05-30,6.41,Hyderabad,USA
+PhD,Information Technology,IISc Bangalore,2018-06-01,2020-05-30,7.9,Bangalore,India
+MCA,Data Science,Anna University,2001-06-01,2006-05-30,6.34,Delhi,India
+Master of Science,Business Administration,Delhi University,2012-06-01,2014-05-30,7.54,Hyderabad,USA
+MBA,Data Science,Delhi University,2011-06-01,2013-05-30,6.88,Hyderabad,USA
+Bachelor of Science,Mechanical Engineering,Stanford University,2004-06-01,2008-05-30,6.56,Bangalore,USA
+MCA,Business Administration,IIT Bombay,2017-06-01,2019-05-30,6.66,Bangalore,USA
+Master of Technology,Mechanical Engineering,Anna University,2004-06-01,2007-05-30,7.42,Pune,USA
+BCA,Data Science,IIT Delhi,2012-06-01,2016-05-30,6.69,Hyderabad,USA
+MCA,Business Administration,Stanford University,2018-06-01,2021-05-30,6.99,Delhi,USA
+Master of Science,Data Science,MIT,2013-06-01,2018-05-30,7.78,Mumbai,USA
+MBA,Business Administration,Stanford University,2013-06-01,2015-05-30,9.4,Mumbai,USA
+Bachelor of Science,Data Science,Anna University,2007-06-01,2011-05-30,9.7,Mumbai,India
+BCA,Data Science,Delhi University,2010-06-01,2012-05-30,8.96,Pune,USA
+Master of Science,Computer Science,JNTU Hyderabad,2019-06-01,2022-05-30,8.84,Pune,India
+Master of Science,Computer Science,MIT,2011-06-01,2016-05-30,6.97,Delhi,India
+PhD,Information Technology,IIT Delhi,2009-06-01,2014-05-30,7.79,Pune,USA
+Bachelor of Science,Mechanical Engineering,IIT Delhi,2008-06-01,2013-05-30,9.23,Delhi,India
+BCA,Electronics,MIT,2019-06-01,2022-05-30,7.5,Bangalore,India
+PhD,Electronics,IIT Delhi,2009-06-01,2014-05-30,9.03,Bangalore,USA
+Bachelor of Science,Computer Science,Anna University,2014-06-01,2017-05-30,8.74,Chennai,USA
+BCA,Mechanical Engineering,MIT,2004-06-01,2009-05-30,9.37,Chennai,India
+Bachelor of Technology,Mechanical Engineering,JNTU Hyderabad,2005-06-01,2007-05-30,6.49,Hyderabad,India
+Master of Technology,Electronics,Delhi University,2007-06-01,2011-05-30,6.46,Chennai,India
+Bachelor of Technology,Data Science,IIT Bombay,2015-06-01,2018-05-30,7.03,Mumbai,USA
+Master of Science,Computer Science,Delhi University,2014-06-01,2016-05-30,6.72,Pune,India
+MBA,Computer Science,IIT Delhi,2002-06-01,2004-05-30,6.54,Pune,India
+MBA,Data Science,Stanford University,2013-06-01,2016-05-30,9.0,Mumbai,India
+Bachelor of Technology,Electronics,Anna University,2012-06-01,2015-05-30,8.01,Hyderabad,India
+PhD,Information Technology,IIT Delhi,2020-06-01,2022-05-30,6.0,Chennai,India
+Master of Science,Electronics,Stanford University,2012-06-01,2017-05-30,8.5,Delhi,USA
+MCA,Mechanical Engineering,IIT Bombay,2015-06-01,2019-05-30,8.97,Bangalore,India
+MCA,Mechanical Engineering,Stanford University,2017-06-01,2019-05-30,7.57,Chennai,USA
+BCA,Electronics,JNTU Hyderabad,2015-06-01,2019-05-30,9.5,Pune,USA
+MBA,Mechanical Engineering,MIT,2005-06-01,2009-05-30,6.93,Mumbai,USA
+Bachelor of Technology,Computer Science,Stanford University,2006-06-01,2011-05-30,8.75,Pune,USA
+MBA,Information Technology,Anna University,2009-06-01,2013-05-30,6.19,Bangalore,India
+MBA,Mechanical Engineering,JNTU Hyderabad,2008-06-01,2013-05-30,7.79,Hyderabad,USA
+MBA,Mechanical Engineering,Delhi University,2002-06-01,2005-05-30,6.67,Bangalore,India
+Bachelor of Technology,Business Administration,Delhi University,2009-06-01,2011-05-30,6.78,Pune,USA
+Master of Science,Information Technology,IIT Bombay,2019-06-01,2022-05-30,8.12,Hyderabad,USA
+Bachelor of Science,Electronics,JNTU Hyderabad,2006-06-01,2008-05-30,9.75,Hyderabad,USA
+Master of Science,Data Science,IISc Bangalore,2017-06-01,2021-05-30,6.35,Chennai,India
+MBA,Electronics,IIT Bombay,2009-06-01,2012-05-30,7.06,Delhi,India
+Bachelor of Science,Electronics,MIT,2001-06-01,2006-05-30,9.76,Chennai,USA
+BCA,Data Science,IIT Bombay,2014-06-01,2017-05-30,9.35,Delhi,USA
+PhD,Business Administration,Anna University,2012-06-01,2017-05-30,7.5,Hyderabad,India
+BCA,Computer Science,IISc Bangalore,2020-06-01,2022-05-30,9.64,Hyderabad,USA
+BCA,Information Technology,IIT Bombay,2012-06-01,2016-05-30,6.82,Delhi,USA
+PhD,Information Technology,IIT Bombay,2012-06-01,2017-05-30,8.77,Hyderabad,USA
+Bachelor of Technology,Data Science,Delhi University,2014-06-01,2019-05-30,9.11,Delhi,USA
+MBA,Mechanical Engineering,Stanford University,2012-06-01,2017-05-30,8.32,Pune,India
+MBA,Data Science,Delhi University,2014-06-01,2017-05-30,6.62,Bangalore,USA
+Bachelor of Technology,Information Technology,IIT Bombay,2000-06-01,2002-05-30,7.5,Chennai,USA
+MCA,Computer Science,IIT Delhi,2017-06-01,2019-05-30,8.41,Chennai,USA
+MCA,Mechanical Engineering,Anna University,2016-06-01,2020-05-30,9.53,Mumbai,India
+Bachelor of Technology,Data Science,Delhi University,2011-06-01,2014-05-30,8.5,Chennai,USA
+Bachelor of Science,Data Science,IIT Bombay,2018-06-01,2023-05-30,8.24,Mumbai,USA
+MBA,Data Science,Stanford University,2005-06-01,2007-05-30,9.03,Mumbai,USA
+Bachelor of Technology,Data Science,IIT Bombay,2001-06-01,2003-05-30,6.35,Mumbai,India
+Master of Science,Data Science,Stanford University,2013-06-01,2015-05-30,7.41,Chennai,USA
+Master of Technology,Electronics,Anna University,2009-06-01,2011-05-30,6.94,Bangalore,India
+BCA,Electronics,IISc Bangalore,2013-06-01,2018-05-30,8.11,Chennai,India
+BCA,Data Science,Anna University,2005-06-01,2007-05-30,7.97,Pune,USA
+MBA,Data Science,Anna University,2013-06-01,2017-05-30,7.71,Pune,USA
+PhD,Business Administration,Anna University,2007-06-01,2010-05-30,6.81,Delhi,USA
+Master of Technology,Information Technology,MIT,2016-06-01,2018-05-30,8.71,Delhi,India
+Master of Technology,Mechanical Engineering,IIT Bombay,2009-06-01,2011-05-30,7.01,Pune,USA
+Bachelor of Technology,Computer Science,IIT Bombay,2013-06-01,2017-05-30,8.67,Pune,India
+Master of Technology,Electronics,MIT,2017-06-01,2019-05-30,7.09,Delhi,USA
+MBA,Electronics,Anna University,2016-06-01,2018-05-30,9.1,Mumbai,USA
+MCA,Electronics,Delhi University,2008-06-01,2010-05-30,7.17,Delhi,USA
+Bachelor of Technology,Mechanical Engineering,Stanford University,2010-06-01,2014-05-30,6.81,Hyderabad,India
+MCA,Computer Science,MIT,2018-06-01,2021-05-30,9.76,Delhi,USA
+Bachelor of Science,Data Science,Anna University,2016-06-01,2018-05-30,7.88,Hyderabad,India
+Master of Science,Mechanical Engineering,JNTU Hyderabad,2019-06-01,2023-05-30,6.18,Chennai,USA
+Bachelor of Science,Mechanical Engineering,Delhi University,2003-06-01,2007-05-30,9.23,Chennai,USA
+Master of Technology,Computer Science,MIT,2002-06-01,2004-05-30,9.27,Pune,India
+Bachelor of Technology,Business Administration,Stanford University,2014-06-01,2019-05-30,6.47,Pune,India
+BCA,Electronics,Anna University,2005-06-01,2007-05-30,7.66,Hyderabad,India
+PhD,Electronics,IIT Bombay,2016-06-01,2021-05-30,8.1,Mumbai,USA
+BCA,Data Science,Anna University,2008-06-01,2011-05-30,8.19,Bangalore,USA
+MBA,Electronics,Anna University,2014-06-01,2019-05-30,9.38,Bangalore,USA
+Master of Technology,Business Administration,Delhi University,2019-06-01,2022-05-30,7.49,Mumbai,USA
+PhD,Electronics,JNTU Hyderabad,2001-06-01,2006-05-30,7.43,Bangalore,USA
+Master of Science,Data Science,MIT,2000-06-01,2002-05-30,9.67,Hyderabad,India
+MCA,Data Science,Anna University,2006-06-01,2011-05-30,7.22,Pune,India
+MBA,Business Administration,JNTU Hyderabad,2007-06-01,2012-05-30,7.81,Pune,India
+Master of Technology,Electronics,JNTU Hyderabad,2011-06-01,2013-05-30,6.4,Bangalore,USA
+Master of Technology,Computer Science,IIT Delhi,2013-06-01,2017-05-30,9.36,Pune,India
+PhD,Mechanical Engineering,Delhi University,2019-06-01,2024-05-30,8.93,Pune,India
+Bachelor of Science,Computer Science,IIT Delhi,2000-06-01,2002-05-30,7.01,Hyderabad,India
+MBA,Information Technology,MIT,2009-06-01,2014-05-30,8.06,Pune,India
+BCA,Information Technology,Anna University,2006-06-01,2010-05-30,6.53,Bangalore,USA
+MBA,Data Science,Delhi University,2000-06-01,2003-05-30,9.25,Chennai,India
+BCA,Information Technology,MIT,2010-06-01,2015-05-30,6.76,Delhi,USA
+BCA,Business Administration,MIT,2012-06-01,2017-05-30,8.79,Mumbai,India
+BCA,Information Technology,MIT,2005-06-01,2009-05-30,9.43,Chennai,USA
+Master of Technology,Information Technology,IIT Bombay,2006-06-01,2010-05-30,9.4,Chennai,USA
+PhD,Business Administration,Delhi University,2017-06-01,2022-05-30,7.61,Bangalore,India
+BCA,Electronics,IIT Delhi,2001-06-01,2005-05-30,6.02,Mumbai,USA
+Master of Science,Mechanical Engineering,Delhi University,2004-06-01,2006-05-30,7.4,Chennai,India
+Bachelor of Technology,Data Science,Delhi University,2020-06-01,2022-05-30,8.35,Delhi,India
+PhD,Information Technology,JNTU Hyderabad,2000-06-01,2004-05-30,7.72,Delhi,USA
+PhD,Data Science,IISc Bangalore,2004-06-01,2006-05-30,7.2,Mumbai,USA
+MBA,Electronics,Delhi University,2011-06-01,2016-05-30,8.99,Pune,India
+BCA,Business Administration,IISc Bangalore,2018-06-01,2021-05-30,8.78,Bangalore,India
+Master of Science,Data Science,Delhi University,2014-06-01,2018-05-30,7.47,Hyderabad,India
+MBA,Information Technology,IISc Bangalore,2001-06-01,2005-05-30,7.72,Bangalore,India
+BCA,Data Science,JNTU Hyderabad,2000-06-01,2005-05-30,8.91,Bangalore,USA
+Bachelor of Technology,Business Administration,IISc Bangalore,2019-06-01,2022-05-30,8.2,Chennai,India
+PhD,Business Administration,IIT Delhi,2018-06-01,2020-05-30,6.64,Mumbai,USA
+Bachelor of Science,Business Administration,IIT Bombay,2020-06-01,2023-05-30,7.05,Delhi,USA
+Bachelor of Technology,Business Administration,Delhi University,2000-06-01,2002-05-30,7.61,Mumbai,USA
+Bachelor of Technology,Data Science,MIT,2006-06-01,2008-05-30,8.2,Hyderabad,India
+MCA,Electronics,MIT,2013-06-01,2017-05-30,8.06,Delhi,USA
+Master of Technology,Information Technology,Anna University,2003-06-01,2005-05-30,6.91,Chennai,USA
+Master of Technology,Computer Science,Anna University,2011-06-01,2015-05-30,8.55,Mumbai,India
+Master of Science,Data Science,IIT Bombay,2013-06-01,2016-05-30,6.84,Delhi,India
+MBA,Data Science,Stanford University,2007-06-01,2009-05-30,8.36,Bangalore,USA
+BCA,Computer Science,Delhi University,2009-06-01,2014-05-30,7.82,Chennai,USA
+Master of Technology,Electronics,Stanford University,2005-06-01,2010-05-30,8.22,Delhi,India
+Master of Science,Data Science,IIT Bombay,2002-06-01,2007-05-30,8.97,Chennai,USA
+MCA,Data Science,Stanford University,2001-06-01,2006-05-30,6.48,Pune,USA
+BCA,Data Science,Delhi University,2009-06-01,2012-05-30,9.29,Delhi,India

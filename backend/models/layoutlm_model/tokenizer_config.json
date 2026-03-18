@@ -1,0 +1,5 @@
+{
+  "tokenizer_class": "LayoutLMTokenizer",
+  "model_max_length": 512,
+  "vocab_size": 30522
+}

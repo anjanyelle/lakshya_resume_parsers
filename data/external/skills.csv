@@ -1,120 +1,1382 @@
-﻿skill_name,category,subcategory,level
-Python,Programming,Language,Expert
-Java,Programming,Language,Expert
-JavaScript,Programming,Language,Expert
-TypeScript,Programming,Language,Advanced
-C++,Programming,Language,Expert
-C#,Programming,Language,Advanced
-PHP,Programming,Language,Intermediate
-Ruby,Programming,Language,Intermediate
-Go,Programming,Language,Advanced
-Rust,Programming,Language,Advanced
-Swift,Programming,Language,Advanced
-Kotlin,Programming,Language,Advanced
-Scala,Programming,Language,Intermediate
-Perl,Programming,Language,Intermediate
-Shell Scripting,Programming,Language,Advanced
-PowerShell,Programming,Language,Advanced
-Bash,Programming,Language,Advanced
-SQL,Database,Language,Expert
-NoSQL,Database,Language,Advanced
-MongoDB,Database,NoSQL,Advanced
-PostgreSQL,Database,SQL,Expert
-MySQL,Database,SQL,Expert
-Oracle,Database,SQL,Advanced
-SQL Server,Database,SQL,Advanced
-SQLite,Database,SQL,Intermediate
-Redis,Database,NoSQL,Advanced
-Elasticsearch,Database,NoSQL,Advanced
-Cassandra,Database,NoSQL,Intermediate
-DynamoDB,Database,NoSQL,Intermediate
-FastAPI,Web Framework,Python,Advanced
-Django,Web Framework,Python,Expert
-Flask,Web Framework,Python,Expert
-Spring Boot,Web Framework,Java,Expert
-Express.js,Web Framework,JavaScript,Advanced
-React,Web Framework,JavaScript,Expert
-Angular,Web Framework,TypeScript,Advanced
-Vue.js,Web Framework,JavaScript,Advanced
-Next.js,Web Framework,JavaScript,Advanced
-Nuxt.js,Web Framework,JavaScript,Intermediate
-Laravel,Web Framework,PHP,Advanced
-Ruby on Rails,Web Framework,Ruby,Expert
-ASP.NET,Web Framework,C#,Advanced
-Node.js,Runtime,JavaScript,Expert
-Docker,DevOps,Containerization,Expert
-Kubernetes,DevOps,Orchestration,Expert
-Jenkins,DevOps,CI/CD,Advanced
-GitLab CI,DevOps,CI/CD,Advanced
-GitHub Actions,DevOps,CI/CD,Advanced
-Azure DevOps,DevOps,CI/CD,Advanced
-Terraform,DevOps,Infrastructure,Advanced
-Ansible,DevOps,Configuration,Advanced
-Puppet,DevOps,Configuration,Intermediate
-Chef,DevOps,Configuration,Intermediate
-AWS,Cloud,AWS,Expert
-Azure,Cloud,Azure,Advanced
-GCP,Cloud,GCP,Advanced
-Google Cloud,Cloud,GCP,Advanced
-Microsoft Azure,Cloud,Azure,Advanced
-Amazon Web Services,Cloud,AWS,Expert
-EC2,Cloud,AWS,Advanced
-S3,Cloud,AWS,Expert
-Lambda,Cloud,AWS,Advanced
-ECS,Cloud,AWS,Intermediate
-EKS,Cloud,AWS,Advanced
-RDS,Cloud,AWS,Advanced
-DynamoDB,Cloud,AWS,Intermediate
-VPC,Cloud,AWS,Advanced
-CloudFormation,Cloud,AWS,Advanced
-Azure Functions,Cloud,Azure,Advanced
-Azure DevOps,Cloud,Azure,Advanced
-Azure SQL,Cloud,Azure,Intermediate
-Blob Storage,Cloud,Azure,Advanced
-Virtual Machines,Cloud,Azure,Advanced
-Google Functions,Cloud,GCP,Intermediate
-BigQuery,Cloud,GCP,Advanced
-Cloud Storage,Cloud,GCP,Intermediate
-Compute Engine,Cloud,GCP,Advanced
-Git,Version Control,Git,Expert
-GitHub,Version Control,Git,Expert
-GitLab,Version Control,Git,Advanced
-Bitbucket,Version Control,Git,Advanced
-SVN,Version Control,SVN,Intermediate
-Mercurial,Version Control,Mercurial,Intermediate
-Machine Learning,Data Science,ML,Expert
-Deep Learning,Data Science,DL,Advanced
-Neural Networks,Data Science,DL,Advanced
-TensorFlow,Data Science,Framework,Expert
-PyTorch,Data Science,Framework,Expert
-Keras,Data Science,Framework,Advanced
-Scikit-learn,Data Science,Framework,Expert
-Pandas,Data Science,Library,Expert
-NumPy,Data Science,Library,Expert
-Matplotlib,Data Science,Visualization,Expert
-Seaborn,Data Science,Visualization,Advanced
-Plotly,Data Science,Visualization,Advanced
-Jupyter,Data Science,Tools,Expert
-Apache Spark,Data Science,Big Data,Advanced
-Hadoop,Data Science,Big Data,Intermediate
-Kafka,Data Science,Streaming,Advanced
-Airflow,Data Science,Workflow,Advanced
-Data Engineering,Data Science,Engineering,Advanced
-ETL,Data Science,Engineering,Expert
-Data Warehousing,Data Science,Engineering,Advanced
-Business Intelligence,Data Science,BI,Advanced
-Tableau,Data Science,BI,Expert
-Power BI,Data Science,BI,Expert
-Looker,Data Science,BI,Advanced
-QlikView,Data Science,BI,Intermediate
-D3.js,Data Science,Visualization,Advanced
-React Native,Mobile,Framework,Advanced
-Flutter,Mobile,Framework,Advanced
-iOS,Mobile,Platform,Advanced
-Android,Mobile,Platform,Advanced
-Swift,Mobile,Language,Advanced
-Kotlin,Mobile,Language,Advanced
-Java,Mobile,Language,Advanced
-React.js,Mobile,Framework,Advanced
-Xamarin,Mobile,Framework,Intermediate
-Cordova,Mobile,Framework,Intermediate
+skill_name,category
+Python,Programming
+Java,Programming
+JavaScript,Programming
+TypeScript,Programming
+C++,Programming
+C#,Programming
+Go,Programming
+Ruby,Programming
+PHP,Programming
+Swift,Programming
+Kotlin,Programming
+Rust,Programming
+Scala,Programming
+R,Programming
+MATLAB,Programming
+Perl,Programming
+Haskell,Programming
+Elixir,Programming
+Erlang,Programming
+Clojure,Programming
+Lua,Programming
+Dart,Programming
+Julia,Programming
+COBOL,Programming
+Fortran,Programming
+Assembly,Programming
+Groovy,Programming
+F#,Programming
+OCaml,Programming
+Zig,Programming
+Nim,Programming
+Crystal,Programming
+D,Programming
+Objective-C,Programming
+Visual Basic,Programming
+PowerShell,Programming
+Bash,Programming
+Shell Scripting,Programming
+Ada,Programming
+Prolog,Programming
+Scheme,Programming
+Common Lisp,Programming
+Racket,Programming
+Tcl,Programming
+VHDL,Programming
+Verilog,Programming
+SystemVerilog,Programming
+ActionScript,Programming
+ColdFusion,Programming
+Apex,Programming
+Carbon,Programming
+Mojo,Programming
+V,Programming
+Odin,Programming
+Gleam,Programming
+Roc,Programming
+Hack,Programming
+XQuery,Programming
+XSLT,Programming
+PL/SQL,Programming
+T-SQL,Programming
+HiveQL,Programming
+Cypher,Programming
+SPARQL,Programming
+AWK,Programming
+Sed,Programming
+Nix,Programming
+Starlark,Programming
+React,Frontend Framework
+Angular,Frontend Framework
+Vue,Frontend Framework
+Svelte,Frontend Framework
+Next.js,Frontend Framework
+Nuxt.js,Frontend Framework
+Remix,Frontend Framework
+Gatsby,Frontend Framework
+Ember.js,Frontend Framework
+Backbone.js,Frontend Framework
+Solid.js,Frontend Framework
+Astro,Frontend Framework
+Qwik,Frontend Framework
+Alpine.js,Frontend Framework
+Lit,Frontend Framework
+Preact,Frontend Framework
+Stencil,Frontend Framework
+Stimulus,Frontend Framework
+HTMX,Frontend Framework
+Marko,Frontend Framework
+Dojo,Frontend Framework
+Knockout.js,Frontend Framework
+Mithril,Frontend Framework
+Inferno,Frontend Framework
+Hyperapp,Frontend Framework
+Cycle.js,Frontend Framework
+Angular.js,Frontend Framework
+Aurelia,Frontend Framework
+Node.js,Backend Framework
+Express.js,Backend Framework
+Django,Backend Framework
+Flask,Backend Framework
+FastAPI,Backend Framework
+Spring Boot,Backend Framework
+Laravel,Backend Framework
+Ruby on Rails,Backend Framework
+ASP.NET Core,Backend Framework
+NestJS,Backend Framework
+Fastify,Backend Framework
+Hapi.js,Backend Framework
+Gin,Backend Framework
+Echo,Backend Framework
+Fiber,Backend Framework
+Actix,Backend Framework
+Rocket,Backend Framework
+Phoenix,Backend Framework
+Ktor,Backend Framework
+Quarkus,Backend Framework
+Micronaut,Backend Framework
+Play Framework,Backend Framework
+Symfony,Backend Framework
+CodeIgniter,Backend Framework
+Strapi,Backend Framework
+AdonisJS,Backend Framework
+Koa.js,Backend Framework
+Sails.js,Backend Framework
+Meteor,Backend Framework
+Feathers.js,Backend Framework
+Loopback,Backend Framework
+Deno,Backend Framework
+Bun,Backend Framework
+Tornado,Backend Framework
+Starlette,Backend Framework
+Litestar,Backend Framework
+Bottle,Backend Framework
+Falcon,Backend Framework
+Pyramid,Backend Framework
+CherryPy,Backend Framework
+Slim,Backend Framework
+Lumen,Backend Framework
+Yii,Backend Framework
+CakePHP,Backend Framework
+Phalcon,Backend Framework
+Vapor,Backend Framework
+Perfect,Backend Framework
+Kitura,Backend Framework
+Javalin,Backend Framework
+Vert.x,Backend Framework
+Dropwizard,Backend Framework
+Grails,Backend Framework
+HTML,Web
+CSS,Styling
+Sass,Styling
+Less,Styling
+Tailwind CSS,Styling
+Bootstrap,Styling
+Material UI,Styling
+Chakra UI,Styling
+Ant Design,Styling
+Styled Components,Styling
+Emotion,Styling
+CSS Modules,Styling
+PostCSS,Styling
+CSS-in-JS,Styling
+Foundation,Styling
+Bulma,Styling
+Semantic UI,Styling
+UIkit,Styling
+Materialize,Styling
+Stitches,Styling
+vanilla-extract,Styling
+Linaria,Styling
+Radix UI,Styling
+shadcn/ui,Styling
+Headless UI,Styling
+Mantine,Styling
+Daisyui,Styling
+Flowbite,Styling
+WebAssembly,Web
+WebSockets,Web
+PWA,Web
+Web Components,Web
+Service Workers,Web
+WebRTC,Web
+WebGL,Web
+WebGPU,Web
+Web Accessibility,Web
+SEO,Web
+Web Performance,Web
+Core Web Vitals,Web
+SQL,Database
+NoSQL,Database
+MongoDB,Database
+PostgreSQL,Database
+MySQL,Database
+SQLite,Database
+Oracle Database,Database
+Microsoft SQL Server,Database
+MariaDB,Database
+CockroachDB,Database
+DynamoDB,Database
+Cassandra,Database
+HBase,Database
+Couchbase,Database
+CouchDB,Database
+Neo4j,Database
+ArangoDB,Database
+InfluxDB,Database
+TimescaleDB,Database
+Firestore,Database
+Supabase,Database
+PlanetScale,Database
+Neon,Database
+Redis,Database
+Memcached,Database
+Elasticsearch,Database
+OpenSearch,Database
+Solr,Database
+Fauna,Database
+SingleStore,Database
+TiDB,Database
+YugabyteDB,Database
+Vitess,Database
+Turso,Database
+SurrealDB,Database
+Weaviate,Database
+Pinecone,Database
+Milvus,Database
+Qdrant,Database
+Chroma,Database
+Dgraph,Database
+OrientDB,Database
+RethinkDB,Database
+RavenDB,Database
+VoltDB,Database
+GridDB,Database
+ScyllaDB,Database
+Apache Druid,Database
+ClickHouse,Database
+DuckDB,Database
+StarRocks,Database
+Doris,Database
+Greenplum,Database
+Redshift,Database
+BigQuery,Database
+Synapse Analytics,Database
+AWS,Cloud
+Azure,Cloud
+GCP,Cloud
+IBM Cloud,Cloud
+Oracle Cloud,Cloud
+Alibaba Cloud,Cloud
+DigitalOcean,Cloud
+Linode,Cloud
+Vultr,Cloud
+Heroku,Cloud
+Vercel,Cloud
+Netlify,Cloud
+Cloudflare Workers,Cloud
+Fly.io,Cloud
+Railway,Cloud
+Render,Cloud
+Supabase Cloud,Cloud
+Hetzner,Cloud
+OVHcloud,Cloud
+Scaleway,Cloud
+Exoscale,Cloud
+Tencent Cloud,Cloud
+Huawei Cloud,Cloud
+NHN Cloud,Cloud
+Naver Cloud,Cloud
+Kakao Cloud,Cloud
+NIFCLOUD,Cloud
+Yandex Cloud,Cloud
+Mail.ru Cloud,Cloud
+CloudSigma,Cloud
+Kinsta,Cloud
+Platform.sh,Cloud
+Back4App,Cloud
+Appwrite Cloud,Cloud
+Koyeb,Cloud
+Northflank,Cloud
+Porter,Cloud
+Coolify,Cloud
+Caprover,Cloud
+Docker,DevOps
+Kubernetes,DevOps
+Jenkins,DevOps
+GitLab CI/CD,DevOps
+GitHub Actions,DevOps
+CircleCI,DevOps
+Travis CI,DevOps
+Bitbucket Pipelines,DevOps
+ArgoCD,DevOps
+Helm,DevOps
+Istio,DevOps
+Prometheus,DevOps
+Grafana,DevOps
+Datadog,DevOps
+New Relic,DevOps
+Splunk,DevOps
+ELK Stack,DevOps
+Terraform,DevOps
+Ansible,DevOps
+Puppet,DevOps
+Chef,DevOps
+Pulumi,DevOps
+Vagrant,DevOps
+Packer,DevOps
+Vault,DevOps
+Consul,DevOps
+Nomad,DevOps
+Linkerd,DevOps
+Envoy,DevOps
+Cilium,DevOps
+Calico,DevOps
+Flannel,DevOps
+Kustomize,DevOps
+Skaffold,DevOps
+Tilt,DevOps
+Flux CD,DevOps
+Spinnaker,DevOps
+Harness,DevOps
+TeamCity,DevOps
+Bamboo,DevOps
+Drone CI,DevOps
+Woodpecker CI,DevOps
+Tekton,DevOps
+Dagger,DevOps
+OpenTofu,DevOps
+Crossplane,DevOps
+Cluster API,DevOps
+Rancher,DevOps
+OpenShift,DevOps
+Tanzu,DevOps
+Loki,DevOps
+Tempo,DevOps
+Jaeger,DevOps
+Zipkin,DevOps
+OpenTelemetry,DevOps
+Dynatrace,DevOps
+AppDynamics,DevOps
+Nagios,DevOps
+Zabbix,DevOps
+PagerDuty,DevOps
+OpsGenie,DevOps
+VictorOps,DevOps
+Atlantis,DevOps
+Spacelift,DevOps
+env0,DevOps
+Git,Version Control
+GitHub,Version Control
+GitLab,Version Control
+Bitbucket,Version Control
+SVN,Version Control
+Mercurial,Version Control
+Perforce,Version Control
+Azure DevOps Repos,Version Control
+AWS CodeCommit,Version Control
+Gitea,Version Control
+Gogs,Version Control
+Forgejo,Version Control
+SourceSafe,Version Control
+Fossil,Version Control
+Linux,Operating System
+Ubuntu,Operating System
+CentOS,Operating System
+Debian,Operating System
+Red Hat Enterprise Linux,Operating System
+Fedora,Operating System
+macOS,Operating System
+Windows Server,Operating System
+FreeBSD,Operating System
+Alpine Linux,Operating System
+Arch Linux,Operating System
+openSUSE,Operating System
+Rocky Linux,Operating System
+AlmaLinux,Operating System
+Oracle Linux,Operating System
+Kali Linux,Operating System
+Parrot OS,Operating System
+NixOS,Operating System
+Gentoo,Operating System
+Slackware,Operating System
+Amazon Linux,Operating System
+Bottlerocket,Operating System
+CoreOS,Operating System
+FlatCar,Operating System
+ChromeOS,Operating System
+Android (AOSP),Operating System
+iOS,Operating System
+HarmonyOS,Operating System
+OpenBSD,Operating System
+NetBSD,Operating System
+Machine Learning,Data Science
+Data Science,Data Science
+Artificial Intelligence,Data Science
+Deep Learning,Data Science
+Natural Language Processing,Data Science
+Computer Vision,Data Science
+Reinforcement Learning,Data Science
+Statistical Modeling,Data Science
+Time Series Analysis,Data Science
+Feature Engineering,Data Science
+Data Wrangling,Data Science
+Data Visualization,Data Science
+Pandas,Data Science
+NumPy,Data Science
+Matplotlib,Data Science
+Seaborn,Data Science
+Plotly,Data Science
+Scikit-learn,Data Science
+TensorFlow,Data Science
+PyTorch,Data Science
+Keras,Data Science
+Hugging Face,Data Science
+LangChain,Data Science
+OpenCV,Data Science
+NLTK,Data Science
+SpaCy,Data Science
+XGBoost,Data Science
+LightGBM,Data Science
+CatBoost,Data Science
+Apache Spark,Data Science
+Hadoop,Data Science
+Databricks,Data Science
+Snowflake,Data Science
+dbt,Data Science
+Airflow,Data Science
+Prefect,Data Science
+MLflow,Data Science
+Kubeflow,Data Science
+SageMaker,Data Science
+Vertex AI,Data Science
+Azure ML,Data Science
+Power BI,Data Science
+Tableau,Data Science
+Looker,Data Science
+Metabase,Data Science
+Jupyter,Data Science
+R Shiny,Data Science
+LlamaIndex,Data Science
+LlamaFactory,Data Science
+Ollama,Data Science
+vLLM,Data Science
+Ray,Data Science
+Dask,Data Science
+Polars,Data Science
+Vaex,Data Science
+Great Expectations,Data Science
+Evidently,Data Science
+Weights & Biases,Data Science
+Neptune.ai,Data Science
+DVC,Data Science
+ClearML,Data Science
+Feast,Data Science
+Tecton,Data Science
+Hopsworks,Data Science
+Zendesk AI,Data Science
+AutoML,Data Science
+TPOT,Data Science
+H2O.ai,Data Science
+DataRobot,Data Science
+Alteryx,Data Science
+KNIME,Data Science
+RapidMiner,Data Science
+SAS,Data Science
+SPSS,Data Science
+Stata,Data Science
+Apache Flink,Data Science
+Apache Kafka,Data Science
+Apache Storm,Data Science
+Apache Samza,Data Science
+Trino,Data Science
+Presto,Data Science
+Hive,Data Science
+Pig,Data Science
+Sqoop,Data Science
+Flume,Data Science
+NiFi,Data Science
+Talend,Data Science
+Informatica,Data Science
+MuleSoft,Data Science
+Fivetran,Data Science
+Stitch,Data Science
+Airbyte,Data Science
+dlt,Data Science
+Anomaly Detection,Data Science
+Recommendation Systems,Data Science
+A/B Testing,Data Science
+Causal Inference,Data Science
+Bayesian Statistics,Data Science
+Survival Analysis,Data Science
+Graph Neural Networks,Data Science
+Transformers,Data Science
+GANs,Data Science
+Diffusion Models,Data Science
+RAG,Data Science
+Fine-tuning LLMs,Data Science
+Prompt Engineering,Data Science
+AI Agents,Data Science
+Vector Search,Data Science
+Embeddings,Data Science
+Semantic Search,Data Science
+Knowledge Graphs,Data Science
+Apache Iceberg,Data Science
+Delta Lake,Data Science
+Apache Hudi,Data Science
+Lakehouse Architecture,Data Science
+Data Mesh,Data Science
+Data Fabric,Data Science
+Data Governance,Data Science
+Data Catalog,Data Science
+Data Quality,Data Science
+Master Data Management,Data Science
+Redash,Data Science
+Apache Superset,Data Science
+Kibana,Data Science
+QuickSight,Data Science
+Sisense,Data Science
+REST API,API
+GraphQL,API
+gRPC,API
+SOAP,API
+OpenAPI,API
+Swagger,API
+Postman,API
+tRPC,API
+AsyncAPI,API
+JSON:API,API
+OData,API
+Falcor,API
+Thrift,API
+Avro,API
+Protocol Buffers,API
+MessagePack,API
+API Gateway,API
+Kong,API
+Apigee,API
+AWS API Gateway,API
+Azure API Management,API
+MuleSoft Anypoint,API
+WSO2,API
+RapidAPI,API
+Stoplight,API
+Microservices,Architecture
+Event-Driven Architecture,Architecture
+Domain-Driven Design,Architecture
+CQRS,Architecture
+Event Sourcing,Architecture
+Serverless,Architecture
+Monolithic Architecture,Architecture
+Hexagonal Architecture,Architecture
+Clean Architecture,Architecture
+SOA,Architecture
+Service Mesh,Architecture
+SOLID Principles,Architecture
+TOGAF,Architecture
+Zachman Framework,Architecture
+C4 Model,Architecture
+Strangler Fig Pattern,Architecture
+Saga Pattern,Architecture
+Outbox Pattern,Architecture
+BFF Pattern,Architecture
+Sidecar Pattern,Architecture
+Ambassador Pattern,Architecture
+CQRS+ES,Architecture
+Modular Monolith,Architecture
+Cell-Based Architecture,Architecture
+Data-Oriented Design,Architecture
+Reactive Architecture,Architecture
+Space-Based Architecture,Architecture
+Micro-Frontend,Architecture
+JAMstack,Architecture
+Edge Architecture,Architecture
+Multi-Cloud Architecture,Architecture
+Agile,Methodology
+Scrum,Methodology
+Kanban,Methodology
+SAFe,Methodology
+Lean,Methodology
+XP,Methodology
+Waterfall,Methodology
+DevOps Culture,Methodology
+Design Thinking,Methodology
+Six Sigma,Methodology
+ITIL,Methodology
+PRINCE2,Methodology
+Shape Up,Methodology
+OKR,Methodology
+Nexus,Methodology
+Disciplined Agile,Methodology
+FDD,Methodology
+DSDM,Methodology
+Lean Startup,Methodology
+BDD,Methodology
+TDD,Methodology
+Mob Programming,Methodology
+Pair Programming,Methodology
+Continuous Delivery,Methodology
+Continuous Integration,Methodology
+Shift-Left Testing,Methodology
+Value Stream Mapping,Methodology
+PDCA,Methodology
+Kaizen,Methodology
+5S Methodology,Methodology
+Theory of Constraints,Methodology
+CMMI,Methodology
+Cybersecurity,Security
+Penetration Testing,Security
+Ethical Hacking,Security
+OWASP,Security
+Network Security,Security
+Cloud Security,Security
+Zero Trust,Security
+IAM,Security
+OAuth,Security
+JWT,Security
+SSL/TLS,Security
+PKI,Security
+SIEM,Security
+SOC,Security
+Incident Response,Security
+Threat Modeling,Security
+Vulnerability Assessment,Security
+Cryptography,Security
+Blockchain Security,Security
+Compliance,Security
+GDPR,Security
+HIPAA,Security
+SOC 2,Security
+ISO 27001,Security
+PCI DSS,Security
+NIST,Security
+CIS Benchmarks,Security
+MITRE ATT&CK,Security
+Red Team Operations,Security
+Blue Team Operations,Security
+Purple Team,Security
+Threat Intelligence,Security
+Digital Forensics,Security
+Malware Analysis,Security
+Reverse Engineering,Security
+Bug Bounty,Security
+Web Application Firewall,Security
+DDoS Protection,Security
+Endpoint Security,Security
+EDR,Security
+CASB,Security
+ZTNA,Security
+SASE,Security
+Devsecops,Security
+SBOM,Security
+Supply Chain Security,Security
+Container Security,Security
+Kubernetes Security,Security
+API Security,Security
+OAuth 2.0,Security
+SAML,Security
+OpenID Connect,Security
+MFA,Security
+PAM,Security
+SSO,Security
+Data Loss Prevention,Security
+UEBA,Security
+XDR,Security
+MDR,Security
+MSSP,Security
+iOS Development,Mobile
+Android Development,Mobile
+React Native,Mobile
+Flutter,Mobile
+Xamarin,Mobile
+Ionic,Mobile
+Capacitor,Mobile
+Expo,Mobile
+SwiftUI,Mobile
+Jetpack Compose,Mobile
+Cordova,Mobile
+NativeScript,Mobile
+Kotlin Multiplatform,Mobile
+.NET MAUI,Mobile
+Tauri Mobile,Mobile
+Lynx,Mobile
+ARKit,Mobile
+ARCore,Mobile
+Core Data,Mobile
+Room Database,Mobile
+Retrofit,Mobile
+Alamofire,Mobile
+Firebase SDK,Mobile
+RevenueCat,Mobile
+App Store Optimization,Mobile
+Play Store Optimization,Mobile
+Mobile Analytics,Mobile
+Crashlytics,Mobile
+Push Notifications,Mobile
+Deep Linking,Mobile
+Unit Testing,Testing
+Integration Testing,Testing
+End-to-End Testing,Testing
+Performance Testing,Testing
+Load Testing,Testing
+Selenium,Testing
+Cypress,Testing
+Playwright,Testing
+Jest,Testing
+Mocha,Testing
+JUnit,Testing
+PyTest,Testing
+Postman Testing,Testing
+k6,Testing
+JMeter,Testing
+Appium,Testing
+TestNG,Testing
+Cucumber,Testing
+Vitest,Testing
+Testing Library,Testing
+Storybook,Testing
+Chromatic,Testing
+Percy,Testing
+Axe,Testing
+SonarQube,Testing
+Codecov,Testing
+Mutation Testing,Testing
+Contract Testing,Testing
+Chaos Engineering,Testing
+Gatling,Testing
+Locust,Testing
+Artillery,Testing
+Pact,Testing
+WireMock,Testing
+Mockito,Testing
+Sinon.js,Testing
+MSW,Testing
+TestContainers,Testing
+Faker,Testing
+Factory Boy,Testing
+Hypothesis,Testing
+QuickCheck,Testing
+Robot Framework,Testing
+Karate,Testing
+RestAssured,Testing
+Supertest,Testing
+WebdriverIO,Testing
+Nightwatch.js,Testing
+Detox,Testing
+XCTest,Testing
+Espresso,Testing
+UI Automator,Testing
+Visual Regression Testing,Testing
+Snapshot Testing,Testing
+Accessibility Testing,Testing
+Security Testing,Testing
+Fuzz Testing,Testing
+Property-Based Testing,Testing
+Project Management,Project Management
+Product Management,Project Management
+Jira,Project Management
+Confluence,Project Management
+Asana,Project Management
+Trello,Project Management
+Linear,Project Management
+Notion,Project Management
+Monday.com,Project Management
+Basecamp,Project Management
+MS Project,Project Management
+Smartsheet,Project Management
+Risk Management,Project Management
+Stakeholder Management,Project Management
+Resource Planning,Project Management
+Wrike,Project Management
+ClickUp,Project Management
+Height,Project Management
+Shortcut,Project Management
+Plane,Project Management
+Taiga,Project Management
+GitLab Issues,Project Management
+GitHub Projects,Project Management
+YouTrack,Project Management
+Azure Boards,Project Management
+Rally,Project Management
+VersionOne,Project Management
+Targetprocess,Project Management
+Miro,Project Management
+Lucidchart,Project Management
+draw.io,Project Management
+Whimsical,Project Management
+FigJam,Project Management
+Gantt Charts,Project Management
+WBS,Project Management
+Critical Path Method,Project Management
+Earned Value Management,Project Management
+Program Management,Project Management
+Portfolio Management,Project Management
+Change Management,Project Management
+Benefits Realization,Project Management
+AWS Certified Solutions Architect,Certification
+Microsoft Azure Certified,Certification
+Google Cloud Certified,Certification
+PMP,Certification
+CSM,Certification
+CISA,Certification
+CISSP,Certification
+CISM,Certification
+CEH,Certification
+CompTIA Security+,Certification
+CompTIA Network+,Certification
+CompTIA A+,Certification
+CompTIA Cloud+,Certification
+CKA,Certification
+CKAD,Certification
+CKS,Certification
+AWS Developer Associate,Certification
+AWS SysOps Administrator,Certification
+AWS DevOps Engineer,Certification
+AWS Data Analytics,Certification
+AWS Machine Learning Specialty,Certification
+AWS Security Specialty,Certification
+AWS Database Specialty,Certification
+AWS Advanced Networking,Certification
+Azure Administrator,Certification
+Azure Developer Associate,Certification
+Azure DevOps Engineer,Certification
+Azure Data Engineer,Certification
+Azure AI Engineer,Certification
+Azure Security Engineer,Certification
+Azure Network Engineer,Certification
+GCP Professional Data Engineer,Certification
+GCP Professional ML Engineer,Certification
+GCP Professional Cloud Architect,Certification
+GCP Professional DevOps Engineer,Certification
+GCP Professional Network Engineer,Certification
+Terraform Associate,Certification
+ITIL Foundation,Certification
+ITIL 4 Managing Professional,Certification
+Salesforce Administrator,Certification
+Salesforce Developer,Certification
+Salesforce Architect,Certification
+Oracle Certified Professional,Certification
+Red Hat Certified Engineer,Certification
+Red Hat Certified Architect,Certification
+MongoDB Associate Developer,Certification
+Databricks Certified Associate,Certification
+Snowflake SnowPro Core,Certification
+PMI-ACP,Certification
+SAFE Agilist,Certification
+Scrum.org PSM,Certification
+Scrum.org PSPO,Certification
+ICAgile ICP,Certification
+LeSS Practitioner,Certification
+COBIT 5,Certification
+PRINCE2 Practitioner,Certification
+CAPM,Certification
+PMI-RMP,Certification
+PMI-PBA,Certification
+PMI-SP,Certification
+Six Sigma Black Belt,Certification
+Six Sigma Green Belt,Certification
+Lean Six Sigma,Certification
+ISO 27001 Lead Auditor,Certification
+OSCP,Certification
+OSCE,Certification
+GPEN,Certification
+GWAPT,Certification
+eJPT,Certification
+eCPPT,Certification
+CCNA,Certification
+CCNP,Certification
+CCIE,Certification
+JNCIA,Certification
+VMware VCP,Certification
+Nutanix NCP,Certification
+HashiCorp Vault Associate,Certification
+Linux Foundation LFCA,Certification
+Linux Foundation LFCS,Certification
+Docker Certified Associate,Certification
+Istio Certified Associate,Certification
+Prometheus Certified Associate,Certification
+OpenTelemetry Certified Associate,Certification
+GitHub Actions Certification,Certification
+GitLab Certified Associate,Certification
+Datadog Fundamentals,Certification
+Elastic Certified Engineer,Certification
+Confluent Kafka Developer,Certification
+Cloudera CCP,Certification
+dbt Analytics Engineer,Certification
+Airbyte Certified,Certification
+Fivetran Certification,Certification
+Tableau Desktop Specialist,Certification
+Power BI Data Analyst,Certification
+Looker Developer,Certification
+Splunk Core Certified,Certification
+ServiceNow CSA,Certification
+SAP Certified Associate,Certification
+Workday HCM,Certification
+SHRM-CP,Certification
+PHR,Certification
+SPHR,Certification
+CFA Level 1,Certification
+CFA Level 2,Certification
+CFA Level 3,Certification
+FRM,Certification
+CPA,Certification
+CMA,Certification
+ACCA,Certification
+CA,Certification
+Communication,Soft Skill
+Leadership,Soft Skill
+Problem Solving,Soft Skill
+Critical Thinking,Soft Skill
+Team Collaboration,Soft Skill
+Time Management,Soft Skill
+Adaptability,Soft Skill
+Mentoring,Soft Skill
+Conflict Resolution,Soft Skill
+Negotiation,Soft Skill
+Presentation Skills,Soft Skill
+Emotional Intelligence,Soft Skill
+Active Listening,Soft Skill
+Decision Making,Soft Skill
+Strategic Thinking,Soft Skill
+Creativity,Soft Skill
+Innovation,Soft Skill
+Resilience,Soft Skill
+Self-Motivation,Soft Skill
+Accountability,Soft Skill
+Attention to Detail,Soft Skill
+Customer Focus,Soft Skill
+Cross-Cultural Communication,Soft Skill
+Facilitation,Soft Skill
+Coaching,Soft Skill
+Delegation,Soft Skill
+Feedback Delivery,Soft Skill
+Empathy,Soft Skill
+Influencing Skills,Soft Skill
+Executive Presence,Soft Skill
+Written Communication,Soft Skill
+Technical Writing,Soft Skill
+Public Speaking,Soft Skill
+Workshop Facilitation,Soft Skill
+Solidity,Blockchain
+Ethereum,Blockchain
+Smart Contracts,Blockchain
+Web3.js,Blockchain
+Ethers.js,Blockchain
+Hardhat,Blockchain
+Truffle,Blockchain
+IPFS,Blockchain
+DeFi,Blockchain
+NFT Development,Blockchain
+Hyperledger,Blockchain
+Polygon,Blockchain
+Chainlink,Blockchain
+Foundry,Blockchain
+Vyper,Blockchain
+Rust (Solana),Blockchain
+Anchor Framework,Blockchain
+Move Language,Blockchain
+Sui,Blockchain
+Aptos,Blockchain
+Avalanche,Blockchain
+BNB Chain,Blockchain
+Cosmos SDK,Blockchain
+Substrate,Blockchain
+Polkadot,Blockchain
+Near Protocol,Blockchain
+Algorand,Blockchain
+Cardano,Blockchain
+Solana,Blockchain
+Starknet,Blockchain
+zkSync,Blockchain
+Optimism,Blockchain
+Arbitrum,Blockchain
+The Graph,Blockchain
+Moralis,Blockchain
+Alchemy,Blockchain
+Infura,Blockchain
+OpenZeppelin,Blockchain
+DApp Development,Blockchain
+Tokenomics,Blockchain
+DAO Governance,Blockchain
+Layer 2 Solutions,Blockchain
+Financial Modeling,Finance
+Quantitative Analysis,Finance
+Risk Analysis,Finance
+Algorithmic Trading,Finance
+Payment Systems,Finance
+Banking APIs,Finance
+Stripe,Finance
+PayPal SDK,Finance
+Open Banking,Finance
+PSD2,Finance
+ISO 20022,Finance
+FIX Protocol,Finance
+FPML,Finance
+Plaid,Finance
+Dwolla,Finance
+Square,Finance
+Adyen,Finance
+Checkout.com,Finance
+Braintree,Finance
+ACH Processing,Finance
+SEPA,Finance
+Digital Wallets,Finance
+CBDC,Finance
+Robo-Advisory,Finance
+InsurTech,Finance
+RegTech,Finance
+KYC/AML,Finance
+Credit Scoring,Finance
+Fraud Detection,Finance
+High-Frequency Trading,Finance
+Market Making,Finance
+Portfolio Optimization,Finance
+Derivatives Pricing,Finance
+Bloomberg Terminal,Finance
+Reuters Eikon,Finance
+UI Design,Design
+UX Design,Design
+Figma,Design
+Sketch,Design
+Adobe XD,Design
+InVision,Design
+Wireframing,Design
+Prototyping,Design
+User Research,Design
+Accessibility (a11y),Design
+Design Systems,Design
+Motion Design,Design
+Adobe Photoshop,Design
+Adobe Illustrator,Design
+Adobe After Effects,Design
+Adobe Premiere,Design
+Framer,Design
+Webflow,Design
+Spline,Design
+Rive,Design
+Lottie,Design
+Principle,Design
+Origami Studio,Design
+ProtoPie,Design
+Axure RP,Design
+Balsamiq,Design
+Zeplin,Design
+Abstract,Design
+Canva,Design
+Penpot,Design
+UsabilityHub,Design
+Maze,Design
+Optimal Workshop,Design
+UserTesting,Design
+Hotjar,Design
+FullStory,Design
+Information Architecture,Design
+Interaction Design,Design
+Service Design,Design
+Brand Identity,Design
+Typography,Design
+Color Theory,Design
+Grid Systems,Design
+Design Tokens,Design
+Component Libraries,Design
+Storybook Design,Design
+Inclusive Design,Design
+3D Design,Design
+Blender,Design
+Networking,Networking
+TCP/IP,Networking
+DNS,Networking
+Load Balancing,Networking
+CDN,Networking
+VPN,Networking
+Firewall Management,Networking
+SD-WAN,Networking
+BGP,Networking
+OSPF,Networking
+Cisco,Networking
+Juniper,Networking
+HTTP/2,Networking
+HTTP/3,Networking
+QUIC,Networking
+IPv6,Networking
+MPLS,Networking
+VLAN,Networking
+Subnetting,Networking
+NAT,Networking
+Proxy Servers,Networking
+Reverse Proxy,Networking
+Nginx,Networking
+HAProxy,Networking
+Traefik,Networking
+Cloudflare,Networking
+Akamai,Networking
+Fastly,Networking
+AWS CloudFront,Networking
+Azure Front Door,Networking
+Network Monitoring,Networking
+Wireshark,Networking
+tcpdump,Networking
+nmap,Networking
+Network Automation,Networking
+Netconf/YANG,Networking
+OpenFlow,Networking
+SDN,Networking
+NFV,Networking
+5G Networks,Networking
+Wi-Fi 6,Networking
+LoRaWAN,Networking
+Zigbee,Networking
+Z-Wave,Networking
+SAP,ERP/CRM
+SAP S/4HANA,ERP/CRM
+SAP ABAP,ERP/CRM
+SAP Basis,ERP/CRM
+SAP BW/BI,ERP/CRM
+SAP Fiori,ERP/CRM
+Oracle ERP,ERP/CRM
+Oracle Fusion,ERP/CRM
+Microsoft Dynamics 365,ERP/CRM
+Microsoft Dynamics AX,ERP/CRM
+Salesforce,ERP/CRM
+Salesforce CPQ,ERP/CRM
+Salesforce Marketing Cloud,ERP/CRM
+HubSpot,ERP/CRM
+Workday,ERP/CRM
+Workday Financials,ERP/CRM
+ServiceNow,ERP/CRM
+ServiceNow ITSM,ERP/CRM
+ServiceNow HR,ERP/CRM
+Zoho,ERP/CRM
+Zoho CRM,ERP/CRM
+NetSuite,ERP/CRM
+Odoo,ERP/CRM
+Epicor,ERP/CRM
+Infor,ERP/CRM
+IFS,ERP/CRM
+Sage,ERP/CRM
+QuickBooks,ERP/CRM
+Xero,ERP/CRM
+FreshBooks,ERP/CRM
+Wave,ERP/CRM
+Freshworks,ERP/CRM
+Pipedrive,ERP/CRM
+Monday.com CRM,ERP/CRM
+Zendesk,ERP/CRM
+Intercom,ERP/CRM
+Freshdesk,ERP/CRM
+Embedded Systems,Embedded/IoT
+RTOS,Embedded/IoT
+Arduino,Embedded/IoT
+Raspberry Pi,Embedded/IoT
+MQTT,Embedded/IoT
+IoT Protocols,Embedded/IoT
+Edge Computing,Embedded/IoT
+FPGA,Embedded/IoT
+ARM Architecture,Embedded/IoT
+ESP32,Embedded/IoT
+STM32,Embedded/IoT
+FreeRTOS,Embedded/IoT
+Zephyr RTOS,Embedded/IoT
+VxWorks,Embedded/IoT
+QNX,Embedded/IoT
+Yocto Project,Embedded/IoT
+Buildroot,Embedded/IoT
+OpenWrt,Embedded/IoT
+Modbus,Embedded/IoT
+CAN Bus,Embedded/IoT
+OPC UA,Embedded/IoT
+BLE,Embedded/IoT
+AWS IoT,Embedded/IoT
+Azure IoT Hub,Embedded/IoT
+Google Cloud IoT,Embedded/IoT
+ThingsBoard,Embedded/IoT
+Node-RED,Embedded/IoT
+Home Assistant,Embedded/IoT
+Matter Protocol,Embedded/IoT
+Thread,Embedded/IoT
+Digital Twins,Embedded/IoT
+Predictive Maintenance,Embedded/IoT
+Industrial IoT,Embedded/IoT
+Smart Grid,Embedded/IoT
+Unity,Game Development
+Unreal Engine,Game Development
+Godot,Game Development
+OpenGL,Game Development
+Vulkan,Game Development
+DirectX,Game Development
+Phaser.js,Game Development
+Pygame,Game Development
+MonoGame,Game Development
+LÖVE2D,Game Development
+Defold,Game Development
+GDScript,Game Development
+HLSL,Game Development
+GLSL,Game Development
+Metal Shading,Game Development
+Game Physics,Game Development
+Pathfinding Algorithms,Game Development
+Procedural Generation,Game Development
+Game AI,Game Development
+Multiplayer Networking,Game Development
+Unity Netcode,Game Development
+Photon Engine,Game Development
+Mirror Networking,Game Development
+Steamworks SDK,Game Development
+Game Analytics,Game Development
+Level Design,Game Development
+Narrative Design,Game Development
+VR Development,Game Development
+AR Development,Game Development
+XR Development,Game Development
+Google Analytics,MarTech
+Google Tag Manager,MarTech
+Segment,MarTech
+Amplitude Analytics,MarTech
+Mixpanel,MarTech
+Heap,MarTech
+Optimizely,MarTech
+LaunchDarkly,MarTech
+Braze,MarTech
+Klaviyo,MarTech
+Mailchimp,MarTech
+SendGrid,MarTech
+Twilio,MarTech
+Customer.io,MarTech
+Iterable,MarTech
+Marketo,MarTech
+Pardot,MarTech
+Eloqua,MarTech
+SEMrush,MarTech
+Ahrefs,MarTech
+Moz,MarTech
+Screaming Frog,MarTech
+Google Ads,MarTech
+Meta Ads,MarTech
+Programmatic Advertising,MarTech
+Attribution Modeling,MarTech
+Conversion Rate Optimization,MarTech
+Growth Hacking,MarTech
+Content Management Systems,MarTech
+WordPress,MarTech
+Contentful,MarTech
+Sanity,MarTech
+Prismic,MarTech
+Storyblok,MarTech
+Webflow CMS,MarTech
+Shopify,MarTech
+Magento,MarTech
+WooCommerce,MarTech
+BigCommerce,MarTech
+Commercetools,MarTech
+SAP SuccessFactors,HR Tech
+Oracle HCM,HR Tech
+BambooHR,HR Tech
+Greenhouse,HR Tech
+Lever,HR Tech
+Workable,HR Tech
+iCIMS,HR Tech
+Taleo,HR Tech
+SmartRecruiters,HR Tech
+ADP Workforce Now,HR Tech
+Ceridian Dayforce,HR Tech
+UKG Pro,HR Tech
+Paychex,HR Tech
+15Five,HR Tech
+Lattice,HR Tech
+Culture Amp,HR Tech
+Leapsome,HR Tech
+Cornerstone OnDemand,HR Tech
+LinkedIn Talent,HR Tech
+Talent Management,HR Tech
+Workforce Planning,HR Tech
+HR Analytics,HR Tech
+People Analytics,HR Tech
+Compensation Benchmarking,HR Tech
+HRIS,HR Tech
+LMS,HR Tech
+Docebo,HR Tech
+Litmos,HR Tech
+TalentLMS,HR Tech
+Quantum Computing,Emerging Tech
+Qiskit,Emerging Tech
+Cirq,Emerging Tech
+Q#,Emerging Tech
+Quantum Machine Learning,Emerging Tech
+Quantum Cryptography,Emerging Tech
+Extended Reality (XR),Emerging Tech
+Virtual Reality,Emerging Tech
+Augmented Reality,Emerging Tech
+Mixed Reality,Emerging Tech
+Metaverse Development,Emerging Tech
+Digital Twin,Emerging Tech
+Spatial Computing,Emerging Tech
+Apple Vision Pro Dev,Emerging Tech
+Generative AI,Emerging Tech
+Large Language Models,Emerging Tech
+Multimodal AI,Emerging Tech
+AI Safety,Emerging Tech
+Neuromorphic Computing,Emerging Tech
+Edge AI,Emerging Tech
+TinyML,Emerging Tech
+AI Hardware,Emerging Tech
+Photonic Computing,Emerging Tech
+6G Research,Emerging Tech
+Synthetic Biology,Emerging Tech
+Nanotechnology,Emerging Tech
+Robotics,Emerging Tech
+ROS,Emerging Tech
+Autonomous Systems,Emerging Tech
+Drone Development,Emerging Tech
+Self-Driving Tech,Emerging Tech
+SLAM,Emerging Tech
+Computer-Aided Manufacturing,Emerging Tech
+3D Printing Software,Emerging Tech
+English (Business),Language
+Mandarin Chinese,Language
+Spanish,Language
+French,Language
+German,Language
+Japanese,Language
+Korean,Language
+Portuguese,Language
+Arabic,Language
+Hindi,Language
+Russian,Language
+Italian,Language
+Dutch,Language
+Swedish,Language
+Norwegian,Language
+Danish,Language
+Finnish,Language
+Polish,Language
+Turkish,Language
+Indonesian,Language
+Malay,Language
+Thai,Language
+Vietnamese,Language
+Tamil,Language
+Telugu,Language
+Bengali,Language
+Swahili,Language
+Hebrew,Language
+Greek,Language
+Czech,Language
+Romanian,Language
+Hungarian,Language
+Ukrainian,Language
+Tagalog,Language
+Healthcare IT,Domain
+Electronic Health Records,Domain
+HL7 FHIR,Domain
+DICOM,Domain
+Clinical Data Management,Domain
+Pharmacovigilance,Domain
+Bioinformatics,Domain
+Genomics,Domain
+E-commerce,Domain
+Supply Chain Management,Domain
+Logistics Optimization,Domain
+Demand Forecasting,Domain
+Manufacturing Execution Systems,Domain
+SCADA,Domain
+Energy Management,Domain
+Smart Building,Domain
+Real Estate Tech,Domain
+Legal Tech,Domain
+EdTech,Domain
+GovTech,Domain
+AgriTech,Domain
+ClimaTech,Domain
+Media & Entertainment Tech,Domain
+Sports Analytics,Domain
+Geospatial Analysis,Domain
+GIS,Domain
+Remote Sensing,Domain
+CAD/CAM,Domain
+Structural Engineering Software,Domain
+BIM,Domain
+Telecommunications,Domain
+Broadcast Technology,Domain
+Streaming Technology,Domain
+Ad Tech,Domain

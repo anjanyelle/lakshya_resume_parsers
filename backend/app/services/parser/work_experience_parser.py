@@ -623,12 +623,30 @@ class WorkExperienceParser:
 
         if len(non_date_cols) >= 2:
             first, second = non_date_cols[0], non_date_cols[1]
-            if self._looks_like_company(first) and self._looks_like_title(second):
+            
+            # Clean up the first column (remove ## headers)
+            first_clean = re.sub(r'^#+\s*', '', first).strip()
+            
+            # Check for Title | Company | Date format specifically
+            title_keywords = ['manager', 'director', 'officer', 'engineer', 'analyst', 'developer', 'specialist', 'consultant', 'coordinator', 'administrator', 'assistant', 'lead', 'head', 'chief', 'vp', 'vice president']
+            
+            first_lower = first_clean.lower()
+            second_lower = second.lower()
+            
+            # If first column looks like a title, treat it as title
+            if any(keyword in first_lower for keyword in title_keywords):
+                title, company = first_clean, second
+            # If second column looks like a title, treat it as title
+            elif any(keyword in second_lower for keyword in title_keywords):
+                title, company = second, first_clean
+            # Otherwise use the original logic
+            elif self._looks_like_company(first) and self._looks_like_title(second):
                 company, title = first, second
             elif self._looks_like_company(second) and self._looks_like_title(first):
                 company, title = second, first
             else:
-                company, title = first, second
+                # Default: first is title, second is company
+                title, company = first_clean, second
         elif len(non_date_cols) == 1:
             c = non_date_cols[0]
             if self._looks_like_company(c):
@@ -745,7 +763,22 @@ class WorkExperienceParser:
         # Enhanced client splitting for multiple formats
         logger.info(f"Extracting individual jobs from text length: {len(text)}")
         
-        # PATTERN 1: Client: format (highest priority)
+        # PATTERN 1: Title | Company | Date format (highest priority)
+        # Format: "## Chief Revenue Officer | Omni Stream Global | 2021 - Present"
+        title_company_date_pattern = re.compile(r'^#+\s*[^|]+\|\s*[^|]+\|\s*\d{4}\s*[-–—]\s*', re.MULTILINE)
+        if title_company_date_pattern.search(text):
+            logger.info("Found Title | Company | Date format, splitting")
+            # Split by ## headers that contain the pattern
+            parts = re.split(r'\n(?=#+\s*[^|]+\|\s*[^|]+\|\s*\d{4})', text)
+            job_blocks = []
+            for p in parts:
+                p_strip = p.strip()
+                if p_strip:
+                    job_blocks.append(p_strip)
+            if len(job_blocks) >= 1:
+                return job_blocks
+        
+        # PATTERN 2: Client: format
         client_pattern = re.compile(r'\n\s*Client\s*[:\-\-–]', re.IGNORECASE)
         client_matches = client_pattern.findall(text)
         
@@ -760,7 +793,7 @@ class WorkExperienceParser:
             if len(client_blocks) >= 1:
                 return client_blocks
         
-        # PATTERN 2: Company: Date Range (Location: City, State) format
+        # PATTERN 3: Company: Date Range (Location: City, State) format
         # Format: "Humana: August 2023 - Current (Location: Louisville, KY)"
         company_date_pattern = re.compile(r'^[^:]+:\s*[A-Z][a-z]+\s+\d{4}\s*-\s*[^-\n]+', re.MULTILINE)
         if company_date_pattern.search(text):
@@ -1491,8 +1524,54 @@ class WorkExperienceParser:
         header_line = pre_lines[0] if pre_lines else lines[0]
         date_line = header_window[date_idx] if date_idx is not None else None
 
+        # NEW: Check for Title | Company | Date format
+        title_company_date_parsed = False
+        if "|" in header_line and any(char.isdigit() for char in header_line):
+            # Format: "## Chief Revenue Officer | Omni Stream Global | 2021 - Present"
+            parts = header_line.split("|")
+            if len(parts) >= 3:
+                # Extract title (first part, remove ##)
+                title_part = parts[0].strip()
+                if title_part.startswith("#"):
+                    title_part = re.sub(r'^#+\s*', '', title_part)
+                title_candidate = title_part.strip()
+                
+                # Extract company (middle part)
+                company_candidate = parts[1].strip()
+                
+                # Extract date (last part)
+                date_part = parts[2].strip()
+                # Parse dates from the date part
+                sd, ed, cur = self._parse_dates(date_part)
+                if sd or ed or cur:
+                    start_date, end_date, is_current = sd, ed, cur
+                    date_idx = 0  # Mark that we found dates in header
+                
+                # Determine which is title and which is company based on content
+                # Titles usually contain words like "Manager", "Director", "Officer", "Engineer", etc.
+                title_keywords = ['manager', 'director', 'officer', 'engineer', 'analyst', 'developer', 'specialist', 'consultant', 'coordinator', 'administrator', 'assistant', 'lead', 'head', 'chief', 'vp', 'vice president']
+                
+                title_candidate_lower = title_candidate.lower()
+                company_candidate_lower = company_candidate.lower()
+                
+                # Check if first part looks like a title
+                if any(keyword in title_candidate_lower for keyword in title_keywords):
+                    title = title_candidate
+                    company = company_candidate
+                # Check if second part looks like a title
+                elif any(keyword in company_candidate_lower for keyword in title_keywords):
+                    title = company_candidate
+                    company = title_candidate
+                else:
+                    # Default assumption: first is title, second is company
+                    title = title_candidate
+                    company = company_candidate
+                
+                title_company_date_parsed = True
+                logger.info(f"Parsed Title|Company|Date format: title='{title}', company='{company}', dates='{date_part}'")
+
         # Prefer extracting org/title from the line that contains the dates.
-        if date_line:
+        if date_line and not title_company_date_parsed:
             title_from_role = None
             role_match = LABELED_TITLE_RE.search(date_line)
             if role_match:

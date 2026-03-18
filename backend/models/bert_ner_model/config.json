@@ -1,0 +1,17 @@
+{
+  "model_name": "dbmdz/bert-large-cased-finetuned-conll03-english",
+  "task": "token-classification",
+  "labels": [
+    "O",
+    "B-PER",
+    "I-PER",
+    "B-ORG",
+    "I-ORG",
+    "B-LOC",
+    "I-LOC",
+    "B-MISC",
+    "I-MISC"
+  ],
+  "created_at": "2024-03-16",
+  "status": "downloaded_from_huggingface"
+}

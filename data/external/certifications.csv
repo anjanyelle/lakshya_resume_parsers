@@ -1,0 +1,929 @@
+certification_name,normalized_name,issuer,category
+AWS Certified Cloud Practitioner,AWS Cloud Practitioner,Amazon Web Services (AWS),cloud
+AWS Cloud Practitioner,AWS Cloud Practitioner,Amazon Web Services (AWS),cloud
+CLF-C02,AWS Cloud Practitioner,Amazon Web Services (AWS),cloud
+AWS Certified Solutions Architect – Associate,AWS Solutions Architect Associate,Amazon Web Services (AWS),cloud
+AWS Certified Solutions Architect Associate,AWS Solutions Architect Associate,Amazon Web Services (AWS),cloud
+AWS SAA-C03,AWS Solutions Architect Associate,Amazon Web Services (AWS),cloud
+SAA-C03,AWS Solutions Architect Associate,Amazon Web Services (AWS),cloud
+AWS Certified Solutions Architect – Professional,AWS Solutions Architect Professional,Amazon Web Services (AWS),cloud
+AWS Certified Solutions Architect Professional,AWS Solutions Architect Professional,Amazon Web Services (AWS),cloud
+AWS SAP-C02,AWS Solutions Architect Professional,Amazon Web Services (AWS),cloud
+AWS Certified Developer – Associate,AWS Certified Developer Associate,Amazon Web Services (AWS),cloud
+AWS Certified Developer Associate,AWS Certified Developer Associate,Amazon Web Services (AWS),cloud
+AWS Developer Associate,AWS Certified Developer Associate,Amazon Web Services (AWS),cloud
+DVA-C02,AWS Certified Developer Associate,Amazon Web Services (AWS),cloud
+AWS Certified SysOps Administrator – Associate,AWS SysOps Administrator Associate,Amazon Web Services (AWS),cloud
+AWS SysOps Administrator Associate,AWS SysOps Administrator Associate,Amazon Web Services (AWS),cloud
+SOA-C02,AWS SysOps Administrator Associate,Amazon Web Services (AWS),cloud
+AWS Certified DevOps Engineer – Professional,AWS DevOps Engineer Professional,Amazon Web Services (AWS),cloud
+AWS DevOps Engineer Professional,AWS DevOps Engineer Professional,Amazon Web Services (AWS),cloud
+DOP-C02,AWS DevOps Engineer Professional,Amazon Web Services (AWS),cloud
+AWS Certified Data Engineer – Associate,AWS Data Engineer Associate,Amazon Web Services (AWS),cloud
+AWS Data Engineer Associate,AWS Data Engineer Associate,Amazon Web Services (AWS),cloud
+DEA-C01,AWS Data Engineer Associate,Amazon Web Services (AWS),cloud
+AWS Certified Machine Learning – Specialty,AWS Machine Learning Specialty,Amazon Web Services (AWS),cloud
+AWS Machine Learning Specialty,AWS Machine Learning Specialty,Amazon Web Services (AWS),cloud
+MLS-C01,AWS Machine Learning Specialty,Amazon Web Services (AWS),cloud
+AWS Certified Security – Specialty,AWS Security Specialty,Amazon Web Services (AWS),cloud
+AWS Security Specialty,AWS Security Specialty,Amazon Web Services (AWS),cloud
+SCS-C02,AWS Security Specialty,Amazon Web Services (AWS),cloud
+AWS Certified Database – Specialty,AWS Database Specialty,Amazon Web Services (AWS),cloud
+AWS Database Specialty,AWS Database Specialty,Amazon Web Services (AWS),cloud
+DBS-C01,AWS Database Specialty,Amazon Web Services (AWS),cloud
+AWS Certified Advanced Networking – Specialty,AWS Advanced Networking Specialty,Amazon Web Services (AWS),cloud
+AWS Advanced Networking Specialty,AWS Advanced Networking Specialty,Amazon Web Services (AWS),cloud
+ANS-C01,AWS Advanced Networking Specialty,Amazon Web Services (AWS),cloud
+AWS Certified Data Analytics – Specialty,AWS Data Analytics Specialty,Amazon Web Services (AWS),cloud
+AWS Data Analytics Specialty,AWS Data Analytics Specialty,Amazon Web Services (AWS),cloud
+DAS-C01,AWS Data Analytics Specialty,Amazon Web Services (AWS),cloud
+AWS Certified SAP on AWS – Specialty,AWS SAP Specialty,Amazon Web Services (AWS),cloud
+AWS SAP Specialty,AWS SAP Specialty,Amazon Web Services (AWS),cloud
+PAS-C01,AWS SAP Specialty,Amazon Web Services (AWS),cloud
+AWS Certified AI Practitioner,AWS AI Practitioner,Amazon Web Services (AWS),cloud
+AIF-C01,AWS AI Practitioner,Amazon Web Services (AWS),cloud
+Microsoft Certified: Azure Fundamentals,Azure Fundamentals,Microsoft,cloud
+Azure Fundamentals,Azure Fundamentals,Microsoft,cloud
+AZ-900,Azure Fundamentals,Microsoft,cloud
+Microsoft Certified: Azure Administrator Associate,Azure Administrator Associate,Microsoft,cloud
+Azure Administrator Associate,Azure Administrator Associate,Microsoft,cloud
+AZ-104,Azure Administrator Associate,Microsoft,cloud
+Microsoft Certified: Azure Developer Associate,Azure Developer Associate,Microsoft,cloud
+Azure Developer Associate,Azure Developer Associate,Microsoft,cloud
+AZ-204,Azure Developer Associate,Microsoft,cloud
+Microsoft Certified: Azure Solutions Architect Expert,Azure Solutions Architect Expert,Microsoft,cloud
+Azure Solutions Architect Expert,Azure Solutions Architect Expert,Microsoft,cloud
+AZ-305,Azure Solutions Architect Expert,Microsoft,cloud
+Microsoft Certified: Azure DevOps Engineer Expert,Azure DevOps Engineer Expert,Microsoft,cloud
+Azure DevOps Engineer Expert,Azure DevOps Engineer Expert,Microsoft,cloud
+AZ-400,Azure DevOps Engineer Expert,Microsoft,cloud
+Microsoft Certified: Azure Security Engineer Associate,Azure Security Engineer Associate,Microsoft,cloud
+Azure Security Engineer Associate,Azure Security Engineer Associate,Microsoft,cloud
+AZ-500,Azure Security Engineer Associate,Microsoft,cloud
+Microsoft Certified: Azure Network Engineer Associate,Azure Network Engineer Associate,Microsoft,cloud
+AZ-700,Azure Network Engineer Associate,Microsoft,cloud
+Microsoft Certified: Azure Data Engineer Associate,Azure Data Engineer Associate,Microsoft,cloud
+Azure Data Engineer Associate,Azure Data Engineer Associate,Microsoft,cloud
+DP-203,Azure Data Engineer Associate,Microsoft,cloud
+Microsoft Certified: Azure Data Scientist Associate,Azure Data Scientist Associate,Microsoft,cloud
+Azure Data Scientist Associate,Azure Data Scientist Associate,Microsoft,cloud
+DP-100,Azure Data Scientist Associate,Microsoft,cloud
+Microsoft Certified: Azure AI Engineer Associate,Azure AI Engineer Associate,Microsoft,cloud
+Azure AI Engineer Associate,Azure AI Engineer Associate,Microsoft,cloud
+AI-102,Azure AI Engineer Associate,Microsoft,cloud
+Microsoft Certified: Azure AI Fundamentals,Azure AI Fundamentals,Microsoft,cloud
+AI-900,Azure AI Fundamentals,Microsoft,cloud
+Microsoft Certified: Azure Database Administrator Associate,Azure Database Administrator Associate,Microsoft,cloud
+DP-300,Azure Database Administrator Associate,Microsoft,cloud
+Microsoft Certified: Power Platform Fundamentals,Power Platform Fundamentals,Microsoft,cloud
+PL-900,Power Platform Fundamentals,Microsoft,cloud
+Microsoft Certified: Power Platform Developer Associate,Power Platform Developer Associate,Microsoft,cloud
+PL-400,Power Platform Developer Associate,Microsoft,cloud
+Microsoft Certified: Dynamics 365 Fundamentals,Dynamics 365 Fundamentals,Microsoft,cloud
+MB-910,Dynamics 365 Fundamentals CRM,Microsoft,cloud
+MB-920,Dynamics 365 Fundamentals ERP,Microsoft,cloud
+Microsoft Certified: Azure Stack Hub Operator Associate,Azure Stack Hub Operator,Microsoft,cloud
+AZ-600,Azure Stack Hub Operator,Microsoft,cloud
+Microsoft Certified: Azure Virtual Desktop Specialty,Azure Virtual Desktop Specialty,Microsoft,cloud
+AZ-140,Azure Virtual Desktop Specialty,Microsoft,cloud
+Microsoft Certified: Azure Cosmos DB Developer Specialty,Azure Cosmos DB Developer,Microsoft,cloud
+DP-420,Azure Cosmos DB Developer,Microsoft,cloud
+Google Cloud Digital Leader,Google Cloud Digital Leader,Google Cloud,cloud
+Cloud Digital Leader,Google Cloud Digital Leader,Google Cloud,cloud
+CDL,Google Cloud Digital Leader,Google Cloud,cloud
+Google Cloud Associate Cloud Engineer,Google Cloud Associate Cloud Engineer,Google Cloud,cloud
+Associate Cloud Engineer,Google Cloud Associate Cloud Engineer,Google Cloud,cloud
+ACE,Google Cloud Associate Cloud Engineer,Google Cloud,cloud
+Google Cloud Professional Cloud Architect,Google Cloud Professional Architect,Google Cloud,cloud
+Professional Cloud Architect,Google Cloud Professional Architect,Google Cloud,cloud
+PCA,Google Cloud Professional Architect,Google Cloud,cloud
+Google Cloud Professional Data Engineer,Google Cloud Professional Data Engineer,Google Cloud,cloud
+Professional Data Engineer,Google Cloud Professional Data Engineer,Google Cloud,cloud
+PDE,Google Cloud Professional Data Engineer,Google Cloud,cloud
+Google Cloud Professional Cloud Developer,Google Cloud Professional Developer,Google Cloud,cloud
+Professional Cloud Developer,Google Cloud Professional Developer,Google Cloud,cloud
+Google Cloud Professional DevOps Engineer,Google Cloud Professional DevOps Engineer,Google Cloud,cloud
+Professional Cloud DevOps Engineer,Google Cloud Professional DevOps Engineer,Google Cloud,cloud
+Google Cloud Professional Cloud Security Engineer,Google Cloud Professional Security Engineer,Google Cloud,cloud
+Professional Cloud Security Engineer,Google Cloud Professional Security Engineer,Google Cloud,cloud
+Google Cloud Professional Cloud Network Engineer,Google Cloud Professional Network Engineer,Google Cloud,cloud
+Professional Cloud Network Engineer,Google Cloud Professional Network Engineer,Google Cloud,cloud
+Google Cloud Professional Machine Learning Engineer,Google Cloud Professional ML Engineer,Google Cloud,cloud
+Professional Machine Learning Engineer,Google Cloud Professional ML Engineer,Google Cloud,cloud
+PMLE,Google Cloud Professional ML Engineer,Google Cloud,cloud
+Google Cloud Professional Workspace Administrator,Google Cloud Workspace Administrator,Google Cloud,cloud
+Professional Workspace Administrator,Google Cloud Workspace Administrator,Google Cloud,cloud
+Google Cloud Professional Cloud Database Engineer,Google Cloud Professional Database Engineer,Google Cloud,cloud
+Professional Cloud Database Engineer,Google Cloud Professional Database Engineer,Google Cloud,cloud
+Oracle Cloud Infrastructure Foundations Associate,OCI Foundations Associate,Oracle Corporation,cloud
+OCI Foundations,OCI Foundations Associate,Oracle Corporation,cloud
+1Z0-1085,OCI Foundations Associate,Oracle Corporation,cloud
+Oracle Cloud Infrastructure Architect Associate,OCI Architect Associate,Oracle Corporation,cloud
+OCI Architect Associate,OCI Architect Associate,Oracle Corporation,cloud
+Oracle Cloud Infrastructure Developer Associate,OCI Developer Associate,Oracle Corporation,cloud
+OCI Developer Associate,OCI Developer Associate,Oracle Corporation,cloud
+Oracle Cloud Infrastructure Data Science Professional,OCI Data Science Professional,Oracle Corporation,cloud
+IBM Certified Cloud Practitioner,IBM Cloud Practitioner,IBM,cloud
+IBM Certified Solution Architect – Cloud Pak for Integration,IBM Cloud Pak for Integration Architect,IBM,cloud
+Alibaba Cloud ACA Cloud Computing,ACA Cloud Computing,Alibaba Cloud,cloud
+Alibaba Cloud ACP Cloud Computing,ACP Cloud Computing,Alibaba Cloud,cloud
+Alibaba Cloud ACE Cloud Computing,ACE Cloud Computing,Alibaba Cloud,cloud
+Salesforce Certified Platform Developer I,Salesforce Platform Developer I,Salesforce,cloud
+Salesforce Platform Developer I,Salesforce Platform Developer I,Salesforce,cloud
+Salesforce Certified Platform Developer II,Salesforce Platform Developer II,Salesforce,cloud
+Salesforce Platform Developer II,Salesforce Platform Developer II,Salesforce,cloud
+Certified Kubernetes Administrator,CKA,Cloud Native Computing Foundation (CNCF),devops
+CKA,CKA,Cloud Native Computing Foundation (CNCF),devops
+Certified Kubernetes Application Developer,CKAD,Cloud Native Computing Foundation (CNCF),devops
+CKAD,CKAD,Cloud Native Computing Foundation (CNCF),devops
+Certified Kubernetes Security Specialist,CKS,Cloud Native Computing Foundation (CNCF),devops
+CKS,CKS,Cloud Native Computing Foundation (CNCF),devops
+Kubernetes and Cloud Native Associate,KCNA,Cloud Native Computing Foundation (CNCF),devops
+KCNA,KCNA,Cloud Native Computing Foundation (CNCF),devops
+Kubernetes and Cloud Native Security Associate,KCSA,Cloud Native Computing Foundation (CNCF),devops
+KCSA,KCSA,Cloud Native Computing Foundation (CNCF),devops
+Prometheus Certified Associate,PCA,Cloud Native Computing Foundation (CNCF),devops
+OpenTelemetry Certified Associate,OTCA,Cloud Native Computing Foundation (CNCF),devops
+Istio Certified Associate,ICA,Cloud Native Computing Foundation (CNCF),devops
+Cilium Certified Associate,CCA,Cloud Native Computing Foundation (CNCF),devops
+Argo Project Certified Associate,APCA,Cloud Native Computing Foundation (CNCF),devops
+HashiCorp Certified: Terraform Associate,Terraform Associate,HashiCorp,devops
+Terraform Associate Certification,Terraform Associate,HashiCorp,devops
+Terraform Associate (003),Terraform Associate,HashiCorp,devops
+HashiCorp Certified: Vault Associate,Vault Associate,HashiCorp,devops
+Vault Associate,Vault Associate,HashiCorp,devops
+HashiCorp Certified: Vault Operations Professional,Vault Operations Professional,HashiCorp,devops
+HashiCorp Certified: Consul Associate,Consul Associate,HashiCorp,devops
+Consul Associate,Consul Associate,HashiCorp,devops
+HashiCorp Certified: Packer Associate,Packer Associate,HashiCorp,devops
+Docker Certified Associate,Docker Certified Associate,Docker Inc.,devops
+DCA,Docker Certified Associate,Docker Inc.,devops
+Docker Certified Associate (DCA),Docker Certified Associate,Docker Inc.,devops
+Red Hat Certified Engineer,RHCE,Red Hat,devops
+RHCE,RHCE,Red Hat,devops
+Red Hat Certified System Administrator,RHCSA,Red Hat,devops
+RHCSA,RHCSA,Red Hat,devops
+Red Hat Certified Specialist in Ansible Automation,Red Hat Ansible Specialist,Red Hat,devops
+Red Hat Certified Specialist in OpenShift Administration,Red Hat OpenShift Specialist,Red Hat,devops
+Red Hat Certified Architect,RHCA,Red Hat,devops
+RHCA,RHCA,Red Hat,devops
+Red Hat Certified Specialist in Containers,Red Hat Containers Specialist,Red Hat,devops
+GitLab Certified Associate,GitLab Certified Associate,GitLab,devops
+GitLab Certified Professional,GitLab Certified Professional,GitLab,devops
+GitHub Actions Certification,GitHub Actions Certification,GitHub,devops
+GitHub Foundations,GitHub Foundations,GitHub,devops
+GitHub Advanced Security,GitHub Advanced Security,GitHub,devops
+GitHub Administration,GitHub Administration,GitHub,devops
+Jenkins Certification,Jenkins Certified Engineer,CloudBees,devops
+CloudBees Certified Jenkins Engineer,Jenkins Certified Engineer,CloudBees,devops
+Puppet Practitioner,Puppet Practitioner,Puppet Labs,devops
+Puppet Professional,Puppet Professional,Puppet Labs,devops
+Chef Certification,Chef Certified,Chef Software,devops
+Spacelift Certified Engineer,Spacelift Certified Engineer,Spacelift,devops
+Certified OpenStack Administrator,Certified OpenStack Administrator,OpenStack Foundation,devops
+COA,Certified OpenStack Administrator,OpenStack Foundation,devops
+Linux Foundation Certified System Administrator,LFCS,Linux Foundation,devops
+LFCS,LFCS,Linux Foundation,devops
+Linux Foundation Certified Cloud Technician,LFCT,Linux Foundation,devops
+LFCT,LFCT,Linux Foundation,devops
+Certified GitOps Associate,CGOA,Linux Foundation,devops
+CGOA,CGOA,Linux Foundation,devops
+OpenStack Foundation Certified OpenStack Administrator,COA,OpenStack Foundation,devops
+Datadog Fundamentals,Datadog Fundamentals,Datadog,devops
+Datadog APM and Distributed Tracing,Datadog APM Certification,Datadog,devops
+Elastic Certified Engineer,Elastic Certified Engineer,Elastic,devops
+Elastic Certified Analyst,Elastic Certified Analyst,Elastic,devops
+Elastic Certified Observability Engineer,Elastic Certified Observability Engineer,Elastic,devops
+Splunk Core Certified Power User,Splunk Core Certified Power User,Splunk,devops
+Splunk Enterprise Certified Architect,Splunk Enterprise Certified Architect,Splunk,devops
+Splunk Certified Cybersecurity Defense Analyst,Splunk Cybersecurity Defense Analyst,Splunk,devops
+New Relic Certified Performance Pro,New Relic Performance Pro,New Relic,devops
+Grafana Certified Associate,Grafana Certified Associate,Grafana Labs,devops
+CISSP: Certified Information Systems Security Professional,CISSP,ISC2,security
+CISSP,CISSP,ISC2,security
+Certified Information Systems Security Professional,CISSP,ISC2,security
+CISSP-ISSAP,CISSP-ISSAP,ISC2,security
+CISSP-ISSEP,CISSP-ISSEP,ISC2,security
+CISSP-ISSMP,CISSP-ISSMP,ISC2,security
+SSCP: Systems Security Certified Practitioner,SSCP,ISC2,security
+SSCP,SSCP,ISC2,security
+CCSP: Certified Cloud Security Professional,CCSP,ISC2,security
+CCSP,CCSP,ISC2,security
+CC: Certified in Cybersecurity,CC (ISC2),ISC2,security
+CC Certified in Cybersecurity,CC (ISC2),ISC2,security
+CSSLP: Certified Secure Software Lifecycle Professional,CSSLP,ISC2,security
+CSSLP,CSSLP,ISC2,security
+CISM: Certified Information Security Manager,CISM,ISACA,security
+CISM,CISM,ISACA,security
+Certified Information Security Manager,CISM,ISACA,security
+CISA: Certified Information Systems Auditor,CISA,ISACA,security
+CISA,CISA,ISACA,security
+Certified Information Systems Auditor,CISA,ISACA,security
+CRISC: Certified in Risk and Information Systems Control,CRISC,ISACA,security
+CRISC,CRISC,ISACA,security
+CGEIT: Certified in the Governance of Enterprise IT,CGEIT,ISACA,security
+CGEIT,CGEIT,ISACA,security
+CDPSE: Certified Data Privacy Solutions Engineer,CDPSE,ISACA,security
+CDPSE,CDPSE,ISACA,security
+CEH: Certified Ethical Hacker,CEH,EC-Council,security
+CEH,CEH,EC-Council,security
+Certified Ethical Hacker,CEH,EC-Council,security
+CEH v12,CEH,EC-Council,security
+CPENT: Certified Penetration Testing Professional,CPENT,EC-Council,security
+CPENT,CPENT,EC-Council,security
+CHFI: Computer Hacking Forensic Investigator,CHFI,EC-Council,security
+CHFI,CHFI,EC-Council,security
+ECSA: EC-Council Certified Security Analyst,ECSA,EC-Council,security
+ECSA,ECSA,EC-Council,security
+CND: Certified Network Defender,CND,EC-Council,security
+CND,CND,EC-Council,security
+CSA: Certified SOC Analyst,CSA,EC-Council,security
+CTIA: Certified Threat Intelligence Analyst,CTIA,EC-Council,security
+CTIA,CTIA,EC-Council,security
+OSCP: Offensive Security Certified Professional,OSCP,Offensive Security,security
+OSCP,OSCP,Offensive Security,security
+Offensive Security Certified Professional,OSCP,Offensive Security,security
+OSEP: Offensive Security Experienced Penetration Tester,OSEP,Offensive Security,security
+OSEP,OSEP,Offensive Security,security
+OSED: Offensive Security Exploit Developer,OSED,Offensive Security,security
+OSED,OSED,Offensive Security,security
+OSWP: Offensive Security Wireless Professional,OSWP,Offensive Security,security
+OSWP,OSWP,Offensive Security,security
+OSWA: Offensive Security Web Assessor,OSWA,Offensive Security,security
+OSWA,OSWA,Offensive Security,security
+OSCE3,OSCE3,Offensive Security,security
+CompTIA Security+,CompTIA Security+,CompTIA,security
+Security+,CompTIA Security+,CompTIA,security
+SY0-701,CompTIA Security+,CompTIA,security
+CompTIA Network+,CompTIA Network+,CompTIA,security
+Network+,CompTIA Network+,CompTIA,security
+N10-009,CompTIA Network+,CompTIA,security
+CompTIA CySA+,CompTIA CySA+,CompTIA,security
+CySA+,CompTIA CySA+,CompTIA,security
+CS0-003,CompTIA CySA+,CompTIA,security
+CompTIA PenTest+,CompTIA PenTest+,CompTIA,security
+PenTest+,CompTIA PenTest+,CompTIA,security
+PT0-003,CompTIA PenTest+,CompTIA,security
+CompTIA CASP+,CompTIA CASP+,CompTIA,security
+CASP+,CompTIA CASP+,CompTIA,security
+CAS-004,CompTIA CASP+,CompTIA,security
+CompTIA Cloud+,CompTIA Cloud+,CompTIA,security
+Cloud+,CompTIA Cloud+,CompTIA,security
+CompTIA Linux+,CompTIA Linux+,CompTIA,security
+Linux+,CompTIA Linux+,CompTIA,security
+CompTIA A+,CompTIA A+,CompTIA,security
+A+,CompTIA A+,CompTIA,security
+CompTIA Data+,CompTIA Data+,CompTIA,security
+Data+,CompTIA Data+,CompTIA,security
+GPEN: GIAC Penetration Tester,GPEN,GIAC,security
+GPEN,GPEN,GIAC,security
+GWAPT: GIAC Web Application Penetration Tester,GWAPT,GIAC,security
+GWAPT,GWAPT,GIAC,security
+GCIH: GIAC Certified Incident Handler,GCIH,GIAC,security
+GCIH,GCIH,GIAC,security
+GCFE: GIAC Certified Forensic Examiner,GCFE,GIAC,security
+GCFE,GCFE,GIAC,security
+GCIA: GIAC Certified Intrusion Analyst,GCIA,GIAC,security
+GCIA,GCIA,GIAC,security
+GCFA: GIAC Certified Forensic Analyst,GCFA,GIAC,security
+GCFA,GCFA,GIAC,security
+GREM: GIAC Reverse Engineering Malware,GREM,GIAC,security
+GREM,GREM,GIAC,security
+GSEC: GIAC Security Essentials,GSEC,GIAC,security
+GSEC,GSEC,GIAC,security
+GSLC: GIAC Security Leadership,GSLC,GIAC,security
+GSLC,GSLC,GIAC,security
+eJPT: eLearnSecurity Junior Penetration Tester,eJPT,INE / eLearnSecurity,security
+eJPT,eJPT,INE / eLearnSecurity,security
+eCPPT: eLearnSecurity Certified Professional Penetration Tester,eCPPT,INE / eLearnSecurity,security
+eCPPT,eCPPT,INE / eLearnSecurity,security
+eWPT: eLearnSecurity Web Application Penetration Tester,eWPT,INE / eLearnSecurity,security
+eWPT,eWPT,INE / eLearnSecurity,security
+PNPT: Practical Network Penetration Tester,PNPT,TCM Security,security
+PNPT,PNPT,TCM Security,security
+Certified Red Team Professional,CRTP,Pentester Academy,security
+CRTP,CRTP,Pentester Academy,security
+Certified Red Team Expert,CRTE,Pentester Academy,security
+CRTE,CRTE,Pentester Academy,security
+Burp Suite Certified Practitioner,BSCP,PortSwigger,security
+BSCP,BSCP,PortSwigger,security
+ISO 27001 Lead Auditor,ISO 27001 Lead Auditor,PECB / BSI,security
+ISO/IEC 27001 Lead Auditor,ISO 27001 Lead Auditor,PECB / BSI,security
+ISO 27001 Lead Implementer,ISO 27001 Lead Implementer,PECB / BSI,security
+ISO/IEC 27001 Lead Implementer,ISO 27001 Lead Implementer,PECB / BSI,security
+Certified Information Privacy Professional,CIPP,IAPP,security
+CIPP/E,CIPP/E,IAPP,security
+CIPP/US,CIPP/US,IAPP,security
+CIPP/A,CIPP/A,IAPP,security
+CIPM: Certified Information Privacy Manager,CIPM,IAPP,security
+CIPM,CIPM,IAPP,security
+CIPT: Certified Information Privacy Technologist,CIPT,IAPP,security
+CIPT,CIPT,IAPP,security
+Palo Alto Networks Certified Network Security Engineer,PCNSE,Palo Alto Networks,security
+PCNSE,PCNSE,Palo Alto Networks,security
+Palo Alto Networks Certified Security Automation Engineer,PCSAE,Palo Alto Networks,security
+PCSAE,PCSAE,Palo Alto Networks,security
+Fortinet NSE 4,Fortinet NSE 4,Fortinet,security
+Fortinet NSE 5,Fortinet NSE 5,Fortinet,security
+Fortinet NSE 6,Fortinet NSE 6,Fortinet,security
+Fortinet NSE 7,Fortinet NSE 7,Fortinet,security
+Fortinet NSE 8,Fortinet NSE 8,Fortinet,security
+CrowdStrike Certified Falcon Administrator,CCFA,CrowdStrike,security
+CCFA,CCFA,CrowdStrike,security
+CrowdStrike Certified Falcon Responder,CCFR,CrowdStrike,security
+CCFR,CCFR,CrowdStrike,security
+CrowdStrike Certified Falcon Hunter,CCFH,CrowdStrike,security
+CCFH,CCFH,CrowdStrike,security
+Zscaler Certified Cloud Professional,ZCCP,Zscaler,security
+ZCCP,ZCCP,Zscaler,security
+Okta Certified Professional,Okta Certified Professional,Okta,security
+Okta Certified Administrator,Okta Certified Administrator,Okta,security
+Okta Certified Developer,Okta Certified Developer,Okta,security
+Okta Certified Consultant,Okta Certified Consultant,Okta,security
+Cisco Certified Network Associate,CCNA,Cisco,networking
+CCNA,CCNA,Cisco,networking
+Cisco CCNA,CCNA,Cisco,networking
+Cisco Certified Network Professional,CCNP,Cisco,networking
+CCNP,CCNP,Cisco,networking
+CCNP Enterprise,CCNP Enterprise,Cisco,networking
+CCNP Security,CCNP Security,Cisco,networking
+CCNP Data Center,CCNP Data Center,Cisco,networking
+CCNP Service Provider,CCNP Service Provider,Cisco,networking
+CCNP Collaboration,CCNP Collaboration,Cisco,networking
+Cisco Certified Internetwork Expert,CCIE,Cisco,networking
+CCIE,CCIE,Cisco,networking
+CCIE Enterprise Infrastructure,CCIE Enterprise Infrastructure,Cisco,networking
+CCIE Security,CCIE Security,Cisco,networking
+CCIE Data Center,CCIE Data Center,Cisco,networking
+Cisco Certified DevNet Associate,DevNet Associate,Cisco,networking
+DevNet Associate,DevNet Associate,Cisco,networking
+Cisco Certified DevNet Professional,DevNet Professional,Cisco,networking
+DevNet Professional,DevNet Professional,Cisco,networking
+Cisco Certified DevNet Expert,DevNet Expert,Cisco,networking
+Cisco Certified Technician,CCT,Cisco,networking
+CCT,CCT,Cisco,networking
+Cisco Certified Support Technician,CCST,Cisco,networking
+CCST,CCST,Cisco,networking
+Juniper Networks Certified Associate,JNCIA,Juniper Networks,networking
+JNCIA-Junos,JNCIA-Junos,Juniper Networks,networking
+JNCIA,JNCIA,Juniper Networks,networking
+Juniper Networks Certified Specialist,JNCIS,Juniper Networks,networking
+JNCIS-ENT,JNCIS-ENT,Juniper Networks,networking
+Juniper Networks Certified Professional,JNCIP,Juniper Networks,networking
+JNCIP-ENT,JNCIP-ENT,Juniper Networks,networking
+Juniper Networks Certified Expert,JNCIE,Juniper Networks,networking
+JNCIE-ENT,JNCIE-ENT,Juniper Networks,networking
+F5 Certified BIG-IP Administrator,F5 BIG-IP Administrator,F5 Networks,networking
+F5 BIG-IP Administrator,F5 BIG-IP Administrator,F5 Networks,networking
+F5 Certified Technology Specialist,F5 Technology Specialist,F5 Networks,networking
+Palo Alto Networks Certified Network Security Administrator,PCNSA,Palo Alto Networks,networking
+PCNSA,PCNSA,Palo Alto Networks,networking
+VMware Certified Professional – Network Virtualization,VCP-NV,VMware,networking
+VCP-NV,VCP-NV,VMware,networking
+Nokia Network Routing Specialist,NRS I,Nokia,networking
+NRS I,NRS I,Nokia,networking
+NRS II,NRS II,Nokia,networking
+Aruba Certified Associate – Networking,ACANO,HPE Aruba,networking
+ACANO,ACANO,HPE Aruba,networking
+Aruba Certified Mobility Associate,ACMA,HPE Aruba,networking
+ACMA,ACMA,HPE Aruba,networking
+Extreme Networks Associate,ExtremeNetworks Associate,Extreme Networks,networking
+Databricks Certified Associate Developer for Apache Spark,Databricks Spark Developer Associate,Databricks,data
+Databricks Certified Data Engineer Associate,Databricks Data Engineer Associate,Databricks,data
+Databricks Certified Data Engineer Professional,Databricks Data Engineer Professional,Databricks,data
+Databricks Certified Machine Learning Associate,Databricks ML Associate,Databricks,data
+Databricks Certified Machine Learning Professional,Databricks ML Professional,Databricks,data
+Databricks Certified Generative AI Engineer Associate,Databricks GenAI Engineer Associate,Databricks,data
+SnowPro Core Certification,SnowPro Core,Snowflake,data
+SnowPro Core,SnowPro Core,Snowflake,data
+SnowPro Advanced: Architect,SnowPro Advanced Architect,Snowflake,data
+SnowPro Advanced: Data Engineer,SnowPro Advanced Data Engineer,Snowflake,data
+SnowPro Advanced: Data Analyst,SnowPro Advanced Data Analyst,Snowflake,data
+SnowPro Advanced: Data Scientist,SnowPro Advanced Data Scientist,Snowflake,data
+dbt Certified Analytics Engineer,dbt Certified Analytics Engineer,dbt Labs,data
+dbt Analytics Engineer,dbt Certified Analytics Engineer,dbt Labs,data
+Tableau Desktop Specialist,Tableau Desktop Specialist,Salesforce / Tableau,data
+Tableau Certified Data Analyst,Tableau Certified Data Analyst,Salesforce / Tableau,data
+Tableau Certified Consultant,Tableau Certified Consultant,Salesforce / Tableau,data
+Tableau Desktop Certified Associate,Tableau Desktop Certified Associate,Salesforce / Tableau,data
+Tableau Desktop Certified Professional,Tableau Desktop Certified Professional,Salesforce / Tableau,data
+Microsoft Certified: Power BI Data Analyst Associate,Power BI Data Analyst Associate,Microsoft,data
+Power BI Data Analyst Associate,Power BI Data Analyst Associate,Microsoft,data
+PL-300,Power BI Data Analyst Associate,Microsoft,data
+Google Data Analytics Professional Certificate,Google Data Analytics,Google / Coursera,data
+IBM Data Science Professional Certificate,IBM Data Science Professional,IBM / Coursera,data
+IBM Data Analyst Professional Certificate,IBM Data Analyst Professional,IBM / Coursera,data
+Certified Analytics Professional,CAP,INFORMS,data
+CAP,CAP,INFORMS,data
+Cloudera Certified Associate Data Analyst,CCA Data Analyst,Cloudera,data
+Cloudera Certified Professional Data Engineer,CCP Data Engineer,Cloudera,data
+Hortonworks Certified Associate,HCA,Hortonworks,data
+MongoDB Certified Developer Associate,MongoDB Certified Developer Associate,MongoDB,data
+MongoDB Developer Associate,MongoDB Certified Developer Associate,MongoDB,data
+MongoDB Certified DBA Associate,MongoDB Certified DBA Associate,MongoDB,data
+PostgreSQL DBA Certification,PostgreSQL DBA,PostgreSQL Association,data
+Oracle Database SQL Certified Associate,Oracle Database SQL Associate,Oracle Corporation,data
+Oracle Database Administrator Certified Professional,Oracle DBA Professional,Oracle Corporation,data
+Confluent Certified Developer for Apache Kafka,Confluent Kafka Developer,Confluent Inc.,data
+Confluent Kafka Developer,Confluent Kafka Developer,Confluent Inc.,data
+Confluent Certified Administrator for Apache Kafka,Confluent Kafka Administrator,Confluent Inc.,data
+Confluent Kafka Administrator,Confluent Kafka Administrator,Confluent Inc.,data
+Airbyte Certified Professional,Airbyte Certified Professional,Airbyte,data
+Fivetran Certification,Fivetran Certification,Fivetran,data
+Looker Certified LookML Developer,Looker LookML Developer,Google / Looker,data
+Qlik Sense Business Analyst Certification,Qlik Sense Business Analyst,Qlik,data
+Qlik Sense Data Architect Certification,Qlik Sense Data Architect,Qlik,data
+MicroStrategy Analyst Certification,MicroStrategy Analyst,MicroStrategy,data
+SAS Certified Data Scientist,SAS Certified Data Scientist,SAS Institute,data
+SAS Certified Advanced Programmer,SAS Advanced Programmer,SAS Institute,data
+SAS Certified Base Programmer,SAS Base Programmer,SAS Institute,data
+SAS Certified AI and Machine Learning Professional,SAS AI and ML Professional,SAS Institute,data
+Alteryx Designer Core Certification,Alteryx Designer Core,Alteryx,data
+Alteryx Designer Advanced Certification,Alteryx Designer Advanced,Alteryx,data
+Alteryx Machine Learning Fundamentals,Alteryx ML Fundamentals,Alteryx,data
+KNIME Analytics Platform Certificate,KNIME Analytics Certificate,KNIME,data
+IBM Cognos Analytics Author V11,IBM Cognos Analytics Author,IBM,data
+Apache Cassandra Developer Associate,Cassandra Developer Associate,DataStax,data
+DataStax Cassandra Administrator Associate,Cassandra Administrator Associate,DataStax,data
+Neo4j Certified Professional,Neo4j Certified Professional,Neo4j,data
+Oracle Certified Professional: Java SE 17 Developer,Oracle Java SE 17 Developer,Oracle Corporation,backend
+Oracle Java SE 17 Developer,Oracle Java SE 17 Developer,Oracle Corporation,backend
+1Z0-829,Oracle Java SE 17 Developer,Oracle Corporation,backend
+Oracle Certified Professional: Java SE 11 Developer,Oracle Java SE 11 Developer,Oracle Corporation,backend
+Oracle Java SE 11 Developer,Oracle Java SE 11 Developer,Oracle Corporation,backend
+1Z0-819,Oracle Java SE 11 Developer,Oracle Corporation,backend
+Oracle Certified Associate: Java SE 8 Programmer,Oracle Java SE 8 Programmer,Oracle Corporation,backend
+Oracle Java SE 8 Programmer,Oracle Java SE 8 Programmer,Oracle Corporation,backend
+1Z0-808,Oracle Java SE 8 Programmer,Oracle Corporation,backend
+Oracle Certified Professional: Java EE 7 Application Developer,Oracle Java EE 7 Developer,Oracle Corporation,backend
+Spring Professional Certification,Spring Professional Certification,VMware (Pivotal),backend
+VMware Spring Professional,Spring Professional Certification,VMware (Pivotal),backend
+Spring Boot Certification,Spring Boot Certification,VMware,backend
+Microsoft Certified: .NET Developer,Microsoft .NET Developer,Microsoft,backend
+Microsoft Certified Solutions Developer: Web Applications,MCSD Web Applications,Microsoft,backend
+MCSD,MCSD,Microsoft,backend
+Microsoft Certified Solutions Associate,MCSA,Microsoft,backend
+MCSA,MCSA,Microsoft,backend
+Python Institute Certified Python Professional,PCPP,Python Institute,backend
+PCPP1,PCPP1,Python Institute,backend
+PCPP2,PCPP2,Python Institute,backend
+Python Institute Certified Associate in Python Programming,PCAP,Python Institute,backend
+PCAP,PCAP,Python Institute,backend
+Python Institute Certified Entry-Level Python Programmer,PCEP,Python Institute,backend
+PCEP,PCEP,Python Institute,backend
+OpenEDG Python Institute PCAP,PCAP,Python Institute,backend
+Node.js Certified Developer,Node.js Certified Developer,OpenJS Foundation,backend
+OpenJS Node.js Application Developer,JSNAD,OpenJS Foundation,backend
+JSNAD,JSNAD,OpenJS Foundation,backend
+OpenJS Node.js Services Developer,JSNSD,OpenJS Foundation,backend
+JSNSD,JSNSD,OpenJS Foundation,backend
+Laravel Certified Developer,Laravel Certified Developer,Laracasts,backend
+Zend Certified PHP Engineer,Zend PHP Engineer,Zend / Perforce,backend
+Zend PHP,Zend PHP Engineer,Zend / Perforce,backend
+Rust Foundation Certification,Rust Foundation Certification,Rust Foundation,backend
+Go Developer Certification,Go Developer Certification,Google,backend
+Ruby Association Certified Ruby Programmer,Ruby Certified Programmer,Ruby Association,backend
+Ruby Certified Programmer,Ruby Certified Programmer,Ruby Association,backend
+Scala Professional Certificate,Scala Professional Certificate,Lightbend,backend
+Kotlin Developer Certification,Kotlin Developer Certification,JetBrains,backend
+JetBrains Certified Kotlin Developer,Kotlin Developer Certification,JetBrains,backend
+Swift Certified Developer,Swift Certified Developer,Apple,backend
+Apple Certified Trainer,Apple Certified Trainer,Apple,backend
+Certified Blockchain Developer,Certified Blockchain Developer,Blockchain Council,blockchain
+Blockchain Council Certified Developer,Certified Blockchain Developer,Blockchain Council,blockchain
+Ethereum Developer Certification,Ethereum Developer,Ethereum Foundation,blockchain
+Certified Solidity Developer,Certified Solidity Developer,Blockchain Council,blockchain
+ConsenSys Blockchain Developer Online Bootcamp,ConsenSys Blockchain Developer,ConsenSys,blockchain
+Project Management Professional,PMP,Project Management Institute (PMI),management
+PMP,PMP,Project Management Institute (PMI),management
+PMI PMP,PMP,Project Management Institute (PMI),management
+Certified Associate in Project Management,CAPM,Project Management Institute (PMI),management
+CAPM,CAPM,Project Management Institute (PMI),management
+PMI Agile Certified Practitioner,PMI-ACP,Project Management Institute (PMI),management
+PMI-ACP,PMI-ACP,Project Management Institute (PMI),management
+PMI Risk Management Professional,PMI-RMP,Project Management Institute (PMI),management
+PMI-RMP,PMI-RMP,Project Management Institute (PMI),management
+PMI Scheduling Professional,PMI-SP,Project Management Institute (PMI),management
+PMI-SP,PMI-SP,Project Management Institute (PMI),management
+PMI Professional in Business Analysis,PMI-PBA,Project Management Institute (PMI),management
+PMI-PBA,PMI-PBA,Project Management Institute (PMI),management
+Program Management Professional,PgMP,Project Management Institute (PMI),management
+PgMP,PgMP,Project Management Institute (PMI),management
+Portfolio Management Professional,PfMP,Project Management Institute (PMI),management
+PfMP,PfMP,Project Management Institute (PMI),management
+PRINCE2 Foundation,PRINCE2 Foundation,AXELOS,management
+PRINCE2® Foundation,PRINCE2 Foundation,AXELOS,management
+PRINCE2 Practitioner,PRINCE2 Practitioner,AXELOS,management
+PRINCE2® Practitioner,PRINCE2 Practitioner,AXELOS,management
+PRINCE2 Agile Foundation,PRINCE2 Agile Foundation,AXELOS,management
+PRINCE2 Agile Practitioner,PRINCE2 Agile Practitioner,AXELOS,management
+MSP Foundation,MSP Foundation,AXELOS,management
+MSP Practitioner,MSP Practitioner,AXELOS,management
+M_o_R Foundation,M_o_R Foundation,AXELOS,management
+MoP Foundation,MoP Foundation,AXELOS,management
+ITIL 4 Foundation,ITIL 4 Foundation,AXELOS,management
+ITIL Foundation,ITIL 4 Foundation,AXELOS,management
+ITIL v3 Foundation,ITIL 4 Foundation,AXELOS,management
+ITIL 4 Managing Professional,ITIL 4 Managing Professional,AXELOS,management
+ITIL 4 Strategic Leader,ITIL 4 Strategic Leader,AXELOS,management
+ITIL 4 Master,ITIL 4 Master,AXELOS,management
+COBIT 2019 Foundation,COBIT 2019 Foundation,ISACA,management
+COBIT 5 Foundation,COBIT 5 Foundation,ISACA,management
+COBIT,COBIT 2019 Foundation,ISACA,management
+Six Sigma Green Belt,Six Sigma Green Belt,ASQ / IASSC,management
+CSSGB,Six Sigma Green Belt,ASQ,management
+Six Sigma Black Belt,Six Sigma Black Belt,ASQ / IASSC,management
+CSSBB,Six Sigma Black Belt,ASQ,management
+Lean Six Sigma Black Belt,Lean Six Sigma Black Belt,ASQ,management
+LSSBB,Lean Six Sigma Black Belt,IASSC,management
+Lean Six Sigma Green Belt,Lean Six Sigma Green Belt,ASQ,management
+LSSGB,Lean Six Sigma Green Belt,IASSC,management
+Lean Six Sigma Yellow Belt,Lean Six Sigma Yellow Belt,ASQ,management
+LSSYB,Lean Six Sigma Yellow Belt,IASSC,management
+Certified Scrum Master,CSM,Scrum Alliance,management
+CSM,CSM,Scrum Alliance,management
+Scrum Master Certification,CSM,Scrum Alliance,management
+Advanced Certified Scrum Master,A-CSM,Scrum Alliance,management
+A-CSM,A-CSM,Scrum Alliance,management
+Certified Scrum Product Owner,CSPO,Scrum Alliance,management
+CSPO,CSPO,Scrum Alliance,management
+Advanced Certified Scrum Product Owner,A-CSPO,Scrum Alliance,management
+Certified Scrum Developer,CSD,Scrum Alliance,management
+Certified Scrum Professional,CSP,Scrum Alliance,management
+CSP-SM,CSP-SM,Scrum Alliance,management
+CSP-PO,CSP-PO,Scrum Alliance,management
+Professional Scrum Master I,PSM I,Scrum.org,management
+PSM I,PSM I,Scrum.org,management
+Professional Scrum Master II,PSM II,Scrum.org,management
+PSM II,PSM II,Scrum.org,management
+Professional Scrum Master III,PSM III,Scrum.org,management
+Professional Scrum Product Owner I,PSPO I,Scrum.org,management
+PSPO I,PSPO I,Scrum.org,management
+Professional Scrum Product Owner II,PSPO II,Scrum.org,management
+Professional Scrum Developer,PSD,Scrum.org,management
+PSD,PSD,Scrum.org,management
+Scaled Professional Scrum,SPS,Scrum.org,management
+SPS,SPS,Scrum.org,management
+Professional Agile Leadership,PAL I,Scrum.org,management
+PAL I,PAL I,Scrum.org,management
+SAFe Agilist,SAFe Agilist,Scaled Agile Inc.,management
+SAFe 6 Agilist,SAFe Agilist,Scaled Agile Inc.,management
+SA,SAFe Agilist,Scaled Agile Inc.,management
+SAFe Product Owner/Product Manager,SAFe POPM,Scaled Agile Inc.,management
+SAFe POPM,SAFe POPM,Scaled Agile Inc.,management
+SAFe Scrum Master,SAFe Scrum Master,Scaled Agile Inc.,management
+SAFe SSM,SAFe Scrum Master,Scaled Agile Inc.,management
+SAFe Release Train Engineer,SAFe RTE,Scaled Agile Inc.,management
+SAFe RTE,SAFe RTE,Scaled Agile Inc.,management
+SAFe Program Consultant,SPC,Scaled Agile Inc.,management
+SPC,SPC,Scaled Agile Inc.,management
+ICAgile Certified Professional,ICP,ICAgile,management
+ICP,ICP,ICAgile,management
+ICAgile ICP-ATF,ICP-ATF,ICAgile,management
+ICAgile ICP-ACC,ICP-ACC,ICAgile,management
+TOGAF 9 Certified,TOGAF 9 Certified,The Open Group,management
+TOGAF 9,TOGAF 9 Certified,The Open Group,management
+TOGAF,TOGAF 9 Certified,The Open Group,management
+TOGAF Enterprise Architecture Practitioner,TOGAF EA Practitioner,The Open Group,management
+Certified Business Analysis Professional,CBAP,IIBA,management
+CBAP,CBAP,IIBA,management
+Certification of Capability in Business Analysis,CCBA,IIBA,management
+CCBA,CCBA,IIBA,management
+Entry Certificate in Business Analysis,ECBA,IIBA,management
+ECBA,ECBA,IIBA,management
+Disciplined Agile Scrum Master,DASM,Project Management Institute (PMI),management
+DASM,DASM,Project Management Institute (PMI),management
+Disciplined Agile Senior Scrum Master,DASSM,Project Management Institute (PMI),management
+DASSM,DASSM,Project Management Institute (PMI),management
+Certified Agile Leadership,CAL,Scrum Alliance,management
+CAL 1,CAL 1,Scrum Alliance,management
+TensorFlow Developer Certificate,TensorFlow Developer Certificate,Google,ai-ml
+Google TensorFlow Certificate,TensorFlow Developer Certificate,Google,ai-ml
+TFX Developer Certificate,TFX Developer Certificate,Google,ai-ml
+GCP PMLE,Google Cloud Professional ML Engineer,Google Cloud,ai-ml
+IBM Applied AI Professional Certificate,IBM Applied AI Professional,IBM / Coursera,ai-ml
+IBM Machine Learning Professional Certificate,IBM Machine Learning Professional,IBM / Coursera,ai-ml
+DeepLearning.AI Deep Learning Specialization,Deep Learning Specialization,DeepLearning.AI,ai-ml
+Deep Learning Specialization,Deep Learning Specialization,DeepLearning.AI,ai-ml
+DeepLearning.AI TensorFlow Developer Professional,TensorFlow Developer Professional,DeepLearning.AI,ai-ml
+DeepLearning.AI MLOps Specialization,MLOps Specialization,DeepLearning.AI,ai-ml
+DeepLearning.AI NLP Specialization,NLP Specialization,DeepLearning.AI,ai-ml
+Hugging Face Certified NLP Course,Hugging Face NLP Certification,Hugging Face,ai-ml
+Certified Artificial Intelligence Professional,CAIP,Blockchain Council,ai-ml
+Certified Machine Learning Engineer,CMLE,Blockchain Council,ai-ml
+NVIDIA DLI Certificate – Fundamentals of Deep Learning,NVIDIA DLI Deep Learning,NVIDIA,ai-ml
+NVIDIA DLI Certificate – Building RAG Agents,NVIDIA DLI RAG,NVIDIA,ai-ml
+NVIDIA Certified Associate – AI Infrastructure and Operations,NVIDIA AI Infrastructure,NVIDIA,ai-ml
+LangChain AI Developer Certification,LangChain AI Developer,LangChain,ai-ml
+Coursera Machine Learning Specialization,Machine Learning Specialization,Coursera / Stanford,ai-ml
+Stanford Machine Learning Certificate,Machine Learning Specialization,Coursera / Stanford,ai-ml
+Fast.ai Practical Deep Learning,Fast.ai Practical Deep Learning,fast.ai,ai-ml
+Certified Prompt Engineer,Certified Prompt Engineer,Prompt Engineering Institute,ai-ml
+Salesforce Certified Administrator,Salesforce Administrator,Salesforce,crm
+Salesforce Administrator,Salesforce Administrator,Salesforce,crm
+Salesforce Admin,Salesforce Administrator,Salesforce,crm
+Salesforce Certified Advanced Administrator,Salesforce Advanced Administrator,Salesforce,crm
+Salesforce Certified App Builder,Salesforce App Builder,Salesforce,crm
+Salesforce Certified Sales Cloud Consultant,Salesforce Sales Cloud Consultant,Salesforce,crm
+Salesforce Sales Cloud Consultant,Salesforce Sales Cloud Consultant,Salesforce,crm
+Salesforce Certified Service Cloud Consultant,Salesforce Service Cloud Consultant,Salesforce,crm
+Salesforce Service Cloud Consultant,Salesforce Service Cloud Consultant,Salesforce,crm
+Salesforce Certified Marketing Cloud Email Specialist,Salesforce Marketing Cloud Email Specialist,Salesforce,crm
+Salesforce Certified Marketing Cloud Administrator,Salesforce Marketing Cloud Administrator,Salesforce,crm
+Salesforce Certified Marketing Cloud Developer,Salesforce Marketing Cloud Developer,Salesforce,crm
+Salesforce Certified Marketing Cloud Consultant,Salesforce Marketing Cloud Consultant,Salesforce,crm
+Salesforce Certified Pardot Specialist,Salesforce Pardot Specialist,Salesforce,crm
+Salesforce Certified CPQ Specialist,Salesforce CPQ Specialist,Salesforce,crm
+Salesforce Certified Field Service Consultant,Salesforce Field Service Consultant,Salesforce,crm
+Salesforce Certified Experience Cloud Consultant,Salesforce Experience Cloud Consultant,Salesforce,crm
+Salesforce Certified Integration Architect,Salesforce Integration Architect,Salesforce,crm
+Salesforce Certified Data Architecture and Management Designer,Salesforce Data Architecture Designer,Salesforce,crm
+Salesforce Certified Sharing and Visibility Designer,Salesforce Sharing and Visibility Designer,Salesforce,crm
+Salesforce Certified Application Architect,Salesforce Application Architect,Salesforce,crm
+Salesforce Certified System Architect,Salesforce System Architect,Salesforce,crm
+Salesforce Certified Technical Architect,Salesforce Technical Architect,Salesforce,crm
+Salesforce Certified AI Associate,Salesforce AI Associate,Salesforce,crm
+Salesforce Certified AI Specialist,Salesforce AI Specialist,Salesforce,crm
+HubSpot Inbound Certification,HubSpot Inbound,HubSpot,crm
+HubSpot Inbound Marketing Certification,HubSpot Inbound Marketing,HubSpot,crm
+HubSpot Sales Software Certification,HubSpot Sales Software,HubSpot,crm
+HubSpot Service Hub Software Certification,HubSpot Service Hub,HubSpot,crm
+HubSpot CMS for Developers Certification,HubSpot CMS Developer,HubSpot,crm
+HubSpot Marketing Software Certification,HubSpot Marketing Software,HubSpot,crm
+HubSpot Content Marketing Certification,HubSpot Content Marketing,HubSpot,crm
+HubSpot Email Marketing Certification,HubSpot Email Marketing,HubSpot,crm
+HubSpot Social Media Marketing Certification,HubSpot Social Media Marketing,HubSpot,crm
+HubSpot RevOps Professional Certification,HubSpot RevOps Professional,HubSpot,crm
+HubSpot RevOps Professional,HubSpot RevOps Professional,HubSpot,crm
+HubSpot Solutions Architecture Design Certification,HubSpot Solutions Architecture,HubSpot,crm
+HubSpot Reporting Certification,HubSpot Reporting,HubSpot,crm
+Zoho Certified Professional,Zoho Certified Professional,Zoho,crm
+Zoho Certified Consultant,Zoho Certified Consultant,Zoho,crm
+Microsoft Dynamics 365 Fundamentals CRM,Dynamics 365 Fundamentals CRM,Microsoft,crm
+Microsoft Dynamics 365 Sales Functional Consultant Associate,Dynamics 365 Sales Consultant,Microsoft,crm
+MB-210,Dynamics 365 Sales Consultant,Microsoft,crm
+Microsoft Dynamics 365 Customer Service Functional Consultant,Dynamics 365 Customer Service Consultant,Microsoft,crm
+MB-230,Dynamics 365 Customer Service Consultant,Microsoft,crm
+ServiceNow Certified System Administrator,ServiceNow System Administrator,ServiceNow,crm
+ServiceNow CSA,ServiceNow System Administrator,ServiceNow,crm
+ServiceNow Certified Application Developer,ServiceNow Application Developer,ServiceNow,crm
+ServiceNow CAD,ServiceNow Application Developer,ServiceNow,crm
+ServiceNow Certified Implementation Specialist,ServiceNow Implementation Specialist,ServiceNow,crm
+ServiceNow CIS,ServiceNow Implementation Specialist,ServiceNow,crm
+Zendesk Support Administrator Expert,Zendesk Administrator,Zendesk,crm
+Google Analytics Individual Qualification,Google Analytics IQ,Google,marketing
+Google Analytics IQ,Google Analytics IQ,Google,marketing
+Google Ads Search Certification,Google Ads Search,Google,marketing
+Google Ads Display Certification,Google Ads Display,Google,marketing
+Google Ads Video Certification,Google Ads Video,Google,marketing
+Google Ads Measurement Certification,Google Ads Measurement,Google,marketing
+Google Ads Shopping Certification,Google Ads Shopping,Google,marketing
+Google Ads Apps Certification,Google Ads Apps,Google,marketing
+Google Ads Creative Certification,Google Ads Creative,Google,marketing
+Google Digital Marketing & E-commerce Certificate,Google Digital Marketing,Google / Coursera,marketing
+Meta Blueprint Certification,Meta Blueprint,Meta,marketing
+Meta Certified Digital Marketing Associate,Meta Digital Marketing Associate,Meta,marketing
+Meta Certified Media Planning Professional,Meta Media Planning Professional,Meta,marketing
+Meta Certified Media Buying Professional,Meta Media Buying Professional,Meta,marketing
+Meta Certified Creative Strategy Professional,Meta Creative Strategy Professional,Meta,marketing
+Meta Certified Marketing Science Professional,Meta Marketing Science Professional,Meta,marketing
+Meta Certified Community Manager,Meta Community Manager,Meta,marketing
+Meta Social Media Marketing Professional Certificate,Meta Social Media Marketing,Meta / Coursera,marketing
+HubSpot Digital Marketing Certification,HubSpot Digital Marketing,HubSpot,marketing
+LinkedIn Marketing Solutions Fundamentals,LinkedIn Marketing Fundamentals,LinkedIn,marketing
+LinkedIn Marketing Labs Certification,LinkedIn Marketing Labs,LinkedIn,marketing
+SEMrush SEO Fundamentals Course,SEMrush SEO Fundamentals,Semrush,marketing
+SEMrush Content Marketing Certification,Semrush Content Marketing,Semrush,marketing
+SEMrush Social Media Marketing Certification,Semrush Social Media Marketing,Semrush,marketing
+SEMrush PPC Fundamentals,Semrush PPC Fundamentals,Semrush,marketing
+HubSpot Growth-Driven Design Certification,HubSpot Growth-Driven Design,HubSpot,marketing
+Certified Digital Marketing Professional,CDMP,Digital Marketing Institute,marketing
+CDMP,CDMP,Digital Marketing Institute,marketing
+Digital Marketing Institute Professional Diploma,DMI Pro Diploma,Digital Marketing Institute,marketing
+American Marketing Association PCM,AMA PCM,American Marketing Association,marketing
+AMA PCM,AMA PCM,American Marketing Association,marketing
+Certified Search Marketing Specialist,CSMS,OMCP,marketing
+OMCA,OMCA,OMCP,marketing
+OMCP,OMCP,OMCP,marketing
+Hootsuite Social Marketing Certification,Hootsuite Social Marketing,Hootsuite,marketing
+Hootsuite Platform Certification,Hootsuite Platform,Hootsuite,marketing
+Mailchimp Email Marketing Certification,Mailchimp Email Marketing,Mailchimp,marketing
+Klaviyo Email Marketing Certification,Klaviyo Email Marketing,Klaviyo,marketing
+TikTok Creative Fundamentals,TikTok Creative Fundamentals,TikTok,marketing
+Twitter Flight School,Twitter Flight School,Twitter/X,marketing
+Chartered Financial Analyst,CFA,CFA Institute,finance
+CFA Level 1,CFA Level 1,CFA Institute,finance
+CFA Level I,CFA Level 1,CFA Institute,finance
+CFA Level 2,CFA Level 2,CFA Institute,finance
+CFA Level II,CFA Level 2,CFA Institute,finance
+CFA Level 3,CFA Level 3,CFA Institute,finance
+CFA Level III,CFA Level 3,CFA Institute,finance
+Financial Risk Manager,FRM,Global Association of Risk Professionals,finance
+FRM,FRM,Global Association of Risk Professionals,finance
+FRM Part 1,FRM Part 1,Global Association of Risk Professionals,finance
+FRM Part 2,FRM Part 2,Global Association of Risk Professionals,finance
+Certified Financial Planner,CFP,CFP Board,finance
+CFP,CFP,CFP Board,finance
+Chartered Alternative Investment Analyst,CAIA,CAIA Association,finance
+CAIA,CAIA,CAIA Association,finance
+CAIA Level 1,CAIA Level 1,CAIA Association,finance
+CAIA Level 2,CAIA Level 2,CAIA Association,finance
+Professional Risk Manager,PRM,Professional Risk Managers' International Association,finance
+PRM,PRM,Professional Risk Managers' International Association,finance
+Certified Treasury Professional,CTP,Association for Financial Professionals,finance
+CTP,CTP,Association for Financial Professionals,finance
+Chartered Global Management Accountant,CGMA,AICPA / CIMA,finance
+CGMA,CGMA,AICPA / CIMA,finance
+Certified Management Accountant,CMA,Institute of Management Accountants,finance
+CMA,CMA,Institute of Management Accountants,finance
+Certified Public Accountant,CPA,AICPA,finance
+CPA,CPA,AICPA,finance
+ACCA,ACCA,Association of Chartered Certified Accountants,finance
+Association of Chartered Certified Accountants,ACCA,Association of Chartered Certified Accountants,finance
+Chartered Accountant,CA,ICAI / ICAEW,finance
+CA,CA,ICAI / ICAEW,finance
+Chartered Accountant India,CA,Institute of Chartered Accountants of India (ICAI),finance
+ICAI CA,CA,Institute of Chartered Accountants of India (ICAI),finance
+ACA,ACA,Institute of Chartered Accountants in England and Wales (ICAEW),finance
+FCA,FCA,Institute of Chartered Accountants in England and Wales (ICAEW),finance
+CIMA,CIMA,Chartered Institute of Management Accountants,finance
+Chartered Institute of Management Accountants,CIMA,Chartered Institute of Management Accountants,finance
+CIA: Certified Internal Auditor,CIA,Institute of Internal Auditors,finance
+CIA,CIA,Institute of Internal Auditors,finance
+Certified Internal Auditor,CIA,Institute of Internal Auditors,finance
+CFSA: Certified Financial Services Auditor,CFSA,Institute of Internal Auditors,finance
+CRMA: Certification in Risk Management Assurance,CRMA,Institute of Internal Auditors,finance
+CRMA,CRMA,Institute of Internal Auditors,finance
+Certified Fraud Examiner,CFE,Association of Certified Fraud Examiners,finance
+CFE,CFE,Association of Certified Fraud Examiners,finance
+Financial Modeling and Valuation Analyst,FMVA,Corporate Finance Institute,finance
+FMVA,FMVA,Corporate Finance Institute,finance
+Commercial Banking & Credit Analyst,CBCA,Corporate Finance Institute,finance
+CBCA,CBCA,Corporate Finance Institute,finance
+Capital Markets & Securities Analyst,CMSA,Corporate Finance Institute,finance
+CMSA,CMSA,Corporate Finance Institute,finance
+Bloomberg Market Concepts,BMC,Bloomberg,finance
+BMC,BMC,Bloomberg,finance
+Series 7 License,Series 7,FINRA,finance
+Series 7,Series 7,FINRA,finance
+Series 63,Series 63,FINRA,finance
+Series 65,Series 65,FINRA,finance
+Series 66,Series 66,FINRA,finance
+SIE Exam,SIE,FINRA,finance
+FRM Part I,FRM Part 1,Global Association of Risk Professionals,finance
+ESG Investing Certificate,ESG Investing,CFA Institute,finance
+SHRM Certified Professional,SHRM-CP,SHRM,hr
+SHRM-CP,SHRM-CP,SHRM,hr
+SHRM Senior Certified Professional,SHRM-SCP,SHRM,hr
+SHRM-SCP,SHRM-SCP,SHRM,hr
+Professional in Human Resources,PHR,HRCI,hr
+PHR,PHR,HRCI,hr
+Senior Professional in Human Resources,SPHR,HRCI,hr
+SPHR,SPHR,HRCI,hr
+Global Professional in Human Resources,GPHR,HRCI,hr
+GPHR,GPHR,HRCI,hr
+International Professional in Human Resources,iPHR,HRCI,hr
+Associate Professional in Human Resources,aPHR,HRCI,hr
+aPHR,aPHR,HRCI,hr
+CIPD Level 3 Foundation Certificate,CIPD Level 3,CIPD,hr
+CIPD Level 5 Associate Diploma,CIPD Level 5,CIPD,hr
+CIPD Level 7 Advanced Diploma,CIPD Level 7,CIPD,hr
+Talent Management Practitioner,TMP,Human Capital Institute,hr
+TMP,TMP,Human Capital Institute,hr
+Certified Compensation Professional,CCP,WorldatWork,hr
+CCP,CCP,WorldatWork,hr
+Certified Benefits Professional,CBP,WorldatWork,hr
+CBP,CBP,WorldatWork,hr
+Certified Executive Compensation Professional,CECP,WorldatWork,hr
+Senior Certified Compensation Professional,SCCP,WorldatWork,hr
+Workday HCM Certification,Workday HCM,Workday,hr
+Workday Recruiting Certification,Workday Recruiting,Workday,hr
+Workday Payroll Certification,Workday Payroll,Workday,hr
+SAP SuccessFactors Employee Central,SAP SuccessFactors Employee Central,SAP,hr
+SAP SuccessFactors Recruiting,SAP SuccessFactors Recruiting,SAP,hr
+Cornerstone OnDemand Certification,Cornerstone Certified,Cornerstone OnDemand,hr
+LinkedIn Talent Solutions Certification,LinkedIn Talent Solutions,LinkedIn,hr
+Coaching Certified Professional,ACC,International Coaching Federation,hr
+ACC,ACC,International Coaching Federation,hr
+Professional Certified Coach,PCC,International Coaching Federation,hr
+PCC,PCC,International Coaching Federation,hr
+Master Certified Coach,MCC,International Coaching Federation,hr
+MCC,MCC,International Coaching Federation,hr
+SAP Certified Associate – SAP S/4HANA Sourcing and Procurement,SAP S/4HANA Procurement Associate,SAP,erp
+SAP Certified Application Associate – SAP S/4HANA,SAP S/4HANA Application Associate,SAP,erp
+SAP Certified Technology Associate,SAP Technology Associate,SAP,erp
+SAP Certified Professional – SAP S/4HANA Enterprise Management,SAP S/4HANA Professional,SAP,erp
+SAP Certified Development Associate – ABAP,SAP ABAP Developer Associate,SAP,erp
+SAP Certified Application Associate – Financial Accounting,SAP Financial Accounting Associate,SAP,erp
+SAP Certified Application Associate – Controlling,SAP Controlling Associate,SAP,erp
+SAP Certified Application Associate – SAP Activate Project Manager,SAP Activate Project Manager,SAP,erp
+SAP Certified Application Associate – SAP BW/4HANA,SAP BW/4HANA Associate,SAP,erp
+SAP Certified Application Associate – SAP Analytics Cloud,SAP Analytics Cloud Associate,SAP,erp
+SAP Certified Application Associate – SAP SuccessFactors,SAP SuccessFactors Associate,SAP,erp
+SAP Certified Application Associate – SAP Ariba,SAP Ariba Associate,SAP,erp
+Oracle Fusion Cloud ERP Financial Implementation Professional,Oracle ERP Financial Professional,Oracle Corporation,erp
+Oracle Fusion Cloud HCM Implementation Professional,Oracle HCM Professional,Oracle Corporation,erp
+Oracle Fusion Cloud SCM Implementation Professional,Oracle SCM Professional,Oracle Corporation,erp
+Oracle NetSuite ERP Consultant,Oracle NetSuite ERP Consultant,Oracle Corporation,erp
+NetSuite ERP Consultant,Oracle NetSuite ERP Consultant,Oracle Corporation,erp
+Oracle E-Business Suite R12 Financial Management Certified,Oracle EBS R12 Financial,Oracle Corporation,erp
+Microsoft Certified: Dynamics 365 Fundamentals ERP,Dynamics 365 Fundamentals ERP,Microsoft,erp
+Microsoft Certified: Dynamics 365 Finance Functional Consultant,Dynamics 365 Finance Consultant,Microsoft,erp
+MB-310,Dynamics 365 Finance Consultant,Microsoft,erp
+Microsoft Certified: Dynamics 365 Supply Chain Management Consultant,Dynamics 365 Supply Chain Consultant,Microsoft,erp
+MB-330,Dynamics 365 Supply Chain Consultant,Microsoft,erp
+Microsoft Certified: Dynamics 365 Business Central Functional Consultant,Dynamics 365 Business Central Consultant,Microsoft,erp
+MB-800,Dynamics 365 Business Central Consultant,Microsoft,erp
+Odoo Functional Certification,Odoo Functional,Odoo,erp
+Odoo Technical Certification,Odoo Technical,Odoo,erp
+Google UX Design Professional Certificate,Google UX Design,Google / Coursera,design
+Interaction Design Foundation UX Design Certificate,IDF UX Design,Interaction Design Foundation,design
+Nielsen Norman Group UX Certified,NN/g UX Certified,Nielsen Norman Group,design
+Certified Usability Analyst,CUA,Human Factors International,design
+CUA,CUA,Human Factors International,design
+Certified User Experience Analyst,CXA,Human Factors International,design
+Figma Professional Certification,Figma Professional,Figma,design
+Adobe Certified Professional – Photoshop,Adobe Certified Photoshop,Adobe,design
+Adobe Certified Professional – Illustrator,Adobe Certified Illustrator,Adobe,design
+Adobe Certified Professional – XD,Adobe Certified XD,Adobe,design
+Adobe Certified Professional – After Effects,Adobe Certified After Effects,Adobe,design
+Adobe Certified Professional – Premiere Pro,Adobe Certified Premiere Pro,Adobe,design
+Adobe Certified Expert,ACE,Adobe,design
+Autodesk Certified Professional,Autodesk Certified,Autodesk,design
+AutoCAD Certified Professional,AutoCAD Certified Professional,Autodesk,design
+Autodesk Revit Certified Professional,Autodesk Revit Certified,Autodesk,design
+Lean Six Sigma White Belt,Lean Six Sigma White Belt,IASSC,process
+Six Sigma Master Black Belt,Six Sigma Master Black Belt,ASQ,process
+CSSMBB,Six Sigma Master Black Belt,ASQ,process
+Certified Quality Engineer,CQE,ASQ,process
+CQE,CQE,ASQ,process
+Certified Quality Auditor,CQA,ASQ,process
+CQA,CQA,ASQ,process
+Certified Quality Improvement Associate,CQIA,ASQ,process
+CQIA,CQIA,ASQ,process
+Certified Reliability Engineer,CRE,ASQ,process
+CRE,CRE,ASQ,process
+Certified Manager of Quality/Organizational Excellence,CMQ/OE,ASQ,process
+CMQ/OE,CMQ/OE,ASQ,process
+ISO 9001 Lead Auditor,ISO 9001 Lead Auditor,PECB / BSI,process
+ISO 9001 Internal Auditor,ISO 9001 Internal Auditor,PECB / BSI,process
+ISO 14001 Lead Auditor,ISO 14001 Lead Auditor,PECB / BSI,process
+ISO 45001 Lead Auditor,ISO 45001 Lead Auditor,PECB / BSI,process
+ISO 13485 Lead Auditor,ISO 13485 Lead Auditor,PECB / BSI,process
+ISO 22000 Lead Auditor,ISO 22000 Lead Auditor,PECB / BSI,process
+ISO 50001 Lead Auditor,ISO 50001 Lead Auditor,PECB / BSI,process
+Business Process Management Professional,BPMP,ABPMP,process
+BPMP,BPMP,ABPMP,process
+Certified Business Process Professional,CBPP,ABPMP,process
+CBPP,CBPP,ABPMP,process
+Certified Supply Chain Professional,CSCP,APICS,supply-chain
+CSCP,CSCP,APICS,supply-chain
+Certified in Planning and Inventory Management,CPIM,APICS,supply-chain
+CPIM,CPIM,APICS,supply-chain
+CPIM Part 1,CPIM Part 1,APICS,supply-chain
+CPIM Part 2,CPIM Part 2,APICS,supply-chain
+"Certified in Logistics, Transportation and Distribution",CLTD,APICS,supply-chain
+CLTD,CLTD,APICS,supply-chain
+SCPro Certification,SCPro,Council of Supply Chain Management Professionals,supply-chain
+CSCMP SCPro,SCPro,Council of Supply Chain Management Professionals,supply-chain
+Certified Purchasing Manager,CPM,Institute for Supply Management,supply-chain
+CPM,CPM,Institute for Supply Management,supply-chain
+Certified Professional in Supply Management,CPSM,Institute for Supply Management,supply-chain
+CPSM,CPSM,Institute for Supply Management,supply-chain
+Certified in Sustainable Procurement,CISP,CIPS,supply-chain
+MCIPS,MCIPS,CIPS,supply-chain
+FCIPS,FCIPS,CIPS,supply-chain
+SAP Certified Application Associate – SAP S/4HANA Logistics,SAP S/4HANA Logistics Associate,SAP,supply-chain
+Oracle SCM Cloud Implementation Professional,Oracle SCM Cloud Professional,Oracle Corporation,supply-chain
+Certified Customs Specialist,CCS,Canadian Society of Customs Brokers,supply-chain
+Licensed Customs Broker,LCB,NCBFAA,supply-chain
+VMware Certified Professional – Data Center Virtualization,VCP-DCV,VMware,virtualization
+VCP-DCV,VCP-DCV,VMware,virtualization
+VMware Certified Professional – Cloud Management and Automation,VCP-CMA,VMware,virtualization
+VCP-CMA,VCP-CMA,VMware,virtualization
+VMware Certified Professional – Desktop and Mobility,VCP-DTM,VMware,virtualization
+VCP-DTM,VCP-DTM,VMware,virtualization
+VMware Certified Advanced Professional,VCAP,VMware,virtualization
+VCAP-DCV,VCAP-DCV,VMware,virtualization
+VMware Certified Design Expert,VCDX,VMware,virtualization
+VCDX,VCDX,VMware,virtualization
+Nutanix Certified Professional,NCP,Nutanix,virtualization
+NCP-MCI,NCP-MCI,Nutanix,virtualization
+Nutanix Certified Associate,NCA,Nutanix,virtualization
+NCA,NCA,Nutanix,virtualization
+Citrix Certified Associate – Virtualization,CCA-V,Citrix,virtualization
+CCA-V,CCA-V,Citrix,virtualization
+Citrix Certified Professional – Virtualization,CCP-V,Citrix,virtualization
+CCP-V,CCP-V,Citrix,virtualization
+Confluent Certified Operator for Apache Kafka,Confluent Kafka Operator,Confluent Inc.,devops
+Confluent Kafka Operator,Confluent Kafka Operator,Confluent Inc.,devops
+Apache Kafka for Developers using Spring Boot,Kafka for Spring Developers,Pluralsight,backend
+Certified Kubernetes Security Specialist (CKS),CKS,Cloud Native Computing Foundation (CNCF),devops
+Cloud Foundry Certified Developer,CFCD,Cloud Foundry Foundation,devops
+CFCD,CFCD,Cloud Foundry Foundation,devops
+Pivotal Cloud Foundry Developer,PCF Developer,VMware (Pivotal),devops
+AWS Certified Advanced Networking Specialty,AWS Advanced Networking Specialty,Amazon Web Services (AWS),cloud
+Google Cloud Certified Associate Cloud Engineer,Google Cloud Associate Engineer,Google Cloud,cloud
+Google Cloud Certified Professional Cloud Architect,Google Cloud Professional Architect,Google Cloud,cloud
+Microsoft Certified: Azure Fundamentals (AZ-900),Azure Fundamentals,Microsoft,cloud
+HashiCorp Certified: Terraform Associate (003),Terraform Associate,HashiCorp,devops

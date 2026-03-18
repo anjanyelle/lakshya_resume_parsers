@@ -15,17 +15,17 @@ build/
 .DS_Store
 storage/
 
-# AI / ML models
-backend/models/
-models/
-*.safetensors
-*.bin
-*.pt
+# # AI / ML models
+# backend/models/
+# models/
+# *.safetensors
+# *.bin
+# *.pt
 
 # HuggingFace cache
 .cache/
 huggingface/
 
-# datasets
-datasets/
-*.csv
+# # datasets
+# datasets/
+# *.csv

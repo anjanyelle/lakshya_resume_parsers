@@ -1,0 +1,704 @@
+degree,normalized_degree
+Bachelor of Technology,Bachelor of Technology
+B.Tech,Bachelor of Technology
+B.Tech.,Bachelor of Technology
+Bachelor of Technology (B.Tech),Bachelor of Technology
+Master of Technology,Master of Technology
+M.Tech,Master of Technology
+M.Tech.,Master of Technology
+Bachelor of Engineering,Bachelor of Engineering
+B.E.,Bachelor of Engineering
+BE,Bachelor of Engineering
+Bachelor of Engineering (Hons),Bachelor of Engineering
+Master of Engineering,Master of Engineering
+M.E.,Master of Engineering
+ME,Master of Engineering
+Master of Engineering (MEng),Master of Engineering
+MEng,Master of Engineering
+Bachelor of Computer Science,Bachelor of Computer Science
+B.C.S.,Bachelor of Computer Science
+BCS,Bachelor of Computer Science
+Bachelor of Computer Science (BCS),Bachelor of Computer Science
+Master of Computer Science,Master of Computer Science
+M.C.S.,Master of Computer Science
+MCS,Master of Computer Science
+Bachelor of Computer Applications,Bachelor of Computer Applications
+BCA,Bachelor of Computer Applications
+B.C.A.,Bachelor of Computer Applications
+Master of Computer Applications,Master of Computer Applications
+MCA,Master of Computer Applications
+M.C.A.,Master of Computer Applications
+Bachelor of Information Technology,Bachelor of Information Technology
+BIT,Bachelor of Information Technology
+B.I.T.,Bachelor of Information Technology
+Bachelor of IT,Bachelor of Information Technology
+Master of Information Technology,Master of Information Technology
+MIT,Master of Information Technology
+M.I.T.,Master of Information Technology
+Bachelor of Software Engineering,Bachelor of Software Engineering
+BSE,Bachelor of Software Engineering
+Master of Software Engineering,Master of Software Engineering
+MSE,Master of Software Engineering
+Bachelor of Electrical Engineering,Bachelor of Electrical Engineering
+BEE,Bachelor of Electrical Engineering
+Bachelor of Electronics Engineering,Bachelor of Electronics Engineering
+B.E. (Electronics),Bachelor of Electronics Engineering
+Bachelor of Electronics & Communication Engineering,Bachelor of Electronics & Communication Engineering
+B.E. (ECE),Bachelor of Electronics & Communication Engineering
+Bachelor of Civil Engineering,Bachelor of Civil Engineering
+B.E. (Civil),Bachelor of Civil Engineering
+Bachelor of Mechanical Engineering,Bachelor of Mechanical Engineering
+B.E. (Mechanical),Bachelor of Mechanical Engineering
+Bachelor of Chemical Engineering,Bachelor of Chemical Engineering
+B.E. (Chemical),Bachelor of Chemical Engineering
+Bachelor of Aerospace Engineering,Bachelor of Aerospace Engineering
+Bachelor of Biomedical Engineering,Bachelor of Biomedical Engineering
+Bachelor of Industrial Engineering,Bachelor of Industrial Engineering
+Bachelor of Environmental Engineering,Bachelor of Environmental Engineering
+Bachelor of Petroleum Engineering,Bachelor of Petroleum Engineering
+Bachelor of Mining Engineering,Bachelor of Mining Engineering
+Bachelor of Materials Engineering,Bachelor of Materials Engineering
+Bachelor of Nuclear Engineering,Bachelor of Nuclear Engineering
+Bachelor of Robotics Engineering,Bachelor of Robotics Engineering
+Bachelor of Data Engineering,Bachelor of Data Engineering
+Master of Data Engineering,Master of Data Engineering
+Bachelor of Cybersecurity,Bachelor of Cybersecurity
+Master of Cybersecurity,Master of Cybersecurity
+Bachelor of Artificial Intelligence,Bachelor of Artificial Intelligence
+Master of Artificial Intelligence,Master of Artificial Intelligence
+Bachelor of Data Science,Bachelor of Data Science
+Master of Data Science,Master of Data Science
+Bachelor of Machine Learning,Bachelor of Machine Learning
+Master of Machine Learning,Master of Machine Learning
+Bachelor of Network Engineering,Bachelor of Network Engineering
+Master of Network Engineering,Master of Network Engineering
+Bachelor of Information Systems,Bachelor of Information Systems
+BIS,Bachelor of Information Systems
+Master of Information Systems,Master of Information Systems
+MIS,Master of Information Systems
+Bachelor of Information Science,Bachelor of Information Science
+Master of Information Science,Master of Information Science
+Bachelor of Science,Bachelor of Science
+B.S.,Bachelor of Science
+BS,Bachelor of Science
+B.Sc.,Bachelor of Science
+BSc,Bachelor of Science
+Bachelor of Science (BS),Bachelor of Science
+Bachelor of Science (BSc),Bachelor of Science
+Master of Science,Master of Science
+M.S.,Master of Science
+MS,Master of Science
+M.Sc.,Master of Science
+MSc,Master of Science
+Master of Science (MS),Master of Science
+Master of Science (MSc),Master of Science
+Bachelor of Science in Computer Science,Bachelor of Science in Computer Science
+BS Computer Science,Bachelor of Science in Computer Science
+BSc Computer Science,Bachelor of Science in Computer Science
+Bachelor of Science in Information Technology,Bachelor of Science in Information Technology
+BS Information Technology,Bachelor of Science in Information Technology
+Bachelor of Science in Data Science,Bachelor of Science in Data Science
+BS Data Science,Bachelor of Science in Data Science
+Bachelor of Science in Mathematics,Bachelor of Science in Mathematics
+BS Mathematics,Bachelor of Science in Mathematics
+Bachelor of Science in Statistics,Bachelor of Science in Statistics
+BS Statistics,Bachelor of Science in Statistics
+Bachelor of Science in Physics,Bachelor of Science in Physics
+BS Physics,Bachelor of Science in Physics
+Bachelor of Science in Chemistry,Bachelor of Science in Chemistry
+BS Chemistry,Bachelor of Science in Chemistry
+Bachelor of Science in Biology,Bachelor of Science in Biology
+BS Biology,Bachelor of Science in Biology
+Bachelor of Science in Biotechnology,Bachelor of Science in Biotechnology
+BS Biotechnology,Bachelor of Science in Biotechnology
+Bachelor of Science in Biochemistry,Bachelor of Science in Biochemistry
+Bachelor of Science in Environmental Science,Bachelor of Science in Environmental Science
+Bachelor of Science in Nursing,Bachelor of Science in Nursing
+BSN,Bachelor of Science in Nursing
+Bachelor of Nursing,Bachelor of Nursing
+Master of Science in Nursing,Master of Science in Nursing
+MSN,Master of Science in Nursing
+Bachelor of Science in Psychology,Bachelor of Science in Psychology
+Bachelor of Science in Economics,Bachelor of Science in Economics
+Master of Science in Computer Science,Master of Science in Computer Science
+MS Computer Science,Master of Science in Computer Science
+MSc Computer Science,Master of Science in Computer Science
+Master of Science in Data Science,Master of Science in Data Science
+MS Data Science,Master of Science in Data Science
+Master of Science in Artificial Intelligence,Master of Science in Artificial Intelligence
+MS Artificial Intelligence,Master of Science in Artificial Intelligence
+Master of Science in Cybersecurity,Master of Science in Cybersecurity
+MS Cybersecurity,Master of Science in Cybersecurity
+Master of Science in Information Systems,Master of Science in Information Systems
+MS Information Systems,Master of Science in Information Systems
+Master of Science in Statistics,Master of Science in Statistics
+MS Statistics,Master of Science in Statistics
+Master of Science in Mathematics,Master of Science in Mathematics
+MS Mathematics,Master of Science in Mathematics
+Master of Science in Physics,Master of Science in Physics
+Master of Science in Chemistry,Master of Science in Chemistry
+Master of Science in Biology,Master of Science in Biology
+Master of Science in Biotechnology,Master of Science in Biotechnology
+Master of Science in Environmental Science,Master of Science in Environmental Science
+Master of Science in Finance,Master of Science in Finance
+MSc Finance,Master of Science in Finance
+MS Finance,Master of Science in Finance
+Master of Science in Economics,Master of Science in Economics
+MSc Economics,Master of Science in Economics
+Master of Science in Marketing,Master of Science in Marketing
+MSc Marketing,Master of Science in Marketing
+Master of Science in Human Resource Management,Master of Science in Human Resource Management
+MSc HRM,Master of Science in Human Resource Management
+Master of Science in Supply Chain Management,Master of Science in Supply Chain Management
+MSc Supply Chain,Master of Science in Supply Chain Management
+Master of Science in Project Management,Master of Science in Project Management
+MSc Project Management,Master of Science in Project Management
+Master of Science in Business Analytics,Master of Science in Business Analytics
+MS Business Analytics,Master of Science in Business Analytics
+MSc Business Analytics,Master of Science in Business Analytics
+Master of Science in Healthcare Management,Master of Science in Healthcare Management
+Master of Science in Education,Master of Science in Education
+MSc Education,Master of Science in Education
+Master of Business Administration,MBA
+MBA,MBA
+M.B.A.,MBA
+Master of Business Administration (MBA),MBA
+Executive MBA,Executive MBA
+EMBA,Executive MBA
+E-MBA,Executive MBA
+Global MBA,Global MBA
+Online MBA,Online MBA
+Part-time MBA,Part-time MBA
+Full-time MBA,Full-time MBA
+Bachelor of Business Administration,Bachelor of Business Administration
+BBA,Bachelor of Business Administration
+B.B.A.,Bachelor of Business Administration
+Bachelor of Business Administration (BBA),Bachelor of Business Administration
+Bachelor of Commerce,Bachelor of Commerce
+B.Com,Bachelor of Commerce
+BCom,Bachelor of Commerce
+B.Com.,Bachelor of Commerce
+Master of Commerce,Master of Commerce
+M.Com,Master of Commerce
+MCom,Master of Commerce
+Master of Commerce (M.Com),Master of Commerce
+Bachelor of Business,Bachelor of Business
+BB,Bachelor of Business
+Master of Business,Master of Business
+MB,Master of Business
+Bachelor of Accounting,Bachelor of Accounting
+BAcc,Bachelor of Accounting
+Master of Accounting,Master of Accounting
+MAcc,Master of Accounting
+Master of Accountancy,Master of Accountancy
+MAcy,Master of Accountancy
+Bachelor of Finance,Bachelor of Finance
+Master of Finance,Master of Finance
+MFin,Master of Finance
+Master of Financial Engineering,Master of Financial Engineering
+MFE,Master of Financial Engineering
+Master of Quantitative Finance,Master of Quantitative Finance
+MQF,Master of Quantitative Finance
+Bachelor of Economics,Bachelor of Economics
+BEcon,Bachelor of Economics
+Master of Economics,Master of Economics
+MEcon,Master of Economics
+Bachelor of Marketing,Bachelor of Marketing
+Master of Marketing,Master of Marketing
+MMkt,Master of Marketing
+Bachelor of Human Resource Management,Bachelor of Human Resource Management
+BHRM,Bachelor of Human Resource Management
+Master of Human Resource Management,Master of Human Resource Management
+MHRM,Master of Human Resource Management
+Master of Human Resources,Master of Human Resources
+MHR,Master of Human Resources
+Bachelor of Supply Chain Management,Bachelor of Supply Chain Management
+Master of Supply Chain Management,Master of Supply Chain Management
+MSCM,Master of Supply Chain Management
+Bachelor of Logistics,Bachelor of Logistics
+Master of Logistics,Master of Logistics
+Master of Management,Master of Management
+MM,Master of Management
+Master of International Business,Master of International Business
+MIB,Master of International Business
+Master of Global Management,Master of Global Management
+MGM,Master of Global Management
+Master of Entrepreneurship,Master of Entrepreneurship
+Master of Innovation,Master of Innovation
+Master of Digital Business,Master of Digital Business
+Bachelor of Hospitality Management,Bachelor of Hospitality Management
+BHM,Bachelor of Hospitality Management
+Master of Hospitality Management,Master of Hospitality Management
+MHM,Master of Hospitality Management
+Bachelor of Tourism Management,Bachelor of Tourism Management
+Master of Tourism Management,Master of Tourism Management
+Bachelor of Real Estate,Bachelor of Real Estate
+Master of Real Estate,Master of Real Estate
+Bachelor of Insurance,Bachelor of Insurance
+Master of Insurance,Master of Insurance
+Bachelor of Actuarial Science,Bachelor of Actuarial Science
+Master of Actuarial Science,Master of Actuarial Science
+Bachelor of Arts,Bachelor of Arts
+B.A.,Bachelor of Arts
+BA,Bachelor of Arts
+Bachelor of Arts (BA),Bachelor of Arts
+Master of Arts,Master of Arts
+M.A.,Master of Arts
+MA,Master of Arts
+Master of Arts (MA),Master of Arts
+Bachelor of Fine Arts,Bachelor of Fine Arts
+BFA,Bachelor of Fine Arts
+B.F.A.,Bachelor of Fine Arts
+Master of Fine Arts,Master of Fine Arts
+MFA,Master of Fine Arts
+M.F.A.,Master of Fine Arts
+Bachelor of Design,Bachelor of Design
+BDes,Bachelor of Design
+Master of Design,Master of Design
+MDes,Master of Design
+Bachelor of Architecture,Bachelor of Architecture
+BArch,Bachelor of Architecture
+B.Arch.,Bachelor of Architecture
+Master of Architecture,Master of Architecture
+MArch,Master of Architecture
+M.Arch.,Master of Architecture
+Bachelor of Urban Planning,Bachelor of Urban Planning
+Master of Urban Planning,Master of Urban Planning
+MUP,Master of Urban Planning
+Master of City Planning,Master of City Planning
+MCP,Master of City Planning
+Bachelor of Journalism,Bachelor of Journalism
+Master of Journalism,Master of Journalism
+MJ,Master of Journalism
+Bachelor of Mass Communication,Bachelor of Mass Communication
+BMC,Bachelor of Mass Communication
+Master of Mass Communication,Master of Mass Communication
+MMC,Master of Mass Communication
+Bachelor of Communications,Bachelor of Communications
+Master of Communications,Master of Communications
+Bachelor of Media Studies,Bachelor of Media Studies
+Master of Media Studies,Master of Media Studies
+Bachelor of Film Studies,Bachelor of Film Studies
+Master of Film Studies,Master of Film Studies
+Bachelor of Music,Bachelor of Music
+BMus,Bachelor of Music
+Master of Music,Master of Music
+MMus,Master of Music
+Bachelor of Music Education,Bachelor of Music Education
+Bachelor of Performing Arts,Bachelor of Performing Arts
+Bachelor of Theatre Arts,Bachelor of Theatre Arts
+Bachelor of Visual Arts,Bachelor of Visual Arts
+Bachelor of Photography,Bachelor of Photography
+Bachelor of Fashion Design,Bachelor of Fashion Design
+Master of Fashion Design,Master of Fashion Design
+Bachelor of Interior Design,Bachelor of Interior Design
+Master of Interior Design,Master of Interior Design
+Bachelor of Graphic Design,Bachelor of Graphic Design
+Master of Graphic Design,Master of Graphic Design
+Bachelor of Animation,Bachelor of Animation
+Master of Animation,Master of Animation
+Bachelor of Game Design,Bachelor of Game Design
+Master of Game Design,Master of Game Design
+Bachelor of Philosophy,Bachelor of Philosophy
+BPhil,Bachelor of Philosophy
+Master of Philosophy,Master of Philosophy
+MPhil,Master of Philosophy
+M.Phil.,Master of Philosophy
+Bachelor of History,Bachelor of History
+Master of History,Master of History
+Bachelor of Literature,Bachelor of Literature
+Master of Literature,Master of Literature
+Bachelor of Linguistics,Bachelor of Linguistics
+Master of Linguistics,Master of Linguistics
+Bachelor of English,Bachelor of English
+Master of English,Master of English
+Bachelor of Creative Writing,Bachelor of Creative Writing
+Master of Creative Writing,Master of Creative Writing
+Bachelor of Religious Studies,Bachelor of Religious Studies
+Master of Religious Studies,Master of Religious Studies
+Bachelor of Theology,Bachelor of Theology
+Master of Theology,Master of Theology
+Master of Divinity,Master of Divinity
+MDiv,Master of Divinity
+Bachelor of Sociology,Bachelor of Sociology
+Master of Sociology,Master of Sociology
+Bachelor of Anthropology,Bachelor of Anthropology
+Master of Anthropology,Master of Anthropology
+Bachelor of Political Science,Bachelor of Political Science
+Master of Political Science,Master of Political Science
+Master of Public Policy,Master of Public Policy
+MPP,Master of Public Policy
+Master of International Affairs,Master of International Affairs
+MIA,Master of International Affairs
+Master of International Relations,Master of International Relations
+MIR,Master of International Relations
+Master of Diplomacy,Master of Diplomacy
+Bachelor of Geography,Bachelor of Geography
+Master of Geography,Master of Geography
+Bachelor of Psychology,Bachelor of Psychology
+BPsych,Bachelor of Psychology
+Master of Psychology,Master of Psychology
+MPsych,Master of Psychology
+Master of Counseling,Master of Counseling
+Master of Clinical Psychology,Master of Clinical Psychology
+Master of Organizational Psychology,Master of Organizational Psychology
+Bachelor of Laws,Bachelor of Laws
+LLB,Bachelor of Laws
+LL.B.,Bachelor of Laws
+LLB (Hons),Bachelor of Laws
+Juris Doctor,Juris Doctor
+JD,Juris Doctor
+J.D.,Juris Doctor
+Master of Laws,Master of Laws
+LLM,Master of Laws
+LL.M.,Master of Laws
+Master of Legal Studies,Master of Legal Studies
+MLS,Master of Legal Studies
+Doctor of Juridical Science,Doctor of Juridical Science
+SJD,Doctor of Juridical Science
+Bachelor of Legal Studies,Bachelor of Legal Studies
+Master of Intellectual Property,Master of Intellectual Property
+Master of International Law,Master of International Law
+Master of Tax Law,Master of Tax Law
+Master of Corporate Law,Master of Corporate Law
+Master of Criminal Justice,Master of Criminal Justice
+MCJ,Master of Criminal Justice
+Bachelor of Criminology,Bachelor of Criminology
+Master of Criminology,Master of Criminology
+Doctor of Medicine,Doctor of Medicine
+MD,Doctor of Medicine
+M.D.,Doctor of Medicine
+MBBS,MBBS
+M.B.B.S.,MBBS
+"Bachelor of Medicine, Bachelor of Surgery",MBBS
+MBChB,MBChB
+Bachelor of Dental Surgery,Bachelor of Dental Surgery
+BDS,Bachelor of Dental Surgery
+B.D.S.,Bachelor of Dental Surgery
+Doctor of Dental Surgery,Doctor of Dental Surgery
+DDS,Doctor of Dental Surgery
+D.D.S.,Doctor of Dental Surgery
+Doctor of Dental Medicine,Doctor of Dental Medicine
+DMD,Doctor of Dental Medicine
+Doctor of Pharmacy,Doctor of Pharmacy
+PharmD,Doctor of Pharmacy
+Pharm.D.,Doctor of Pharmacy
+Bachelor of Pharmacy,Bachelor of Pharmacy
+BPharm,Bachelor of Pharmacy
+B.Pharm,Bachelor of Pharmacy
+Master of Pharmacy,Master of Pharmacy
+MPharm,Master of Pharmacy
+Doctor of Optometry,Doctor of Optometry
+OD,Doctor of Optometry
+O.D.,Doctor of Optometry
+Doctor of Veterinary Medicine,Doctor of Veterinary Medicine
+DVM,Doctor of Veterinary Medicine
+D.V.M.,Doctor of Veterinary Medicine
+BVSc,Bachelor of Veterinary Science
+Bachelor of Veterinary Science,Bachelor of Veterinary Science
+Doctor of Physical Therapy,Doctor of Physical Therapy
+DPT,Doctor of Physical Therapy
+D.P.T.,Doctor of Physical Therapy
+Doctor of Occupational Therapy,Doctor of Occupational Therapy
+OTD,Doctor of Occupational Therapy
+Master of Physical Therapy,Master of Physical Therapy
+MPT,Master of Physical Therapy
+Master of Occupational Therapy,Master of Occupational Therapy
+MOT,Master of Occupational Therapy
+Master of Speech-Language Pathology,Master of Speech-Language Pathology
+Master of Public Health,Master of Public Health
+MPH,Master of Public Health
+M.P.H.,Master of Public Health
+Bachelor of Public Health,Bachelor of Public Health
+BPH,Bachelor of Public Health
+Master of Health Administration,Master of Health Administration
+MHA,Master of Health Administration
+Master of Healthcare Management,Master of Healthcare Management
+Master of Health Informatics,Master of Health Informatics
+Master of Epidemiology,Master of Epidemiology
+Master of Global Health,Master of Global Health
+Bachelor of Physiotherapy,Bachelor of Physiotherapy
+BPT,Bachelor of Physiotherapy
+Bachelor of Occupational Therapy,Bachelor of Occupational Therapy
+BOT,Bachelor of Occupational Therapy
+Bachelor of Radiography,Bachelor of Radiography
+Bachelor of Medical Imaging,Bachelor of Medical Imaging
+Bachelor of Paramedicine,Bachelor of Paramedicine
+Bachelor of Nutrition,Bachelor of Nutrition
+Master of Nutrition,Master of Nutrition
+Bachelor of Dietetics,Bachelor of Dietetics
+Master of Dietetics,Master of Dietetics
+Bachelor of Clinical Psychology,Bachelor of Clinical Psychology
+Doctor of Psychology,Doctor of Psychology
+PsyD,Doctor of Psychology
+Psy.D.,Doctor of Psychology
+Master of Social Work,Master of Social Work
+MSW,Master of Social Work
+M.S.W.,Master of Social Work
+Bachelor of Social Work,Bachelor of Social Work
+BSW,Bachelor of Social Work
+Bachelor of Education,Bachelor of Education
+B.Ed.,Bachelor of Education
+BEd,Bachelor of Education
+Master of Education,Master of Education
+M.Ed.,Master of Education
+MEd,Master of Education
+Doctor of Education,Doctor of Education
+EdD,Doctor of Education
+Ed.D.,Doctor of Education
+Master of Teaching,Master of Teaching
+MTeach,Master of Teaching
+Postgraduate Certificate in Education,Postgraduate Certificate in Education
+PGCE,Postgraduate Certificate in Education
+Master of Educational Leadership,Master of Educational Leadership
+Bachelor of Early Childhood Education,Bachelor of Early Childhood Education
+Master of Special Education,Master of Special Education
+Master of Curriculum and Instruction,Master of Curriculum and Instruction
+Master of Educational Technology,Master of Educational Technology
+Master of Higher Education,Master of Higher Education
+Master of Instructional Design,Master of Instructional Design
+PhD,PhD
+Ph.D.,PhD
+Doctor of Philosophy,PhD
+PhD (Computer Science),PhD
+PhD (Engineering),PhD
+PhD (Business),PhD
+PhD (Science),PhD
+PhD (Arts),PhD
+PhD (Medicine),PhD
+PhD (Law),PhD
+PhD (Education),PhD
+DBA,Doctor of Business Administration
+Doctor of Business Administration,Doctor of Business Administration
+D.B.A.,Doctor of Business Administration
+DSc,Doctor of Science
+Doctor of Science,Doctor of Science
+D.Sc.,Doctor of Science
+DEng,Doctor of Engineering
+Doctor of Engineering,Doctor of Engineering
+D.Eng.,Doctor of Engineering
+EngD,Doctor of Engineering
+DPhil,PhD
+D.Phil.,PhD
+DNP,Doctor of Nursing Practice
+Doctor of Nursing Practice,Doctor of Nursing Practice
+Associate Degree,Associate Degree
+Associate of Arts,Associate of Arts
+AA,Associate of Arts
+A.A.,Associate of Arts
+Associate of Science,Associate of Science
+AS,Associate of Science
+A.S.,Associate of Science
+Associate of Applied Science,Associate of Applied Science
+AAS,Associate of Applied Science
+A.A.S.,Associate of Applied Science
+Associate of Business,Associate of Business
+Associate of Engineering,Associate of Engineering
+Associate of Technology,Associate of Technology
+Associate of Information Technology,Associate of Information Technology
+Higher National Diploma,Higher National Diploma
+HND,Higher National Diploma
+H.N.D.,Higher National Diploma
+Higher National Certificate,Higher National Certificate
+HNC,Higher National Certificate
+H.N.C.,Higher National Certificate
+Foundation Degree,Foundation Degree
+FdA,Foundation Degree
+FdSc,Foundation Degree in Science
+Foundation Degree in Science,Foundation Degree in Science
+Postgraduate Diploma,Postgraduate Diploma
+PGDip,Postgraduate Diploma
+PG Diploma,Postgraduate Diploma
+Postgraduate Certificate,Postgraduate Certificate
+PGCert,Postgraduate Certificate
+PG Certificate,Postgraduate Certificate
+Advanced Diploma,Advanced Diploma
+Graduate Diploma,Graduate Diploma
+Graduate Certificate,Graduate Certificate
+Executive Certificate,Executive Certificate
+Professional Certificate,Professional Certificate
+Professional Diploma,Professional Diploma
+Certificate,Certificate
+Diploma,Diploma
+Diploma of Technology,Diploma of Technology
+Diploma in Computer Science,Diploma in Computer Science
+Diploma in Information Technology,Diploma in Information Technology
+Diploma in Business,Diploma in Business
+Diploma in Engineering,Diploma in Engineering
+Diploma in Management,Diploma in Management
+Diploma in Education,Diploma in Education
+Diploma in Nursing,Diploma in Nursing
+Diploma in Pharmacy,Diploma in Pharmacy
+Diploma in Accounting,Diploma in Accounting
+Diploma in Finance,Diploma in Finance
+Diploma in Marketing,Diploma in Marketing
+Diploma in Human Resources,Diploma in Human Resources
+Diploma in Data Science,Diploma in Data Science
+Diploma in Cybersecurity,Diploma in Cybersecurity
+Diploma in Graphic Design,Diploma in Graphic Design
+Diploma in Architecture,Diploma in Architecture
+Diploma in Law,Diploma in Law
+Diploma in Journalism,Diploma in Journalism
+Diploma in Hospitality,Diploma in Hospitality
+Diploma in Supply Chain Management,Diploma in Supply Chain Management
+Diploma in Project Management,Diploma in Project Management
+Certificate in Data Science,Certificate in Data Science
+Certificate in Cybersecurity,Certificate in Cybersecurity
+Certificate in Cloud Computing,Certificate in Cloud Computing
+Certificate in Project Management,Certificate in Project Management
+Certificate in Business Analytics,Certificate in Business Analytics
+Certificate in Digital Marketing,Certificate in Digital Marketing
+Certificate in Human Resources,Certificate in Human Resources
+Certificate in Finance,Certificate in Finance
+Certificate in Accounting,Certificate in Accounting
+Certificate in Artificial Intelligence,Certificate in Artificial Intelligence
+Certificate in Machine Learning,Certificate in Machine Learning
+Certificate in UX Design,Certificate in UX Design
+Certificate in Web Development,Certificate in Web Development
+Certificate in DevOps,Certificate in DevOps
+Certificate in Blockchain,Certificate in Blockchain
+Certificate in Supply Chain,Certificate in Supply Chain
+Certificate in Leadership,Certificate in Leadership
+Laurea Triennale,Bachelor of Science
+Laurea Magistrale,Master of Science
+Diplôme d'Ingénieur,Master of Engineering
+Diplôme National de Master,Master of Science
+Licence,Bachelor of Arts
+Master 1,Master of Science
+Master 2,Master of Science
+Grande École Diploma,Grande École Diploma
+Abitur,Abitur
+Diplom,Diplom
+Magister,Magister
+Bachelor of Laws (Staatsexamen),Bachelor of Laws
+Fachhochschule Degree,Bachelor of Applied Science
+Numerus Clausus,Numerus Clausus
+B.Voc,Bachelor of Vocation
+Bachelor of Vocation,Bachelor of Vocation
+M.Voc,Master of Vocation
+Master of Vocation,Master of Vocation
+B.Plan,Bachelor of Planning
+Bachelor of Planning,Bachelor of Planning
+M.Plan,Master of Planning
+Master of Planning,Master of Planning
+D.Pharm,Diploma in Pharmacy
+B.Sc. Agriculture,Bachelor of Science in Agriculture
+Bachelor of Science in Agriculture,Bachelor of Science in Agriculture
+M.Sc. Agriculture,Master of Science in Agriculture
+Master of Science in Agriculture,Master of Science in Agriculture
+B.Sc. Forestry,Bachelor of Science in Forestry
+B.Sc. Horticulture,Bachelor of Science in Horticulture
+B.Sc. Food Technology,Bachelor of Science in Food Technology
+B.Sc. Home Science,Bachelor of Science in Home Science
+B.Lib.Sc.,Bachelor of Library Science
+Bachelor of Library Science,Bachelor of Library Science
+M.Lib.Sc.,Master of Library Science
+Master of Library Science,Master of Library Science
+B.P.Ed.,Bachelor of Physical Education
+Bachelor of Physical Education,Bachelor of Physical Education
+M.P.Ed.,Master of Physical Education
+Master of Physical Education,Master of Physical Education
+B.F.Sc.,Bachelor of Fisheries Science
+Bachelor of Fisheries Science,Bachelor of Fisheries Science
+Bachelor of Veterinary and Animal Sciences,Bachelor of Veterinary and Animal Sciences
+B.V.Sc & A.H.,Bachelor of Veterinary and Animal Sciences
+Bachelor of Social Science,Bachelor of Social Science
+BSocSc,Bachelor of Social Science
+Master of Social Science,Master of Social Science
+MSocSc,Master of Social Science
+Bachelor of Applied Science,Bachelor of Applied Science
+BAppSc,Bachelor of Applied Science
+Master of Applied Science,Master of Applied Science
+MAppSc,Master of Applied Science
+Bachelor of Health Science,Bachelor of Health Science
+BHSc,Bachelor of Health Science
+Master of Health Science,Master of Health Science
+MHSc,Master of Health Science
+Bachelor of Environmental Science,Bachelor of Environmental Science
+Master of Environmental Science,Master of Environmental Science
+Master of Environmental Management,Master of Environmental Management
+Master of Climate Change,Master of Climate Change
+Bachelor of Agricultural Science,Bachelor of Agricultural Science
+Master of Agricultural Science,Master of Agricultural Science
+Bachelor of Food Science,Bachelor of Food Science
+Master of Food Science,Master of Food Science
+Bachelor of Sports Science,Bachelor of Sports Science
+Master of Sports Science,Master of Sports Science
+Master of Sports Management,Master of Sports Management
+Bachelor of Sports Management,Bachelor of Sports Management
+Master of Public Administration,Master of Public Administration
+MPA,Master of Public Administration
+M.P.A.,Master of Public Administration
+Bachelor of Public Administration,Bachelor of Public Administration
+BPA,Bachelor of Public Administration
+Master of Public Affairs,Master of Public Affairs
+Master of Development Studies,Master of Development Studies
+MDS,Master of Development Studies
+Master of Social Policy,Master of Social Policy
+Master of Nonprofit Management,Master of Nonprofit Management
+Bachelor of Social Policy,Bachelor of Social Policy
+Bachelor of Development Studies,Bachelor of Development Studies
+Master of Professional Accounting,Master of Professional Accounting
+Master of Taxation,Master of Taxation
+MTax,Master of Taxation
+Master of Financial Planning,Master of Financial Planning
+MFP,Master of Financial Planning
+Master of Wealth Management,Master of Wealth Management
+Master of Investment Management,Master of Investment Management
+Master of Risk Management,Master of Risk Management
+Master of Compliance,Master of Compliance
+Master of Actuarial Studies,Master of Actuarial Studies
+Master of Construction Management,Master of Construction Management
+MCM,Master of Construction Management
+Bachelor of Construction Management,Bachelor of Construction Management
+Master of Property,Master of Property
+Master of Real Estate Development,Master of Real Estate Development
+Bachelor of Surveying,Bachelor of Surveying
+Master of Surveying,Master of Surveying
+Master of Landscape Architecture,Master of Landscape Architecture
+MLA,Master of Landscape Architecture
+Bachelor of Landscape Architecture,Bachelor of Landscape Architecture
+Bachelor of Social Welfare,Bachelor of Social Welfare
+Master of Social Welfare,Master of Social Welfare
+Master of Community Development,Master of Community Development
+Bachelor of Indigenous Studies,Bachelor of Indigenous Studies
+Master of Geomatics,Master of Geomatics
+Bachelor of Geomatics,Bachelor of Geomatics
+Master of Spatial Science,Master of Spatial Science
+Bachelor of Aviation,Bachelor of Aviation
+Master of Aviation,Master of Aviation
+Bachelor of Maritime Studies,Bachelor of Maritime Studies
+Master of Maritime Studies,Master of Maritime Studies
+Bachelor of Military Science,Bachelor of Military Science
+Master of Strategic Studies,Master of Strategic Studies
+Master of Defence Studies,Master of Defence Studies
+Bachelor of Forensic Science,Bachelor of Forensic Science
+Master of Forensic Science,Master of Forensic Science
+Master of Forensic Accounting,Master of Forensic Accounting
+Master of Intellectual Property Law,Master of Intellectual Property Law
+Master of Privacy Law,Master of Privacy Law
+Master of Cyber Law,Master of Cyber Law
+Master of Sports Law,Master of Sports Law
+Master of Entertainment Law,Master of Entertainment Law
+Master of Health Law,Master of Health Law
+Master of Environmental Law,Master of Environmental Law
+Bachelor of Naturopathy,Bachelor of Naturopathy
+"Bachelor of Ayurveda, Medicine and Surgery","Bachelor of Ayurveda, Medicine and Surgery"
+BAMS,"Bachelor of Ayurveda, Medicine and Surgery"
+Bachelor of Homeopathic Medicine and Surgery,Bachelor of Homeopathic Medicine and Surgery
+BHMS,Bachelor of Homeopathic Medicine and Surgery
+Bachelor of Unani Medicine and Surgery,Bachelor of Unani Medicine and Surgery
+BUMS,Bachelor of Unani Medicine and Surgery
+Bachelor of Siddha Medicine and Surgery,Bachelor of Siddha Medicine and Surgery
+BSMS,Bachelor of Siddha Medicine and Surgery
+Bachelor of Chinese Medicine,Bachelor of Chinese Medicine
+Master of Traditional Chinese Medicine,Master of Traditional Chinese Medicine
+MTCM,Master of Traditional Chinese Medicine
+Bachelor of Acupuncture,Bachelor of Acupuncture
+Master of Acupuncture,Master of Acupuncture
+Master of Chiropractic,Master of Chiropractic
+Doctor of Chiropractic,Doctor of Chiropractic
+DC,Doctor of Chiropractic
+Master of Podiatry,Master of Podiatry
+Doctor of Podiatric Medicine,Doctor of Podiatric Medicine
+DPM,Doctor of Podiatric Medicine

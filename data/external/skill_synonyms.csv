@@ -1,0 +1,1215 @@
+skill,synonym
+JavaScript,JS
+JavaScript,Javascript
+JavaScript,ECMAScript
+JavaScript,ES6
+JavaScript,ES2015
+JavaScript,ES2020
+JavaScript,Vanilla JS
+JavaScript,client-side scripting
+TypeScript,TS
+TypeScript,Typed JavaScript
+TypeScript,TSX
+React,ReactJS
+React,React.js
+React,React JS
+React,Facebook React
+React,React Framework
+Next.js,NextJS
+Next.js,Next JS
+Next.js,Next
+Next.js,Next.js Framework
+Vue,VueJS
+Vue,Vue.js
+Vue,Vue JS
+Vue,Vue Framework
+Nuxt.js,NuxtJS
+Nuxt.js,Nuxt
+Nuxt.js,Nuxt JS
+Angular,AngularJS
+Angular,Angular.js
+Angular,Angular 2+
+Angular,Angular Framework
+Angular,Google Angular
+Svelte,SvelteJS
+Svelte,Svelte.js
+Svelte,Svelte Framework
+Remix,Remix.js
+Remix,Remix Run
+Gatsby,Gatsby.js
+Gatsby,GatsbyJS
+Solid.js,SolidJS
+Solid.js,Solid
+Astro,Astro.js
+Astro,AstroJS
+Alpine.js,AlpineJS
+Alpine.js,Alpine
+HTMX,htmx
+HTMX,Hypertext Markup eXtensions
+Node.js,Node
+Node.js,NodeJS
+Node.js,Node JS
+Node.js,server-side JavaScript
+Express.js,Express
+Express.js,ExpressJS
+Express.js,Express JS
+Express.js,Express Framework
+NestJS,Nest.js
+NestJS,Nest JS
+NestJS,Nest
+Fastify,Fastify.js
+Fastify,FastifyJS
+Deno,Deno.js
+Deno,Deno Runtime
+Bun,Bun.js
+Bun,Bun Runtime
+npm,Node Package Manager
+npm,NPM
+yarn,Yarn Package Manager
+yarn,Yarn
+pnpm,PNPM
+pnpm,Performant NPM
+Webpack,webpack
+Webpack,Web Pack
+Vite,Vite.js
+Vite,ViteJS
+Babel,Babel.js
+Babel,BabelJS
+Babel,JS transpiler
+Jest,Jest.js
+Jest,JestJS
+Jest,Jest Testing
+Vitest,Vite Test
+Cypress,Cypress.io
+Cypress,Cypress Testing
+Playwright,Playwright Testing
+Playwright,Microsoft Playwright
+Redux,Redux.js
+Redux,ReduxJS
+Redux,Redux State Management
+MobX,Mobx
+MobX,MobX State Management
+Zustand,Zustand State
+React Query,TanStack Query
+React Query,TanStack
+GraphQL,GQL
+GraphQL,Graph QL
+GraphQL,graph query language
+Apollo,Apollo GraphQL
+Apollo,Apollo Client
+Apollo,Apollo Server
+Axios,axios
+Axios,axios.js
+Three.js,ThreeJS
+Three.js,Three JS
+Three.js,WebGL Three
+D3.js,D3
+D3.js,D3JS
+D3.js,Data Driven Documents
+Chart.js,ChartJS
+Chart.js,Chart JS
+Socket.io,Socket.IO
+Socket.io,SocketIO
+Socket.io,WebSockets library
+Electron,Electron.js
+Electron,ElectronJS
+Electron,Electron Framework
+Tauri,Tauri Framework
+React Native,RN
+React Native,React-Native
+React Native,RN Framework
+Expo,Expo Framework
+Expo,Expo CLI
+jQuery,JQuery
+jQuery,jQuery library
+Python,Py
+Python,python3
+Python,Python 3
+Python,CPython
+Python,python programming
+Django,Django Framework
+Django,Django REST
+Django,Django Python
+Flask,Flask Python
+Flask,Flask Framework
+Flask,Flask micro-framework
+FastAPI,Fast API
+FastAPI,FastAPI Python
+FastAPI,FastAPI Framework
+SQLAlchemy,SQL Alchemy
+SQLAlchemy,SQLAlchemy ORM
+Celery,Celery Python
+Celery,Celery task queue
+Pandas,pandas
+Pandas,pandas Python
+Pandas,Pandas library
+NumPy,Numpy
+NumPy,Numerical Python
+Matplotlib,matplotlib
+Matplotlib,Matplotlib Python
+Seaborn,seaborn
+Seaborn,Seaborn Python
+Scikit-learn,sklearn
+Scikit-learn,scikit learn
+Scikit-learn,sci-kit learn
+TensorFlow,Tensorflow
+TensorFlow,TF
+TensorFlow,Google TensorFlow
+PyTorch,Pytorch
+PyTorch,torch
+PyTorch,Facebook PyTorch
+Keras,keras
+Keras,Keras API
+Keras,Keras Python
+Hugging Face,HuggingFace
+Hugging Face,HF
+LangChain,Langchain
+LangChain,Lang Chain
+OpenCV,Open CV
+OpenCV,cv2
+OpenCV,Open Computer Vision
+SpaCy,spacy
+SpaCy,spaCy NLP
+SpaCy,spaCy library
+NLTK,Natural Language Toolkit
+NLTK,nltk
+XGBoost,xgboost
+XGBoost,XGB
+XGBoost,Extreme Gradient Boosting
+LightGBM,Light GBM
+LightGBM,lightgbm
+LightGBM,Microsoft LightGBM
+CatBoost,Catboost
+CatBoost,Yandex CatBoost
+Polars,polars
+Polars,Polars DataFrame
+Dask,dask
+Dask,Dask parallel computing
+Ray,ray
+Ray,Ray Distributed
+Ray,Anyscale Ray
+Jupyter,Jupyter Notebook
+Jupyter,JupyterLab
+Jupyter,Jupyter Lab
+Jupyter,iPython Notebook
+Airflow,Apache Airflow
+Airflow,airflow
+Prefect,Prefect.io
+Prefect,Prefect workflow
+MLflow,ML Flow
+Weights & Biases,WandB
+Weights & Biases,W&B
+Weights & Biases,Weights and Biases
+DVC,Data Version Control
+DVC,dvc
+Streamlit,streamlit
+Streamlit,Streamlit Python
+Plotly,plotly
+Plotly,Plotly Python
+Plotly,Plotly Dash
+Requests,requests
+Requests,requests library
+Requests,Python Requests
+BeautifulSoup,Beautiful Soup
+BeautifulSoup,BS4
+Scrapy,scrapy
+Scrapy,Scrapy framework
+Pydantic,pydantic
+Pydantic,Pydantic models
+Poetry,poetry
+Poetry,Python Poetry
+Pytest,pytest
+Pytest,py.test
+Pytest,Python testing
+Asyncio,async io
+Asyncio,asyncio
+Asyncio,Python async
+Uvicorn,uvicorn
+Uvicorn,ASGI server
+Gunicorn,gunicorn
+Gunicorn,Green Unicorn
+Java,java
+Java,Java Programming
+Java,Core Java
+Java,Java SE
+Java,Java EE
+Java,J2EE
+Java,J2SE
+JavaScript,Java Script
+Spring Boot,SpringBoot
+Spring Boot,Spring-Boot
+Spring Boot,Spring
+Spring Boot,Spring Framework
+Spring Boot,Spring MVC
+Spring Security,Spring security
+Spring Security,Spring Auth
+Hibernate,hibernate
+Hibernate,Hibernate ORM
+Hibernate,Java Hibernate
+Maven,maven
+Maven,Apache Maven
+Gradle,gradle
+Gradle,Gradle Build
+JUnit,Junit
+JUnit,Java unit testing
+Mockito,mockito
+Mockito,Java Mockito
+Lombok,lombok
+Lombok,Java Lombok
+JPA,Java Persistence API
+JPA,java persistence
+JDBC,Java Database Connectivity
+JDBC,java database
+Kafka,Apache Kafka
+Kafka,kafka
+Kafka,Kafka Streams
+Quarkus,quarkus
+Quarkus,Quarkus Framework
+Micronaut,micronaut
+Micronaut,Micronaut Framework
+Vert.x,Vertx
+Vert.x,Vert x
+Vert.x,Eclipse Vert.x
+AWS,Amazon Web Services
+AWS,Amazon AWS
+AWS,Amazon Cloud
+AWS,AWS Cloud
+AWS Lambda,Lambda
+AWS Lambda,Serverless Lambda
+AWS Lambda,FaaS Lambda
+AWS S3,S3
+AWS S3,Amazon S3
+AWS S3,Simple Storage Service
+AWS EC2,EC2
+AWS EC2,Amazon EC2
+AWS EC2,Elastic Compute Cloud
+AWS RDS,RDS
+AWS RDS,Amazon RDS
+AWS RDS,Relational Database Service
+AWS DynamoDB,DynamoDB
+AWS DynamoDB,Dynamo DB
+AWS ECS,ECS
+AWS ECS,Elastic Container Service
+AWS EKS,EKS
+AWS EKS,Elastic Kubernetes Service
+AWS CloudFormation,CloudFormation
+AWS CloudFormation,CFN
+AWS CDK,CDK
+AWS CDK,Cloud Development Kit
+AWS SQS,SQS
+AWS SQS,Simple Queue Service
+AWS SNS,SNS
+AWS SNS,Simple Notification Service
+AWS API Gateway,API Gateway
+AWS API Gateway,AWS APIGW
+AWS CloudFront,CloudFront
+AWS CloudFront,CDN CloudFront
+AWS IAM,IAM
+AWS IAM,Identity and Access Management
+AWS SageMaker,SageMaker
+AWS SageMaker,Amazon SageMaker
+AWS Glue,Glue
+AWS Glue,Amazon Glue
+AWS Athena,Athena
+AWS Athena,Amazon Athena
+AWS Redshift,Redshift
+AWS Redshift,Amazon Redshift
+Azure,Microsoft Azure
+Azure,MS Azure
+Azure,Azure Cloud
+Azure,Microsoft Cloud
+Azure DevOps,AzureDevOps
+Azure DevOps,ADO
+Azure DevOps,VSTS
+Azure DevOps,Azure DevOps Services
+Azure Functions,AZ Functions
+Azure Functions,Azure Serverless
+Azure Blob Storage,Azure Blob
+Azure Blob Storage,ABS
+Azure SQL,Azure SQL Database
+Azure SQL,SQL Azure
+Azure Kubernetes Service,AKS
+Azure Kubernetes Service,Azure K8s
+Azure Container Instances,ACI
+Azure Active Directory,AAD
+Azure Active Directory,Azure AD
+Azure Active Directory,Entra ID
+Azure ML,Azure Machine Learning
+Azure ML,AML
+Azure Data Factory,ADF
+Azure Data Factory,Azure ETL
+Azure Synapse,Synapse Analytics
+Azure Synapse,Azure Synapse Analytics
+Azure Cosmos DB,CosmosDB
+Azure Cosmos DB,Cosmos DB
+Azure Event Hub,Event Hub
+Azure Event Hub,Azure Event Hubs
+Azure Service Bus,Service Bus
+GCP,Google Cloud Platform
+GCP,Google Cloud
+GCP,Google GCP
+GCP BigQuery,BigQuery
+GCP BigQuery,BQ
+GCP BigQuery,Google BigQuery
+GCP Pub/Sub,Pub/Sub
+GCP Pub/Sub,Google Pub Sub
+GCP Cloud Run,Cloud Run
+GCP Cloud Run,Google Cloud Run
+GCP GKE,GKE
+GCP GKE,Google Kubernetes Engine
+GCP Firestore,Firestore
+GCP Firestore,Cloud Firestore
+GCP Vertex AI,Vertex AI
+GCP Vertex AI,Google Vertex AI
+GCP Compute Engine,Compute Engine
+GCP Compute Engine,GCE
+GCP Cloud Storage,GCS
+GCP Cloud Storage,Google Cloud Storage
+GCP Dataflow,Dataflow
+GCP Dataflow,Google Dataflow
+GCP Dataproc,Dataproc
+GCP Dataproc,Google Dataproc
+DigitalOcean,Digital Ocean
+DigitalOcean,DO Cloud
+Heroku,heroku
+Heroku,Heroku Platform
+Vercel,Vercel Cloud
+Vercel,Now.sh
+Netlify,netlify
+Netlify,Netlify Platform
+Cloudflare,Cloud Flare
+Cloudflare,CF
+Cloudflare Workers,CF Workers
+Cloudflare Workers,Workers
+MongoDB,Mongo
+MongoDB,Mongo DB
+PostgreSQL,Postgres
+PostgreSQL,PG
+PostgreSQL,pgSQL
+PostgreSQL,Postgresql
+MySQL,My SQL
+MySQL,mysql
+SQLite,Sqlite
+SQLite,Lite SQL
+Microsoft SQL Server,MSSQL
+Microsoft SQL Server,MS SQL
+Microsoft SQL Server,SQL Server
+Microsoft SQL Server,MSSQL Server
+Oracle Database,Oracle DB
+Oracle Database,Oracle
+Oracle Database,OracleDB
+MariaDB,Maria DB
+MariaDB,mariadb
+Redis,redis
+Redis,Redis Cache
+Redis,Redis DB
+Redis,in-memory Redis
+Cassandra,Apache Cassandra
+Cassandra,cassandra
+Cassandra,Cassandra DB
+Elasticsearch,Elastic Search
+Elasticsearch,ES
+Elasticsearch,ELK Elasticsearch
+DynamoDB,Dynamo DB
+DynamoDB,dynamodb
+DynamoDB,Amazon DynamoDB
+Firestore,Firebase Firestore
+Firestore,Cloud Firestore
+Firestore,firestore
+Supabase,Supa Base
+Supabase,supabase
+Snowflake,snowflake
+Snowflake,Snowflake DB
+Snowflake,Snowflake Data Warehouse
+BigQuery,Big Query
+BigQuery,GCP BigQuery
+Redshift,AWS Redshift
+Redshift,Amazon Redshift
+Redshift,redshift
+ClickHouse,Clickhouse
+ClickHouse,click house
+DuckDB,Duck DB
+DuckDB,duckdb
+Neo4j,Neo 4j
+Neo4j,neo4j
+Neo4j,graph database Neo4j
+Pinecone,pinecone
+Pinecone,Pinecone vector DB
+Weaviate,weaviate
+Weaviate,Weaviate vector
+Milvus,milvus
+Milvus,Milvus vector DB
+Qdrant,qdrant
+Qdrant,Qdrant vector
+Chroma,chromadb
+Chroma,chroma vector
+dbt,DBT
+dbt,Data Build Tool
+dbt,dbt Core
+Prisma,prisma
+Prisma,Prisma ORM
+Sequelize,sequelize
+Sequelize,Sequelize ORM
+TypeORM,Type ORM
+TypeORM,typeorm
+Drizzle,Drizzle ORM
+Drizzle,drizzle
+Docker,docker
+Docker,Docker Container
+Docker,Containerization Docker
+Docker,Docker Engine
+Kubernetes,K8s
+Kubernetes,Kube
+Kubernetes,kubernetes
+Kubernetes,container orchestration
+Helm,helm
+Helm,Helm charts
+Helm,Kubernetes Helm
+Terraform,terraform
+Terraform,TF
+Terraform,HashiCorp Terraform
+Terraform,Infrastructure as Code Terraform
+Ansible,ansible
+Ansible,Red Hat Ansible
+Ansible,Ansible automation
+Jenkins,jenkins
+Jenkins,Jenkins CI
+Jenkins,Jenkins pipeline
+Jenkins,Jenkins CI/CD
+GitHub Actions,GHA
+GitHub Actions,Github Actions
+GitHub Actions,GH Actions
+GitLab CI/CD,GitLab CI
+GitLab CI/CD,GitLab pipelines
+GitLab CI/CD,GL CI
+CircleCI,Circle CI
+CircleCI,circleci
+Travis CI,TravisCI
+Travis CI,travis
+ArgoCD,Argo CD
+ArgoCD,argocd
+ArgoCD,Argo CD GitOps
+Prometheus,prometheus
+Prometheus,Prom
+Prometheus,Prometheus monitoring
+Grafana,grafana
+Grafana,Grafana monitoring
+Grafana,Grafana dashboards
+Datadog,Data Dog
+Datadog,datadog
+Datadog,DD monitoring
+New Relic,NewRelic
+New Relic,new relic
+Splunk,splunk
+Splunk,Splunk SIEM
+ELK Stack,ELK
+ELK Stack,Elastic Stack
+ELK Stack,Elasticsearch Logstash Kibana
+Kibana,kibana
+Kibana,Kibana dashboards
+Logstash,logstash
+Logstash,Elastic Logstash
+Vault,HashiCorp Vault
+Vault,vault
+Consul,HashiCorp Consul
+Consul,consul
+Nomad,HashiCorp Nomad
+Nomad,nomad
+Pulumi,pulumi
+Pulumi,Pulumi IaC
+OpenTofu,Open Tofu
+OpenTofu,opentofu
+Istio,istio
+Istio,Istio service mesh
+Linkerd,linkerd
+Linkerd,Linkerd service mesh
+Envoy,envoy
+Envoy,Envoy proxy
+Nginx,NGINX
+Nginx,Nginx server
+Apache,Apache HTTP
+Apache,apache
+Apache,Apache Web Server
+Apache,httpd
+HAProxy,HA Proxy
+HAProxy,haproxy
+Traefik,traefik
+Traefik,Traefik proxy
+Packer,packer
+Packer,HashiCorp Packer
+Vagrant,vagrant
+Vagrant,HashiCorp Vagrant
+OpenShift,Open Shift
+OpenShift,openshift
+OpenShift,Red Hat OpenShift
+Rancher,rancher
+Rancher,Rancher Kubernetes
+Flux CD,FluxCD
+Flux CD,Flux
+Flux CD,GitOps Flux
+Spinnaker,spinnaker
+Spinnaker,Spinnaker CD
+SonarQube,Sonar Qube
+SonarQube,sonarqube
+SonarQube,Sonar
+Git,git
+Git,git SCM
+Git,version control Git
+GitHub,Github
+GitHub,GH
+GitLab,Gitlab
+GitLab,GL
+Bitbucket,Bit Bucket
+Bitbucket,bitbucket
+Bitbucket,Atlassian Bitbucket
+SVN,Subversion
+SVN,Apache Subversion
+SVN,svn
+Mercurial,Hg
+Mercurial,mercurial
+Perforce,P4
+Perforce,perforce
+Perforce,Helix Core
+Azure DevOps Repos,Azure Repos
+Azure DevOps Repos,ADO Repos
+Tailwind CSS,Tailwind
+Tailwind CSS,tailwindcss
+Tailwind CSS,utility-first CSS
+Bootstrap,bootstrap
+Bootstrap,Twitter Bootstrap
+Bootstrap,BS
+Material UI,MUI
+Material UI,Material-UI
+Material UI,MaterialUI
+Sass,SASS
+Sass,Syntactically Awesome Stylesheets
+Sass,SCSS
+Less,LESS
+CSS,Cascading Style Sheets
+CSS,css
+CSS,CSS3
+HTML,Hypertext Markup Language
+HTML,html
+HTML,HTML5
+Styled Components,styled-components
+Styled Components,StyledComponents
+Ant Design,AntD
+Ant Design,Ant Design UI
+Chakra UI,ChakraUI
+Chakra UI,chakra
+Shadcn/ui,shadcn
+Shadcn/ui,shadcn ui
+Radix UI,RadixUI
+Radix UI,radix
+Framer Motion,FramerMotion
+Framer Motion,framer-motion
+Framer Motion,Framer
+Storybook,story book
+Storybook,storybook
+REST API,RESTful API
+REST API,REST
+REST API,RESTful
+REST API,REST web service
+REST API,HTTP API
+gRPC,GRPC
+gRPC,Google RPC
+gRPC,Remote Procedure Call
+SOAP,Simple Object Access Protocol
+SOAP,soap
+OpenAPI,Open API
+OpenAPI,Swagger API
+OpenAPI,OAS
+Swagger,swagger
+Swagger,Swagger UI
+Swagger,OpenAPI Swagger
+Postman,postman
+Postman,Postman API
+Postman,Postman testing
+tRPC,TRPC
+tRPC,TypeScript RPC
+WebSockets,Web Sockets
+WebSockets,WS
+WebSockets,websockets
+Microservices,Micro Services
+Microservices,microservices
+Microservices,micro-services
+Kong,Kong API Gateway
+Kong,kong
+Kong,Kong Gateway
+Nginx,Nginx Reverse Proxy
+Nginx,nginx web server
+React Native,ReactNative
+Flutter,flutter
+Flutter,Flutter SDK
+Flutter,Google Flutter
+Swift,swift
+Swift,Apple Swift
+Swift,Swift Programming
+SwiftUI,Swift UI
+SwiftUI,swiftui
+Kotlin,kotlin
+Kotlin,Kotlin Android
+Kotlin,JetBrains Kotlin
+Jetpack Compose,Compose
+Jetpack Compose,Android Compose
+Jetpack Compose,jetpack compose
+Xamarin,xamarin
+Xamarin,Microsoft Xamarin
+Ionic,ionic
+Ionic,Ionic Framework
+.NET MAUI,MAUI
+.NET MAUI,dotnet MAUI
+.NET MAUI,Microsoft MAUI
+Kotlin Multiplatform,KMP
+Kotlin Multiplatform,Kotlin Multiplatform Mobile
+Kotlin Multiplatform,KMM
+Capacitor,capacitor
+Capacitor,Capacitor.js
+C++,CPP
+C++,C Plus Plus
+C#,C Sharp
+C#,csharp
+C#,dotnet C#
+.NET,.net
+.NET,dotnet
+.NET,Microsoft .NET
+ASP.NET Core,ASP.NET
+ASP.NET Core,aspnet core
+ASP.NET Core,dotnet core
+Go,Golang
+Go,Go Programming
+Go,Google Go
+Rust,rust
+Rust,Rust Programming
+Rust,Rust lang
+Rust,rustlang
+Ruby,ruby
+Ruby,Ruby Programming
+Ruby on Rails,Rails
+Ruby on Rails,ROR
+Ruby on Rails,Rails Framework
+PHP,php
+PHP,PHP Programming
+PHP,Hypertext Preprocessor
+Laravel,laravel
+Laravel,Laravel PHP
+Laravel,Laravel Framework
+Symfony,symfony
+Symfony,Symfony PHP
+Scala,scala
+Scala,Scala Programming
+Scala,JVM Scala
+Kotlin,Kotlin JVM
+R,R Programming
+R,R language
+R,R Statistical
+R,R Lang
+MATLAB,matlab
+MATLAB,Matrix Laboratory
+Perl,perl
+Perl,Perl scripting
+Lua,lua
+Lua,Lua scripting
+Dart,dart
+Dart,Dart Programming
+Dart,Google Dart
+Elixir,elixir
+Elixir,Elixir Programming
+Haskell,haskell
+Haskell,Haskell Programming
+Clojure,clojure
+Clojure,Clojure Lisp
+Groovy,groovy
+Groovy,Groovy JVM
+Bash,bash
+Bash,bash scripting
+Bash,Shell
+Bash,shell script
+PowerShell,PS
+PowerShell,powershell
+PowerShell,PS scripting
+Swift,Swift iOS
+Swift,Swift macOS
+Solidity,solidity
+Solidity,Solidity Ethereum
+Solidity,ETH Smart Contracts
+Julia,julia
+Julia,Julia scientific
+Zig,zig
+Zig,Zig Programming
+Nim,nim
+Nim,Nim Programming
+Machine Learning,ML
+Machine Learning,machine learning
+Machine Learning,Statistical Learning
+Deep Learning,DL
+Deep Learning,neural network learning
+Artificial Intelligence,AI
+Artificial Intelligence,machine intelligence
+Natural Language Processing,NLP
+Natural Language Processing,text processing
+Computer Vision,CV
+Computer Vision,image processing AI
+Reinforcement Learning,RL
+Large Language Models,LLM
+Large Language Models,LLMs
+Generative AI,GenAI
+Generative AI,gen ai
+Generative AI,generative
+Prompt Engineering,Prompting
+Prompt Engineering,prompt engineering
+RAG,Retrieval Augmented Generation
+RAG,rag
+RAG,retrieval augmented
+MLOps,ML Ops
+MLOps,ML operations
+DataOps,Data Ops
+Power BI,PowerBI
+Power BI,power bi
+Power BI,Microsoft Power BI
+Power BI,PBI
+Tableau,tableau
+Tableau,Tableau Desktop
+Tableau,Tableau visualization
+Looker,looker
+Looker,Google Looker
+Looker,Looker Studio
+Looker,Google Data Studio
+Metabase,metabase
+Metabase,Metabase BI
+Apache Spark,Spark
+Apache Spark,PySpark
+Apache Spark,Spark SQL
+Apache Kafka,Kafka
+Apache Kafka,Kafka Streams
+Apache Flink,Flink
+Apache Hadoop,Hadoop
+Apache Hadoop,HDFS
+Databricks,databricks
+Databricks,Databricks Spark
+Databricks,Azure Databricks
+Snowflake,Snowflake DW
+Snowflake,Snowflake Data Cloud
+Cybersecurity,Cyber Security
+Cybersecurity,infosec
+Cybersecurity,information security
+Penetration Testing,PenTest
+Penetration Testing,Pen Test
+Penetration Testing,ethical hacking
+OWASP,Open Web Application Security Project
+OWASP,owasp
+Zero Trust,ZTA
+Zero Trust,Zero Trust Architecture
+Zero Trust,ZT
+IAM,Identity and Access Management
+IAM,Identity Access Management
+SIEM,Security Information and Event Management
+SIEM,siem
+SOC,Security Operations Center
+SOC,Security Operations Centre
+DevSecOps,DevSecops
+DevSecOps,Secure DevOps
+DevSecOps,Security in DevOps
+EDR,Endpoint Detection and Response
+EDR,endpoint detection
+XDR,Extended Detection and Response
+XDR,extended detection
+ZTNA,Zero Trust Network Access
+SASE,Secure Access Service Edge
+PAM,Privileged Access Management
+PAM,privileged access
+SSO,Single Sign-On
+SSO,single sign on
+MFA,Multi-Factor Authentication
+MFA,multi factor auth
+MFA,2FA
+MFA,Two-Factor Authentication
+OAuth,OAuth 2.0
+OAuth,oauth
+OAuth,Open Authorization
+JWT,JSON Web Token
+JWT,jot
+SAML,Security Assertion Markup Language
+SAML,saml
+OpenID Connect,OIDC
+OpenID Connect,openid
+SSL/TLS,SSL
+SSL/TLS,TLS
+SSL/TLS,HTTPS
+SSL/TLS,Transport Layer Security
+PKI,Public Key Infrastructure
+PKI,public key
+PCI DSS,PCI
+PCI DSS,Payment Card Industry
+GDPR,General Data Protection Regulation
+GDPR,gdpr
+HIPAA,Health Insurance Portability and Accountability Act
+HIPAA,hipaa
+ISO 27001,ISO27001
+ISO 27001,iso 27001
+SOC 2,SOC2
+SOC 2,Service Organization Control 2
+NIST,National Institute of Standards and Technology
+NIST,nist
+OSCP,Offensive Security Certified Professional
+OSCP,oscp
+CEH,Certified Ethical Hacker
+CEH,ceh
+Burp Suite,BurpSuite
+Burp Suite,burp
+Metasploit,metasploit
+Metasploit,Metasploit Framework
+Nmap,nmap
+Nmap,Network Mapper
+Wireshark,wireshark
+Wireshark,packet analysis
+Kali Linux,kali
+Kali Linux,kali linux
+Agile,agile
+Agile,Agile Methodology
+Agile,Agile development
+Scrum,scrum
+Scrum,Scrum Framework
+Scrum,Scrum Methodology
+Kanban,kanban
+Kanban,Kanban board
+Kanban,Kanban Method
+SAFe,Scaled Agile Framework
+SAFe,safe
+SAFe,SAFe Agile
+Jira,JIRA
+Jira,Atlassian Jira
+Jira,Jira Software
+Confluence,confluence
+Confluence,Atlassian Confluence
+Trello,trello
+Trello,Atlassian Trello
+Asana,asana
+Asana,Asana PM
+Monday.com,Monday
+Monday.com,monday.com
+Notion,notion
+Notion,Notion.so
+Linear,linear
+Linear,Linear.app
+ClickUp,Clickup
+Basecamp,basecamp
+Basecamp,Basecamp PM
+PMP,Project Management Professional
+PMP,pmp
+PRINCE2,Prince2
+PRINCE2,Projects in Controlled Environments
+Figma,figma
+Figma,Figma Design
+Figma,Figma UI
+Adobe XD,AdobeXD
+Adobe XD,XD
+Adobe XD,adobe xd
+Sketch,sketch
+Sketch,Sketch App
+Sketch,Sketch design
+InVision,invision
+InVision,InVision Studio
+Adobe Photoshop,Photoshop
+Adobe Photoshop,PS
+Adobe Photoshop,PSD
+Adobe Illustrator,Illustrator
+Adobe Illustrator,AI
+Adobe After Effects,After Effects
+Adobe After Effects,AE
+Adobe After Effects,AfterEffects
+Canva,canva
+Canva,Canva Design
+Webflow,webflow
+Webflow,Webflow Design
+Framer,framer
+Framer,Framer Design
+Miro,miro
+Miro,Miro Board
+Miro,Miro Whiteboard
+Lottie,lottie
+Lottie,Lottie animations
+Zeplin,zeplin
+Zeplin,Zeplin design
+Blender,blender
+Blender,Blender 3D
+UI/UX,UI UX
+UI/UX,UX UI
+UI/UX,User Interface User Experience
+UX Design,User Experience Design
+UX Design,UX
+UX Design,user experience
+UI Design,User Interface Design
+UI Design,UI
+UI Design,user interface
+SAP,sap
+SAP,SAP ERP
+SAP,Systems Applications Products
+SAP S/4HANA,S4HANA
+SAP S/4HANA,SAP HANA
+SAP S/4HANA,S/4
+SAP ABAP,ABAP
+SAP ABAP,Advanced Business Application Programming
+Salesforce,salesforce
+Salesforce,SF
+Salesforce,SFDC
+Salesforce,Salesforce CRM
+HubSpot,Hubspot
+HubSpot,HubSpot CRM
+Workday,workday
+Workday,Workday HCM
+ServiceNow,Service Now
+ServiceNow,servicenow
+ServiceNow,SNOW
+Microsoft Dynamics 365,Dynamics 365
+Microsoft Dynamics 365,D365
+Microsoft Dynamics 365,Dynamics CRM
+Microsoft Dynamics 365,MS Dynamics
+Oracle ERP,Oracle Fusion
+Oracle ERP,oracle erp
+Zendesk,zendesk
+Zendesk,Zendesk CRM
+Zendesk,Zendesk Support
+NetSuite,Netsuite
+NetSuite,Oracle NetSuite
+Odoo,odoo
+Odoo,Odoo ERP
+Odoo,Open ERP
+Linux,linux
+Linux,GNU/Linux
+Linux,Linux OS
+Ubuntu,ubuntu
+Ubuntu,Ubuntu Linux
+Ubuntu,Ubuntu OS
+Red Hat Enterprise Linux,RHEL
+Red Hat Enterprise Linux,redhat
+Red Hat Enterprise Linux,Red Hat
+CentOS,centos
+CentOS,CentOS Linux
+Debian,debian
+Debian,Debian Linux
+macOS,Mac OS
+macOS,MacOS
+macOS,OSX
+macOS,OS X
+macOS,Apple macOS
+Windows Server,Windows Server OS
+Windows Server,WS
+Windows Server,Win Server
+Kali Linux,penetration testing OS
+Alpine Linux,Alpine
+TCP/IP,TCPIP
+TCP/IP,tcp ip
+TCP/IP,TCP IP protocol
+DNS,Domain Name System
+DNS,domain name service
+HTTP,Hypertext Transfer Protocol
+HTTP,http
+HTTPS,HTTP Secure
+HTTPS,https
+VPN,Virtual Private Network
+VPN,vpn
+CDN,Content Delivery Network
+CDN,cdn
+CDN,content distribution network
+Load Balancing,Load Balancer
+Nginx,Nginx Load Balancer
+BGP,Border Gateway Protocol
+BGP,bgp
+OSPF,Open Shortest Path First
+OSPF,ospf
+SD-WAN,SDWAN
+SD-WAN,Software Defined WAN
+VPC,Virtual Private Cloud
+VPC,vpc
+Firewall,firewall
+Firewall,network firewall
+Cisco,cisco
+Cisco,Cisco Networking
+Cisco,Cisco Systems
+RabbitMQ,Rabbit MQ
+RabbitMQ,rabbitmq
+RabbitMQ,RabbitMQ messaging
+Apache Kafka,Kafka messaging
+Apache ActiveMQ,ActiveMQ
+Azure Service Bus,azure service bus
+NATS,nats
+NATS,NATS messaging
+ZeroMQ,ZMQ
+ZeroMQ,0MQ
+ZeroMQ,zeromq
+Redis Pub/Sub,Redis PubSub
+Redis Pub/Sub,redis pub sub
+Ethereum,ETH
+Ethereum,ethereum
+Ethereum,Ethereum blockchain
+Solana,SOL
+Solana,solana
+Solana,Solana blockchain
+Polygon,MATIC
+Polygon,polygon
+Polygon,Polygon blockchain
+Bitcoin,BTC
+Bitcoin,bitcoin
+Hyperledger,hyperledger
+Hyperledger,Hyperledger Fabric
+Hyperledger,IBM Blockchain
+Web3.js,web3
+Web3.js,web3.js
+Web3.js,Web3 library
+Ethers.js,ethers
+Ethers.js,ethers.js
+Hardhat,hardhat
+Hardhat,Hardhat EVM
+Truffle,truffle
+Truffle,Truffle Suite
+Smart Contracts,smart contracts
+Smart Contracts,solidity contracts
+IPFS,InterPlanetary File System
+IPFS,ipfs
+IPFS,decentralized storage
+Selenium,selenium
+Selenium,Selenium WebDriver
+Selenium,Selenium testing
+Cypress,cypress
+Cypress,Cypress E2E
+Playwright,playwright
+Playwright,Playwright E2E
+Jest,jest
+Jest,Jest unit test
+Mocha,mocha
+Mocha,Mocha testing
+JUnit,JUnit 5
+JUnit,Java JUnit
+Postman,Postman API testing
+k6,K6
+k6,k6 load testing
+JMeter,jmeter
+JMeter,Apache JMeter
+JMeter,JMeter load test
+Gatling,gatling
+Gatling,Gatling load testing
+Appium,appium
+Appium,Appium mobile testing
+SonarQube,code quality Sonar
+TestNG,testng
+TestNG,TestNG Java
+Cucumber,cucumber
+Cucumber,Cucumber BDD
+Cucumber,Gherkin
+Detox,detox
+Detox,Detox React Native testing
+XCTest,xctest
+XCTest,iOS testing
+Espresso,espresso
+Espresso,Android Espresso testing
+AWS Certified Solutions Architect,AWS SAA
+AWS Certified Solutions Architect,SAA-C03
+AWS Certified Solutions Architect,AWS Solutions Architect
+CKA,Certified Kubernetes Administrator
+CKA,K8s Admin Cert
+CKAD,Certified Kubernetes Application Developer
+CKAD,K8s Dev Cert
+CISSP,Certified Information Systems Security Professional
+CISSP,cissp
+CEH,ethical hacker cert
+CompTIA Security+,Security+
+CompTIA Security+,Sec+
+CompTIA Security+,CompTIA Sec
+CompTIA Network+,Network+
+CompTIA Network+,Net+
+CompTIA Network+,CompTIA Net
+PMP,PMI PMP
+CSM,Certified Scrum Master
+CSM,Scrum Master Cert
+CISA,Certified Information Systems Auditor
+CISA,cisa
+OSCP,oscp cert
+Terraform Associate,HashiCorp Terraform Certified
+Terraform Associate,Terraform cert
+Google Cloud Certified,GCP Certified
+Google Cloud Certified,Google Cloud cert
+Microsoft Azure Certified,AZ-900
+Microsoft Azure Certified,Azure Fundamentals
+Machine Learning,Statistical Machine Learning
+Data Analysis,Data Analytics
+Data Analysis,data analysis
+Data Analysis,analytics
+Business Intelligence,BI
+Business Intelligence,business intelligence
+Data Visualization,Data Viz
+Data Visualization,Data Visualisation
+ETL,Extract Transform Load
+ETL,etl
+ETL,data pipeline ETL
+CI/CD,CICD
+CI/CD,Continuous Integration Continuous Deployment
+CI/CD,CI CD
+CI/CD,continuous delivery
+IaC,Infrastructure as Code
+IaC,iac
+IaC,infra as code
+TDD,Test-Driven Development
+TDD,tdd
+TDD,Test Driven Development
+BDD,Behavior-Driven Development
+BDD,bdd
+BDD,Behaviour-Driven Development
+DDD,Domain-Driven Design
+DDD,ddd
+DDD,Domain Driven Design
+OOP,Object-Oriented Programming
+OOP,oop
+OOP,Object Oriented Programming
+OOP,object oriented
+FP,Functional Programming
+FP,fp
+API Development,API Dev
+API Development,api development
+API Development,API building
+Cloud Computing,Cloud
+Cloud Computing,cloud computing
+Cloud Computing,cloud tech
+Distributed Systems,Distributed Computing
+Distributed Systems,distributed systems
+System Design,Systems Design
+System Design,system design
+System Design,Architecture Design
+Algorithm,Algorithms
+Algorithm,algo
+Algorithm,DSA
+Algorithm,Data Structures and Algorithms
+Data Structures,DS
+Data Structures,data structures
+Design Patterns,design patterns
+Design Patterns,software patterns
+Code Review,Code Reviews
+Code Review,code review
+Code Review,PR review
+Open Source,OpenSource
+Open Source,open source
+Open Source,OSS
+Agile Methodologies,Agile Methods
+Agile Methodologies,agile practices
+Technical Writing,Tech Writing
+Technical Writing,technical documentation
+Technical Writing,tech docs
+Problem Solving,Problem-Solving
+Problem Solving,problem solving
+Debugging,debugging
+Debugging,troubleshooting
+Debugging,bug fixing
+Performance Optimization,Performance Tuning
+Performance Optimization,perf optimization
+Performance Optimization,optimization
+Microservices Architecture,Microservices
+Microservices Architecture,MSA
+Serverless,Serverless Architecture
+Serverless,serverless
+Serverless,FaaS
+SaaS,Software as a Service
+SaaS,saas
+PaaS,Platform as a Service
+PaaS,paas
+IaaS,Infrastructure as a Service
+IaaS,iaas
