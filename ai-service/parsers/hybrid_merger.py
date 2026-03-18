@@ -130,19 +130,25 @@ class HybridMerger:
                     rule_list = rule_value if isinstance(rule_value, list) else []
                     ai_list = ai_value if isinstance(ai_value, list) else []
                     merged_result[field] = rule_list if len(rule_list) >= len(ai_list) else ai_list
+                    # Track source
+                    merged_result[f'_{field}_source'] = 'experience_extractor' if len(rule_list) >= len(ai_list) else 'ai'
                 
                 elif field in self.RULE_PRIORITY_FIELDS:
-                    merged_result[field] = self._merge_rule_priority(field, rule_value, ai_value, merge_stats)
+                    merged_result[field], source = self._merge_rule_priority(field, rule_value, ai_value, merge_stats)
+                    merged_result[f'_{field}_source'] = source
                 
                 elif field in self.AI_PRIORITY_FIELDS:
-                    merged_result[field] = self._merge_ai_priority(field, rule_value, ai_value, merge_stats)
+                    merged_result[field], source = self._merge_ai_priority(field, rule_value, ai_value, merge_stats)
+                    merged_result[f'_{field}_source'] = source
                 
                 elif field in self.UNION_FIELDS:
-                    merged_result[field] = self._merge_union_fields(field, rule_value, ai_value, merge_stats)
+                    merged_result[field], source = self._merge_union_fields(field, rule_value, ai_value, merge_stats)
+                    merged_result[f'_{field}_source'] = source
                 
                 else:
                     # Default: use conflict resolution
-                    merged_result[field] = self._resolve_conflict(field, rule_value, ai_value, merge_stats)
+                    merged_result[field], source = self._resolve_conflict(field, rule_value, ai_value, merge_stats)
+                    merged_result[f'_{field}_source'] = source
             
             # Add merge metadata
             merged_result['_merge_metadata'] = {
@@ -161,7 +167,7 @@ class HybridMerger:
             # Return rule result as fallback
             return rule_result
     
-    def _merge_rule_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> Any:
+    def _merge_rule_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> tuple:
         """
         Merge rule priority fields - always prefer rule results.
         
@@ -172,22 +178,22 @@ class HybridMerger:
             stats: Merge statistics
             
         Returns:
-            Merged value (rule result preferred)
+            Tuple of (merged_value, source)
         """
         stats['rule_priority_used'] += 1
         
         # For rule priority fields, always use rule result if valid
         if self._validate_field(field, rule_value):
             self.logger.debug(f"Using rule result for {field}: {rule_value}")
-            return rule_value
+            return rule_value, 'rule'
         elif ai_value and self._validate_field(field, ai_value):
             self.logger.debug(f"Rule result invalid, using AI result for {field}: {ai_value}")
-            return ai_value
+            return ai_value, 'ai'
         else:
             self.logger.debug(f"Both results invalid for {field}, using rule result")
-            return rule_value
+            return rule_value, 'rule'
     
-    def _merge_ai_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> Any:
+    def _merge_ai_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> tuple:
         """
         Merge AI priority fields - prefer AI if confidence is high enough.
         
@@ -198,7 +204,7 @@ class HybridMerger:
             stats: Merge statistics
             
         Returns:
-            Merged value (AI result preferred if confident)
+            Tuple of (merged_value, source)
         """
         # Get AI confidence score
         ai_confidence = self._extract_ai_confidence(ai_value)
@@ -207,22 +213,22 @@ class HybridMerger:
         if ai_value and ai_confidence >= threshold:
             stats['ai_priority_used'] += 1
             self.logger.debug(f"Using AI result for {field} (confidence: {ai_confidence:.3f}): {ai_value}")
-            return ai_value
+            return ai_value, 'ai'
         
         elif rule_value:
             stats['rule_priority_used'] += 1
             self.logger.debug(f"AI confidence too low ({ai_confidence:.3f}), using rule result for {field}: {rule_value}")
-            return rule_value
+            return rule_value, 'rule'
         
         else:
             # Use AI result even with low confidence as last resort
             stats['ai_priority_used'] += 1
             self.logger.debug(f"No rule result, using low-confidence AI result for {field}: {ai_value}")
-            return ai_value
+            return ai_value, 'ai'
     
-    def _merge_union_fields(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> List[str]:
+    def _merge_union_fields(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> tuple:
         """
-        Merge union fields - combine both results and deduplicate.
+        Merge union fields - combine and deduplicate results from both sources.
         
         Args:
             field: Field name
@@ -231,52 +237,39 @@ class HybridMerger:
             stats: Merge statistics
             
         Returns:
-            Deduplicated and sorted list
+            Tuple of (combined_list, source)
         """
         stats['union_fields_used'] += 1
         
-        # Special handling for skills field
-        if field == 'skills':
-            # Safely coerce both values to lists — ai_value may be None if key absent
-            rule_list = rule_value if isinstance(rule_value, list) else []
-            ai_list   = ai_value   if isinstance(ai_value,   list) else []
-
-            # Get skills from both sources
-            rule_skills = set(s.lower().strip() for s in rule_list if s)
-            ai_skills   = set(s.lower().strip() for s in ai_list   if s)
-            
-            # Union of both — take skills from either source
-            all_skills_lower = rule_skills | ai_skills
-            
-            # Rebuild with original casing — prefer rule-based casing (more precise formatting)
-            # then fall back to AI casing for skills only found by AI
-            rule_skills_original = {s.lower(): s for s in rule_list if s}
-            ai_skills_original   = {s.lower(): s for s in ai_list   if s}
-            
-            # Merge casing preference: rule first, AI as fallback
-            casing_map = {**ai_skills_original, **rule_skills_original}
-            merged_skills = sorted([casing_map[s] for s in all_skills_lower if s in casing_map])
-            
-            self.logger.debug(f"Skills merge: {len(rule_skills)} rule + {len(ai_skills)} AI → {len(merged_skills)} unique")
-            return merged_skills
+        # Ensure both are lists
+        rule_list = rule_value if isinstance(rule_value, list) else ([] if not rule_value else [rule_value])
+        ai_list = ai_value if isinstance(ai_value, list) else ([] if not ai_value else [ai_value])
         
-        # For other union fields, use original logic
-        # Convert both to lists
-        rule_list = self._ensure_list(rule_value)
-        ai_list = self._ensure_list(ai_value)
+        # Combine and deduplicate (case-insensitive for strings)
+        combined = []
+        seen_lower = set()
         
-        # Combine and deduplicate
-        combined = rule_list + ai_list
-        deduplicated = self.deduplicate_list(combined)
+        for item in rule_list + ai_list:
+            if isinstance(item, str):
+                item_lower = item.lower().strip()
+                if item_lower and item_lower not in seen_lower:
+                    seen_lower.add(item_lower)
+                    combined.append(item.strip())
+            elif item and item not in combined:
+                combined.append(item)
         
-        # Sort by importance/frequency
-        sorted_list = self._sort_by_importance(field, deduplicated)
+        # Determine source
+        if len(rule_list) > 0 and len(ai_list) > 0:
+            source = 'rule+ai'
+        elif len(rule_list) > 0:
+            source = 'rule'
+        else:
+            source = 'ai'
         
-        self.logger.debug(f"Union merge for {field}: {len(rule_list)} rule + {len(ai_list)} AI → {len(sorted_list)} unique")
-        
-        return sorted_list
+        self.logger.debug(f"Union merge for {field}: {len(rule_list)} rule + {len(ai_list)} AI = {len(combined)} combined")
+        return combined, source
     
-    def _resolve_conflict(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> Any:
+    def _resolve_conflict(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> tuple:
         """
         Resolve conflicts between rule and AI results.
         
@@ -287,24 +280,40 @@ class HybridMerger:
             stats: Merge statistics
             
         Returns:
-            Resolved value
+            Tuple of (resolved_value, source)
         """
         stats['conflicts_resolved'] += 1
         
         # If only one has a value, use it
         if rule_value and not ai_value:
-            return rule_value
+            return rule_value, 'rule'
         elif ai_value and not rule_value:
-            return ai_value
+            return ai_value, 'ai'
         elif not rule_value and not ai_value:
-            return None
+            return None, 'none'
         
-        # Both have values - resolve based on confidence and validation
-        resolved = self.resolve_conflict(rule_value, ai_value, field, stats)
+        # Both have values - use heuristics
+        # For strings, prefer longer/more detailed
+        if isinstance(rule_value, str) and isinstance(ai_value, str):
+            if len(rule_value) > len(ai_value):
+                self.logger.debug(f"Conflict resolved for {field}: using rule (longer)")
+                return rule_value, 'rule'
+            else:
+                self.logger.debug(f"Conflict resolved for {field}: using AI (longer)")
+                return ai_value, 'ai'
         
-        self.logger.debug(f"Conflict resolved for {field}: rule={rule_value}, ai={ai_value} → {resolved}")
+        # For lists, prefer longer list
+        if isinstance(rule_value, list) and isinstance(ai_value, list):
+            if len(rule_value) > len(ai_value):
+                self.logger.debug(f"Conflict resolved for {field}: using rule (more items)")
+                return rule_value, 'rule'
+            else:
+                self.logger.debug(f"Conflict resolved for {field}: using AI (more items)")
+                return ai_value, 'ai'
         
-        return resolved
+        # Default: prefer rule result
+        self.logger.debug(f"Conflict resolved for {field}: defaulting to rule")
+        return rule_value, 'rule'
     
     def resolve_conflict(self, rule_val: Any, ai_val: Any, field: str, stats: Dict[str, int]) -> Any:
         """

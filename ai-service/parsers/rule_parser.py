@@ -70,6 +70,12 @@ class RuleBasedParser:
             r'(\d+(?:\.\d+)?)(?:\+|\s*-\s*\d+)?\s*(?:years?|yrs?)\s*(?:of\s*)?(?:experience|exp)?',
             re.IGNORECASE
         )
+        
+        # City, State location pattern (e.g., "Dallas, TX" or "San Francisco, CA")
+        self.location_pattern = re.compile(
+            r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*),\s*([A-Z]{2})\b',
+            re.MULTILINE
+        )
     
     def extract_email(self, text: str) -> Optional[str]:
         """
@@ -271,6 +277,34 @@ class RuleBasedParser:
             
         except Exception as e:
             self.logger.error(f"Error extracting dates: {e}")
+            return []
+    
+    def extract_locations(self, text: str) -> List[str]:
+        """
+        Extract City, State locations from text using regex pattern.
+        Matches patterns like 'Dallas, TX', 'San Francisco, CA', 'New York, NY'.
+        
+        Args:
+            text: Input text to search for locations
+            
+        Returns:
+            List of unique locations found
+        """
+        try:
+            matches = self.location_pattern.findall(text)
+            locations = []
+            
+            for match in matches:
+                city, state = match
+                location = f"{city}, {state}"
+                if location not in locations:
+                    locations.append(location)
+                    self.logger.debug(f"Found location: {location}")
+            
+            return locations
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting locations: {e}")
             return []
     
     def extract_years_of_experience(self, text: str) -> Optional[int]:
@@ -951,6 +985,92 @@ class RuleBasedParser:
         'Neuromorphic Computing', 'Photonic Computing', 'DNA Computing',
     ]
 
+    def extract_skills_from_dictionary(self, text: str) -> Dict[str, Any]:
+        """
+        Extract skills from text using keyword dictionary matching.
+        Returns matched skills AND the unmatched remainder text for hybrid AI processing.
+        
+        This is optimized for performance - matches 500+ common tech skills instantly
+        and only sends unmatched text to AI for rare/emerging skills.
+        
+        Args:
+            text: Input text to search for skills
+            
+        Returns:
+            Dictionary with:
+                - 'matched_skills': List of skills found in dictionary
+                - 'confidence': 1.0 for dictionary matches
+                - 'remainder_text': Text with matched skills removed
+                - 'remainder_length': Character count of remainder
+        """
+        try:
+            found_skills = set()
+            text_lower = text.lower()
+            matched_positions = []  # Track positions of matched skills
+            
+            # Find all skills and their positions
+            for skill in self.SKILL_TAXONOMY:
+                if not skill or not skill.strip():
+                    continue
+                
+                skill_lower = skill.lower()
+                
+                # Handle special characters in skill names
+                if any(char in skill for char in ['.', '+', '#', '-']):
+                    # Escape special regex characters
+                    skill_pattern = re.escape(skill_lower)
+                else:
+                    skill_pattern = r'\b' + re.escape(skill_lower) + r'\b'
+                
+                # Find all occurrences
+                for match in re.finditer(skill_pattern, text_lower):
+                    found_skills.add(skill)
+                    matched_positions.append((match.start(), match.end()))
+            
+            # Sort matched positions and merge overlapping ranges
+            matched_positions.sort()
+            merged_positions = []
+            for start, end in matched_positions:
+                if merged_positions and start <= merged_positions[-1][1]:
+                    # Overlapping or adjacent, merge
+                    merged_positions[-1] = (merged_positions[-1][0], max(merged_positions[-1][1], end))
+                else:
+                    merged_positions.append((start, end))
+            
+            # Build remainder text by removing matched skill positions
+            remainder_parts = []
+            last_end = 0
+            for start, end in merged_positions:
+                if start > last_end:
+                    remainder_parts.append(text[last_end:start])
+                last_end = end
+            if last_end < len(text):
+                remainder_parts.append(text[last_end:])
+            
+            remainder_text = ' '.join(remainder_parts).strip()
+            # Clean up extra whitespace
+            remainder_text = re.sub(r'\s+', ' ', remainder_text)
+            
+            matched_skills_list = sorted(list(found_skills))
+            
+            self.logger.info(f"Dictionary matched {len(matched_skills_list)} skills, remainder: {len(remainder_text)} chars")
+            
+            return {
+                'matched_skills': matched_skills_list,
+                'confidence': 1.0,
+                'remainder_text': remainder_text,
+                'remainder_length': len(remainder_text)
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error in extract_skills_from_dictionary: {e}")
+            return {
+                'matched_skills': [],
+                'confidence': 0.0,
+                'remainder_text': text,
+                'remainder_length': len(text)
+            }
+    
     def extract_skills(self, text: str) -> List[str]:
         """
         Extract skills from text using the built-in skill taxonomy.

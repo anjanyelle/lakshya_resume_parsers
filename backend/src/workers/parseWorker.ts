@@ -522,6 +522,15 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     console.log(`🤖 Calling AI service for ${filePath}`);
     const aiResult = await callAIService(filePath, fileType, candidateId);
 
+    // Log parse trace to verify which fields came from which source
+    console.log('[PARSE TRACE]', 
+      Object.entries(aiResult).map(([k, v]) => ({
+        field: k,
+        source: (aiResult as any)[`_${k}_source`] || 'unknown',
+        hasValue: !!v
+      }))
+    );
+
     await updateParsingJobStatus(client, candidateId, "processing");
     await job.updateProgress(50);
 
