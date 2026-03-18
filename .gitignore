@@ -2,13 +2,13 @@
 
 # Large data files
 data/*.zip
-backend/data/global_companies.csv # Added to ignore if too large (but we want it for the parser? Wait, user asked to add it.)
-# Actually, the user wants the companies dataset to be part of the repo. So I'll keep it.
 
 # Model files
 backend/models/*/model-last/
+backend/models/*/model-best/
 backend/models/*/model-last-temp/
 backend/models/resume_ner_model/model-last-temp/
+backend/models/resume_ner_model/model-best/
 
 # Python
 __pycache__/

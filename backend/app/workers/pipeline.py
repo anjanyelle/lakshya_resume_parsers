@@ -708,6 +708,79 @@ def _get_first(mapping: dict[str, Any], *keys: str) -> Any:
     return None
 
 
+
+def _looks_like_skillish_header(value: str | None) -> bool:
+    cleaned = str(value or "").strip()
+    if not cleaned:
+        return False
+    lowered = cleaned.lower()
+    if re.fullmatch(
+        r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
+        lowered,
+    ) and len(cleaned) <= 24:
+        return True
+    if "·" in cleaned and len(cleaned) <= 120:
+        return True
+    if cleaned.count(",") >= 2 and len(cleaned) <= 140:
+        return True
+    if re.search(
+        r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
+        lowered,
+    ):
+        parts = [p.strip() for p in re.split(r"[,/|·]", lowered) if p.strip()]
+        if len(parts) >= 3 and len(cleaned) <= 140:
+            return True
+    return False
+
+
+def _looks_like_placeholder_org(value: str | None) -> bool:
+    cleaned = str(value or "").strip().lower()
+    if not cleaned:
+        return False
+    return bool(
+        re.match(
+            r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
+            cleaned,
+        )
+    )
+
+
+def _work_experience_is_low_quality(value: Any) -> bool:
+    if not isinstance(value, list) or not value:
+        return True
+    good = 0
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        company = str(item.get("company") or "").strip()
+        title = str(item.get("title") or "").strip()
+        if not company and not title:
+            continue
+        if _looks_like_placeholder_org(company) or _looks_like_placeholder_org(title):
+            continue
+        if _looks_like_skillish_header(company) or _looks_like_skillish_header(title):
+            continue
+        if len(company) > 180 or len(title) > 180:
+            continue
+        good += 1
+    return good == 0
+
+
+def _to_canonical_work_entry(entry: dict[str, Any]) -> dict[str, Any]:
+    """Helper to convert raw work entry to a structured dict for the candidate models."""
+    return {
+        "company": entry.get("company") or entry.get("client"),
+        "client": entry.get("client"),
+        "title": entry.get("title") or entry.get("job_title"),
+        "location": entry.get("location"),
+        "start_date": entry.get("start_date"),
+        "end_date": entry.get("end_date"),
+        "is_current": entry.get("is_current", False),
+        "description": entry.get("description"),
+        "bullets": entry.get("bullets") or [],
+    }
+
+
 def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
     llm_resume = parsed.get("llm_resume")
     if not isinstance(llm_resume, dict):
@@ -835,10 +908,13 @@ def _apply_llm_resume(parsed: dict[str, Any]) -> dict[str, Any]:
 
     work_llm = parsed.get("work_experience_llm")
     existing_work = merged.get("work_experience")
+    # Only use LLM work if deterministic is truly empty or extremely low quality
+    # avoids the "Very Dangerous" overwrite when LLM finds more (often junk) entries
+    existing_ok = existing_work and not _work_experience_is_low_quality(existing_work)
     use_llm = (
         isinstance(work_llm, list)
         and work_llm
-        and (not existing_work or len(work_llm) > len(existing_work))
+        and (not existing_ok) # Only override if deterministic failed or is bad
     )
     if use_llm:
         work_items = []
@@ -2421,13 +2497,12 @@ def task_detect_sections(self, job_id: str) -> str:  # noqa: ANN001
         fallback_activated = False
         fallback_method: str | None = None
 
-        if settings.LLM_PROVIDER == "none" and avg_sec_conf < 0.6 and job.raw_text:
+        if settings.LLM_PROVIDER == "none" and avg_sec_conf < 0.5 and job.raw_text:
             fb = FallbackSegmenter()
             fb_sections = fb.segment(job.raw_text)
             if isinstance(fb_sections, dict) and fb_sections:
                 fallback_activated = True
                 SECTION_DETECTION_FALLBACK_TOTAL.inc()
-                FALLBACK_SEGMENTER_TOTAL.inc()
 
                 try:
                     methods = [
@@ -2661,21 +2736,17 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             "apprenticeship",
             "apprenticeships",
             "traineeship",
-            # Project-based (important for freshers)
-            "projects",
-            "project_experience",
-            "academic_projects",
-            "professional_projects",
-            "key_projects",
-            "live_projects",
-            "client_projects",
-            "research_projects",
-            "freelance_projects",
-            # Contract / freelance
-            "freelance_experience",
-            "contract_experience",
-            "consultant_experience",
-            "independent_projects",
+            # Project-based (REMOVED to prevent misclassification as primary work history)
+            # "projects",
+            # "project_experience",
+            # "academic_projects",
+            # "professional_projects",
+            # "key_projects",
+            # "live_projects",
+            # "client_projects",
+            # "research_projects",
+            # "freelance_projects",
+            # "independent_projects",
             # Military / Govt
             "military_service",
             "armed_forces_experience",
@@ -4285,59 +4356,6 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                         parsed["contact"]["name"] = {"name": val, "confidence": 0.55}
                         break
 
-        def _looks_like_skillish_header(value: str | None) -> bool:
-            cleaned = str(value or "").strip()
-            if not cleaned:
-                return False
-            lowered = cleaned.lower()
-            if re.fullmatch(
-                r"(?:django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)",
-                lowered,
-            ) and len(cleaned) <= 24:
-                return True
-            if "·" in cleaned and len(cleaned) <= 120:
-                return True
-            if cleaned.count(",") >= 2 and len(cleaned) <= 140:
-                return True
-            if re.search(
-                r"\b(django|flask|fastapi|spring|react|node|docker|kubernetes|terraform|jenkins|gitlab|github|aws|azure|gcp|sql|python|java|postgres|postgresql|mysql|redis|kafka|elasticsearch|splunk|datadog|prometheus|grafana)\b",
-                lowered,
-            ):
-                parts = [p.strip() for p in re.split(r"[,/|·]", lowered) if p.strip()]
-                if len(parts) >= 3 and len(cleaned) <= 140:
-                    return True
-            return False
-
-        def _looks_like_placeholder_org(value: str | None) -> bool:
-            cleaned = str(value or "").strip().lower()
-            if not cleaned:
-                return False
-            return bool(
-                re.match(
-                    r"^(company|client|organization|organisation|employer|designation|title|role|position|job\s*title|n/a|na\b|tbd|tbc|unknown|none|null)\b",
-                    cleaned,
-                )
-            )
-
-        def _work_experience_is_low_quality(value: Any) -> bool:
-            if not isinstance(value, list) or not value:
-                return True
-            good = 0
-            for item in value:
-                if not isinstance(item, dict):
-                    continue
-                company = str(item.get("company") or "").strip()
-                title = str(item.get("title") or "").strip()
-                if not company and not title:
-                    continue
-                if _looks_like_placeholder_org(company) or _looks_like_placeholder_org(title):
-                    continue
-                if _looks_like_skillish_header(company) or _looks_like_skillish_header(title):
-                    continue
-                if len(company) > 180 or len(title) > 180:
-                    continue
-                good += 1
-            return good == 0
 
         if isinstance(structured, dict):
             for key in ("contact", "work_experience", "education", "skills"):
@@ -4372,7 +4390,16 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
                     if key == "work_experience":
                         existing = parsed.get("work_experience")
                         incoming = value  # from LLM
-                        existing_ok = existing and not _work_experience_is_low_quality(existing)
+                        # Only overwrite if deterministic is low quality OR confidence is low
+                        det_conf_val = 0.0
+                        total_exp_v = parsed.get("total_experience")
+                        if isinstance(total_exp_v, dict):
+                            try:
+                                det_conf_val = float(total_exp_v.get("confidence") or 0.0)
+                            except (TypeError, ValueError):
+                                det_conf_val = 0.0
+
+                        existing_ok = existing and not _work_experience_is_low_quality(existing) and det_conf_val >= 0.7
                         incoming_ok = incoming and not _work_experience_is_low_quality(incoming)
 
                         if existing_ok and not incoming_ok:

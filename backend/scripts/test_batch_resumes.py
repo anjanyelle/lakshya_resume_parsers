@@ -20,7 +20,7 @@ def test_batch_resumes(resumes_dir: str, output_file: str):
     results = []
     
     resume_files = list(resumes_path.glob("*.pdf")) + list(resumes_path.glob("*.docx"))
-    resume_files = resume_files[:20]  # Limit for faster testing
+    # resume_files = resume_files[:20]  # Limit for faster testing
     print(f"Found {len(resume_files)} resumes to test. Processing...")
     
     for resume_file in tqdm(resume_files):

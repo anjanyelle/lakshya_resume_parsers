@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20240620"
 
     LOCAL_LLM_BASE_URL: str = "http://localhost:11434"
-    LOCAL_LLM_MODEL: str = "llama3.1:8b-instruct"
+    LOCAL_LLM_MODEL: str = "llama3:latest"
     LOCAL_LLM_FALLBACK_MODEL: str | None = None
     LLM_RATE_LIMIT_PER_MINUTE: int = 30
     LLM_CACHE_TTL_SECONDS: int = 604800  # 7 days

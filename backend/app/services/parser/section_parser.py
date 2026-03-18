@@ -439,7 +439,8 @@ SECTION_ALIASES: dict[str, list[str]] = {
         "professional history", "career experience", "job history",
         "work", "relevant experience", "professional background",
         "employment record", "career", "work record", "positions held",
-        "internship", "internships", "projects",
+        "internship record", # keeping specialized variants if they exist, but removing the generic ones
+        # "internship", "internships", "projects", # REMOVED to enforce strict separation
         "professional experience & achievements", "work experience & achievements",
         "experience summary", "career progression", "professional journey",
         "positions", "roles", "appointments", "engagements",
@@ -1497,7 +1498,7 @@ INLINE_SECTION_RE = re.compile(
 KEYWORD_HINTS: dict[str, list[str]] = {
     "experience": [
         # Job titles and positions
-        "company", "employer", "responsibilities", "role", "duration", "project", "client",
+        "company", "employer", "responsibilities", "role", "duration", "client",
         "position", "job", "work", "employment", "professional", "career", "tenure",
         "title", "designation", "occupation", "posting", "assignment", "placement",
         
@@ -2297,13 +2298,13 @@ class SectionParser:
                 patterns = [self._nlp.make_doc(alias) for alias in aliases]
                 self._matcher.add(key, patterns)
 
-    # Optimization: Pre-calculate normalized mapping for fast O(1) exact matches
-        # self._exact_alias_map: dict[str, str] = {}
-        # for key, aliases in SECTION_ALIASES.items():
-        #     for alias in aliases:
-        #         norm = self._normalize_header_text(alias)
-        #         if norm and norm not in self._exact_alias_map:
-        #             self._exact_alias_map[norm] = key        
+        # Optimization: Pre-calculate normalized mapping for fast O(1) exact matches
+        self._exact_alias_map: dict[str, str] = {}
+        for key, aliases in SECTION_ALIASES.items():
+            for alias in aliases:
+                norm = self._normalize_header_text(alias)
+                if norm and norm not in self._exact_alias_map:
+                    self._exact_alias_map[norm] = key
 
     def parse(self, raw_text: str) -> dict[str, SectionResult]:
         lines, blank_context, line_number_map, raw_line_count = self._prepare_lines(raw_text)
@@ -2581,8 +2582,12 @@ class SectionParser:
 
             return canonical_key, digitless_best[1], "dict_match", stripped
 
-        haystack = f" {normalized_line} "
+        if normalized_line in getattr(self, "_exact_alias_map", {}):
+            key = self._exact_alias_map[normalized_line]
+            base = 0.85 + casing_bonus + length_bonus + blank_bonus
+            return key, min(1.0, base), "dict_match", stripped
 
+        haystack = f" {normalized_line} "
         best: tuple[str, float] | None = None
         for key, aliases in SECTION_ALIASES.items():
             for alias in aliases:
@@ -2594,9 +2599,6 @@ class SectionParser:
                     if alias_compact and normalized_compact == alias_compact:
                         base = 0.86 + casing_bonus + length_bonus + blank_bonus
                         return key, min(1.0, base), "dict_match", stripped
-                if normalized_line == alias_norm:
-                    base = 0.85 + casing_bonus + length_bonus + blank_bonus
-                    return key, min(1.0, base), "dict_match", stripped
                 if f" {alias_norm} " in haystack:
                     candidate = (key, min(1.0, 0.85 + casing_bonus + length_bonus + blank_bonus))
                     if best is None or candidate[1] > best[1]:
@@ -2648,8 +2650,26 @@ class SectionParser:
                 return
             prev_start = int(existing.get("start_line", start_line) or start_line)
             prev_end = int(existing.get("end_line", end_line) or end_line)
-            existing["start_line"] = min(prev_start, int(start_line))
-            existing["end_line"] = max(prev_end, int(end_line))
+            
+            # ENTERPRISE FIX: Prevent deceptive overlaps by only merging blocks if they are truly adjacent
+            # or very close (within 3 lines). Otherwise, favor the later block (usual resume flow)
+            # or keep previous if it's high signal.
+            if abs(int(start_line) - prev_end) <= 3 or abs(prev_start - int(end_line)) <= 3:
+                existing["start_line"] = min(prev_start, int(start_line))
+                existing["end_line"] = max(prev_end, int(end_line))
+            else:
+                # Discontiguous block found. In most resumes, headers repeat or are false positives.
+                # If the new block is larger/later, we might want to track it, but for 'metadata' 
+                # we usually just want the primary one. 
+                # For now, let's keep the largest one or the first one if similar.
+                prev_len = prev_end - prev_start
+                curr_len = int(end_line) - int(start_line)
+                if curr_len > prev_len:
+                    existing["start_line"] = int(start_line)
+                    existing["end_line"] = int(end_line)
+                    existing["evidence_heading"] = str(evidence)
+                    existing["method"] = str(method)
+
             if not str(existing.get("evidence_heading") or "").strip() and str(evidence or "").strip():
                 existing["evidence_heading"] = str(evidence)
             if not str(existing.get("method") or "").strip() and str(method or "").strip():

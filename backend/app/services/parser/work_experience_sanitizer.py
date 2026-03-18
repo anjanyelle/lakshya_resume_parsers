@@ -97,6 +97,11 @@ def _is_skillish(value: Any) -> bool:
     cleaned = _normalize_text(value)
     if not cleaned:
         return False
+    # Strict: if it's just a list of skills or environment markers, it's not a job
+    if re.search(r"\b(python|java|javascript|aws|azure|sql|docker|kubernetes|skills|technologies|tools)\b", cleaned.lower()):
+        # But if it also has "Engineer" or "Developer", it might be a title
+        if not re.search(r"\b(engineer|developer|lead|architect|manager|consultant)\b", cleaned.lower()):
+            return True
     return WorkExperienceParser._looks_like_skillish_header(cleaned)
 
 
@@ -299,12 +304,19 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
             logger.debug("Dropping work entry: completely empty after normalization")
             continue
 
-        # Allow through if company+title exist, even without date/body
+        # Jobs without dates are extremely noisy. 
+        # Requirement: must have BOTH company and title, and they must be substantial.
         if not has_date and not has_body:
-            if not company or not title:
-                logger.debug("Dropping work entry: missing date, body, and either company or title", extra={"company": company, "title": title})
+            if not company or not title or len(company) < 3 or len(title) < 3:
+                logger.debug("Dropping dateless work entry: insufficient company/title", extra={"company": company, "title": title})
                 continue
             normalized["_needs_review"] = True  # flag for QA but keep it
+        
+        # New: Project check - if either company or title contains "Project" and lacks a strong role
+        lowered_combined = (company.lower() + " " + title.lower()).strip()
+        if "project" in lowered_combined and not re.search(r"\b(manager|lead|coordinator|vp|director|head|developer|engineer|analyst|architect|consultant)\b", title.lower()):
+             logger.debug("Dropping work entry: looks like a standalone project", extra={"company": company, "title": title})
+             continue
 
         cleaned.append(normalized)
 
