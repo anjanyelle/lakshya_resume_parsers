@@ -21,7 +21,7 @@ except Exception:  # noqa: BLE001
 
 from app.core.config import get_settings
 from app.services.parser.cleaning_utils import get_spacy_model
-from app.services.parser.work_experience_parser import JobEntry
+from app.services.parser.types import JobEntry
 
 logger = logging.getLogger(__name__)
 

@@ -3238,7 +3238,7 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
                 duration_months=item.get("duration_months"),
                 client=item.get("client"),
                 employment_type=item.get("employment_type"),
-                confidence=item.get("confidence", 0.0),
+                confidence_score=item.get("confidence", 0.0) or item.get("confidence_score", 0.0),
             )
             for item in jobs_payload
         ]

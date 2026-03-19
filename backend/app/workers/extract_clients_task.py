@@ -169,10 +169,17 @@ def task_extract_clients(self, job_id: str) -> str:  # noqa: ANN001
                 continue
 
             item2: dict[str, object] = dict(item)
+            comp_val = ""
+            comp_obj = item2.get("company", "")
+            if isinstance(comp_obj, dict):
+                comp_val = comp_obj.get("name", "")
+            elif isinstance(comp_obj, str):
+                comp_val = comp_obj
+
             parts = [
                 item2.get("description", "") or "",
                 "\n".join(item2.get("bullets", []) or []),
-                item2.get("company", "") or "",
+                comp_val,
             ]
             item_text = "\n".join(p for p in parts if p)
 

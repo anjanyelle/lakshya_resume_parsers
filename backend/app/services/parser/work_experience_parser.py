@@ -4,8 +4,8 @@ import logging
 import os
 import re
 import json
-from dataclasses import dataclass, replace
-from datetime import date
+from dataclasses import dataclass, replace, asdict
+from datetime import date, datetime, timezone
 from typing import Iterable
 from pathlib import Path
 
@@ -22,6 +22,9 @@ except ImportError:
 from app.core.config import get_settings
 from app.services.llm_service import LLMParsingService 
 from app.services.parser.cleaning_utils import get_spacy_model
+from app.services.parser.skill_extractor import SkillExtractor
+from app.services.parser.types import JobEntry
+from app.services.parser.enrichment_service import EnrichmentService
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +75,10 @@ TITLE_PIPE_COMPANY_LOC_RE = re.compile(
     r"^(?P<title>[^|]+?)\s*\|\s*(?P<company>[^|]+?)\s*\|\s*(?P<location>[^|]+)$",
     re.IGNORECASE,
 )
+COMPANY_PIPE_TITLE_LOC_RE = re.compile(
+    r"^(?P<company>[^|]+?)\s*\|\s*(?P<title>[^|]+?)\s*\|\s*(?P<location>[^|]+)$",
+    re.IGNORECASE,
+)
 TITLE_DASH_COMPANY_RE = re.compile(
     r"^(?P<title>[^–—-]+?)\s*[–—\-]\s*(?P<company>[^–—-]+)$",
     re.IGNORECASE,
@@ -91,7 +98,10 @@ TITLE_PIPE_COMPANY_RE = re.compile(
 )
 # Strict Location Regex: City, ST (e.g. San Francisco, CA or New York, NY)
 # Avoid matching technical fragments like "Swift, UI" or "Spring Boot, AI"
-LOCATION_RE = re.compile(r"\b(?!(?:Swift|UI|IT|AI|ML|SQL|AWS|API|JDBC|JSON|NoSQL|REST|GraphQL|SOAP|CI/CD)\b)([A-Za-z \.]{2,40},\s*[A-Z]{2})\b")
+# More flexible location regex: City, Region/State, [Optional Country]
+LOCATION_RE = re.compile(r"\b(?!(?:Swift|UI|IT|AI|ML|SQL|AWS|API|JDBC|JSON|NoSQL|REST|GraphQL|SOAP|CI/CD)\b)([A-Za-z \.\u00C0-\u00FF]{2,40}(?:,\s*[A-Za-z \.\u00C0-\u00FF]{2,30}){1,2})\b")
+# Improved pipe regex: no \b before/after symbols
+PIPE_HEADER_RE = re.compile(r"\s*[|·]\s*")
 TITLE_HINT_RE = re.compile(r"\b(engineer|developer|architect|manager|lead|analyst|consultant|director|specialist|officer|associate|head|executive|technician|representative|administrator|coordinator|principal|scientist|researcher|expert|intern|partner|programmer|coder|tester|qa|quality assurance|support|scrum master|product owner|founder|co-founder|vp|cto|cio|cfo|ceo)\b", re.IGNORECASE)
 # Job title keywords for splitting single-chunk experience (capitalized at line start)
 TITLE_SPLIT_KEYWORDS = (
@@ -465,30 +475,19 @@ TITLE_RANKS = {
 }
 
 
-@dataclass(frozen=True)
-class JobEntry:
-    company: str | None
-    title: str | None
-    start_date: date | None
-    end_date: date | None
-    is_current: bool
-    location: str | None
-    description: str
-    bullets: list[str]
-    duration_months: int | None
-    client: str | None
-    employment_type: str | None
-    confidence: float
-    designation: str | None = None
-    date_flag: str | None = None
+# JobEntry moved to types.py to avoid circular imports
 
 
 class WorkExperienceParser:
     def __init__(self) -> None:
         self.settings = get_settings()
         self.llm = LLMParsingService()
+        self.skill_extractor = SkillExtractor()
         self._ner_nlp_cached = None
         self._hf_ner_pipeline_cached = None
+        # Load BERT first if needed so it can be passed to EnrichmentService
+        # But BERT loading is expensive, so we'll keep it as a property or load it here if requested
+        self.enrichment_service = EnrichmentService(nlp_pipeline=self.hf_ner_pipeline)
         self._load_dictionaries()
 
     @property
@@ -685,16 +684,23 @@ class WorkExperienceParser:
         chunks = self.extract_individual_jobs(cleaned_text, source_format=source_format)
         
         jobs: list[JobEntry] = []
+        last_company = None
         for chunk in chunks:
             # Step 4: Parse Chunk
             job = self._parse_chunk(chunk)
             
-            # Hybrid: LLM Fallback only if both title and company are Unknown
-            if (not job.company or job.company == "Unknown Company") and (not job.title or job.title == "Job Role"):
+            # Hybrid: LLM Fallback only if both role and company are Unknown
+            if (not job.company_or_client.get("name") or job.company_or_client.get("name") == "Unknown Company") and (not job.role or job.role == "Job Role"):
                 if self.settings.LLM_PROVIDER != "none" and self.llm:
                     llm_job = self._llm_fallback(chunk)
                     if llm_job:
                         job = llm_job
+
+            # Sticky Company logic for roles split from the same company header
+            if job.company_or_client.get("name") and job.company_or_client.get("name") != "Unknown Company":
+                last_company = job.company_or_client
+            elif last_company and job.role and job.role != "Job Role":
+                job = replace(job, company_or_client=last_company)
             
             if self._is_plausible_job(job):
                 jobs.append(job)
@@ -707,18 +713,17 @@ class WorkExperienceParser:
                 end_date = self._parse_date(payload.get("end_date", ""))
                 is_current = payload.get("is_current", False)
                 job = JobEntry(
-                    company=self.normalize_company_names(payload.get("company_name") or payload.get("company")),
-                    title=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
+                    company_or_client={"name": self.normalize_company_names(payload.get("company_name") or payload.get("company")), "is_client": payload.get("is_client", False)},
+                    role=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
                     start_date=start_date,
                     end_date=end_date,
-                    is_current=is_current,
+                    currently_working=is_current,
                     location=payload.get("location"),
                     description="\n".join(payload.get("bullets", [])),
                     bullets=payload.get("bullets", []),
                     duration_months=self._calc_duration_months(start_date, end_date, is_current),
-                    client=payload.get("client"),
                     employment_type=payload.get("employment_type"),
-                    confidence=payload.get("confidence", 0.85),
+                    confidence_score=payload.get("confidence", 0.85),
                 )
                 if self._is_plausible_job(job):
                     jobs.append(job)
@@ -728,14 +733,21 @@ class WorkExperienceParser:
         
         # Step 5: Post-Processing (Validation & Overlaps)
         validated_jobs = self._validate_dates(merged_jobs)
-        final_jobs = self._detect_overlaps(validated_jobs)
+        
+        # Step 6: Split Validation (Roles/Dates within single entry)
+        final_jobs = []
+        for job in validated_jobs:
+            splits = self._run_split_validation(job)
+            final_jobs.extend(splits)
+            
+        final_jobs = self._detect_overlaps(final_jobs)
         
         # Defensive Sorting
         if not final_jobs:
             return []
             
         def final_sort(j: JobEntry):
-            is_curr = 1 if j.is_current else 0
+            is_curr = 1 if j.currently_working or j.is_current else 0
             e_year = j.end_date.year if j.end_date else 9999
             e_month = j.end_date.month if j.end_date else 12
             s_year = j.start_date.year if j.start_date else 0
@@ -745,30 +757,255 @@ class WorkExperienceParser:
         final_jobs.sort(key=final_sort, reverse=True)
         return final_jobs
 
-    def _deduplicate_jobs(self, jobs: list[JobEntry]) -> list[JobEntry]:
-        """Merge entries with same (comp, title, date) key."""
-        seen_keys = {}
-        merged = []
-        for job in sorted(jobs, key=lambda j: j.start_date or date(1900, 1, 1), reverse=True):
-            comp_norm = (self.normalize_company_names(job.company) or "").lower()
-            title_norm = (self.normalize_job_titles(job.title) or "").lower()
-            date_key = str(job.start_date) if job.start_date else "no-date"
-            key = (comp_norm, title_norm, date_key)
+    def _run_split_validation(self, job: JobEntry) -> list[JobEntry]:
+        """
+        If a single extracted entry contains multiple date ranges or multiple role tokens 
+        separated by ;, ,, /, and, or line breaks, ensure split occurred.
+        """
+        # 1. Check for multiple roles in the extracted role/title
+        role_text = job.role or job.title or ""
+        role_separators = r"[/|]|\band\b"
+        
+        # We also check the first line of raw_text for separators that might have been lost
+        first_line = job.raw_text.splitlines()[0] if job.raw_text else ""
+        
+        if re.search(role_separators, role_text, re.I) or re.search(role_separators, first_line, re.I):
+            # Use the more 'raw' version from the first line for splitting if it has more separators
+            split_text = first_line if re.search(role_separators, first_line, re.I) else role_text
             
-            if key in seen_keys:
-                idx = seen_keys[key]
-                existing = merged[idx]
-                new_bullets = list(existing.bullets)
-                for b in job.bullets:
-                    if b not in new_bullets: new_bullets.append(b)
-                new_desc = existing.description
-                if job.description and job.description not in new_desc:
-                    new_desc += "\n" + job.description
-                merged[idx] = replace(existing, bullets=new_bullets, description=new_desc)
+            # Remove things like "City, ST" or dates from split_text if it came from first_line
+            split_text = self._strip_dates(split_text)
+            
+            raw_roles = re.split(role_separators, split_text)
+            final_roles = []
+            for r in raw_roles:
+                r_clean = r.strip(" -–—|,;:")
+                if r_clean and len(r_clean.split()) <= 8:
+                    # Validate it looks like a title
+                    if self._looks_like_title(r_clean):
+                        final_roles.append(r_clean)
+            
+            if len(final_roles) > 1:
+                return [replace(job, role=self.enrichment_service.normalize_role(r), title=r) for r in final_roles]
+
+        return [job]
+
+
+    def parse_to_standardized_json(self, text: str, person_id: str = "p_000") -> dict:
+        """
+        Parses text and returns only the work_history JSON object matching the exact schema.
+        """
+        import uuid
+        from datetime import datetime, timezone, date
+        from dataclasses import asdict
+
+        jobs = self.parse_experience_section(text)
+        
+        # Deduplicate by dates to avoid "duplication dates" as requested
+        seen_dates = set()
+        unique_jobs = []
+        for job in jobs:
+            date_key = (job.start_date, job.end_date, job.company_or_client.get("name"), job.role)
+            if date_key not in seen_dates:
+                unique_jobs.append(job)
+                seen_dates.add(date_key)
+        
+        standardized_jobs = []
+        start_time = datetime.now(timezone.utc)
+        
+        for i, job in enumerate(unique_jobs):
+            # 1. Enrichment
+            enriched_company = self.enrichment_service.enrich_company(job.company_or_client.get("name"))
+            is_client = job.company_or_client.get("is_client", False) or self._detect_client_flag(job.raw_text or "")
+            
+            # Location
+            location_str = job.location
+            enriched_location = self.enrichment_service.enrich_location(location_str)
+            
+            # Role Normalization
+            role_name = self.enrichment_service.normalize_role(job.role or job.title)
+            
+            # 2. Technologies
+            techs = self._extract_technologies(job.raw_text or job.description)
+            techs = techs[:40]
+            
+            # 3. Finalize Fields
+            is_current = job.currently_working or (job.end_date is None)
+            s_date = self._format_date(job.start_date)
+            # If present, end_date should be current date as per "render 1st"
+            if is_current:
+                e_date = self._format_date(date.today())
             else:
-                seen_keys[key] = len(merged)
-                merged.append(job)
-        return merged
+                e_date = self._format_date(job.end_date)
+            
+            # Combine all details into description
+            full_description = job.description or ""
+            if job.bullets:
+                bullets_text = "\n".join(f"- {b}" for b in job.bullets if b.strip())
+                if bullets_text:
+                    full_description += "\n\nResponsibilities:\n" + bullets_text
+            
+            if techs:
+                full_description += "\n\nTechnologies: " + ", ".join(techs)
+            
+            emp_type = job.employment_type or self._detect_employment_type(job.raw_text or "")
+            if emp_type:
+                full_description += f"\n\nEmployment Type: {emp_type.replace('_', ' ').title()}"
+            
+            if job.notes:
+                full_description += f"\n\nNotes: {job.notes}"
+
+            # Location string formatting: city, region, country | remote
+            loc_parts = [enriched_location.get(k) for k in ["city", "region", "country"] if enriched_location.get(k)]
+            final_location = ", ".join(loc_parts) if loc_parts else enriched_location.get("city") or location_str
+            if enriched_location.get("remote") or self._detect_remote(job.raw_text or ""):
+                final_location = f"{final_location} | remote" if final_location else "remote"
+
+            item = {
+                "id": str(uuid.uuid4()),
+                "person_id": person_id or str(uuid.uuid4()),
+                "role": role_name,
+                "company_or_client": {
+                    "name": enriched_company.get("name", "Unknown Company"),
+                    "is_client": is_client
+                },
+                "location": final_location,
+                "start_date": s_date,
+                "end_date": e_date,
+                "currently_working": is_current,
+                "description": full_description.strip()
+            }
+            standardized_jobs.append(item)
+
+        return {
+            "work_history": standardized_jobs,
+            "metadata": {
+                "count": len(standardized_jobs),
+                "parsing_time": (datetime.now(timezone.utc) - start_time).total_seconds()
+            }
+        }
+    def _format_date(self, d: date | None) -> str | None:
+        """Returns ISO YYYY-MM-DD format."""
+        if not d: return None
+        return d.strftime("%Y-%m-%d")
+
+    def _normalize_location_obj(self, loc_str: str | None) -> dict:
+        if not loc_str:
+            return {"city": None, "region": None, "country": None, "remote": False}
+        
+        # Detect remote
+        is_remote = bool(re.search(r"\bremote\b", loc_str, re.I))
+        
+        # Simple split: City, Region, Country
+        parts = [p.strip() for p in re.split(r"[,/|]", loc_str)]
+        city, region, country = None, None, None
+        
+        if len(parts) >= 3:
+            city, region, country = parts[0], parts[1], parts[2]
+        elif len(parts) == 2:
+            city, region = parts[0], parts[1]
+        elif len(parts) == 1:
+            city = parts[0]
+            
+        return {
+            "city": city,
+            "region": region,
+            "country": country,
+            "remote": is_remote
+        }
+
+    def _extract_technologies(self, text: str) -> list[str]:
+        if not text: return []
+            # Use existing SkillExtractor logic (flashtext provides canonical names)
+        matches = self.skill_extractor.extract_with_flashtext(text, source="experience")
+        # Deduplicate and sort
+        return sorted(list(set(m.normalized_name.lower() for m in matches if m.normalized_name)))
+
+    def _detect_client_flag(self, text: str) -> bool:
+        if not text: return False
+        # Worldwide patterns for client names
+        client_indicators = [
+            r"\bclient\b\s*[:\-–—]",
+            r"\bworked\s+for\b",
+            r"\bproject\s+for\b",
+            r"\bconsulting\s+for\b",
+            r"\bconsultant\s+for\b",
+            r"\bcontracted\s+to\b",
+            r"\bassigned\s+to\b",
+            r"\bdeputed\s+to\b" # Common in India/APAC
+        ]
+        for pattern in client_indicators:
+            if re.search(pattern, text, re.I):
+                return True
+        
+        for p in CLIENT_PATTERNS:
+            if p.search(text): return True
+        if CLIENT_HEADER_RE.search(text): return True
+        return False
+
+    def _detect_remote(self, text: str) -> bool:
+        if not text: return False
+        # Worldwide remote markers
+        remote_markers = r"\b(remote|wfh|work from home|anywhere|telecommute|virtual|offsite)\b"
+        return bool(re.search(remote_markers, text, re.I))
+
+    def _map_employment_type(self, raw: str | None) -> str:
+        if not raw: return "full_time"
+        lowered = raw.lower()
+        if "contract" in lowered: return "contract"
+        if "intern" in lowered: return "internship"
+        if "freelance" in lowered: return "freelance"
+        if "part" in lowered: return "part_time"
+        if "temp" in lowered: return "temporary"
+        return "full_time"
+
+    def _deduplicate_jobs(self, jobs: list[JobEntry]) -> list[JobEntry]:
+        """
+        Modified per User Request: Remove date-based deduplication/merging.
+        Only merge if Company and Role are IDENTICAL.
+        """
+        if not jobs:
+            return []
+
+        unique_jobs: list[JobEntry] = []
+        for job in jobs:
+            is_dup = False
+            for i, uj in enumerate(unique_jobs):
+                # Strict Identity check only
+                if (uj.company_or_client["name"].lower() == job.company_or_client["name"].lower() and 
+                    uj.role.lower() == job.role.lower() and
+                    uj.start_date == job.start_date and
+                    uj.end_date == job.end_date):
+                    
+                    # Merge bullets and tech even for clones
+                    unique_jobs[i] = replace(uj, 
+                        bullets=list(dict.fromkeys(uj.bullets + job.bullets)),
+                        technologies=list(dict.fromkeys(uj.technologies + job.technologies))
+                    )
+                    is_dup = True
+                    break
+            
+            if not is_dup:
+                unique_jobs.append(job)
+
+        return unique_jobs
+
+    def _calculate_date_overlap_ratio(self, j1: JobEntry, j2: JobEntry) -> float:
+        s1, e1 = j1.start_date or date(1900, 1, 1), j1.end_date or date.today()
+        s2, e2 = j2.start_date or date(1900, 1, 1), j2.end_date or date.today()
+        
+        latest_start = max(s1, s2)
+        earliest_end = min(e1, e2)
+        
+        if latest_start > earliest_end:
+            return 0.0
+            
+        overlap_days = (earliest_end - latest_start).days
+        duration1 = (e1 - s1).days or 1
+        duration2 = (e2 - s2).days or 1
+        
+        # Ratio relative to the shorter duration
+        return overlap_days / min(duration1, duration2)
 
         if chunks:
             logger.info("Work experience: %d chunks, %d jobs", len(chunks), len(jobs))
@@ -842,26 +1079,38 @@ class WorkExperienceParser:
         duration_months = self._calc_duration_months(start_date, end_date, is_current)
         confidence = self._score_confidence(company, title, start_date, end_date, is_current, None, None)
         return JobEntry(
-            company=self.normalize_company_names(company),
-            title=self.normalize_job_titles(title),
+            company_or_client={"name": self.normalize_company_names(company), "is_client": False},
+            role=self.normalize_job_titles(title),
             start_date=start_date,
             end_date=end_date,
-            is_current=is_current,
+            currently_working=is_current,
             location=location,
             description="",
             bullets=[],
             duration_months=duration_months,
-            client=None,
             employment_type=None,
-            confidence=confidence,
-            designation=self.normalize_job_titles(title),
+            confidence_score=confidence,
         )
 
     def _is_plausible_job(self, job: JobEntry) -> bool:
-        company = str(job.company or "").strip()
-        title = str(job.title or "").strip()
+        # Extract company name from dict or string (for robustness)
+        company_name = ""
+        if isinstance(job.company_or_client, dict):
+            company_name = job.company_or_client.get("name") or ""
+        else:
+            company_name = str(job.company_or_client or "")
+        
+        company = company_name.strip()
+        title = str(job.role or job.title or "").strip()
         if not company and not title:
+            # Phase 8: If it has a date, it's plausible even if we haven't identified the company/title yet
+            if job.start_date:
+                return True
             return False
+        
+        # Phase 8: Strict splitting - if there is a date, it's a valid job.
+        if job.start_date:
+            return True
         
         lowered_all = (company.lower() + " " + title.lower() + " " + str(job.description or "").lower()).strip()
         
@@ -962,7 +1211,7 @@ class WorkExperienceParser:
             if job.description and len(job.description) > 300 and not job.bullets:
                 return False
             # Confidence check for dateless jobs
-            if job.confidence < 0.7:
+            if job.confidence_score < 0.7:
                 return False
         
         # Final sanity check: company shouldn't be a bullet or very short junk
@@ -996,10 +1245,10 @@ class WorkExperienceParser:
         # Reject if it's clearly an environment/skills list
         if self._looks_like_skillish_header(company) or self._looks_like_skillish_header(title):
             # Only reject if confidence is low, otherwise keep (might be a valid entry with list title)
-            if job.confidence < 0.6:
+            if job.confidence_score < 0.6:
                 return False
 
-        if job.confidence < 0.30: # Relaxed to 0.30 to ensure existing unit tests pass
+        if job.confidence_score < 0.30: # Relaxed to 0.30 to ensure existing unit tests pass
             return False
 
         # Check for "Timelines" - if there's a lot of dates but no real title/company words
@@ -1008,7 +1257,7 @@ class WorkExperienceParser:
                 # If both are missing typical keywords, it's likely just a timeline entry
                 return False
 
-        return job.confidence >= 0.45 # Slightly increased threshold
+        return job.confidence_score >= 0.45 # Slightly increased threshold
 
     def _validate_dates(self, jobs: list[JobEntry]) -> list[JobEntry]:
         today = date.today()
@@ -1080,10 +1329,10 @@ class WorkExperienceParser:
             return []
             
         # Group lines using date anchors and proximity logic
-        job_blocks = self._group_lines_to_jobs(lines, source_format=source_format)
+        job_blocks = self._group_lines_to_jobs(lines) # Removed source_format as it's not used in the new _group_lines_to_jobs
         
         # Convert blocks to strings
-        chunks = ["\n".join([ln for i, ln in block]) for block in job_blocks]
+        chunks = ["\n".join([ln for ln in block]) for block in job_blocks] # Changed from tuple to str list
         
         # Giant Entry Protection: Secondary Splitting (Keep sir's safety logic)
         final_chunks = []
@@ -1100,40 +1349,58 @@ class WorkExperienceParser:
 
         return final_chunks
 
-    def _group_lines_to_jobs(self, lines: list[str], source_format: str | None = None) -> list[list[tuple[int, str]]]:
-        jobs = []
-        current = []
+    def _group_lines_to_jobs(self, lines: list[str]) -> list[list[str]]:
+        """
+        Group lines into job chunks based on date anchors.
+        Strict Splitting per User Request: New date + Role/Company MUST start a new job.
+        No merging of different date blocks.
+        """
+        chunks: list[list[str]] = []
+        current_chunk: list[str] = []
         
-        for i, line in enumerate(lines):
-            # Check for boundary tokens: Date candidates or specific separators
-            is_boundary = bool(DATE_CANDIDATE_RE.search(line)) or bool(re.search(r'\b(?:\||·|—)\b', line))
+        for line in lines:
+            line_clean = line.strip()
+            if not line_clean:
+                continue
+
+            # Detect Job Boundary: Date Range OR "Role: ..." OR "Company: ..."
+            has_date = self._has_date_anchor(line_clean)
+            is_labeled = LABELED_TITLE_RE.match(line_clean) or LABELED_ORG_RE.match(line_clean)
+            is_client = CLIENT_HEADER_RE.match(line_clean)
             
-            # Additional heuristics for boundary detection (from sir's previous logic)
-            if not is_boundary and self._has_date_anchor(line, source_format=source_format):
-                is_boundary = True
-            if not is_boundary and CLIENT_HEADER_RE.match(line):
-                is_boundary = True
+            # User wants strict splitting on dates.
+            # Boundary trigger: 
+            # 1. Has date AND (looks like title or company or labeled)
+            # 2. Or just has date if current_chunk already has a date
             
-            if is_boundary and current:
-                # Merge tiny blocks or preamble with the next block if they look like headers
-                # but if current has content, start a new one
-                jobs.append(current)
-                current = [(i, line)]
+            # User wants strict splitting on dates.
+            boundary = False
+            if has_date:
+                # If it has a date, it's almost always a boundary if it also looks like a header
+                if is_labeled or is_client or self._looks_like_title(line_clean) or self._looks_like_company(line_clean):
+                    boundary = True
+                elif any(self._has_date_anchor(ln) for ln in current_chunk):
+                    # Multi-date blocks must be split
+                    boundary = True
+            elif is_labeled or is_client:
+                boundary = True
+
+            if boundary:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                current_chunk = [line_clean]
             else:
-                current.append((i, line))
-                
-        if current:
-            jobs.append(current)
+                if not current_chunk:
+                    # Only start a chunk if it looks like a title or company or date
+                    if self._looks_like_title(line_clean) or self._looks_like_company(line_clean) or has_date:
+                        current_chunk = [line_clean]
+                else:
+                    current_chunk.append(line_clean)
+
+        if current_chunk:
+            chunks.append(current_chunk)
             
-        # Refinement: Merge tiny blocks (e.g. 1-line header) with the next one
-        # This is the "Merge tiny blocks with neighbors" from user's pseudo-code
-        merged = []
-        for block in jobs:
-            if len(block) < 2 and merged:
-                merged[-1].extend(block)
-            else:
-                merged.append(block)
-        return merged
+        return chunks
 
     def _remove_recurring_lines(self, text: str) -> str:
         """Detect and remove lines that repeat exactly more than 2 times (page artifacts)."""
@@ -1157,31 +1424,35 @@ class WorkExperienceParser:
         return "\n".join(cleaned)
 
     def _split_single_chunk_fallback(self, lines: list[str]) -> list[str]:
-        """Split lines by company name or job title patterns when date-based boundaries failed."""
+        """
+        Split single chunk into multiple jobs if it contains multiple roles or date ranges.
+        Handles: Role A / Role B headers, multiple date ranges, and 'Client:' markers.
+        """
         split_indices: list[int] = [0]
         for idx in range(1, len(lines)):
             line = lines[idx]
-            if not line or line.startswith(("-", "•", "*", "●")):
+            if not line or line.startswith(BULLETS):
                 continue
-            # CLIENT: / project: at line start = new consulting engagement — always split
+            
+            # 1. Multiple date ranges
+            if DATE_RANGE_RE.search(line) or (PRESENT_RE.search(line) and DATE_ANCHOR_RE.search(line)):
+                split_indices.append(idx)
+                continue
+            
+            # 2. 'Client:' marker at line start
             if CLIENT_HEADER_RE.match(line):
                 split_indices.append(idx)
                 continue
-            # Skip labeled fields (Role:, Designation:, Company:, etc.) — not job boundaries
-            if LABELED_TITLE_RE.match(line) or LABELED_ORG_RE.match(line):
+
+            # 3. Multiple role titles separated by / or |
+            if TITLE_HINT_RE.search(line) and ("/" in line or "|" in line) and len(line.split()) <= 10:
+                split_indices.append(idx)
                 continue
-            # Company name (2-4 capitalized words) before a date
-            date_match = DATE_RANGE_RE.search(line) or DATE_ANCHOR_RE.search(line)
-            if date_match:
-                prefix = line[: date_match.start()].strip().strip(" -–—|,·")
-                words = prefix.split()
-                if 2 <= len(words) <= 4 and prefix and prefix[0].isupper():
-                    if not any(w.lower() in TITLE_SPLIT_KEYWORDS for w in words[:2]):
-                        split_indices.append(idx)
-                        continue
-            # Job title at line start (e.g. "Senior Software Engineer") — not "Role: X"
-            if TITLE_HINT_RE.search(line) and len(line.split()) <= 6:
-                if idx > 0 and not lines[idx - 1].startswith(("-", "•", "*", "●")):
+
+            # 4. Job title at line start (without label)
+            if self._looks_like_title(line) and not (LABELED_TITLE_RE.match(line) or LABELED_ORG_RE.match(line)):
+                # Only split if not preceded by a bullet
+                if idx > 0 and not lines[idx - 1].startswith(BULLETS):
                     split_indices.append(idx)
 
         if len(split_indices) <= 1:
@@ -1193,7 +1464,7 @@ class WorkExperienceParser:
             end = split_indices[i + 1] if i + 1 < len(split_indices) else len(lines)
             if end > start:
                 chunks.append("\n".join(lines[start:end]))
-        return chunks if len(chunks) > 1 else ["\n".join(lines)]
+        return chunks
 
     def _has_date_anchor(self, line: str, source_format: str | None = None) -> bool:
         if DATE_RANGE_RE.search(line):
@@ -1208,7 +1479,9 @@ class WorkExperienceParser:
                 return True
         return False
 
-    def normalize_company_names(self, name: str | None) -> str | None:
+    def normalize_company_names(self, name: str | None | dict) -> str | None:
+        if isinstance(name, dict):
+            name = name.get("name")
         if not name:
             return None
         # Remove trailing fragments like (Client...), ( Eden Prairie...), etc.
@@ -1238,11 +1511,14 @@ class WorkExperienceParser:
         match = process.extractOne(raw, choices, scorer=fuzz.token_sort_ratio)
         
         if match and match[1] > 80:
+            # Special handling for "Principal" to ensure it maps to ARCHITECT if it's a standalone title
+            if match[0].lower() == "principal" and flat_taxonomy[match[0]] == "ARCHITECT":
+                return "Principal Architect" # Or whatever canonical form is desired for standalone "Principal"
             return flat_taxonomy[match[0]].title()
             
         # Fallback to existing logic if no strong fuzzy match
-        normalized = re.sub(r"[./]", " ", raw)
-        normalized = re.sub(r"\s+", " ", normalized).strip()
+        # Preserve / and | if they are likely role separators
+        normalized = re.sub(r"\s+", " ", raw).strip()
         
         # Check Priority Dictionary
         if getattr(self, "priority_job_title_processor", None):
@@ -1310,42 +1586,50 @@ class WorkExperienceParser:
             "location": []
         }
 
-        # 1.1 Regex/Deterministic Extraction (Weighted for High precision)
+        # 1.1 Regex/Deterministic Extraction (Priority for Structured Headers)
         det_company, det_title, det_location = self._parse_company_title_location_deterministic(lines[0:5])
-        if det_company: candidates["company"].append((det_company, 0.9))
-        if det_title: candidates["title"].append((det_title, 0.9))
-        if det_location: candidates["location"].append((det_location, 0.9))
+        if det_company: candidates["company"].append((det_company, 1.0 if "|" in str(lines[0:5]) else 0.9))
+        if det_title: candidates["title"].append((det_title, 1.0 if "|" in str(lines[0:5]) else 0.9))
+        if det_location: candidates["location"].append((det_location, 1.0 if "|" in str(lines[0:5]) else 0.9))
 
-        # 1.2 Dictionary/Priority Extraction
-        if self.priority_company_processor:
-            for ln in lines[:3]:
+        # 1.2 Dictionary/Priority Extraction (IT/Global Companies & Titles)
+        for ln in lines[:3]:
+            # Priority Companies (from companies.csv)
+            if self.priority_company_processor:
                 hits = self.priority_company_processor.extract_keywords(ln)
                 if hits: candidates["company"].append((hits[0], 0.95))
-        if self.priority_job_title_processor:
-            for ln in lines[:3]:
+            
+            # Priority Titles (from job_titles.csv)
+            if self.priority_job_title_processor:
                 hits = self.priority_job_title_processor.extract_keywords(ln)
                 if hits: candidates["title"].append((hits[0], 0.95))
 
-        # 1.3 NER Extraction (SpaCy/HF)
+        # 1.3 NER Extraction
         header_text = "\n".join(lines[0:5])
         ner_entities = self._extract_entities_ner(header_text)
         for ent in ner_entities:
             lbl = ent["label"]
-            if lbl in {"ORG", "Companies worked at"}: candidates["company"].append((ent["text"], 0.7))
-            if lbl in {"TITLE", "Designation", "Role"}: candidates["title"].append((ent["text"], 0.7))
-            if lbl in {"LOC", "Location"}: candidates["location"].append((ent["text"], 0.7))
+            if lbl in {"ORG", "Companies worked at"}: candidates["company"].append((ent["text"], 0.75))
+            if lbl in {"TITLE", "Designation", "Role"}: candidates["title"].append((ent["text"], 0.75))
+            if lbl in {"LOC", "Location"}: candidates["location"].append((ent["text"], 0.75))
 
         # --- STEP 2: Date Anchoring ---
         start_date, end_date, is_current = self._extract_date_range(chunk)
         
         # --- STEP 3: Weighted Merging (Max Confidence Selection) ---
-        final_company = self._get_best_candidate(candidates["company"])
-        final_title = self._get_best_candidate(candidates["title"])
-        final_location = self._get_best_candidate(candidates["location"])
+        # Disambiguate Title vs Company: If a candidate matches both, check TITLE_HINT_RE
+        final_company_raw = self._get_best_candidate(candidates["company"])
+        final_title_raw = self._get_best_candidate(candidates["title"])
+        
+        # Cross-validation: principal developer shouldn't be a company
+        if final_company_raw and TITLE_HINT_RE.fullmatch(final_company_raw.strip().split()[-1].lower()):
+             if not final_title_raw or final_title_raw == "Job Role":
+                 final_title_raw = final_company_raw
+                 final_company_raw = None
 
-        # Title Normalization (Taxonomy)
-        final_title = self.normalize_job_titles(final_title)
-        final_company = self.normalize_company_names(final_company)
+        final_company = self.normalize_company_names(final_company_raw)
+        final_title = self.normalize_job_titles(final_title_raw)
+        final_location = self._get_best_candidate(candidates["location"])
 
         # Body/Bullets
         bullets = self._extract_bullets(lines[1:])
@@ -1357,20 +1641,69 @@ class WorkExperienceParser:
         )
 
         return JobEntry(
-            company=final_company or "Unknown Company",
-            title=final_title or "Job Role",
+            id="", # Will be set in parse_to_standardized_json
+            person_id="", # Will be set in parse_to_standardized_json
+            company_or_client={
+                "name": final_company or "Unknown Company",
+                "is_client": False, # Will be set in parse_to_standardized_json
+            },
+            location={
+                "city": final_location,
+                "region": None,
+                "country": None,
+                "remote": False # Will be set in parse_to_standardized_json
+            },
+            role=final_title or "Job Role",
             start_date=start_date,
             end_date=end_date,
-            is_current=is_current,
-            location=final_location,
+            currently_working=is_current,
+            employment_type=self._detect_employment_type(chunk),
             description=description.strip(),
             bullets=bullets,
+            technologies=[], # Will be extracted in parse_to_standardized_json
+            raw_text=chunk,
+            confidence_score=confidence,
+            last_updated=datetime.now(timezone.utc).isoformat() + "Z",
             duration_months=self._calc_duration_months(start_date, end_date, is_current),
-            client=self._extract_client(chunk),
-            employment_type=self._detect_employment_type(chunk),
-            confidence=confidence,
-            designation=final_title,
+            client=self._extract_client(chunk)
         )
+
+    def _looks_like_company(self, line: str) -> bool:
+        clean = line.strip().strip("#").strip().lower()
+        if not clean or len(clean) < 2 or len(clean) > 150:
+            return False
+            
+        # Avoid skill headers or contact lines
+        if ":" in clean and any(k in clean for k in ["skill", "tech", "environment", "tool", "project overview"]):
+            return False
+            
+        # Avoid name-like lines (single words or very short capitalized names without org indicators)
+        words = clean.split()
+        if len(words) <= 2 and not any(ind in clean for ind in ["inc", "llc", "corp", "ltd", "tech", "system", "service", "bank", "univers"]):
+            return False
+
+        if COMPANY_HINT_RE.search(clean):
+            return True
+        
+        # Check against local dataset (if initialized)
+        if hasattr(self, 'company_set') and clean in self.company_set:
+            return True
+            
+        return False
+
+    def _looks_like_title(self, line: str) -> bool:
+        clean = line.strip().strip("#").strip().lower()
+        if not clean or len(clean) < 3 or len(clean) > 150:
+            return False
+            
+        # Avoid skill lists
+        if ":" in clean or len(line.split(",")) > 3:
+            return False
+
+        if TITLE_HINT_RE.search(clean):
+            return True
+            
+        return False
 
     def _extract_date_range(self, text: str) -> tuple[date | None, date | None, bool]:
         lines = text.splitlines()
@@ -1403,18 +1736,53 @@ class WorkExperienceParser:
     def _parse_company_title_location_deterministic(self, header_lines: list[str]) -> tuple[str | None, str | None, str | None]:
         company, title, location = None, None, None
         for line in header_lines:
-            m = TITLE_PIPE_COMPANY_LOC_RE.match(line)
-            if m: return m.group("company").strip(), m.group("title").strip(), m.group("location").strip()
+            # 1. Pipe-separated: Match both variants and use Title/Company hints to disambiguate
+            m_tc = TITLE_PIPE_COMPANY_LOC_RE.match(line)
+            m_ct = COMPANY_PIPE_TITLE_LOC_RE.match(line)
+            
+            if m_tc or m_ct:
+                # Disambiguate by checking which part looks more like a title
+                # Default to m_tc groups if both match (same captures, different names)
+                p1, p2, loc = (m_tc.group("title"), m_tc.group("company"), m_tc.group("location")) if m_tc else \
+                               (m_ct.group("company"), m_ct.group("title"), m_ct.group("location"))
+                
+                if TITLE_HINT_RE.search(p2) and not TITLE_HINT_RE.search(p1):
+                    # p2 is likely the title, p1 is company
+                    return p1.strip(), p2.strip(), loc.strip()
+                else:
+                    # p1 is likely the title (or both/neither are strong hints)
+                    return p2.strip(), p1.strip(), loc.strip()
+            
+            # 2. Dash-separated: Title - Company or Company - Title
             m = TITLE_DASH_COMPANY_RE.match(line)
-            if m: title, company = m.group("title").strip(), m.group("company").strip()
-            elif (m := COMPANY_DASH_TITLE_RE.match(line)): company, title = m.group("company").strip(), m.group("title").strip()
+            if m:
+                t, c = m.group("title").strip(), m.group("company").strip()
+                if not self._is_date_like(c):
+                    title, company = t, c
+            elif (m := COMPANY_DASH_TITLE_RE.match(line)):
+                c, t = m.group("company").strip(), m.group("title").strip()
+                if not self._is_date_like(c):
+                    company, title = c, t
+            
+            # 3. Labeled: Role: X, Company: Y
             m = LABELED_ORG_RE.search(line)
-            if m: company = m.group("value").strip()
+            if m:
+                c = m.group("value").strip()
+                if not self._is_date_like(c): company = c
             m = LABELED_TITLE_RE.search(line)
-            if m: title = m.group("value").strip()
+            if m:
+                t = m.group("value").strip()
+                if not self._is_date_like(t): title = t
+                
+            # 4. Location
             loc_m = LOCATION_RE.search(line)
             if loc_m: location = loc_m.group(0)
+            
         return company, title, location
+
+    def _is_date_like(self, text: str) -> bool:
+        if not text: return False
+        return bool(DATE_CANDIDATE_RE.search(text) or DATE_ANCHOR_RE.search(text))
 
 
 
@@ -1614,7 +1982,7 @@ class WorkExperienceParser:
                 prefix = prefix.rstrip(":").strip()
                 if prefix and not ENVIRONMENT_LINE_RE.match(prefix):
                     if self._looks_like_company(prefix):
-                        company_from_date = prefix
+                        company = prefix
                     elif not title and self._looks_like_title(prefix):
                         title_from_prefix = prefix
                         if title_from_prefix:
@@ -1724,10 +2092,6 @@ class WorkExperienceParser:
 
         return company, title, location, start_date, end_date, is_current, body_start
 
-    def _looks_like_company(self, text: str) -> bool:
-        if not text:
-            return False
-        cleaned = text.strip()
         if cleaned.startswith("##"): # Explicitly reject markdown headers
             return False
             
@@ -1926,19 +2290,55 @@ class WorkExperienceParser:
         # 3. Fallback to Heuristics (Priority #3)
         if not comp or not title:
             for ln in filtered_lines[:3]:
-                # Heuristic company check
+                # Try to find both in the same line if it's a composite line
                 if not comp and self._looks_like_company(ln):
-                    # Ensure it's not a description line or title
-                    if not self._looks_like_title(ln) or COMPANY_HINT_RE.search(ln):
-                        if not title or ln.lower() != title.lower():
-                            comp = ln
-                            continue
+                    comp_cand = ln
+                    # If this line also looks like a title, and we don't have a title yet,
+                    # We might have a composite. But for now, just assign company.
+                    comp = comp_cand
                 
-                # Heuristic title check
                 if not title and self._looks_like_title(ln):
-                    if not comp or ln.lower() != comp.lower():
-                        title = ln
-                        continue
+                    title_cand = ln
+                    # If it's the SAME line as company, only take it if it's clearly a title
+                    if title_cand == comp:
+                        # Composite line logic: "Title @ Company" or "Title | Company"
+                        # We'll let later stages (deterministic) handle splitting it
+                        # but here we just ensure we don't have blanks.
+                        pass
+                    else:
+                        title = title_cand
+
+        # 4. Composite Splitting (Phase 8 Special)
+        # If we have only one of them, and the line is long and contains both, split it.
+        if (not comp or not title) and filtered_lines:
+            header = filtered_lines[0]
+            # If the line has a date, use the date as the split point
+            has_date = self._has_date_anchor(header)
+            if has_date:
+                match = DATE_RANGE_RE.search(header)
+                if not match:
+                    match = re.search(r'\b(19|20)\d{2}\b', header)
+                
+                if match:
+                    pre_date_text = header[:match.start()].strip(" ,-|·")
+                    # Try to split pre_date_text into Title and Company
+                    if pre_date_text:
+                        # If it contains a known title indicator, split there
+                        title_match = TITLE_HINT_RE.search(pre_date_text)
+                        if title_match:
+                            # Heuristic: [Title] [Company] or [Company] [Title]
+                            # Often it's [Title] [Company] [Location]
+                            words = pre_date_text.split()
+                            if len(words) >= 2:
+                                # For now, simple split: first word(s) as title, rest as company
+                                if not title: title = " ".join(words[:2])
+                                if not comp: comp = " ".join(words[2:])
+            
+            if (not comp or not title) and len(header.split()) > 3:
+                # Try deterministic split again for this specific line
+                c, t, l = self._parse_company_title_location_deterministic([header])
+                if c: comp = c
+                if t: title = t
         
         # 4. Final fix: If Company and Title are still the same, try to find a different title in next lines
         if comp and title and comp.lower() == title.lower():
@@ -1950,6 +2350,14 @@ class WorkExperienceParser:
         # 5. Production Guard: Explicitly reject "Present", "Current", "Remote" as Companies
         if comp and comp.lower() in {"present", "current", "till date", "now", "remote", "confidential"}:
             comp = None
+            
+        # Final fallback: If we HAVE a title but no company, and the title is long, it might be both
+        if title and not comp and len(title.split()) > 4:
+            # Maybe the title is "Software Engineer at Google"
+            at_match = re.search(r"\b(at|for|with|@)\b", title, re.IGNORECASE)
+            if at_match:
+                comp = title[at_match.end():].strip()
+                title = title[:at_match.start()].strip()
 
         return comp, title
 
@@ -1991,7 +2399,7 @@ class WorkExperienceParser:
     def _parse_dates(self, text: str) -> tuple[date | None, date | None, bool]:
         match = DATE_RANGE_RE.search(text)
         if not match:
-            # Fallback for single year as per user prompt "extract_date_range"
+            # Fallback for single year or date anchor
             m2 = re.search(r'\b(19|20)\d{2}\b', text)
             if m2:
                 d = self._parse_date(m2.group(0))
@@ -2001,24 +2409,14 @@ class WorkExperienceParser:
         start_raw = (match.group("start") or "").strip()
         end_raw = (match.group("end") or "").strip()
 
-        # Handle PRESENT sentinels in both start and end
-        start_is_present = any(p in start_raw.lower() for p in PRESENT) or start_raw.lower() in {"till date", "till  date", "until now", "up to now"}
-        end_is_present = any(p in end_raw.lower() for p in PRESENT) or end_raw.lower() in {"till date", "till  date", "until now", "up to now"}
+        # Handle PRESENT sentinels
+        start_is_present = any(p in start_raw.lower() for p in PRESENT) or start_raw.lower() in {"till date", "now", "current"}
+        end_is_present = any(p in end_raw.lower() for p in PRESENT) or end_raw.lower() in {"till date", "now", "current"}
 
         start_date = date.today() if start_is_present else self._parse_date(start_raw)
-        end_date = date.today() if end_is_present else self._parse_date(end_raw)
+        end_date = None if end_is_present else self._parse_date(end_raw)
 
         is_current = end_is_present or start_is_present
-
-        # Swap logic if range is inverted (e.g., "Present - 2024" or mis-ordered dates)
-        if start_date and end_date and start_date > end_date:
-            if start_is_present and not end_is_present:
-                # Reversed range like "Present - 2024"
-                start_date, end_date = end_date, start_date
-            elif not start_is_present and not end_is_present:
-                # Mis-ordered absolute dates
-                start_date, end_date = end_date, start_date
-            
         return start_date, end_date, is_current
 
     def _parse_date(self, value: str) -> date | None:
@@ -2026,30 +2424,26 @@ class WorkExperienceParser:
         if not raw:
             return None
         
-        # Check PRESENT sentinel first as in user's parse_date
         if any(p in raw for p in PRESENT):
             return date.today()
 
         raw_clean = self._clean_token(raw)
         
-        # Use existing normalization but more robust
-        normalized = (
-            raw_clean.replace("q1", "january")
-            .replace("q2", "april")
-            .replace("q3", "july")
-            .replace("q4", "october")
-            .replace("spring", "march")
-            .replace("fall", "september")
-            .replace("summer", "june")
-            .replace("winter", "december")
-        )
-        normalized = re.sub(r"[\'\u2019](\d{2,4})\b", r" 20\1", normalized) # Assume 20xx for 'YY
-        
-        # Ensure 'YY becomes space 20YY after cleaning so dateparser sees it as a separate token
-        normalized = re.sub(r"([a-z])20(\d{2})", r"\1 20\2", normalized)
+        # ISO Normalization: YYYY -> YYYY-01-01
+        year_only_match = re.fullmatch(r"(\d{4})", raw_clean)
+        if year_only_match:
+            try:
+                return date(int(year_only_match.group(1)), 1, 1)
+            except ValueError:
+                return None
 
+        normalized = (
+            raw_clean.replace("q1", "january").replace("q2", "april")
+            .replace("q3", "july").replace("q4", "october")
+        )
+        normalized = re.sub(r"[\'\u2019](\d{2,4})\b", r" 20\1", normalized)
+        
         dt = dateparser.parse(normalized, settings={'PREFER_DAY_OF_MONTH': 'first'})
-        return dt.date() if dt else None
         return dt.date() if dt else None
 
     @staticmethod
@@ -2291,7 +2685,7 @@ class WorkExperienceParser:
         if bullets and len(bullets) >= 1:
             score += weights["bullets"]
             
-        return min(score, 1.0)
+        return min(1.0, score)
 
     def _parse_labeled_fields(self, lines: list[str]) -> tuple[str | None, str | None, list[str]]:
         company: str | None = None
@@ -2375,19 +2769,17 @@ class WorkExperienceParser:
         bullets = payload.get("responsibilities") or payload.get("bullets") or []
 
         return JobEntry(
-            company=self.normalize_company_names(payload.get("company_name") or payload.get("company")),
-            title=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
+            company_or_client={"name": self.normalize_company_names(payload.get("company_name") or payload.get("company")), "is_client": payload.get("is_client", False)},
+            role=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
             start_date=start_date,
             end_date=end_date,
-            is_current=is_current,
+            currently_working=is_current,
             location=payload.get("location"),
             description="\n".join(bullets) if bullets else payload.get("description", ""),
             bullets=bullets,
             duration_months=duration_months,
-            client=payload.get("client"),
             employment_type=payload.get("employment_type"),
-            confidence=payload.get("confidence", 0.85),
-            designation=self.normalize_job_titles(payload.get("job_title") or payload.get("title")),
+            confidence_score=payload.get("confidence", 0.85),
         )
 
     def _call_llm(self, prompt: str) -> str | None:
