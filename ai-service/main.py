@@ -8,6 +8,10 @@ import os
 import torch
 from typing import Optional, Dict, Any, List
 from collections import defaultdict
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from parsers.master_parser import MasterParser
 
@@ -17,6 +21,15 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Debug: Check if API keys are loaded
+logger.info("=" * 80)
+logger.info("ENVIRONMENT VARIABLES CHECK:")
+logger.info(f"GEMINI_API_KEY: {'SET' if os.getenv('GEMINI_API_KEY') else 'NOT SET'}")
+logger.info(f"ANTHROPIC_API_KEY: {'SET' if os.getenv('ANTHROPIC_API_KEY') else 'NOT SET'}")
+logger.info(f"OPENAI_API_KEY: {'SET' if os.getenv('OPENAI_API_KEY') else 'NOT SET'}")
+logger.info(f"DEEPSEEK_API_KEY: {'SET' if os.getenv('DEEPSEEK_API_KEY') else 'NOT SET'}")
+logger.info("=" * 80)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -291,9 +304,14 @@ async def parse_resume(request: ParseRequest):
                 detail=f"Unsupported file format: {file_ext}. Supported formats: {supported_formats}"
             )
         
-        logger.info(f"Parsing file: {request.file_path} for candidate: {request.candidate_id}")
-        if request.llm_provider:
-            logger.info(f"Using LLM provider: {request.llm_provider}")
+        logger.info("=" * 80)
+        logger.info(f"📄 PARSE REQUEST RECEIVED")
+        logger.info(f"File: {request.file_path}")
+        logger.info(f"Candidate ID: {request.candidate_id}")
+        logger.info(f"LLM Provider: '{request.llm_provider}' (type: {type(request.llm_provider).__name__})")
+        logger.info(f"LLM Provider is truthy: {bool(request.llm_provider)}")
+        logger.info(f"LLM Provider == 'gemini-2.0-flash-lite': {request.llm_provider == 'gemini-2.0-flash-lite'}")
+        logger.info("=" * 80)
         
         # Parse using MasterParser
         result = master_parser.parse_file(request.file_path, request.candidate_id, request.llm_provider)
@@ -697,7 +715,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=8001,
         reload=True,
         log_level="info"
     )

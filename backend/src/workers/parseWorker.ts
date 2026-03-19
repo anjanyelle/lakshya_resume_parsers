@@ -454,6 +454,15 @@ const callAIService = async (
       requestBody.llm_provider = llmProvider;
     }
     
+    console.log("=" + "=".repeat(79));
+    console.log("🚀 CALLING AI SERVICE");
+    console.log("URL:", `${AI_SERVICE_URL}/parse`);
+    console.log("Request Body:", JSON.stringify(requestBody, null, 2));
+    console.log("llmProvider value:", llmProvider);
+    console.log("llmProvider type:", typeof llmProvider);
+    console.log("llmProvider truthy:", !!llmProvider);
+    console.log("=" + "=".repeat(79));
+    
     const apiResponse = await fetch(`${AI_SERVICE_URL}/parse`, {
       method: "POST",
       headers: {

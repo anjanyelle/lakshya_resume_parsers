@@ -6,7 +6,8 @@ Uses various LLM providers (Gemini, DeepSeek, Claude, GPT) to extract structured
 import os
 import json
 import logging
-from typing import List, Dict, Optional
+import time
+from typing import List, Dict, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -31,47 +32,75 @@ def extract_experience_with_llm(experience_text: str, llm_provider: str) -> List
     
     user_prompt = f"""Extract all work experiences from the resume section below. Return ONLY a valid JSON array. No explanation. No markdown. No extra text. Each object must have: company (string or null), role (string or null), start_date (string or null), end_date (string or null), is_current (boolean), location (string or null), summary (2-3 sentence summary string or null). Rules: multiple roles at same company = separate objects. Missing dates = null. Year only like 2019-2022 is fine as-is. summary must be condensed version of bullet points not copy-paste. Never invent missing data. Resume experience section: {experience_text}"""
     
-    try:
-        if llm_provider == "gemini-2.0-flash-lite":
-            result = _call_gemini(system_prompt, user_prompt)
-        elif llm_provider == "deepseek-v3":
-            result = _call_deepseek(system_prompt, user_prompt)
-        elif llm_provider == "claude-haiku-4-5":
-            result = _call_claude(system_prompt, user_prompt)
-        elif llm_provider == "gpt-4o-mini":
-            result = _call_openai(system_prompt, user_prompt)
-        else:
-            logger.error(f"Unknown LLM provider: {llm_provider}")
-            return []
-        
-        # Save to training data
-        _save_training_data(experience_text, result)
-        
-        logger.info(f"✅ LLM extraction successful - Extracted {len(result)} experiences")
-        return result
-        
-    except Exception as e:
-        logger.error(f"❌ LLM extraction failed: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return []
+    # Retry with exponential backoff
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            if llm_provider == "gemini-2.0-flash-lite":
+                result, error = _call_gemini(system_prompt, user_prompt)
+            elif llm_provider == "deepseek-v3":
+                result, error = _call_deepseek(system_prompt, user_prompt)
+            elif llm_provider == "claude-haiku-4-5":
+                result, error = _call_claude(system_prompt, user_prompt)
+            elif llm_provider == "gpt-4o-mini":
+                result, error = _call_openai(system_prompt, user_prompt)
+            else:
+                logger.error(f"Unknown LLM provider: {llm_provider}")
+                return []
+            
+            # Check if call was successful
+            if result is not None:
+                # Save to training data
+                _save_training_data(experience_text, result)
+                logger.info(f"✅ LLM extraction successful - Extracted {len(result)} experiences")
+                return result
+            
+            # Handle rate limit errors with exponential backoff
+            if error and "429" in str(error):
+                if attempt < max_retries - 1:
+                    wait_time = (2 ** attempt) * 5  # 5s, 10s, 20s
+                    logger.warning(f"Rate limit hit, waiting {wait_time}s before retry {attempt + 1}/{max_retries}")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logger.error(f"Rate limit exceeded after {max_retries} attempts: {error}")
+                    return []
+            
+            # For other errors, log and return empty
+            logger.error(f"LLM call failed (attempt {attempt + 1}/{max_retries}): {error}")
+            if attempt < max_retries - 1:
+                time.sleep(2)  # Brief pause before retry
+            else:
+                return []
+                
+        except Exception as e:
+            logger.error(f"❌ LLM extraction failed (attempt {attempt + 1}/{max_retries}): {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            if attempt < max_retries - 1:
+                time.sleep(2)
+            else:
+                return []
+    
+    return []
 
 
-def _call_gemini(system_prompt: str, user_prompt: str) -> List[Dict]:
-    """Call Gemini API."""
+def _call_gemini(system_prompt: str, user_prompt: str) -> Tuple[Optional[List[Dict]], Optional[str]]:
+    """Call Gemini API. Returns (result, error)."""
     try:
         import google.generativeai as genai
         
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            logger.error("❌ GEMINI_API_KEY not found in environment")
-            raise ValueError("GEMINI_API_KEY not set")
+            error_msg = "GEMINI_API_KEY not found in environment"
+            logger.error(f"❌ {error_msg}")
+            return None, error_msg
         
         logger.info(f"🔑 Gemini API key found: {api_key[:10]}...")
         genai.configure(api_key=api_key)
         
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash-exp",
+            model_name="gemini-2.0-flash-lite",
             generation_config={
                 "response_mime_type": "application/json"
             }
@@ -81,6 +110,12 @@ def _call_gemini(system_prompt: str, user_prompt: str) -> List[Dict]:
         full_prompt = f"{system_prompt}\n\n{user_prompt}"
         response = model.generate_content(full_prompt)
         
+        # Validate response
+        if not response or not hasattr(response, 'text') or not response.text:
+            error_msg = "Empty or invalid response from Gemini"
+            logger.error(error_msg)
+            return None, error_msg
+        
         logger.info(f"📥 Gemini response received: {response.text[:200]}...")
         result = json.loads(response.text)
         
@@ -88,36 +123,36 @@ def _call_gemini(system_prompt: str, user_prompt: str) -> List[Dict]:
             logger.warning("Gemini returned non-list, wrapping in list")
             result = [result] if result else []
         
-        return result
+        return result, None
         
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse Gemini JSON response: {e}")
-        # Retry once
-        try:
-            response = model.generate_content(full_prompt)
-            result = json.loads(response.text)
-            return result if isinstance(result, list) else []
-        except:
-            return []
+        error_msg = f"Failed to parse Gemini JSON response: {e}"
+        logger.error(error_msg)
+        return None, error_msg
     except Exception as e:
-        logger.error(f"Gemini API error: {e}")
-        return []
+        error_msg = f"Gemini API error: {e}"
+        logger.error(error_msg)
+        return None, error_msg
 
 
-def _call_deepseek(system_prompt: str, user_prompt: str) -> List[Dict]:
-    """Call DeepSeek API."""
+def _call_deepseek(system_prompt: str, user_prompt: str) -> Tuple[Optional[List[Dict]], Optional[str]]:
+    """Call DeepSeek API. Returns (result, error)."""
     try:
         from openai import OpenAI
         
         api_key = os.getenv("DEEPSEEK_API_KEY")
         if not api_key:
-            raise ValueError("DEEPSEEK_API_KEY not set")
+            error_msg = "DEEPSEEK_API_KEY not set"
+            logger.error(f"❌ {error_msg}")
+            return None, error_msg
         
+        logger.info(f"🔑 DeepSeek API key found: {api_key[:10]}...")
         client = OpenAI(
             api_key=api_key,
             base_url="https://api.deepseek.com"
         )
         
+        logger.info("📡 Calling DeepSeek API...")
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
@@ -128,55 +163,50 @@ def _call_deepseek(system_prompt: str, user_prompt: str) -> List[Dict]:
         )
         
         content = response.choices[0].message.content
+        if not content:
+            error_msg = "Empty response from DeepSeek"
+            logger.error(error_msg)
+            return None, error_msg
+        
+        logger.info(f"📥 DeepSeek response received: {content[:200]}...")
         result = json.loads(content)
         
         # DeepSeek might wrap in an object with "experiences" key
         if isinstance(result, dict) and "experiences" in result:
             result = result["experiences"]
         elif isinstance(result, dict) and len(result) == 1:
-            # If single key dict, extract the value
             result = list(result.values())[0]
         
         if not isinstance(result, list):
             result = [result] if result else []
         
-        return result
+        return result, None
         
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse DeepSeek JSON response: {e}")
-        # Retry once
-        try:
-            response = client.chat.completions.create(
-                model="deepseek-chat",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            content = response.choices[0].message.content
-            result = json.loads(content)
-            if isinstance(result, dict):
-                result = list(result.values())[0] if len(result) == 1 else []
-            return result if isinstance(result, list) else []
-        except:
-            return []
+        error_msg = f"Failed to parse DeepSeek JSON response: {e}"
+        logger.error(error_msg)
+        return None, error_msg
     except Exception as e:
-        logger.error(f"DeepSeek API error: {e}")
-        return []
+        error_msg = f"DeepSeek API error: {e}"
+        logger.error(error_msg)
+        return None, error_msg
 
 
-def _call_claude(system_prompt: str, user_prompt: str) -> List[Dict]:
-    """Call Claude API."""
+def _call_claude(system_prompt: str, user_prompt: str) -> Tuple[Optional[List[Dict]], Optional[str]]:
+    """Call Claude API. Returns (result, error)."""
     try:
         from anthropic import Anthropic
         
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY not set")
+            error_msg = "ANTHROPIC_API_KEY not set"
+            logger.error(f"❌ {error_msg}")
+            return None, error_msg
         
+        logger.info(f"🔑 Claude API key found: {api_key[:10]}...")
         client = Anthropic(api_key=api_key)
         
+        logger.info("📡 Calling Claude API...")
         response = client.messages.create(
             model="claude-haiku-4-5-20251001",
             max_tokens=2048,
@@ -187,6 +217,10 @@ def _call_claude(system_prompt: str, user_prompt: str) -> List[Dict]:
         )
         
         content = response.content[0].text
+        if not content:
+            error_msg = "Empty response from Claude"
+            logger.error(error_msg)
+            return None, error_msg
         
         # Claude might wrap in markdown code blocks
         if content.startswith("```json"):
@@ -194,48 +228,39 @@ def _call_claude(system_prompt: str, user_prompt: str) -> List[Dict]:
         elif content.startswith("```"):
             content = content.replace("```", "").strip()
         
+        logger.info(f"📥 Claude response received: {content[:200]}...")
         result = json.loads(content)
         
         if not isinstance(result, list):
             result = [result] if result else []
         
-        return result
+        return result, None
         
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse Claude JSON response: {e}")
-        # Retry once
-        try:
-            response = client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=2048,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": user_prompt}
-                ]
-            )
-            content = response.content[0].text
-            if content.startswith("```"):
-                content = content.replace("```json", "").replace("```", "").strip()
-            result = json.loads(content)
-            return result if isinstance(result, list) else []
-        except:
-            return []
+        error_msg = f"Failed to parse Claude JSON response: {e}"
+        logger.error(error_msg)
+        return None, error_msg
     except Exception as e:
-        logger.error(f"Claude API error: {e}")
-        return []
+        error_msg = f"Claude API error: {e}"
+        logger.error(error_msg)
+        return None, error_msg
 
 
-def _call_openai(system_prompt: str, user_prompt: str) -> List[Dict]:
-    """Call OpenAI API."""
+def _call_openai(system_prompt: str, user_prompt: str) -> Tuple[Optional[List[Dict]], Optional[str]]:
+    """Call OpenAI API. Returns (result, error)."""
     try:
         from openai import OpenAI
         
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            raise ValueError("OPENAI_API_KEY not set")
+            error_msg = "OPENAI_API_KEY not set"
+            logger.error(f"❌ {error_msg}")
+            return None, error_msg
         
+        logger.info(f"🔑 OpenAI API key found: {api_key[:10]}...")
         client = OpenAI(api_key=api_key)
         
+        logger.info("📡 Calling OpenAI API...")
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -246,6 +271,12 @@ def _call_openai(system_prompt: str, user_prompt: str) -> List[Dict]:
         )
         
         content = response.choices[0].message.content
+        if not content:
+            error_msg = "Empty response from OpenAI"
+            logger.error(error_msg)
+            return None, error_msg
+        
+        logger.info(f"📥 OpenAI response received: {content[:200]}...")
         result = json.loads(content)
         
         # OpenAI might wrap in an object with "experiences" key
@@ -257,30 +288,16 @@ def _call_openai(system_prompt: str, user_prompt: str) -> List[Dict]:
         if not isinstance(result, list):
             result = [result] if result else []
         
-        return result
+        return result, None
         
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse OpenAI JSON response: {e}")
-        # Retry once
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            content = response.choices[0].message.content
-            result = json.loads(content)
-            if isinstance(result, dict):
-                result = list(result.values())[0] if len(result) == 1 else []
-            return result if isinstance(result, list) else []
-        except:
-            return []
+        error_msg = f"Failed to parse OpenAI JSON response: {e}"
+        logger.error(error_msg)
+        return None, error_msg
     except Exception as e:
-        logger.error(f"OpenAI API error: {e}")
-        return []
+        error_msg = f"OpenAI API error: {e}"
+        logger.error(error_msg)
+        return None, error_msg
 
 
 def _save_training_data(input_text: str, output_data: List[Dict]) -> None:

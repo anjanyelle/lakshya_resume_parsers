@@ -477,6 +477,13 @@ class MasterParser:
     
     def _extract_experience(self, sections: Dict[str, str], full_text: str = '', llm_provider: Optional[str] = None) -> Dict[str, Any]:
         """Extract structured work experience using LLM if provider specified, otherwise use regex."""
+        self.logger.info("=" * 80)
+        self.logger.info("🔍 _extract_experience() CALLED")
+        self.logger.info(f"LLM Provider: '{llm_provider}' (type: {type(llm_provider).__name__ if llm_provider else 'None'})")
+        self.logger.info(f"LLM Provider is truthy: {bool(llm_provider)}")
+        self.logger.info(f"Has extract_experience_with_llm: {hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
+        self.logger.info("=" * 80)
+        
         if not self.exp_extractor:
             self.logger.warning("ExperienceExtractor not available, returning empty results")
             return {'work_experience': [], 'job_titles': []}
@@ -488,8 +495,12 @@ class MasterParser:
         if not experience_text:
             return {'work_experience': [], 'job_titles': []}
         
+        self.logger.info(f"📝 Experience text length: {len(experience_text)} chars")
+        self.logger.info(f"📝 Experience text preview: {experience_text[:300]}...")
+        
         # Use LLM extraction if provider is specified
         if llm_provider and hasattr(self.exp_extractor, 'extract_experience_with_llm'):
+            self.logger.info("✅ CONDITION MET: Using LLM extraction")
             self.logger.info(f"Using LLM extraction with provider: {llm_provider}")
             try:
                 work_experience = self.exp_extractor.extract_experience_with_llm(experience_text, llm_provider)
@@ -500,8 +511,12 @@ class MasterParser:
                 }
             except Exception as e:
                 self.logger.error(f"LLM extraction failed: {e}, falling back to regex")
+        else:
+            self.logger.warning(f"❌ CONDITION NOT MET: Using regex fallback")
+            self.logger.warning(f"Reason: llm_provider={llm_provider}, has_method={hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
         
         # Fallback to regex-based extraction
+        self.logger.info("📊 Using REGEX-based extraction")
         exp_result = self.exp_extractor.extract_work_experience(experience_text)
         work_experience = exp_result.get('work_experience', [])
         job_titles = [exp.get('job_title', '') for exp in work_experience if exp.get('job_title')]
