@@ -216,11 +216,11 @@ def test_skill_inference_and_years():
     extractor = SkillExtractor(taxonomy_path=str(taxonomy_path), use_spacy=False)
     jobs = [
         JobEntry(
-            company="Acme",
-            title="Engineer",
+            company_or_client={"name": "Acme", "is_client": False},
+            role="Engineer",
             start_date=None,
             end_date=None,
-            is_current=True,
+            currently_working=True,
             location=None,
             description="Built APIs in Python and AWS",
             bullets=[],

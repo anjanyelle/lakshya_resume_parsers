@@ -3227,11 +3227,11 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
         jobs_payload = parsed.get("work_experience", [])
         jobs = [
             JobEntry(
-                company=item.get("company"),
-                title=item.get("title"),
+                company_or_client={"name": item.get("company"), "is_client": False},
+                role=item.get("title"),
                 start_date=None,
                 end_date=None,
-                is_current=item.get("is_current", False),
+                currently_working=item.get("is_current", False),
                 location=item.get("location"),
                 description=item.get("description", ""),
                 bullets=item.get("bullets", []),

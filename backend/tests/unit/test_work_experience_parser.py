@@ -192,11 +192,11 @@ def test_validate_dates_flags_future_start():
 
     jobs = [
         JobEntry(
-            company="Acme",
-            title="Dev",
+            company_or_client={"name": "Acme", "is_client": False},
+            role="Dev",
             start_date=date(2030, 1, 1),
             end_date=date(2031, 1, 1),
-            is_current=False,
+            currently_working=False,
             location=None,
             description="",
             bullets=[],
@@ -217,8 +217,8 @@ def test_validate_dates_flags_end_before_start():
 
     jobs = [
         JobEntry(
-            company="Acme",
-            title="Dev",
+            company_or_client={"name": "Acme", "is_client": False},
+            role="Dev",
             start_date=date(2022, 1, 1),
             end_date=date(2020, 1, 1),
             is_current=False,
@@ -242,11 +242,11 @@ def test_detect_overlaps_flags_overlapping_jobs():
 
     jobs = [
         JobEntry(
-            company="A",
-            title="Dev",
+            company_or_client={"name": "A", "is_client": False},
+            role="Dev",
             start_date=date(2020, 1, 1),
             end_date=date(2022, 6, 1),
-            is_current=False,
+            currently_working=False,
             location=None,
             description="",
             bullets=[],
@@ -256,11 +256,11 @@ def test_detect_overlaps_flags_overlapping_jobs():
             confidence_score=0.9,
         ),
         JobEntry(
-            company="B",
-            title="Dev",
+            company_or_client={"name": "B", "is_client": False},
+            role="Dev",
             start_date=date(2021, 1, 1),
             end_date=date(2023, 1, 1),
-            is_current=False,
+            currently_working=False,
             location=None,
             description="",
             bullets=[],

@@ -183,10 +183,8 @@ PROJECT_RE = re.compile(
 TITLE_NORMALIZATION = {
     # Seniority
     "sr": "senior",
-    "sr.": "senior",
     "sen": "senior",
     "jr": "junior",
-    "jr.": "junior",
     "assoc": "associate",
     "asst": "assistant",
     "lead": "lead",
@@ -1520,14 +1518,24 @@ class WorkExperienceParser:
         # Preserve / and | if they are likely role separators
         normalized = re.sub(r"\s+", " ", raw).strip()
         
-        # Check Priority Dictionary
+        # Check Priority Dictionary first
         if getattr(self, "priority_job_title_processor", None):
             matches = self.priority_job_title_processor.extract_keywords(normalized)
             if matches:
                 return matches[0].title()
 
+        # Check Global 100k Dataset (NEW: Use the CSV data for normalization)
+        if getattr(self, "job_title_processor", None):
+            matches = self.job_title_processor.extract_keywords(normalized)
+            if matches:
+                return matches[0].title()
+
         for short, long in TITLE_NORMALIZATION.items():
-            normalized = re.sub(rf"\b{re.escape(short)}\b", long, normalized)
+            # First handle versions with periods
+            if not short.endswith('.'):
+                normalized = re.sub(rf"\b{re.escape(short)}\.", long, normalized, flags=re.IGNORECASE)
+            # Then handle exact matches
+            normalized = re.sub(rf"\b{re.escape(short)}\b", long, normalized, flags=re.IGNORECASE)
         normalized = re.sub(r"\s+", " ", normalized).strip()
         return normalized.title()
 
