@@ -1,0 +1,1980 @@
+
+
+roles = {
+
+    # ════════════════════════════════════════════════════════
+    # GOOGLE
+    # ════════════════════════════════════════════════════════
+    "Google": [
+        # ── Software Engineer ──────────────────────────────
+        "* Junior Software Engineer (L3)",
+        "* Associate Software Engineer (L3)",
+        "* Software Engineer (L4)",
+        "* Senior Software Engineer (L5)",
+        "* Staff Software Engineer (L6)",
+        "* Senior Staff Software Engineer (L7)",
+        "* Principal Engineer / Distinguished Engineer (L8)",
+        "* Google Fellow (L9–L10)",
+
+        # ── Site Reliability Engineer ──────────────────────
+        "* Junior Site Reliability Engineer (SRE – L3)",
+        "* Associate Site Reliability Engineer (L3)",
+        "* Site Reliability Engineer (L4)",
+        "* Senior Site Reliability Engineer (L5)",
+        "* Staff Site Reliability Engineer (L6)",
+        "* Principal Site Reliability Engineer (L7)",
+
+        # ── Frontend Engineer ──────────────────────────────
+        "* Junior Frontend Engineer",
+        "* Associate Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Staff Frontend Engineer",
+        "* Principal Frontend Engineer",
+
+        # ── Backend Engineer ───────────────────────────────
+        "* Junior Backend Engineer",
+        "* Associate Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+
+        # ── Full Stack Engineer ────────────────────────────
+        "* Junior Full Stack Engineer",
+        "* Associate Full Stack Engineer",
+        "* Full Stack Engineer",
+        "* Senior Full Stack Engineer",
+        "* Staff Full Stack Engineer",
+
+        # ── Android Engineer ───────────────────────────────
+        "* Junior Android Engineer",
+        "* Associate Android Engineer",
+        "* Android Engineer",
+        "* Senior Android Engineer",
+        "* Staff Android Engineer",
+        "* Principal Android Engineer",
+
+        # ── Chrome Engineer ────────────────────────────────
+        "* Junior Chrome Engineer",
+        "* Chrome Engineer",
+        "* Senior Chrome Engineer",
+        "* Staff Chrome Engineer",
+
+        # ── Search Engineer ────────────────────────────────
+        "* Junior Search Engineer",
+        "* Associate Search Engineer",
+        "* Search Engineer",
+        "* Senior Search Engineer",
+        "* Staff Search Engineer",
+        "* Principal Search Engineer",
+
+        # ── YouTube Engineer ───────────────────────────────
+        "* Junior YouTube Engineer",
+        "* YouTube Engineer",
+        "* Senior YouTube Engineer",
+        "* Staff YouTube Engineer",
+
+        # ── Machine Learning Engineer ──────────────────────
+        "* Junior Machine Learning Engineer",
+        "* Associate Machine Learning Engineer",
+        "* Machine Learning Engineer",
+        "* Senior Machine Learning Engineer",
+        "* Staff Machine Learning Engineer",
+        "* Principal Machine Learning Engineer",
+
+        # ── AI Research Scientist ──────────────────────────
+        "* Junior AI Research Scientist",
+        "* Associate AI Research Scientist",
+        "* AI Research Scientist",
+        "* Senior AI Research Scientist",
+        "* Principal AI Research Scientist",
+        "* Distinguished AI Research Scientist",
+
+        # ── Deep Learning Engineer ─────────────────────────
+        "* Junior Deep Learning Engineer",
+        "* Deep Learning Engineer",
+        "* Senior Deep Learning Engineer",
+        "* Staff Deep Learning Engineer",
+
+        # ── NLP Engineer ───────────────────────────────────
+        "* Junior NLP Engineer",
+        "* Associate NLP Engineer",
+        "* NLP Engineer",
+        "* Senior NLP Engineer",
+        "* Principal NLP Engineer",
+
+        # ── Data Scientist ─────────────────────────────────
+        "* Junior Data Scientist",
+        "* Associate Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Staff Data Scientist",
+        "* Principal Data Scientist",
+
+        # ── Data Analyst ───────────────────────────────────
+        "* Junior Data Analyst",
+        "* Associate Data Analyst",
+        "* Data Analyst",
+        "* Senior Data Analyst",
+        "* Lead Data Analyst",
+
+        # ── Cloud Engineer (GCP) ───────────────────────────
+        "* Junior Cloud Engineer (GCP)",
+        "* Associate Cloud Engineer (GCP)",
+        "* Cloud Engineer (GCP)",
+        "* Senior Cloud Engineer (GCP)",
+        "* Staff Cloud Engineer (GCP)",
+        "* Principal Cloud Engineer (GCP)",
+
+        # ── Distributed Systems Engineer ───────────────────
+        "* Junior Distributed Systems Engineer",
+        "* Distributed Systems Engineer",
+        "* Senior Distributed Systems Engineer",
+        "* Staff Distributed Systems Engineer",
+        "* Principal Distributed Systems Engineer",
+
+        # ── Security Engineer ──────────────────────────────
+        "* Junior Security Engineer",
+        "* Associate Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Staff Security Engineer",
+        "* Principal Security Engineer",
+
+        # ── Product Manager ────────────────────────────────
+        "* Associate Product Manager (APM)",
+        "* Product Manager",
+        "* Senior Product Manager",
+        "* Group Product Manager",
+        "* Director of Product Management",
+
+        # ── Technical Program Manager ──────────────────────
+        "* Junior Technical Program Manager",
+        "* Technical Program Manager",
+        "* Senior Technical Program Manager",
+        "* Principal Technical Program Manager",
+
+        # ── UX Designer ────────────────────────────────────
+        "* Junior UX Designer",
+        "* Associate UX Designer",
+        "* UX Designer",
+        "* Senior UX Designer",
+        "* Lead UX Designer",
+        "* Principal UX Designer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # AMAZON / AWS
+    # ════════════════════════════════════════════════════════
+    "Amazon / AWS": [
+        # ── SDE ───────────────────────────────────────────
+        "* Software Development Engineer I (SDE I)",
+        "* Software Development Engineer II (SDE II)",
+        "* Senior Software Development Engineer (SDE III)",
+        "* Principal Software Development Engineer",
+        "* Distinguished Engineer",
+        "* Amazon Fellow",
+
+        # ── Frontend ──────────────────────────────────────
+        "* Junior Frontend Engineer",
+        "* Associate Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Principal Frontend Engineer",
+
+        # ── Backend ───────────────────────────────────────
+        "* Junior Backend Engineer",
+        "* Associate Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Principal Backend Engineer",
+
+        # ── Full Stack ────────────────────────────────────
+        "* Junior Full Stack Engineer",
+        "* Full Stack Engineer",
+        "* Senior Full Stack Engineer",
+        "* Principal Full Stack Engineer",
+
+        # ── Cloud ─────────────────────────────────────────
+        "* Junior Cloud Engineer (AWS)",
+        "* Associate Cloud Engineer (AWS)",
+        "* Cloud Engineer (AWS)",
+        "* Senior Cloud Engineer (AWS)",
+        "* Principal Cloud Engineer (AWS)",
+
+        # ── DevOps ────────────────────────────────────────
+        "* Junior DevOps Engineer",
+        "* Associate DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Principal DevOps Engineer",
+
+        # ── Solutions Architect ───────────────────────────
+        "* Associate Solutions Architect",
+        "* Solutions Architect",
+        "* Senior Solutions Architect",
+        "* Principal Solutions Architect",
+
+        # ── Applied Scientist ─────────────────────────────
+        "* Junior Applied Scientist",
+        "* Applied Scientist I",
+        "* Applied Scientist II",
+        "* Senior Applied Scientist",
+        "* Principal Applied Scientist",
+
+        # ── ML Engineer ───────────────────────────────────
+        "* Junior Machine Learning Engineer",
+        "* Machine Learning Engineer",
+        "* Senior Machine Learning Engineer",
+        "* Principal Machine Learning Engineer",
+
+        # ── Data Engineer ─────────────────────────────────
+        "* Junior Data Engineer",
+        "* Associate Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Principal Data Engineer",
+
+        # ── Systems Engineer ──────────────────────────────
+        "* Junior Systems Engineer",
+        "* Systems Engineer",
+        "* Senior Systems Engineer",
+        "* Principal Systems Engineer",
+
+        # ── Support Engineer ──────────────────────────────
+        "* Support Engineer I",
+        "* Support Engineer II",
+        "* Senior Support Engineer",
+        "* Principal Support Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # MICROSOFT
+    # ════════════════════════════════════════════════════════
+    "Microsoft": [
+        # ── Software Engineer ─────────────────────────────
+        "* Junior Software Engineer (SDE 59–60)",
+        "* Associate Software Engineer (SDE 61–62)",
+        "* Software Engineer (SDE 63–64)",
+        "* Senior Software Engineer (SDE 65–66)",
+        "* Principal Software Engineer (SDE 67)",
+        "* Partner Engineer (SDE 68)",
+        "* Distinguished Engineer (SDE 69)",
+        "* Technical Fellow (SDE 80)",
+
+        # ── Azure Cloud Engineer ──────────────────────────
+        "* Junior Azure Cloud Engineer",
+        "* Associate Azure Cloud Engineer",
+        "* Azure Cloud Engineer",
+        "* Senior Azure Cloud Engineer",
+        "* Principal Azure Cloud Engineer",
+
+        # ── AI Engineer ───────────────────────────────────
+        "* Junior AI Engineer",
+        "* Associate AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Principal AI Engineer",
+
+        # ── Data Scientist ────────────────────────────────
+        "* Junior Data Scientist",
+        "* Associate Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Principal Data Scientist",
+
+        # ── Security Engineer ─────────────────────────────
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Principal Security Engineer",
+
+        # ── Game Developer (Xbox) ─────────────────────────
+        "* Junior Game Developer (Xbox)",
+        "* Associate Game Developer (Xbox)",
+        "* Game Developer (Xbox)",
+        "* Senior Game Developer (Xbox)",
+        "* Lead Game Developer (Xbox)",
+        "* Principal Game Developer (Xbox)",
+
+        # ── DevOps Engineer ───────────────────────────────
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Principal DevOps Engineer",
+
+        # ── Program Manager ───────────────────────────────
+        "* Associate Program Manager (APM)",
+        "* Program Manager (PM)",
+        "* Senior Program Manager (PM II)",
+        "* Principal Program Manager",
+        "* Partner Program Manager",
+
+        # ── Frontend / Backend ────────────────────────────
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Principal Frontend Engineer",
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Principal Backend Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # META
+    # ════════════════════════════════════════════════════════
+    "Meta": [
+        # ── Software Engineer ─────────────────────────────
+        "* Junior Software Engineer (E3)",
+        "* Software Engineer (E4)",
+        "* Senior Software Engineer (E5)",
+        "* Staff Software Engineer (E6)",
+        "* Senior Staff Software Engineer (E7)",
+        "* Principal Engineer (E8)",
+        "* Distinguished Engineer (E9)",
+
+        # ── Frontend ─────────────────────────────────────
+        "* Junior Frontend Engineer (React)",
+        "* Associate Frontend Engineer (React)",
+        "* Frontend Engineer (React)",
+        "* Senior Frontend Engineer (React)",
+        "* Staff Frontend Engineer (React)",
+        "* Principal Frontend Engineer (React)",
+
+        # ── Backend ──────────────────────────────────────
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+
+        # ── AR/VR ────────────────────────────────────────
+        "* Junior AR/VR Engineer",
+        "* AR/VR Engineer",
+        "* Senior AR/VR Engineer",
+        "* Staff AR/VR Engineer",
+        "* Principal AR/VR Engineer",
+
+        # ── AI Engineer ───────────────────────────────────
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Staff AI Engineer",
+        "* Principal AI Engineer",
+
+        # ── Research Scientist ────────────────────────────
+        "* Research Scientist I",
+        "* Research Scientist II",
+        "* Senior Research Scientist",
+        "* Principal Research Scientist",
+        "* Distinguished Research Scientist",
+
+        # ── Data Engineer ─────────────────────────────────
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Staff Data Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # APPLE
+    # ════════════════════════════════════════════════════════
+    "Apple": [
+        # ── iOS Developer ────────────────────────────────
+        "* Junior iOS Developer",
+        "* Associate iOS Developer",
+        "* iOS Developer",
+        "* Senior iOS Developer",
+        "* Staff iOS Developer",
+        "* Principal iOS Developer",
+
+        # ── macOS Engineer ────────────────────────────────
+        "* Junior macOS Engineer",
+        "* macOS Engineer",
+        "* Senior macOS Engineer",
+        "* Staff macOS Engineer",
+        "* Principal macOS Engineer",
+
+        # ── Embedded Systems ──────────────────────────────
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Staff Embedded Systems Engineer",
+        "* Principal Embedded Systems Engineer",
+
+        # ── Hardware-Software Integration ─────────────────
+        "* Junior Hardware-Software Integration Engineer",
+        "* Hardware-Software Integration Engineer",
+        "* Senior Hardware-Software Integration Engineer",
+        "* Principal Hardware-Software Integration Engineer",
+
+        # ── ML Engineer ───────────────────────────────────
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Staff ML Engineer",
+        "* Principal ML Engineer",
+
+        # ── Security Engineer ─────────────────────────────
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Principal Security Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # NETFLIX
+    # ════════════════════════════════════════════════════════
+    "Netflix": [
+        # ── Backend ──────────────────────────────────────
+        "* Junior Backend Engineer",
+        "* Associate Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+
+        # ── Streaming ─────────────────────────────────────
+        "* Junior Streaming Engineer",
+        "* Streaming Engineer",
+        "* Senior Streaming Engineer",
+        "* Staff Streaming Engineer",
+        "* Principal Streaming Engineer",
+
+        # ── Data Engineer ─────────────────────────────────
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Staff Data Engineer",
+
+        # ── Recommendation System ─────────────────────────
+        "* Junior Recommendation System Engineer",
+        "* Recommendation System Engineer",
+        "* Senior Recommendation System Engineer",
+        "* Staff Recommendation System Engineer",
+        "* Principal Recommendation System Engineer",
+
+        # ── Cloud Engineer ────────────────────────────────
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Principal Cloud Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # IBM
+    # ════════════════════════════════════════════════════════
+    "IBM": [
+        "* Junior Software Engineer",
+        "* Associate Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Lead Software Engineer",
+        "* Principal Software Engineer",
+        "* Distinguished Engineer",
+        "* IBM Fellow",
+        "* Junior AI Engineer (Watson)",
+        "* AI Engineer (Watson)",
+        "* Senior AI Engineer (Watson)",
+        "* Principal AI Engineer (Watson)",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Principal Cloud Engineer",
+        "* Junior Mainframe Engineer",
+        "* Mainframe Engineer",
+        "* Senior Mainframe Engineer",
+        "* Lead Mainframe Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Principal Data Scientist",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ORACLE
+    # ════════════════════════════════════════════════════════
+    "Oracle": [
+        "* Junior Database Engineer",
+        "* Associate Database Engineer",
+        "* Database Engineer",
+        "* Senior Database Engineer",
+        "* Principal Database Engineer",
+        "* Junior Backend Developer",
+        "* Backend Developer",
+        "* Senior Backend Developer",
+        "* Principal Backend Developer",
+        "* Junior Cloud Engineer",
+        "* Associate Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Principal Cloud Engineer",
+        "* Junior ERP Developer",
+        "* ERP Developer",
+        "* Senior ERP Developer",
+        "* Lead ERP Developer",
+        "* Junior Java Developer",
+        "* Associate Java Developer",
+        "* Java Developer",
+        "* Senior Java Developer",
+        "* Principal Java Developer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SALESFORCE
+    # ════════════════════════════════════════════════════════
+    "Salesforce": [
+        "* Junior Salesforce Developer (MTS)",
+        "* Associate Salesforce Developer",
+        "* Salesforce Developer",
+        "* Senior Salesforce Developer (SMTS)",
+        "* Lead Salesforce Developer",
+        "* Principal Salesforce Developer (PMTS)",
+        "* Junior CRM Engineer",
+        "* CRM Engineer",
+        "* Senior CRM Engineer",
+        "* Principal CRM Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Principal Cloud Engineer",
+        "* Junior Platform Developer",
+        "* Platform Developer",
+        "* Senior Platform Developer",
+        "* Principal Platform Developer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # INTEL
+    # ════════════════════════════════════════════════════════
+    "Intel": [
+        "* Junior Embedded Engineer",
+        "* Embedded Engineer",
+        "* Senior Embedded Engineer",
+        "* Principal Embedded Engineer",
+        "* Junior Firmware Engineer",
+        "* Firmware Engineer",
+        "* Senior Firmware Engineer",
+        "* Principal Firmware Engineer",
+        "* Junior Chip Design Software Engineer",
+        "* Chip Design Software Engineer",
+        "* Senior Chip Design Software Engineer",
+        "* Principal Chip Design Software Engineer",
+        "* Junior Systems Engineer",
+        "* Systems Engineer",
+        "* Senior Systems Engineer",
+        "* Principal Systems Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # TESLA
+    # ════════════════════════════════════════════════════════
+    "Tesla": [
+        "* Junior Autopilot Engineer",
+        "* Autopilot Engineer",
+        "* Senior Autopilot Engineer",
+        "* Staff Autopilot Engineer",
+        "* Principal Autopilot Engineer",
+        "* Junior Robotics Engineer",
+        "* Robotics Engineer",
+        "* Senior Robotics Engineer",
+        "* Principal Robotics Engineer",
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Principal Embedded Systems Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Staff AI Engineer",
+        "* Principal AI Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # OPENAI
+    # ════════════════════════════════════════════════════════
+    "OpenAI": [
+        "* Junior AI Research Scientist",
+        "* AI Research Scientist",
+        "* Senior AI Research Scientist",
+        "* Principal AI Research Scientist",
+        "* Distinguished AI Research Scientist",
+        "* Junior Machine Learning Engineer",
+        "* Machine Learning Engineer",
+        "* Senior Machine Learning Engineer",
+        "* Staff Machine Learning Engineer",
+        "* Principal Machine Learning Engineer",
+        "* Junior Safety Engineer",
+        "* Safety Engineer",
+        "* Senior Safety Engineer",
+        "* Principal Safety Engineer",
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Staff Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior Infrastructure Engineer",
+        "* Infrastructure Engineer",
+        "* Senior Infrastructure Engineer",
+        "* Principal Infrastructure Engineer",
+        "* Junior Applied AI Engineer",
+        "* Applied AI Engineer",
+        "* Senior Applied AI Engineer",
+        "* Alignment Researcher",
+        "* Senior Alignment Researcher",
+        "* Principal Alignment Researcher",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ANTHROPIC
+    # ════════════════════════════════════════════════════════
+    "Anthropic": [
+        "* Junior AI Safety Researcher",
+        "* AI Safety Researcher",
+        "* Senior AI Safety Researcher",
+        "* Principal AI Safety Researcher",
+        "* Junior Machine Learning Engineer",
+        "* Machine Learning Engineer",
+        "* Senior Machine Learning Engineer",
+        "* Staff Machine Learning Engineer",
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Staff Software Engineer",
+        "* Junior Research Engineer",
+        "* Research Engineer",
+        "* Senior Research Engineer",
+        "* Principal Research Engineer",
+        "* Junior Infrastructure Engineer",
+        "* Infrastructure Engineer",
+        "* Senior Infrastructure Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # NVIDIA
+    # ════════════════════════════════════════════════════════
+    "NVIDIA": [
+        "* Junior GPU Software Engineer",
+        "* Associate GPU Software Engineer",
+        "* GPU Software Engineer",
+        "* Senior GPU Software Engineer",
+        "* Principal GPU Software Engineer",
+        "* Junior Deep Learning Engineer",
+        "* Deep Learning Engineer",
+        "* Senior Deep Learning Engineer",
+        "* Principal Deep Learning Engineer",
+        "* Junior CUDA Developer",
+        "* CUDA Developer",
+        "* Senior CUDA Developer",
+        "* Principal CUDA Developer",
+        "* Junior Compiler Engineer",
+        "* Compiler Engineer",
+        "* Senior Compiler Engineer",
+        "* Principal Compiler Engineer",
+        "* Junior Autonomous Driving Engineer",
+        "* Autonomous Driving Engineer",
+        "* Senior Autonomous Driving Engineer",
+        "* Junior Robotics Software Engineer",
+        "* Robotics Software Engineer",
+        "* Senior Robotics Software Engineer",
+        "* Junior AI Infrastructure Engineer",
+        "* AI Infrastructure Engineer",
+        "* Senior AI Infrastructure Engineer",
+        "* Principal AI Infrastructure Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # UBER
+    # ════════════════════════════════════════════════════════
+    "Uber": [
+        "* Junior Backend Engineer",
+        "* Associate Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior Mapping Engineer",
+        "* Mapping Engineer",
+        "* Senior Mapping Engineer",
+        "* Principal Mapping Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Staff Data Scientist",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Staff ML Engineer",
+        "* Junior iOS Engineer",
+        "* iOS Engineer",
+        "* Senior iOS Engineer",
+        "* Junior Android Engineer",
+        "* Android Engineer",
+        "* Senior Android Engineer",
+        "* Junior Payments Engineer",
+        "* Payments Engineer",
+        "* Senior Payments Engineer",
+        "* Junior Real-Time Systems Engineer",
+        "* Real-Time Systems Engineer",
+        "* Senior Real-Time Systems Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # AIRBNB
+    # ════════════════════════════════════════════════════════
+    "Airbnb": [
+        "* Junior Full Stack Engineer",
+        "* Full Stack Engineer",
+        "* Senior Full Stack Engineer",
+        "* Staff Full Stack Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Principal Data Scientist",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Staff ML Engineer",
+        "* Junior iOS Engineer",
+        "* iOS Engineer",
+        "* Senior iOS Engineer",
+        "* Junior Android Engineer",
+        "* Android Engineer",
+        "* Senior Android Engineer",
+        "* Junior Trust & Safety Engineer",
+        "* Trust & Safety Engineer",
+        "* Senior Trust & Safety Engineer",
+        "* Junior Payments Engineer",
+        "* Payments Engineer",
+        "* Senior Payments Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SPOTIFY
+    # ════════════════════════════════════════════════════════
+    "Spotify": [
+        "* Junior Backend Engineer",
+        "* Associate Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Staff Data Engineer",
+        "* Junior Recommendation Algorithm Engineer",
+        "* Recommendation Algorithm Engineer",
+        "* Senior Recommendation Algorithm Engineer",
+        "* Principal Recommendation Algorithm Engineer",
+        "* Junior Mobile Engineer (iOS)",
+        "* Mobile Engineer (iOS)",
+        "* Senior Mobile Engineer (iOS)",
+        "* Junior Mobile Engineer (Android)",
+        "* Mobile Engineer (Android)",
+        "* Senior Mobile Engineer (Android)",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Audio Engineer",
+        "* Audio Engineer",
+        "* Senior Audio Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # TWITTER / X
+    # ════════════════════════════════════════════════════════
+    "Twitter / X": [
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Staff Frontend Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior Site Reliability Engineer",
+        "* Site Reliability Engineer",
+        "* Senior Site Reliability Engineer",
+        "* Junior Trust & Safety Engineer",
+        "* Trust & Safety Engineer",
+        "* Senior Trust & Safety Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # LINKEDIN
+    # ════════════════════════════════════════════════════════
+    "LinkedIn": [
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Staff Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Staff ML Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Search Engineer",
+        "* Search Engineer",
+        "* Senior Search Engineer",
+        "* Junior Site Reliability Engineer",
+        "* Site Reliability Engineer",
+        "* Senior Site Reliability Engineer",
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ADOBE
+    # ════════════════════════════════════════════════════════
+    "Adobe": [
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Creative AI Engineer",
+        "* Creative AI Engineer",
+        "* Senior Creative AI Engineer",
+        "* Junior Computer Vision Engineer",
+        "* Computer Vision Engineer",
+        "* Senior Computer Vision Engineer",
+        "* Principal Computer Vision Engineer",
+        "* Junior Generative AI Engineer",
+        "* Generative AI Engineer",
+        "* Senior Generative AI Engineer",
+        "* Principal Generative AI Engineer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # STRIPE
+    # ════════════════════════════════════════════════════════
+    "Stripe": [
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior Payments Engineer",
+        "* Payments Engineer",
+        "* Senior Payments Engineer",
+        "* Principal Payments Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Principal Security Engineer",
+        "* Junior Infrastructure Engineer",
+        "* Infrastructure Engineer",
+        "* Senior Infrastructure Engineer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior Developer Relations Engineer",
+        "* Developer Relations Engineer",
+        "* Senior Developer Relations Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SAMSUNG
+    # ════════════════════════════════════════════════════════
+    "Samsung": [
+        "* Junior Embedded Software Engineer",
+        "* Embedded Software Engineer",
+        "* Senior Embedded Software Engineer",
+        "* Principal Embedded Software Engineer",
+        "* Junior Android OS Engineer",
+        "* Android OS Engineer",
+        "* Senior Android OS Engineer",
+        "* Principal Android OS Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Principal AI Engineer",
+        "* Junior Semiconductor Engineer",
+        "* Semiconductor Engineer",
+        "* Senior Semiconductor Engineer",
+        "* Principal Semiconductor Engineer",
+        "* Junior IoT Engineer",
+        "* IoT Engineer",
+        "* Senior IoT Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Junior Display Engineer",
+        "* Display Engineer",
+        "* Senior Display Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # HUAWEI
+    # ════════════════════════════════════════════════════════
+    "Huawei": [
+        "* Junior Network Engineer",
+        "* Network Engineer",
+        "* Senior Network Engineer",
+        "* Principal Network Engineer",
+        "* Junior 5G Software Engineer",
+        "* 5G Software Engineer",
+        "* Senior 5G Software Engineer",
+        "* Principal 5G Software Engineer",
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Principal AI Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Principal Cloud Engineer",
+        "* Junior Compiler Engineer",
+        "* Compiler Engineer",
+        "* Senior Compiler Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ALIBABA
+    # ════════════════════════════════════════════════════════
+    "Alibaba": [
+        "* Junior Backend Engineer (Java)",
+        "* Associate Backend Engineer (Java)",
+        "* Backend Engineer (Java)",
+        "* Senior Backend Engineer (Java)",
+        "* Principal Backend Engineer (Java)",
+        "* Junior Cloud Engineer (Alibaba Cloud)",
+        "* Cloud Engineer (Alibaba Cloud)",
+        "* Senior Cloud Engineer (Alibaba Cloud)",
+        "* Principal Cloud Engineer (Alibaba Cloud)",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Principal Data Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Principal ML Engineer",
+        "* Junior E-Commerce Platform Engineer",
+        "* E-Commerce Platform Engineer",
+        "* Senior E-Commerce Platform Engineer",
+        "* Junior Distributed Systems Engineer",
+        "* Distributed Systems Engineer",
+        "* Senior Distributed Systems Engineer",
+        "* Principal Distributed Systems Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # TENCENT
+    # ════════════════════════════════════════════════════════
+    "Tencent": [
+        "* Junior Game Developer",
+        "* Game Developer",
+        "* Senior Game Developer",
+        "* Lead Game Developer",
+        "* Principal Game Developer",
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Principal AI Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Junior Mini Program Developer",
+        "* Mini Program Developer",
+        "* Senior Mini Program Developer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # BAIDU
+    # ════════════════════════════════════════════════════════
+    "Baidu": [
+        "* Junior AI Research Scientist",
+        "* AI Research Scientist",
+        "* Senior AI Research Scientist",
+        "* Principal AI Research Scientist",
+        "* Junior NLP Engineer",
+        "* NLP Engineer",
+        "* Senior NLP Engineer",
+        "* Principal NLP Engineer",
+        "* Junior Autonomous Driving Engineer",
+        "* Autonomous Driving Engineer",
+        "* Senior Autonomous Driving Engineer",
+        "* Principal Autonomous Driving Engineer",
+        "* Junior Search Engineer",
+        "* Search Engineer",
+        "* Senior Search Engineer",
+        "* Principal Search Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior Deep Learning Engineer",
+        "* Deep Learning Engineer",
+        "* Senior Deep Learning Engineer",
+        "* Principal Deep Learning Engineer",
+        "* Junior Robotics Engineer",
+        "* Robotics Engineer",
+        "* Senior Robotics Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ByteDance / TikTok
+    # ════════════════════════════════════════════════════════
+    "ByteDance / TikTok": [
+        "* Junior Backend Engineer",
+        "* Associate Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior Recommendation System Engineer",
+        "* Recommendation System Engineer",
+        "* Senior Recommendation System Engineer",
+        "* Principal Recommendation System Engineer",
+        "* Junior Video Streaming Engineer",
+        "* Video Streaming Engineer",
+        "* Senior Video Streaming Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Staff ML Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior Growth Engineer",
+        "* Growth Engineer",
+        "* Senior Growth Engineer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SIEMENS
+    # ════════════════════════════════════════════════════════
+    "Siemens": [
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Principal Embedded Systems Engineer",
+        "* Junior Industrial Automation Engineer",
+        "* Industrial Automation Engineer",
+        "* Senior Industrial Automation Engineer",
+        "* Principal Industrial Automation Engineer",
+        "* Junior IoT Engineer",
+        "* IoT Engineer",
+        "* Senior IoT Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Cybersecurity Engineer",
+        "* Cybersecurity Engineer",
+        "* Senior Cybersecurity Engineer",
+        "* Junior Digital Twin Engineer",
+        "* Digital Twin Engineer",
+        "* Senior Digital Twin Engineer",
+        "* Junior SCADA Engineer",
+        "* SCADA Engineer",
+        "* Senior SCADA Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # BOSCH
+    # ════════════════════════════════════════════════════════
+    "Bosch": [
+        "* Junior Embedded Software Engineer",
+        "* Embedded Software Engineer",
+        "* Senior Embedded Software Engineer",
+        "* Principal Embedded Software Engineer",
+        "* Junior Automotive Software Engineer",
+        "* Automotive Software Engineer",
+        "* Senior Automotive Software Engineer",
+        "* Principal Automotive Software Engineer",
+        "* Junior IoT Engineer",
+        "* IoT Engineer",
+        "* Senior IoT Engineer",
+        "* Junior ADAS Engineer",
+        "* ADAS Engineer",
+        "* Senior ADAS Engineer",
+        "* Principal ADAS Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Systems Engineer",
+        "* Systems Engineer",
+        "* Senior Systems Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # TCS (Tata Consultancy Services)
+    # ════════════════════════════════════════════════════════
+    "TCS": [
+        "* Assistant System Engineer (Trainee)",
+        "* Assistant System Engineer",
+        "* System Engineer",
+        "* IT Analyst",
+        "* Senior Software Engineer",
+        "* Lead Engineer",
+        "* Principal Consultant",
+        "* Junior Backend Developer",
+        "* Associate Backend Developer",
+        "* Backend Developer",
+        "* Senior Backend Developer",
+        "* Lead Backend Developer",
+        "* Junior QA Engineer",
+        "* QA Engineer",
+        "* Senior QA Engineer",
+        "* Lead QA Engineer",
+        "* Junior Support Engineer",
+        "* Support Engineer",
+        "* Senior Support Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # INFOSYS
+    # ════════════════════════════════════════════════════════
+    "Infosys": [
+        "* Systems Engineer (Trainee)",
+        "* Systems Engineer",
+        "* Senior Systems Engineer",
+        "* Technology Analyst",
+        "* Technical Lead",
+        "* Senior Technical Lead",
+        "* Principal Consultant",
+        "* Junior Java Developer",
+        "* Java Developer",
+        "* Senior Java Developer",
+        "* Lead Java Developer",
+        "* Junior Python Developer",
+        "* Python Developer",
+        "* Senior Python Developer",
+        "* Junior Data Analyst",
+        "* Data Analyst",
+        "* Senior Data Analyst",
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Lead DevOps Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # WIPRO
+    # ════════════════════════════════════════════════════════
+    "Wipro": [
+        "* Project Engineer (Trainee)",
+        "* Project Engineer",
+        "* Senior Project Engineer",
+        "* Technical Lead",
+        "* Senior Technical Lead",
+        "* Principal Consultant",
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Junior Automation Tester",
+        "* Automation Tester",
+        "* Senior Automation Tester",
+        "* Lead Automation Tester",
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # COGNIZANT
+    # ════════════════════════════════════════════════════════
+    "Cognizant": [
+        "* Programmer Analyst Trainee",
+        "* Programmer Analyst",
+        "* Senior Programmer Analyst",
+        "* Associate (Software Engineering)",
+        "* Senior Associate",
+        "* Manager / Technical Lead",
+        "* Junior QA Engineer",
+        "* QA Engineer",
+        "* Senior QA Engineer",
+        "* Lead QA Engineer",
+        "* Junior Full Stack Developer",
+        "* Full Stack Developer",
+        "* Senior Full Stack Developer",
+        "* Lead Full Stack Developer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # HCL TECHNOLOGIES
+    # ════════════════════════════════════════════════════════
+    "HCL Technologies": [
+        "* Graduate Engineer Trainee",
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Lead Engineer",
+        "* Principal Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Junior Java Developer",
+        "* Java Developer",
+        "* Senior Java Developer",
+        "* Junior SAP Consultant",
+        "* SAP Consultant",
+        "* Senior SAP Consultant",
+        "* Junior QA Engineer",
+        "* QA Engineer",
+        "* Senior QA Engineer",
+        "* Junior Data Analyst",
+        "* Data Analyst",
+        "* Senior Data Analyst",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # TECH MAHINDRA
+    # ════════════════════════════════════════════════════════
+    "Tech Mahindra": [
+        "* Junior Software Engineer",
+        "* Associate Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Lead Software Engineer",
+        "* Principal Engineer",
+        "* Junior Telecom Engineer",
+        "* Telecom Engineer",
+        "* Senior Telecom Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior Python Developer",
+        "* Python Developer",
+        "* Senior Python Developer",
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # CAPGEMINI
+    # ════════════════════════════════════════════════════════
+    "Capgemini": [
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Lead Software Engineer",
+        "* Principal Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Automation Engineer",
+        "* Automation Engineer",
+        "* Senior Automation Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Cybersecurity Analyst",
+        "* Cybersecurity Analyst",
+        "* Senior Cybersecurity Analyst",
+        "* Junior Full Stack Developer",
+        "* Full Stack Developer",
+        "* Senior Full Stack Developer",
+        "* Junior ERP Consultant",
+        "* ERP Consultant",
+        "* Senior ERP Consultant",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ACCENTURE
+    # ════════════════════════════════════════════════════════
+    "Accenture": [
+        "* Analyst (Entry Level)",
+        "* Associate Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Technology Consultant",
+        "* Senior Technology Consultant",
+        "* Manager / Principal Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Junior Cybersecurity Analyst",
+        "* Cybersecurity Analyst",
+        "* Senior Cybersecurity Analyst",
+        "* Junior SAP Consultant",
+        "* SAP Consultant",
+        "* Senior SAP Consultant",
+        "* Junior Salesforce Developer",
+        "* Salesforce Developer",
+        "* Senior Salesforce Developer",
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Junior Automation Engineer (RPA)",
+        "* Automation Engineer (RPA)",
+        "* Senior Automation Engineer (RPA)",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SAP (Germany)
+    # ════════════════════════════════════════════════════════
+    "SAP": [
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior SAP Consultant",
+        "* SAP Consultant",
+        "* Senior SAP Consultant",
+        "* Principal SAP Consultant",
+        "* Junior ABAP Developer",
+        "* ABAP Developer",
+        "* Senior ABAP Developer",
+        "* Junior SAP HANA Engineer",
+        "* SAP HANA Engineer",
+        "* Senior SAP HANA Engineer",
+        "* Junior SAP BTP Engineer",
+        "* SAP BTP Engineer",
+        "* Senior SAP BTP Engineer",
+        "* Junior SAP Fiori Developer",
+        "* SAP Fiori Developer",
+        "* Senior SAP Fiori Developer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior DevOps Engineer",
+        "* DevOps Engineer",
+        "* Senior DevOps Engineer",
+        "* Junior Data Analyst",
+        "* Data Analyst",
+        "* Senior Data Analyst",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # GRAB (Southeast Asia)
+    # ════════════════════════════════════════════════════════
+    "Grab": [
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Junior Mobile Engineer",
+        "* Mobile Engineer",
+        "* Senior Mobile Engineer",
+        "* Junior Mapping Engineer",
+        "* Mapping Engineer",
+        "* Senior Mapping Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Payments Engineer",
+        "* Payments Engineer",
+        "* Senior Payments Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # FLIPKART
+    # ════════════════════════════════════════════════════════
+    "Flipkart": [
+        "* Junior Software Engineer",
+        "* Software Engineer I",
+        "* Software Engineer II",
+        "* Senior Software Engineer",
+        "* Staff Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Search Engineer",
+        "* Search Engineer",
+        "* Senior Search Engineer",
+        "* Junior Supply Chain Engineer",
+        "* Supply Chain Engineer",
+        "* Senior Supply Chain Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ZOMATO / SWIGGY
+    # ════════════════════════════════════════════════════════
+    "Zomato / Swiggy": [
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Staff Backend Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior Mobile Engineer",
+        "* Mobile Engineer",
+        "* Senior Mobile Engineer",
+        "* Junior Logistics Optimization Engineer",
+        "* Logistics Optimization Engineer",
+        "* Senior Logistics Optimization Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ERICSSON
+    # ════════════════════════════════════════════════════════
+    "Ericsson": [
+        "* Junior Telecom Software Engineer",
+        "* Telecom Software Engineer",
+        "* Senior Telecom Software Engineer",
+        "* Principal Telecom Software Engineer",
+        "* Junior 5G Network Engineer",
+        "* 5G Network Engineer",
+        "* Senior 5G Network Engineer",
+        "* Principal 5G Network Engineer",
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Junior Cloud Native Engineer",
+        "* Cloud Native Engineer",
+        "* Senior Cloud Native Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Junior RAN Engineer",
+        "* Radio Access Network (RAN) Engineer",
+        "* Senior RAN Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # NOKIA
+    # ════════════════════════════════════════════════════════
+    "Nokia": [
+        "* Junior Network Software Engineer",
+        "* Network Software Engineer",
+        "* Senior Network Software Engineer",
+        "* Principal Network Software Engineer",
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Junior 5G Engineer",
+        "* 5G Engineer",
+        "* Senior 5G Engineer",
+        "* Junior C++ Developer",
+        "* C++ Developer",
+        "* Senior C++ Developer",
+        "* Junior Cloud Native Engineer",
+        "* Cloud Native Engineer",
+        "* Senior Cloud Native Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # DELOITTE
+    # ════════════════════════════════════════════════════════
+    "Deloitte": [
+        "* Analyst (Entry Level)",
+        "* Junior Data Analyst",
+        "* Data Analyst",
+        "* Senior Data Analyst",
+        "* Consultant",
+        "* Senior Consultant",
+        "* Manager",
+        "* Senior Manager",
+        "* Director",
+        "* Junior Cloud Architect",
+        "* Cloud Architect",
+        "* Senior Cloud Architect",
+        "* Junior Cybersecurity Engineer",
+        "* Cybersecurity Engineer",
+        "* Senior Cybersecurity Engineer",
+        "* Junior AI/ML Engineer",
+        "* AI/ML Engineer",
+        "* Senior AI/ML Engineer",
+        "* Junior ERP Consultant",
+        "* ERP Consultant",
+        "* Senior ERP Consultant",
+        "* Junior Blockchain Developer",
+        "* Blockchain Developer",
+        "* Senior Blockchain Developer",
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # TOYOTA
+    # ════════════════════════════════════════════════════════
+    "Toyota": [
+        "* Junior Embedded Software Engineer",
+        "* Embedded Software Engineer",
+        "* Senior Embedded Software Engineer",
+        "* Principal Embedded Software Engineer",
+        "* Junior Autonomous Vehicle Engineer",
+        "* Autonomous Vehicle Engineer",
+        "* Senior Autonomous Vehicle Engineer",
+        "* Principal Autonomous Vehicle Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Junior Robotics Engineer",
+        "* Robotics Engineer",
+        "* Senior Robotics Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Systems Engineer",
+        "* Systems Engineer",
+        "* Senior Systems Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SONY
+    # ════════════════════════════════════════════════════════
+    "Sony": [
+        "* Junior Game Developer (PlayStation)",
+        "* Game Developer (PlayStation)",
+        "* Senior Game Developer (PlayStation)",
+        "* Lead Game Developer (PlayStation)",
+        "* Principal Game Developer (PlayStation)",
+        "* Junior Embedded Systems Engineer",
+        "* Embedded Systems Engineer",
+        "* Senior Embedded Systems Engineer",
+        "* Junior Audio/Signal Processing Engineer",
+        "* Audio/Signal Processing Engineer",
+        "* Senior Audio/Signal Processing Engineer",
+        "* Junior Computer Vision Engineer",
+        "* Computer Vision Engineer",
+        "* Senior Computer Vision Engineer",
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # PALANTIR
+    # ════════════════════════════════════════════════════════
+    "Palantir": [
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior Forward Deployed Engineer",
+        "* Forward Deployed Engineer",
+        "* Senior Forward Deployed Engineer",
+        "* Principal Forward Deployed Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Infrastructure Engineer",
+        "* Infrastructure Engineer",
+        "* Senior Infrastructure Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SNOWFLAKE
+    # ════════════════════════════════════════════════════════
+    "Snowflake": [
+        "* Junior Database Engineer",
+        "* Database Engineer",
+        "* Senior Database Engineer",
+        "* Principal Database Engineer",
+        "* Junior Cloud Platform Engineer",
+        "* Cloud Platform Engineer",
+        "* Senior Cloud Platform Engineer",
+        "* Principal Cloud Platform Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Software Engineer",
+        "* Software Engineer",
+        "* Senior Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # ATLASSIAN
+    # ════════════════════════════════════════════════════════
+    "Atlassian": [
+        "* Junior Software Engineer",
+        "* Software Engineer I",
+        "* Software Engineer II",
+        "* Senior Software Engineer",
+        "* Staff Software Engineer",
+        "* Principal Software Engineer",
+        "* Junior Cloud Platform Engineer",
+        "* Cloud Platform Engineer",
+        "* Senior Cloud Platform Engineer",
+        "* Junior Full Stack Engineer",
+        "* Full Stack Engineer",
+        "* Senior Full Stack Engineer",
+        "* Junior Site Reliability Engineer",
+        "* Site Reliability Engineer",
+        "* Senior Site Reliability Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # SHOPIFY
+    # ════════════════════════════════════════════════════════
+    "Shopify": [
+        "* Junior Ruby on Rails Developer",
+        "* Associate Ruby on Rails Developer",
+        "* Ruby on Rails Developer",
+        "* Senior Ruby on Rails Developer",
+        "* Principal Ruby on Rails Developer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Platform Engineer",
+        "* Platform Engineer",
+        "* Senior Platform Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Merchant Experience Engineer",
+        "* Merchant Experience Engineer",
+        "* Senior Merchant Experience Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # RAKUTEN
+    # ════════════════════════════════════════════════════════
+    "Rakuten": [
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+        "* Junior Data Scientist",
+        "* Data Scientist",
+        "* Senior Data Scientist",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Junior Full Stack Engineer",
+        "* Full Stack Engineer",
+        "* Senior Full Stack Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # NAVER / KAKAO
+    # ════════════════════════════════════════════════════════
+    "Naver / Kakao": [
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Principal Backend Engineer",
+        "* Junior Search Engineer",
+        "* Search Engineer",
+        "* Senior Search Engineer",
+        "* Principal Search Engineer",
+        "* Junior AI Engineer",
+        "* AI Engineer",
+        "* Senior AI Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior Frontend Engineer",
+        "* Frontend Engineer",
+        "* Senior Frontend Engineer",
+        "* Junior Mobile Engineer",
+        "* Mobile Engineer",
+        "* Senior Mobile Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # PAYTM / RAZORPAY
+    # ════════════════════════════════════════════════════════
+    "Paytm / Razorpay": [
+        "* Junior Payments Engineer",
+        "* Payments Engineer",
+        "* Senior Payments Engineer",
+        "* Principal Payments Engineer",
+        "* Junior Backend Engineer",
+        "* Backend Engineer",
+        "* Senior Backend Engineer",
+        "* Junior Security Engineer",
+        "* Security Engineer",
+        "* Senior Security Engineer",
+        "* Junior Data Engineer",
+        "* Data Engineer",
+        "* Senior Data Engineer",
+        "* Junior ML Engineer",
+        "* ML Engineer",
+        "* Senior ML Engineer",
+        "* Junior Cloud Engineer",
+        "* Cloud Engineer",
+        "* Senior Cloud Engineer",
+    ],
+
+    # ════════════════════════════════════════════════════════
+    # EMERGING & SPECIALIZED ROLES — WORLDWIDE
+    # ════════════════════════════════════════════════════════
+    "Emerging & Specialized Roles (Worldwide)": [
+        # ── AI / Generative AI ────────────────────────────
+        "* Junior Prompt Engineer",
+        "* Prompt Engineer",
+        "* Senior Prompt Engineer",
+        "* Junior Generative AI Engineer",
+        "* Generative AI Engineer",
+        "* Senior Generative AI Engineer",
+        "* Principal Generative AI Engineer",
+        "* Junior LLM Fine-Tuning Engineer",
+        "* LLM Fine-Tuning Engineer",
+        "* Senior LLM Fine-Tuning Engineer",
+        "* Junior Multimodal AI Engineer",
+        "* Multimodal AI Engineer",
+        "* Senior Multimodal AI Engineer",
+        "* Junior AI Safety Engineer",
+        "* AI Safety Engineer",
+        "* Senior AI Safety Engineer",
+        "* Junior MLOps Engineer",
+        "* MLOps Engineer",
+        "* Senior MLOps Engineer",
+        "* Principal MLOps Engineer",
+        "* Junior Computer Vision Engineer",
+        "* Computer Vision Engineer",
+        "* Senior Computer Vision Engineer",
+        "* Principal Computer Vision Engineer",
+        "* Junior Reinforcement Learning Engineer",
+        "* Reinforcement Learning Engineer",
+        "* Senior Reinforcement Learning Engineer",
+
+        # ── Cloud & Platform ──────────────────────────────
+        "* Junior FinOps Engineer",
+        "* FinOps Engineer",
+        "* Senior FinOps Engineer",
+        "* Junior Platform Engineer",
+        "* Platform Engineer",
+        "* Senior Platform Engineer",
+        "* Principal Platform Engineer",
+        "* Junior Infrastructure as Code (IaC) Engineer",
+        "* Infrastructure as Code (IaC) Engineer",
+        "* Senior Infrastructure as Code (IaC) Engineer",
+        "* Junior Kubernetes Engineer",
+        "* Kubernetes Engineer",
+        "* Senior Kubernetes Engineer",
+        "* Junior Service Mesh Engineer",
+        "* Service Mesh Engineer",
+        "* Senior Service Mesh Engineer",
+        "* Junior Observability Engineer",
+        "* Observability Engineer",
+        "* Senior Observability Engineer",
+        "* Junior Chaos Engineer",
+        "* Chaos Engineer",
+        "* Senior Chaos Engineer",
+
+        # ── Security ──────────────────────────────────────
+        "* Junior Application Security Engineer",
+        "* Application Security Engineer",
+        "* Senior Application Security Engineer",
+        "* Junior Red Team Engineer (Penetration Tester)",
+        "* Red Team Engineer (Penetration Tester)",
+        "* Senior Red Team Engineer (Penetration Tester)",
+        "* Junior Cloud Security Engineer",
+        "* Cloud Security Engineer",
+        "* Senior Cloud Security Engineer",
+        "* Junior IAM Engineer",
+        "* IAM Engineer",
+        "* Senior IAM Engineer",
+        "* Junior Zero Trust Architect",
+        "* Zero Trust Architect",
+        "* Senior Zero Trust Architect",
+        "* Junior Threat Intelligence Engineer",
+        "* Threat Intelligence Engineer",
+        "* Senior Threat Intelligence Engineer",
+
+        # ── Data ──────────────────────────────────────────
+        "* Junior Analytics Engineer",
+        "* Analytics Engineer",
+        "* Senior Analytics Engineer",
+        "* Junior Data Governance Engineer",
+        "* Data Governance Engineer",
+        "* Senior Data Governance Engineer",
+        "* Junior Real-Time Streaming Engineer (Kafka)",
+        "* Real-Time Streaming Engineer (Kafka)",
+        "* Senior Real-Time Streaming Engineer (Kafka)",
+        "* Junior Data Mesh Architect",
+        "* Data Mesh Architect",
+        "* Senior Data Mesh Architect",
+        "* Junior BI Engineer",
+        "* Business Intelligence (BI) Engineer",
+        "* Senior BI Engineer",
+
+        # ── Blockchain / Web3 ─────────────────────────────
+        "* Junior Blockchain Developer",
+        "* Blockchain Developer",
+        "* Senior Blockchain Developer",
+        "* Junior Smart Contract Engineer (Solidity)",
+        "* Smart Contract Engineer (Solidity)",
+        "* Senior Smart Contract Engineer (Solidity)",
+        "* Junior Web3 Engineer",
+        "* Web3 Engineer",
+        "* Senior Web3 Engineer",
+        "* Junior DeFi Protocol Engineer",
+        "* DeFi Protocol Engineer",
+        "* Senior DeFi Protocol Engineer",
+
+        # ── Quantum ───────────────────────────────────────
+        "* Junior Quantum Software Engineer",
+        "* Quantum Software Engineer",
+        "* Senior Quantum Software Engineer",
+        "* Junior Quantum Algorithms Researcher",
+        "* Quantum Algorithms Researcher",
+        "* Senior Quantum Algorithms Researcher",
+
+        # ── Spatial / XR ──────────────────────────────────
+        "* Junior Spatial Computing Engineer",
+        "* Spatial Computing Engineer",
+        "* Senior Spatial Computing Engineer",
+        "* Junior Mixed Reality Engineer",
+        "* Mixed Reality Engineer",
+        "* Senior Mixed Reality Engineer",
+        "* Junior Unity Developer",
+        "* Unity Developer",
+        "* Senior Unity Developer",
+        "* Junior Unreal Engine Developer",
+        "* Unreal Engine Developer",
+        "* Senior Unreal Engine Developer",
+
+        # ── Automotive ────────────────────────────────────
+        "* Junior AUTOSAR Engineer",
+        "* AUTOSAR Engineer",
+        "* Senior AUTOSAR Engineer",
+        "* Junior ADAS Software Engineer",
+        "* ADAS Software Engineer",
+        "* Senior ADAS Software Engineer",
+        "* Junior V2X Engineer",
+        "* V2X (Vehicle-to-Everything) Engineer",
+        "* Senior V2X Engineer",
+        "* Junior Functional Safety Engineer (ISO 26262)",
+        "* Functional Safety Engineer (ISO 26262)",
+        "* Senior Functional Safety Engineer (ISO 26262)",
+
+        # ── Biotech / HealthTech ──────────────────────────
+        "* Junior Bioinformatics Engineer",
+        "* Bioinformatics Engineer",
+        "* Senior Bioinformatics Engineer",
+        "* Junior Digital Health Engineer",
+        "* Digital Health Engineer",
+        "* Senior Digital Health Engineer",
+        "* Junior Medical Device Software Engineer",
+        "* Medical Device Software Engineer",
+        "* Senior Medical Device Software Engineer",
+
+        # ── Developer Tools / Open Source ─────────────────
+        "* Junior Developer Advocate",
+        "* Developer Advocate / Relations Engineer",
+        "* Senior Developer Advocate",
+        "* Junior SDK Engineer",
+        "* SDK Engineer",
+        "* Senior SDK Engineer",
+        "* Junior API Platform Engineer",
+        "* API Platform Engineer",
+        "* Senior API Platform Engineer",
+        "* Junior Developer Experience (DX) Engineer",
+        "* Developer Experience (DX) Engineer",
+        "* Senior Developer Experience (DX) Engineer",
+    ],
+
+}
+
+

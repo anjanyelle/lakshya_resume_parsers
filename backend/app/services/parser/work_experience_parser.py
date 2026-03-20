@@ -498,6 +498,50 @@ class WorkExperienceParser:
         return False
 
     def parse_experience_section(self, text: str, source_format: str | None = None) -> list[JobEntry]:
+        # Use worldwide work history solution for all formats
+        try:
+            import sys
+            from pathlib import Path
+            sys.path.append(str(Path(__file__).parent.parent.parent.parent))
+            from simple_working_solution import parse_work_history_simple
+            
+            # Ensure text has proper format header - but only if it doesn't already have one
+            if not text.startswith('=== EXPERIENCE SECTION ===') and not text.strip().startswith('Senior') and not text.strip().startswith('Principal') and not text.strip().startswith('Software') and not text.strip().startswith('PROFESSIONAL') and not text.strip().startswith('Enterprise') and not any(text.strip().startswith(company) for company in ['Infosys', 'TCS', 'Cognizant', 'IBM', 'Accenture', 'Tata', 'Wipro', 'HCL', 'Microsoft', 'Google', 'Amazon', 'Apple', 'Facebook', 'Meta', 'Netflix']):
+                text = '=== EXPERIENCE SECTION ===\n\n' + text
+            
+            result = parse_work_history_simple(text)
+            
+            if result.get('work_experience') and float(result.get('confidence', 0)) > 0.3:
+                # Convert to JobEntry format
+                jobs = []
+                for work in result['work_experience']:
+                    # Create JobEntry from work history result
+                    job = JobEntry(
+                        company=work.get('employer', ''),
+                        title=work.get('job_title', ''),
+                        start_date=self._parse_date(work.get('start_date_display', '')),
+                        end_date=self._parse_date(work.get('end_date_display', '')),
+                        is_current=work.get('is_current', False),
+                        location=work.get('location', ''),
+                        description='',
+                        bullets=work.get('responsibilities', []),
+                        duration_months=work.get('duration_months', 0),
+                        client=None,
+                        employment_type=None,
+                        confidence=result.get('confidence', 0.0)
+                    )
+                    if self._is_plausible_job(job):
+                        jobs.append(job)
+                
+                if jobs:
+                    logger.info(f"✅ Used worldwide work history solution: {len(jobs)} jobs found")
+                    logger.info(f"🌍 Format detected: {result.get('format_detected', 'unknown')}")
+                    logger.info(f"🔧 Edge cases handled: {len(result.get('edge_cases_handled', []))}")
+                    return jobs
+        except Exception as e:
+            logger.warning(f"Worldwide work history solution failed: {e}")
+        
+        # Fallback to original parsing logic
         all_lines = [l for l in (text or "").splitlines() if l.strip()]
         pipe_lines = [l for l in all_lines if "|" in l]
         if all_lines and len(pipe_lines) / max(len(all_lines), 1) > 0.4:
