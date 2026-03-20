@@ -98,29 +98,33 @@ def normalize_date(date_str: str) -> Dict[str, Any]:
     return {'normalized': original, 'iso': '', 'is_approximate': False, 'is_current': False}
 
 def detect_resume_format(resume_text: str) -> str:
-    """Ultra-fast format detection"""
+    """Detect resume format with improved logic"""
     text_lower = resume_text.lower()
+    
+    print(f'🔍 DEBUG: Checking format for text: {resume_text[:100]}...')
     
     # Check for structured bracket format
     if '[employer:' in text_lower or '[role:' in text_lower:
+        print('🔍 DEBUG: Detected structured_bracket format')
         return 'structured_bracket'
     
     # Check for traditional chronological - CHECK THIS BEFORE PROFESSIONAL AMERICAN
     elif any(keyword in text_lower for keyword in ['professional experience', 'work experience', 'employment history']):
+        print('🔍 DEBUG: Detected traditional_chronological format')
         return 'traditional_chronological'
     
     # Check for Alexander/Sai format (Title | Company or Title - Company | Details)
     elif '|' in resume_text and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead']):
+        print('🔍 DEBUG: Detected professional_american_format')
         return 'professional_american_format'
     # Check for dot separator format (Title · Company)
     elif '·' in resume_text and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead', 'java', 'developer', 'stack', 'full', 'sr.']):
+        print('🔍 DEBUG: Detected dot_separator_format')
         return 'dot_separator_format'
     
-    # Check for dot separator format (Title · Company) - CHECK THIS BEFORE PARENTHESES
-    elif '·' in resume_text and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead', 'java', 'developer', 'stack', 'full', 'sr.']):
-        return 'dot_separator_format'
     # Check for Company Name in parentheses format: "Job Title (Company Name)" - ONLY IF NO DOT SEPARATOR AND MORE PARENTHESES THAN NORMAL FOR LOCATION
     elif '(' in resume_text and ')' in resume_text and '·' not in resume_text and resume_text.count('(') > resume_text.count('·') + 1 and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead', 'data', 'lake', 'platform', 'aws', 'cloud', 'engineer', 'developer', 'analyst', 'consultant']):
+        print('🔍 DEBUG: Detected company_parentheses_format')
         return 'company_parentheses_format'
     
     # Check for table format
@@ -180,8 +184,11 @@ def parse_work_history_simple(resume_text: str) -> Dict[str, Any]:
         # Check for Alexander/Sai format (Title | Company or Title - Company | Details)
         elif '|' in resume_text and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead']):
             format_type = 'professional_american_format'
-        # Check for Company Name in parentheses format: "Job Title (Company Name)"
-        elif '(' in resume_text and ')' in resume_text and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead', 'data', 'lake', 'platform', 'aws', 'cloud', 'analyst', 'consultant']):
+        # Check for dot separator format (Title · Company) - ADDED THIS
+        elif '·' in resume_text and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead', 'java', 'developer', 'stack', 'full', 'sr.']):
+            format_type = 'dot_separator_format'
+        # Check for Company Name in parentheses format: "Job Title (Company Name)" - ONLY IF NO DOT SEPARATOR AND MORE PARENTHESES THAN NORMAL FOR LOCATION
+        elif '(' in resume_text and ')' in resume_text and '·' not in resume_text and resume_text.count('(') > resume_text.count('·') + 1 and any(keyword in text_lower for keyword in ['engineer', 'architect', 'developer', 'manager', 'lead', 'data', 'lake', 'platform', 'aws', 'cloud', 'engineer', 'developer', 'analyst', 'consultant']):
             format_type = 'company_parentheses_format'
         elif '|' in resume_text and resume_text.count('|') > 5:
             format_type = 'table_format'
@@ -536,15 +543,21 @@ def parse_work_history_simple(resume_text: str) -> Dict[str, Any]:
                         if work_entry:
                             work_entries.append(work_entry)
                     
-                    # Parse new job - handle dot separator format with parentheses in location
+                    # Parse new job - handle dot separator format with state abbreviation and company in parentheses
                     parts = [part.strip() for part in line.split('·')]
                     if len(parts) >= 2:
                         title_part = parts[0].strip()
-                        # Handle case where company has parentheses like "Va(Capital One Mc Lean, VA)"
+                        # Handle case where company has state and company in parentheses like "Tx(Citibank Irving, TX)"
+                        # The first part after dot is just the state abbreviation, not the title
+                        # So title_part is already correct, company_part contains the parenthesized company info
                         company_part = parts[1]
-                        # Remove parentheses from company name
+                        # Remove parentheses from company name and extract the actual company
                         if '(' in company_part and ')' in company_part:
-                            company_part = re.sub(r'\([^)]*\)', '', company_part).strip()
+                            # Extract content from parentheses
+                            paren_match = re.search(r'\(([^)]+)\)', company_part)
+                            if paren_match:
+                                # The parenthesized content is the actual company with location
+                                company_part = paren_match.group(1).strip()
                     else:
                         title_part = parts[0].strip()
                         company_part = ''
