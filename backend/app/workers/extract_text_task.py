@@ -133,12 +133,28 @@ def extract_text_task(self, job_id: str) -> None:  # noqa: ANN001
         debug_bundle = parsed.get("debug") if isinstance(parsed.get("debug"), dict) else {}
         debug_bundle = dict(debug_bundle)
 
-        # Store html_preview if available from extraction
+        # Store html_preview and layout_blocks if available from extraction
         if isinstance(debug, dict) and "html_preview" in debug:
             debug_bundle["html_preview"] = debug["html_preview"]
 
+        if getattr(extracted, "layout_blocks", None):
+            # Convert dataclasses to dicts for JSON serialization
+            from dataclasses import asdict
+            debug_bundle["layout_blocks"] = [asdict(b) for b in extracted.layout_blocks]
+
         if isinstance(debug, dict) and debug:
-            debug_copy = dict(debug)
+            from dataclasses import asdict, is_dataclass
+
+            def sanitize_debug(obj: any) -> any:
+                if isinstance(obj, dict):
+                    return {k: sanitize_debug(v) for k, v in obj.items()}
+                if isinstance(obj, (list, tuple)):
+                    return [sanitize_debug(v) for v in obj]
+                if is_dataclass(obj):
+                    return asdict(obj)
+                return obj
+
+            debug_copy = sanitize_debug(debug)
             if extracted.method == "docx":
                 docx_header = str(debug_copy.pop("docx_header", "") or "").strip()
                 docx_footer = str(debug_copy.pop("docx_footer", "") or "").strip()

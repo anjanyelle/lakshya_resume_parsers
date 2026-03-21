@@ -18,12 +18,17 @@ class HybridParserService:
         self.skill_extractor = SkillExtractor()
         self.contact_extractor = ContactExtractor()
 
-    def parse_resume(self, sections: Dict[str, str]) -> Dict[str, Any]:
+    def parse_resume(
+        self, 
+        sections: Dict[str, str], 
+        layout_blocks: Optional[List[Any]] = None
+    ) -> Dict[str, Any]:
         """
         Parse resume sections into a structured JSON-compatible dictionary.
         
         Args:
             sections: Dictionary mapping section names (e.g., 'experience', 'education') to their raw text.
+            layout_blocks: List of LayoutBlock objects with coordinate metadata.
             
         Returns:
             Structured data including work experience, education, skills, and contact info.
@@ -51,7 +56,10 @@ class HybridParserService:
         exp_text = sections.get("experience") or sections.get("work_experience") or sections.get("employment")
         if exp_text:
             try:
-                jobs = self.work_parser.parse_experience_section(exp_text)
+                jobs = self.work_parser.parse_experience_section(
+                    exp_text, 
+                    layout_blocks=layout_blocks
+                )
                 results["work_experience"] = [
                     {
                         "company": job.company,

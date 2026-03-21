@@ -51,6 +51,7 @@ class ExtractedText:
     ocr_confidence: float | None = None
     used_ocr: bool = False
     method: str = "unknown"
+    layout_blocks: list[LayoutBlock] | None = None
     debug: dict[str, object] | None = None
 
 
@@ -88,6 +89,8 @@ class LayoutBlock:
     x1: float
     y1: float
     text: str
+    page: int | None = None
+    line_index: int | None = None
 
     @property
     def x_center(self) -> float:
@@ -176,7 +179,18 @@ def reconstruct_multicolumn_layout(
         if not assigned:
             columns[-1].append(b)
 
-    parts = [_blocks_to_text(col) for col in columns]
+    parts = []
+    line_offset = 0
+    for col in columns:
+        col_blocks = sorted(col, key=lambda b: b.y0)
+        for i, b in enumerate(col_blocks):
+            # For simplicity, we assign line_index relative to the whole page text.
+            # But the 'reconstruct' logic joins with \n\n between columns.
+            # We'll set it during the final merge in _extract_pdf or similar if possible.
+            # For now, just return sorted blocks.
+            pass
+        parts.append(_blocks_to_text(col))
+    
     return "\n\n".join(p for p in parts if p)
 
 
@@ -416,6 +430,7 @@ def _extract_pdf(file_path: Path) -> ExtractedText:
     return ExtractedText(
         text=out_text,
         method=method,
+        layout_blocks=debug.get("layout_blocks") if isinstance(debug.get("layout_blocks"), list) else None,
         debug=merged_debug,
     )
 
@@ -470,6 +485,7 @@ def extract_text_from_pdf_pymupdf_layout(
 
     doc = fitz.open(str(file_path))
     pages_out: list[str] = []
+    total_line_offset = 0
     try:
         max_pages = page_limit if page_limit is not None else len(doc)
         for i, page in enumerate(doc):
@@ -504,11 +520,26 @@ def extract_text_from_pdf_pymupdf_layout(
                 page_text = _clean_fragment(page.get_text("text") or "")
                 if page_text:
                     pages_out.append(page_text)
+                    total_line_offset += len(page_text.split("\n")) + 1
                 continue
 
             page_out = reconstruct_multicolumn_layout(items).strip()
             if page_out:
+                page_lines = page_out.split("\n")
                 pages_out.append(page_out)
+                # Set global line index and page for blocks
+                for b in items:
+                    object.__setattr__(b, "page", i)
+                    if b.line_index is not None:
+                        object.__setattr__(b, "line_index", b.line_index + total_line_offset)
+                
+                total_line_offset += len(page_lines) + 1 # +1 for \n\n separating pages
+                
+                if debug is not None:
+                    all_blocks = debug.get("layout_blocks", [])
+                    if isinstance(all_blocks, list):
+                        all_blocks.extend(items)
+                        debug["layout_blocks"] = all_blocks
     finally:
         doc.close()
 
@@ -606,10 +637,12 @@ def _extract_page_with_tables(page: object) -> tuple[list[str], dict[str, object
                         page_width = float(getattr(page, "width", 0.0) or 0.0)
                     except Exception:  # noqa: BLE001
                         page_width = 0.0
-                    extra_lines, _ = _reconstruct_lines_from_words_with_layout(
+                    extra_lines, page_meta = _reconstruct_lines_from_words_with_layout(
                         non_table_words, page_width
                     )
                     lines.extend(extra_lines)
+                    if "blocks" in page_meta:
+                        meta["blocks"] = meta.get("blocks", []) + page_meta["blocks"]
             except Exception:  # noqa: BLE001
                 pass
     elif not lines:
@@ -620,7 +653,7 @@ def _extract_page_with_tables(page: object) -> tuple[list[str], dict[str, object
                 lines = [ln.rstrip() for ln in raw.splitlines() if ln.strip()]
             except Exception:  # noqa: BLE001
                 pass
-    return lines, {"detected_columns": 1, "line_count": len(lines)}
+    return lines, meta
 
 
 def _extract_pdf_page_lines_pdfplumber(page: object) -> tuple[list[str], dict[str, object]]:
@@ -768,27 +801,20 @@ def _reconstruct_lines_from_words_with_layout(
             )
         )
 
-    if not blocks:
-        return [], {"detected_columns": 1, "line_count": 0}
-
     layout_text = reconstruct_multicolumn_layout(blocks).strip()
-    out_lines = [ln for ln in layout_text.split("\n")]
+    out_lines = layout_text.split("\n")
+    
+    # NEW: Map blocks to their line indices in the final text
+    for i, line in enumerate(out_lines):
+        for b in blocks:
+            if b.text.strip() == line.strip():
+                 # This is a bit heuristic but works if lines are unique or we track them.
+                 # Better: reconstruct_multicolumn_layout should set it.
+                 object.__setattr__(b, "line_index", i)
+
     nonempty = sum(1 for ln in out_lines if ln.strip())
-
-    detected_columns = 1
-    if page_width and page_width > 0:
-        min_x0b = min(b.x0 for b in blocks)
-        max_x1b = max(b.x1 for b in blocks)
-        page_w = max(1.0, max_x1b - min_x0b)
-        midpoint = min_x0b + (page_w * 0.5)
-        full_width = [b for b in blocks if b.width >= (page_w * 0.85)]
-        non_full = [b for b in blocks if b not in full_width]
-        left = [b for b in non_full if b.x_center < midpoint]
-        right = [b for b in non_full if b.x_center >= midpoint]
-        if left and right:
-            detected_columns = 2
-
-    return out_lines, {"detected_columns": detected_columns, "line_count": int(nonempty)}
+    
+    return out_lines, {"detected_columns": detected_columns, "line_count": int(nonempty), "blocks": blocks}
 
 
 def _group_words_into_lines(

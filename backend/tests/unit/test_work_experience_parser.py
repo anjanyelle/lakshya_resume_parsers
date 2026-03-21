@@ -203,7 +203,7 @@ def test_validate_dates_flags_future_start():
             duration_months=12,
             client=None,
             employment_type=None,
-            confidence=0.9,
+            confidence_score=0.9,
         )
     ]
     out = parser._validate_dates(jobs)
@@ -228,7 +228,7 @@ def test_validate_dates_flags_end_before_start():
             duration_months=None,
             client=None,
             employment_type=None,
-            confidence=0.9,
+            confidence_score=0.9,
         )
     ]
     out = parser._validate_dates(jobs)
@@ -253,7 +253,7 @@ def test_detect_overlaps_flags_overlapping_jobs():
             duration_months=30,
             client=None,
             employment_type=None,
-            confidence=0.9,
+            confidence_score=0.9,
         ),
         JobEntry(
             company="B",
@@ -267,7 +267,7 @@ def test_detect_overlaps_flags_overlapping_jobs():
             duration_months=24,
             client=None,
             employment_type=None,
-            confidence=0.9,
+            confidence_score=0.9,
         ),
     ]
     out = parser._detect_overlaps(jobs)

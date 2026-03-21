@@ -2717,11 +2717,25 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         def _parse_deterministic(text: str) -> list[JobEntry]:
             if not text.strip():
                 return []
+            # Retrieve layout blocks from debug info if available
+            layout_blocks = []
+            parsed_data = job.parsed_data or {}
+            debug_info = parsed_data.get("debug") or {}
+            if isinstance(debug_info, dict) and "layout_blocks" in debug_info:
+                from app.services.parser.extract_text import LayoutBlock
+                raw_blocks = debug_info["layout_blocks"]
+                if isinstance(raw_blocks, list):
+                    layout_blocks = [LayoutBlock(**b) for b in raw_blocks]
+
             # Avoid calling the LLM inside parse_experience_section for this quality probe.
             try:
                 original_llm_fallback = getattr(parser, "_llm_fallback", None)
                 setattr(parser, "_llm_fallback", lambda chunk: None)
-                return parser.parse_experience_section(text, source_format=source_format)
+                return parser.parse_experience_section(
+                    text, 
+                    source_format=source_format,
+                    layout_blocks=layout_blocks or None
+                )
             finally:
                 if original_llm_fallback is not None:
                     setattr(parser, "_llm_fallback", original_llm_fallback)
@@ -3167,7 +3181,7 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
                 duration_months=item.get("duration_months"),
                 client=item.get("client"),
                 employment_type=item.get("employment_type"),
-                confidence=item.get("confidence", 0.0),
+                confidence_score=item.get("confidence", 0.0),
             )
             for item in jobs_payload
         ]

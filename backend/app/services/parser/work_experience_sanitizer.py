@@ -26,13 +26,20 @@ _COMPANY_CLIENT_PREFIX_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Strip "Contractor for X" or "Consultant at X"
+_CONTRACTOR_FOR_RE = re.compile(
+    r"^(?:independent\s+)?(?:contractor|consultant|freelancer)\s+(?:for|at|with)\s+",
+    re.IGNORECASE,
+)
+
 
 def _clean_company_name(value: str) -> str:
-    """Remove client-label suffixes/prefixes from a company name string."""
+    """Remove client-label suffixes/prefixes and 'Contractor for' from a company name string."""
     if not value:
         return value
     cleaned = _COMPANY_CLIENT_SUFFIX_RE.sub("", value).strip().strip("([ ")
     cleaned = _COMPANY_CLIENT_PREFIX_RE.sub("", cleaned).strip()
+    cleaned = _CONTRACTOR_FOR_RE.sub("", cleaned).strip()
     return cleaned
 
 _LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z ]+,\s*[A-Z][a-z]?$")
@@ -200,13 +207,14 @@ def _count_filled_fields(entry: dict[str, Any]) -> int:
 def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Remove duplicate work entries. Two entries are duplicates if
-    company + job_title + start_date match. Keep the entry with more filled fields.
+    company + job_title + start_date + end_date match.
+    Keep the entry with more filled fields.
     """
     if not isinstance(entries, list) or not entries:
         return list(entries) if isinstance(entries, list) else []
 
-    seen: dict[tuple[str, str, str], dict[str, Any]] = {}
-    order: list[tuple[str, str, str]] = []
+    seen: dict[tuple[str, str, str, str, bool], dict[str, Any]] = {}
+    order: list[tuple[str, str, str, str, bool]] = []
     
     for entry in entries:
         if not isinstance(entry, dict):
@@ -214,7 +222,12 @@ def deduplicate_work_entries(entries: list[dict[str, Any]]) -> list[dict[str, An
         company = _normalize_text(entry.get("company")).lower()
         title = _normalize_text(entry.get("title")).lower()
         start_date = _normalize_date_token(entry.get("start_date")).lower()
-        key = (company, title, start_date)
+        end_date = _normalize_date_token(entry.get("end_date")).lower()
+        is_current = bool(entry.get("is_current"))
+        
+        # Merge key: company + title + start_date + end_date + is_current
+        # This prevents merging different roles at the same company if dates differ.
+        key = (company, title, start_date, end_date, is_current)
 
         if key not in seen:
             seen[key] = entry

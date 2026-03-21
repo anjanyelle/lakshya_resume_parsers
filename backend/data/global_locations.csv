@@ -1,96 +1,928 @@
 locations
-"Amsterdam, NL"
-"Atlanta, GA"
-"Austin, TX"
-Australia
-"Bangalore, IN"
-"Barcelona, ES"
-"Beijing, CN"
-"Berlin, DE"
-"Boston, MA"
+AB
+ABA
+AC
+ACT
+AD
+ADA
+ADD
+AE
+AG
+AGA
+AGS
+AH
+AJ
+AK
+AKL
+AKT
+AL
+ALB
+ALG
+ALT
+ALTO
+ALX
+AM
+AMI
+AN
+ANC
+ANK
+ANN
+ANT
+AP
+APL
+AQ
+AR
+ARA
+ARE
+ARK
+AS
+ASN
+ASU
+ASY
+AT
+ATL
+ATY
+AU
+AWA
+AYA
+AZ
+AZU
+"Across Ap, Ar"
+"Amazon   Seattle, Wa"
+"American Airlines   Fort Worth, Tx"
+"American Airlines Fort Worth, Tx"
+"Anthem Inc.   Indianapolis, In"
+"Arlington, Tx"
+Asia
+Atlanta
+"Atlanta, Ga"
+"Atlanta, Ga]"
+"Austin, Tx"
+"Austin,Tx"
+"Azure Data Studio, Vs"
+"Azure, Ci"
+BA
+BAG
+BAL
+BAR
+BAT
+BAZ
+BBM
+BC
+BDJ
+BDO
+BE
+BEM
+BEN
+BEW
+BFC
+BG
+BGO
+BGR
+BH
+BI
+BIZ
+BJ
+BJA
+BJR
+BK
+BKK
+BLI
+BNS
+BO
+BOL
+BPN
+BR
+BRE
+BRG
+BRU
+BS
+BTH
+BU
+BUL
+BUR
+BUT
+BV
+BW
+BY
+Bangalore
+"Bangalore, India"
+"Bangalore, India]"
+"Bangalore, India"
+"Bank Of America Charlotte, Nc"
+"Basking Ridge, Nj"
+Bay Area
+"Beaverton, Or"
+Beirut
+"Bellevue, Wa"
+"Bentonville, Ar"
+Berkeley
+"Bloomfield, Ct"
+"Bloomington, Il"
+"Boston, Ma"
+"Boston,Ma"
 Brazil
-"California, US"
-Canada
-"Cape Town, ZA"
-"Chennai, IN"
-"Chicago, IL"
-"Dallas, TX"
-"Delhi, IN"
-"Dubai, AE"
-"Dublin, IE"
-France
+"Brooklyn, Ny"
+CA
+CABA
+CAI
+CAL
+CAM
+CAP
+CAR
+CAS
+CB
+CBA
+CBR
+CDMX
+CE
+CEI
+CEN
+CG
+CGP
+CH
+CHA
+CHC
+CHE
+CHI
+CHIH
+CHIS
+CHU
+CHV
+CHW
+CJ
+CL
+CMI
+CMW
+CN
+CO
+COAH
+COI
+COM
+COR
+CP
+CQ
+CR
+CS
+CST
+CT
+CUS
+CVL
+CXR
+CYI
+Cairo
+"Cambridge, Ma"
+"Capital One   Mclean, Va"
+"Capital One Mclean, Va"
+"Causalml, Iv"
+"Charleston, Sc"
+"Charlotte, Nc"
+"Charlotte,Nc"
+Chennai
+"Chennai, India"
+Chicago
+"Chicago, Il"
+"Chicago, Illinois, Usa"
+"Chicago,Il"
+"Cigna Healthcare   Bloomfield, Ct"
+"Cigna Healthcare Bloomfield, Ct"
+"Cincinnati, Oh"
+"Citibank   Irving, Tx"
+"City, Ca"
+"Columbus, Oh"
+Cornerstone
+"Costcoo Issaquah, Wa"
+"Cupertino, Ca"
+"Cv, Rl"
+DA
+DAD
+DAR
+DB
+DC
+DE
+DEN
+DF
+DG
+DGO
+DH
+DHA
+DI
+DIN
+DIR
+DIY
+DJ
+DK
+DKH
+DL
+DLI
+DN
+DOD
+DON
+DPR
+DS
+DU
+DUD
+Dallas
+"Dallas, Tx"
+"Dallas,Tx"
+Data
+"Deerfield, Il"
+Delta
+"Delta Airlines Atlanta, Ga"
+"Denver, Co"
+"Denver,Co"
+"Detroit, Mi"
+"Detroit,Mi"
+"Digital Resume, Qr"
+"Dublin, Oh"
+"Duluth, Ga"
+EAZ
+EC
+ED
+EH
+ELD
+ELO
+EMR
+EN
+ENG
+EP
+ER
+ES
+ESK
+"Ebay San Jose, Ca"
+"Eden Prairie, Mn"
+"Eden Prairie, Mn (Remote"
+"Edison, Nj"
+"Evanston, Il"
+FA
+FAR
+FC
+FE
+FES
+FIA
+FJ
+FK
+FL
+FM
+FOR
+FR
+FS
+FU
+FVG
+FYM
+"Fedex   Memphis, Tn"
+"Financial Technologies San Francisco, Ca"
+"Foster City, Ca"
+"Francisco, Ca"
+GA
+GAN
+GAZ
+GD
+GDR
+GE
+GES
+GF
+GG
+GHB
+GIL
+GIZ
+GJ
+GL
+GMS
+GN
+GO
+GON
+GP
+GR
+GRO
+GS
+GTO
+GUA
+GUL
+GW
+GWE
+GX
+GZ
+"Gainesville, Fl"
 Germany
-"Gurgaon, IN"
-"Hong Kong, HK"
-"Houston, TX"
-"Hyderabad, IN"
+"Germany, Uk"
+Ghana
+"Google Cloud Platform, Vs"
+"Grafana, Ci"
+"Gurugram, India"
+HA
+HAM
+HAN
+HAR
+HB
+HDF
+HE
+HEA
+HG
+HGU
+HH
+HI
+HK
+HL
+HLZ
+HM
+HN
+HOG
+HPH
+HR
+HS
+HSQ
+HU
+HUA
+HUI
+"Haas School Of Business, Uc"
+"Halifax, Ns"
+"Hartford, Ct"
+"Hartford, Ct (Remote"
+"Home Depot Atlanta, Ga"
+"Houston, Tx"
+Humana
+Hyderabad
+IA
+IB
+IC
+IDF
+IE
+IK
+IL
+IM
+IN
+IR
+IRK
+IS
+ISF
+IST
+ITA
+IV-A
+IX
+IZM
+Illinois
 India
-Japan
-"Johannesburg, ZA"
-"Karnataka, IN"
-"London, UK"
-"Los Angeles, CA"
-"Madrid, ES"
-"Maharashtra, IN"
-"Mexico City, MX"
-"Montreal, CA"
-"Mountain View, CA"
-"Mumbai, IN"
-"Munich, DE"
-"New York, NY"
-"New York, US"
-"Noida, IN"
-"Ontario, CA"
-"Palo Alto, CA"
-"Paris, FR"
-"Portland, OR"
-"Pune, IN"
-"San Francisco, CA"
-"San Jose, CA"
-"Sao Paulo, BR"
-"Seattle, WA"
-"Seoul, KR"
-"Shanghai, CN"
-Singapore
-"Singapore, SG"
-South Africa
-"Stockholm, SE"
-"Sydney, AU"
-"Tamil Nadu, IN"
-"Tel Aviv, IL"
-"Telangana, IN"
-"Texas, US"
-"Tokyo, JP"
-"Toronto, CA"
-United Arab Emirates
-United Kingdom
-United States
-"Vancouver, CA"
-"Washington, US"
-"Zurich, CH"
-San Francisco, CA
-Dallas, TX
-Palo Alto, CA
-San Jose, CA
-Chicago, IL
-Seattle, WA
-Washington, DC
-New York, NY
-Cambridge, MA
-Princeton, NJ
-Irvine, CA
-Menlo Park, CA
-Atlanta, GA
-Los Gatos, CA
-Redmond, WA
-Austin, TX
-Boston, MA
-Houston, TX
-Vancouver, BC
-Brooklyn, NY
-Edison, NJ
-Foster City, CA
-Hyderabad, Telangana, India
+"India, Uk"
+"Indianapolis, In"
+"Irvine, Ca"
+"Issaquah, Wa"
+JAL
+JB
+JC
+JH
+JHR
+JIM
+JIN
+JK
+JKT
+JL
+JM
+JP
+JS
+JUN
+JX
+JZ
+Jaipur
+"Jersey City, Nj"
+"Johnson New Brunswick, Nj"
+"Jpmorgan Chase   New York, Ny"
+KA
+KAB
+KAC
+KAI
+KAR
+KAT
+KAY
+KBH
+KC
+KD
+KDA
+KDH
+KDZ
+KEE
+KEM
+KEN
+KER
+KG
+KHA
+KHH
+KHK
+KHR
+KHU
+KI
+KIG
+KIN
+KIS
+KIW
+KKN
+KL
+KLA
+KM
+KN
+KNG
+KON
+KOR
+KOS
+KP
+KR
+KRM
+KRT
+KS
+KSL
+KT
+KU
+KW
+KY
+KYA
+KYI
+KZN
+Kanpur
+Kentucky
+Kerala
+Kong
+LA
+LAE
+LAL
+LAM
+LAR
+LAZ
+LD
+LE
+LI
+LIG
+LIM
+LIS
+LL
+LN
+LO
+LOJ
+LOM
+LOR
+LP
+LRM
+LSK
+LT
+LTK
+LU
+LUA
+LUM
+LVI
+LXR
+"Las Vegas, Nv"
+"London, Uk"
+Los Angeles
+"Los Angeles, Ca"
+"Los Gatos, Ca"
+"Louisville, Ky"
+"Louisville, Ky]"
+"M University College Station, Tx"
+MA
+MAD
+MAG
+MAL
+MAN
+MB
+MBA
+MBI
+MBJ
+MD
+MDC
+MDY
+MDZ
+MEK
+MER
+MES
+MET
+MEX
+MG
+MH
+MI
+MICH
+MIS
+MJ
+MJN
+MK
+ML
+MLG
+MN
+MNC
+MO
+MON
+MOS
+MOW
+MP
+MPM
+MQX
+MS
+MSA
+MT
+MU
+MUT
+MV
+MWZ
+MX
+MY
+MYK
+MYM
+MZ
+"Mayfield Village, Oh"
+"Mclean, Va"
+Medicine
+"Memphis, Tn"
+"Menlo Park, Ca"
+"Mexico, Uk"
+"Microservices, Ci"
+Mind
+"Minneapolis, Mn"
+"Minnetonka, Mn"
+"Mooresville, Nc"
+Mumbai
+"Mumbai, India"
+NA
+NAD
+NAI
+NAK
+NAN
+NAQ
+NAR
+NB
+NC
+NCR
+NE
+NG
+NH
+NI
+NIR
+NIZ
+NJ
+NKI
+NL
+NLA
+NM
+NMA
+NO
+NOR
+NP
+NPE
+NQN
+NR
+NS
+NSA
+NSN
+NSW
+NT
+NTP
+NV
+NVS
+NW
+NX
+NY
+Naples
+"Nashville, Tn"
+"New Brunswick, Nj"
+"New Jersey, Nj"
+New York
+"New York, Ny"
+"New York, Ny]"
+"New York, Usa"
+"Newyork,Ny"
+Nigeria
+"North Richland Hills, Tx"
+"Northbrook, Il"
+Northeast & Mid
+OAX
+OCC
+OD
+ODS
+OG
+OH
+OI
+OK
+OL
+OMD
+OMS
+ON
+OO
+OPO
+OR
+ORA
+ORE
+OS
+OUJ
+OV
+OY
+Ohio
+PA
+PAC
+PAP
+PAV
+PB
+PD
+PDG
+PDL
+PE
+PER
+PH
+PI
+PIC
+PIE
+PIU
+PJY
+PK
+PKU
+PL
+PLM
+PM
+PMR
+PNG
+PNH
+PNK
+PO
+POL
+POM
+POS
+PR
+PRI
+PRK
+PS
+PSD
+PT
+PUE
+PUG
+PV
+PZU
+"Palo Alto, Ca"
+Paris
+"Parsippany, Nj"
+"Phoenix, Az"
+"Pittsburgh, Pa"
+"Pittsburgh,Pa"
+"Plano, Tx"
+"Pleasanton, Ca"
+"Plymouth, Mi"
+"Portland, Or"
+Pos
+"Pro Forma Budgeting, Gl"
+Pune
+"Pune, India"
+"Purchase, Ny"
+QA
+QC
+QH
+QLD
+QOM
+QR
+QRO
+QROO
+QUE
+QUI
+RA
+RAB
+RAJ
+RAK
+RAN
+REP
+RI
+RIS
+RJ
+RK
+RM
+RN
+RO
+ROS
+ROT
+RP
+RS
+"Rackspace Technologysan Antonio, Tx"
+Rashid
+"Redmond, Wa"
+Remote
+"Richfield, Mn"
+"Richmond, Va"
+"Rochester, Mn"
+"Rochester, Ny"
+"Roseland, Nj"
+"Rotterdam, Nl"
+Russia
+SA
+SAF
+SAG
+SAL
+SAM
+SAN
+SAR
+SB
+SBA
+SBH
+SBS
+SC
+SCO
+SCU
+SD
+SE
+SEL
+SET
+SF
+SFA
+SG
+SGK
+SGN
+SH
+SHN
+SHR
+SIC
+SIN
+SIS
+SJ
+SK
+SKI
+SL
+SLP
+SM
+SN
+SNI
+SNU
+SO
+SOC
+SON
+SP
+SPE
+SRG
+SRI
+SS
+ST
+STI
+STP
+SU
+SUB
+SUC
+SUS
+SUV
+SUZ
+SVE
+SWK
+SX
+SYL
+SZ
+Saas
+"San Antonio, Tx"
+"San Diego, Ca"
+San Francisco
+"San Francisco, Ca"
+"San Francisco, Ca (Remote"
+"San Francisco, California"
+"San Jose, Ca"
+"San Jose, Ca]"
+"Sanantonio,Tx"
+"Sanfrancisco,Ca"
+"Santa Clara, Ca"
+"Sarah Chen, Vp"
+Seattle
+"Seattle, Wa"
+"Seattle,Wa"
+"Senior.Netsoftwaredeveloper Nashville,Tn"
+"Shopify Inc.Ottawa, On"
+Snow
+"Soc Design Bethesda, Md"
+"Sometown, Co"
+"Southwest Airlines   Dallas, Tx"
+"Southwestern University Georgetown, Tx"
+"Spirit Airlines   Miramar, Fl"
+"Stanford University Stanford, Ca"
+"Stanford, Ca"
+Star
+"Sunnyvale, Ca"
+Sydney
+"T Dallas, Tx"
+TA
+TAB
+TAC
+TAS
+TB
+TEH
+TET
+TH
+TIP
+TJ
+TK
+TLE
+TM
+TMM
+TN
+TNG
+TNN
+TNR
+TO
+TOL
+TOM
+TOS
+TPE
+TR
+TRA
+TRG
+TS
+TSH
+TSM
+TUC
+TUN
+TX
+TXG
+TY
+TYN
+TYU
+"Tampa, Fl"
+"Target Corporation   Minneapolis, Mn"
+"Teaneck, Nj"
+"Techmail.Com San Francisco, Ca"
+Texas
+"Tysons Corner, Va"
+UAE
+UB
+UD
+UDN
+UEL
+UIH
+UK
+UL
+ULY
+UMB
+UP
+UPG
+US
+USA
+UT
+"United Airlines   Chicago, Il"
+"Ups   Louisville, Ky"
+"Ups Louisville, Ky"
+Urban
+Us Citizen
+Usa
+Uttar Pradesh
+VA
+VAC
+VB
+VC
+VCA
+VCS
+VD
+VEN
+VER
+VGG
+VI
+VIC
+VII
+VIN
+VK
+VL
+VLG
+VOR
+VPY
+VS
+VTG
+"Vancouver, Bc"
+"Vb.Net, Ms"
+Vul
+WA
+WAL
+WAZ
+WB
+WC
+WG
+WI
+WK
+WLG
+WP
+WR
+"Walgreens   Deerfield, Il"
+"Walmart Global Tech   Bentonville, Ar"
+"Walmart Labs   Bentonville, Ar"
+Warangal
+"Washington, Dc"
+"Washington, Dc] [Linkedin: Linkedin.Com/In/Rahul"
+"Wells Fargo   San Francisco, Ca"
+Wiley
+"Woonsocket, Ri"
+XI
+XII
+XIII
+XJ
+XZ
+YAR
+YGN
+YN
+YU
+YUC
+York
+"Yorktown Heights, Ny"
+ZA
+ZAP
+ZH
+ZHA
+ZJ
+ZP
+ZUL
+Zoh
 New York, NY
 Los Angeles, CA
 Chicago, IL
@@ -1634,5 +2466,66 @@ Port of Spain, POS
 San Fernando, SF
 Chaguanas, CH
 Nassau, NP
-Chicago, Illinois
-   
+Atlanta, GA
+Austin, TX
+Bangalore, India
+Bengaluru, India
+Boston, MA
+Brooklyn, NY
+Cambridge, MA
+Charlotte, NC
+Charleston, SC
+Chicago, IL
+Chennai, India
+Columbus, OH
+Dallas, TX
+Denver, CO
+Dubai, UAE
+Duluth, MN
+Fort Worth, TX
+Foster City, CA
+Houston, TX
+Hyderabad, India
+Irving, TX
+Jaipur, India
+Jersey City, NJ
+Lagos, Nigeria
+London, UK
+Los Angeles, CA
+Louisville, KY
+McLean, VA
+Menlo Park, CA
+Minneapolis, MN
+Moscow, Russia
+Mumbai, India
+Nashville, TN
+New Jersey, USA
+New York, NY
+Newark, NJ
+Noida, India
+Ottawa, ON, Canada
+Parsippany, NJ
+Pasadena, CA
+Portland, OR
+Pune, India
+Redmond, WA
+San Diego, CA
+San Francisco, CA
+San Jose, CA
+Seattle, WA
+Stuttgart, Germany
+Sunnyvale, CA
+São Paulo, Brazil
+Tiruchirappalli, India
+Tysons Corner, VA
+Vancouver, BC, Canada
+Washington, DC
+Waterloo, ON, Canada
+Enugu State, Nigeria
+Kumasi, Ghana
+Plymouth, MI
+Vellore, India
+Surathkal, India
+Pilani, India
+Urbana-Champaign, IL
+Baltimore, MD
