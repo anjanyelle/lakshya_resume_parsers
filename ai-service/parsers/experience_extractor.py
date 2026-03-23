@@ -7,6 +7,7 @@ import re
 import logging
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime, date
+import dateparser
 from dateparser import parse as dateparse
 import calendar
 
@@ -84,6 +85,73 @@ class ExperienceExtractor:
         ]
     
     def extract_work_experience(self, experience_section_text: str) -> Dict:
+        """Use the new standalone extract_experience function."""
+        try:
+            if not experience_section_text or not experience_section_text.strip():
+                self.logger.warning("Experience section text is empty")
+                return {'work_experience': [], 'inline_skills': []}
+            
+            # Use new extraction function
+            experiences = extract_experience(experience_section_text)
+            
+            # Map field names to match expected format
+            # New format: title, company, description, start_date, end_date, is_current
+            # Expected format: job_title, company_name, description, start_date, end_date, is_current
+            mapped_experiences = []
+            for exp in experiences:
+                mapped_exp = {
+                    'job_title': exp.get('title', ''),
+                    'company_name': exp.get('company', ''),
+                    'description': exp.get('description', ''),
+                    'start_date': exp.get('start_date'),
+                    'end_date': exp.get('end_date'),
+                    'is_current': exp.get('is_current', False)
+                }
+                mapped_experiences.append(mapped_exp)
+            
+            # Extract inline skills from work experience descriptions
+            inline_skills = self.extract_inline_skills(mapped_experiences, self.skill_taxonomy)
+            
+            self.logger.info(f"Successfully extracted {len(mapped_experiences)} work experiences and {len(inline_skills)} inline skills")
+            
+            return {
+                'work_experience': mapped_experiences,
+                'inline_skills': inline_skills
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting work experience: {e}", exc_info=True)
+            return {'work_experience': [], 'inline_skills': []}
+    
+    def _load_skill_taxonomy(self) -> list:
+        """Load skill taxonomy from data file."""
+        try:
+            import json
+            from pathlib import Path
+            
+            taxonomy_path = Path(__file__).parent.parent / 'data' / 'skills_taxonomy.json'
+            if taxonomy_path.exists():
+                with open(taxonomy_path, 'r') as f:
+                    return json.load(f)
+            else:
+                self.logger.warning("Skill taxonomy file not found, using built-in fallback list")
+                return ['Python', 'Java', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'AWS', 'Docker', 'Kubernetes']
+        except Exception as e:
+            self.logger.error(f"Error loading skill taxonomy: {e}")
+            return []
+    
+    def extract_inline_skills(self, experiences: list, skill_taxonomy: list) -> list:
+        """Extract skills mentioned in experience descriptions."""
+        skills = []
+        for exp in experiences:
+            description = exp.get('description', '')
+            if description:
+                for skill in skill_taxonomy:
+                    if skill.lower() in description.lower():
+                        skills.append(skill)
+        return list(set(skills))
+    
+    def extract_work_experience_old(self, experience_section_text: str) -> Dict:
         """
         Extract structured work experience from experience section text.
         
@@ -139,100 +207,148 @@ class ExperienceExtractor:
             self.logger.error(f"Error extracting work experience: {e}", exc_info=True)
             return {'work_experience': [], 'inline_skills': []}
     
-    def _split_into_job_blocks(self, text: str) -> List[str]:
-        """
-        Split experience text into individual job blocks.
-        Handles multiple formats: bullet points, date-based splits, blank line splits.
-        
-        Args:
-            text: Experience section text
-            
-        Returns:
-            List of job blocks
-        """
-        # Strategy 1: Split by date ranges (most reliable indicator of new job)
-        # Look for patterns like "Jan 2020 - Present" or "2020 - 2023"
-        date_range_pattern = r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\s*[-–—]\s*(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}|Present|Current|Now)|\d{4}\s*[-–—]\s*(?:\d{4}|Present|Current|Now)'
-        
-        # Find all date ranges
-        date_matches = list(re.finditer(date_range_pattern, text, re.IGNORECASE))
-        
-        if len(date_matches) >= 2:
-            # Split by date ranges
-            blocks = []
-            for i, match in enumerate(date_matches):
-                if i == 0:
-                    # First block: from start to first date
-                    start = 0
-                else:
-                    # Subsequent blocks: from previous date to current date
-                    start = date_matches[i-1].end()
-                
-                # Find the start of this job entry (go back to find job title)
-                # Look backwards for the last newline before the date
-                block_start = text.rfind('\n', start, match.start())
-                if block_start == -1:
-                    block_start = start
-                
-                # Determine end of this block
-                if i < len(date_matches) - 1:
-                    # End at the start of next job (look for newline before next date)
-                    next_match = date_matches[i + 1]
-                    block_end = text.rfind('\n', match.end(), next_match.start())
-                    if block_end == -1:
-                        block_end = next_match.start()
-                else:
-                    # Last block goes to end of text
-                    block_end = len(text)
-                
-                block = text[block_start:block_end].strip()
-                if block and len(block) > 20:  # Minimum viable job block
-                    blocks.append(block)
-            
-            if blocks:
-                return blocks
-        
-        # Strategy 2: Split by double newlines (paragraph-based)
-        blocks = re.split(r'\n\s*\n', text)
-        blocks = [b.strip() for b in blocks if b.strip() and len(b.strip()) > 20]
-        
-        if len(blocks) >= 2:
-            return blocks
-        
-        # Strategy 3: Split by lines that look like job headers
-        # Job headers typically have: Title | Company | Date or Title at Company (Date)
-        lines = text.split('\n')
-        blocks = []
-        current_block = []
-        
-        for line in lines:
-            line_stripped = line.strip()
-            
-            # Check if this line looks like a job header
-            is_header = (
-                ('|' in line_stripped and re.search(r'\d{4}', line_stripped)) or
-                (re.search(r'\bat\b', line_stripped, re.IGNORECASE) and re.search(r'\d{4}', line_stripped)) or
-                (re.search(r'(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}', line_stripped, re.IGNORECASE))
-            )
-            
-            if is_header and current_block:
-                # Save previous block and start new one
-                blocks.append('\n'.join(current_block))
-                current_block = [line]
-            else:
-                current_block.append(line)
-        
-        # Add last block
-        if current_block:
-            blocks.append('\n'.join(current_block))
-        
-        blocks = [b.strip() for b in blocks if b.strip() and len(b.strip()) > 20]
-        
-        if blocks:
-            return blocks
-        
-        # Fallback: return entire text as single block
-        return [text.strip()] if text.strip() else []
+# New standalone functions for experience extraction
+DATE_LINE_PATTERN = re.compile(
+    r'(?i)'
+    r'(?:'
+    r'(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
+    r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
+    r'dec(?:ember)?)'
+    r'\.?\s*(?:19|20)\d{2}'
+    r'|(?:19|20)\d{2}\s*[-–—]\s*(?:19|20)\d{2}'
+    r'|(?:19|20)\d{2}\s*[-–—]\s*(?:present|current|now|till date|to date)'
+    r'|\d{1,2}[\/\-](?:19|20)\d{2}'
+    r'|Q[1-4]\s*(?:19|20)\d{2}'
+    r')'
+)
+
+def parse_date_safe(date_str: str):
+    if not date_str:
+        return None
+    cleaned = date_str.strip().lower()
+    if cleaned in ('present', 'current', 'now', 'till date', 'to date'):
+        return None
+    try:
+        result = dateparser.parse(date_str, settings={'PREFER_DAY_OF_MONTH': 'first'})
+        return result.date() if result else None
+    except Exception:
+        return None
+
+def extract_date_range(text: str) -> dict:
+    # Use finditer to get match objects instead of tuples
+    date_matches = list(DATE_LINE_PATTERN.finditer(text))
+    dates = [match.group(0) for match in date_matches]
+    
+    is_current = bool(re.search(
+        r'(?i)(present|current|now|till date|to date)', text
+    ))
+    start_date = None
+    end_date = None
+    if dates:
+        start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
+        if is_current:
+            end_date = None
+        else:
+            end_date = parse_date_safe(dates[1]) if len(dates) >= 2 else None
+    return {
+        'start_date': start_date.isoformat() if start_date else None,
+        'end_date': end_date.isoformat() if end_date else None,
+        'is_current': is_current,
+    }
+
+def split_job_blocks(experience_text: str) -> list:
+    if not experience_text:
+        return []
+    lines = experience_text.split('\n')
+    blocks = []
+    current_block = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        is_date_line = bool(DATE_LINE_PATTERN.search(stripped))
+        if is_date_line and current_block:
+            block_text = '\n'.join(current_block).strip()
+            if len(block_text) > 20:
+                blocks.append(block_text)
+            current_block = [line]
+        else:
+            current_block.append(line)
+    if current_block:
+        block_text = '\n'.join(current_block).strip()
+        if len(block_text) > 20:
+            blocks.append(block_text)
+    return blocks
+
+def extract_experience(experience_text: str) -> list:
+    # Lines that are clearly NOT job entries — skip them
+    NOISE_PATTERNS = re.compile(
+        r'(?i)^('
+        r'address[:\s]|phone[:\s]|email[:\s]|linkedin[:\s]|github[:\s]'
+        r'|summary|objective|profile|about'
+        r'|education|skills|projects|certifications|achievements|hobbies'
+        r'|references|training|courses'
+        r'|\+\d[\d\s\-]{7,}'  # phone numbers
+        r'|https?://'         # URLs
+        r'|[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}'  # emails
+        r')'
+    )
+
+    BULLET_PATTERN = re.compile(r'^[•\-\*\+►▸▶→]\s*')
+
+    job_blocks = split_job_blocks(experience_text)
+    results = []
+
+    for block in job_blocks:
+        # Skip blocks that are clearly noise
+        first_line = block.split('\n')[0].strip()
+        if NOISE_PATTERNS.match(first_line):
+            continue
+        # Skip very short blocks
+        if len(block.strip()) < 30:
+            continue
+
+        dates = extract_date_range(block)
+        clean_block = DATE_LINE_PATTERN.sub('', block).strip()
+        lines = [l.strip() for l in clean_block.split('\n') if l.strip()]
+
+        # Remove bullet lines from the top — they are descriptions not titles
+        while lines and BULLET_PATTERN.match(lines[0]):
+            lines.pop(0)
+
+        if not lines:
+            continue
+
+        title = lines[0] if len(lines) > 0 else ''
+        company = lines[1] if len(lines) > 1 else ''
+        description = '\n'.join(lines[2:]) if len(lines) > 2 else ''
+
+        # Skip if title looks like noise
+        if NOISE_PATTERNS.match(title):
+            continue
+        # Skip if title is longer than 80 chars (it's a sentence, not a title)
+        if len(title) > 80:
+            continue
+        # Skip if title contains an @ or http (URL/email)
+        if '@' in title or 'http' in title.lower():
+            continue
+
+        # Only add if we have at least a title
+        if title:
+            results.append({
+                'title': title,
+                'company': company,
+                'description': description,
+                'start_date': dates['start_date'],
+                'end_date': dates['end_date'],
+                'is_current': dates['is_current'],
+            })
+
+    return results
+
+
+class ExperienceExtractorOld:
+    """Old implementation - kept for reference."""
     
     def _load_skill_taxonomy(self) -> list:
         """Load skill taxonomy from data file."""
