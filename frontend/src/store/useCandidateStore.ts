@@ -84,11 +84,11 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
       set({ isLoading: true, error: null });
       try {
         const response = await api.get("/candidates");
-        set({ candidates: response.data.candidates, isLoading: false });
+        set({ candidates: response.data.candidates || [], isLoading: false });
       } catch (error: any) {
         const errorMessage =
           error.response?.data?.message || "Failed to fetch candidates";
-        set({ error: errorMessage, isLoading: false });
+        set({ error: errorMessage, isLoading: false, candidates: [] });
         toast.error(errorMessage);
       }
     },

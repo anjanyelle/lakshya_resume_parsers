@@ -23,14 +23,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Calculate stats when data changes
-    const totalCandidates = candidates.length;
-    const activeJobs = jobs.length;
-    const matchesToday = matchResults.length;
+    const totalCandidates = (candidates || []).length;
+    const activeJobs = (jobs || []).length;
+    const matchesToday = (matchResults || []).length;
     const avgScore =
-      matchResults.length > 0
+      (matchResults || []).length > 0
         ? Math.round(
-            matchResults.reduce((acc, match) => acc + match.overall_score, 0) /
-              matchResults.length,
+            (matchResults || []).reduce((acc, match) => acc + match.overall_score, 0) /
+              (matchResults || []).length,
           )
         : 0;
 
@@ -122,8 +122,8 @@ export default function DashboardPage() {
     ]);
   }, [candidates, jobs, matchResults]);
 
-  const recentUploads = candidates.slice(0, 5);
-  const topMatches = matchResults.slice(0, 5);
+  const recentUploads = (candidates || []).slice(0, 5);
+  const topMatches = (matchResults || []).slice(0, 5);
 
   return (
     <div className="p-6">

@@ -80,7 +80,8 @@ storage/
 temp/
 
 # AI Models
-models/
+ai_models/
+ml_models/
 *.pkl
 *.joblib
 *.h5

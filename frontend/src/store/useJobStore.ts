@@ -91,11 +91,11 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await api.get("/jobs");
-      set({ jobs: response.data.jobs, isLoading: false });
+      set({ jobs: response.data.jobs || [], isLoading: false });
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to fetch jobs";
-      set({ error: errorMessage, isLoading: false });
+      set({ error: errorMessage, isLoading: false, jobs: [] });
       toast.error(errorMessage);
     }
   },
@@ -183,7 +183,7 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
       });
 
       set({
-        matchResults: response.data.matches,
+        matchResults: response.data.matches || [],
         isMatching: false,
         matchingProgress: 100,
       });
@@ -194,7 +194,7 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to run matching";
-      set({ error: errorMessage, isMatching: false, matchingProgress: 0 });
+      set({ error: errorMessage, isMatching: false, matchingProgress: 0, matchResults: [] });
       toast.error(errorMessage);
       throw error;
     }
@@ -213,7 +213,7 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to fetch match results";
-      set({ error: errorMessage, isLoading: false });
+      set({ error: errorMessage, isLoading: false, matchResults: [] });
       toast.error(errorMessage);
     }
   },
