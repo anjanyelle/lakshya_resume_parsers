@@ -281,68 +281,146 @@ def split_job_blocks(experience_text: str) -> list:
     return blocks
 
 def extract_experience(experience_text: str) -> list:
-    # Lines that are clearly NOT job entries — skip them
-    NOISE_PATTERNS = re.compile(
+    """
+    Handles 3 real-world resume formats:
+    Format 1 — Client: Company, City  +  Role: Title  +  Duration: dates
+    Format 2 — Title – dates (next line = Company City)
+    Format 3 — Standard: Title at Company / Jan 2020 – Present
+    """
+    if not experience_text:
+        return []
+
+    # No real years = fresher, skip entirely
+    if not re.search(r'\b(?:19|20)\d{2}\b', experience_text):
+        return []
+
+    NOISE_LINE = re.compile(
         r'(?i)^('
         r'address[:\s]|phone[:\s]|email[:\s]|linkedin[:\s]|github[:\s]'
-        r'|summary|objective|profile|about'
-        r'|education|skills|projects|certifications|achievements|hobbies'
-        r'|references|training|courses'
-        r'|\+\d[\d\s\-]{7,}'  # phone numbers
-        r'|https?://'         # URLs
-        r'|[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}'  # emails
+        r'|https?://|[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}'
+        r'|\+\d[\d\s\-]{7,}'
+        r'|environment[:\s]|technologies[:\s]|tech stack[:\s]'
         r')'
     )
 
-    BULLET_PATTERN = re.compile(r'^[•\-\*\+►▸▶→]\s*')
+    CLIENT_RE   = re.compile(r'(?i)^client\s*[:\-]\s*(.+)')
+    ROLE_RE     = re.compile(r'(?i)^role\s*[:\-]\s*(.+)')
+    DURATION_RE = re.compile(r'(?i)^duration\s*[:\-]\s*(.+)')
+    BULLET_RE   = re.compile(r'^[•\-\*\+►▸▶→]\s*')
 
-    job_blocks = split_job_blocks(experience_text)
+    # Split text into lines for multi-pass processing
+    lines = [l.rstrip() for l in experience_text.split('\n')]
+
     results = []
+    i = 0
 
-    for block in job_blocks:
-        # Skip blocks that are clearly noise
-        first_line = block.split('\n')[0].strip()
-        if NOISE_PATTERNS.match(first_line):
+    while i < len(lines):
+        line = lines[i].strip()
+
+        # ── FORMAT 1: Client / Role / Duration blocks ──────────────────
+        client_m = CLIENT_RE.match(line)
+        if client_m:
+            company_raw = client_m.group(1).strip()
+            # strip city: "Home Depot Atlanta, GA" → "Home Depot"
+            company = re.split(r'\s{2,}|,\s*[A-Z]{2}\b', company_raw)[0].strip()
+            # consume Role and Duration lines that follow
+            title, start_date, end_date, is_current = '', None, None, False
+            j = i + 1
+            while j < len(lines) and j < i + 6:
+                nxt = lines[j].strip()
+                role_m = ROLE_RE.match(nxt)
+                dur_m  = DURATION_RE.match(nxt)
+                if role_m:
+                    title = re.sub(r'\s*[-–—]\s*$', '', role_m.group(1)).strip()
+                elif dur_m:
+                    date_info = extract_date_range(dur_m.group(1))
+                    start_date = date_info['start_date']
+                    end_date   = date_info['end_date']
+                    is_current = date_info['is_current']
+                elif nxt and not NOISE_LINE.match(nxt):
+                    # Could be inline "Role: X" without keyword
+                    pass
+                j += 1
+
+            # If no Role line found, look ahead for a title-like line
+            if not title:
+                j2 = i + 1
+                while j2 < len(lines) and j2 < i + 4:
+                    nxt = lines[j2].strip()
+                    if nxt and not CLIENT_RE.match(nxt) and not DURATION_RE.match(nxt) \
+                       and not NOISE_LINE.match(nxt) and not DATE_LINE_PATTERN.search(nxt) \
+                       and len(nxt) < 80:
+                        title = re.sub(r'\s*[-–—]\s*(?:(?:19|20)\d{2}.*)?$', '', nxt).strip()
+                        if len(title.split()) <= 8:
+                            break
+                    j2 += 1
+
+            if company or title:
+                results.append({
+                    'title':      title,
+                    'company':    company,
+                    'description': '',
+                    'start_date': start_date,
+                    'end_date':   end_date,
+                    'is_current': is_current,
+                })
+            i += 1
             continue
-        # Skip very short blocks
-        if len(block.strip()) < 30:
+
+        # ── FORMAT 2 & 3: Date-boundary split ──────────────────────────
+        if DATE_LINE_PATTERN.search(line):
+            block_lines = [line]
+            i += 1
+            while i < len(lines):
+                nxt = lines[i].strip()
+                # Stop when we hit the next date boundary or a Client: line
+                if (DATE_LINE_PATTERN.search(nxt) or CLIENT_RE.match(nxt)) and len(block_lines) > 1:
+                    break
+                block_lines.append(lines[i])
+                i += 1
+
+            block = '\n'.join(block_lines)
+            dates = extract_date_range(block)
+            clean = DATE_LINE_PATTERN.sub('', block).strip()
+            clines = [l.strip() for l in clean.split('\n') if l.strip()]
+
+            # Remove bullet lines from top
+            while clines and BULLET_RE.match(clines[0]):
+                clines.pop(0)
+
+            if not clines:
+                continue
+
+            raw_title = clines[0]
+            title = re.sub(r'\s*[-–—]\s*$', '', raw_title).strip()
+
+            # Skip noise titles
+            if NOISE_LINE.match(title) or len(title) > 100 or '@' in title:
+                continue
+
+            # company = next non-noise line after title
+            company = ''
+            for cl in clines[1:3]:
+                if not NOISE_LINE.match(cl) and not DATE_LINE_PATTERN.search(cl) \
+                   and not BULLET_RE.match(cl) and len(cl) < 80:
+                    company = re.sub(r'\s*[-–—]\s*$', '', cl).strip()
+                    break
+
+            desc_lines = clines[2:] if company else clines[1:]
+            description = '\n'.join(desc_lines)
+
+            if title:
+                results.append({
+                    'title':       title,
+                    'company':     company,
+                    'description': description,
+                    'start_date':  dates['start_date'],
+                    'end_date':    dates['end_date'],
+                    'is_current':  dates['is_current'],
+                })
             continue
 
-        dates = extract_date_range(block)
-        clean_block = DATE_LINE_PATTERN.sub('', block).strip()
-        lines = [l.strip() for l in clean_block.split('\n') if l.strip()]
-
-        # Remove bullet lines from the top — they are descriptions not titles
-        while lines and BULLET_PATTERN.match(lines[0]):
-            lines.pop(0)
-
-        if not lines:
-            continue
-
-        title = lines[0] if len(lines) > 0 else ''
-        company = lines[1] if len(lines) > 1 else ''
-        description = '\n'.join(lines[2:]) if len(lines) > 2 else ''
-
-        # Skip if title looks like noise
-        if NOISE_PATTERNS.match(title):
-            continue
-        # Skip if title is longer than 80 chars (it's a sentence, not a title)
-        if len(title) > 80:
-            continue
-        # Skip if title contains an @ or http (URL/email)
-        if '@' in title or 'http' in title.lower():
-            continue
-
-        # Only add if we have at least a title
-        if title:
-            results.append({
-                'title': title,
-                'company': company,
-                'description': description,
-                'start_date': dates['start_date'],
-                'end_date': dates['end_date'],
-                'is_current': dates['is_current'],
-            })
+        i += 1
 
     return results
 

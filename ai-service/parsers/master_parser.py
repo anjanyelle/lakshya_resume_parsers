@@ -519,7 +519,24 @@ class MasterParser:
         self.logger.info("📊 Using REGEX-based extraction")
         exp_result = self.exp_extractor.extract_work_experience(experience_text)
         work_experience = exp_result.get('work_experience', [])
-        job_titles = [exp.get('job_title', '') for exp in work_experience if exp.get('job_title')]
+        
+        GARBAGE_TITLE = re.compile(
+            r'(?i)^('
+            r'client[:\s]|duration[:\s]|role[:\s]'
+            r'|address[:\s]|phone[:\s]|email[:\s]'
+            r'|environment[:\s]|https?://'
+            r'|[a-z0-9._%+\-]+@'
+            r')'
+        )
+
+        job_titles = []
+        for exp in work_experience:
+            t = exp.get('job_title') or exp.get('title') or ''
+            t = t.strip()
+            # Remove trailing dash/dash+spaces
+            t = re.sub(r'\s*[-–—]\s*$', '', t).strip()
+            if t and len(t) > 2 and len(t) < 80 and not GARBAGE_TITLE.match(t):
+                job_titles.append(t)
         
         return {
             'work_experience': work_experience,

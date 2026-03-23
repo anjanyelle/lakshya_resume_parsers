@@ -91,7 +91,7 @@ class ConfidenceScorer:
             field_scores['phone'] = self._score_phone(parsed_data.get('phone'))
             field_scores['name'] = self._score_name(parsed_data.get('name'), parsed_data.get('name_confidence'))
             field_scores['skills'] = self._score_skills(parsed_data.get('skills', []))
-            field_scores['experience'] = self._score_experience(parsed_data.get('experience', []))
+            field_scores['experience'] = self._score_experience(parsed_data.get('work_experience', []))
             field_scores['education'] = self._score_education(parsed_data.get('education', []))
             
             # Calculate overall weighted score
@@ -328,34 +328,26 @@ class ConfidenceScorer:
             if not experience_list:
                 return 0.0
             
-            # Score based on data completeness
-            total_score = 0.0
-            has_dates = False
+            # Experience confidence — based on work_experience list
+            exp_list = experience_list
+            if not isinstance(exp_list, list):
+                exp_list = []
             
-            for exp in experience_list:
+            valid_jobs = [
+                e for e in exp_list 
+                if e.get('title') or e.get('job_title')
+            ]
+            
+            if len(valid_jobs) >= 3:
+                exp_score = 1.0
+            elif len(valid_jobs) == 2:
+                exp_score = 0.8
+            elif len(valid_jobs) == 1:
+                exp_score = 0.6
+            else:
                 exp_score = 0.0
-                
-                # Check for required fields
-                if exp.get('job_title'):
-                    exp_score += 0.3
-                if exp.get('company_name'):
-                    exp_score += 0.3
-                if exp.get('start_date') and exp.get('end_date'):
-                    exp_score += 0.4
-                    has_dates = True
-                elif exp.get('job_title') and exp.get('company_name'):
-                    exp_score += 0.2  # Partial credit without dates
-                
-                total_score += exp_score
             
-            # Average score across all experiences
-            avg_score = total_score / len(experience_list)
-            
-            # Bonus if we have date information
-            if has_dates:
-                avg_score = min(1.0, avg_score + 0.1)
-            
-            return round(avg_score, 3)
+            return exp_score
             
         except Exception as e:
             self.logger.error(f"Error scoring experience: {e}")
