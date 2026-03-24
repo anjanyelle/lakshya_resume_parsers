@@ -151,6 +151,43 @@ class ExperienceExtractor:
                         skills.append(skill)
         return list(set(skills))
     
+    def extract_experience_with_llm(self, experience_text: str, llm_provider: str) -> list:
+        """Call LLM extractor and map output to expected format."""
+        try:
+            from parsers.llm_experience_extractor import extract_experience_with_llm as llm_extract
+            llm_results = llm_extract(experience_text, llm_provider)
+            
+            if not llm_results:
+                return []
+            
+            mapped = []
+            for job in llm_results:
+                title = (job.get('role') or job.get('title') or job.get('job_title') or '').strip()
+                company = (job.get('company') or job.get('company_name') or '').strip()
+                
+                # Skip garbage entries
+                if not title and not company:
+                    continue
+                if len(title) > 100:
+                    continue
+                    
+                mapped.append({
+                    'job_title': title,
+                    'company_name': company,
+                    'start_date': job.get('start_date'),
+                    'end_date': job.get('end_date'),
+                    'is_current': job.get('is_current', False),
+                    'description': job.get('summary') or job.get('description') or '',
+                    'location': job.get('location') or '',
+                    'skills_mentioned': []
+                })
+            
+            return mapped
+            
+        except Exception as e:
+            self.logger.error(f"LLM experience extraction failed: {e}")
+            return []
+    
     def extract_work_experience_old(self, experience_section_text: str) -> Dict:
         """
         Extract structured work experience from experience section text.

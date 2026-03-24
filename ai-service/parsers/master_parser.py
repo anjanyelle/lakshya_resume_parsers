@@ -190,7 +190,7 @@ class MasterParser:
             return result
             
         except Exception as e:
-            self.logger.error(f"❌ Error parsing file {file_path}: {e}")
+            self.logger.error(f"❌ Error parsing file {file_path}: {e}", exc_info=True)
             return self._create_error_result(candidate_id, str(e), metrics)
     
     def parse_text(self, text: str, candidate_id: str) -> Dict[str, Any]:
@@ -498,12 +498,29 @@ class MasterParser:
         self.logger.info(f"📝 Experience text length: {len(experience_text)} chars")
         self.logger.info(f"📝 Experience text preview: {experience_text[:300]}...")
         
-        # Use LLM extraction if provider is specified
-        if llm_provider and hasattr(self.exp_extractor, 'extract_experience_with_llm'):
+        # Use Gemini as default if no provider specified
+        # Falls back to rule-based if LLM fails or no API key
+        effective_provider = llm_provider or 'gemini-2.0-flash-lite'
+        
+        if hasattr(self.exp_extractor, 'extract_experience_with_llm'):
             self.logger.info("✅ CONDITION MET: Using LLM extraction")
-            self.logger.info(f"Using LLM extraction with provider: {llm_provider}")
+            self.logger.info(f"Using LLM extraction with provider: {effective_provider}")
             try:
-                work_experience = self.exp_extractor.extract_experience_with_llm(experience_text, llm_provider)
+                llm_jobs = self.exp_extractor.extract_experience_with_llm(experience_text, effective_provider)
+                
+                if llm_jobs and len(llm_jobs) > 0:
+                    work_experience = llm_jobs
+                    self.logger.info(f"LLM extracted {len(work_experience)} jobs using {effective_provider}")
+                else:
+                    # LLM returned nothing — fall back to rule-based
+                    self.logger.warning("LLM returned empty, falling back to rule-based extraction")
+                    exp_result = self.exp_extractor.extract_work_experience(experience_text)
+                    work_experience = exp_result.get('work_experience', []) if exp_result else []
+                
+                # Ensure work_experience is a list to prevent iteration errors
+                if not isinstance(work_experience, list):
+                    work_experience = []
+                
                 job_titles = [exp.get('role', '') or exp.get('job_title', '') for exp in work_experience if exp.get('role') or exp.get('job_title')]
                 return {
                     'work_experience': work_experience,
@@ -513,7 +530,7 @@ class MasterParser:
                 self.logger.error(f"LLM extraction failed: {e}, falling back to regex")
         else:
             self.logger.warning(f"❌ CONDITION NOT MET: Using regex fallback")
-            self.logger.warning(f"Reason: llm_provider={llm_provider}, has_method={hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
+            self.logger.warning(f"Reason: has_method={hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
         
         # Fallback to regex-based extraction
         self.logger.info("📊 Using REGEX-based extraction")
@@ -593,6 +610,11 @@ class MasterParser:
             return {'education': [], 'education_institutions': [], 'degrees': []}
         
         education = self.edu_extractor.extract_education(education_text)
+        
+        # Ensure education is a list to prevent iteration errors
+        if not isinstance(education, list):
+            education = []
+        
         institutions = [edu.get('institution', '') for edu in education if edu.get('institution')]
         degrees = [edu.get('degree', '') for edu in education if edu.get('degree')]
         
@@ -690,9 +712,9 @@ class MasterParser:
             'locations': merged_results.get('locations', []),
             
             # Additional extracted data
-            'dates': merged_results.get('dates', []),
+            'dates': [d.get('raw', str(d)) if isinstance(d, dict) else str(d) for d in (merged_results.get('dates') or [])],
             'years_of_experience': merged_results.get('years_of_experience'),
-            'misc_entities': merged_results.get('misc_entities', []),
+            'misc_entities': merged_results.get('misc_entities') or [],
             
             # Quality assessment
             'confidence': confidence_scores,

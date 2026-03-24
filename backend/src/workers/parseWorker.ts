@@ -197,7 +197,7 @@ const redisConfig = {
 const connection = new IORedis(redisConfig);
 
 // AI Service URL
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8001";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
 
 // Helper function to update parsing job status in database
 const updateParsingJobStatus = async (

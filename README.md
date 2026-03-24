@@ -290,7 +290,5 @@ Error Fix
 psql: command not found Install PostgreSQL client tools: brew install postgresql
 python: command not found Use python3 instead of python
 uvicorn: command not found Make sure you activated the venv: source ai-service/venv/bin/activate
-Frontend shows blank page Check that backend and AI service are running first
-Database connection failed Verify PostgreSQL is running and DATABASE_URL is correct in .env
-The app should now be fully running locally on your machine.
-python3 create_admin_simple.py
+source doccano-env/bin/activate
+doccano webserver --workers 1
