@@ -19,6 +19,7 @@ from parsers.hybrid_merger import HybridMerger
 from parsers.confidence_scorer import ConfidenceScorer
 from parsers.entity_normalizer import EntityNormalizer
 from parsers.text_quality_analyzer import TextQualityAnalyzer
+from parsers.llm_full_parser import parse_resume_with_llm
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -265,12 +266,60 @@ class MasterParser:
             text: Text to parse
             candidate_id: Candidate identifier
             metrics: Timing metrics dictionary
-            llm_provider: Optional LLM provider for experience extraction
+            llm_provider: Optional LLM provider for full LLM parsing or experience extraction
             file_info: File-specific information
             
         Returns:
             Parsed result dictionary
         """
+        # OPTION 1: Full LLM Parsing (when specific LLM provider is selected)
+        # This uses the LLM to parse the entire resume with strict cleaning rules
+        if llm_provider and llm_provider != 'own-model':
+            self.logger.info(f"🚀 Using FULL LLM PARSING with {llm_provider}")
+            step_start = time.time()
+            
+            llm_result = parse_resume_with_llm(text, llm_provider)
+            metrics['full_llm_parsing_ms'] = (time.time() - step_start) * 1000
+            
+            if llm_result:
+                self.logger.info(f"✅ Full LLM parsing completed in {metrics['full_llm_parsing_ms']:.1f}ms")
+                
+                # Add candidate_id and status
+                llm_result['candidate_id'] = candidate_id
+                llm_result['status'] = 'success'
+                
+                # Calculate confidence (LLM results are generally high confidence)
+                llm_result['confidence'] = {
+                    'overall': 0.95,
+                    'fields': {
+                        'name': 0.95 if llm_result.get('name') else 0.0,
+                        'email': 0.95 if llm_result.get('email') else 0.0,
+                        'phone': 0.95 if llm_result.get('phone') else 0.0,
+                        'skills': 0.95 if llm_result.get('skills') else 0.0,
+                        'work_experience': 0.95 if llm_result.get('work_experience') else 0.0,
+                        'education': 0.95 if llm_result.get('education') else 0.0,
+                    },
+                    'needs_review': False,
+                    'quality_level': 'excellent'
+                }
+                
+                # Add processing metrics
+                llm_result['processing_metrics'] = metrics
+                
+                # Run quality analysis
+                step_start = time.time()
+                quality_report = self._analyze_extraction_quality(text, llm_result, {})
+                metrics['quality_analysis_ms'] = (time.time() - step_start) * 1000
+                
+                if quality_report:
+                    llm_result['extraction_quality'] = quality_report
+                
+                return llm_result
+            else:
+                self.logger.warning(f"⚠️ Full LLM parsing failed, falling back to hybrid pipeline")
+                # Fall through to standard pipeline
+        
+        # OPTION 2: Standard Hybrid Pipeline (rule-based + AI entity extraction)
         # Step 2: Split sections
         step_start = time.time()
         sections = self._split_sections(text)
@@ -283,7 +332,7 @@ class MasterParser:
         
         # Step 4: AI entity extraction (conditional - only if needed based on rule_results)
         step_start = time.time()
-        ai_results = self._run_ai_parsing(text, sections, rule_results=rule_results)
+        ai_results = self._run_ai_parsing(text, sections, rule_results=rule_results, llm_provider=llm_provider)
         metrics['ai_parsing_ms'] = (time.time() - step_start) * 1000
         
         # Log if AI was skipped
@@ -387,7 +436,7 @@ class MasterParser:
         
         return result
     
-    def _run_ai_parsing(self, text: str, sections: Dict[str, str] = None, rule_results: Dict[str, Any] = None) -> Dict[str, Any]:
+    def _run_ai_parsing(self, text: str, sections: Dict[str, str] = None, rule_results: Dict[str, Any] = None, llm_provider: Optional[str] = None) -> Dict[str, Any]:
         """
         Run AI entity extraction on text with hybrid skills optimization.
         Only calls AI if rule-based extraction has low confidence (<0.85) for any field.
@@ -396,6 +445,7 @@ class MasterParser:
             text: Full resume text
             sections: Detected sections dictionary
             rule_results: Results from rule-based parsing with confidence scores
+            llm_provider: Optional LLM provider - if specified, forces AI parsing
             
         Returns:
             Dictionary with AI-extracted fields (only fields that need AI)
@@ -404,10 +454,17 @@ class MasterParser:
             self.logger.warning("AINamedEntityParser not available, returning empty results")
             return {}
         
+        # FORCE AI PARSING when specific LLM provider is selected
+        force_ai_parsing = False
+        if llm_provider and llm_provider != 'own-model':
+            self.logger.info(f"🤖 LLM provider '{llm_provider}' selected - FORCING AI parsing for enhanced quality")
+            force_ai_parsing = True
+        
         # OPTIMIZATION: Check if AI is even needed based on rule_results confidence
         # Skip fields where rule-based extraction has high confidence (>=0.85)
+        # BUT: Skip this optimization if force_ai_parsing is True
         skip_ai_entirely = False
-        if rule_results:
+        if not force_ai_parsing and rule_results:
             # Check confidence for key fields
             high_confidence_fields = []
             for field in ['name', 'email', 'phone', 'linkedin', 'github', 'skills', 'locations']:
@@ -462,7 +519,7 @@ class MasterParser:
                 try:
                     # Extract skills from remainder only
                     remainder_entities = self.ai_parser.extract_entities(remainder_text)
-                    ai_skills = self.ai_parser.get_skills(remainder_entities)
+                    ai_skills = remainder_entities.get('skills', [])
                     self.logger.info(f"AI found {len(ai_skills)} additional skills in remainder")
                 except Exception as e:
                     self.logger.error(f"Error extracting AI skills from remainder: {e}")
@@ -477,14 +534,12 @@ class MasterParser:
                 # 'companies' removed - experience_extractor already extracts with 85% accuracy from job blocks
                 # 'locations' removed - experience_extractor extracts from job blocks + rule_parser extracts City/State patterns
                 'skills': ai_skills,  # Only rare/emerging skills from AI (if any)
-                'misc_entities': self.ai_parser.get_misc_entities(entities),
                 'ai_entities': entities  # Keep raw entities for reference
             }
         else:
             # Fallback: no skills section or dictionary method not available
             self.logger.warning("No skills section or dictionary method unavailable, skipping AI skills")
             return {
-                'misc_entities': self.ai_parser.get_misc_entities(entities),
                 'ai_entities': entities
             }
     
