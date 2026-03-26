@@ -142,6 +142,7 @@ class ParseResponse(BaseModel):
     dates: List[str] = []
     source_info: Optional[Dict[str, Any]] = None
     text_info: Optional[Dict[str, Any]] = None
+    extraction_quality: Optional[Dict[str, Any]] = None
     
     # Validators to ensure None values are converted to empty lists
     @field_validator('websites', 'skills', 'work_experience', 'education', 'job_titles', 'companies', 'locations', 'dates', mode='before')
@@ -625,6 +626,18 @@ async def general_exception_handler(request: Request, exc: Exception):
             details=str(exc)
         ).dict()
     )
+
+@app.get("/debug/quality-analyzer")
+async def debug_quality_analyzer():
+    """Debug endpoint to check TextQualityAnalyzer status."""
+    if not master_parser:
+        return {"error": "MasterParser not initialized"}
+    
+    return {
+        "has_quality_analyzer": hasattr(master_parser, 'quality_analyzer'),
+        "quality_analyzer_is_none": master_parser.quality_analyzer is None if hasattr(master_parser, 'quality_analyzer') else True,
+        "quality_analyzer_type": str(type(master_parser.quality_analyzer)) if hasattr(master_parser, 'quality_analyzer') and master_parser.quality_analyzer else None
+    }
 
 @app.post("/match", response_model=MatchResponse)
 async def match_candidate_to_job(request: MatchRequest):

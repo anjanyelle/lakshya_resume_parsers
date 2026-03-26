@@ -36,7 +36,7 @@ def extract_experience_with_llm(experience_text: str, llm_provider: str) -> List
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            if llm_provider == "gemini-2.0-flash-lite":
+            if llm_provider in ["gemini-2.0-flash-lite", "gemini-1.5-flash", "gemini-2.0-flash-exp"]:
                 result, error = _call_gemini(system_prompt, user_prompt)
             elif llm_provider == "deepseek-v3":
                 result, error = _call_deepseek(system_prompt, user_prompt)

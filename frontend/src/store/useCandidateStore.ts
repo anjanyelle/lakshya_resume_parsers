@@ -56,10 +56,18 @@ interface CandidateState {
   uploadProgress: number;
   isUploading: boolean;
   error: string | null;
+  pagination: {
+    current_page: number;
+    total_pages: number;
+    total_items: number;
+    items_per_page: number;
+    has_next_page: boolean;
+    has_prev_page: boolean;
+  } | null;
 }
 
 interface CandidateActions {
-  fetchCandidates: () => Promise<void>;
+  fetchCandidates: (page?: number, limit?: number, search?: string) => Promise<void>;
   fetchCandidate: (id: string) => Promise<void>;
   uploadResume: (file: File, llmProvider?: string, candidateId?: string) => Promise<Candidate>;
   deleteCandidate: (id: string) => Promise<void>;
@@ -78,17 +86,34 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
     uploadProgress: 0,
     isUploading: false,
     error: null,
+    pagination: null,
 
     // Actions
-    fetchCandidates: async () => {
+    fetchCandidates: async (page = 1, limit = 20, search = "") => {
       set({ isLoading: true, error: null });
       try {
-        const response = await api.get("/candidates");
-        set({ candidates: response.data.candidates || [], isLoading: false });
+        const params = new URLSearchParams();
+        params.append("page", page.toString());
+        params.append("limit", limit.toString());
+        if (search) {
+          params.append("search", search);
+        }
+        
+        const response = await api.get(`/candidates?${params.toString()}`);
+        console.log("📊 API Response:", response.data);
+        console.log("📄 Pagination data:", response.data.pagination);
+        console.log("👥 Candidates count:", response.data.candidates?.length);
+        
+        set({ 
+          candidates: response.data.candidates || [], 
+          pagination: response.data.pagination || null,
+          isLoading: false 
+        });
       } catch (error: any) {
         const errorMessage =
           error.response?.data?.message || "Failed to fetch candidates";
-        set({ error: errorMessage, isLoading: false, candidates: [] });
+        console.error("❌ Fetch candidates error:", error);
+        set({ error: errorMessage, isLoading: false, candidates: [], pagination: null });
         toast.error(errorMessage);
       }
     },

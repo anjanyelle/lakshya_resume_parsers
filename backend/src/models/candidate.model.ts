@@ -33,6 +33,60 @@ export class CandidateModel {
     }
   }
 
+  static async findByIdWithDetails(client: any, id: string): Promise<CandidateWithDetails | null> {
+    try {
+      // Get candidate
+      const candidateResult = await client.query(
+        "SELECT * FROM candidates WHERE id = $1",
+        [id]
+      );
+      
+      if (candidateResult.rows.length === 0) {
+        return null;
+      }
+      
+      const candidate = candidateResult.rows[0];
+      
+      // Get work history
+      const workHistoryResult = await client.query(
+        "SELECT * FROM work_history WHERE candidate_id = $1 ORDER BY start_date DESC",
+        [id]
+      );
+      
+      // Get education
+      const educationResult = await client.query(
+        "SELECT * FROM education WHERE candidate_id = $1 ORDER BY end_date DESC",
+        [id]
+      );
+      
+      // Get certifications
+      const certificationsResult = await client.query(
+        "SELECT * FROM certifications WHERE candidate_id = $1 ORDER BY issue_date DESC",
+        [id]
+      );
+      
+      // Get skills
+      const skillsResult = await client.query(
+        `SELECT s.*, cs.proficiency_level, cs.years_experience 
+         FROM skills s 
+         JOIN candidate_skills cs ON s.id = cs.skill_id 
+         WHERE cs.candidate_id = $1`,
+        [id]
+      );
+      
+      return {
+        ...candidate,
+        work_history: workHistoryResult.rows,
+        education: educationResult.rows,
+        certifications: certificationsResult.rows,
+        skills: skillsResult.rows
+      };
+    } catch (error) {
+      console.error("Error fetching candidate with details:", error);
+      throw error;
+    }
+  }
+
   static async create(data: Partial<Candidate>): Promise<Candidate> {
     const client = await getClient();
     try {
@@ -59,13 +113,47 @@ export class CandidateModel {
     }
   }
 
-  static async findAll(): Promise<Candidate[]> {
-    const client = await getClient();
+  static async findAll(
+    client: any,
+    page: number = 1,
+    limit: number = 20,
+    search?: string
+  ): Promise<{ candidates: CandidateWithDetails[]; total: number }> {
     try {
-      const result = await client.query("SELECT * FROM candidates ORDER BY created_at DESC");
-      return result.rows;
-    } finally {
-      client.release();
+      const offset = (page - 1) * limit;
+      
+      // Build WHERE clause for search
+      let whereClause = "WHERE status = 'success'";
+      const queryParams: any[] = [];
+      
+      if (search) {
+        queryParams.push(`%${search}%`);
+        whereClause += ` AND (full_name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
+      }
+      
+      // Get total count
+      const countQuery = `SELECT COUNT(*) FROM candidates ${whereClause}`;
+      const countResult = await client.query(countQuery, queryParams);
+      const total = parseInt(countResult.rows[0].count);
+      
+      // Get paginated candidates
+      queryParams.push(limit, offset);
+      const candidatesQuery = `
+        SELECT * FROM candidates 
+        ${whereClause}
+        ORDER BY created_at DESC
+        LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}
+      `;
+      
+      const candidatesResult = await client.query(candidatesQuery, queryParams);
+      
+      return {
+        candidates: candidatesResult.rows,
+        total
+      };
+    } catch (error) {
+      console.error("Error fetching candidates:", error);
+      throw error;
     }
   }
 }

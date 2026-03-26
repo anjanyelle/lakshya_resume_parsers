@@ -18,6 +18,7 @@ from parsers.ai_ner_parser import AINamedEntityParser
 from parsers.hybrid_merger import HybridMerger
 from parsers.confidence_scorer import ConfidenceScorer
 from parsers.entity_normalizer import EntityNormalizer
+from parsers.text_quality_analyzer import TextQualityAnalyzer
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -103,6 +104,13 @@ class MasterParser:
         except Exception as e:
             self.logger.error(f"❌ Failed to initialize EntityNormalizer: {e}")
             self.entity_normalizer = None
+        
+        try:
+            self.quality_analyzer = TextQualityAnalyzer()
+            self.logger.info("✅ TextQualityAnalyzer initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize TextQualityAnalyzer: {e}")
+            self.quality_analyzer = None
         
         # Timing metrics storage
         self.last_parse_metrics = {}
@@ -316,9 +324,14 @@ class MasterParser:
         confidence_scores = self._calculate_confidence(merged_results)
         metrics['confidence_scoring_ms'] = (time.time() - step_start) * 1000
         
+        # Step 8b: Analyze extraction quality
+        step_start = time.time()
+        quality_report = self._analyze_extraction_quality(text, merged_results, sections)
+        metrics['quality_analysis_ms'] = (time.time() - step_start) * 1000
+        
         # Step 9: Assemble final result
         result = self._assemble_final_result(
-            candidate_id, merged_results, confidence_scores, metrics, file_info
+            candidate_id, merged_results, confidence_scores, metrics, file_info, quality_report
         )
         
         return result
@@ -498,7 +511,7 @@ class MasterParser:
         self.logger.info(f"📝 Experience text length: {len(experience_text)} chars")
         self.logger.info(f"📝 Experience text preview: {experience_text[:300]}...")
         
-        # Use Gemini as default if no provider specified
+        # Use Gemini 2.0 Flash Lite as default with new API key
         # Falls back to rule-based if LLM fails or no API key
         effective_provider = llm_provider or 'gemini-2.0-flash-lite'
         
@@ -685,9 +698,26 @@ class MasterParser:
         
         return self.confidence_scorer.score_parsed_resume(merged_results)
     
+    def _analyze_extraction_quality(self, original_text: str, parsed_data: Dict[str, Any], 
+                                   sections: Dict[str, str]) -> Dict[str, Any]:
+        """Analyze extraction quality by comparing original text with parsed output."""
+        if not self.quality_analyzer:
+            self.logger.warning("TextQualityAnalyzer not available, skipping quality analysis")
+            return None
+        
+        try:
+            quality_report = self.quality_analyzer.analyze_extraction_quality(
+                original_text, parsed_data, sections
+            )
+            self.logger.info(f"📊 Extraction quality: {quality_report.get('extraction_quality_percentage', 0):.1f}%")
+            return quality_report
+        except Exception as e:
+            self.logger.error(f"Error analyzing extraction quality: {e}", exc_info=True)
+            return None
+    
     def _assemble_final_result(self, candidate_id: str, merged_results: Dict[str, Any],
                               confidence_scores: Dict[str, Any], metrics: Dict[str, float],
-                              file_info: Dict[str, Any] = None) -> Dict[str, Any]:
+                              file_info: Dict[str, Any] = None, quality_report: Dict[str, Any] = None) -> Dict[str, Any]:
         """Assemble final result with all components."""
         result = {
             'candidate_id': candidate_id,
@@ -732,6 +762,10 @@ class MasterParser:
         # Add file info if available
         if file_info:
             result['source_info'] = file_info
+        
+        # Add extraction quality report if available
+        if quality_report:
+            result['extraction_quality'] = quality_report
         
         # Add merge metadata if available
         if '_merge_metadata' in merged_results:

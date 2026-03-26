@@ -11,55 +11,41 @@ export default function CandidatesPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("date-added");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const { candidates, fetchCandidates } = useCandidateStore();
+  const { candidates, pagination, isLoading, fetchCandidates } = useCandidateStore();
   const navigate = useNavigate();
 
   const itemsPerPage = 20;
 
   useEffect(() => {
     loadCandidates();
-  }, []);
+  }, [currentPage, searchTerm]);
 
   const loadCandidates = async () => {
-    setIsLoading(true);
     try {
-      await fetchCandidates();
+      await fetchCandidates(currentPage, itemsPerPage, searchTerm);
     } catch (error) {
       toast.error("Failed to load candidates");
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Filter and sort candidates
+  // Client-side filter and sort (search is handled server-side)
   const filteredCandidates = candidates
     .filter((candidate) => {
-      // Search filter
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch =
-        !searchTerm ||
-        candidate.full_name.toLowerCase().includes(searchLower) ||
-        candidate.email.toLowerCase().includes(searchLower) ||
-        candidate.skills?.some((skill) =>
-          skill.skill_name.toLowerCase().includes(searchLower),
-        );
-
-      // Status filter
+      // Status filter (client-side)
       const confidence = candidate.parsing_status?.confidence_score || 0;
       const matchesFilter =
         filter === "all" ||
         (filter === "high-confidence" && confidence >= 0.8) ||
         (filter === "needs-review" && confidence < 0.8);
 
-      return matchesSearch && matchesFilter;
+      return matchesFilter;
     })
     .sort((a, b) => {
-      // Sort logic
+      // Sort logic (client-side)
       switch (sort) {
         case "name":
-          return a.full_name.localeCompare(b.full_name);
+          return (a.full_name || "").localeCompare(b.full_name || "");
         case "confidence-score":
           const aConfidence = a.parsing_status?.confidence_score || 0;
           const bConfidence = b.parsing_status?.confidence_score || 0;
@@ -72,13 +58,12 @@ export default function CandidatesPage() {
       }
     });
 
-  // Pagination
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCandidates = filteredCandidates.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  // Use server-side pagination
+  const paginatedCandidates = filteredCandidates;
+  
+  // Debug: Log pagination state
+  console.log("🔍 Pagination state:", pagination);
+  console.log("🔍 Candidates count:", candidates.length);
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.8) return "bg-green-100 text-green-800";
@@ -165,7 +150,7 @@ export default function CandidatesPage() {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              All ({candidates.length})
+              All ({pagination?.total_items || candidates.length})
             </button>
             <button
               onClick={() => setFilter("high-confidence")}
@@ -205,11 +190,28 @@ export default function CandidatesPage() {
         </div>
       </div>
 
+      {/* Debug Info - TEMPORARY */}
+      {pagination && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-xs font-mono">
+            <strong>DEBUG:</strong> Pagination = {JSON.stringify(pagination)}
+          </p>
+        </div>
+      )}
+      {!pagination && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-xs font-mono">
+            <strong>DEBUG:</strong> Pagination is NULL or undefined
+          </p>
+        </div>
+      )}
+
       {/* Results Count */}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-gray-600">
-          Showing {paginatedCandidates.length} of {filteredCandidates.length}{" "}
+          Showing {paginatedCandidates.length} of {pagination?.total_items || filteredCandidates.length}{" "}
           candidates
+          {pagination && ` (Page ${pagination.current_page} of ${pagination.total_pages})`}
         </p>
         <button
           onClick={loadCandidates}
@@ -331,15 +333,15 @@ export default function CandidatesPage() {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+      {pagination && pagination.total_pages > 1 && (
+        <div className="flex items-center justify-between mt-6 bg-white rounded-lg shadow-sm p-4">
           <div className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
+            Page {pagination.current_page} of {pagination.total_pages}
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
+              disabled={!pagination.has_prev_page}
               className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
@@ -347,16 +349,16 @@ export default function CandidatesPage() {
 
             {/* Page Numbers */}
             <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
                 let pageNum;
-                if (totalPages <= 5) {
+                if (pagination.total_pages <= 5) {
                   pageNum = i + 1;
-                } else if (currentPage <= 3) {
+                } else if (pagination.current_page <= 3) {
                   pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
+                } else if (pagination.current_page >= pagination.total_pages - 2) {
+                  pageNum = pagination.total_pages - 4 + i;
                 } else {
-                  pageNum = currentPage - 2 + i;
+                  pageNum = pagination.current_page - 2 + i;
                 }
 
                 return (
@@ -364,7 +366,7 @@ export default function CandidatesPage() {
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
                     className={`px-3 py-1 text-sm border rounded-md ${
-                      currentPage === pageNum
+                      pagination.current_page === pageNum
                         ? "bg-indigo-600 text-white border-indigo-600"
                         : "border-gray-300 hover:bg-gray-50"
                     }`}
@@ -377,9 +379,9 @@ export default function CandidatesPage() {
 
             <button
               onClick={() =>
-                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                setCurrentPage((prev) => Math.min(pagination.total_pages, prev + 1))
               }
-              disabled={currentPage === totalPages}
+              disabled={!pagination.has_next_page}
               className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next

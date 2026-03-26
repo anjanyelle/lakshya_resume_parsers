@@ -48,13 +48,14 @@ export const uploadResume = async (
 
       // 3. Create candidate record in database (status: 'pending')
       const candidateId = uuidv4();
+      const tenantId = (req as any).user?.tenant_id || 'default';
       const candidateQuery = `
-        INSERT INTO candidates (id, status, created_at, updated_at)
-        VALUES ($1, 'pending', NOW(), NOW())
+        INSERT INTO candidates (id, status, tenant_id, created_at, updated_at)
+        VALUES ($1, 'pending', $2, NOW(), NOW())
         RETURNING *
       `;
 
-      const candidateResult = await client.query(candidateQuery, [candidateId]);
+      const candidateResult = await client.query(candidateQuery, [candidateId, tenantId]);
       const candidate = candidateResult.rows[0];
 
       console.log(`✅ Created candidate record: ${candidate.id}`);
