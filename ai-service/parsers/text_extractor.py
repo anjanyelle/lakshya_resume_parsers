@@ -122,7 +122,7 @@ class TextExtractor:
     
     def extract_from_docx(self, file_path: str) -> str:
         """
-        Extract text from DOCX file including paragraphs and tables.
+        Extract text from DOCX file including paragraphs, tables, and text boxes.
         
         Args:
             file_path: Path to the DOCX file
@@ -135,24 +135,38 @@ class TextExtractor:
         
         try:
             doc = Document(file_path)
-            text_parts = []
+            full_text = []
             
-            # Extract paragraphs
-            for paragraph in doc.paragraphs:
-                if paragraph.text.strip():
-                    text_parts.append(paragraph.text)
+            # Extract from paragraphs
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    full_text.append(para.text.strip())
             
-            # Extract tables
+            # Extract from ALL table cells
             for table in doc.tables:
                 for row in table.rows:
-                    row_text = []
                     for cell in row.cells:
-                        if cell.text.strip():
-                            row_text.append(cell.text.strip())
-                    if row_text:
-                        text_parts.append(" | ".join(row_text))
+                        for para in cell.paragraphs:
+                            if para.text.strip():
+                                full_text.append(para.text.strip())
             
-            return self.clean_text("\n".join(text_parts))
+            # Extract from text boxes inside shapes
+            try:
+                from docx.oxml.ns import qn
+                for shape in doc.inline_shapes:
+                    try:
+                        tb = shape._inline.graphic.graphicData.find('.//' + qn('wps:txbx'))
+                        if tb is not None:
+                            for para in tb.findall('.//' + qn('w:p')):
+                                texts = [node.text for node in para.findall('.//' + qn('w:t')) if node.text]
+                                if texts:
+                                    full_text.append(''.join(texts))
+                    except:
+                        pass
+            except Exception as e:
+                logger.debug(f"Could not extract text from shapes: {e}")
+            
+            return self.clean_text('\n'.join(full_text))
             
         except Exception as e:
             logger.error(f"Error extracting text from DOCX {file_path}: {str(e)}")

@@ -15,6 +15,82 @@ import calendar
 logger = logging.getLogger(__name__)
 
 
+def is_valid_job_title(text: str) -> bool:
+    """
+    Validate if a string is a legitimate job title.
+    
+    Returns False if:
+    - Too short (< 3 chars) or too long (> 80 chars)
+    - Only contains symbols, dates, or noise words
+    - Is a common garbage value like "Present", "Current", dates
+    - Starts with bullet characters
+    - Contains education/certification keywords
+    """
+    if not text or not isinstance(text, str):
+        return False
+    
+    text = text.strip()
+    
+    # Length check
+    if len(text) < 3 or len(text) > 80:
+        return False
+    
+    # Check if it's only symbols, dashes, or whitespace
+    if re.match(r'^[\s\-–—•\*\+►▸▶→]+$', text):
+        return False
+    
+    # Check if it starts with bullet character
+    if re.match(r'^[•\-\*\+►▸▶→]\s*', text):
+        return False
+    
+    # Exact matches for common garbage values
+    garbage_exact = {
+        'present', 'current', 'now', 'till date', 'to date',
+        '–', '—', '-', '–present', '—present', '-present',
+        'graduated', 'graduation'
+    }
+    if text.lower() in garbage_exact:
+        return False
+    
+    # Check if it's just a year or date
+    if re.match(r'^(?:19|20)\d{2}$', text):
+        return False
+    
+    # Check if it's a date-like string
+    if re.match(r'^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*\d{2,4}$', text, re.IGNORECASE):
+        return False
+    
+    # Check for education/certification keywords
+    education_keywords = [
+        'university', 'college', 'institute', 'school',
+        'bachelor', 'master', 'phd', 'doctorate', 'degree',
+        'b.s.', 'm.s.', 'b.a.', 'm.a.', 'b.tech', 'm.tech',
+        'certification', 'certifications', 'certificate',
+        'education', 'academic', 'graduated'
+    ]
+    text_lower = text.lower()
+    for keyword in education_keywords:
+        if keyword in text_lower:
+            return False
+    
+    # Check for section headers
+    section_headers = [
+        'environment:', 'technologies:', 'tech stack:',
+        'skills:', 'tools:', 'responsibilities:',
+        'achievements:', 'projects:', 'summary:'
+    ]
+    for header in section_headers:
+        if text_lower.startswith(header):
+            return False
+    
+    # Must contain at least one alphabetic word (not just numbers/symbols)
+    words = re.findall(r'\b[a-zA-Z]{2,}\b', text)
+    if not words:
+        return False
+    
+    return True
+
+
 class ExperienceExtractor:
     """
     Advanced work experience extractor with comprehensive parsing capabilities.
@@ -248,14 +324,29 @@ class ExperienceExtractor:
 DATE_LINE_PATTERN = re.compile(
     r'(?i)'
     r'(?:'
+    # Month name + year: "Jan 2022", "January 2022", "Sep 2022"
     r'(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
     r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
     r'dec(?:ember)?)'
     r'\.?\s*(?:19|20)\d{2}'
+    # Year-Month format: "2022-09", "2022/09"
+    r'|(?:19|20)\d{2}[\-\/](0[1-9]|1[0-2])'
+    # Year ranges: "2020-2023", "2020 - 2023"
     r'|(?:19|20)\d{2}\s*[-–—]\s*(?:19|20)\d{2}'
+    # Year to Present: "2020-Present", "2020 - Current"
     r'|(?:19|20)\d{2}\s*[-–—]\s*(?:present|current|now|till date|to date)'
+    # Month/Year format: "01/2022", "12-2022"
     r'|\d{1,2}[\/\-](?:19|20)\d{2}'
+    # Quarter format: "Q1 2022"
     r'|Q[1-4]\s*(?:19|20)\d{2}'
+    # Month name ranges: "Jan 2020 - Dec 2022", "September 2020 - Present"
+    r'|(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
+    r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
+    r'dec(?:ember)?)'
+    r'\.?\s*(?:19|20)\d{2}\s*[-–—]\s*'
+    r'(?:(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
+    r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
+    r'dec(?:ember)?)\.?\s*(?:19|20)\d{2}|present|current|now)'
     r')'
 )
 
@@ -354,6 +445,35 @@ def extract_experience(experience_text: str) -> list:
     while i < len(lines):
         line = lines[i].strip()
 
+        # ── FORMAT 0: Pipe-separated format ────────────────────────────
+        # "Senior Data Engineer | Morgan Stanley | Sep 2022 - Present"
+        if '|' in line and DATE_LINE_PATTERN.search(line):
+            parts = [p.strip() for p in line.split('|')]
+            if len(parts) >= 2:
+                # Extract dates from the line
+                date_info = extract_date_range(line)
+                
+                # First part is usually title, second is company
+                title = parts[0]
+                company = parts[1] if len(parts) > 1 else ''
+                
+                # Remove dates from title and company if present
+                title = DATE_LINE_PATTERN.sub('', title).strip()
+                company = DATE_LINE_PATTERN.sub('', company).strip()
+                
+                # Validate job title
+                if title and is_valid_job_title(title) and (company or date_info['start_date']):
+                    results.append({
+                        'title': title,
+                        'company': company,
+                        'description': '',
+                        'start_date': date_info['start_date'],
+                        'end_date': date_info['end_date'],
+                        'is_current': date_info['is_current'],
+                    })
+                i += 1
+                continue
+
         # ── FORMAT 1: Client / Role / Duration blocks ──────────────────
         client_m = CLIENT_RE.match(line)
         if client_m:
@@ -392,7 +512,8 @@ def extract_experience(experience_text: str) -> list:
                             break
                     j2 += 1
 
-            if company or title:
+            # Validate job title before adding
+            if (company or title) and is_valid_job_title(title):
                 results.append({
                     'title':      title,
                     'company':    company,
@@ -446,7 +567,8 @@ def extract_experience(experience_text: str) -> list:
             desc_lines = clines[2:] if company else clines[1:]
             description = '\n'.join(desc_lines)
 
-            if title:
+            # Validate job title before adding
+            if title and is_valid_job_title(title):
                 results.append({
                     'title':       title,
                     'company':     company,

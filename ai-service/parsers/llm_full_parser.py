@@ -295,45 +295,60 @@ def _post_process_result(result: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def _calculate_years_of_experience(work_experience: list) -> int:
+def _calculate_years_of_experience(work_experience: list) -> float:
     """
     Calculate total years of experience from work history.
+    Finds the earliest start_date and calculates years from that to today.
     """
     if not work_experience:
-        return 0
+        return 0.0
     
-    total_months = 0
-    current_year = datetime.now().year
+    from datetime import datetime, date
+    
+    earliest_start = None
+    today = date.today()
     
     for exp in work_experience:
         start_date = exp.get('start_date')
         end_date = exp.get('end_date')
         is_current = exp.get('is_current', False)
         
-        # Try to parse dates
-        start_year = None
-        end_year = None
+        if not start_date:
+            continue
         
-        if start_date:
-            # Extract year from various formats
-            year_match = re.search(r'(\d{4})', str(start_date))
-            if year_match:
-                start_year = int(year_match.group(1))
-        
-        if end_date:
-            year_match = re.search(r'(\d{4})', str(end_date))
-            if year_match:
-                end_year = int(year_match.group(1))
-        elif is_current:
-            end_year = current_year
-        
-        # Calculate duration
-        if start_year and end_year:
-            duration = end_year - start_year
-            if duration > 0:
-                total_months += duration * 12
+        # Parse start_date
+        try:
+            if isinstance(start_date, str):
+                # Try YYYY-MM-DD format
+                if '-' in start_date:
+                    parts = start_date.split('-')
+                    if len(parts) >= 1:
+                        year = int(parts[0])
+                        month = int(parts[1]) if len(parts) >= 2 else 1
+                        day = int(parts[2]) if len(parts) >= 3 else 1
+                        start = date(year, month, day)
+                else:
+                    # Try just year
+                    year = int(start_date)
+                    start = date(year, 1, 1)
+            else:
+                continue
+            
+            # Track earliest start date
+            if earliest_start is None or start < earliest_start:
+                earliest_start = start
+                
+        except (ValueError, TypeError):
+            continue
     
-    return max(0, total_months // 12)
+    if earliest_start is None:
+        return 0.0
+    
+    # Calculate years from earliest start to today
+    days_diff = (today - earliest_start).days
+    years = round(days_diff / 365.25, 1)
+    
+    return max(0.0, years)
 
 
 def _call_gemini(system_prompt: str, user_prompt: str) -> Tuple[Optional[Dict], Optional[str]]:

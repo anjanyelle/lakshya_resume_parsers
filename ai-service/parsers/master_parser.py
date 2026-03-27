@@ -798,7 +798,7 @@ class MasterParser:
             
             # Additional extracted data
             'dates': [d.get('raw', str(d)) if isinstance(d, dict) else str(d) for d in (merged_results.get('dates') or [])],
-            'years_of_experience': merged_results.get('years_of_experience'),
+            'years_of_experience': self._calculate_years_from_work_history(merged_results.get('work_experience', [])),
             'misc_entities': merged_results.get('misc_entities') or [],
             
             # Quality assessment
@@ -934,6 +934,59 @@ class MasterParser:
                 self.logger.error(f"Error getting supported formats: {e}")
         
         return ['.txt']  # Fallback to text only
+    
+    def _calculate_years_from_work_history(self, work_experience: list) -> float:
+        """
+        Calculate years of experience from work history.
+        Finds earliest start_date and calculates to today.
+        """
+        if not work_experience:
+            return 0.0
+        
+        from datetime import date
+        
+        earliest_start = None
+        today = date.today()
+        
+        for exp in work_experience:
+            start_date = exp.get('start_date')
+            
+            if not start_date:
+                continue
+            
+            # Parse start_date
+            try:
+                if isinstance(start_date, str):
+                    # Try YYYY-MM-DD format
+                    if '-' in start_date:
+                        parts = start_date.split('-')
+                        if len(parts) >= 1:
+                            year = int(parts[0])
+                            month = int(parts[1]) if len(parts) >= 2 else 1
+                            day = int(parts[2]) if len(parts) >= 3 else 1
+                            start = date(year, month, day)
+                    else:
+                        # Try just year
+                        year = int(start_date)
+                        start = date(year, 1, 1)
+                else:
+                    continue
+                
+                # Track earliest start date
+                if earliest_start is None or start < earliest_start:
+                    earliest_start = start
+                    
+            except (ValueError, TypeError):
+                continue
+        
+        if earliest_start is None:
+            return 0.0
+        
+        # Calculate years from earliest start to today
+        days_diff = (today - earliest_start).days
+        years = round(days_diff / 365.25, 1)
+        
+        return max(0.0, years)
 
 
 # Example usage and testing

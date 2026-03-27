@@ -18,20 +18,23 @@ SECTION_PATTERNS = {
         r'employment|career history|experience|work history|relevant experience|'
         r'roles? & responsibilities|roles? and responsibilities|positions? held|'
         r'professional background|career summary|job history|'
-        r'internship|internships|projects? experience)',
+        r'internship|internships|projects? experience|'
+        r'work\s+experience|professional\s+experience|career\s+history)',
         re.MULTILINE
     ),
     'education': re.compile(
         r'(?i)^\s*(education|academic background|qualifications|'
         r'academic history|degrees?|educational background|'
-        r'academic qualifications|schooling|training|certifications? & education)',
+        r'academic qualifications|schooling|training|certifications? & education|'
+        r'academic\s+background|educational\s+qualifications)',
         re.MULTILINE
     ),
     'skills': re.compile(
         r'(?i)^\s*(skills?|technical skills?|core competencies|'
         r'competencies|technologies|tools? & technologies|tools? and technologies|'
         r'expertise|key skills?|proficiencies|technical expertise|'
-        r'languages & frameworks|languages and frameworks|stack)',
+        r'languages & frameworks|languages and frameworks|stack|'
+        r'technical\s+skills|core\s+competencies|key\s+skills)',
         re.MULTILINE
     ),
     'summary': re.compile(
@@ -42,7 +45,8 @@ SECTION_PATTERNS = {
     ),
     'certifications': re.compile(
         r'(?i)^\s*(certifications?|certificates?|licenses?|accreditations?|'
-        r'courses?|professional development)',
+        r'courses?|professional development|key projects?|achievements?|'
+        r'awards?|honors?|accomplishments?)',
         re.MULTILINE
     ),
 }
