@@ -119,3 +119,11 @@ coverage/
 # Misc
 *.tgz
 *.tar.gz
+
+venv/
+AI_Storage/
+*.pt
+*.bin
+*.safetensors
+*.json
+__pycache__/
