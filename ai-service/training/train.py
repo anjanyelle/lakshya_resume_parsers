@@ -197,17 +197,18 @@ class ResumeNERTrainer:
             output_dir=OUTPUT_DIR,
             num_train_epochs=5,
             learning_rate=2e-5,
-            per_device_train_batch_size=8,  # Use 4 if memory error
-            per_device_eval_batch_size=8,
+            per_device_train_batch_size=1,  # Reduced to 1 to avoid OOM errors with long texts
+            per_device_eval_batch_size=1,
+            gradient_accumulation_steps=8,  # Accumulate gradients to simulate batch size of 8
             warmup_steps=500,
             weight_decay=0.01,
             logging_dir='./logs',
             logging_steps=50,
-            evaluation_strategy='epoch',
+            eval_strategy='epoch',  # Updated from evaluation_strategy for transformers 5.x
             save_strategy='no',           # Skip intermediate checkpoints (saves ~700MB/epoch)
             load_best_model_at_end=False, # Cannot load best without saved checkpoints
             dataloader_num_workers=0,
-            fp16=torch.cuda.is_available(),  # Use mixed precision if GPU available
+            fp16=False,  # Disable fp16 for MPS backend compatibility
             report_to=[],  # Disable wandb/tensorboard for now
         )
         
@@ -225,7 +226,6 @@ class ResumeNERTrainer:
             args=training_args,
             train_dataset=self.train_dataset,
             eval_dataset=self.test_dataset,
-            tokenizer=self.tokenizer,
             data_collator=self.data_collator,
             compute_metrics=self.compute_metrics
         )
