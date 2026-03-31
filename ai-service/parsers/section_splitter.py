@@ -12,44 +12,222 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
+import re
+
+
+
 SECTION_PATTERNS = {
     'experience': re.compile(
-        r'(?i)^\s*(work experience|professional experience|employment history|'
-        r'employment|career history|experience|work history|relevant experience|'
-        r'roles? & responsibilities|roles? and responsibilities|positions? held|'
-        r'professional background|career summary|job history|'
-        r'internship|internships|projects? experience|'
-        r'work\s+experience|professional\s+experience|career\s+history)',
+        r'(?i)^\s*('
+
+        # Standard English
+        r'work experience|professional experience|employment history|'
+        r'employment|career history|experience|work history|'
+        r'relevant experience|related experience|applicable experience|'
+        r'professional background|job history|positions? held|'
+
+        # Roles / responsibilities phrasing
+        r'roles? & responsibilities|roles? and responsibilities|'
+        r'key responsibilities|responsibilities|duties|'
+
+        # Career / summary hybrids
+        r'career summary|career profile|career overview|'
+        r'professional overview|work overview|'
+
+        # Internships (students / fresh grads)
+        r'internship experience|internships?|'
+        r'industrial training|industrial attachment|'
+
+        # Project-based (engineers, freelancers)
+        r'project experience|projects? & experience|'
+        r'relevant projects?|selected projects?|notable projects?|'
+        r'consulting experience|freelance experience|'
+        r'contract experience|client experience|'
+
+        # Academic / research roles
+        r'research experience|teaching experience|'
+        r'academic experience|clinical experience|'
+
+        # Military / government
+        r'military experience|service history|'
+        r'government experience|public sector experience|'
+
+        # Spaced variants (some parsers add extra whitespace)
+        r'work\s+experience|professional\s+experience|'
+        r'career\s+history|employment\s+history'
+        r')',
         re.MULTILINE
     ),
+
     'education': re.compile(
-        r'(?i)^\s*(education|academic background|qualifications|'
-        r'academic history|degrees?|educational background|'
-        r'academic qualifications|schooling|training|certifications? & education|'
-        r'academic\s+background|educational\s+qualifications)',
+        r'(?i)^\s*('
+
+        # Standard
+        r'education|academic background|academic history|'
+        r'educational background|educational qualifications|'
+        r'academic qualifications|qualifications|'
+
+        # Degree-focused
+        r'degrees?|academic degrees?|'
+
+        # Training / courses
+        r'training|courses?|coursework|continuing education|'
+        r'professional development|professional training|'
+
+        # Certifications combined with education
+        r'certifications? & education|education & certifications?|'
+        r'education and training|training and education|'
+
+        # Schooling (less formal / international)
+        r'schooling|academic record|'
+
+        # Spaced variants
+        r'academic\s+background|educational\s+qualifications|'
+        r'academic\s+qualifications'
+        r')',
         re.MULTILINE
     ),
+
     'skills': re.compile(
-        r'(?i)^\s*(skills?|technical skills?|core competencies|'
-        r'competencies|technologies|tools? & technologies|tools? and technologies|'
-        r'expertise|key skills?|proficiencies|technical expertise|'
-        r'languages & frameworks|languages and frameworks|stack|'
-        r'technical\s+skills|core\s+competencies|key\s+skills)',
+        r'(?i)^\s*('
+
+        # Generic
+        r'skills?|key skills?|core skills?|'
+        r'relevant skills?|transferable skills?|'
+
+        # Technical focus
+        r'technical skills?|technical expertise|technical proficiencies|'
+        r'technical stack|technology skills?|'
+        r'engineering skills?|it skills?|'
+
+        # Competency language (HR / management)
+        r'core competencies|competencies|key competencies|'
+        r'areas of expertise|areas of competency|'
+
+        # Tools / technologies
+        r'tools? & technologies|tools? and technologies|'
+        r'technologies|technology stack|tech stack|stack|'
+        r'tools?|platforms?|software|'
+
+        # Languages (developer resumes)
+        r'programming languages?|languages & frameworks|'
+        r'languages and frameworks|languages & tools|'
+        r'languages and tools|languages|frameworks|'
+
+        # Domain-specific expertise
+        r'domain expertise|industry expertise|'
+        r'functional skills?|soft skills?|'
+        r'interpersonal skills?|communication skills?|'
+
+        # Proficiency tables
+        r'proficiencies|proficiency|expertise|capabilities|'
+
+        # Spaced variants
+        r'technical\s+skills?|core\s+competencies|key\s+skills?'
+        r')',
         re.MULTILINE
     ),
+
     'summary': re.compile(
-        r'(?i)^\s*(summary|professional summary|profile|about me|'
-        r'objective|career objective|overview|personal statement|'
-        r'professional profile|executive summary)',
+        r'(?i)^\s*('
+
+        # Standard
+        r'summary|professional summary|career summary|'
+        r'executive summary|brief summary|'
+
+        # Profile language
+        r'profile|professional profile|career profile|'
+        r'personal profile|personal statement|'
+
+        # About / intro language
+        r'about me|about|introduction|bio|biography|'
+
+        # Objective (older US style)
+        r'objective|career objective|professional objective|'
+        r'job objective|work objective|'
+
+        # Overview
+        r'overview|career overview|professional overview|'
+        r'background|background summary|'
+
+        # Highlights / snapshot
+        r'highlights?|career highlights?|professional highlights?|'
+        r'snapshot|at a glance|'
+
+        # Value proposition (modern LinkedIn style)
+        r'value proposition|mission statement'
+        r')',
         re.MULTILINE
     ),
+
     'certifications': re.compile(
-        r'(?i)^\s*(certifications?|certificates?|licenses?|accreditations?|'
-        r'courses?|professional development|key projects?|achievements?|'
-        r'awards?|honors?|accomplishments?)',
+        r'(?i)^\s*('
+
+        # Certifications / licenses
+        r'certifications?|professional certifications?|'
+        r'certificates?|licenses?|licences?|'
+        r'accreditations?|credentials?|'
+
+        # Courses / training completions
+        r'courses?|online courses?|completed courses?|'
+        r'workshops?|bootcamps?|boot camps?|'
+
+        # Awards / recognition
+        r'awards?|honors?|honours?|'
+        r'accomplishments?|recognition|'
+        r'achievements?|notable achievements?|key achievements?|'
+
+        # Projects standalone section
+        r'key projects?|notable projects?|selected projects?|'
+        r'personal projects?|side projects?|open source|'
+
+        # Publications / research output
+        r'publications?|papers?|research papers?|'
+        r'patents?|inventions?|'
+
+        # Volunteer / extra-curricular
+        r'volunteer experience|volunteering|community service|'
+        r'extra.?curricular|activities|leadership activities|'
+
+        # Professional memberships
+        r'memberships?|affiliations?|professional affiliations?|'
+        r'professional memberships?'
+        r')',
+        re.MULTILINE
+    ),
+
+    # NEW — catches contact/header blocks some parsers miss
+    'contact': re.compile(
+        r'(?i)^\s*('
+        r'contact|contact information|contact details|'
+        r'personal information|personal details|'
+        r'personal data|contact me|get in touch|'
+        r'details|information'
+        r')',
+        re.MULTILINE
+    ),
+
+    # NEW — languages section (common in EU / international resumes)
+    'languages': re.compile(
+        r'(?i)^\s*('
+        r'languages?|language skills?|'
+        r'spoken languages?|language proficiency|'
+        r'foreign languages?|linguistic skills?'
+        r')',
+        re.MULTILINE
+    ),
+
+    # NEW — references section
+    'references': re.compile(
+        r'(?i)^\s*('
+        r'references?|referees?|'
+        r'professional references?|'
+        r'references available|references available on request'
+        r')',
         re.MULTILINE
     ),
 }
+
 
 def split_sections(text: str) -> dict:
     sections = {

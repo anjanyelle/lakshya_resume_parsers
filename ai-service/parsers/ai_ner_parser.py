@@ -1,6 +1,28 @@
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 import torch
 from pathlib import Path
+from typing import List, Dict, Any
+
+# Module-level model cache to avoid fragile @lru_cache
+_MODEL_CACHE: dict = {}
+
+def get_model(model_path: str):
+    """
+    Get cached model and tokenizer, or load and cache them if not present.
+    Uses module-level dictionary cache for better reliability than @lru_cache.
+    
+    Args:
+        model_path: Path to the model directory or HuggingFace model name
+        
+    Returns:
+        Dictionary with 'tokenizer' and 'model' keys
+    """
+    if model_path not in _MODEL_CACHE:
+        _MODEL_CACHE[model_path] = {
+            'tokenizer': AutoTokenizer.from_pretrained(model_path),
+            'model': AutoModelForTokenClassification.from_pretrained(model_path)
+        }
+    return _MODEL_CACHE[model_path]
 
 class AINamedEntityParser:
     def __init__(self, use_custom_model=True):
@@ -15,8 +37,11 @@ class AINamedEntityParser:
         else:
             MODEL_NAME = "jjzha/jobbert-base-cased"
         
-        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        self.model = AutoModelForTokenClassification.from_pretrained(MODEL_NAME)
+        # Use the new caching mechanism
+        model_cache = get_model(MODEL_NAME)
+        self.tokenizer = model_cache['tokenizer']
+        self.model = model_cache['model']
+        
         device = 0 if torch.cuda.is_available() else -1
         self.ner_pipeline = pipeline(
             "ner",
@@ -26,16 +51,49 @@ class AINamedEntityParser:
             device=device,
         )
 
+    def chunk_text_with_overlap(self, text: str, tokenizer, max_len: int = 400, overlap: int = 50) -> List[str]:
+        """
+        Split text into overlapping chunks to prevent entities from being broken across boundaries.
+        
+        Overlap is needed because entities like "Software Engineer at Google" might be split
+        across chunk boundaries, causing the entity to never be detected. With overlapping windows,
+        the complete entity will appear in at least one chunk.
+        """
+        tokens = tokenizer.tokenize(text)
+        chunks = []
+        start = 0
+        while start < len(tokens):
+            end = min(start + max_len, len(tokens))
+            chunk_tokens = tokens[start:end]
+            chunk_text = tokenizer.convert_tokens_to_string(chunk_tokens)
+            chunks.append(chunk_text)
+            if end == len(tokens):
+                break
+            start += max_len - overlap
+        return chunks
+
+    def deduplicate_entities(self, entities: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Remove duplicate entities that appear in overlap regions.
+        Entities are considered duplicates if they have the same text and label.
+        """
+        seen = set()
+        deduplicated = []
+        
+        for entity in entities:
+            key = (entity.get('word', '').strip().lower(), entity.get('entity_group', '').upper())
+            if key not in seen:
+                seen.add(key)
+                deduplicated.append(entity)
+        
+        return deduplicated
+
     def extract_entities(self, text: str) -> dict:
         if not text or len(text.strip()) < 10:
             return {'names': [], 'companies': [], 'locations': [], 'skills': [], 'titles': []}
 
-        max_length = 400
-        words = text.split()
-        chunks = [
-            ' '.join(words[i:i + max_length])
-            for i in range(0, len(words), max_length)
-        ]
+        # Use overlapping chunking instead of simple word splitting
+        chunks = self.chunk_text_with_overlap(text, self.tokenizer, max_len=400, overlap=50)
 
         all_entities = []
         for chunk in chunks:
@@ -45,6 +103,9 @@ class AINamedEntityParser:
             except Exception as e:
                 print(f"NER chunk failed: {e}")
                 continue
+
+        # Deduplicate entities that appear in overlap regions
+        all_entities = self.deduplicate_entities(all_entities)
 
         result = {
             'names': [], 

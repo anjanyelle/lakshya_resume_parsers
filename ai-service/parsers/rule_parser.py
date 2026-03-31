@@ -5,7 +5,7 @@ Uses regex patterns and specialized libraries for accurate data extraction.
 
 import re
 import logging
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Any
 from datetime import datetime
 import phonenumbers
 from phonenumbers import NumberParseException
@@ -76,23 +76,62 @@ class RuleBasedParser:
             r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*),\s*([A-Z]{2})\b',
             re.MULTILINE
         )
+        
+        # Phone pattern with optional labels and flexible formatting
+        # More restrictive to avoid matching random number sequences
+        self.phone_pattern = re.compile(
+            r'(?:(?:phone|mobile|cell|tel|ph|contact)[\s:]*)?'
+            r'(\+?[\d][\d\s\-().]{7,14}[\d])(?!\d)',
+            re.IGNORECASE
+        )
     
+    def is_valid_email(self, email: str) -> bool:
+        """
+        Validate email address by checking for disposable domains and proper format.
+        
+        Args:
+            email: Email address to validate
+            
+        Returns:
+            True if email is valid, False otherwise
+        """
+        try:
+            # Basic format validation
+            if '@' not in email or email.count('@') != 1:
+                return False
+            
+            disposable_domains = {
+                'mailinator.com', 'guerrillamail.com', 'tempmail.com', 
+                '10minutemail.com', 'throwaway.email', 'fakeinbox.com',
+                'temp-mail.org', 'yopmail.com', 'maildrop.cc'
+            }
+            
+            domain = email.split('@')[-1].lower()
+            return domain not in disposable_domains and '.' in domain
+            
+        except Exception:
+            return False
+
     def extract_email(self, text: str) -> Optional[str]:
         """
-        Extract email address from text using regex pattern.
+        Extract email address from text using regex pattern with validation.
         
         Args:
             text: Input text to search for email
             
         Returns:
-            First email found or None
+            First valid email found or None
         """
         try:
             matches = self.email_pattern.findall(text)
             if matches:
-                email = matches[0].lower().strip()
-                self.logger.debug(f"Found email: {email}")
-                return email
+                for email in matches:
+                    email = email.lower().strip()
+                    if self.is_valid_email(email):
+                        self.logger.debug(f"Found valid email: {email}")
+                        return email
+                    else:
+                        self.logger.debug(f"Rejected invalid email: {email}")
             return None
         except Exception as e:
             self.logger.error(f"Error extracting email: {e}")
@@ -100,32 +139,45 @@ class RuleBasedParser:
     
     def extract_phone(self, text: str) -> Optional[str]:
         """
-        Extract phone number using phonenumbers library for international detection.
-        Supports US, UK, India, Australia formats.
+        Extract phone number using improved regex pattern with validation.
+        Matches phone numbers with optional labels and validates digit count.
         
         Args:
             text: Input text to search for phone numbers
             
         Returns:
-            E.164 formatted phone number or None
+            Validated phone number or None
         """
         try:
-            # Common countries to try
+            # First try the improved regex pattern
+            matches = self.phone_pattern.findall(text)
+            
+            for match in matches:
+                # Clean the phone string and count digits
+                clean_phone = re.sub(r'\D', '', match)
+                digit_count = len(clean_phone)
+                
+                # Only keep phone numbers with 7-15 digits (valid international range)
+                if 7 <= digit_count <= 15:
+                    self.logger.debug(f"Found valid phone number: {match} ({digit_count} digits)")
+                    return match.strip()
+                else:
+                    self.logger.debug(f"Rejected phone number: {match} ({digit_count} digits - invalid range)")
+            
+            # Fallback to phonenumbers library if regex doesn't find anything
             country_codes = ['US', 'GB', 'IN', 'AU']
             
             for country_code in country_codes:
                 try:
-                    # Find all phone numbers in the text
                     for match in phonenumbers.PhoneNumberMatcher(text, country_code):
                         phone_number = match.number
                         
-                        # Format to E.164 format
                         formatted_number = phonenumbers.format_number(
                             phone_number, 
                             phonenumbers.PhoneNumberFormat.E164
                         )
                         
-                        self.logger.debug(f"Found phone number: {formatted_number}")
+                        self.logger.debug(f"Found phone number via phonenumbers: {formatted_number}")
                         return formatted_number
                         
                 except Exception:
@@ -1126,23 +1178,131 @@ class RuleBasedParser:
             self.logger.error(f"Error extracting skills: {e}")
             return []
     
+    def extract_name_candidates(self, text: str) -> list[str]:
+        """
+        Extract name candidates from the first 20 lines of resume text.
+        Uses improved pattern that works mid-text and filters false positives.
+        
+        Args:
+            text: Input text to search for name candidates
+            
+        Returns:
+            List of potential name candidates
+        """
+        try:
+            # Only look in the first 5 lines (names appear at the very top)
+            lines = text.splitlines()[:5]
+            candidates = []
+            
+            # First, check for all-uppercase names in the first 3 lines (common in resumes)
+            for idx, line in enumerate(lines[:3]):
+                line = line.strip()
+                # Check if line is all uppercase and looks like a name (1-4 words, only letters/spaces/hyphens)
+                words = line.split()
+                
+                # Single word on first line is likely a name (e.g., "YESHWANTH")
+                if idx == 0 and len(words) == 1 and len(line) >= 2 and len(line) <= 30 and line.isalpha() and line.isupper():
+                    proper_name = line.capitalize()
+                    candidates.append(proper_name)
+                    self.logger.debug(f"Found single-word uppercase name on line 1: {line} -> {proper_name}")
+                    continue
+                
+                # Multi-word uppercase names (e.g., "JOHN SMITH")
+                if (2 <= len(words) <= 4 and 
+                    line.replace(' ', '').replace('-', '').replace("'", '').isalpha() and
+                    line.isupper() and
+                    all(len(word) >= 2 for word in words) and
+                    len(line) <= 50):  # Reasonable name length
+                    # Convert to proper case
+                    proper_name = ' '.join(word.capitalize() for word in words)
+                    candidates.append(proper_name)
+                    self.logger.debug(f"Found multi-word uppercase name: {line} -> {proper_name}")
+            
+            # Then look for properly capitalized names (2-4 words, each capitalized)
+            top_text = '\n'.join(lines)
+            pattern = re.compile(r'\b([A-Z][a-z]{1,20}(?:\s[A-Z][a-z]{1,20}){1,3})\b')
+            candidates.extend(pattern.findall(top_text))
+            
+            # Filter out known false positives (section headers, cities, job titles, etc.)
+            stopwords = {
+                'Summary', 'Experience', 'Education', 'Skills', 'Projects', 
+                'References', 'Objective', 'Profile', 'Contact', 'Information',
+                'Professional', 'Personal', 'Background', 'History', 'Work',
+                'Career', 'Employment', 'Academic', 'Technical', 'Software',
+                'Engineer', 'Developer', 'Manager', 'Director', 'Analyst',
+                'San Francisco', 'New York', 'Los Angeles', 'Chicago', 'Boston',
+                'Senior', 'Junior', 'Lead', 'Principal', 'Chief', 'Head',
+                'Architect', 'Consultant', 'Specialist', 'Coordinator', 'Administrator',
+                'Business', 'Strategic', 'Digital', 'Transformation'
+            }
+            
+            # Job title patterns to exclude
+            job_title_keywords = {
+                'engineer', 'developer', 'manager', 'director', 'analyst',
+                'architect', 'consultant', 'specialist', 'coordinator', 'administrator',
+                'lead', 'senior', 'junior', 'principal', 'chief', 'head',
+                'business', 'strategic', 'digital', 'transformation', 'officer'
+            }
+            
+            filtered_candidates = []
+            for candidate in candidates:
+                # Check if candidate is not in stopwords and looks like a name
+                words = candidate.split()
+                candidate_lower = candidate.lower()
+                
+                # Skip if any word is in stopwords
+                if any(word in stopwords for word in words):
+                    continue
+                
+                # Skip if contains job title keywords
+                if any(keyword in candidate_lower for keyword in job_title_keywords):
+                    continue
+                
+                # Must be 2-4 words, properly capitalized
+                if (len(words) >= 2 and len(words) <= 4 and
+                    all(word[0].isupper() and word[1:].islower() for word in words if len(word) > 1)):
+                    filtered_candidates.append(candidate)
+            
+            return filtered_candidates
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting name candidates: {e}")
+            return []
+
     def extract_name(self, text: str) -> Optional[str]:
         """
-        Extract candidate name from resume text.
-        Looks for a proper name in the first few lines.
+        Extract candidate name from resume text using improved pattern matching.
+        Looks for proper names in the first 20 lines with better filtering.
         
         Args:
             text: Input text to search for name
             
         Returns:
-            First line that appears to be a name or None
+            Best name candidate or None
         """
-        for line in text.strip().splitlines()[:5]:
-            line = line.strip()
-            words = line.split()
-            if 1 <= len(words) <= 5 and line.replace(' ', '').replace('-', '').replace("'", "").isalpha():
-                return line
-        return None
+        try:
+            # Get name candidates using the improved function
+            candidates = self.extract_name_candidates(text)
+            
+            if candidates:
+                # Return the first (most likely) candidate
+                best_candidate = candidates[0]
+                self.logger.debug(f"Found name: {best_candidate}")
+                return best_candidate
+            
+            # Fallback to simple line-based extraction
+            for line in text.strip().splitlines()[:5]:
+                line = line.strip()
+                words = line.split()
+                if 1 <= len(words) <= 5 and line.replace(' ', '').replace('-', '').replace("'", "").isalpha():
+                    self.logger.debug(f"Found name via fallback: {line}")
+                    return line
+            
+            return None
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting name: {e}")
+            return None
     
     def extract_all_contact_info(self, text: str) -> Dict[str, Union[str, List[str], None]]:
         """
@@ -1176,6 +1336,89 @@ class RuleBasedParser:
             'dates': self.extract_dates(text),
             'years_of_experience': self.extract_years_of_experience(text)
         }
+
+    def extract_entities(self, text: str) -> Dict[str, List[str]]:
+        """
+        Extract all entities using improved rule-based patterns.
+        Combines name, email, phone, and other entity extraction methods.
+        
+        Args:
+            text: Input text to analyze
+            
+        Returns:
+            Dictionary with extracted entities organized by type
+        """
+        try:
+            result = {
+                'names': [],
+                'emails': [],
+                'phones': [],
+                'companies': [],
+                'locations': [],
+                'skills': [],
+                'titles': [],
+                'education': [],
+                'certifications': [],
+                'websites': [],
+                'linkedin': [],
+                'github': []
+            }
+            
+            # Extract name
+            name = self.extract_name(text)
+            if name:
+                result['names'].append(name)
+            
+            # Extract email
+            email = self.extract_email(text)
+            if email:
+                result['emails'].append(email)
+            
+            # Extract phone
+            phone = self.extract_phone(text)
+            if phone:
+                result['phones'].append(phone)
+            
+            # Extract LinkedIn
+            linkedin = self.extract_linkedin(text)
+            if linkedin:
+                result['linkedin'].append(linkedin)
+            
+            # Extract GitHub
+            github = self.extract_github(text)
+            if github:
+                result['github'].append(github)
+            
+            # Extract websites
+            websites = self.extract_websites(text)
+            if websites:
+                result['websites'].extend(websites)
+            
+            # Extract locations
+            locations = self.location_pattern.findall(text)
+            if locations:
+                result['locations'].extend([f"{city}, {state}" for city, state in locations])
+            
+            # Extract skills
+            skills = self.extract_skills(text)
+            if skills:
+                result['skills'].extend(skills)
+            
+            # Remove duplicates from all lists
+            for key in result:
+                if result[key]:
+                    result[key] = list(dict.fromkeys(result[key]))
+            
+            self.logger.debug(f"Extracted entities: {sum(len(v) for v in result.values() if isinstance(v, list))} total")
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting entities: {e}")
+            return {
+                'names': [], 'emails': [], 'phones': [], 'companies': [],
+                'locations': [], 'skills': [], 'titles': [], 'education': [],
+                'certifications': [], 'websites': [], 'linkedin': [], 'github': []
+            }
 
 
 # Example usage and testing

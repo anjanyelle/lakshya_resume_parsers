@@ -84,83 +84,122 @@ class HybridMerger:
             r'github\.com/[\w\-]+'
         )
     
-    def merge(self, rule_result: Dict[str, Any], ai_result: Dict[str, Any]) -> Dict[str, Any]:
+    def resolve_conflicts(self, ner: dict, rules: dict, llm: dict) -> dict:
         """
-        Merge rule-based and AI parsing results using intelligent strategies.
+        Resolve conflicts between different parsing sources with explicit priority logic.
+        
+        Args:
+            ner: Results from NER model parsing
+            rules: Results from rule-based parsing
+            llm: Results from LLM parsing
+            
+        Returns:
+            Dictionary with resolved entities
+        """
+        resolved = {}
+
+        # Email: regex is most reliable — trust rules first
+        resolved['email'] = rules.get('email') or ner.get('email') or llm.get('email')
+
+        # Phone: regex wins
+        resolved['phone'] = rules.get('phone') or ner.get('phone') or llm.get('phone')
+
+        # Name: NER understands context better than regex
+        resolved['name'] = ner.get('name') or llm.get('name') or rules.get('name')
+
+        # Skills: union all sources, lowercase + deduplicate
+        all_skills = (
+            ner.get('skills', []) +
+            rules.get('skills', []) +
+            llm.get('skills', [])
+        )
+        resolved['skills'] = list({s.lower().strip() for s in all_skills if s.strip()})
+
+        # Experience + Education: prefer NER, fall back to LLM
+        resolved['experience'] = ner.get('experience') or llm.get('experience') or []
+        resolved['education'] = ner.get('education') or llm.get('education') or []
+
+        # Companies: NER is better at entity recognition
+        resolved['companies'] = ner.get('companies') or llm.get('companies') or rules.get('companies', [])
+
+        # Locations: NER understands geographical entities
+        resolved['locations'] = ner.get('locations') or llm.get('locations') or rules.get('locations', [])
+
+        # Titles: NER understands job titles better
+        resolved['titles'] = ner.get('titles') or llm.get('titles') or rules.get('titles', [])
+
+        # Certifications: Union of all sources
+        all_certs = (
+            ner.get('certifications', []) +
+            rules.get('certifications', []) +
+            llm.get('certifications', [])
+        )
+        resolved['certifications'] = list({c.strip() for c in all_certs if c.strip()})
+
+        return resolved
+
+    def merge(self, rule_result: Dict[str, Any], ai_result: Dict[str, Any], llm_result: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Merge parsing results using explicit conflict resolution.
         
         Args:
             rule_result: Results from rule-based parsing
-            ai_result: Results from AI parsing (with confidence scores)
+            ai_result: Results from AI/NER parsing
+            llm_result: Results from LLM parsing (optional)
             
         Returns:
-            Merged dictionary with combined results
+            Merged dictionary with resolved conflicts
         """
         try:
-            self.logger.info("Starting hybrid merge of rule and AI results")
+            self.logger.info("Starting hybrid merge with explicit conflict resolution")
             
-            merged_result = {}
-            merge_stats = {
-                'rule_priority_used': 0,
-                'ai_priority_used': 0,
-                'union_fields_used': 0,
-                'union_merge_used': 0,
-                'conflicts_resolved': 0
-            }
+            # Prepare inputs for conflict resolution
+            ner_data = ai_result if ai_result else {}
+            rules_data = rule_result if rule_result else {}
+            llm_data = llm_result if llm_result else {}
             
-            # Get all unique fields from both results
-            all_fields = set(rule_result.keys()) | set(ai_result.keys())
+            # Use the new resolve_conflicts method
+            resolved_result = self.resolve_conflicts(ner_data, rules_data, llm_data)
+            
+            # Add any missing fields from original results that weren't handled by resolve_conflicts
+            all_fields = set(rule_result.keys()) | set(ai_result.keys()) | set(llm_result.keys() if llm_result else set())
             
             for field in all_fields:
-                rule_value = rule_result.get(field)
-                ai_value = ai_result.get(field)
-                
-                # Skip if both are empty
-                if not rule_value and not ai_value:
-                    # Always return empty list for list fields, None for others
-                    if field in ['work_experience', 'education', 'skills', 'job_titles', 'companies', 'locations', 'websites']:
-                        merged_result[field] = []
-                    elif field in ['confidence', 'processing_metrics']:
-                        merged_result[field] = {}
+                if field not in resolved_result:
+                    # Handle fields not covered by resolve_conflicts
+                    rule_value = rule_result.get(field)
+                    ai_value = ai_result.get(field)
+                    llm_value = llm_result.get(field) if llm_result else None
+                    
+                    # Default priority: rules > ai > llm
+                    if rule_value:
+                        resolved_result[field] = rule_value
+                    elif ai_value:
+                        resolved_result[field] = ai_value
+                    elif llm_value:
+                        resolved_result[field] = llm_value
                     else:
-                        merged_result[field] = None
-                    continue
-                
-                # Apply field-specific merging strategy
-                if field in self.LIST_MERGE_FIELDS:
-                    rule_list = rule_value if isinstance(rule_value, list) else []
-                    ai_list = ai_value if isinstance(ai_value, list) else []
-                    merged_result[field] = rule_list if len(rule_list) >= len(ai_list) else ai_list
-                    # Track source
-                    merged_result[f'_{field}_source'] = 'experience_extractor' if len(rule_list) >= len(ai_list) else 'ai'
-                
-                elif field in self.RULE_PRIORITY_FIELDS:
-                    merged_result[field], source = self._merge_rule_priority(field, rule_value, ai_value, merge_stats)
-                    merged_result[f'_{field}_source'] = source
-                
-                elif field in self.AI_PRIORITY_FIELDS:
-                    merged_result[field], source = self._merge_ai_priority(field, rule_value, ai_value, merge_stats)
-                    merged_result[f'_{field}_source'] = source
-                
-                elif field in self.UNION_FIELDS:
-                    merged_result[field], source = self._merge_union_fields(field, rule_value, ai_value, merge_stats)
-                    merged_result[f'_{field}_source'] = source
-                
-                else:
-                    # Default: use conflict resolution
-                    merged_result[field], source = self._resolve_conflict(field, rule_value, ai_value, merge_stats)
-                    merged_result[f'_{field}_source'] = source
+                        # Empty default
+                        if field in ['work_experience', 'education', 'skills', 'job_titles', 'companies', 'locations', 'websites', 'certifications']:
+                            resolved_result[field] = []
+                        elif field in ['confidence', 'processing_metrics', '_merge_metadata']:
+                            resolved_result[field] = {}
+                        else:
+                            resolved_result[field] = None
             
             # Add merge metadata
-            merged_result['_merge_metadata'] = {
-                'strategy_used': merge_stats,
-                'total_fields': len(all_fields),
-                'rule_fields_count': len(self.RULE_PRIORITY_FIELDS),
-                'ai_fields_count': len(self.AI_PRIORITY_FIELDS),
-                'union_fields_count': len(self.UNION_FIELDS)
+            resolved_result['_merge_metadata'] = {
+                'conflict_resolution_used': True,
+                'sources_available': {
+                    'rules': bool(rule_result),
+                    'ner': bool(ai_result),
+                    'llm': bool(llm_result)
+                },
+                'total_fields_merged': len([k for k in resolved_result.keys() if not k.startswith('_')])
             }
             
-            self.logger.info(f"Hybrid merge completed: {merge_stats}")
-            return merged_result
+            self.logger.info(f"Hybrid merge completed with conflict resolution")
+            return resolved_result
             
         except Exception as e:
             self.logger.error(f"Error during hybrid merge: {e}")

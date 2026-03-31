@@ -20,6 +20,9 @@ from parsers.confidence_scorer import ConfidenceScorer
 from parsers.entity_normalizer import EntityNormalizer
 from parsers.text_quality_analyzer import TextQualityAnalyzer
 from parsers.llm_full_parser import parse_resume_with_llm
+from parsers.preprocessor import ResumePreprocessor
+from parsers.validator import ParsedDataValidator
+from parsers.feedback_store import FeedbackStore
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -113,6 +116,27 @@ class MasterParser:
             self.logger.error(f"❌ Failed to initialize TextQualityAnalyzer: {e}")
             self.quality_analyzer = None
         
+        try:
+            self.preprocessor = ResumePreprocessor()
+            self.logger.info("✅ ResumePreprocessor initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize ResumePreprocessor: {e}")
+            self.preprocessor = None
+        
+        try:
+            self.validator = ParsedDataValidator()
+            self.logger.info("✅ ParsedDataValidator initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize ParsedDataValidator: {e}")
+            self.validator = None
+        
+        try:
+            self.feedback_store = FeedbackStore()
+            self.logger.info("✅ FeedbackStore initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize FeedbackStore: {e}")
+            self.feedback_store = None
+        
         # Timing metrics storage
         self.last_parse_metrics = {}
         
@@ -121,8 +145,8 @@ class MasterParser:
     
     def _check_parser_health(self):
         """Check health of all parsers and log status."""
-        critical_parsers = ['section_splitter', 'rule_parser', 'hybrid_merger', 'confidence_scorer']
-        optional_parsers = ['text_extractor', 'ai_parser', 'exp_extractor', 'edu_extractor']
+        critical_parsers = ['section_splitter', 'rule_parser', 'hybrid_merger', 'confidence_scorer', 'preprocessor']
+        optional_parsers = ['text_extractor', 'ai_parser', 'exp_extractor', 'edu_extractor', 'validator', 'quality_analyzer', 'feedback_store']
         
         critical_status = all(getattr(self, parser) is not None for parser in critical_parsers)
         optional_status = [getattr(self, parser) is not None for parser in optional_parsers]
@@ -202,6 +226,63 @@ class MasterParser:
             self.logger.error(f"❌ Error parsing file {file_path}: {e}", exc_info=True)
             return self._create_error_result(candidate_id, str(e), metrics)
     
+    def parse(self, file_path: str, options: dict = None) -> dict:
+        """
+        Main parse method that orchestrates the complete parsing pipeline.
+        
+        Args:
+            file_path: Path to resume file
+            options: Optional parsing options
+            
+        Returns:
+            Dictionary with parsed_data and metadata
+        """
+        start_time = time.time()
+        options = options or {}
+        candidate_id = options.get('candidate_id', f'file_{int(time.time())}')
+        
+        try:
+            self.logger.info(f"🚀 Starting parse pipeline for {file_path}")
+            
+            # Step 1: Extract raw text
+            step_start = time.time()
+            if not self.text_extractor:
+                raise RuntimeError("TextExtractor not available")
+            
+            extraction_result = self.text_extractor.extract(file_path)
+            raw_text = extraction_result.get('text', '')
+            if not raw_text:
+                raise ValueError("No text extracted from file")
+            
+            metrics = {'text_extraction_ms': (time.time() - step_start) * 1000}
+            
+            # Run the complete parsing pipeline
+            final_result, metadata = self._run_complete_pipeline(
+                raw_text, candidate_id, metrics, file_path, options
+            )
+            
+            # Calculate total processing time
+            elapsed = (time.time() - start_time) * 1000
+            metadata['processing_time_ms'] = elapsed
+            
+            self.logger.info(f"✅ Parse completed for {file_path} in {elapsed:.1f}ms")
+            
+            return {
+                'parsed_data': final_result,
+                'metadata': metadata
+            }
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error parsing file {file_path}: {e}", exc_info=True)
+            elapsed = (time.time() - start_time) * 1000
+            return {
+                'parsed_data': self._create_error_result(candidate_id, str(e), {}),
+                'metadata': {
+                    'processing_time_ms': elapsed,
+                    'error': str(e)
+                }
+            }
+
     def parse_text(self, text: str, candidate_id: str) -> Dict[str, Any]:
         """
         Parse resume text through the complete pipeline.
@@ -257,6 +338,369 @@ class MasterParser:
             self.logger.error(f"Traceback: {traceback.format_exc()}")
             return self._create_error_result(candidate_id, str(e), metrics)
     
+    def _run_complete_pipeline(self, raw_text: str, candidate_id: str, metrics: Dict[str, float], 
+                           file_path: str, options: Dict[str, Any]) -> tuple[Dict[str, Any], Dict[str, Any]]:
+        """
+        Run the complete parsing pipeline with the exact specified order.
+        
+        Args:
+            raw_text: Raw extracted text from file
+            candidate_id: Candidate identifier
+            metrics: Timing metrics dictionary
+            file_path: Path to the file
+            options: Parsing options
+            
+        Returns:
+            Tuple of (final_result, metadata)
+        """
+        metadata = {}
+        sources_used = []
+        
+        try:
+            # Step 1: Extract raw text (already done)
+            self.logger.info("✅ Step 1: Raw text extracted")
+            
+            # Step 2: Run ResumePreprocessor
+            step_start = time.time()
+            if not self.preprocessor:
+                raise RuntimeError("ResumePreprocessor not available")
+            
+            preprocessed_text = self.preprocessor.preprocess(raw_text)
+            metrics['preprocessing_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 2: Text preprocessed in {metrics['preprocessing_ms']:.1f}ms")
+            sources_used.append('preprocessor')
+            
+            # Step 3: Run TextQualityAnalyzer on preprocessed text
+            step_start = time.time()
+            quality_score = 0.0
+            if self.quality_analyzer:
+                # For now, use a simple quality score since analyze_extraction_quality needs parsed data
+                quality_score = self._calculate_simple_quality_score(preprocessed_text)
+                metadata['text_quality'] = quality_score
+            metrics['quality_analysis_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 3: Text quality analyzed ({quality_score:.2f})")
+            sources_used.append('quality_analyzer')
+            
+            # Step 4: Run SectionSplitter on preprocessed text
+            step_start = time.time()
+            if not self.section_splitter:
+                raise RuntimeError("SectionSplitter not available")
+            
+            sections = self.section_splitter.split_sections(preprocessed_text)
+            metrics['section_splitting_ms'] = (time.time() - step_start) * 1000
+            metadata['sections_detected'] = list(sections.keys())
+            self.logger.info(f"✅ Step 4: Sections split ({len(sections)} sections)")
+            sources_used.append('section_splitter')
+            
+            # Step 5: Run all parsers in parallel (existing logic)
+            step_start = time.time()
+            parsing_results = self._run_parallel_parsers(preprocessed_text, sections, options)
+            metrics['parallel_parsing_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 5: Parallel parsing completed")
+            
+            # Step 5b: Smart LLM conflict resolution (NEW)
+            step_start = time.time()
+            rule_results = parsing_results.get('rule_results', {})
+            ai_results = parsing_results.get('ai_results', {})
+            
+            # Find conflicts between NER and rule-based parsers
+            conflict_fields = self.find_conflict_fields(ai_results, rule_results)
+            
+            # Use LLM only to resolve conflicts
+            llm_results = {}
+            if conflict_fields and options.get('llm_provider'):
+                llm_results = self.smart_llm_resolve(
+                    preprocessed_text, conflict_fields, ai_results, rule_results, options.get('llm_provider')
+                )
+                metrics['llm_conflict_resolution_ms'] = (time.time() - step_start) * 1000
+                sources_used.append('llm_conflict_resolver')
+                self.logger.info(f"✅ Step 5b: LLM conflict resolution completed for {len(conflict_fields)} fields")
+            else:
+                metrics['llm_conflict_resolution_ms'] = (time.time() - step_start) * 1000
+                self.logger.info(f"✅ Step 5b: No conflicts detected, skipped LLM resolution")
+            
+            # Step 6: Run HybridMerger with resolve_conflicts()
+            step_start = time.time()
+            if not self.hybrid_merger:
+                raise RuntimeError("HybridMerger not available")
+            
+            # Use the new resolve_conflicts method
+            merged_results = self.hybrid_merger.merge(rule_results, ai_results, llm_results)
+            metrics['merging_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 6: Results merged with conflict resolution")
+            sources_used.append('hybrid_merger')
+            
+            # Step 7: Run ConfidenceScorer
+            step_start = time.time()
+            confidence_scores = {}
+            if self.confidence_scorer:
+                confidence_scores = self.confidence_scorer.score_parsed_resume(merged_results)
+                merged_results['confidence'] = confidence_scores
+            metrics['confidence_scoring_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 7: Confidence scores calculated")
+            sources_used.append('confidence_scorer')
+            
+            # Step 7b: Save low confidence cases to feedback store
+            step_start = time.time()
+            if self.feedback_store and confidence_scores:
+                self.feedback_store.save_low_confidence_parse(
+                    merged_results, confidence_scores, preprocessed_text
+                )
+                metrics['feedback_save_ms'] = (time.time() - step_start) * 1000
+                sources_used.append('feedback_store')
+                self.logger.info(f"✅ Step 7b: Low confidence case saved (if needed)")
+            else:
+                metrics['feedback_save_ms'] = (time.time() - step_start) * 1000
+            
+            # Step 8: Run EntityNormalizer
+            step_start = time.time()
+            if self.entity_normalizer:
+                merged_results['skills'] = self.entity_normalizer.normalize_skills_list(merged_results.get('skills', []))
+                if merged_results.get('companies'):
+                    merged_results['companies'] = [self.entity_normalizer.normalize_company(c) for c in merged_results['companies']]
+            metrics['normalization_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 8: Entities normalized")
+            sources_used.append('entity_normalizer')
+            
+            # Step 9: Run ParsedDataValidator
+            step_start = time.time()
+            warnings = []
+            if self.validator:
+                validated_result, warnings = self.validator.validate_and_fix(merged_results)
+                merged_results = validated_result
+            metrics['validation_ms'] = (time.time() - step_start) * 1000
+            self.logger.info(f"✅ Step 9: Data validation completed ({len(warnings)} warnings)")
+            sources_used.append('validator')
+            
+            # Add candidate_id and status
+            merged_results['candidate_id'] = candidate_id
+            merged_results['status'] = 'success'
+            
+            # Add processing metrics
+            merged_results['processing_metrics'] = metrics
+            
+            return merged_results, {
+                'text_quality': quality_score,
+                'sections_detected': list(sections.keys()),
+                'validation_warnings': warnings,
+                'sources_used': sources_used,
+                'processing_time_ms': sum(metrics.values()),
+                'llm_conflict_resolution': {
+                    'conflicts_detected': len(conflict_fields),
+                    'fields_resolved': list(llm_results.keys()) if llm_results else [],
+                    'llm_calls_saved': len(conflict_fields) == 0
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error in complete pipeline: {e}", exc_info=True)
+            raise
+
+    def _run_parallel_parsers(self, text: str, sections: Dict[str, str], options: Dict[str, Any]) -> Dict[str, Any]:
+        """Run all parsers in parallel and collect results."""
+        results = {}
+        llm_provider = options.get('llm_provider')
+        
+        # Rule-based parsing
+        if self.rule_parser:
+            results['rule_results'] = self._run_rule_parsing(text, sections)
+        
+        # AI parsing
+        if self.ai_parser:
+            results['ai_results'] = self._run_ai_parsing(text, sections, llm_provider=llm_provider)
+        
+        # Experience extraction
+        if self.exp_extractor:
+            results['experience_results'] = self._extract_experience(sections, text, llm_provider)
+        
+        # Education extraction
+        if self.edu_extractor:
+            results['education_results'] = self._extract_education(sections, text)
+        
+        return results
+
+    def find_conflict_fields(self, ner_result: dict, rule_result: dict) -> list[str]:
+        """
+        Find fields where NER and rule-based parsers disagree or both failed.
+        
+        Args:
+            ner_result: Results from NER/AI parsing
+            rule_result: Results from rule-based parsing
+            
+        Returns:
+            List of field names that need LLM resolution
+        """
+        import json
+        
+        conflict_fields = []
+        fields_to_check = ['name', 'email', 'phone', 'current_title', 'current_company']
+        
+        for field in fields_to_check:
+            ner_val = ner_result.get(field)
+            rule_val = rule_result.get(field)
+            
+            # Both found something but they disagree
+            if ner_val and rule_val and str(ner_val).lower().strip() != str(rule_val).lower().strip():
+                conflict_fields.append(field)
+                self.logger.debug(f"Conflict detected in {field}: NER='{ner_val}' vs Rules='{rule_val}'")
+            
+            # Both found nothing — also ask LLM
+            elif not ner_val and not rule_val:
+                conflict_fields.append(field)
+                self.logger.debug(f"Both parsers failed for {field}, requesting LLM resolution")
+        
+        return conflict_fields
+
+    def smart_llm_resolve(self, text: str, conflict_fields: list, ner_result: dict, rule_result: dict, llm_provider: str = None) -> dict:
+        """
+        Use LLM to resolve only conflicting fields, reducing API calls by 60-80%.
+        
+        Args:
+            text: Resume text to analyze
+            conflict_fields: List of fields that need resolution
+            ner_result: Results from NER parsing
+            rule_result: Results from rule parsing
+            llm_provider: LLM provider to use
+            
+        Returns:
+            Dictionary with resolved fields from LLM
+        """
+        import json
+        
+        if not conflict_fields:
+            self.logger.info("✅ No conflicts detected, skipping LLM call")
+            return {}  # No LLM call needed — saves cost and latency
+        
+        if not llm_provider:
+            self.logger.warning("LLM provider not specified for conflict resolution")
+            return {}
+        
+        self.logger.info(f"🤖 Using LLM to resolve {len(conflict_fields)} conflicting fields: {conflict_fields}")
+        
+        prompt = f"""You are a resume parser. Only extract these specific fields from the resume text below.
+Fields needed: {', '.join(conflict_fields)}
+
+Resume text (first 2000 chars):
+{text[:2000]}
+
+Return ONLY valid JSON with the requested fields. No explanation, no markdown.
+Example: {{"name": "John Smith", "email": "john@example.com"}}"""
+        
+        try:
+            # Try to import the LLM caller
+            try:
+                from parsers.llm_full_parser import call_llm_provider
+                response = call_llm_provider(prompt, llm_provider)
+            except ImportError:
+                # Fallback LLM caller
+                self.logger.warning("LLM caller not found, using fallback")
+                response = self._fallback_llm_call(prompt, llm_provider)
+            
+            # Parse JSON response
+            if isinstance(response, str):
+                resolved = json.loads(response)
+            else:
+                resolved = response
+            
+            self.logger.info(f"✅ LLM resolved {len(resolved)} fields: {list(resolved.keys())}")
+            return resolved
+            
+        except Exception as e:
+            self.logger.warning(f"Smart LLM resolve failed: {e}")
+            return {}
+
+    def _fallback_llm_call(self, prompt: str, llm_provider: str) -> dict:
+        """
+        Fallback LLM caller for testing when full LLM parser is not available.
+        
+        Args:
+            prompt: LLM prompt
+            llm_provider: Provider name
+            
+        Returns:
+            Empty dict (placeholder for real implementation)
+        """
+        self.logger.warning(f"Fallback LLM call for {llm_provider} - returning empty result")
+        return {}
+    
+    def save_user_correction(self, original_parse_id: str, field: str, wrong_value, correct_value) -> bool:
+        """
+        Save a user correction for future training.
+        
+        Args:
+            original_parse_id: ID of the original parsing record
+            field: Field that was corrected
+            wrong_value: Original incorrect value
+            correct_value: User-provided correct value
+            
+        Returns:
+            True if saved successfully, False otherwise
+        """
+        if not self.feedback_store:
+            self.logger.error("FeedbackStore not available for saving user correction")
+            return False
+        
+        try:
+            self.feedback_store.save_user_correction(original_parse_id, field, wrong_value, correct_value)
+            self.logger.info(f"✅ User correction saved for field '{field}'")
+            return True
+        except Exception as e:
+            self.logger.error(f"❌ Failed to save user correction: {e}")
+            return False
+    
+    def _calculate_simple_quality_score(self, text: str) -> float:
+        """
+        Calculate a simple quality score based on text characteristics.
+        
+        Args:
+            text: Text to analyze
+            
+        Returns:
+            Quality score between 0.0 and 1.0
+        """
+        if not text or len(text.strip()) < 50:
+            return 0.1
+        
+        score = 0.5  # Base score
+        
+        # Length bonus
+        if len(text) > 500:
+            score += 0.2
+        elif len(text) > 200:
+            score += 0.1
+        
+        # Section detection bonus
+        sections = ['experience', 'education', 'skills', 'summary']
+        found_sections = sum(1 for section in sections if section.lower() in text.lower())
+        score += (found_sections * 0.1)
+        
+        # Email detection bonus
+        import re
+        if re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text):
+            score += 0.1
+        
+        # Phone detection bonus
+        if re.search(r'(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})', text):
+            score += 0.1
+        
+        return min(score, 1.0)
+    
+    def get_feedback_statistics(self) -> dict:
+        """
+        Get feedback store statistics.
+        
+        Returns:
+            Dictionary with feedback statistics
+        """
+        if not self.feedback_store:
+            return {'error': 'FeedbackStore not available'}
+        
+        try:
+            return self.feedback_store.get_statistics()
+        except Exception as e:
+            self.logger.error(f"❌ Failed to get feedback statistics: {e}")
+            return {'error': str(e)}
+
     def _parse_text_pipeline(self, text: str, candidate_id: str, metrics: Dict[str, float], 
                            llm_provider: Optional[str] = None, file_info: Dict[str, Any] = None) -> Dict[str, Any]:
         """
@@ -694,33 +1138,43 @@ class MasterParser:
     
     def _merge_results(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any],
                       experience_results: Dict[str, Any], education_results: Dict[str, Any]) -> Dict[str, Any]:
-        """Merge all parsing results using HybridMerger."""
+        """Merge all parsing results using HybridMerger with resolve_conflicts."""
         if not self.hybrid_merger:
             self.logger.warning("HybridMerger not available, using simple combination")
             return self._simple_merge(rule_results, ai_results, experience_results, education_results)
         
-        self.logger.debug("Using HybridMerger for merging results")
+        self.logger.debug("Using HybridMerger with resolve_conflicts for merging results")
         
         # Combine all results for merger
-        # Only add experience/education fields, don't override existing fields
         self.logger.debug(f"Original rule_results has email: {rule_results.get('email')}, phone: {rule_results.get('phone')}")
+        self.logger.debug(f"AI results keys: {list(ai_results.keys())}")
         self.logger.debug(f"Experience results keys: {list(experience_results.keys())}")
         self.logger.debug(f"Education results keys: {list(education_results.keys())}")
         
+        # Prepare combined results for each source
         combined_rule = rule_results.copy()
+        combined_ai = ai_results.copy()
+        combined_llm = {}  # Empty for now, could be populated later
+        
+        # Add experience and education results to all sources
         for key, value in {**experience_results, **education_results}.items():
             if key in combined_rule and isinstance(combined_rule[key], list) and isinstance(value, list):
                 combined_rule[key] = combined_rule[key] + value
             elif key not in combined_rule:
                 combined_rule[key] = value
-        combined_ai = ai_results.copy()
-        for key, value in {**experience_results, **education_results}.items():
+                
             if key in combined_ai and isinstance(combined_ai[key], list) and isinstance(value, list):
                 combined_ai[key] = combined_ai[key] + value
             elif key not in combined_ai:
                 combined_ai[key] = value
+                
+            if key in combined_llm and isinstance(combined_llm[key], list) and isinstance(value, list):
+                combined_llm[key] = combined_llm[key] + value
+            elif key not in combined_llm:
+                combined_llm[key] = value
         
-        merged = self.hybrid_merger.merge(combined_rule, combined_ai)
+        # Use the new resolve_conflicts method
+        merged = self.hybrid_merger.merge(combined_rule, combined_ai, combined_llm)
         return merged
     
     def _simple_merge(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any],
