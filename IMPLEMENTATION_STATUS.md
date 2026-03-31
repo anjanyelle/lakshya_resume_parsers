@@ -72,7 +72,7 @@ curl http://localhost:8000/parse
 6. `extraction_quality` field not added to response ❌
 
 ## 🛠️ Next Steps to Fix
-
+   
 ### Option 1: Check Initialization Error (Recommended)
 Add explicit error logging to see why TextQualityAnalyzer initialization fails:
 
