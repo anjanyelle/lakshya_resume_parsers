@@ -63,6 +63,9 @@ curl http://localhost:8000/parse
 # Response missing: "extraction_quality": {...} ❌
 ```
 
+
+
+
 ### Code Flow:
 1. `parse_file()` → calls `_parse_text_pipeline()` ✅
 2. `_parse_text_pipeline()` → calls `_analyze_extraction_quality()` ✅
