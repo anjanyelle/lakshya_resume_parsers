@@ -5,7 +5,7 @@ Uses regex patterns and specialized libraries for accurate data extraction.
 
 import re
 import logging
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Any
 from datetime import datetime
 import phonenumbers
 from phonenumbers import NumberParseException

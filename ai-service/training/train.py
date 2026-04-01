@@ -65,12 +65,12 @@ class ResumeNERTrainer:
         
         # Load train data
         train_path = os.path.join(DATA_DIR, 'train.json')
-        with open(train_path, 'r', encoding='utf-8') as f:
+        with open(train_path, 'r', encoding='utf-8', errors='ignore') as f:
             train_data = json.load(f)
             
         # Load test data
         test_path = os.path.join(DATA_DIR, 'test.json')
-        with open(test_path, 'r', encoding='utf-8') as f:
+        with open(test_path, 'r', encoding='utf-8', errors='ignore') as f:
             test_data = json.load(f)
             
         print(f"✅ Loaded {len(train_data)} training examples")

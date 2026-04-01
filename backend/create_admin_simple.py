@@ -9,7 +9,7 @@ DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "resume_parser"
 DB_USER = "postgres"
-DB_PASSWORD = "Anjan$123"
+DB_PASSWORD = "postgres"
 
 def create_admin_user():
     try:
@@ -35,10 +35,10 @@ def create_admin_user():
         
         # Insert admin user
         insert_query = """
-        INSERT INTO users (id, email, hashed_password, role, is_active, tenant_id)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO users (id, email, password_hash, role)
+        VALUES (%s, %s, %s, %s)
         ON CONFLICT (email) DO UPDATE SET
-            hashed_password = EXCLUDED.hashed_password
+            password_hash = EXCLUDED.password_hash
         RETURNING id
         """
         
@@ -47,9 +47,7 @@ def create_admin_user():
             user_id,
             email,
             hashed_password.decode('utf-8'),
-            "admin",
-            True,
-            "default"
+            "admin"
         ))
         
         user_id = cursor.fetchone()[0]

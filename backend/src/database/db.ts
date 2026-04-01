@@ -4,30 +4,20 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config();
 
-// Use individual database parameters to avoid connection string parsing issues
-const poolConfig = {
-  host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "5432"),
-  database: process.env.DB_NAME || "resume_parser",
-  user: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "",
+// Use DATABASE_URL directly since it's working correctly
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is not defined in environment variables");
+}
+
+console.log("🔍 Using DATABASE_URL:", databaseUrl.replace(/:([^:@]+)@/, ":***@"));
+
+const pool = new Pool({
+  connectionString: databaseUrl,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
-};
-
-// Debug: Log the config (without password)
-console.log("🔍 DB Config:", {
-  host: poolConfig.host,
-  port: poolConfig.port,
-  database: poolConfig.database,
-  user: poolConfig.user,
-  passwordLength: poolConfig.password.length,
-  dbPasswordValue: process.env.DB_PASSWORD,
-  dbPasswordType: typeof process.env.DB_PASSWORD,
 });
-
-const pool = new Pool(poolConfig);
 
 pool.on("error", (err: Error) => {
   console.error("Unexpected error on idle PostgreSQL client", err);

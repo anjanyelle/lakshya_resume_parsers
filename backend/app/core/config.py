@@ -9,11 +9,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     APP_NAME: str = "Resume Parser API"
     ENVIRONMENT: str = "development"
+    NODE_ENV: str | None = None
     API_V1_STR: str = "/api/v1"
     LOG_LEVEL: str = "INFO"
     LOG_DIR: str = "./logs"
     LOG_MAX_BYTES: int = 10 * 1024 * 1024
     LOG_BACKUP_COUNT: int = 7
+    MAX_FILE_SIZE_MB: int | None = None
 
     DATABASE_URL: str = Field(
         default="postgresql+psycopg2://postgres:postgres@localhost:5432/resume_parser"
@@ -139,6 +141,7 @@ class Settings(BaseSettings):
         env_file=".env",
         case_sensitive=True,
         env_ignore_empty=True,
+        extra="ignore",
     )
 
     @field_validator("ALLOWED_UPLOAD_EXTENSIONS", mode="before")
