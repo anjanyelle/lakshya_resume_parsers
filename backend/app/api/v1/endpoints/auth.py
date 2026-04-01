@@ -73,7 +73,14 @@ def login(
     user = user_crud.get_by_email(db, payload.email)
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    access_token = create_access_token(subject=user.email)
+    access_token = create_access_token(
+        subject=user.email,
+        extra_data={
+            "id": str(user.id),
+            "role": user.role,
+            "tenant_id": getattr(user, 'tenant_id', 'default')
+        }
+    )
     refresh_token = create_refresh_token(subject=user.email)
     try:
         log_audit(

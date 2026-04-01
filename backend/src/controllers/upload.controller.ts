@@ -31,6 +31,7 @@ export const uploadResume = async (
 
     const fileInfo = getFileInfo(req.file);
     const userId = (req as any).user?.id;
+    const tenantId = (req as any).user?.tenant_id || 'default';
     const llmProvider = req.body.llm_provider || '';
 
     console.log(
@@ -46,9 +47,35 @@ export const uploadResume = async (
     try {
       await client.query("BEGIN");
 
+      // DEDUPLICATION CHECK: Check if a job with the same filename is already being processed
+      const duplicateCheckQuery = `
+        SELECT pj.id, pj.status 
+        FROM parsing_jobs pj
+        JOIN candidates c ON pj.candidate_id = c.id
+        WHERE pj.filename = $1 
+        AND c.tenant_id = $2
+        AND pj.status IN ('pending', 'processing')
+        AND pj.started_at > NOW() - INTERVAL '1 minute'
+        LIMIT 1
+      `;
+      const duplicateCheck = await client.query(duplicateCheckQuery, [
+        fileInfo.originalname,
+        tenantId
+      ]);
+
+      if (duplicateCheck.rows.length > 0) {
+        await client.query("ROLLBACK");
+        console.log(`⚠️ Duplicate upload blocked for ${fileInfo.originalname}`);
+        res.status(409).json({
+          error: "Duplicate upload",
+          message: "This file is already being processed. Please wait a moment.",
+          code: "DUPLICATE_UPLOAD",
+        });
+        return;
+      }
+
       // 3. Create candidate record in database (status: 'pending')
       const candidateId = uuidv4();
-      const tenantId = (req as any).user?.tenant_id || 'default';
       const candidateQuery = `
         INSERT INTO candidates (id, status, tenant_id, created_at, updated_at)
         VALUES ($1, 'pending', $2, NOW(), NOW())

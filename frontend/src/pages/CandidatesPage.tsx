@@ -190,22 +190,6 @@ export default function CandidatesPage() {
         </div>
       </div>
 
-      {/* Debug Info - TEMPORARY */}
-      {pagination && (
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-xs font-mono">
-            <strong>DEBUG:</strong> Pagination = {JSON.stringify(pagination)}
-          </p>
-        </div>
-      )}
-      {!pagination && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-xs font-mono">
-            <strong>DEBUG:</strong> Pagination is NULL or undefined
-          </p>
-        </div>
-      )}
-
       {/* Results Count */}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-gray-600">

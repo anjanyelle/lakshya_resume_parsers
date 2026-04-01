@@ -211,6 +211,11 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
       const response = await api.get(endpoint);
       set({ matchResults: response.data.matches || [], isLoading: false });
     } catch (error: any) {
+      // 404 means "no results yet" — treat as empty list, not an error
+      if (error.response?.status === 404) {
+        set({ matchResults: [], isLoading: false, error: null });
+        return;
+      }
       const errorMessage =
         error.response?.data?.message || "Failed to fetch match results";
       set({ error: errorMessage, isLoading: false, matchResults: [] });

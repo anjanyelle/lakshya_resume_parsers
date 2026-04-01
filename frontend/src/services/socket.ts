@@ -15,9 +15,16 @@ class SocketService {
       return;
     }
 
-    const token = useAuthStore.getState().token;
+    const authStore = useAuthStore.getState();
+    const token = authStore.token;
     const serverUrl =
       import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+
+    // Validate token before attempting connection
+    if (!token || !authStore.validateToken()) {
+      console.warn("No valid authentication token available for socket connection");
+      return;
+    }
 
     this.socket = io(serverUrl, {
       auth: {
@@ -59,6 +66,18 @@ class SocketService {
 
     this.socket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
+      
+      // If authentication error, clear auth state
+      if (error.message === "Invalid or expired token") {
+        console.warn("Socket authentication failed - clearing auth state");
+        useAuthStore.getState().clearAuth();
+        // Redirect to login
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+        return; // Don't try to reconnect on auth errors
+      }
+      
       this.handleReconnect();
     });
 
@@ -210,7 +229,7 @@ class SocketService {
   }
 
   // Unsubscribe from events
-  unsubscribe(event: string, callback?: Function) {
+  unsubscribe(event: string, callback?: (...args: any[]) => void) {
     if (this.socket) {
       this.socket.off(event, callback);
     }

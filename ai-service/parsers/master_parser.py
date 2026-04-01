@@ -566,11 +566,10 @@ class MasterParser:
         self.logger.info(f"📝 Experience text length: {len(experience_text)} chars")
         self.logger.info(f"📝 Experience text preview: {experience_text[:300]}...")
         
-        # Use Gemini 2.0 Flash Lite as default with new API key
-        # Falls back to rule-based if LLM fails or no API key
-        effective_provider = llm_provider or 'gemini-2.0-flash-lite'
+        # Only use LLM if explicitly requested — avoids burning free-tier quota on every parse
+        effective_provider = llm_provider  # None = skip LLM, use rule-based only
         
-        if hasattr(self.exp_extractor, 'extract_experience_with_llm'):
+        if effective_provider and hasattr(self.exp_extractor, 'extract_experience_with_llm'):
             self.logger.info("✅ CONDITION MET: Using LLM extraction")
             self.logger.info(f"Using LLM extraction with provider: {effective_provider}")
             try:
@@ -596,6 +595,8 @@ class MasterParser:
                 }
             except Exception as e:
                 self.logger.error(f"LLM extraction failed: {e}, falling back to regex")
+        elif not effective_provider:
+            self.logger.info("No LLM provider specified — using rule-based extraction only (quota-safe)")
         else:
             self.logger.warning(f"❌ CONDITION NOT MET: Using regex fallback")
             self.logger.warning(f"Reason: has_method={hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
@@ -813,6 +814,31 @@ class MasterParser:
                 'pipeline_steps_completed': len([k for k, v in metrics.items() if v > 0])
             }
         }
+        
+        # ── BACKFILL: Populate companies & job_titles from work_experience if empty ──
+        # The merger sometimes misses propagating these top-level lists.
+        work_exp = result.get('work_experience', [])
+        
+        if not result['companies'] and work_exp:
+            companies_from_exp = []
+            for exp in work_exp:
+                company = (exp.get('company_name') or exp.get('company') or '').strip()
+                if company and company not in companies_from_exp:
+                    companies_from_exp.append(company)
+            result['companies'] = companies_from_exp
+        else:
+            # Always filter out empty strings from companies
+            result['companies'] = [c for c in result['companies'] if c and c.strip()]
+        
+        if not result['job_titles'] and work_exp:
+            titles_from_exp = []
+            for exp in work_exp:
+                title = (exp.get('job_title') or exp.get('title') or '').strip()
+                # Clean trailing "   Present" from job titles
+                title = re.sub(r'\s{2,}(?:Present|Current|Now)\s*$', '', title, flags=re.IGNORECASE).strip()
+                if title and title not in titles_from_exp and len(title) < 80:
+                    titles_from_exp.append(title)
+            result['job_titles'] = titles_from_exp
         
         # Add file info if available
         if file_info:

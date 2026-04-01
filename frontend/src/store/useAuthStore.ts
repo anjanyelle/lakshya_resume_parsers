@@ -22,7 +22,19 @@ interface AuthActions {
   setToken: (token: string) => void;
   setLoading: (loading: boolean) => void;
   clearAuth: () => void;
+  validateToken: () => boolean;
 }
+
+// Helper function to check if JWT token is expired
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000;
+    return payload.exp < currentTime;
+  } catch (error) {
+    return true; // If token is malformed, consider it expired
+  }
+};
 
 export const useAuthStore = create<AuthState & AuthActions>()(
   persist(
@@ -96,6 +108,18 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           isAuthenticated: false,
           isLoading: false,
         });
+      },
+
+      validateToken: () => {
+        const { token } = useAuthStore.getState();
+        if (!token) return false;
+        
+        if (isTokenExpired(token)) {
+          useAuthStore.getState().clearAuth();
+          return false;
+        }
+        
+        return true;
       },
     }),
     {

@@ -197,7 +197,7 @@ const redisConfig = {
 const connection = new IORedis(redisConfig);
 
 // AI Service URL
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8001";
 
 // Helper function to update parsing job status in database
 const updateParsingJobStatus = async (
@@ -260,7 +260,7 @@ const updateCandidateWithParsedData = async (
 
     const updateQuery = `
       UPDATE candidates 
-      SET full_name = COALESCE($1, full_name),
+      SET name = COALESCE($1, name),
           email = COALESCE($2, email),
           phone = COALESCE($3, phone),
           location = COALESCE($4, location),
@@ -272,6 +272,7 @@ const updateCandidateWithParsedData = async (
           raw_resume_text = COALESCE($8, raw_resume_text)`
               : ""
           },
+          status = 'success',
           updated_at = NOW()
       WHERE id = $${hasRawResumeText ? "9" : "8"}
       RETURNING *

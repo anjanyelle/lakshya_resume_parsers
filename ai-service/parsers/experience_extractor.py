@@ -431,9 +431,9 @@ def extract_experience(experience_text: str) -> list:
         r')'
     )
 
-    CLIENT_RE   = re.compile(r'(?i)^client\s*[:\-]\s*(.+)')
-    ROLE_RE     = re.compile(r'(?i)^role\s*[:\-]\s*(.+)')
-    DURATION_RE = re.compile(r'(?i)^duration\s*[:\-]\s*(.+)')
+    CLIENT_RE   = re.compile(r'(?i)^(client|employer|vendor)\s*[:\-]\s*(.+)')
+    ROLE_RE     = re.compile(r'(?i)^(role|position|job\s*title)\s*[:\-]\s*(.+)')
+    DURATION_RE = re.compile(r'(?i)^(duration|period|dates?)\s*[:\-]\s*(.+)')
     BULLET_RE   = re.compile(r'^[•\-\*\+►▸▶→]\s*')
 
     # Split text into lines for multi-pass processing
@@ -478,8 +478,11 @@ def extract_experience(experience_text: str) -> list:
         client_m = CLIENT_RE.match(line)
         if client_m:
             company_raw = client_m.group(1).strip()
-            # strip city: "Home Depot Atlanta, GA" → "Home Depot"
-            company = re.split(r'\s{2,}|,\s*[A-Z]{2}\b', company_raw)[0].strip()
+            # Strip location suffix formats:
+            # "Home Depot Atlanta, GA"  →  "Home Depot"
+            # "Capital One McLean, VA"  →  "Capital One"
+            # "Cigna Healthcare Bloomfield, CT"  →  "Cigna Healthcare"
+            company = re.split(r'\s{2,}|(?<=[a-z])\s+[A-Z][a-z]+,\s*[A-Z]{2}\b|,\s*[A-Z]{2}\b', company_raw)[0].strip()
             # consume Role and Duration lines that follow
             title, start_date, end_date, is_current = '', None, None, False
             j = i + 1
@@ -488,7 +491,9 @@ def extract_experience(experience_text: str) -> list:
                 role_m = ROLE_RE.match(nxt)
                 dur_m  = DURATION_RE.match(nxt)
                 if role_m:
-                    title = re.sub(r'\s*[-–—]\s*$', '', role_m.group(1)).strip()
+                    title = re.sub(r'\s*[-\u2013\u2014]\s*$', '', role_m.group(1)).strip()
+                    # Also strip trailing "  Present" from title if present
+                    title = re.sub(r'\s+(?:Present|Current|Now)\s*$', '', title, flags=re.IGNORECASE).strip()
                 elif dur_m:
                     date_info = extract_date_range(dur_m.group(1))
                     start_date = date_info['start_date']
@@ -507,7 +512,7 @@ def extract_experience(experience_text: str) -> list:
                     if nxt and not CLIENT_RE.match(nxt) and not DURATION_RE.match(nxt) \
                        and not NOISE_LINE.match(nxt) and not DATE_LINE_PATTERN.search(nxt) \
                        and len(nxt) < 80:
-                        title = re.sub(r'\s*[-–—]\s*(?:(?:19|20)\d{2}.*)?$', '', nxt).strip()
+                        title = re.sub(r'\s*[-\u2013\u2014]\s*(?:(?:19|20)\d{2}.*)?$', '', nxt).strip()
                         if len(title.split()) <= 8:
                             break
                     j2 += 1
@@ -569,10 +574,12 @@ def extract_experience(experience_text: str) -> list:
 
             # Validate job title before adding
             if title and is_valid_job_title(title):
+                # Clean description of leading bullets
+                description_cleaned = re.sub(r'^[•\-\*\+►▸▶→]\s*', '', description, flags=re.MULTILINE)
                 results.append({
                     'title':       title,
                     'company':     company,
-                    'description': description,
+                    'description': description_cleaned,
                     'start_date':  dates['start_date'],
                     'end_date':    dates['end_date'],
                     'is_current':  dates['is_current'],
@@ -580,6 +587,26 @@ def extract_experience(experience_text: str) -> list:
             continue
 
         i += 1
+
+    # ── POST-PROCESSING: Clean up bad company values ──────────────────────
+    # Remove entries where company_name is clearly a description fragment:
+    # e.g. "using Java and Spring Boot, which handled..." 
+    GARBAGE_COMPANY = re.compile(
+        r'(?i)^('
+        r'using\s|created\s|developed\s|built\s|designed\s|implemented\s'
+        r'|led\s|managed\s|worked\s|responsible\s|supported\s|maintained\s'
+        r'|java\s+streams|the\s+following|following\s+are|as\s+part'
+        r')'
+    )
+    for job in results:
+        company = job.get('company', '') or ''
+        # If company starts with a lowercase verb or is suspiciously long, clear it
+        if GARBAGE_COMPANY.match(company) or (len(company) > 80):
+            job['company'] = ''
+        # Also clean titles with trailing "  Present" or "  Current"
+        title = job.get('title', '') or ''
+        title = re.sub(r'\s{2,}(?:Present|Current|Now)\s*$', '', title, flags=re.IGNORECASE).strip()
+        job['title'] = title
 
     return results
 

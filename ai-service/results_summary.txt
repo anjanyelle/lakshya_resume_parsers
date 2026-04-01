@@ -1,0 +1,216 @@
+Total: 54  |  Excellent(>=80): 39  |  Good(50-79): 9  |  Poor(<50): 6
+
+[BAD][  0] KRISHNA GARA1.txt                                       jobs=0
+         ❌ CRITICAL: No jobs extracted at all
+[BAD][  0] Devraj_Subramaniam_Selenium_QA_Resume.docx              jobs=0
+         ❌ CRITICAL: No jobs extracted at all
+[BAD][  0] Venkatesh_SQL_Developer_Resume (1).pdf                  jobs=0
+         ❌ CRITICAL: No jobs extracted at all
+[BAD][ 22] Yeshwanth_Resume-sk (1)12 (5).pdf                       jobs=12
+         ⚠️  6/12 jobs have blank company_name
+         ⚠️  6/12 jobs have no start_date
+         >> Honolulu, Hi                             @ eWorld Enterprise Sollutions, 
+         >> Sr Full Stack Engineer  – Present        @ (no company)
+[BAD][ 26] RAJU_AWS DevOps Engineer10+.pdf                         jobs=10
+         ⚠️  3/10 jobs have blank company_name
+         ⚠️  10/10 jobs have no start_date
+         >> Senior Salesforce Change Manager / AWS D @ Morgan Stanley – New
+         >> Duration:                                @ (no company)
+[BAD][ 48] ALEXANDER MORGAN AI_Engineer 5+.docx                    jobs=4
+         ⚠️  4/4 jobs have blank company_name
+         ⚠️  4/4 jobs have no start_date
+         >> Machine Learning Engineer                @ (no company)
+         >> AI Engineer                              @ (no company)
+[MED][ 56] RYAN MATTHEWS 12+.docx                                  jobs=5
+         ⚠️  3/5 jobs have blank company_name
+         ⚠️  4/5 jobs have no start_date
+         >> – Present                                @ Project Overview
+         >> flipkart– Senior Python Engineer ()      @ (no company)
+[MED][ 60] REACT DEVELOPER_VENKY 10+.docx                          jobs=8
+         ⚠️  8/8 jobs have no start_date
+         >> Principal React Architect | 2024 –       @ JPMorgan Chase
+         >> Lead React Engineer | 2021 – 2024        @ UnitedHealth Group
+[MED][ 61] Enterprise_AI_Engineer_and_Generative_AI_Specialist_Res jobs=3
+         ⚠️  3/3 jobs have blank company_name
+         ⚠️  3/3 jobs have no start_date
+         >> Senior AI Engineer – JPMorgan Chase ()   @ (no company)
+         >> Machine Learning Engineer – UnitedHealth @ (no company)
+[MED][ 66] Raghu-skeleton2.pdf                                     jobs=7
+         ⚠️  3/7 jobs have blank company_name
+         ⚠️  2/7 jobs have no start_date
+         >> Sr. Full Stack Java Developer  – Present @ (no company)
+         >> Stack Java Developer                     @ (no company)
+[MED][ 68] Ganesh_Resume_Temp9 (3).txt                             jobs=4
+         ⚠️  4/4 jobs have blank company_name
+         >> Site Reliability / DevOps Engineer						 @ (no company)
+         >> SRE/ DevOps Engineer                     @ (no company)
+[MED][ 72] Alistair Caldwell .NET Engineering Resume.pdf           jobs=4
+         ⚠️  1/4 jobs have blank company_name
+         ⚠️  4/4 jobs have no start_date
+         >> Austin,TX/Remote(GlobalDigitalBankingInf @ (no company)
+         >> Senior Principal Software Architect      @ Lumina Healthcare Digital
+[MED][ 75] Ramsubhash_1.pdf                                        jobs=10
+         ⚠️  5/10 jobs have no start_date
+         >> SR. BIG DATA ENGINEER October 2022 –     @ State Farm Location: Bloomingt
+         >> Role: SR. BIG DATA ENGINEER  – Current   @ Responsibilities:
+[MED][ 75] sai sucharitha-skeleton621121121 (1).pdf                jobs=10
+         ⚠️  5/10 jobs have no start_date
+         >> Senior Full Stack Developer January 2023 @ Nike Location: Beaverton
+         >> Role: Senior Full Stack Developer  – Cur @ Responsibilities:
+[MED][ 76] Ravi_krishna_DotNET_resume(7 pages).docx                jobs=6
+         ⚠️  3/6 jobs have blank company_name
+         >> Senior .NET Developer                    @ Deloitte Consulting (Confident
+         >> Duration:  – Present                     @ (no company)
+[OK][ 80] Alistair Sterling Comprehensive Resume (1).pdf          jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> VP of Global Supply Chain Operations     @ Apex Aerospace Systems
+         >> Director of Operations & Logistics       @ Horizon Dynamics
+[OK][ 80] Dominic Thorne Executive Resume.pdf                     jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> Chief Revenue Officer                    @ OmniStream Global
+         >> VP of Global Marketing & Demand Generati @ NexaHealth Tech
+[OK][ 80] Elias Thorne-Vaughan SAP Executive Resume.pdf           jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> Principal SAP S/4HANA Architect          @ Global Industrial Dynamics
+         >> Senior SAP Supply Chain Lead             @ Precision Pharma Solutions
+[OK][ 80] Julianne Sterling Strategic BA Resume.pdf               jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> PrincipalStrategicBusinessArchitect      @ GlobalOmniRetailSystems
+         >> Senior Strategic Business Analyst        @ Vanguard Consulting Group
+[OK][ 80] Rahul_Sharma_Senior_Python_Engineer.docx                jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> CVS HEALTH – Senior Python Engineer (    @ Dallas, TX)
+         >> AT&T – Senior Python Engineer (          @ Atlanta, GA)
+[OK][ 80] Silas Blackwood .NET Executive Resume.pdf               jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> Chief Technology Officer                 @ Aetheris Financial Solutions
+         >> VP of Engineering & Principal Architect  @ Novus Health Systems
+[OK][ 80] Silas Thorne Full Stack Architect Resume.pdf            jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> Principal Full Stack Architect           @ Nexus Global FinTech
+         >> Staff Software Engineer (Lead)           @ QuantEdge Systems
+[OK][ 80] Thaddeus Vance Executive QA Resume.pdf                  jobs=4
+         ⚠️  4/4 jobs have no start_date
+         >> Senior Director of Quality Engineering   @ Titan Commerce Global
+         >> Director of Quality Assurance & Automati @ BlueVest Fintech
+[OK][ 84] Arjun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx     jobs=6
+         ⚠️  2/6 jobs have blank company_name
+         >> Lead Data Engineer                       @ Accenture (Confidential Client
+         >> Duration:  – Present                     @ Architected large-scale data p
+[OK][ 85] Everett Montgomery Java Leader Resume.pdf               jobs=3
+         ⚠️  3/3 jobs have no start_date
+         >> Director of Java Development             @ Titan Financial Tech
+         >> Senior Software Architect (Lead)         @ SilverPath Healthcare
+[OK][ 85] Meredith Sinclair Executive HR Resume.pdf               jobs=3
+         ⚠️  3/3 jobs have no start_date
+         >> SeniorVicePresidentofHRTransformation    @ SummitGlobalLogistics
+         >> Senior HR Business Partner (Strategic Le @ Vertex Industrial
+[OK][ 87] JONATHAN REED data engineer.docx                        jobs=2
+         ⚠️  1/2 jobs have blank company_name
+         ⚠️  1/2 jobs have no start_date
+         >> – Present                                @ Project: Enterprise Risk & Mar
+         >> Project: Healthcare Claims & Member Anal @ (no company)
+[OK][ 87] RAJIV MALHOTRA_QA_Resume.docx                           jobs=1
+         ⚠️  1/1 jobs have blank company_name
+         ⚠️  1/1 jobs have no start_date
+         >> JPMorgan Chase – Senior Automation Engin @ (no company)
+[OK][ 90] Julian Vance Executive Resume (1).pdf                   jobs=2
+         ⚠️  2/2 jobs have no start_date
+         >> Dallas, TX (Integrated Energy Utility |  @ OperationalMandate: Juliandire
+         >> Cyber-Physical Systems Analyst           @ CoreStream Power
+[OK][ 92] SaiNikhil_Resume12 (3).txt                              jobs=1
+         ⚠️  1/1 jobs have blank company_name
+         >> Site Reliability Engineer                @ (no company)
+[OK][ 92] ARAVIND CHOWDARY KOLLI_.QA(8 pages)docx.docx            jobs=6
+         ⚠️  1/6 jobs have blank company_name
+         >> QA Automation Lead                       @ Morgan Stanley, New
+         >> Duration:  – Present                     @ Key Contributions:
+[OK][ 92] ELIAS THORNE.pdf                                        jobs=4
+         ⚠️  1/4 jobs have blank company_name
+         >> Principal Cloud Architect (Director Leve @ (no company)
+         >> Senior Solutions Architect               @ cloud-native solutions and gui
+[OK][ 92] Lisa_Thompson_ETL_Engineer 10+.docx                     jobs=1
+         ⚠️  1/1 jobs have blank company_name
+         >> – Present                                @ (no company)
+[OK][ 92] Resume-Sreenivasulu-kH_salesForce.docx                  jobs=1
+         ⚠️  1/1 jobs have blank company_name
+         >> – Present                                @ (no company)
+[OK][ 92] Rohan_Shah_Data_Analyst_5_Years_Resume.docx             jobs=1
+         ⚠️  1/1 jobs have blank company_name
+         >> – Present                                @ (no company)
+[OK][ 95] Detailed Senior .NET CV.pdf                             jobs=4
+         ⚠️  1/4 jobs have no start_date
+         >> FinTech Global Solutions –Present        @ LeadBackendArchitect/SeniorEng
+         >> .NET4.7monolithtoa.NET8microservicesecos @ coupleserviceswithoutdowntime.
+[OK][100] AARAV RAGHUNATH IYER_AndroidDevloper.docx               jobs=1
+         ✅ All good
+         >> – Present                                @ Key Contributions
+[OK][100] ALISTAIR THORNE (2).docx                                jobs=4
+         ✅ All good
+         >> Senior Director of Global Logistics & Ne @ – Present
+         >> Director of Fulfillment & Last-Mile Oper @ –
+[OK][100] Arjun_Krishnamurthy_Java_Developer_Resume.pdf           jobs=5
+         ✅ All good
+         >> Aetna (CVS Health):  – Current (Location @ Role: Senior Java Developer
+         >> Wells Fargo:  –  (Location: Charlotte, N @ Role: Senior Java Developer
+[OK][100] CHANDRA SHYAM7.pdf                                      jobs=5
+         ✅ All good
+         >> Humana:  – Current (Location: Louisville @ Role: Sr. Big Data Engineer
+         >> Morgan Stanley:  –  (Location: New York, @ Role: Sr Data Engineer
+[OK][100] Chandra_Shyam_Java_Developer_Resume.docx                jobs=5
+         ✅ All good
+         >> Humana:  – Current (Location: Louisville @ Role: Senior Java Developer
+         >> Morgan Stanley:  –  (Location: New York, @ Role: Senior Java Developer
+[OK][100] ELARA V.docx                                            jobs=4
+         ✅ All good
+         >> Vice President of Global Sustainability  @ – Present
+         >> Director of Renewable Development – Nort @ –
+[OK][100] ELIAS THORNE.docx                                       jobs=4
+         ✅ All good
+         >> Principal Cloud Architect (Director Leve @ Key Responsibilities & Achieve
+         >> Senior Solutions Architect               @ Key Responsibilities & Achieve
+[OK][100] Hari_Java_Developer_Resume.docx                         jobs=5
+         ✅ All good
+         >> Humana:  – Current (Location: Louisville @ Role: Senior Java Developer
+         >> Morgan Stanley:  –  (Location: New York, @ Role: Senior Java Developer
+[OK][100] Harsha_JavaFullStack.pdf                                jobs=5
+         ✅ All good
+         >> Dignity Health:  - Current (Location: Sa @ Sr. Full Stack Java Developer
+         >> Bank of America:  -  (Location: Charlott @ Sr Full Stack Java Developer
+[OK][100] hyma_DataResume15.docx                                  jobs=5
+         ✅ All good
+         >> Morgan Stanley:  - Current (Location: Ne @ Role: Senior Data Engineer
+         >> Humana:  -  (Location: Louisville, KY)   @ Role: Senior Data Engineer / A
+[OK][100] JULIAN VANCE.docx                                       jobs=4
+         ✅ All good
+         >> Director of Global Security Operations   @ Operational Leadership & Strat
+         >> Head of Information Security (CISO Deleg @ Strategic Initiatives:
+[OK][100] Kiran_Santhosh_Reddy_NodeJS_ReactJS_Resume.pdf          jobs=6
+         ✅ All good
+         >> Microsoft Corporation (Client: Azure Dev @ (Hybrid))
+         >> Stripe Inc.:  –  (Location: San Francisc @ Role: Sr. Full Stack Developer
+[OK][100] Python_Developer_Resume.pdf                             jobs=5
+         ✅ All good
+         >> Humana:  – Present (Location: Louisville @ Role: Sr. Python / Big Data En
+         >> Morgan Stanley:  –  (Location: New York, @ Role: Sr. Python / Data Engine
+[OK][100] RAGHAVENDRA PRASAD VEMURI__(9 pages)_Devops.docx        jobs=1
+         ✅ All good
+         >> – Present                                @ Dallas, TX
+[OK][100] Rahul_Venkataraman_Data_Engineer_Resume.pdf             jobs=5
+         ✅ All good
+         >> JPMorgan Chase & Co.:  –  (Location: Col @ Role: Sr. Data Engineer
+         >> Walmart Global Tech (Client: Sam's Club) @ Role: Data Engineer
+[OK][100] Rohan_Shah_Data_Analyst_5_Years_Resume.pdf              jobs=1
+         ✅ All good
+         >> – Present                                @  Developed interactive Power 
+[OK][100] Senior Full Stack Developer Resume.pdf                  jobs=1
+         ✅ All good
+         >> – Present                                @ New York, NY Company Profile: 
+[OK][100] Senior Java Spring Boot Developer Resume.pdf            jobs=1
+         ✅ All good
+         >> – Present                                @ San Francisco, CA Company Prof
+
+ZERO JOBS:
+  - KRISHNA GARA1.txt
+  - Devraj_Subramaniam_Selenium_QA_Resume.docx
+  - Venkatesh_SQL_Developer_Resume (1).pdf

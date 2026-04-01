@@ -43,7 +43,7 @@ export const registerUser = async (
 
     // Create user
     const result = await query(
-      `INSERT INTO users (email, password_hash, role) 
+      `INSERT INTO users (email, hashed_password, role) 
        VALUES ($1, $2, $3) 
        RETURNING id, email, role, created_at`,
       [email, passwordHash, role],

@@ -6,6 +6,7 @@ interface AuthRequest extends Request {
     id: string;
     email: string;
     role: string;
+    tenant_id?: string;
   };
 }
 
@@ -35,6 +36,7 @@ export const authenticateToken = (
         id: (decoded as any).id,
         email: (decoded as any).email,
         role: (decoded as any).role,
+        tenant_id: (decoded as any).tenant_id || "default",
       };
       next();
     },

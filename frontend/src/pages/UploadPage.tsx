@@ -218,6 +218,11 @@ export default function UploadPage() {
   });
 
   const handleUpload = async (uploadFile: UploadFile) => {
+    // Prevent double-upload if already in progress
+    if (uploadFile.status === "uploading" || uploadFile.status === "parsing") {
+      return;
+    }
+
     try {
       // Update status to uploading
       setUploadFiles((prev) =>
@@ -242,8 +247,8 @@ export default function UploadPage() {
         });
       }
 
-      // Start upload with selected LLM (send empty string for own-model)
-      const llmProvider = selectedLLM === "own-model" ? "" : selectedLLM;
+      // Start upload with selected LLM (use gemini as default for own-model)
+      const llmProvider = selectedLLM === "own-model" ? "gemini-2.0-flash-lite" : selectedLLM;
       const candidate = await uploadResume(uploadFile.file, llmProvider);
 
       // Check if candidate was returned successfully
@@ -525,9 +530,10 @@ export default function UploadPage() {
             <div className="space-x-3">
               <button
                 onClick={() => handleUpload(uploadFiles[0])}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                disabled={uploadFiles[0].status === "uploading" || uploadFiles[0].status === "parsing"}
+                className={`px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                Upload Resume
+                {uploadFiles[0].status === "uploading" ? "Uploading..." : uploadFiles[0].status === "parsing" ? "Parsing..." : "Upload Resume"}
               </button>
               <button
                 onClick={resetUpload}

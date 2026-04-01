@@ -215,10 +215,7 @@ export const getAllMatchResults = async (
       const result = await client.query(query);
 
       if (result.rows.length === 0) {
-        res.status(404).json({
-          error: "NO_MATCH_RESULTS",
-          message: "No match results found. Run matching first.",
-        });
+        res.json({ matches: [] });
         return;
       }
 

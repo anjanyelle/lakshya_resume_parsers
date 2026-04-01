@@ -28,9 +28,31 @@ def extract_experience_with_llm(experience_text: str, llm_provider: str) -> List
     logger.info(f"📝 Experience text length: {len(experience_text)} chars")
     logger.info(f"📝 Experience text preview: {experience_text[:200]}...")
     
-    system_prompt = "You are an expert resume parser. Your only job is to extract work experience data from resume text and return it as valid JSON. You never add explanation, markdown, or any text outside the JSON array. You handle all resume formats. You never hallucinate data. If a field is missing, return null."
+    system_prompt = (
+        "You are an expert resume parser specializing in IT staffing and consulting resumes. "
+        "Your ONLY job is to extract work experience data and return it as valid JSON. "
+        "CRITICAL RULES: "
+        "1. If the resume uses 'Client:', treat that as the employer/company name. Strip any city/state from company. "
+        "2. If the resume uses 'Role:', treat that as the job title. "
+        "3. If the resume uses 'Duration:', extract that as the date range. "
+        "4. The 'Environment:' section at the end of a role lists the tech stack, NOT part of the company or description. "
+        "5. NEVER use description sentences (those starting with verbs like 'using', 'developed', 'built', 'led') as the company name. "
+        "6. If company is unknown, return null, never hallucinate. "
+        "You never add explanation, markdown, or any text outside the JSON array."
+    )
     
-    user_prompt = f"""Extract all work experiences from the resume section below. Return ONLY a valid JSON array. No explanation. No markdown. No extra text. Each object must have: company (string or null), role (string or null), start_date (string or null), end_date (string or null), is_current (boolean), location (string or null), summary (2-3 sentence summary string or null). Rules: multiple roles at same company = separate objects. Missing dates = null. Year only like 2019-2022 is fine as-is. summary must be condensed version of bullet points not copy-paste. Never invent missing data. Resume experience section: {experience_text}"""
+    user_prompt = (
+        f"Extract all work experiences from the resume section below.\n"
+        f"Return ONLY a valid JSON array. No explanation. No markdown. No extra text.\n"
+        f"Each object must have: company (employer name, string or null -- strip city/state suffix), "
+        f"role (job title, string or null), start_date (string or null), end_date (string or null), "
+        f"is_current (boolean), location (string or null), "
+        f"summary (2-3 sentence summary string or null -- condensed NOT copy-paste).\n"
+        f"Rules: multiple roles at same company = separate objects. "
+        f"Missing dates = null. Year only like 2019-2022 is fine. "
+        f"Never invent missing data.\n"
+        f"Resume experience section: {experience_text}"
+    )
     
     # Retry with exponential backoff
     max_retries = 3

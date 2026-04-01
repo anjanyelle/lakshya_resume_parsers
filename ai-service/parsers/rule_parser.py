@@ -5,7 +5,7 @@ Uses regex patterns and specialized libraries for accurate data extraction.
 
 import re
 import logging
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Any
 from datetime import datetime
 import phonenumbers
 from phonenumbers import NumberParseException
@@ -179,9 +179,23 @@ class RuleBasedParser:
             self.logger.error(f"Error extracting GitHub URL: {e}")
             return None
     
+    # Known domains/TLDs that are NOT personal websites
+    _WEBSITE_NOISE_DOMAINS = {
+        # Email providers
+        'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com',
+        'protonmail.com', 'aol.com', 'mail.com',
+        # Developer tools that appear as skills
+        'backbone.js', 'node.js', 'react.js', 'vue.js', 'angular.js', 'express.js',
+        'next.js', 'nuxt.js', 'svelte.js', 'jquery.js', 'socket.io', 'three.js',
+        'chart.js', 'd3.js', 'moment.js', 'lodash.js', 'underscore.js',
+        # Job boards and recruiting sites that get picked up from resume text
+        'indeed.com', 'linkedin.com', 'github.com', 'google.com', 'stackoverflow.com',
+    }
+
     def extract_websites(self, text: str) -> List[str]:
         """
         Extract website URLs that are not LinkedIn or GitHub.
+        Filters out false positives like JS library names and email providers.
         
         Args:
             text: Input text to search for website URLs
@@ -201,11 +215,34 @@ class RuleBasedParser:
                 # Skip LinkedIn and GitHub URLs
                 if 'linkedin.com' in url or 'github.com' in url:
                     continue
-                
+
+                # Skip .js "domains" — these are JavaScript library names, not URLs
+                # e.g. backbone.js, socket.io, three.js
+                if re.match(r'^[a-z0-9._-]+\.js$', url.lstrip('https://').lstrip('www.')):
+                    continue
+
+                # Build the bare domain (strip protocol/www/path)
+                bare = re.sub(r'^https?://', '', url)
+                bare = re.sub(r'^www\.', '', bare)
+                bare = bare.split('/')[0]  # Remove path
+
+                # Skip blocked noise domains
+                if bare in self._WEBSITE_NOISE_DOMAINS:
+                    continue
+
+                # Must look like a real personal/portfolio site:
+                # - Has a recognisable TLD (.com/.io/.dev/.net/.org/.me/.co)
+                # - Is not just a tool name (no spaces, not purely a tech keyword)
+                valid_tld = re.search(r'\.(com|io|dev|net|org|me|co|app|ai|tech|xyz|site|web|info|bio)$', bare)
+                if not valid_tld:
+                    continue
+
                 # Add protocol if missing
                 if not url.startswith('http'):
-                    url = f"https://{url}"
-                
+                    url = f"https://{bare}"
+                else:
+                    url = f"https://{bare}"
+
                 # Avoid duplicates
                 if url not in websites:
                     websites.append(url)
@@ -1137,11 +1174,34 @@ class RuleBasedParser:
         Returns:
             First line that appears to be a name or None
         """
-        for line in text.strip().splitlines()[:5]:
+        if not text:
+            return None
+            
+        # Check first 10 lines for a name
+        lines = text.strip().splitlines()[:10]
+        for line in lines:
             line = line.strip()
+            if not line:
+                continue
+                
+            # Skip common header noise
+            if any(word in line.lower() for word in ['resume', 'curriculum', 'vitae', 'contact', 'email', 'phone']):
+                continue
+                
             words = line.split()
-            if 1 <= len(words) <= 5 and line.replace(' ', '').replace('-', '').replace("'", "").isalpha():
+            # Name usually has 2-4 words
+            if 2 <= len(words) <= 5:
+                # Name should be mostly alphabetic, allowing dots for initials and hyphens
+                clean_line = line.replace(' ', '').replace('-', '').replace("'", "").replace(".", "")
+                if clean_line.isalpha() and any(c.isupper() for c in clean_line):
+                    return line
+        
+        # Fallback: if no multi-word name found, take the first substantial line if it's alphanumeric
+        for line in lines:
+            line = line.strip()
+            if 3 < len(line) < 50 and line.replace(' ', '').isalnum():
                 return line
+                
         return None
     
     def extract_all_contact_info(self, text: str) -> Dict[str, Union[str, List[str], None]]:

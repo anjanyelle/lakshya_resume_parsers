@@ -9,7 +9,7 @@ DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "resume_parser"
 DB_USER = "postgres"
-DB_PASSWORD = "Anjan$123"
+DB_PASSWORD = "Surya@123"
 
 def create_admin_user():
     try:

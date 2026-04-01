@@ -1,0 +1,147 @@
+========================================
+FILE: training/data/text_resumes/KRISHNA GARA1.txt
+========================================
+                                                               KRISHNA GARA
+JD:
+Cloud Engineering and Operations (8+ years)
+Advanced understanding of AWS services
+Understanding of Cloud based services (GitHub, ServiceNow, Orca, Datadog, Broadcom, Fivetran)
+Hands on experience with Release Management and deployment
+Advanced understanding of Linux Administration (log files, command line, system services, custom and managed package installations).
+Knowledge of network protocols, security and compliance
+Strong knowledge of scripting (Python, PHP, Bash)
+Knowledge of application integration technologies (API, Middleware, Webhooks)
+Application Performance Monitoring and Logging (8+ years)
+Highly experience with Datadog (from installing agents and/ or creating integrations, to customizing dashboards/ alerts)
+Advanced understanding of AWS services
+Understanding of Cloud based services (GitHub, Jenkins, ServiceNow, AccelQ, Broadcom, Fivetran)
+Strong knowledge of a programming language (Python, Java, PHP)
+Strong experience in a Linux environment (log files, command line, system services, custom and managed package installations)
+Knowledge of the Boomi platform
+Understanding of network protocols, security and architecture
+
+
+ANALYSIS:
+KEYWORDS:
+Scripting &programming language :(Python, Java, PHP)
+Cloud: AWS
+Cloud based services (, ServiceNow, Orca, Broadcom, Fivetran)
+CI/CD Tool: GitHub, Jenkins 
+MON: DATADOG
+OS: Linux
+
+PROFESSIONAL SUMMARY:
+AWS services expertise demonstrated through extensive implementation of AWS cloud infrastructure, including EC2, S3, RDS, and Lambda, while optimizing performance and cost-efficiency across large-scale distributed systems
+Proven track record in Cloud-based services integration, leveraging GitHub, ServiceNow, Orca, Datadog, Broadcom, and Fivetran to create cohesive, scalable solutions that enhance operational efficiency and streamline development workflows
+Spearheaded Release Management processes, implementing robust deployment strategies usi
+
+========================================
+FILE: ../resumes/Devraj_Subramaniam_Selenium_QA_Resume.docx
+========================================
+Cigna Health (Client: Express Scripts)   |   2022 – Present  |  Bloomfield, CT (Remote)
+Principal QA Automation Architect & Test Engineering Lead
+Strategic Mandate: Recruited to establish Cigna's enterprise-wide QA Automation Center of Excellence (CoE) across the pharmacy benefit management and digital health platform divisions. Lead a distributed team of 35 QA engineers across 3 time zones, accountable for HIPAA-compliant test strategy covering 80+ microservices, 12 patient-facing web portals, and 4 native mobile applications.
+Key Measurable Achievements:
+Enterprise Selenium 4 Framework (AutoCore 3.0): Architected a hybrid Selenium 4 / TestNG / Cucumber BDD framework with Page Object Model, supporting parallel execution across 500+ browser-OS-device combinations on LambdaTest Cloud Grid. Reduced regression suite runtime from 18 hours to 42 minutes.
+HIPAA Test Data Governance: Designed a HIPAA-compliant synthetic test data pipeline using Java Faker and AWS Secrets Manager, eliminating production PII from all test environments and achieving 100% audit pass rate across 3 federal healthcare audits.
+API Contract Testing at Scale: Implemented Pact consumer-driven contract testing across 45 microservice pairs using RestAssured and Pact Broker on AWS ECS, catching 120+ breaking API changes before they reached integration environments, eliminating critical regression escapes.
+CI/CD Pipeline Integration: Built Jenkins Declarative Pipeline stages and GitHub Actions workflows triggering Selenium regression suites, RestAssured API tests, and JMeter performance benchmarks automatically on every pull request, with Allure Reports published to S3 and Slack notifications for failures.
+Visual AI Regression Testing: Deployed Applitools Eyes across 8 patient portal applications, implementing AI-powered baseline visual comparisons eliminating 200+ hours/sprint of manual UI verification across Chrome, Firefox, Safari, and Edge.
+Mobile Automation for Cigna+ App: Built Appium 2.x test suit
+
+========================================
+FILE: ../resumes/Venkatesh_SQL_Developer_Resume (1).pdf
+========================================
+Humana Inc. (Client: CenterWell Pharmacy) | 2022 – Present | Louisville, KY (Remote)
+Principal SQL Developer & Database Architect
+Strategic Mandate: Recruited as the principal database authority to modernize Humana's pharmacy benefit
+management and clinical analytics data platform. Lead a team of 18 SQL developers and DBAs across 3
+geographic locations, accountable for HIPAA-compliant database architecture covering 25+ SQL Server
+instances, 4 AWS Aurora clusters, and the enterprise Snowflake data warehouse serving 300+ analytics
+users.
+Key Measurable Achievements:
+• DataCore 360 Warehouse Architecture: Designed and delivered the enterprise "DataCore 360"
+Snowflake data warehouse consolidating pharmacy claims (EDI 835/837), member eligibility, clinical
+encounters, and formulary data from 40+ source systems. Implemented Data Vault 2.0 modeling
+achieving full historical auditability and zero breaking-change schema evolution for HIPAA
+compliance.
+• SQL Server 2022 Performance Engineering: Re-engineered 200+ T-SQL stored procedures
+supporting pharmacy adjudication and prior authorization workflows, implementing Columnstore
+indexes, In-Memory OLTP tables for hot-path claim lookups, and Query Store forced plan
+management, reducing average procedure execution time by 78% and eliminating 95% of
+blocking/deadlock incidents.
+• AWS Aurora PostgreSQL Migration: Directed the migration of 8TB of clinical encounter data from
+legacy SQL Server to AWS Aurora PostgreSQL Multi-AZ with Global Database, designing schema
+refactoring strategy, Flyway migration scripts, and automated data validation pipelines ensuring zero
+data loss and <10 minute production cutover window.
+• HIPAA-Compliant Data Masking Framework: Architected a SQL Server Dynamic Data Masking +
+Row-Level Security + AWS Lake Formation column-level security framework for PHI data across all
+environments, enabling analytics access for 300+ users without exposing PII, achieving 100% pass rate
+on 4 consecutive HIPAA compliance 
+
+========================================
+FILE: ../resumes/ALEXANDER MORGAN AI_Engineer 5+.docx
+========================================
+Senior AI Engineer
+2022 – Present
+• Designed and deployed large-scale NLP models for customer sentiment analysis serving 2M+ users.
+• Developed RAG-based chatbot system using LLMs and vector search databases.
+• Fine-tuned transformer models for domain-specific financial data.
+• Built automated ML pipelines using Airflow and MLflow.
+• Reduced model inference latency by 35% through quantization techniques.
+• Deployed AI models using Docker containers on AWS infrastructure.
+• Implemented A/B testing for model performance optimization.
+• Developed fraud detection ML model improving accuracy by 18%.
+• Integrated monitoring dashboards for real-time model drift detection.
+
+
+
+Machine Learning Engineer
+2020 – 2022
+• Built predictive analytics models for sales forecasting.
+• Developed CNN-based image classification model achieving 92% accuracy.
+• Designed recommendation engine using collaborative filtering.
+• Automated feature engineering workflows.
+• Integrated REST APIs for ML model inference.
+• Improved model precision by hyperparameter tuning.
+• Conducted exploratory data analysis and statistical modeling.
+
+AI Engineer
+2019 – 2020
+• Developed NLP classification system using LSTM architecture.
+• Implemented anomaly detection model using isolation forests.
+• Built data preprocessing pipelines using Python & Pandas.
+• Assisted in deploying ML models in cloud production environments.
+Lead Generative AI Engineer – FinTech Enterprise (2018-2019)
+Designed RAG chatbot integrated with enterprise knowledge base.
+Fine-tuned financial domain LLM improving response accuracy by 25%.
+Implemented hallucination detection and guardrail mechanisms.
+Built Kubernetes-based scalable LLM inference cluster.
+Senior NLP Engineer – Healthcare AI Startup (2017–2018)
+Developed medical document summarization LLM.
+Built semantic vector search platform using embeddings.
+Optimized inference costs via model distillation
+
+
+
+
+
+KEY ACHIEVEMENTS
+• Increased model accuracy by 20% through advanced feature engin
+
+========================================
+FILE: training/data/text_resumes/Ganesh_Resume_Temp9 (3).txt
+========================================
+Visa                 Forster City, CA                                                                                                
+Site Reliability / DevOps Engineer								      Dec 2022 – Current
+
+
+
+Environment: Git, GitLab, GitHub, CI/CD, GitHub Actions, TypeScript, Docker, AWS ECS, AWS EKS, Kubernetes, kubectl, Helm, Maven, Gradle, Node.js, NPM, Yarn, Python, pip, AWS S3, AWS RDS, AWS EC2, AWS CloudWatch, GitLab API, GitHub API, SSO, Slack, Jira, Prometheus, Grafana, DataDog, Splunk, Argo CD, Terraform, Terraform Cloud, Bash, Java, AWS, PCI DSS, Ansible
+Implemented Kubernetes and AWS EKS to orchestrate containerized financial applications, improving scalability and resource utilization. Utilized Helm charts for streamlined deployments and kubectl for efficient cluster management, reducing downtime during updates.
+Designed and maintained CI/CD pipelines using GitLab and GitHub Actions, automating build, test, and deployment processes for critical finance systems. Integrated Docker containerization to ensure consistency across development, staging, and production environments.
+Developed Infrastructure as Code using Terraform and Terraform Cloud, managing AWS resources including EC2, RDS, and S3. Implemented version control with Git to track infrastructure changes and facilitate collaboration among team members.
+Configured and optimized Prometheus and Grafana for real-time monitoring of financial applications, creating custom dashboards to visualize key performance metrics. Integrated Grafana alerts with Slack for rapid incident response and improved system reliability.
+Implemented SSO solutions for secure access to financial systems, integrating with GitLab API and GitHub API for seamless authentication. Utilized TypeScript to develop custom SSO modules, enhancing security and user experience across platforms.
+Managed and scaled AWS ECS clusters for high-availability financial services, implementing auto-scaling policies based on CloudWatch metrics. Utilized EC
+

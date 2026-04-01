@@ -19,10 +19,19 @@ export const api: AxiosInstance = axios.create({
 // Request interceptor - Attach JWT token
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = useAuthStore.getState().token;
+    const authStore = useAuthStore.getState();
+    const token = authStore.token;
 
-    if (token) {
+    // Validate token before attaching
+    if (token && authStore.validateToken()) {
       config.headers.set("Authorization", `Bearer ${token}`);
+    } else if (token) {
+      // Token exists but is invalid, clear auth
+      authStore.clearAuth();
+      // Redirect to login if not already there
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
 
     return config;

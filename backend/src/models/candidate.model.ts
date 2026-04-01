@@ -24,7 +24,7 @@ export class CandidateModel {
     const client = await getClient();
     try {
       const result = await client.query(
-        "SELECT * FROM candidates WHERE id = $1",
+        "SELECT *, name as full_name FROM candidates WHERE id = $1",
         [id]
       );
       return result.rows[0] || null;
@@ -37,7 +37,7 @@ export class CandidateModel {
     try {
       // Get candidate
       const candidateResult = await client.query(
-        "SELECT * FROM candidates WHERE id = $1",
+        "SELECT *, name as full_name FROM candidates WHERE id = $1",
         [id]
       );
       
@@ -76,7 +76,7 @@ export class CandidateModel {
       
       return {
         ...candidate,
-        work_history: workHistoryResult.rows,
+        work_experience: workHistoryResult.rows,
         education: educationResult.rows,
         certifications: certificationsResult.rows,
         skills: skillsResult.rows
@@ -123,12 +123,12 @@ export class CandidateModel {
       const offset = (page - 1) * limit;
       
       // Build WHERE clause for search
-      let whereClause = "WHERE status = 'success'";
+      let whereClause = "WHERE 1=1";
       const queryParams: any[] = [];
       
       if (search) {
         queryParams.push(`%${search}%`);
-        whereClause += ` AND (full_name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
+        whereClause += ` AND (name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
       }
       
       // Get total count
@@ -139,7 +139,7 @@ export class CandidateModel {
       // Get paginated candidates
       queryParams.push(limit, offset);
       const candidatesQuery = `
-        SELECT * FROM candidates 
+        SELECT *, name as full_name FROM candidates 
         ${whereClause}
         ORDER BY created_at DESC
         LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}

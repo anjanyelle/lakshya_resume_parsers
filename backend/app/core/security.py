@@ -20,7 +20,7 @@ def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(subject: str, expires_delta: Optional[timedelta] = None, extra_data: Optional[dict[str, Any]] = None) -> str:
     expire = datetime.now(timezone.utc) + (
         expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
@@ -30,6 +30,11 @@ def create_access_token(subject: str, expires_delta: Optional[timedelta] = None)
         "type": "access",
         "jti": uuid4().hex,
     }
+    
+    # Add extra data if provided
+    if extra_data:
+        to_encode.update(extra_data)
+    
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
