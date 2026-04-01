@@ -478,42 +478,69 @@ def extract_experience(experience_text: str) -> list:
         client_m = CLIENT_RE.match(line)
         if client_m:
             company_raw = client_m.group(1).strip()
-            # strip city: "Home Depot Atlanta, GA" → "Home Depot"
-            company = re.split(r'\s{2,}|,\s*[A-Z]{2}\b', company_raw)[0].strip()
+            # Extract location if present: "State Farm                    Location: Bloomington, IL"
+            # Split by multiple spaces or "Location:" keyword
+            location_match = re.search(r'(?:Location:\s*|,\s*)([A-Za-z\s]+,\s*[A-Z]{2})\s*$', company_raw)
+            if location_match:
+                company = company_raw[:location_match.start()].strip()
+            else:
+                # strip city: "Home Depot Atlanta, GA" → "Home Depot"
+                company = re.split(r'\s{2,}', company_raw)[0].strip()
+            
             # consume Role and Duration lines that follow
             title, start_date, end_date, is_current = '', None, None, False
             j = i + 1
-            while j < len(lines) and j < i + 6:
+            lines_consumed = 0
+            
+            while j < len(lines) and j < i + 10:
                 nxt = lines[j].strip()
+                
+                # Stop if we hit another Client: line or Responsibilities section
+                if CLIENT_RE.match(nxt) or nxt.lower().startswith('responsibilities'):
+                    break
+                
                 role_m = ROLE_RE.match(nxt)
                 dur_m  = DURATION_RE.match(nxt)
+                
                 if role_m:
-                    title = re.sub(r'\s*[-–—]\s*$', '', role_m.group(1)).strip()
+                    # Extract title and dates from Role line
+                    role_text = role_m.group(1).strip()
+                    # Check if dates are on same line: "SR. BIG DATA ENGINEER    October 2022 – Current"
+                    date_info = extract_date_range(role_text)
+                    if date_info['start_date']:
+                        # Remove dates from title
+                        title = DATE_LINE_PATTERN.sub('', role_text).strip()
+                        title = re.sub(r'\s*[-–—]\s*$', '', title).strip()
+                        start_date = date_info['start_date']
+                        end_date = date_info['end_date']
+                        is_current = date_info['is_current']
+                    else:
+                        title = re.sub(r'\s*[-–—]\s*$', '', role_text).strip()
+                    lines_consumed = j - i
+                    break  # Found role, stop looking
                 elif dur_m:
                     date_info = extract_date_range(dur_m.group(1))
                     start_date = date_info['start_date']
                     end_date   = date_info['end_date']
                     is_current = date_info['is_current']
+                    lines_consumed = j - i
                 elif nxt and not NOISE_LINE.match(nxt):
-                    # Could be inline "Role: X" without keyword
-                    pass
+                    # Could be inline "Role: X" without keyword or dates on separate line
+                    if not title and DATE_LINE_PATTERN.search(nxt):
+                        # This line has dates, might be title + dates
+                        date_info = extract_date_range(nxt)
+                        if date_info['start_date']:
+                            title = DATE_LINE_PATTERN.sub('', nxt).strip()
+                            title = re.sub(r'\s*[-–—]\s*$', '', title).strip()
+                            start_date = date_info['start_date']
+                            end_date = date_info['end_date']
+                            is_current = date_info['is_current']
+                            lines_consumed = j - i
+                            break  # Found title with dates, stop looking
                 j += 1
 
-            # If no Role line found, look ahead for a title-like line
-            if not title:
-                j2 = i + 1
-                while j2 < len(lines) and j2 < i + 4:
-                    nxt = lines[j2].strip()
-                    if nxt and not CLIENT_RE.match(nxt) and not DURATION_RE.match(nxt) \
-                       and not NOISE_LINE.match(nxt) and not DATE_LINE_PATTERN.search(nxt) \
-                       and len(nxt) < 80:
-                        title = re.sub(r'\s*[-–—]\s*(?:(?:19|20)\d{2}.*)?$', '', nxt).strip()
-                        if len(title.split()) <= 8:
-                            break
-                    j2 += 1
-
             # Validate job title before adding
-            if (company or title) and is_valid_job_title(title):
+            if company and title and is_valid_job_title(title):
                 results.append({
                     'title':      title,
                     'company':    company,
@@ -522,7 +549,9 @@ def extract_experience(experience_text: str) -> list:
                     'end_date':   end_date,
                     'is_current': is_current,
                 })
-            i += 1
+            
+            # Advance past the consumed lines
+            i = i + max(1, lines_consumed)
             continue
 
         # ── FORMAT 2 & 3: Date-boundary split ──────────────────────────

@@ -35,7 +35,7 @@ def _clean_company_name(value: str) -> str:
     cleaned = _COMPANY_CLIENT_PREFIX_RE.sub("", cleaned).strip()
     return cleaned
 
-_LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z ]+,\s*[A-Z][a-z]?$")
+_LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z ]+,\s*[A-Za-z]{2}$")
 
 
 def _collapse_spaces(value: str) -> str:
@@ -243,9 +243,15 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         company = _clean_company_name(_normalize_text(item.get("company")))
         title_raw = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
+        
         # Reject locations mistakenly stored as titles (e.g. "Minneapolis, Mn")
         if title_raw and _LOCATION_AS_TITLE_RE.match(title_raw.strip()):
             title_raw = ""
+        
+        # Reject locations mistakenly stored as companies (e.g. "San Francisco, Ca")
+        if company and _LOCATION_AS_TITLE_RE.match(company.strip()):
+            company = ""
+        
         title = title_raw
         # Use client as company when company is empty (e.g. "CLIENT: Home Depot" format)
         if not company:

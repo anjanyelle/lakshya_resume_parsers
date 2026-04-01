@@ -2684,33 +2684,79 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
             exp_conf = 0.0
         has_experience_section = bool(experience_text.strip())
 
-        parser = WorkExperienceParser()
-        raw_text = job.raw_text or ""
-
-        source_format = _source_format_from_path(
-            getattr(job, "file_path", None) or getattr(job, "extracted_text_path", None)
-        )
-
-        def _parse_deterministic(text: str) -> list[JobEntry]:
-            if not text.strip():
-                return []
-            # Avoid calling the LLM inside parse_experience_section for this quality probe.
-            try:
-                original_llm_fallback = getattr(parser, "_llm_fallback", None)
-                setattr(parser, "_llm_fallback", lambda chunk: None)
-                return parser.parse_experience_section(text, source_format=source_format)
-            finally:
-                if original_llm_fallback is not None:
-                    setattr(parser, "_llm_fallback", original_llm_fallback)
-
+        # Use AI service for experience extraction instead of old parser
+        from app.core.config import get_settings
+        import requests
+        
+        settings = get_settings()
+        ai_service_url = settings.AI_SERVICE_URL
+        
         payload: list[dict[str, object]] = []
-
-        excerpt = ""
-        if raw_text.strip():
-            excerpt = WorkExperienceParser.build_date_anchor_excerpt(raw_text, context_lines=5) or ""
-
-        chosen_experience_text = experience_text if has_experience_section else raw_text
-        primary_jobs = _parse_deterministic(experience_text) if has_experience_section else _parse_deterministic(raw_text)
+        
+        chosen_experience_text = experience_text if has_experience_section else (job.raw_text or "")
+        
+        # Call AI service for experience extraction
+        try:
+            response = requests.post(
+                f"{ai_service_url}/parse_resume",
+                json={"text": chosen_experience_text},
+                timeout=30
+            )
+            if response.status_code == 200:
+                ai_result = response.json()
+                ai_work_experience = ai_result.get("work_experience", [])
+                
+                # Convert AI service format to backend format
+                for exp in ai_work_experience:
+                    payload.append({
+                        "company": exp.get("company_name", ""),
+                        "title": exp.get("job_title", ""),
+                        "start_date": exp.get("start_date"),
+                        "end_date": exp.get("end_date"),
+                        "is_current": exp.get("is_current", False),
+                        "location": exp.get("location", ""),
+                        "description": exp.get("description", ""),
+                        "client": exp.get("client", "")
+                    })
+                logger.info(f"AI service extracted {len(payload)} work experiences")
+            else:
+                logger.error(f"AI service call failed: {response.status_code}")
+                # Fallback to empty list
+                payload = []
+        except Exception as e:
+            logger.error(f"Error calling AI service: {e}")
+            payload = []
+        
+        excerpt = chosen_experience_text[:500] if chosen_experience_text else ""
+        
+        # For compatibility with existing scoring logic, create dummy JobEntry objects
+        primary_jobs = []
+        for p in payload:
+            from app.services.parser.work_experience_parser import JobEntry
+            import dateparser
+            from datetime import date
+            
+            def _parse_date_safe(date_str):
+                if not date_str:
+                    return None
+                try:
+                    parsed = dateparser.parse(date_str, settings={"PREFER_DAY_OF_MONTH": "first"})
+                    return parsed.date() if parsed else None
+                except:
+                    return None
+            
+            job = JobEntry(
+                company=p.get("company", ""),
+                title=p.get("title", ""),
+                start_date=_parse_date_safe(p.get("start_date")),
+                end_date=_parse_date_safe(p.get("end_date")),
+                is_current=p.get("is_current", False),
+                location=p.get("location", ""),
+                description=p.get("description", ""),
+                client=p.get("client", ""),
+                confidence=0.85
+            )
+            primary_jobs.append(job)
         primary_score = score_work_experience_jobs(primary_jobs)
         logger.info(
             "DIAG primary_jobs count=%d first=%s",

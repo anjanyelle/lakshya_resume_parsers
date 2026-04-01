@@ -1393,9 +1393,14 @@ class WorkExperienceParser:
         if COMPANY_HINT_RE.search(text):
             return True
 
-        # State/Location pattern (e.g. "Louisville, KY") is NOT a company
-        if re.search(r",\s*[A-Z]{2}\b", text):
-            return False
+        # State/Location pattern (e.g. "Louisville, KY" or "San Francisco, Ca") is NOT a company
+        if re.search(r",\s*[A-Za-z]{2}\b", text):
+            # Additional check: make sure it's not a technical term like "Swift, UI"
+            # Exclude common technical abbreviations
+            tech_exclusions = {'ui', 'it', 'ai', 'ml', 'sql', 'api', 'ci', 'cd', 'qa'}
+            state_abbr = text.split(',')[-1].strip().lower()
+            if state_abbr not in tech_exclusions:
+                return False
             
         # Reject labels (Role:, Designation:, etc.) as part of company name
         if PLACEHOLDER_ORG_RE.match(text):

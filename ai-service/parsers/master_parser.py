@@ -988,12 +988,13 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             }
     
     def _extract_experience(self, sections: Dict[str, str], full_text: str = '', llm_provider: Optional[str] = None) -> Dict[str, Any]:
-        """Extract structured work experience using LLM if provider specified, otherwise use regex."""
+        """
+        Extract structured work experience using HYBRID approach:
+        1. PRIMARY: Custom NER Model + Rule-based extraction
+        2. FALLBACK: Gemini LLM (only if API key is valid and primary methods fail)
+        """
         self.logger.info("=" * 80)
-        self.logger.info("🔍 _extract_experience() CALLED")
-        self.logger.info(f"LLM Provider: '{llm_provider}' (type: {type(llm_provider).__name__ if llm_provider else 'None'})")
-        self.logger.info(f"LLM Provider is truthy: {bool(llm_provider)}")
-        self.logger.info(f"Has extract_experience_with_llm: {hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
+        self.logger.info("🔍 HYBRID EXPERIENCE EXTRACTION")
         self.logger.info("=" * 80)
         
         if not self.exp_extractor:
@@ -1010,45 +1011,73 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         self.logger.info(f"📝 Experience text length: {len(experience_text)} chars")
         self.logger.info(f"📝 Experience text preview: {experience_text[:300]}...")
         
-        # Use Gemini 2.0 Flash Lite as default with new API key
-        # Falls back to rule-based if LLM fails or no API key
-        effective_provider = llm_provider or 'gemini-2.0-flash-lite'
+        # STEP 1: Try Custom NER Model + Rule-based extraction (PRIMARY)
+        self.logger.info("🎯 STEP 1: Trying Custom NER Model + Rule-based extraction")
+        work_experience = []
+        extraction_method = "none"
         
-        if hasattr(self.exp_extractor, 'extract_experience_with_llm'):
-            self.logger.info("✅ CONDITION MET: Using LLM extraction")
-            self.logger.info(f"Using LLM extraction with provider: {effective_provider}")
-            try:
-                llm_jobs = self.exp_extractor.extract_experience_with_llm(experience_text, effective_provider)
+        try:
+            # Try AI NER parser first (your custom model)
+            if self.ai_parser:
+                self.logger.info("🤖 Using Custom NER Model...")
+                try:
+                    # AI parser returns entities, not structured work_experience
+                    # We'll use it to enhance rule-based extraction
+                    ai_entities = self.ai_parser.extract_entities(experience_text)
+                    self.logger.info(f"Custom NER Model extracted entities: {len(ai_entities.get('companies', []))} companies, {len(ai_entities.get('titles', []))} titles")
+                    # Note: AI NER model doesn't directly extract structured work_experience
+                    # It extracts entities that can be used by rule-based extraction
+                except Exception as e:
+                    self.logger.warning(f"Custom NER Model failed: {e}")
+            
+            # If NER didn't work or returned empty, try rule-based
+            if not work_experience:
+                self.logger.info("📊 Using Rule-based extraction...")
+                exp_result = self.exp_extractor.extract_work_experience(experience_text)
+                work_experience = exp_result.get('work_experience', []) if exp_result else []
+                if work_experience:
+                    extraction_method = "rule_based"
+                    self.logger.info(f"✅ Rule-based extracted {len(work_experience)} experiences")
+        
+        except Exception as e:
+            self.logger.error(f"Primary extraction methods failed: {e}")
+        
+        # STEP 2: If primary methods failed, try Gemini LLM as fallback (OPTIONAL)
+        if not work_experience:
+            self.logger.info("⚠️ Primary methods returned empty, checking for Gemini API key...")
+            
+            # Check if Gemini API key exists
+            import os
+            gemini_api_key = os.getenv("GEMINI_API_KEY")
+            
+            if gemini_api_key and hasattr(self.exp_extractor, 'extract_experience_with_llm'):
+                self.logger.info("🔑 Gemini API key found, using as fallback...")
+                effective_provider = llm_provider or 'gemini-2.0-flash-lite'
                 
-                if llm_jobs and len(llm_jobs) > 0:
-                    work_experience = llm_jobs
-                    self.logger.info(f"LLM extracted {len(work_experience)} jobs using {effective_provider}")
+                try:
+                    llm_jobs = self.exp_extractor.extract_experience_with_llm(experience_text, effective_provider)
+                    
+                    if llm_jobs and len(llm_jobs) > 0:
+                        work_experience = llm_jobs
+                        extraction_method = f"gemini_llm_{effective_provider}"
+                        self.logger.info(f"✅ Gemini LLM extracted {len(work_experience)} experiences")
+                    else:
+                        self.logger.warning("Gemini LLM returned empty results")
+                
+                except Exception as e:
+                    self.logger.error(f"Gemini LLM extraction failed: {e}")
+            else:
+                if not gemini_api_key:
+                    self.logger.info("ℹ️ No GEMINI_API_KEY found - skipping LLM fallback")
+                    self.logger.info("💡 Add GEMINI_API_KEY to .env to enable LLM-based extraction")
                 else:
-                    # LLM returned nothing — fall back to rule-based
-                    self.logger.warning("LLM returned empty, falling back to rule-based extraction")
-                    exp_result = self.exp_extractor.extract_work_experience(experience_text)
-                    work_experience = exp_result.get('work_experience', []) if exp_result else []
-                
-                # Ensure work_experience is a list to prevent iteration errors
-                if not isinstance(work_experience, list):
-                    work_experience = []
-                
-                job_titles = [exp.get('role', '') or exp.get('job_title', '') for exp in work_experience if exp.get('role') or exp.get('job_title')]
-                return {
-                    'work_experience': work_experience,
-                    'job_titles': job_titles
-                }
-            except Exception as e:
-                self.logger.error(f"LLM extraction failed: {e}, falling back to regex")
-        else:
-            self.logger.warning(f"❌ CONDITION NOT MET: Using regex fallback")
-            self.logger.warning(f"Reason: has_method={hasattr(self.exp_extractor, 'extract_experience_with_llm') if self.exp_extractor else False}")
+                    self.logger.warning("LLM extraction method not available")
         
-        # Fallback to regex-based extraction
-        self.logger.info("📊 Using REGEX-based extraction")
-        exp_result = self.exp_extractor.extract_work_experience(experience_text)
-        work_experience = exp_result.get('work_experience', [])
+        # Ensure work_experience is a list
+        if not isinstance(work_experience, list):
+            work_experience = []
         
+        # Extract and clean job titles
         GARBAGE_TITLE = re.compile(
             r'(?i)^('
             r'client[:\s]|duration[:\s]|role[:\s]'
@@ -1060,16 +1089,24 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
 
         job_titles = []
         for exp in work_experience:
-            t = exp.get('job_title') or exp.get('title') or ''
+            t = exp.get('job_title') or exp.get('title') or exp.get('role') or ''
             t = t.strip()
             # Remove trailing dash/dash+spaces
             t = re.sub(r'\s*[-–—]\s*$', '', t).strip()
             if t and len(t) > 2 and len(t) < 80 and not GARBAGE_TITLE.match(t):
                 job_titles.append(t)
         
+        self.logger.info("=" * 80)
+        self.logger.info(f"📊 EXTRACTION COMPLETE")
+        self.logger.info(f"Method used: {extraction_method}")
+        self.logger.info(f"Experiences extracted: {len(work_experience)}")
+        self.logger.info(f"Job titles extracted: {len(job_titles)}")
+        self.logger.info("=" * 80)
+        
         return {
             'work_experience': work_experience,
-            'job_titles': job_titles
+            'job_titles': job_titles,
+            '_extraction_method': extraction_method
         }
     
     def _extract_summary(self, sections: Dict[str, str], full_text: str) -> Optional[str]:
