@@ -2698,8 +2698,8 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
         # Call AI service for experience extraction
         try:
             response = requests.post(
-                f"{ai_service_url}/parse_resume",
-                json={"text": chosen_experience_text},
+                f"{ai_service_url}/parse-text",
+                json={"text": chosen_experience_text, "candidate_id": str(job.candidate_id)},
                 timeout=30
             )
             if response.status_code == 200:

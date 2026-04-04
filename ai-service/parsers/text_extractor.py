@@ -6,9 +6,18 @@ from typing import Dict, Optional
 import unicodedata
 
 try:
-    import fitz  # pymupdf
+    import pdfplumber
+    PDFPLUMBER_AVAILABLE = True
 except ImportError:
-    fitz = None
+    PDFPLUMBER_AVAILABLE = False
+    logging.warning("pdfplumber not available. Will use pymupdf as primary.")
+
+try:
+    import fitz  # pymupdf
+    PYMUPDF_AVAILABLE = True
+except ImportError:
+    PYMUPDF_AVAILABLE = False
+    logging.warning("pymupdf not available. PDF extraction will be limited.")
 
 try:
     import pytesseract
@@ -39,9 +48,83 @@ class TextExtractor:
     def __init__(self):
         self.supported_extensions = {'.pdf', '.docx', '.txt'}
         
-    def extract_from_pdf(self, file_path: str) -> str:
+    def extract_from_pdf(self, file_path: str) -> Dict[str, any]:
         """
-        Extract text from PDF file using PyMuPDF with Tesseract OCR fallback.
+        Extract text from PDF using multi-tier strategy:
+        1. pdfplumber (primary) - best for text-based PDFs
+        2. pymupdf (secondary) - fallback if pdfplumber gives < 200 chars
+        3. OCR (tertiary) - fallback if pymupdf also gives < 200 chars
+        
+        Args:
+            file_path: Path to the PDF file
+            
+        Returns:
+            Dictionary with text, method_used, char_count, quality_score
+        """
+        MIN_CHAR_THRESHOLD = 200
+        
+        # Tier 1: Try pdfplumber first (best for text-based PDFs)
+        if PDFPLUMBER_AVAILABLE:
+            try:
+                logger.info(f"Attempting PDF extraction with pdfplumber: {file_path}")
+                text = self._extract_with_pdfplumber(file_path)
+                char_count = len(text.strip())
+                
+                if char_count >= MIN_CHAR_THRESHOLD:
+                    logger.info(f"✅ pdfplumber extraction successful: {char_count} chars")
+                    return {
+                        'text': text,
+                        'method_used': 'pdfplumber',
+                        'char_count': char_count,
+                        'quality_score': self._calculate_quality_score(text, len(text.split()))
+                    }
+                else:
+                    logger.warning(f"⚠️ pdfplumber extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}), trying pymupdf")
+            except Exception as e:
+                logger.warning(f"pdfplumber extraction failed: {e}, trying pymupdf")
+        
+        # Tier 2: Try pymupdf as secondary fallback
+        if PYMUPDF_AVAILABLE:
+            try:
+                logger.info(f"Attempting PDF extraction with pymupdf: {file_path}")
+                text = self._extract_with_pymupdf(file_path)
+                char_count = len(text.strip())
+                
+                if char_count >= MIN_CHAR_THRESHOLD:
+                    logger.info(f"✅ pymupdf extraction successful: {char_count} chars")
+                    return {
+                        'text': text,
+                        'method_used': 'pymupdf',
+                        'char_count': char_count,
+                        'quality_score': self._calculate_quality_score(text, len(text.split()))
+                    }
+                else:
+                    logger.warning(f"⚠️ pymupdf extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}), trying OCR")
+            except Exception as e:
+                logger.warning(f"pymupdf extraction failed: {e}, trying OCR")
+        
+        # Tier 3: Try OCR as last resort
+        if TESSERACT_AVAILABLE:
+            try:
+                logger.info(f"Attempting PDF extraction with OCR: {file_path}")
+                text = self._extract_from_pdf_ocr(file_path)
+                char_count = len(text.strip())
+                logger.info(f"✅ OCR extraction completed: {char_count} chars")
+                return {
+                    'text': text,
+                    'method_used': 'ocr',
+                    'char_count': char_count,
+                    'quality_score': self._calculate_quality_score(text, len(text.split()))
+                }
+            except Exception as e:
+                logger.error(f"OCR extraction failed: {e}")
+        
+        # If all methods failed, raise error
+        raise Exception(f"All PDF extraction methods failed for {file_path}. Install pdfplumber, pymupdf, or tesseract.")
+    
+    def _extract_with_pdfplumber(self, file_path: str) -> str:
+        """
+        Extract text using pdfplumber (best for text-based PDFs).
         
         Args:
             file_path: Path to the PDF file
@@ -49,40 +132,46 @@ class TextExtractor:
         Returns:
             Extracted text as string
         """
-        if fitz is None:
-            import pdfplumber
-            with pdfplumber.open(file_path) as pdf:
-                text = '\n'.join(page.extract_text() or '' for page in pdf.pages)
-            return text
+        if not PDFPLUMBER_AVAILABLE:
+            raise ImportError("pdfplumber is not available")
         
-        try:
-            text = ""
-            doc = fitz.open(file_path)
+        import pdfplumber
+        text_parts = []
+        
+        with pdfplumber.open(file_path) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text_parts.append(page_text)
+        
+        text = '\n'.join(text_parts)
+        return self.clean_text(text)
+    
+    def _extract_with_pymupdf(self, file_path: str) -> str:
+        """
+        Extract text using pymupdf.
+        
+        Args:
+            file_path: Path to the PDF file
             
-            # Extract text from each page
-            for page_num in range(len(doc)):
-                page = doc[page_num]
-                page_text = page.get_text()
-                text += page_text + "\n"
-            
-            doc.close()
-            
-            # Check if extracted text is substantial
-            cleaned_text = self.clean_text(text)
-            
-            # If text is too short, try OCR
-            if len(cleaned_text.strip()) < 100 and TESSERACT_AVAILABLE:
-                logger.info(f"Text extraction from {file_path} was minimal, trying OCR")
-                text = self._extract_from_pdf_ocr(file_path)
-            
-            return self.clean_text(text)
-            
-        except Exception as e:
-            logger.error(f"Error extracting text from PDF {file_path}: {str(e)}")
-            if TESSERACT_AVAILABLE:
-                logger.info("Falling back to OCR")
-                return self._extract_from_pdf_ocr(file_path)
-            raise
+        Returns:
+            Extracted text as string
+        """
+        if not PYMUPDF_AVAILABLE:
+            raise ImportError("pymupdf is not available")
+        
+        text_parts = []
+        doc = fitz.open(file_path)
+        
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            page_text = page.get_text()
+            if page_text:
+                text_parts.append(page_text)
+        
+        doc.close()
+        text = '\n'.join(text_parts)
+        return self.clean_text(text)
     
     def _extract_from_pdf_ocr(self, file_path: str) -> str:
         """
@@ -96,6 +185,9 @@ class TextExtractor:
         """
         if not TESSERACT_AVAILABLE:
             raise ImportError("Tesseract OCR is required for PDF OCR")
+        
+        if not PYMUPDF_AVAILABLE:
+            raise ImportError("pymupdf is required for OCR (to convert PDF to images)")
         
         try:
             text = ""
@@ -223,8 +315,24 @@ class TextExtractor:
         
         try:
             if file_extension == '.pdf':
-                text = self.extract_from_pdf(str(file_path))
-                method = "pymupdf"
+                # PDF extraction returns dict with metadata
+                result = self.extract_from_pdf(str(file_path))
+                text = result['text']
+                method = result['method_used']
+                word_count = len(text.split())
+                quality_score = result['quality_score']
+                
+                logger.info(f"Successfully extracted text from {file_path.name} using {method}")
+                logger.info(f"Characters: {result['char_count']}, Words: {word_count}, Quality: {quality_score:.2f}")
+                
+                return {
+                    'text': text,
+                    'method': method,
+                    'word_count': word_count,
+                    'quality_score': quality_score,
+                    'char_count': result['char_count']
+                }
+            
             elif file_extension == '.docx':
                 text = self.extract_from_docx(str(file_path))
                 method = "python-docx"
@@ -232,18 +340,20 @@ class TextExtractor:
                 text = self.extract_from_txt(str(file_path))
                 method = "direct"
             
-            # Calculate metrics
+            # Calculate metrics for non-PDF files
             word_count = len(text.split())
+            char_count = len(text.strip())
             quality_score = self._calculate_quality_score(text, word_count)
             
             logger.info(f"Successfully extracted text from {file_path.name} using {method}")
-            logger.info(f"Word count: {word_count}, Quality score: {quality_score:.2f}")
+            logger.info(f"Characters: {char_count}, Words: {word_count}, Quality: {quality_score:.2f}")
             
             return {
                 'text': text,
                 'method': method,
                 'word_count': word_count,
-                'quality_score': quality_score
+                'quality_score': quality_score,
+                'char_count': char_count
             }
             
         except Exception as e:

@@ -206,6 +206,160 @@ class HybridMerger:
             # Return rule result as fallback
             return rule_result
     
+    def merge_with_deberta(self, rule_result: Dict[str, Any], ai_result: Dict[str, Any], 
+                          deberta_result: Dict[str, Any], llm_result: Dict[str, Any] = None) -> Dict[str, Any]:
+        """
+        Merge parsing results using DeBERTa NER with priority for entity extraction.
+        
+        Args:
+            rule_result: Results from rule-based parsing
+            ai_result: Results from AI/NER parsing
+            deberta_result: Results from DeBERTa NER model
+            llm_result: Results from LLM parsing (optional)
+            
+        Returns:
+            Merged dictionary with resolved conflicts, DeBERTa prioritized for entities
+        """
+        try:
+            self.logger.info("Starting hybrid merge with DeBERTa NER priority")
+            
+            # Prepare inputs for conflict resolution
+            ner_data = ai_result if ai_result else {}
+            rules_data = rule_result if rule_result else {}
+            deberta_data = deberta_result if deberta_result else {}
+            llm_data = llm_result if llm_result else {}
+            
+            # Enhanced merge with DeBERTa priority for entities
+            resolved_result = self._resolve_conflicts_with_deberta(ner_data, rules_data, deberta_data, llm_data)
+            
+            # Add any missing fields from original results
+            all_fields = set(rule_result.keys()) | set(ai_result.keys()) | set(deberta_result.keys()) | set(llm_result.keys() if llm_result else set())
+            
+            for field in all_fields:
+                if field not in resolved_result:
+                    # Priority: DeBERTa > Rules > AI > LLM for entity fields
+                    deberta_value = deberta_result.get(field)
+                    rule_value = rule_result.get(field)
+                    ai_value = ai_result.get(field)
+                    llm_value = llm_result.get(field) if llm_result else None
+                    
+                    # Entity fields where DeBERTa gets priority
+                    deberta_priority_fields = ['companies', 'locations', 'job_titles', 'work_experience', 'education', 
+                                             'degrees', 'institutions', 'fields_of_study', 'dates']
+                    
+                    if field in deberta_priority_fields:
+                        if deberta_value:
+                            resolved_result[field] = deberta_value
+                        elif rule_value:
+                            resolved_result[field] = rule_value
+                        elif ai_value:
+                            resolved_result[field] = ai_value
+                        elif llm_value:
+                            resolved_result[field] = llm_value
+                    else:
+                        # Default priority: rules > ai > llm > deberta
+                        if rule_value:
+                            resolved_result[field] = rule_value
+                        elif ai_value:
+                            resolved_result[field] = ai_value
+                        elif llm_value:
+                            resolved_result[field] = llm_value
+                        elif deberta_value:
+                            resolved_result[field] = deberta_value
+                        else:
+                            # Empty default
+                            if field in ['work_experience', 'education', 'skills', 'job_titles', 'companies', 'locations', 'websites', 'certifications']:
+                                resolved_result[field] = []
+                            elif field in ['confidence', 'processing_metrics', '_merge_metadata']:
+                                resolved_result[field] = {}
+                            else:
+                                resolved_result[field] = None
+            
+            # Add merge metadata
+            resolved_result['_merge_metadata'] = {
+                'conflict_resolution_used': True,
+                'sources_available': {
+                    'rules': bool(rule_result),
+                    'ner': bool(ai_result),
+                    'deberta': bool(deberta_result),
+                    'llm': bool(llm_result)
+                },
+                'deberta_entities_found': deberta_result.get('confidence', {}).get('entities_found', 0),
+                'total_fields_merged': len([k for k in resolved_result.keys() if not k.startswith('_')])
+            }
+            
+            self.logger.info(f"Hybrid merge with DeBERTa completed")
+            return resolved_result
+            
+        except Exception as e:
+            self.logger.error(f"Error during DeBERTa hybrid merge: {e}")
+            # Return rule result as fallback
+            return rule_result
+    
+    def _resolve_conflicts_with_deberta(self, ner_data: Dict[str, Any], rules_data: Dict[str, Any], 
+                                       deberta_data: Dict[str, Any], llm_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Resolve conflicts with DeBERTa priority for entities."""
+        resolved = {}
+        
+        # Entity fields where DeBERTa gets highest priority
+        entity_fields = ['companies', 'locations', 'job_titles', 'work_experience', 'education']
+        
+        for field in entity_fields:
+            deberta_value = deberta_data.get(field)
+            rules_value = rules_data.get(field)
+            ner_value = ner_data.get(field)
+            llm_value = llm_data.get(field)
+            
+            if deberta_value and len(deberta_value) > 0:
+                resolved[field] = deberta_value
+            elif rules_value and len(rules_value) > 0:
+                resolved[field] = rules_value
+            elif ner_value and len(ner_value) > 0:
+                resolved[field] = ner_value
+            elif llm_value and len(llm_value) > 0:
+                resolved[field] = llm_value
+            else:
+                resolved[field] = []
+        
+        # Non-entity fields use regular priority
+        non_entity_fields = ['name', 'email', 'phone', 'linkedin', 'github', 'skills', 'websites', 'dates']
+        
+        for field in non_entity_fields:
+            rules_value = rules_data.get(field)
+            ner_value = ner_data.get(field)
+            deberta_value = deberta_data.get(field)
+            llm_value = llm_data.get(field)
+            
+            if field in ['name', 'email', 'phone', 'linkedin', 'github']:
+                # Rules priority for contact info
+                if rules_value:
+                    resolved[field] = rules_value
+                elif ner_value:
+                    resolved[field] = ner_value
+                elif deberta_value:
+                    resolved[field] = deberta_value
+                elif llm_value:
+                    resolved[field] = llm_value
+                else:
+                    resolved[field] = None
+            else:
+                # Union for list fields
+                all_values = []
+                if rules_value:
+                    all_values.extend(rules_value if isinstance(rules_value, list) else [rules_value])
+                if ner_value:
+                    all_values.extend(ner_value if isinstance(ner_value, list) else [ner_value])
+                if deberta_value:
+                    all_values.extend(deberta_value if isinstance(deberta_value, list) else [deberta_value])
+                if llm_value:
+                    all_values.extend(llm_value if isinstance(llm_value, list) else [llm_value])
+                
+                # Remove duplicates while preserving order
+                seen = set()
+                resolved[field] = [x for x in all_values if x and x not in seen and not seen.add(x)]
+        
+        return resolved
+    
     def _merge_rule_priority(self, field: str, rule_value: Any, ai_value: Any, stats: Dict[str, int]) -> tuple:
         """
         Merge rule priority fields - always prefer rule results.

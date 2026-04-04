@@ -21,3 +21,6 @@ python-multipart==0.0.9
 google-generativeai==0.8.3
 anthropic==0.39.0
 openai==1.54.5
+datasets==2.14.0
+evaluate==0.4.0
+accelerate==0.24.0

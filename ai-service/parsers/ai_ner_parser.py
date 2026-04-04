@@ -123,10 +123,10 @@ class AINamedEntityParser:
             word = ent.get('word', '').strip()
             label = ent.get('entity_group', ent.get('entity', '')).upper()
             score = ent.get('score', 0)
-            if score < 0.70 or not word or len(word) < 2:
+            if score < 0.50 or not word or len(word) < 2:
                 continue
             
-            # Custom model labels
+            # Custom model labels (your trained DeBERTa model)
             if 'NAME' in label:
                 result['names'].append(word)
             elif 'EMAIL' in label:
@@ -135,23 +135,77 @@ class AINamedEntityParser:
                 result['phones'].append(word)
             elif 'EDUCATION' in label or 'EDU' in label:
                 result['education'].append(word)
-            elif 'EXPERIENCE' in label or 'EXP' in label:
+            elif 'COMPANY' in label:
                 result['companies'].append(word)
+            elif 'CLIENT' in label:
+                result['companies'].append(word)  # Add client as company for now
+            elif 'ROLE' in label:
+                result['titles'].append(word)
+            elif 'LOCATION' in label:
+                result['locations'].append(word)
+            elif 'START_DATE' in label or 'END_DATE' in label:
+                # Dates handled separately
+                pass
             elif 'SKILL' in label:
                 result['skills'].append(word)
+            elif 'DEGREE' in label:
+                result['education'].append(word)
             elif 'CERTIFICATION' in label or 'CERT' in label:
                 result['certifications'].append(word)
-            # Fallback to original labels for compatibility
+            # Fallback to jobbert-base-cased labels for compatibility
             elif 'PER' in label:
                 result['names'].append(word)
-            elif 'ORG' in label or 'COMP' in label:
+            elif 'ORG' in label:
                 result['companies'].append(word)
-            elif 'LOC' in label or 'LOCATION' in label:
+            elif 'LOC' in label:
                 result['locations'].append(word)
-            elif 'TECH' in label:
-                result['skills'].append(word)
-            elif 'TITLE' in label or 'ROLE' in label:
+            elif 'MISC' in label:
+                # Check if MISC might be a skill or title
+                if any(tech in word.lower() for tech in ['engineer', 'developer', 'manager', 'director', 'lead', 'senior', 'junior']):
+                    result['titles'].append(word)
+                else:
+                    result['skills'].append(word)
+            elif 'TITLE' in label:
                 result['titles'].append(word)
+            # Handle generic labels from jobbert-base-cased model
+            elif label == 'LABEL_0' or label == 'LABEL_1':
+                # Use heuristics to classify generic entities
+                word_lower = word.lower()
+                
+                # Job titles
+                if any(title_word in word_lower for title_word in [
+                    'engineer', 'developer', 'manager', 'director', 'lead', 
+                    'senior', 'junior', 'architect', 'analyst', 'consultant',
+                    'specialist', 'coordinator', 'head', 'chief', 'vp', 'president'
+                ]):
+                    result['titles'].append(word)
+                # Companies
+                elif any(company_word in word_lower for company_word in [
+                    'depot', 'google', 'microsoft', 'amazon', 'apple', 'facebook',
+                    'netflix', 'uber', 'airbnb', 'spotify', 'twitter', 'linkedin'
+                ]):
+                    result['companies'].append(word)
+                # Skills/Technologies
+                elif any(tech_word in word_lower for tech_word in [
+                    'python', 'java', 'javascript', 'sql', 'hadoop', 'spark', 
+                    'hive', 'docker', 'kubernetes', 'aws', 'azure', 'gcp',
+                    'react', 'angular', 'node', 'django', 'flask', 'spring'
+                ]):
+                    result['skills'].append(word)
+                # Locations
+                elif any(loc_word in word_lower for loc_word in [
+                    'atlanta', 'dallas', 'new york', 'san francisco', 'seattle',
+                    'austin', 'boston', 'chicago', 'denver', 'portland'
+                ]) or any(state in word for state in ['GA', 'TX', 'NY', 'CA', 'WA', 'CO']):
+                    result['locations'].append(word)
+                # Education
+                elif any(edu_word in word_lower for edu_word in [
+                    'university', 'college', 'school', 'institute', 'academy'
+                ]):
+                    result['education'].append(word)
+                # Names (proper capitalized words)
+                elif word.istitle() and len(word) > 2:
+                    result['names'].append(word)
 
         for key in result:
             result[key] = list(dict.fromkeys(result[key]))

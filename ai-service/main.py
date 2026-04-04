@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 import logging
 import time
 import os
@@ -129,6 +129,7 @@ class ParseResponse(BaseModel):
     websites: List[str] = []
     skills: List[str] = []
     work_experience: List[Dict[str, Any]] = []
+    work_history: List[Dict[str, Any]] = []  # Backend compatibility field
     education: List[Dict[str, Any]] = []
     job_titles: List[str] = []
     companies: List[str] = []
@@ -145,7 +146,7 @@ class ParseResponse(BaseModel):
     extraction_quality: Optional[Dict[str, Any]] = None
     
     # Validators to ensure None values are converted to empty lists
-    @field_validator('websites', 'skills', 'work_experience', 'education', 'job_titles', 'companies', 'locations', 'dates', mode='before')
+    @field_validator('websites', 'skills', 'work_experience', 'work_history', 'education', 'job_titles', 'companies', 'locations', 'dates', mode='before')
     @classmethod
     def empty_list_for_none(cls, v):
         return [] if v is None else v
@@ -154,6 +155,19 @@ class ParseResponse(BaseModel):
     @classmethod
     def empty_dict_for_none(cls, v):
         return {} if v is None else v
+    
+    @model_validator(mode='before')
+    @classmethod
+    def map_work_experience_to_work_history(cls, data):
+        """Map work_experience to work_history for backend compatibility"""
+        if isinstance(data, dict):
+            # If work_history is not provided but work_experience is, map it
+            if 'work_history' not in data and 'work_experience' in data:
+                data['work_history'] = data['work_experience']
+            # If work_experience is not provided but work_history is, map it
+            elif 'work_experience' not in data and 'work_history' in data:
+                data['work_experience'] = data['work_history']
+        return data
 
 class BatchParseResponse(BaseModel):
     status: str

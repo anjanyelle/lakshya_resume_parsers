@@ -12,28 +12,61 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 # Entity label mapping from Doccano to BIO format
+# Maps various Doccano label formats to standardized entity types
 ENTITY_MAPPING = {
-    'PERSON_NAME': 'NAME',
-    'NAME': 'NAME',
-    'EMAIL': 'EMAIL',
-    'PHONE_NUMBER': 'PHONE',
-    'PHONE': 'PHONE',
-    'COMPANY_NAME': 'EXPERIENCE',
-    'ORGANIZATION': 'EXPERIENCE',
-    'ORG': 'EXPERIENCE',
-    'JOB_TITLE': 'EXPERIENCE',
-    'TITLE': 'EXPERIENCE',
-    'SKILL': 'SKILLS',
-    'SKILLS': 'SKILLS',
+    # Person/Name mappings
+    'PERSON_NAME': 'PERSON',
+    'NAME': 'PERSON',
+    'PERSON': 'PERSON',
+    'CANDIDATE_NAME': 'PERSON',
+    
+    # Company mappings
+    'COMPANY_NAME': 'COMPANY',
+    'COMPANY': 'COMPANY',
+    'ORGANIZATION': 'COMPANY',
+    'ORG': 'COMPANY',
+    'EMPLOYER': 'COMPANY',
+    
+    # Client mappings
+    'CLIENT': 'CLIENT',
+    'CLIENT_NAME': 'CLIENT',
+    'CUSTOMER': 'CLIENT',
+    
+    # Role/Title mappings
+    'JOB_TITLE': 'ROLE',
+    'TITLE': 'ROLE',
+    'ROLE': 'ROLE',
+    'POSITION': 'ROLE',
+    'DESIGNATION': 'ROLE',
+    
+    # Location mappings
+    'LOCATION': 'LOCATION',
+    'LOC': 'LOCATION',
+    'CITY': 'LOCATION',
+    'COUNTRY': 'LOCATION',
+    'ADDRESS': 'LOCATION',
+    
+    # Date mappings
+    'START_DATE': 'START_DATE',
+    'END_DATE': 'END_DATE',
+    'DATE': 'START_DATE',  # Default dates to START_DATE
+    'DURATION': 'START_DATE',
+    
+    # Education mappings
     'EDUCATION': 'EDUCATION',
-    'DEGREE': 'EDUCATION',
-    'UNIVERSITY': 'EDUCATION',
-    'COLLEGE_NAME': 'EDUCATION',
     'EDU': 'EDUCATION',
-    'CERTIFICATION': 'CERTIFICATION',
-    'CERT': 'CERTIFICATION',
-    'LINKEDIN': 'NAME',
-    'GITHUB': 'NAME',
+    'UNIVERSITY': 'EDUCATION',
+    'COLLEGE': 'EDUCATION',
+    'COLLEGE_NAME': 'EDUCATION',
+    'SCHOOL': 'EDUCATION',
+    'INSTITUTE': 'EDUCATION',
+    
+    # Degree mappings
+    'DEGREE': 'DEGREE',
+    'QUALIFICATION': 'DEGREE',
+    'DIPLOMA': 'DEGREE',
+    'CERTIFICATION': 'DEGREE',
+    'CERT': 'DEGREE',
 }
 
 def tokenize_text(text: str) -> List[str]:

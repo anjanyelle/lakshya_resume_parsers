@@ -1,0 +1,13679 @@
+Oracle|Austin	B-LOCATION
+TX|Lead	B-ROLE
+Software	I-ROLE
+Engineer|Mar2017|Jul2020|client:Ford	B-CLIENT
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Mangalore	B-INSTITUTION
+University,	I-INSTITUTION
+2007,	B-EDU_YEAR_END
+68%	B-GRADE
+
+Wipro	B-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+Mindtree^^Bangalore	B-LOCATION
+India^^Systems	B-ROLE
+Analyst^^April	B-DATE_START
+2015^^December	B-DATE_END
+2017	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Stanford	B-INSTITUTION
+University,	I-INSTITUTION
+Stanford,	B-LOCATION
+CA	I-LOCATION
+(2011–2015)	B-EDU_YEAR_END
+
+At	O
+Walmart,	B-COMPANY
+I	O
+have	O
+been	O
+working	O
+as	O
+Sr.	B-ROLE
+E-Commerce	I-ROLE
+Developer	I-ROLE
+since	O
+March	B-DATE_START
+2023	I-DATE_START
+(Bentonville,	B-LOCATION
+AR).	I-LOCATION
+
+Oracle	B-COMPANY
+India	I-COMPANY
+Pvt	I-COMPANY
+Ltd,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Science:Electrical	B-FIELD
+Engineering,IIT	B-INSTITUTION
+Madras,Chennai	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+Infosys,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Wipro	B-COMPANY
+Ltd	I-COMPANY
+::	O
+Software	B-ROLE
+Engineer	I-ROLE
+::	O
+Hyd	B-LOCATION
+::	O
+Jan'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+L&T	B-COMPANY
+Infotech	I-COMPANY
+-	O
+Mumbai	B-LOCATION
+India	I-LOCATION
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+January	B-DATE_START
+2015	I-DATE_START
+-	O
+February	B-DATE_END
+2018	I-DATE_END
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+Hexaware	B-COMPANY
+Technologies	I-COMPANY
+::	O
+Automation	B-ROLE
+Engineer	I-ROLE
+::	O
+Bengaluru	B-LOCATION
+::	O
+Jan'17	B-DATE_START
+to	O
+May'19	B-DATE_END
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+Kolkata,	B-LOCATION
+2017,	B-EDU_YEAR_END
+CGPA:	O
+8.8/10	B-GRADE
+
+>>	O
+Polaris	B-COMPANY
+Software	I-COMPANY
+(Chennai,	B-LOCATION
+India)	I-LOCATION
+
+Role	O
+:	O
+Software	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+
+Tech	B-COMPANY
+Mahindra	I-COMPANY
+–	O
+Software	B-ROLE
+Engineer	I-ROLE
+–	O
+Mumbai	B-LOCATION
+–	O
+2016–2019	B-DATE_END
+
+ThoughtWorks,	B-COMPANY
+Bangalore	B-LOCATION
+
+Rackspace	B-COMPANY
+•	O
+San	B-LOCATION
+Antonio,	I-LOCATION
+TX	I-LOCATION
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+
+Roku,San	B-LOCATION
+Jose	I-LOCATION
+CA,Software	B-ROLE
+Engineer	I-ROLE
+II,June	B-DATE_START
+2017,November	B-DATE_END
+2020	I-DATE_END
+
+M.Tech:	B-DEGREE
+Artificial	B-FIELD
+Intelligence	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Hyderabad	B-LOCATION
+|	O
+2014–2016	B-DATE_END
+|	O
+CGPA:	O
+8.4	B-GRADE
+
+Working	O
+@	O
+Cognizant	B-COMPANY
+as	O
+Technology	B-ROLE
+Lead	I-ROLE
+|	O
+Bengaluru	B-LOCATION
+|	O
+since	O
+April	B-DATE_START
+2020	I-DATE_START
+|	O
+Client:	O
+HSBC	B-CLIENT
+UK	I-CLIENT
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Engineering	I-FIELD
+
+Adobe,San	B-LOCATION
+Jose	I-LOCATION
+CA,Principal	B-ROLE
+Cloud	I-ROLE
+Architect,January	B-DATE_START
+2021,Present,client:CreativeEdge	B-CLIENT
+Studios	I-CLIENT
+
+Infosys|Mumbai	B-LOCATION
+India|Senior	B-ROLE
+Manager|January	B-DATE_START
+2019-July	B-DATE_END
+2024|client:GlobalEdge	B-CLIENT
+Partners	I-CLIENT
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+B.E.	B-DEGREE
+(IS)	B-FIELD
+–	O
+Visvesvaraya	B-INSTITUTION
+Technological	I-INSTITUTION
+University	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+72.4%	B-GRADE
+
+Client:	O
+Maersk	B-CLIENT
+Logistics	I-CLIENT
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+04/2017	B-DATE_START
+-	O
+12/2019	B-DATE_END
+
+Hexaware,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+Senior	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+
+B.Tech:Information	B-FIELD
+Technology,SRM	B-INSTITUTION
+University,Chennai	B-LOCATION
+India(2008-2012)	B-EDU_YEAR_END
+
+ProgramManager/Mar2018/Feb2024	B-DATE_END
+
+[2012	B-DATE_START
+–	O
+2014]	B-DATE_END
+Software	B-ROLE
+Engineer	I-ROLE
+→	O
+MindTree,	B-COMPANY
+Bangalore,	B-LOCATION
+India	I-LOCATION
+
+Redmond,	B-LOCATION
+WA	I-LOCATION
+
+Client:	O
+Google	B-CLIENT
+Cloud	I-CLIENT
+APAC	I-CLIENT
+
+Duration	O
+:	O
+October	B-DATE_START
+2014	I-DATE_START
+May	B-DATE_END
+2017	I-DATE_END
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+Intern	B-ROLE
+@	O
+Mindtree	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Apr	B-DATE_START
+2015	I-DATE_START
+-	O
+Aug	B-DATE_END
+2015	I-DATE_END
+
+SDE	B-ROLE
+III	I-ROLE
+@	O
+Amazon	B-COMPANY
+India	I-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+Jun'20	B-DATE_START
+to	O
+Dec'22	B-DATE_END
+
+Designation	O
+:	O
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+Dec	B-DATE_END
+2013	I-DATE_END
+
+DXC	B-COMPANY
+TECHNOLOGY	I-COMPANY
+|	O
+Security	B-ROLE
+Architect	I-ROLE
+|	O
+2020/04	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Chennai	B-LOCATION
+
+Miami,	B-LOCATION
+FL	I-LOCATION
+/	I-LOCATION
+Latin	I-LOCATION
+America	I-LOCATION
+
+Title	O
+:	O
+Backend	B-ROLE
+Engineer	I-ROLE
+
+Comcast,	B-COMPANY
+Philadelphia,	B-LOCATION
+PA	I-LOCATION
+
+Head	B-ROLE
+of	I-ROLE
+Supply	I-ROLE
+Chain	I-ROLE
+Systems	I-ROLE
+|	O
+Irongate	B-COMPANY
+Shipping	I-COMPANY
+Corp	I-COMPANY
+|	O
+2015	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Wipro	B-COMPANY
+Technologies	I-COMPANY
+
+Research	B-ROLE
+Engineer	I-ROLE
+@	O
+Samsung	B-COMPANY
+R&D	I-COMPANY
+India	I-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jan'21	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Mar	B-DATE_START
+2019	I-DATE_START
+-	O
+Dec	B-DATE_END
+2021	I-DATE_END
+
+Client:	O
+Tata	B-CLIENT
+Steel	I-CLIENT
+
+Principal	B-ROLE
+Avionics	I-ROLE
+Software	I-ROLE
+&	I-ROLE
+Model-Based	I-ROLE
+Systems	I-ROLE
+Engineering	I-ROLE
+Lead	I-ROLE
+
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Senior	B-ROLE
+Architect	I-ROLE
+|	O
+Visakhapatnam	B-LOCATION
+|	O
+Jan'20	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Bharat	B-CLIENT
+Heavy	I-CLIENT
+Electricals	I-CLIENT
+
+SolutionArchitect~Jul2018~Jun2023	B-DATE_END
+
+Backend	B-ROLE
+Developer	I-ROLE
+@	O
+Nykaa	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+Mar'22	B-DATE_START
+to	O
+Present	B-DATE_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+Location:	O
+McLean,	B-LOCATION
+VA	I-LOCATION
+
+Qualification	O
+:	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Engineering	I-FIELD
+|	O
+Virginia	B-INSTITUTION
+Tech,	I-INSTITUTION
+Blacksburg,	O
+VA	O
+|	O
+2010–2012	B-EDU_YEAR_END
+
+Joined	O
+Accenture	B-COMPANY
+in	O
+September	B-DATE_START
+2019	I-DATE_START
+as	O
+Technology	B-ROLE
+Consultant,	I-ROLE
+left	O
+in	O
+March	B-DATE_END
+2022	I-DATE_END
+(Dallas,	B-LOCATION
+TX).	I-LOCATION
+
+VMware;Palo	B-LOCATION
+Alto	I-LOCATION
+CA;Senior	B-ROLE
+Cloud	I-ROLE
+Engineer;September	B-DATE_START
+2018;March	B-DATE_END
+2022	I-DATE_END
+
+M.Tech	B-DEGREE
+Data	B-DATE_END
+Science	I-DATE_END
+–	O
+NIT	B-INSTITUTION
+Warangal	I-INSTITUTION
+–	O
+2016-2019	B-EDU_YEAR_END
+–	O
+8.4	B-GRADE
+CGPA	O
+
+Infoysys	B-COMPANY
+BPO	I-COMPANY
+
+IT	B-ROLE
+Analyst	I-ROLE
+
+2017	B-EDU_YEAR_END
+
+TCS,	B-COMPANY
+Chennai	B-LOCATION
+
+Intermediate:MPC,Resonance	B-INSTITUTION
+Junior	I-INSTITUTION
+College,Kota	B-LOCATION
+India(2010-2012)	B-EDU_YEAR_END
+
+Zoom	B-COMPANY
+Video	I-COMPANY
+Communications	I-COMPANY
+-	O
+San	B-LOCATION
+Jose	I-LOCATION
+CA	I-LOCATION
+-	O
+Principal	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+-	O
+May	B-DATE_START
+2020	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Field	O
+:	O
+Data	B-FIELD
+Science	I-FIELD
+
+Salesforce,Bellevue	B-LOCATION
+WA,Software	B-ROLE
+Engineer	I-ROLE
+II,Feb2018,Aug2021,client:Delta	B-CLIENT
+Airlines	I-CLIENT
+
+Architect	B-ROLE
+@	O
+Wipro	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+2016	B-DATE_START
+-	O
+2019	B-DATE_END
+
+Apr	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Lead	B-ROLE
+Engineer	I-ROLE
+
+Jul	B-DATE_START
+2014	I-DATE_START
+–	O
+Mar	B-DATE_END
+2019	I-DATE_END
+
+Senior	O
+Associate	O
+–	O
+Data	B-ROLE
+Engineering	I-ROLE
+
+Degree	O
+:	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2014	I-DATE_END
+
+Technology	B-ROLE
+Analyst	I-ROLE
+
+Persistent	B-COMPANY
+Systems	I-COMPANY
+–	O
+Senior	B-ROLE
+Engineer	I-ROLE
+–	O
+Pune	B-LOCATION
+–	O
+2016–2019	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Embedded	B-FIELD
+Systems,University	B-INSTITUTION
+of	I-INSTITUTION
+Michigan,Ann	B-LOCATION
+Arbor	I-LOCATION
+MI(2015-2017)	I-LOCATION
+
+FedEx	B-COMPANY
+(Client:	O
+FedEx	B-CLIENT
+Supply	I-CLIENT
+Chain	I-CLIENT
+Division)	I-CLIENT
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Memphis,	B-LOCATION
+TN	I-LOCATION
+(Remote)	O
+
+TCS,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Trainee	B-ROLE
+Dev	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jul	B-DATE_START
+2014	I-DATE_START
+-	O
+Jun	B-DATE_END
+2015	I-DATE_END
+
+Salt	B-LOCATION
+Lake	I-LOCATION
+City,	I-LOCATION
+UT	I-LOCATION
+
+Senior	B-ROLE
+Systems	I-ROLE
+Integration	I-ROLE
+Lead	I-ROLE
+|	O
+Stratosphere	B-COMPANY
+Avionics	I-COMPANY
+Inc	I-COMPANY
+|	O
+2017	B-DATE_START
+–	O
+2021	B-DATE_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Noida	B-LOCATION
+
+VP	B-ROLE
+of	I-ROLE
+Aerospace	I-ROLE
+Digital	I-ROLE
+Engineering	I-ROLE
+|	O
+OrbitalTech	B-COMPANY
+Systems	I-COMPANY
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Mar	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+RGUHS	B-INSTITUTION
+–	O
+B.Tech	B-DEGREE
+–	O
+2016	B-EDU_YEAR_END
+–	O
+7.9	B-GRADE
+CGPA	O
+
+Capgemini	B-COMPANY
+|	O
+Tech	B-ROLE
+Lead	I-ROLE
+|	O
+01/2019	B-DATE_START
+-	O
+Till	B-DATE_END
+Date	I-DATE_END
+|	O
+Chennai	B-LOCATION
+
+Wipro,	B-COMPANY
+Chandigarh	B-LOCATION
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+Lovely	B-INSTITUTION
+Professional	I-INSTITUTION
+University	I-INSTITUTION
+|	O
+2013–2017	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.5	B-GRADE
+
+VMware;Palo	B-COMPANY
+Alto	I-LOCATION
+CA;Senior	I-LOCATION
+MTS;Oct2016;May2021;client:Internal	I-ROLE
+Cloud	I-CLIENT
+
+VP	B-ROLE
+of	I-ROLE
+Product	I-ROLE
+Engineering	I-ROLE
+|	O
+BlueWave	B-COMPANY
+Semiconductor	I-COMPANY
+|	O
+2020	B-DATE_START
+–	O
+Present	B-DATE_END
+
+B.E:Telecommunications,VIT	B-INSTITUTION
+University,Vellore	B-LOCATION
+India(2009-2013)	B-EDU_YEAR_END
+
+Title	O
+:	O
+Software	B-ROLE
+Engineer	I-ROLE
+
+Field	O
+:	O
+Software	B-FIELD
+Engineering	I-FIELD
+
+Accenture	B-COMPANY
+–	O
+Tech	B-ROLE
+Lead	I-ROLE
+–	O
+(Location:	O
+Delhi	B-LOCATION
+NCR)	I-LOCATION
+–	O
+Oct	B-DATE_START
+2020–Present	B-DATE_END
+
+At	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Minnesota,	I-INSTITUTION
+I	O
+completed	O
+my	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Information	I-FIELD
+Systems	I-FIELD
+in	O
+2013.	B-EDU_YEAR_END
+
+Designation	O
+:	O
+Application	B-ROLE
+Developer	I-ROLE
+
+Pune	B-LOCATION
+
+Jun	B-DATE_START
+2016	I-DATE_START
+–	O
+Nov	B-DATE_END
+2019	I-DATE_END
+
+Jul	B-DATE_START
+2016	I-DATE_START
+–	O
+Sep	B-DATE_END
+2019	I-DATE_END
+
+Client:	O
+ONGC	B-CLIENT
+
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Thoughtworks	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+April	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Systems	B-ROLE
+Administrator	I-ROLE
+March	B-DATE_START
+2014	I-DATE_START
+–	O
+October	B-DATE_END
+2016	I-DATE_END
+
+Atlassian	B-COMPANY
+-	O
+Austin	B-LOCATION
+TX	I-LOCATION
+-	O
+Senior	B-ROLE
+Backend	I-ROLE
+Developer	I-ROLE
+-	O
+March	B-DATE_START
+2018	I-DATE_START
+-	O
+July	B-DATE_END
+2021	I-DATE_END
+
+Infosys,	B-COMPANY
+Hyderabad	B-LOCATION
+
+TCS,	B-COMPANY
+Kolkata	B-LOCATION
+
+Hexaware	B-COMPANY
+Technologies,	I-COMPANY
+Chennai	B-LOCATION
+
+Full	B-ROLE
+Stack	I-ROLE
+Developer	I-ROLE
+@	O
+Swiggy	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jan	B-DATE_START
+2021	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Syntel	B-COMPANY
+-	O
+Pune	B-LOCATION
+India	I-LOCATION
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+August	B-DATE_START
+2013	I-DATE_START
+-	O
+October	B-DATE_END
+2016	I-DATE_END
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+B.E.	B-DEGREE
+Electronics	B-FIELD
+and	I-FIELD
+Communication,	I-FIELD
+VTU,	B-INSTITUTION
+2016,	B-EDU_YEAR_END
+75.3%	B-GRADE
+
+Mastech!!Pittsburgh	B-LOCATION
+PA!!Systems	B-ROLE
+Consultant!!July	B-DATE_START
+2016!!March	B-DATE_END
+2019	I-DATE_END
+
+Persistent	B-COMPANY
+Systems,	I-COMPANY
+Pune	B-LOCATION
+
+Fractal	B-COMPANY
+Analytics	I-COMPANY
+
+B.Tech	B-DEGREE
+–	O
+JNTU	B-INSTITUTION
+Kakinada	I-INSTITUTION
+–	O
+Kakinada	B-LOCATION
+–	O
+2009-2012	B-EDU_YEAR_END
+–	O
+77%	B-GRADE
+
+UST	B-COMPANY
+Global,	I-COMPANY
+Trivandrum	B-LOCATION
+
+Principal	B-ROLE
+Research	I-ROLE
+Engineer	I-ROLE
+|	O
+Cascade	B-COMPANY
+Deep	I-COMPANY
+Tech	I-COMPANY
+|	O
+2016	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Associate	B-ROLE
+–	O
+Technology	O
+
+M.Tech:Software	B-FIELD
+Engineering,Delhi	B-INSTITUTION
+Technological	I-INSTITUTION
+University,New	B-LOCATION
+Delhi	I-LOCATION
+India(2013-2015)	B-EDU_YEAR_END
+
+Client:	O
+Standard	B-CLIENT
+Chartered	I-CLIENT
+Bank	I-CLIENT
+
+LinkedIn==Sunnyvale	B-LOCATION
+CA==Senior	B-ROLE
+Software	I-ROLE
+Developer==October	B-DATE_START
+2019==December	B-DATE_END
+2022	I-DATE_END
+
+M.Tech	B-DEGREE
+–	O
+Mumbai	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2016	B-EDU_YEAR_END
+–	O
+77.3%	B-GRADE
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2013	I-DATE_END
+
+Institution:	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Illinois,	I-INSTITUTION
+Urbana-Champaign	O
+
+HCL	B-COMPANY
+Technologies,Noida,India~Software	B-ROLE
+Engineer~January	B-DATE_START
+2016~June	B-DATE_END
+2019	I-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+>>	O
+Software	B-ROLE
+Engineer	I-ROLE
+>>	O
+Noida	B-LOCATION
+>>	O
+2016–2019	B-DATE_END
+
+Elastic!!San	B-LOCATION
+Francisco	I-LOCATION
+CA!!Senior	B-ROLE
+Search	I-ROLE
+Engineer!!April	B-DATE_START
+2019!!September	B-DATE_END
+2022	I-DATE_END
+
+Associate	B-ROLE
+Engineer	I-ROLE
+-	O
+Zensar	B-COMPANY
+Technologies,	I-COMPANY
+Pune,	B-LOCATION
+India	I-LOCATION
+(June	B-DATE_START
+2012	I-DATE_START
+-	O
+August	B-DATE_END
+2014)	I-DATE_END
+
+Kolkata,	B-ROLE
+WB	I-ROLE
+
+Tech	B-COMPANY
+Mahindra,Hyderabad,India,Software	B-ROLE
+Engineer,January	B-DATE_START
+2015,July	B-DATE_END
+2018	I-DATE_END
+
+Mphasis	B-COMPANY
+|	O
+Hyderabad	B-LOCATION
+India	I-LOCATION
+|	O
+Software	B-ROLE
+Engineer	I-ROLE
+|	O
+July	B-DATE_START
+2014	I-DATE_START
+|	O
+February	B-DATE_END
+2018	I-DATE_END
+
+Client:	O
+KSRTC	B-CLIENT
+(Karnataka	B-CLIENT
+State	I-CLIENT
+Transport)	I-CLIENT
+
+Capgemini	B-COMPANY
+::	O
+Associate	B-ROLE
+Consultant	I-ROLE
+::	O
+Kolkata	B-LOCATION
+::	O
+Jun'17	B-DATE_START
+to	O
+Jul'19	B-DATE_END
+
+Director	B-ROLE
+of	I-ROLE
+Digital	I-ROLE
+Transformation	I-ROLE
+|	O
+PrimeEdge	B-COMPANY
+Technologies	I-COMPANY
+|	O
+2019	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Infosys	B-COMPANY
+BPM,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Wipro	B-COMPANY
+Technologies	I-COMPANY
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+Hyderabad	B-LOCATION
+(Jun	B-DATE_START
+2016	I-DATE_START
+-	O
+Dec	B-DATE_END
+2018)	I-DATE_END
+
+Wipro,Chennai	B-LOCATION
+India,Junior	B-ROLE
+Developer,Jul2013,Jan2018,client:HSBC	B-CLIENT
+
+Jun	B-DATE_START
+2011	I-DATE_START
+–	O
+Dec	B-DATE_END
+2011	I-DATE_END
+
+B.E.	B-DEGREE
+Instrumentation,	B-FIELD
+Visvesvaraya	B-INSTITUTION
+Technological	I-INSTITUTION
+University,	I-INSTITUTION
+2015,	B-EDU_YEAR_END
+69%	B-GRADE
+
+Mumbai,	B-LOCATION
+India	I-LOCATION
+|	O
+June	B-DATE_START
+2013	I-DATE_START
+–	O
+December	B-DATE_END
+2014	I-DATE_END
+|	O
+Full-time	O
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2017	I-DATE_END
+
+Jan	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+PG	B-DEGREE
+Diploma:	I-DEGREE
+Software	B-FIELD
+Engineering	I-FIELD
+@	O
+CDAC	B-INSTITUTION
+Hyderabad	B-LOCATION
+|	O
+2013–2014	B-EDU_YEAR_END
+
+Mindtree	B-COMPANY
+~	O
+Cloud	B-ROLE
+Engineer	I-ROLE
+~	O
+Bengaluru	B-LOCATION
+~	O
+2015–2018	B-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+@	O
+WIPRO	B-COMPANY
+|	O
+Remote	B-LOCATION
+|	O
+Jan'18	B-DATE_START
+to	O
+Dec'20	B-DATE_END
+
+Client:	O
+Honeywell	B-CLIENT
+
+Capgemini/Pune	B-LOCATION
+India/Backend	B-ROLE
+Engineer/January	B-DATE_START
+2019/January	B-DATE_END
+2022/client:UrbanMove	B-CLIENT
+Technologies	I-CLIENT
+
+Zoho	B-COMPANY
+Corporation,	I-COMPANY
+Chennai	B-LOCATION
+
+EPAM	B-COMPANY
+Systems_Hyderabad	B-LOCATION
+India_Senior	B-ROLE
+Developer_September	B-DATE_START
+2019_March	B-DATE_END
+2022_client_TrueVision	B-CLIENT
+Analytics	I-CLIENT
+
+Anna	B-INSTITUTION
+University,	I-INSTITUTION
+Chennai,	B-LOCATION
+India	I-LOCATION
+(2008–2012)	B-EDU_YEAR_END
+
+B.Tech	B-DEGREE
+–	O
+IP	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+New	B-LOCATION
+Delhi	I-LOCATION
+–	O
+2009-2011	B-EDU_YEAR_END
+–	O
+75%	B-GRADE
+
+Client:	O
+Samsung	B-CLIENT
+R&D	I-CLIENT
+India	I-CLIENT
+
+Jul	B-DATE_START
+2016	I-DATE_START
+–	O
+Sep	B-DATE_END
+2019	I-DATE_END
+
+Timeline	O
+:	O
+April	B-DATE_START
+2017	I-DATE_START
+→	O
+November	B-DATE_END
+2019	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Mechanical	B-FIELD
+(shifted	O
+to	O
+IT)	O
+@	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2010–2014	B-EDU_YEAR_END
+
+Infosys	B-COMPANY
+~	O
+Pune	B-LOCATION
+India	I-LOCATION
+~	O
+Technology	B-ROLE
+Lead	I-ROLE
+~	O
+May	B-DATE_START
+2018	I-DATE_START
+~	O
+September	B-DATE_END
+2021	I-DATE_END
+~	O
+client:AutoVerse	B-CLIENT
+Corp	I-CLIENT
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+PSG	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Technology	I-INSTITUTION
+Coimbatore,	B-LOCATION
+2018,	B-EDU_YEAR_END
+CGPA:	O
+8.7	B-GRADE
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+At	O
+Cognizant,	B-COMPANY
+I	O
+have	O
+been	O
+working	O
+as	O
+Senior	B-ROLE
+Associate	I-ROLE
+since	O
+April	B-DATE_START
+2020	I-DATE_START
+|	O
+Coimbatore	B-LOCATION
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+VNIT	B-INSTITUTION
+Nagpur,	B-LOCATION
+2017,	B-EDU_YEAR_END
+CPI:	O
+8.5	B-GRADE
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Data	B-FIELD
+Analytics_Northeastern	B-INSTITUTION
+University_Boston	B-LOCATION
+MA_2016_2018	B-EDU_YEAR_END
+
+Programmer	B-ROLE
+Analyst	I-ROLE
+
+Jan	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+COGNIZANT	B-COMPANY
+|	O
+Principal	B-ROLE
+Consultant	I-ROLE
+|	O
+2021/06	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Pune	B-LOCATION
+
+Role:	O
+Software	B-ROLE
+Engineer	I-ROLE
+
+L&T	B-COMPANY
+Infotech	I-COMPANY
+/	O
+Senior	B-ROLE
+Engineer	I-ROLE
+/	O
+Bangalore	B-LOCATION
+/	O
+Jan	B-DATE_START
+2016	I-DATE_START
+-	O
+Dec	B-DATE_END
+2018	I-DATE_END
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Aug	B-DATE_END
+2016	I-DATE_END
+
+Client:	O
+SAP	B-CLIENT
+SE	I-CLIENT
+Germany	I-CLIENT
+
+Jul	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+B.Tech	B-DEGREE
+CSE,	B-FIELD
+Andhra	B-INSTITUTION
+University	I-INSTITUTION
+Vizag,	B-LOCATION
+2013,	B-EDU_YEAR_END
+72.5%	B-GRADE
+
+2017	B-DATE_START
+–	O
+2021	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+NVIDIA	B-COMPANY
+India	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+03/2017	B-DATE_START
+-	O
+12/2020	B-DATE_END
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+Twilio^^San	B-LOCATION
+Francisco	I-LOCATION
+CA^^Senior	B-ROLE
+Software	I-ROLE
+Engineer^^January	B-DATE_START
+2018^^June	B-DATE_END
+2021	I-DATE_END
+
+Houston,	B-LOCATION
+TX	I-LOCATION
+
+Sr.	B-ROLE
+SDE	I-ROLE
+@	O
+Paytm	B-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+Mar'19	B-DATE_START
+to	O
+Dec'21	B-DATE_END
+
+Analyst	B-ROLE
+Programmer	I-ROLE
+
+BE:Computer	B-FIELD
+Science	I-FIELD
+and	O
+Engineering,VTU,Belgaum,India(2009-2013)	B-EDU_YEAR_END
+
+JPMorgan	B-COMPANY
+Chase	I-COMPANY
+(Client:	O
+Fidelity	B-CLIENT
+Investments)	I-CLIENT
+|	O
+2023	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+(Hybrid)	O
+
+B.Tech:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2012–2016	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.8	B-GRADE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology	I-DEGREE
+–	O
+BHU	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology	I-INSTITUTION
+–	O
+Varanasi	B-LOCATION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+8.5	B-GRADE
+CGPA	O
+
+Client:	O
+HAL	B-CLIENT
+
+Tech	B-COMPANY
+Mahindra,	I-COMPANY
+Hyderabad	B-LOCATION
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Chennai	B-LOCATION
+
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+~	O
+Senior	B-ROLE
+Developer	I-ROLE
+~	O
+Mangalore	B-LOCATION
+~	O
+2018-Present	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Cloud	B-FIELD
+Computing,	I-FIELD
+University	B-INSTITUTION
+of	I-INSTITUTION
+Texas	I-INSTITUTION
+at	O
+Austin,	B-LOCATION
+TX	I-LOCATION
+(2014–2016)	B-EDU_YEAR_END
+
+Deloitte>>>New	B-LOCATION
+York	I-LOCATION
+NY>>>Technology	B-ROLE
+Analyst>>>May	B-DATE_START
+2015>>>July	B-DATE_END
+2018	I-DATE_END
+
+Wipro	B-COMPANY
+Limited,	I-COMPANY
+Bangalore	B-LOCATION
+
+Previously	O
+employed	O
+at	O
+Raytheon	B-COMPANY
+(Tucson,	B-LOCATION
+AZ)	I-LOCATION
+as	O
+Embedded	B-ROLE
+Systems	I-ROLE
+Developer	I-ROLE
+from	O
+July	B-DATE_START
+2014	I-DATE_START
+–	O
+January	B-DATE_END
+2017.	I-DATE_END
+
+TCS|Chennai	B-LOCATION
+India|Trainee	B-ROLE
+Engineer|August	B-DATE_START
+2012|May	B-DATE_END
+2014	I-DATE_END
+
+Associate	B-ROLE
+@	O
+Accenture	B-COMPANY
+(Client:	O
+HSBC)	B-CLIENT
+|	O
+Bangalore	B-LOCATION
+|	O
+Sep	B-DATE_START
+2015	I-DATE_START
+-	O
+Aug	B-DATE_END
+2017	I-DATE_END
+
+M.Tech:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2017–2019	B-EDU_YEAR_END
+
+Client:	O
+LEGO	B-CLIENT
+Group	I-CLIENT
+Denmark	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+NIT	B-INSTITUTION
+Surathkal,	I-INSTITUTION
+Mangaluru	I-INSTITUTION
+Campus,	I-INSTITUTION
+2011-2014,	B-EDU_YEAR_END
+7.6	B-GRADE
+CGPA	O
+
+Lead	B-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+|	O
+TrueVault	B-COMPANY
+Payment	I-COMPANY
+Systems	I-COMPANY
+|	O
+2015	B-DATE_START
+–	O
+2019	B-DATE_END
+
+Score	O
+:	O
+80.4%	B-GRADE
+
+[2010–2012]	B-EDU_YEAR_END
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Networks	I-FIELD
+→	O
+Arizona	B-INSTITUTION
+State	I-INSTITUTION
+University,	I-INSTITUTION
+Tempe	O
+
+Software	B-COMPANY
+Engineer	I-COMPANY
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+VP	B-ROLE
+Engineer	I-ROLE
+@	O
+Deutsche	B-COMPANY
+Bank	I-COMPANY
+India	I-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jun'18	B-DATE_START
+to	O
+Mar'22	B-DATE_END
+
+Software	B-ROLE
+Developer	I-ROLE
+@	O
+Infosys	B-COMPANY
+(Client:	O
+Michelin)	B-CLIENT
+|	O
+Pune	B-LOCATION
+|	O
+Jan'17	B-DATE_START
+to	O
+Dec'19	B-DATE_END
+
+Airbnb	B-COMPANY
+>	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+>	O
+Senior	B-ROLE
+Full	I-ROLE
+Stack	I-ROLE
+Engineer	I-ROLE
+>	O
+November	B-DATE_START
+2021	I-DATE_START
+>	O
+Present	B-DATE_END
+
+Associate	B-ROLE
+Trainee	I-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Jul	B-DATE_START
+2013	I-DATE_START
+-	O
+May	B-DATE_END
+2015	I-DATE_END
+
+BE:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+BMS	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Bangalore	B-LOCATION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+69.7%	B-GRADE
+
+L&T	B-COMPANY
+Technology	I-COMPANY
+Services	I-COMPANY
+|	O
+Senior	B-ROLE
+Engineer	I-ROLE
+|	O
+Bangalore	B-LOCATION
+|	O
+2014–2018	B-DATE_END
+
+>>	O
+Airbnb	B-COMPANY
+(San	B-LOCATION
+Francisco,	I-LOCATION
+CA)	I-LOCATION
+
+B.E.	B-DEGREE
+ECE,	B-FIELD
+Madurai	B-INSTITUTION
+Kamaraj	I-INSTITUTION
+University,	I-INSTITUTION
+2015,	B-EDU_YEAR_END
+67%	B-GRADE
+
+Infosys,	B-COMPANY
+Bengaluru	B-LOCATION
+
+Accenture*Hyderabad	B-LOCATION
+India*ASE*Aug2013*Jun2017*client:American	B-CLIENT
+Express	I-CLIENT
+
+ML	B-ROLE
+Engineer	I-ROLE
+@	O
+Fractal	B-COMPANY
+Analytics	I-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+06/2019	B-DATE_START
+-	O
+12/2021	B-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Oracle,	B-COMPANY
+Austin,	B-LOCATION
+TX	I-LOCATION
+-	O
+Systems	B-ROLE
+Developer	I-ROLE
+(August	B-DATE_START
+2015–February	B-DATE_END
+2018)	I-DATE_END
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+Mphasis::Bangalore	B-COMPANY
+India::Software	I-LOCATION
+Engineer::June2014::December2017::client:JPMorgan	I-ROLE
+
+Senior	B-ROLE
+QA	I-ROLE
+Analyst	I-ROLE
+
+Client:	O
+Bristol	B-CLIENT
+Myers	I-CLIENT
+Squibb	I-CLIENT
+
+inforeliance	B-COMPANY
+—	O
+junior	B-ROLE
+developer	I-ROLE
+
+Jan	B-DATE_START
+2017	I-DATE_START
+–	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+Jul	B-DATE_START
+2015	I-DATE_START
+–	O
+Mar	B-DATE_END
+2020	I-DATE_END
+
+Cloud	B-ROLE
+Engineer	I-ROLE
+@	O
+INFOSYS	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Sep'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+Senior	B-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+Jan'17	B-DATE_START
+to	O
+Dec'19	B-DATE_END
+
+Organisation	O
+:	O
+General	B-COMPANY
+Dynamics	I-COMPANY
+
+Embedded	B-ROLE
+Engineer	I-ROLE
+@	O
+Texas	B-COMPANY
+Instruments	I-COMPANY
+India	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+04/2019	B-DATE_START
+-	O
+12/2021	B-DATE_END
+
+Infosys,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Wipro	B-COMPANY
+Technologies,	I-COMPANY
+Chennai	B-LOCATION
+
+Intermediate:MEC,Sri	B-INSTITUTION
+Gayatri	I-INSTITUTION
+Junior	I-INSTITUTION
+College,Visakhapatnam	B-LOCATION
+India(2009-2011)	B-EDU_YEAR_END
+
+Year	O
+:	O
+2010	B-EDU_YEAR_END
+
+Google,	B-COMPANY
+Mountain	B-LOCATION
+View,	I-LOCATION
+CA	I-LOCATION
+-	O
+Principal	B-ROLE
+Cloud	I-ROLE
+Architect	I-ROLE
+(June	B-DATE_START
+2021–Present)	B-DATE_END
+
+2006–2010	B-EDU_YEAR_END
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+BI	B-ROLE
+Developer	I-ROLE
+
+Hyderabad	B-LOCATION
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+TCS|Chennai	B-LOCATION
+India|Trainee	B-ROLE
+Software	I-ROLE
+Engineer|July	B-DATE_START
+2015|August	B-DATE_END
+2018	I-DATE_END
+
+Aug	B-DATE_START
+2018	I-DATE_START
+–	O
+Jun	B-DATE_END
+2021	I-DATE_END
+
+Location	O
+:	O
+Fairfax,	B-LOCATION
+VA	I-LOCATION
+
+Graduated:	O
+2016	B-GRADE
+
+Intern	B-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Delhi	B-LOCATION
+|	O
+Jul	B-DATE_START
+2015	I-DATE_START
+-	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+B.Sc.	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Kerala	B-INSTITUTION
+University,	I-INSTITUTION
+2010,	B-EDU_YEAR_END
+74%	B-GRADE
+
+Netflix	B-COMPANY
+(Client:	O
+Netflix	B-CLIENT
+Studios	I-CLIENT
+Content	I-CLIENT
+Tech)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Los	B-LOCATION
+Gatos,	I-LOCATION
+CA	I-LOCATION
+(Hybrid)	O
+
+Salesforce,	B-COMPANY
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+-	O
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+(March	B-DATE_START
+2018–May	B-DATE_END
+2021)	I-DATE_END
+
+Sr.	B-ROLE
+Consultant	I-ROLE
+@	O
+Accenture	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jan'17	B-DATE_START
+to	O
+Jan'20	B-DATE_END
+
+Client:	O
+Johnson	B-CLIENT
+Controls	I-CLIENT
+
+Microsoft	B-COMPANY
+IDC,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Trainee	B-ROLE
+
+Software	B-ROLE
+Dev	I-ROLE
+@	O
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Aug'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+Jan	B-DATE_START
+2014	I-DATE_START
+–	O
+Mar	B-DATE_END
+2017	I-DATE_END
+
+Accenture	B-COMPANY
+(Senior	B-ROLE
+Analyst)	I-ROLE
+Pune	B-LOCATION
+2020	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+Mar	B-DATE_END
+2015	I-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Timeline	O
+:	O
+June	B-DATE_START
+2012	I-DATE_START
+→	O
+June	B-DATE_END
+2014	I-DATE_END
+
+Uber	B-COMPANY
+|	O
+New	B-LOCATION
+York	I-LOCATION
+NY	I-LOCATION
+|	O
+Lead	B-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+|	O
+March	B-DATE_START
+2021	I-DATE_START
+to	O
+Present	B-DATE_END
+
+Senior	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+2018	B-DATE_START
+-	O
+Present	B-DATE_END
+
+Wipro	B-COMPANY
+~	O
+Graduate	B-ROLE
+Engineer	I-ROLE
+Trainee	I-ROLE
+~	O
+Bhubaneswar	B-LOCATION
+~	O
+2011–2014	B-DATE_END
+
+Bangalore	B-LOCATION
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Senior	B-ROLE
+Engineer	I-ROLE
+|	O
+2021-Present	B-DATE_END
+|	O
+Chennai	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Instrumentation;Andhra	B-INSTITUTION
+University;Visakhapatnam	B-LOCATION
+India;2010;2014	B-EDU_YEAR_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+B.E.	B-DEGREE
+CSE,	B-FIELD
+Anna	B-INSTITUTION
+University,	I-INSTITUTION
+2010,	B-EDU_YEAR_END
+79.4%	B-GRADE
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Kurukshetra	B-INSTITUTION
+University,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+76.8%	B-GRADE
+
+Manipal	B-LOCATION
+
+SDE	B-ROLE
+II	I-ROLE
+@	O
+Microsoft	B-COMPANY
+India	I-COMPANY
+|	O
+Hyderabad	B-LOCATION
+|	O
+January	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+-	O
+Meta,	B-COMPANY
+Menlo	B-LOCATION
+Park,	I-LOCATION
+CA	I-LOCATION
+(July	B-DATE_START
+2022	I-DATE_START
+-	O
+Present)	B-DATE_END
+
+Savitribai	B-INSTITUTION
+Phule	I-INSTITUTION
+Pune	I-INSTITUTION
+University	I-INSTITUTION
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Accenture|Chicago	B-LOCATION
+IL|Software	B-ROLE
+Developer|June	B-DATE_START
+2014|March	B-DATE_END
+2017	I-DATE_END
+
+At	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Madras,	I-INSTITUTION
+I	O
+completed	O
+my	O
+Bachelor	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+in	O
+2011.	B-EDU_YEAR_END
+
+Infosys	B-COMPANY
+Ltd	I-COMPANY
+|	O
+Sr	B-ROLE
+Manager	I-ROLE
+|	O
+USFDA	O
+Project	O
+|	O
+2019–Present	B-DATE_END
+|	O
+Hyderabad	B-LOCATION
+
+SeniorConsultant--Apr2019--Mar2024	B-DATE_END
+
+Mar	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Healthcare	B-ROLE
+Developer	I-ROLE
+·	O
+Cigna	B-COMPANY
+
+Persistent	B-COMPANY
+Systems|Pune	B-LOCATION
+India|Senior	B-ROLE
+Software	I-ROLE
+Engineer|February	B-DATE_START
+2018|June	B-DATE_END
+2021|client=DigiPulse	B-CLIENT
+Media	I-CLIENT
+
+Year:	O
+2017	B-EDU_YEAR_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+CSE	B-FIELD
+@	O
+SASTRA	B-INSTITUTION
+University	I-INSTITUTION
+Thanjavur	I-INSTITUTION
+|	O
+2011-2015	B-EDU_YEAR_END
+|	O
+8.2	B-GRADE
+CGPA	O
+
+Hexaware	B-COMPANY
+Technologies;Mumbai	B-LOCATION
+India;Software	B-ROLE
+Developer;February	B-DATE_START
+2016;August	B-DATE_END
+2019	I-DATE_END
+
+Roblox,San	B-LOCATION
+Mateo	I-LOCATION
+CA,Principal	B-ROLE
+Platform	I-ROLE
+Engineer,October	B-DATE_START
+2022,Present	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Florida	I-INSTITUTION
+in	O
+Operations	B-FIELD
+Research	I-FIELD
+(2011-2013),	B-EDU_YEAR_END
+80%	B-GRADE
+
+B.Tech:	B-DEGREE
+IT	B-FIELD
+@	O
+GGSIPU	B-INSTITUTION
+Delhi	B-LOCATION
+|	O
+2011–2015	B-DATE_END
+|	O
+CGPA:	O
+7.2	B-GRADE
+
+SDE	B-ROLE
+I	I-ROLE
+@	O
+Ola	B-COMPANY
+Cabs	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+2019-2021	B-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Master	B-DEGREE
+of	I-DEGREE
+Technology:Machine	B-FIELD
+Learning::IIIT	B-INSTITUTION
+Hyderabad::Hyderabad	B-LOCATION
+India::2013::2015	B-EDU_YEAR_END
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+DevOps	B-ROLE
+Engineer	I-ROLE
+@	O
+Instamojo	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jan'19	B-DATE_START
+to	O
+Jan'22	B-DATE_END
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+College	B-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Guindy	I-INSTITUTION
+Chennai	I-INSTITUTION
+|	O
+2014–2018	B-EDU_YEAR_END
+|	O
+CGPA	O
+8.9/10	B-GRADE
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+TCS	B-COMPANY
+|	O
+DevOps	B-ROLE
+Architect	I-ROLE
+|	O
+2020/11	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Chennai	B-LOCATION
+
+Software	B-ROLE
+Engineer	I-ROLE
+July	B-DATE_START
+2013	I-DATE_START
+–	O
+January	B-DATE_END
+2015	I-DATE_END
+
+Associate	B-ROLE
+Engineer	I-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Chennai,	B-LOCATION
+Tamil	I-LOCATION
+Nadu	I-LOCATION
+|	O
+08/2016	B-DATE_START
+-	O
+05/2018	B-DATE_END
+
+Client:	O
+Credit	B-CLIENT
+Agricole	I-CLIENT
+
+Duration	O
+:	O
+June	B-EDU_YEAR_START
+2019	I-EDU_YEAR_START
+–	O
+February	B-EDU_YEAR_END
+2022	I-EDU_YEAR_END
+
+Software	B-ROLE
+Developer	I-ROLE
+
+Oracle	B-COMPANY
+Financial	I-COMPANY
+Services	I-COMPANY
+Software,	I-COMPANY
+Delhi	B-LOCATION
+
+Fastly,San	B-LOCATION
+Francisco	I-LOCATION
+CA,Senior	B-ROLE
+Network	I-ROLE
+Engineer,September	B-DATE_START
+2019,December	B-DATE_END
+2022	I-DATE_END
+
+[Degree]Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Mechanical	B-FIELD
+[College]Dayananda	B-INSTITUTION
+Sagar	I-INSTITUTION
+University	I-INSTITUTION
+[Location]Bangalore	B-LOCATION
+India	I-LOCATION
+[Year1]2010	B-EDU_YEAR_START
+[Year2]2014	B-EDU_YEAR_END
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+Jadavpur	B-INSTITUTION
+Univ,	I-INSTITUTION
+Kolkata,	I-INSTITUTION
+completed	O
+2009-2012,	B-EDU_YEAR_END
+9.3	B-GRADE
+CGPA	O
+
+Wipro	B-COMPANY
+~	O
+Graduate	B-ROLE
+Engineer	I-ROLE
+Trainee	I-ROLE
+~	O
+Bhubaneswar	B-LOCATION
+~	O
+2011–2014	B-DATE_END
+
+Lockheed	B-COMPANY
+Martin	I-COMPANY
+(Client:	O
+US	B-CLIENT
+Department	I-CLIENT
+of	I-CLIENT
+Defense)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Bethesda,	B-LOCATION
+MD	I-LOCATION
+(Onsite)	O
+
+Bangalore	B-LOCATION
+
+DeliveryManager,Jan2020,Nov2023	B-DATE_END
+
+Medtronic	B-COMPANY
+|	O
+Minneapolis,	B-LOCATION
+MN	I-LOCATION
+|	I-LOCATION
+Software	I-LOCATION
+Engineer	B-ROLE
+Medical	I-ROLE
+Devices	I-ROLE
+|	I-ROLE
+August	I-ROLE
+2016	I-ROLE
+–	B-DATE_START
+April	I-DATE_START
+2019	I-DATE_START
+
+Mphasis	B-COMPANY
+
+Chicago,	B-LOCATION
+IL	I-LOCATION
+/	I-LOCATION
+North	I-LOCATION
+America	I-LOCATION
+
+Persistent	B-COMPANY
+Systems,	I-COMPANY
+Pune	B-LOCATION
+
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+
+TCS,	B-COMPANY
+Pune	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-INSTITUTION
+Kanpur,	I-INSTITUTION
+Kanpur	I-INSTITUTION
+Campus,	I-INSTITUTION
+2012-2015,	B-EDU_YEAR_END
+7.9	B-GRADE
+CGPA	O
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-INSTITUTION
+Delhi,	I-INSTITUTION
+New	I-INSTITUTION
+Delhi	I-INSTITUTION
+Campus,	I-INSTITUTION
+2015-2018,	B-EDU_YEAR_END
+8.5	B-GRADE
+CGPA	O
+
+Jan	B-DATE_START
+2017	I-DATE_START
+–	O
+Dec	B-DATE_END
+2020	I-DATE_END
+
+Degree	O
+:	O
+M.Tech	B-DEGREE
+
+Principal	B-ROLE
+DevSecOps	I-ROLE
+Architect	I-ROLE
+&	I-ROLE
+Platform	I-ROLE
+Engineering	I-ROLE
+Lead	I-ROLE
+
+B.Tech	B-DEGREE
+–	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Chennai	B-LOCATION
+–	O
+2005-2008	B-EDU_YEAR_END
+–	O
+79%	B-GRADE
+
+SDE	B-ROLE
+@	O
+Naukri.com	B-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+04/2019	B-DATE_START
+-	O
+02/2022	B-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Degree:	O
+M.Tech	B-DEGREE
+
+Hexaware	B-COMPANY
+Technologies	I-COMPANY
+
+Wipro-Hyderabad,India-Software	B-ROLE
+Engineer-June	B-DATE_START
+2013-January	B-DATE_END
+2017	I-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Technology:Software	B-FIELD
+Systems,BITS	B-INSTITUTION
+Pilani,Goa	B-LOCATION
+India,2015,2017	B-EDU_YEAR_END
+
+Graduate	B-ROLE
+Trainee	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jul	B-DATE_START
+2015	I-DATE_START
+-	O
+Jul	B-DATE_END
+2016	I-DATE_END
+
+CGPA:	O
+8.4	B-GRADE
+|	O
+M.Tech	B-DEGREE
+Data	B-FIELD
+Science	I-FIELD
+|	O
+IIIT	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2017	B-EDU_YEAR_END
+
+Worked	O
+with	O
+Intel	B-COMPANY
+as	O
+Firmware	B-ROLE
+Developer	I-ROLE
+from	O
+March	B-DATE_START
+2015	I-DATE_START
+to	O
+October	B-DATE_END
+2017,	I-DATE_END
+located	O
+in	O
+Hillsboro,	B-LOCATION
+OR.	I-LOCATION
+
+Hexaware	B-COMPANY
+Technologies,Chennai	B-LOCATION
+India,Junior	B-ROLE
+Software	I-ROLE
+Engineer,August	B-DATE_START
+2014,May	B-DATE_END
+2017	I-DATE_END
+
+Jan	B-DATE_START
+2018	I-DATE_START
+–	O
+Feb	B-DATE_END
+2021	I-DATE_END
+
+Jan	B-DATE_START
+2012	I-DATE_START
+–	O
+May	B-DATE_END
+2014	I-DATE_END
+
+Dec	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Square*San	B-LOCATION
+Francisco	I-LOCATION
+CA*Senior	B-ROLE
+Data	I-ROLE
+Engineer*Jul2017*Feb2021*client:Commerce	B-CLIENT
+Analytics	I-CLIENT
+
+B.Tech	B-DEGREE
+Mechanical	B-FIELD
+Engineering	I-FIELD
+@	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Michigan,	I-INSTITUTION
+Ann	B-LOCATION
+Arbor,	I-LOCATION
+completed	O
+2008-2011,	B-EDU_YEAR_END
+8.2	B-GRADE
+CGPA	O
+
+IT	B-ROLE
+Analyst	I-ROLE
+
+Jul	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2018	I-DATE_END
+
+Infosys	B-COMPANY
+Limited,	I-COMPANY
+Chennai	B-LOCATION
+
+B.Tech:Electronics	B-FIELD
+and	I-FIELD
+Communication,IIT	B-INSTITUTION
+Bombay,Mumbai,India(2010–2014)	B-EDU_YEAR_END
+
+master	B-DEGREE
+of	I-DEGREE
+science:	I-DEGREE
+software	B-FIELD
+systems	I-FIELD
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+03/2015	B-DATE_START
+-	O
+12/2016	B-DATE_END
+
+CUSAT	B-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Aerospace	B-FIELD
+Informatics	I-FIELD
+|	O
+2017	B-EDU_YEAR_END
+|	O
+8.8	B-GRADE
+CGPA	O
+
+Feb	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+B.Tech	B-DEGREE
+CSE,	B-FIELD
+AKTU	O
+(Dr.	B-INSTITUTION
+APJ	I-INSTITUTION
+Abdul	I-INSTITUTION
+Kalam	I-INSTITUTION
+Technical	I-INSTITUTION
+University)	I-INSTITUTION
+Lucknow,	B-LOCATION
+2015,	B-EDU_YEAR_END
+CGPA:	O
+7.4/10	B-GRADE
+
+Network	B-ROLE
+Engineer	I-ROLE
+@	O
+Cisco	B-COMPANY
+Systems	I-COMPANY
+India	I-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+Feb	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+TCS,	B-COMPANY
+Chennai	B-LOCATION
+
+B.E.:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2009–2013	B-EDU_YEAR_END
+|	O
+73.5%	B-GRADE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+BITS	B-INSTITUTION
+Pilani,	I-INSTITUTION
+Hyderabad	I-INSTITUTION
+Campus,	I-INSTITUTION
+2015,	B-EDU_YEAR_END
+8.3	B-GRADE
+CGPA	O
+
+Trainee	B-ROLE
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Hexaware	B-COMPANY
+Technologies	I-COMPANY
+::	O
+Java	B-ROLE
+Lead	I-ROLE
+::	O
+Pune	B-LOCATION
+::	O
+Aug'18	B-DATE_START
+to	O
+Oct'20	B-DATE_END
+
+Jul	B-DATE_START
+2016	I-DATE_START
+–	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+
+Position:	O
+Software	B-ROLE
+Engineer	I-ROLE
+
+Client:	O
+Standard	B-CLIENT
+Chartered	I-CLIENT
+Bank	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+Andhra	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.2	B-GRADE
+
+Mphasis	B-COMPANY
+HP,	I-COMPANY
+Bangalore	B-LOCATION
+
+Principal	B-ROLE
+Engineer	I-ROLE
+@	O
+Goldman	B-COMPANY
+Sachs	I-COMPANY
+India	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Apr	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+UnitedHealth	B-COMPANY
+Group	I-COMPANY
+(Client:	O
+Optum	B-CLIENT
+Analytics)	I-CLIENT
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Minneapolis,	B-LOCATION
+MN	I-LOCATION
+(Remote)	O
+
+Data	B-ROLE
+Scientist	I-ROLE
+@	O
+Walmart	B-COMPANY
+Global	I-COMPANY
+Tech	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jan'22	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Client:	O
+Caterpillar	B-CLIENT
+Inc	I-CLIENT
+USA	I-CLIENT
+
+B.E:Information	B-FIELD
+Science,BMS	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering,Bangalore	B-LOCATION
+India(2009-2013)	B-EDU_YEAR_END
+
+Trivandrum,	B-LOCATION
+Kerala	I-LOCATION
+
+Manipal	B-INSTITUTION
+Academy	I-INSTITUTION
+of	I-INSTITUTION
+Higher	I-INSTITUTION
+Education	I-INSTITUTION
+
+Mphasis	B-COMPANY
+Technologies	I-COMPANY
+::	O
+Software	B-ROLE
+Engineer	I-ROLE
+::	O
+Chennai	B-LOCATION
+::	O
+2016–2019	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+Kakatiya	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Warangal	B-LOCATION
+–	O
+2007-2010	B-EDU_YEAR_END
+–	O
+72%	B-GRADE
+
+Goldman	B-DEGREE
+Sachs,	I-DEGREE
+Bangalore/Hyderabad	B-LOCATION
+
+Mumbai	B-LOCATION
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+DevOps	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+01/2022	B-DATE_END
+
+Client:	O
+Myntra	B-CLIENT
+
+Netflix|Los	B-LOCATION
+Gatos	I-LOCATION
+CA|Senior	B-ROLE
+Backend	I-ROLE
+Engineer|April	B-DATE_START
+2017|August	B-DATE_END
+2020	I-DATE_END
+
+Client:	O
+Godrej	B-CLIENT
+Industries	I-CLIENT
+
+M.S.:	B-DEGREE
+Data	B-FIELD
+Engineering	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Madras	B-LOCATION
+|	O
+2014–2016	B-EDU_YEAR_END
+
+SVP	B-ROLE
+of	I-ROLE
+Engineering	I-ROLE
+&	I-ROLE
+Innovation	I-ROLE
+|	O
+VertexAI	B-COMPANY
+Research	I-COMPANY
+Labs	I-COMPANY
+|	O
+2020	B-DATE_START
+–	O
+Present	B-DATE_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Bengaluru	B-LOCATION
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+May	B-DATE_END
+2014	I-DATE_END
+
+DXC	B-COMPANY
+Technology,	I-COMPANY
+Bangalore	B-LOCATION
+
+Jul	B-DATE_START
+2017	I-DATE_START
+–	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+Location:	O
+Riverwoods,	B-LOCATION
+IL	I-LOCATION
+
+CGPA:	O
+7.9	B-GRADE
+
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+SRM	B-INSTITUTION
+University	I-INSTITUTION
+Chennai,	B-LOCATION
+2014,	B-EDU_YEAR_END
+76%	B-GRADE
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+IIT	B-INSTITUTION
+BHU	I-INSTITUTION
+Varanasi,	B-LOCATION
+2015,	B-EDU_YEAR_END
+CPI:	O
+8.4	B-GRADE
+
+Software	B-ROLE
+Development	I-ROLE
+Engineer	I-ROLE
+
+Director	B-ROLE
+of	I-ROLE
+IT	I-ROLE
+Infrastructure	I-ROLE
+|	O
+Pinnacle	B-COMPANY
+Retail	I-COMPANY
+Networks	I-COMPANY
+|	O
+2014	B-DATE_START
+–	O
+2019	B-DATE_END
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+Texas	B-INSTITUTION
+A&M	I-INSTITUTION
+University,	I-INSTITUTION
+College	O
+Station,	O
+completed	O
+2007-2010,	B-EDU_YEAR_END
+8.4	B-GRADE
+CGPA	O
+
+Previously	O
+employed	O
+at	O
+Boeing	B-COMPANY
+(Seattle,	B-LOCATION
+WA)	I-LOCATION
+as	O
+Avionics	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+from	O
+February	B-DATE_START
+2017	I-DATE_START
+–	O
+July	B-DATE_END
+2019.	I-DATE_END
+
+Aug	B-DATE_START
+2018	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Senior	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+@	O
+Mu	B-COMPANY
+Sigma	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+From	O
+Jan	B-DATE_START
+2019	I-DATE_START
+to	O
+Present	B-DATE_END
+|	O
+Client:	O
+General	B-CLIENT
+Mills	I-CLIENT
+
+Lead	B-ROLE
+Data	I-ROLE
+Engineering	I-ROLE
+&	I-ROLE
+BI	I-ROLE
+Architecture	I-ROLE
+Manager	I-ROLE
+
+Completed	O
+B.Tech	B-DEGREE
+in	O
+Computer	B-FEILD
+Science	I-FEILD
+from	O
+CUSAT	B-INSTITUTION
+in	O
+2015	B-EDU_YEAR_END
+with	O
+82.6%	B-GRADE
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Head	B-ROLE
+of	I-ROLE
+Software	I-ROLE
+Development	I-ROLE
+|	O
+Ironclad	B-COMPANY
+Systems	I-COMPANY
+LLC	I-COMPANY
+|	O
+2016	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Information	B-FIELD
+Technology,	I-FIELD
+Anna	B-INSTITUTION
+University,	I-INSTITUTION
+Chennai,	B-LOCATION
+India	I-LOCATION
+(2011–2015)	B-EDU_YEAR_END
+
+Director	B-ROLE
+of	I-ROLE
+Operations	I-ROLE
+&	I-ROLE
+Logistics	I-ROLE
+|	O
+Horizon	B-COMPANY
+Dynamics	I-COMPANY
+|	O
+2016–	B-DATE_START
+2020	B-DATE_END
+
+Cisco^San	B-LOCATION
+Jose	I-LOCATION
+CA^Software	B-ROLE
+Engineer	I-ROLE
+IV^Feb2016^Jun2021^client:Network	B-CLIENT
+Analytics	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-INSTITUTION
+Bombay,	I-INSTITUTION
+Mumbai	I-INSTITUTION
+Campus,	I-INSTITUTION
+2012-2016,	B-EDU_YEAR_END
+8.7	B-GRADE
+CGPA	O
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Remote	B-LOCATION
+|	O
+08/2015	B-DATE_START
+-	O
+06/2017	B-DATE_END
+
+Trainee	B-ROLE
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Mumbai	B-INSTITUTION
+University,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+72%	B-GRADE
+
+Wipro,	B-COMPANY
+Hyderabad	B-LOCATION
+
+TCS,	B-COMPANY
+Mumbai	B-LOCATION
+
+Enterprise	B-ROLE
+Integration	I-ROLE
+Architect	I-ROLE
+&	I-ROLE
+API	I-ROLE
+Platform	I-ROLE
+Lead	I-ROLE
+
+Technology	B-ROLE
+Lead	I-ROLE
+
+Aetna	B-COMPANY
+Health	I-COMPANY
+(Client:	O
+CVS	B-CLIENT
+Pharmacy)	I-CLIENT
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Hartford,	B-LOCATION
+CT	I-LOCATION
+(Remote)	O
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Junior	B-ROLE
+Security	I-ROLE
+Dev	I-ROLE
+@	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+04/2016	B-DATE_START
+-	O
+12/2018	B-DATE_END
+
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Information	B-FIELD
+Systems	I-FIELD
+|	O
+Chennai	B-LOCATION
+|	O
+2008-2010	B-EDU_YEAR_END
+|	O
+85.1%	B-GRADE
+
+QA	B-ROLE
+Engineer	I-ROLE
+
+Head	B-ROLE
+of	I-ROLE
+AI/ML	I-ROLE
+Platform	I-ROLE
+Engineering	I-ROLE
+&	I-ROLE
+Data	I-ROLE
+Architecture	I-ROLE
+
+Asana	B-COMPANY
+>>	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+>>	O
+Senior	B-ROLE
+Engineering	I-ROLE
+Manager	I-ROLE
+>>	O
+February	B-DATE_START
+2021	I-DATE_START
+>>	O
+Present	B-DATE_END
+
+Snowflake::San	B-LOCATION
+Mateo	I-LOCATION
+CA::Staff	B-ROLE
+Data	I-ROLE
+Engineer::July2021::Present::client:Apple	B-CLIENT
+
+Master	B-DEGREE
+of	I-DEGREE
+Engineering:Robotics;University	B-INSTITUTION
+of	I-INSTITUTION
+Michigan;Ann	B-LOCATION
+Arbor	I-LOCATION
+MI;2015;2017	B-DATE_END
+
+Capgemini>Bengaluru	B-LOCATION
+India>Senior	B-ROLE
+Analyst>Mar2012>Aug2016>client:BNP	B-CLIENT
+Paribas	I-CLIENT
+
+Software	B-ROLE
+Engineer	I-ROLE
+–	O
+Vice	O
+President	O
+
+ABAP	B-ROLE
+Developer	I-ROLE
+February	B-DATE_START
+2015	I-DATE_START
+–	O
+June	B-DATE_END
+2017	I-DATE_END
+
+Jan	B-DATE_START
+2014	I-DATE_START
+–	O
+Jun	B-DATE_END
+2016	I-DATE_END
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+Android	B-ROLE
+Engineer	I-ROLE
+@	O
+Ola	B-COMPANY
+Electric	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+03/2018	B-DATE_START
+-	O
+12/2020	B-DATE_END
+
+Location	O
+:	O
+Reston,	B-LOCATION
+VA	I-LOCATION
+
+University	B-INSTITUTION
+of	I-INSTITUTION
+Southern	I-INSTITUTION
+California,	I-INSTITUTION
+Los	O
+Angeles	O
+2011–2013	B-EDU_YEAR_END
+
+M.Tech:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Madras	I-INSTITUTION
+|	O
+2011–2013	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.5	B-GRADE
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Aerospace~PES	B-INSTITUTION
+University~Bangalore	B-LOCATION
+India~2011~2015	B-EDU_YEAR_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+IIT	B-INSTITUTION
+Bombay	I-INSTITUTION
+in	O
+Computer	B-FIELD
+Science	I-FIELD
+&	I-FIELD
+Engineering	I-FIELD
+(2011-2013),	B-EDU_YEAR_END
+88%	B-GRADE
+
+Persistent	B-COMPANY
+Systems	I-COMPANY
+
+bachelor	B-DEGREE
+of	I-DEGREE
+technology:	I-DEGREE
+computer	B-FIELD
+science	I-FIELD
+
+B.Tech:Computer	B-FIELD
+Science	I-FIELD
+and	I-FIELD
+Engineering,Manipal	B-INSTITUTION
+University,Karnataka	B-LOCATION
+India(2010-2014)	B-EDU_YEAR_END
+
+Wipro	B-COMPANY
+Limited,	I-COMPANY
+Bengaluru	B-LOCATION
+
+Employed	O
+at	O
+HCL	B-COMPANY
+(Bengaluru)	B-LOCATION
+as	O
+Principal	B-ROLE
+Architect	I-ROLE
+since	O
+2018	B-DATE_START
+
+KPMG	B-COMPANY
+Global	I-COMPANY
+Services	I-COMPANY
+India,	B-LOCATION
+Hyderabad	I-LOCATION
+
+2017–2021	B-DATE_END
+
+SDE	B-ROLE
+II	I-ROLE
+@	O
+Myntra	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jan'20	B-DATE_START
+to	O
+Dec'22	B-DATE_END
+
+Android	B-ROLE
+Developer	I-ROLE
+@	O
+BYJU'S	B-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+Feb'21	B-DATE_START
+to	O
+Present	B-DATE_END
+
+M.Tech	B-DEGREE
+–	O
+Annamalai	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Chidambaram	B-LOCATION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+79.6%	B-GRADE
+
+NIIT	B-COMPANY
+Technologies|Delhi	B-LOCATION
+India|Software	B-ROLE
+Developer|October	B-DATE_START
+2014|January	B-DATE_END
+2018|client=SafeNet	B-CLIENT
+Insurance	I-CLIENT
+
+Senior	B-ROLE
+Consultant	I-ROLE
+
+B.E.:	B-DEGREE
+CSE	B-FIELD
+@	O
+College	B-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Trivandrum	B-LOCATION
+|	O
+2011-2015	B-EDU_YEAR_END
+|	O
+CGPA	O
+7.5/10	B-GRADE
+
+Jr.	B-ROLE
+Network	I-ROLE
+Engineer	I-ROLE
+@	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+08/2015	B-DATE_START
+-	O
+12/2016	B-DATE_END
+
+Client:	O
+HSBC	B-CLIENT
+earlier	I-CLIENT
+engagement	I-CLIENT
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Vanderbilt	B-INSTITUTION
+University	I-INSTITUTION
+in	O
+Health	B-FIELD
+Informatics	I-FIELD
+(2012-2014),	B-EDU_YEAR_END
+88%	B-GRADE
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Cybersecurity>Georgia	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology>Atlanta	B-LOCATION
+GA>2015>2017	B-EDU_YEAR_END
+
+Ericsson|Gurgaon	B-LOCATION
+India|R&D	B-ROLE
+Engineering	I-ROLE
+Manager|February	B-DATE_START
+2019|December	B-DATE_END
+2023|client:WaveNet	B-CLIENT
+Telecom	I-CLIENT
+
+ThoughtWorks	B-COMPANY
+India,	B-LOCATION
+Chennai	I-LOCATION
+
+Senior	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+|	O
+PowerEdge	B-COMPANY
+Utilities	I-COMPANY
+Group	I-COMPANY
+|	O
+2015	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Degree	O
+:	O
+M.Tech	B-DEGREE
+
+Oct	B-DATE_START
+2012	I-DATE_START
+–	O
+May	B-DATE_END
+2018	I-DATE_END
+
+University	B-INSTITUTION
+of	I-INSTITUTION
+Pune	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Software	B-FEILD
+Engineering	I-FEILD
+|	O
+Pune	B-LOCATION
+|	O
+2011-2013	B-EDU_YEAR_END
+|	O
+83.2%	B-GRADE
+
+B.Tech	B-DEGREE
+–	O
+CUSAT	B-INSTITUTION
+Kochi	I-INSTITUTION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+77.6%	B-GRADE
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+>>	O
+Senior	B-ROLE
+Consultant	I-ROLE
+>>	O
+Hyderabad	B-LOCATION
+>>	O
+2018–2021	B-DATE_END
+
+Intermediate:MPC,Bhashyam	B-INSTITUTION
+Junior	I-INSTITUTION
+College,Guntur	I-INSTITUTION
+India(2010-2012)	B-EDU_YEAR_END
+
+Client:	O
+Novartis	B-CLIENT
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+2015	B-DATE_START
+-	O
+2017	B-DATE_END
+
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Regulatory	B-FIELD
+Affairs	I-FIELD
+|	O
+2016	B-EDU_YEAR_END
+|	O
+8.1	B-GRADE
+CGPA	O
+
+Platform	B-ROLE
+Engineer	I-ROLE
+@	O
+Dunzo	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Feb	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Mascon	B-COMPANY
+Global,	I-COMPANY
+Ahmedabad,	B-LOCATION
+India	I-LOCATION
+
+Client:	O
+Medtronic	B-CLIENT
+USA	I-CLIENT
+
+M.Tech:	B-DEGREE
+Cyber	B-FIELD
+Security	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Kanpur	B-LOCATION
+|	O
+2015–2017	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.3	B-GRADE
+
+B.Tech	B-DEGREE
+Electronics	B-FIELD
+&	I-FIELD
+Communication	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Delhi,	I-INSTITUTION
+New	B-LOCATION
+Delhi,	I-LOCATION
+completed	O
+2008-2012,	B-EDU_YEAR_END
+8.8	B-GRADE
+CGPA	O
+
+Field	O
+:	O
+Computer	B-FEILD
+Science	I-FEILD
+
+University	B-INSTITUTION
+of	I-INSTITUTION
+Mysore	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Data	B-FIELD
+Science	I-FIELD
+|	O
+Mysuru	B-LOCATION
+|	O
+2014-2016	B-EDU_YEAR_END
+|	O
+86.2%	B-GRADE
+
+Kellton	B-COMPANY
+Tech,Hyderabad	B-LOCATION
+India,Junior	B-ROLE
+Software	I-ROLE
+Engineer,June	B-DATE_START
+2015,February	B-DATE_END
+2019	I-DATE_END
+
+Trainee	B-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Aug	B-DATE_START
+2013	I-DATE_START
+-	O
+Mar	B-DATE_END
+2014	I-DATE_END
+
+CrowdStrike/Austin	B-LOCATION
+TX/Senior	B-ROLE
+Cybersecurity	I-ROLE
+Engineer/August	B-DATE_START
+2019/March	B-DATE_END
+2023	I-DATE_END
+
+B.E.	B-DEGREE
+–	O
+Kerala	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Trivandrum	B-LOCATION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+7.6	B-GRADE
+CGPA	O
+
+DeliveryLead=Jun2019=Mar2024	B-DATE_END
+
+Trainee	B-ROLE
+
+Coforge	O
+(NIIT	B-COMPANY
+Technologies),	I-COMPANY
+Hyderabad	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology	I-DEGREE
+–	O
+NIT	B-INSTITUTION
+Allahabad	I-INSTITUTION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+76.2%	B-GRADE
+
+B.Tech	B-DEGREE
+–	O
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Hyderabad	B-LOCATION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+76.4%	B-GRADE
+
+Zensar	B-COMPANY
+Technologies,	I-COMPANY
+Pune	B-LOCATION
+
+Mobile	B-ROLE
+Developer	I-ROLE
+@	O
+Dream11	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+Jan'21	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Verizon,	B-COMPANY
+Basking	B-LOCATION
+Ridge,	I-LOCATION
+NJ	I-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Science:Computer	B-FIELD
+Science,University	B-INSTITUTION
+of	I-INSTITUTION
+Mumbai,Mumbai	B-LOCATION
+India(2012-2016)	B-EDU_YEAR_END
+
+Detroit,	B-LOCATION
+MI	I-LOCATION
+/	I-LOCATION
+Europe	I-LOCATION
+
+Nokia|Bangalore	B-LOCATION
+India|CTO	B-ROLE
+Office	I-ROLE
+Advisor|November	B-DATE_START
+2018|October	B-DATE_END
+2023|client:TeleVision	B-CLIENT
+Media	I-CLIENT
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Backend	B-ROLE
+Engineer	I-ROLE
+@	O
+Spotify	B-COMPANY
+|	O
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+|	O
+April	B-DATE_START
+2020	I-DATE_START
+-	O
+December	B-DATE_END
+2022	I-DATE_END
+
+Junior	B-ROLE
+QA	I-ROLE
+Engineer	I-ROLE
+
+Principal	B-ROLE
+QA	I-ROLE
+Automation	I-ROLE
+Architect	I-ROLE
+&	I-ROLE
+Test	I-ROLE
+Engineering	I-ROLE
+Lead	I-ROLE
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Apr	B-DATE_START
+2018	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Location	O
+:	O
+Kakinada	B-LOCATION
+
+BE:Computer	B-FIELD
+Science,Pune	B-INSTITUTION
+University,Pune	B-LOCATION
+India(2009-2013)	B-EDU_YEAR_END
+
+Principal	B-ROLE
+Healthcare	I-ROLE
+IT	I-ROLE
+&	I-ROLE
+Interoperability	I-ROLE
+Solutions	I-ROLE
+Architect	I-ROLE
+
+university	B-INSTITUTION
+of	I-INSTITUTION
+wisconsin,	I-INSTITUTION
+madison	B-LOCATION
+·	O
+2010–2012	B-EDU_YEAR_END
+
+Client:	O
+Peugeot	B-CLIENT
+Citroën	I-CLIENT
+
+Wipro,	B-COMPANY
+Trivandrum	B-LOCATION
+
+Confluent;Mountain	B-LOCATION
+View	I-LOCATION
+CA;Staff	B-ROLE
+Software	I-ROLE
+Engineer;June	B-DATE_START
+2021;Present	B-DATE_END
+
+Oct	B-DATE_START
+2017	I-DATE_START
+–	O
+Aug	B-DATE_END
+2020	I-DATE_END
+
+Global	B-ROLE
+Head	I-ROLE
+of	I-ROLE
+ERP	I-ROLE
+Solutions	I-ROLE
+|	O
+Crestline	B-COMPANY
+Manufacturing	I-COMPANY
+Group	I-COMPANY
+|	O
+2019	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Jun	B-DATE_START
+2016	I-DATE_START
+–	O
+Jun	B-DATE_END
+2018	I-DATE_END
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+Dec	B-DATE_END
+2013	I-DATE_END
+
+Junior	B-ROLE
+Dev	I-ROLE
+@	O
+NIIT	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Delhi	B-LOCATION
+|	O
+Jan'17	B-DATE_START
+to	O
+Mar'19	B-DATE_END
+
+Trainee	B-ROLE
+@	O
+CTS	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2014	I-DATE_START
+-	O
+Apr	B-DATE_END
+2015	I-DATE_END
+
+Jul	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+san	B-LOCATION
+jose,	I-LOCATION
+ca	I-LOCATION
+·	O
+november	B-DATE_START
+2019	I-DATE_START
+–	O
+july	B-DATE_END
+2022	I-DATE_END
+
+Pune,	B-LOCATION
+MH	I-LOCATION
+
+M.Tech	B-DEGREE
+Software	B-FIELD
+Systems,	I-FIELD
+BITS	B-INSTITUTION
+Pilani,	B-LOCATION
+2016	B-EDU_YEAR_END
+(part-time)	O
+
+Jul	B-DATE_START
+2018	I-DATE_START
+–	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+Client:	O
+Humana	B-CLIENT
+Insurance	I-CLIENT
+
+SDE	B-ROLE
+II	I-ROLE
+@	O
+Hotstar	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+2017	B-DATE_START
+-	O
+2020	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Data	B-FIELD
+Science	I-FIELD
+-	O
+Carnegie	B-INSTITUTION
+Mellon	I-INSTITUTION
+University,	I-INSTITUTION
+Pittsburgh,	B-LOCATION
+PA	I-LOCATION
+(2010	B-EDU_YEAR_START
+2012)	B-EDU_YEAR_END
+
+Infosys,	B-COMPANY
+Data	B-ROLE
+Analyst,	I-ROLE
+Hyderabad,	B-LOCATION
+March	B-DATE_START
+2017	I-DATE_START
+-	O
+January	B-DATE_END
+2020	I-DATE_END
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2016	I-DATE_END
+
+Title	O
+:	O
+Software	B-ROLE
+Engineer	I-ROLE
+
+M.Sc.	B-DEGREE
+IT,	B-FIELD
+JNTU	B-INSTITUTION
+Hyderabad,	B-LOCATION
+2017,	B-EDU_YEAR_END
+First	O
+Class	O
+(71%)	B-GRADE
+
+Capgemini	B-COMPANY
+India,	B-LOCATION
+Noida	I-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+CSE	B-FIELD
+@	O
+College	B-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Guindy	B-LOCATION
+|	O
+2010–2014	B-EDU_YEAR_END
+|	O
+8.0	B-GRADE
+CGPA	O
+
+Persistent	B-COMPANY
+Systems,	I-COMPANY
+Nagpur	B-LOCATION
+
+Workday	B-COMPANY
+|	O
+Pleasanton,	B-LOCATION
+CA	I-LOCATION
+
+Stripe>>>South	B-LOCATION
+San	I-LOCATION
+Francisco	I-LOCATION
+CA>>>VP	B-ROLE
+of	I-ROLE
+Engineering>>>February	B-DATE_START
+2022>>>Present	B-DATE_END
+
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Computer	B-FIELD
+Science	I-FIELD
+|	O
+2017	B-EDU_YEAR_END
+|	O
+8.4	B-GRADE
+CGPA	O
+
+Jun	B-DATE_START
+2016	I-DATE_START
+–	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+University	O
+:	O
+CUSAT	B-INSTITUTION
+
+Jan	B-DATE_START
+2017	I-DATE_START
+-	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+Trainee	B-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+2015	B-DATE_START
+-	O
+2016	B-DATE_END
+
+Airbnb>San	B-LOCATION
+Francisco	I-LOCATION
+CA>Principal	B-ROLE
+Engineer	I-ROLE
+-	O
+Analytics>Jan2021>Present>client:Internal	B-CLIENT
+
+[2014	B-DATE_START
+–	O
+2016]	B-DATE_END
+Communications	B-ROLE
+Developer	I-ROLE
+→	O
+Twilio,	B-COMPANY
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+Senior	B-ROLE
+Consultant	I-ROLE
+
+Tech	B-COMPANY
+Mahindra,	I-COMPANY
+Pune	B-LOCATION
+
+Campus	B-ROLE
+Trainee	I-ROLE
+@	O
+CTS	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+2015	B-DATE_START
+-	O
+2016	B-DATE_END
+
+>>	O
+Booking.com	B-COMPANY
+(Amsterdam,	B-LOCATION
+Netherlands)	I-LOCATION
+
+NIIT	B-COMPANY
+Technologies,	I-COMPANY
+Software	B-ROLE
+Developer,	I-ROLE
+Chennai,	B-LOCATION
+Jan	B-DATE_START
+2018	I-DATE_START
+-	O
+Feb	B-DATE_END
+2021	I-DATE_END
+
+Year:	O
+2015	B-EDU_YEAR_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Senior	B-ROLE
+Consultant	I-ROLE
+
+Freshworks,	B-COMPANY
+Chennai	B-LOCATION
+
+Qualcomm+San	B-LOCATION
+Diego	I-LOCATION
+CA+Senior	B-ROLE
+Embedded	I-ROLE
+Engineer+August	B-DATE_START
+2019+February	B-DATE_END
+2023	I-DATE_END
+
+kakatiya	B-INSTITUTION
+university,	I-INSTITUTION
+warangal,	B-LOCATION
+india	I-LOCATION
+·	O
+2006–2010	B-EDU_YEAR_END
+
+TCS,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Data	B-ROLE
+Analyst	I-ROLE
+
+TCS,	B-COMPANY
+Bangalore	B-LOCATION
+
+B.Tech	B-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Bombay,	I-INSTITUTION
+Mumbai,	B-LOCATION
+completed	O
+2008-2011,	B-EDU_YEAR_END
+9.1	B-GRADE
+CGPA	O
+
+Organisation	O
+:	O
+Tata	B-COMPANY
+Elxsi	I-COMPANY
+
+MBA	B-DEGREE
+Systems,	B-FIELD
+Osmania	B-INSTITUTION
+University,	I-INSTITUTION
+2016	B-EDU_YEAR_END
+(part-time),	O
+64%	B-GRADE
+
+B.Tech	B-DEGREE
+(IT)	B-FIELD
+–	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+74.8%	B-GRADE
+
+Jul	B-DATE_START
+2016	I-DATE_START
+–	O
+Jun	B-DATE_END
+2019	I-DATE_END
+
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions	I-COMPANY
+
+M.Tech	B-DEGREE
+Enterprise	B-FIELD
+Systems	I-FIELD
+–	O
+XLRI	B-INSTITUTION
+Jamshedpur	I-INSTITUTION
+–	O
+2014-2016	B-EDU_YEAR_END
+–	O
+8.5	B-GRADE
+CGPA	O
+
+Adobe,	B-COMPANY
+San	B-LOCATION
+Jose,	I-LOCATION
+CA	I-LOCATION
+
+Year	O
+:	O
+2017	B-EDU_YEAR_END
+
+B.E.:	B-DEGREE
+Computer	B-FIELD
+Engineering	I-FIELD
+@	O
+Pune	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2010–2014	B-EDU_YEAR_END
+|	O
+62%	B-GRADE
+
+Sep	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+M.Tech,	B-DEGREE
+Pune	B-INSTITUTION
+University,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+78.3%	B-GRADE
+
+B.Tech	B-DEGREE
+Electrical	B-FIELD
+&	I-FIELD
+Electronics	I-FIELD
+Engineering	I-FIELD
+@	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Houston,	I-INSTITUTION
+Houston,	B-LOCATION
+completed	O
+2008-2011,	B-EDU_YEAR_END
+8.1	B-GRADE
+CGPA	O
+
+Mphasis~Hyderabad	B-LOCATION
+India~Software	B-ROLE
+Engineer~February	B-DATE_START
+2015~October	B-DATE_END
+2018	I-DATE_END
+
+Lead	B-ROLE
+SCADA	I-ROLE
+&	I-ROLE
+Industrial	I-ROLE
+IoT	I-ROLE
+Systems	I-ROLE
+Architect	I-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Splunk#San	B-LOCATION
+Francisco	I-LOCATION
+CA#Senior	B-ROLE
+Engineer#Jan2018#Sep2021#client:Security	B-CLIENT
+Platform	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+IT	B-FIELD
+@	O
+NIT	B-INSTITUTION
+Surathkal	B-LOCATION
+|	O
+2010–2014	B-EDU_YEAR_END
+|	O
+CGPA	O
+8.4	B-GRADE
+
+B.E.	B-DEGREE
+(Computer	B-FIELD
+Engineering)	I-FIELD
+–	O
+Savitribai	B-INSTITUTION
+Phule	I-INSTITUTION
+Pune	I-INSTITUTION
+University	I-INSTITUTION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+68%	B-GRADE
+
+L&T	B-COMPANY
+Infotech	I-COMPANY
+
+Wipro	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Lead	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+|	O
+Bangalore	B-LOCATION
+|	O
+2020	B-DATE_START
+-	O
+Ongoing	O
+
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+
+Larsen	B-COMPANY
+&	I-COMPANY
+Toubro	I-COMPANY
+Infotech	I-COMPANY
+(LTI),	O
+Bangalore	B-LOCATION
+
+Epic	B-COMPANY
+Games,Cary	B-LOCATION
+NC,Senior	B-ROLE
+Game	I-ROLE
+Server	I-ROLE
+Engineer,March	B-DATE_START
+2019,September	B-DATE_END
+2022	I-DATE_END
+
+Palo	B-COMPANY
+Alto	I-COMPANY
+Networks/Santa	B-LOCATION
+Clara	I-LOCATION
+CA/Staff	B-ROLE
+Security	I-ROLE
+Engineer/April	B-DATE_START
+2023/Present	B-DATE_END
+
+Associate	B-ROLE
+Director	I-ROLE
+–	I-ROLE
+Technology	I-ROLE
+|	O
+Vantage	B-COMPANY
+Biotech	I-COMPANY
+Solutions	I-COMPANY
+|	O
+2017	B-DATE_START
+–	O
+2021	B-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Client:	O
+Standard	B-CLIENT
+Chartered	I-CLIENT
+Bank	I-CLIENT
+India	I-CLIENT
+
+Snowflake#Boston	B-LOCATION
+MA#Data	B-ROLE
+Engineer	I-ROLE
+III#Oct2021#Present#client:Capital	B-CLIENT
+One	I-CLIENT
+
+Wipro	B-COMPANY
+~	O
+Graduate	B-ROLE
+Engineer	I-ROLE
+Trainee	I-ROLE
+~	O
+Bhubaneswar	B-LOCATION
+~	O
+2011–2014	B-DATE_END
+
+Intern	B-ROLE
+@	O
+Syntel	B-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+Jan	B-DATE_START
+2015	I-DATE_START
+-	O
+Mar	B-DATE_END
+2015	I-DATE_END
+
+Company	O
+:	O
+Lyft	B-COMPANY
+
+Wipro,	B-COMPANY
+Delhi	B-LOCATION
+
+Jun	B-DATE_START
+2017	I-DATE_START
+–	O
+Jun	B-DATE_END
+2020	I-DATE_END
+
+B.Tech	B-DEGREE
+(Mechanical)	B-FIELD
+–	O
+NIT	B-INSTITUTION
+Trichy	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+8.4	B-GRADE
+CGPA	O
+
+Bank	B-COMPANY
+of	I-COMPANY
+America	I-COMPANY
+(Client:	O
+Merrill	B-CLIENT
+Lynch)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Charlotte,	B-LOCATION
+NC	I-LOCATION
+(Hybrid)	B-LOCATION
+
+Jun	B-DATE_START
+2018	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Mphasis	B-COMPANY
+Ltd	I-COMPANY
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+Coimbatore	B-LOCATION
+(Jul	B-DATE_START
+2017	I-DATE_START
+-	O
+Mar	B-DATE_END
+2020)	I-DATE_END
+
+Snowflake|San	B-LOCATION
+Mateo	I-LOCATION
+CA|Staff	B-ROLE
+Data	I-ROLE
+Engineer|June	B-DATE_START
+2021|Present|client:IceBase	B-CLIENT
+Analytics	I-CLIENT
+
+CGPA:	O
+7.6	B-GRADE
+
+Google	B-COMPANY
+•	O
+Mountain	B-LOCATION
+View,	I-LOCATION
+CA	I-LOCATION
+
+Jun	B-DATE_START
+2009	I-DATE_START
+–	O
+Mar	B-DATE_END
+2011	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Civil::JNTU::Hyderabad	B-LOCATION
+India::2009::2013	B-EDU_YEAR_END
+
+M.Tech	B-DEGREE
+Cyber	B-FIELD
+Security	I-FIELD
+–	O
+IIT	B-INSTITUTION
+Delhi	I-INSTITUTION
+–	O
+2108-2020	B-EDU_YEAR_END
+–	O
+9.0	B-GRADE
+CGPA	O
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Infosys,	B-COMPANY
+Lucknow	B-LOCATION
+
+Infosys	B-COMPANY
+||	O
+Senior	B-ROLE
+Manager	I-ROLE
+||	O
+Mumbai	B-LOCATION
+||	O
+From	O
+Jan	B-DATE_START
+2019	I-DATE_START
+to	O
+Present	B-DATE_END
+
+2016	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Trainee	B-ROLE
+
+Senior	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+JNTU	B-COMPANY
+Anantapur	B-LOCATION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+72.4%	B-GRADE
+
+Apr	B-DATE_START
+2015	I-DATE_START
+–	O
+Jun	B-DATE_END
+2019	I-DATE_END
+
+Role	O
+:	O
+Web	B-ROLE
+Developer	I-ROLE
+
+Infosys,	B-COMPANY
+Software	B-ROLE
+Developer,	I-ROLE
+Chennai,	B-LOCATION
+2018	B-DATE_START
+-	O
+2021	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+NIT	B-INSTITUTION
+Patna	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+79%	B-GRADE
+
+Patni	B-COMPANY
+Computer	I-COMPANY
+Systems	I-COMPANY
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+M.Tech	B-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+–	O
+NIT	B-INSTITUTION
+Surathkal	I-INSTITUTION
+–	O
+2014-2016	B-EDU_YEAR_END
+–	O
+8.0	B-GRADE
+CGPA	O
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+B.E:Electronics	B-FIELD
+and	I-FIELD
+Instrumentation::PSG	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Technology::Coimbatore	B-LOCATION
+India::2010::2014::CGPA6.8/10	B-GRADE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-INSTITUTION
+Roorkee,	I-INSTITUTION
+Roorkee	I-INSTITUTION
+Campus,	I-INSTITUTION
+2014-2017,	B-EDU_YEAR_END
+8.3	B-GRADE
+CGPA	O
+
+M.Tech	B-DEGREE
+Embedded	B-FIELD
+Systems	I-FIELD
+–	O
+IIT	B-INSTITUTION
+Roorkee	I-INSTITUTION
+–	O
+2017-2019	B-EDU_YEAR_END
+–	O
+8.6	B-GRADE
+CGPA	O
+
+Position:	O
+Software	B-ROLE
+Engineer	I-ROLE
+–	O
+Payments	O
+
+Jun	B-DATE_START
+2017	I-DATE_START
+–	O
+Dec	B-DATE_END
+2021	I-DATE_END
+
+iGate!!Bangalore	B-LOCATION
+India!!Software	B-ROLE
+Developer!!September	B-DATE_START
+2013!!June	B-DATE_END
+2016	I-DATE_END
+
+M.Tech	B-DEGREE
+(CS)	B-FIELD
+BITS	B-INSTITUTION
+Pilani	I-INSTITUTION
+Pilani	I-INSTITUTION
+Campus	I-INSTITUTION
+2015	B-EDU_YEAR_END
+8.5	B-GRADE
+CGPA	O
+
+Sr.	B-ROLE
+Engineer	I-ROLE
+@	O
+SAP	B-COMPANY
+Labs	I-COMPANY
+India	I-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+2020	B-DATE_START
+-	O
+Present	B-DATE_END
+
+TCS	B-COMPANY
+~	O
+Senior	B-ROLE
+Consultant	I-ROLE
+~	O
+Hyderabad	B-LOCATION
+~	O
+2016–2019	B-DATE_END
+
+Associate	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Infosys,	B-COMPANY
+Pune	B-LOCATION
+
+B.Sc:Computer	B-FIELD
+Science,Osmania	B-INSTITUTION
+University,Hyderabad	B-LOCATION
+India(2011-2014)	B-EDU_YEAR_END
+
+Software	B-ROLE
+Analyst	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+03/2017	B-DATE_START
+-	O
+05/2019	B-DATE_END
+
+Wipro,	B-COMPANY
+Chennai	B-LOCATION
+
+2018–2020	B-DATE_END
+
+Palantir	B-COMPANY
+Technologies;Denver	B-LOCATION
+CO;Principal	B-ROLE
+Software	I-ROLE
+Architect;April	B-DATE_START
+2022;Present	B-DATE_END
+
+October	O
+–	O
+May201	O
+Graphics	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Genpact	B-COMPANY
+India,	B-LOCATION
+Gurugram	I-LOCATION
+
+Chief	B-ROLE
+Technology	I-ROLE
+Officer	I-ROLE
+|	O
+NovaTech	B-COMPANY
+Innovations	I-COMPANY
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Duration	O
+:	O
+March	B-DATE_START
+2022	I-DATE_START
+–	O
+Till	B-DATE_END
+Date	I-DATE_END
+
+Jul	B-DATE_START
+2013	I-DATE_START
+–	O
+Jun	B-DATE_END
+2017	I-DATE_END
+
+Client:	O
+ABB	B-CLIENT
+India	I-CLIENT
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Mar	B-DATE_END
+2016	I-DATE_END
+
+2016	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Wipro,	B-COMPANY
+Pune	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Information	B-FIELD
+Technology,Anna	B-INSTITUTION
+University,Chennai	B-LOCATION
+India(2008-2012)	B-EDU_YEAR_END
+
+Feb	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Software	B-FIELD
+Engineering,San	B-INSTITUTION
+Jose	I-INSTITUTION
+State	I-INSTITUTION
+University,San	B-LOCATION
+Jose	I-LOCATION
+CA(2013-2015)	B-EDU_YEAR_END
+
+Infosys	B-COMPANY
+Technologies,	I-COMPANY
+Noida	B-LOCATION
+
+Qualified:	O
+M.Tech	B-DEGREE
+
+M.S:Information	B-FIELD
+Technology,University	B-INSTITUTION
+of	I-INSTITUTION
+Southern	I-INSTITUTION
+California,Los	B-LOCATION
+Angeles	I-LOCATION
+CA(2015-2017)	B-EDU_YEAR_END
+
+Joined	O
+Infosys	B-COMPANY
+(Mumbai)	B-LOCATION
+as	O
+Sr	B-ROLE
+Manager	I-ROLE
+in	O
+Jan	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+–	O
+Client:	O
+WHO	B-CLIENT
+Regulatory	I-CLIENT
+
+Process	B-ROLE
+Analyst	I-ROLE
+cum	I-ROLE
+Developer	I-ROLE
+
+TCS,	B-COMPANY
+Jaipur	B-LOCATION
+
+Jul	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+TCS,	B-COMPANY
+Bangalore	B-LOCATION
+
+SAP	B-COMPANY
+|	O
+Newtown	B-LOCATION
+Square,	I-LOCATION
+PA	I-LOCATION
+
+Nutanix	B-COMPANY
+|	O
+San	B-LOCATION
+Jose	I-LOCATION
+CA	I-LOCATION
+|	O
+Distinguished	B-ROLE
+Cloud	I-ROLE
+Engineer	I-ROLE
+|	O
+September	B-DATE_START
+2021	I-DATE_START
+|	O
+Present	B-DATE_END
+
+Trainee	B-ROLE
+
+Trainee	B-ROLE
+
+Cyient	B-COMPANY
+::	O
+Embedded	B-ROLE
+Engineer	I-ROLE
+::	O
+Hyderabad	B-LOCATION
+::	O
+Mar'19	B-DATE_START
+to	O
+Aug'21	B-DATE_END
+
+Pursued	O
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Information	B-FIELD
+Systems	I-FIELD
+and	O
+graduated	O
+in	O
+2010	B-EDU_YEAR_END
+from	O
+VIT	B-INSTITUTION
+University,	I-INSTITUTION
+Vellore,	B-LOCATION
+India.	I-LOCATION
+
+Patni	B-COMPANY
+Computer	I-COMPANY
+Systems+Pune	B-LOCATION
+India+Programmer+June	B-DATE_START
+2013+December	B-DATE_END
+2015	I-DATE_END
+
+NIIT	B-COMPANY
+Technologies,	I-COMPANY
+Software	B-ROLE
+Developer,	I-ROLE
+Chennai,	B-LOCATION
+Jan	B-DATE_START
+2018	I-DATE_START
+-	O
+Feb	B-DATE_END
+2021	I-DATE_END
+
+Microsoft	B-COMPANY
+(Client:	O
+Azure	B-CLIENT
+Cognitive	I-CLIENT
+Services)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Redmond,	B-LOCATION
+WA	I-LOCATION
+(Hybrid)	O
+
+Jul	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+[2006–2010]	B-EDU_YEAR_END
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Electronics	B-FIELD
+&	I-FIELD
+Communication	I-FIELD
+→	O
+Visvesvaraya	B-INSTITUTION
+Technological	I-INSTITUTION
+University,	I-INSTITUTION
+India	O
+
+M.Tech	B-DEGREE
+Business	B-FIELD
+Analytics	I-FIELD
+–	O
+IIM	B-INSTITUTION
+Ahmedabad	I-INSTITUTION
+–	O
+2015-2017	B-EDU_YEAR_END
+–	O
+8.9	B-GRADE
+CGPA	O
+
+Jan'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+Microsoft,Redmond	B-LOCATION
+WA,Staff	B-ROLE
+Software	I-ROLE
+Engineer,June	B-DATE_START
+2020-Present,client:CloudBase	B-CLIENT
+Systems	I-CLIENT
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+May	B-DATE_END
+2015	I-DATE_END
+
+2015–2021	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Software	B-FIELD
+Engineering,Arizona	B-INSTITUTION
+State	I-INSTITUTION
+University,Tempe	B-LOCATION
+AZ,2013,2015	B-EDU_YEAR_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Georgia	B-INSTITUTION
+Tech	I-INSTITUTION
+in	O
+Aerospace	B-FIELD
+Engineering	I-FIELD
+(2013-2015),	B-EDU_YEAR_END
+86%	B-GRADE
+
+UST	B-COMPANY
+Global,	I-COMPANY
+Trivandrum	B-LOCATION
+
+Persistent	B-COMPANY
+Systems^^Pune	B-LOCATION
+India^^Software	B-ROLE
+Engineer^^January	B-DATE_START
+2016^^May	B-DATE_END
+2019	I-DATE_END
+
+Field	O
+:	O
+Computer	B-FIELD
+Science	I-FIELD
+
+M.Tech	B-DEGREE
+(Biotechnology	B-FIELD
++	I-FIELD
+CS)	I-FIELD
+–	O
+Manipal	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2016	B-EDU_YEAR_END
+–	O
+7.9	B-GRADE
+CGPA	O
+
+B.E:Electronics	B-FIELD
+and	I-FIELD
+Instrumentation,PSG	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Technology,Coimbatore	B-LOCATION
+India(2010-2014)	B-EDU_YEAR_END
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+Senior	B-ROLE
+Consultant	I-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Jan	B-DATE_START
+2014	I-DATE_START
+–	O
+Jul	B-DATE_END
+2016	I-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Kolkata	B-LOCATION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+79.2%	B-GRADE
+
+Cloud	B-ROLE
+Engineer	I-ROLE
+@	O
+IBM	B-COMPANY
+India	I-COMPANY
+(Client:	O
+Shell)	B-CLIENT
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+Feb	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Jun	B-DATE_START
+2009	I-DATE_START
+–	O
+Jul	B-DATE_END
+2010	I-DATE_END
+
+Jun	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+B.E:Mechanical	B-FIELD
+Engineering--College	B-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Guindy--Chennai	B-LOCATION
+India--2009--2013--CGPA7.1/10	B-GRADE
+
+Ahmedabad	B-LOCATION
+
+Backend	B-ROLE
+Engineer	I-ROLE
+@	O
+Meesho	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Mar	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Currently	O
+working	O
+with	O
+TCS	B-COMPANY
+as	O
+Lead	B-ROLE
+Engineer	I-ROLE
+(since	O
+March	B-DATE_START
+2021)	I-DATE_START
+|	O
+Chennai	B-LOCATION
+
+PagerDuty	B-COMPANY
+-	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+-	O
+Senior	B-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+-	O
+April	B-DATE_START
+2019	I-DATE_START
+-	O
+August	B-DATE_END
+2022	I-DATE_END
+
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Information	B-FEILD
+Technology	I-FEILD
+|	O
+Hyderabad	B-LOCATION
+|	O
+2014	B-EDU_YEAR_END
+|	O
+79.8%	B-GRADE
+
+Cisco~San	B-LOCATION
+Jose	I-LOCATION
+CA~Distinguished	B-ROLE
+Engineer~May	B-DATE_START
+2020~Present	B-DATE_END
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2014	I-DATE_END
+
+Junior	B-ROLE
+Software	I-ROLE
+Developer	I-ROLE
+@	O
+Freshworks	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+01/2020	B-DATE_START
+-	O
+01/2022	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-INSTITUTION
+Madras,	I-INSTITUTION
+Chennai	I-INSTITUTION
+Campus,	I-INSTITUTION
+2012-2016,	B-EDU_YEAR_END
+8.9	B-GRADE
+CGPA	O
+
+NIIT	B-COMPANY
+Technologies;Delhi	B-LOCATION
+India;Software	B-ROLE
+Developer;April	B-DATE_START
+2015;December	B-DATE_END
+2018	I-DATE_END
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+May	B-DATE_END
+2015	I-DATE_END
+
+2019–2022	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Tech	B-COMPANY
+Mahindra	I-COMPANY
+|	O
+Hyderabad	B-LOCATION
+|	O
+Jan'16	B-DATE_START
+to	O
+Mar'18	B-DATE_END
+
+LinkedIn_San	B-COMPANY
+Jose	I-LOCATION
+CA_Principal	I-LOCATION
+Product	I-ROLE
+Engineer_April	I-ROLE
+2022_Present_client_OmniReach	B-DATE_END
+Digital	O
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+ECE	B-FIELD
+@	O
+NIT	B-INSTITUTION
+Warangal	I-INSTITUTION
+|	O
+2013–2017	B-EDU_YEAR_END
+|	O
+8.6	B-GRADE
+CGPA	O
+
+Year	O
+:	O
+2010–2012	B-EDU_YEAR_END
+
+Oct	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Infosys	B-COMPANY
+||	O
+Software	B-ROLE
+Engineer	I-ROLE
+||	O
+Bangalore	B-LOCATION
+||	O
+2015–2019	B-DATE_END
+
+Shopify>>>Ottawa	B-LOCATION
+Canada>>>Senior	B-ROLE
+Cloud	I-ROLE
+Engineer>>>August	B-DATE_START
+2018>>>January	B-DATE_END
+2022	I-DATE_END
+
+T-Mobile,	B-COMPANY
+Bellevue,	B-LOCATION
+WA	I-LOCATION
+
+Palantir	B-COMPANY
+Technologies;Denver	B-LOCATION
+CO;Principal	B-ROLE
+Software	I-ROLE
+Architect;April	B-DATE_START
+2022;Present	B-DATE_END
+
+Telecom	B-ROLE
+Applications	I-ROLE
+Developer	I-ROLE
+August	B-DATE_START
+2019	I-DATE_START
+–	O
+April	B-DATE_END
+2022	I-DATE_END
+
+June20	B-DATE_START
+–	O
+Februar	O
+Junior	B-ROLE
+Developer	I-ROLE
+
+Principal	B-ROLE
+Site	I-ROLE
+Reliability	I-ROLE
+&	I-ROLE
+Cloud	I-ROLE
+Operations	I-ROLE
+Architect	I-ROLE
+
+Platform	B-ROLE
+Developer	I-ROLE
+April	B-DATE_START
+2020	I-DATE_START
+–	O
+December	B-DATE_END
+2022	I-DATE_END
+
+ServiceNow^Santa	B-LOCATION
+Clara	I-LOCATION
+CA^Principal	B-ROLE
+Data	I-ROLE
+Engineer^Jul2021^Present^client:ITSM	B-CLIENT
+Platform	O
+
+Pune	B-INSTITUTION
+University,	I-INSTITUTION
+India	O
+·	O
+2007–2011	B-EDU_YEAR_END
+
+Cape	B-LOCATION
+Canaveral,	I-LOCATION
+FL	I-LOCATION
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+-	O
+Lead	B-ROLE
+Engineer	I-ROLE
+-	O
+Hyderabad	B-LOCATION
+(2015	B-DATE_START
+-	O
+2019)	B-DATE_END
+
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions,	I-COMPANY
+Chennai	B-LOCATION
+
+Capgemini,	B-COMPANY
+Pune	B-LOCATION
+
+Field:	O
+Computer	B-FIELD
+Science	I-FIELD
+
+B.E.	B-DEGREE
+–	O
+Gujarat	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Ahmedabad	B-LOCATION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+69.4%	B-GRADE
+
+Software	B-ROLE
+Engineer	I-ROLE
+–	O
+Network	O
+January	B-DATE_START
+2017	I-DATE_START
+–	O
+July	B-DATE_END
+2019	I-DATE_END
+
+B.Tech	B-DEGREE
+CSE,	B-FIELD
+JNTU	B-INSTITUTION
+Hyderabad,	B-LOCATION
+2011,	B-EDU_YEAR_END
+69.8%	B-GRADE
+
+Infosys	B-COMPANY
+Ltd,	I-COMPANY
+Senior	B-ROLE
+Developer,	I-ROLE
+Noida,	B-LOCATION
+2016	B-DATE_START
+-	O
+Jan	B-DATE_END
+2020	I-DATE_END
+
+Security	B-ROLE
+Engineer	I-ROLE
+@	O
+Razorpay	B-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+February	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Year	O
+:	O
+2015	B-EDU_YEAR_END
+
+B.E.:	B-DEGREE
+Computer	B-FIELD
+Engineering	I-FIELD
+@	O
+Mumbai	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2010–2014	B-EDU_YEAR_END
+|	O
+68.4%	B-GRADE
+
+Principal	B-ROLE
+Cybersecurity	I-ROLE
+Architect	I-ROLE
+&	I-ROLE
+Zero	I-ROLE
+Trust	I-ROLE
+Lead	I-ROLE
+
+M.Tech:	B-DEGREE
+VLSI	B-FIELD
+Design	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Kharagpur	B-LOCATION
+|	O
+2015–2017	B-EDU_YEAR_END
+
+Analyst	B-ROLE
+/	O
+Associate	O
+
+Amazon,	B-COMPANY
+Seattle,	B-LOCATION
+WA	I-LOCATION
+-	O
+Sr.	B-ROLE
+Cloud	I-ROLE
+Solutions	I-ROLE
+Architect	I-ROLE
+(March	B-DATE_START
+2022–Present)	B-DATE_END
+
+Hexaware	B-COMPANY
+Technologies,Chennai	B-LOCATION
+India,Java	B-ROLE
+Lead,June	B-DATE_START
+2018,December	B-DATE_END
+2020,client:SwiftPay	B-CLIENT
+FinTech	I-CLIENT
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Michigan	B-INSTITUTION
+State	I-INSTITUTION
+University	I-INSTITUTION
+in	O
+Industrial	B-FIELD
+Engineering	I-FIELD
+(2011-2013),	B-EDU_YEAR_END
+82%	B-GRADE
+
+B.Tech	B-DEGREE
+Mathematics	B-FIELD
+and	I-FIELD
+Computing,	I-FIELD
+IIT	B-INSTITUTION
+Delhi,	B-LOCATION
+2013,	B-EDU_YEAR_END
+CGPA:	O
+9.2/10	B-GRADE
+
+DELOITTE	B-COMPANY
+|	O
+Technology	B-ROLE
+Consultant	I-ROLE
+|	O
+2022/01	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Gurugram	B-LOCATION
+
+Product	B-ROLE
+Engineer	I-ROLE
+@	O
+CRED	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Mar'21	B-DATE_START
+to	O
+Present	B-DATE_END
+
+B.E:Computer	B-FIELD
+Science,PSG	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Technology,Coimbatore	B-LOCATION
+India(2012-2016)	B-EDU_YEAR_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+III	I-ROLE
+@	O
+Oracle	B-COMPANY
+India	I-COMPANY
+|	O
+Hyderabad	B-LOCATION
+|	O
+January	B-DATE_START
+2023	I-DATE_START
+–	O
+Present	B-DATE_END
+
+B.Tech	B-DEGREE
+ECE,	B-FIELD
+Graphic	B-INSTITUTION
+Era	I-INSTITUTION
+University	I-INSTITUTION
+Dehradun,	B-LOCATION
+2016,	B-EDU_YEAR_END
+68.2%	B-GRADE
+
+Senior	B-ROLE
+QA	I-ROLE
+Engineer	I-ROLE
+
+B.Tech	B-DEGREE
+–	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2016	B-EDU_YEAR_END
+–	O
+78%	B-GRADE
+
+Cigna	B-COMPANY
+Health	I-COMPANY
+(Client:	O
+Express	B-CLIENT
+Scripts)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Bloomfield,	B-LOCATION
+CT	I-LOCATION
+(Remote)	O
+
+Senior	B-ROLE
+Engineer	I-ROLE
+–	O
+Software	O
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+UC	B-INSTITUTION
+San	I-INSTITUTION
+Diego,	I-INSTITUTION
+San	B-LOCATION
+Diego,	I-LOCATION
+completed	O
+2008-2011,	B-EDU_YEAR_END
+9.0	B-GRADE
+CGPA	O
+
+Score:	O
+79.8%	B-GRADE
+
+SDE	B-ROLE
+@	O
+Flipkart	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+03/2017	B-DATE_START
+-	O
+12/2019	B-DATE_END
+
+Apple::Cupertino	B-LOCATION
+CA::iOS	B-ROLE
+Platform	I-ROLE
+Engineer::September	B-DATE_START
+2019::Present::client::BrightLeaf	B-CLIENT
+Studios	I-CLIENT
+
+Client:	O
+Ford	B-CLIENT
+Motor	I-CLIENT
+India	I-CLIENT
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+2015–2018	B-DATE_END
+
+Persistent	B-COMPANY
+Systems,	I-COMPANY
+Pune	B-LOCATION
+
+ServiceNow	B-COMPANY
+|	O
+Santa	B-LOCATION
+Clara,	I-LOCATION
+CA	I-LOCATION
+
+TCS,	B-COMPANY
+Kolkata	B-LOCATION
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+Solutions	B-ROLE
+Engineer	I-ROLE
+
+Junior	B-ROLE
+Software	I-ROLE
+Dev	I-ROLE
+@	O
+WIPRO	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Sep'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+May	B-DATE_END
+2015	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+CSE	B-FIELD
+@	O
+Kakatiya	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+74.8%	B-GRADE
+
+Master	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Software	B-FIELD
+Systems	I-FIELD
+@	O
+BITS	B-INSTITUTION
+Pilani	I-INSTITUTION
+|	O
+2016–2018	B-EDU_YEAR_END
+
+Happiest	B-COMPANY
+Minds	I-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+AMAZON	B-COMPANY
+INDIA	I-COMPANY
+|	O
+Site	B-ROLE
+Reliability	I-ROLE
+Engineer	I-ROLE
+|	O
+2020/07	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Bengaluru	B-LOCATION
+
+Pure	B-COMPANY
+Storage	I-COMPANY
+|	O
+Mountain	B-LOCATION
+View	I-LOCATION
+CA	I-LOCATION
+|	O
+Senior	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+|	O
+March	B-DATE_START
+2018	I-DATE_START
+|	O
+August	B-DATE_END
+2021	I-DATE_END
+
+Tech	B-COMPANY
+Mahindra	I-COMPANY
+::	O
+Associate	B-ROLE
+Lead	I-ROLE
+::	O
+Bangalore	B-LOCATION
+::	O
+Jan'17	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+B.E.	B-DEGREE
+Electrical	B-FIELD
+&	I-FIELD
+Electronics,	I-FIELD
+PSG	B-INSTITUTION
+Tech	I-INSTITUTION
+Coimbatore,	B-LOCATION
+2016,	B-EDU_YEAR_END
+78%	B-GRADE
+
+Wipro	B-COMPANY
+Limited,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+San	B-LOCATION
+Jose,	I-LOCATION
+CA	I-LOCATION
+/	I-LOCATION
+APAC	I-LOCATION
+
+Junior	B-ROLE
+Developer	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+July	B-DATE_START
+2017	I-DATE_START
+-	O
+Feb	B-DATE_END
+2019	I-DATE_END
+
+TechLead|Jun2018|Dec2023	B-DATE_END
+
+Infrastructure	B-ROLE
+Lead	I-ROLE
+
+TCS,	B-COMPANY
+Pune	B-LOCATION
+
+Location	O
+:	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-LOCATION
+Hyderabad,	I-LOCATION
+Hyderabad	I-LOCATION
+Campus,	I-LOCATION
+2013-2017,	B-EDU_YEAR_END
+8.8	B-GRADE
+CGPA	O
+
+Senior	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+Amazon	B-COMPANY
+India	I-COMPANY
+|	O
+DevOps	B-ROLE
+Architect	I-ROLE
+|	O
+Bengaluru	B-LOCATION
+|	O
+May'20	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Flipkart	B-CLIENT
+
+M.Tech	B-DEGREE
+Distributed	B-FIELD
+Systems	I-FIELD
+–	O
+IIT	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+2017-2019	B-EDU_YEAR_END
+–	O
+9.2	B-GRADE
+CGPA	O
+
+Tech	B-COMPANY
+Mahindra;Hyderabad	B-LOCATION
+India;Software	B-ROLE
+Engineer;February	B-DATE_START
+2015;August	B-DATE_END
+2018	I-DATE_END
+
+Graduate	B-ROLE
+Trainee	I-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2013	I-DATE_START
+-	O
+Jul	B-DATE_END
+2015	I-DATE_END
+
+Hexaware^Chennai	B-LOCATION
+India^Software	B-ROLE
+Developer^Apr2012^Jan2016^client:Deutsche	B-CLIENT
+Bank	I-CLIENT
+
+Salesforce	B-COMPANY
+|	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+Genpact	B-COMPANY
+India,	I-COMPANY
+Gurugram	B-LOCATION
+
+Delhi	B-INSTITUTION
+Technological	I-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Data	B-FIELD
+Engineering	I-FIELD
+|	O
+New	B-LOCATION
+Delhi	I-LOCATION
+|	O
+2011-2013	B-EDU_YEAR_END
+|	O
+82.4%	B-GRADE
+
+SeniorManager::Feb2019::Mar2024	B-DATE_END
+
+Client:	O
+Schlumberger	B-CLIENT
+
+Technical	B-ROLE
+Lead	I-ROLE
+
+Institution:	O
+Manipal	B-INSTITUTION
+University,	I-INSTITUTION
+India	B-LOCATION
+
+Title	O
+:	O
+API	B-ROLE
+Developer	I-ROLE
+
+Client:	O
+Syntel	B-CLIENT
+|	O
+Java	O
+development	O
+for	O
+US	O
+financial	O
+client	O
+
+Jul	B-DATE_START
+2015	I-DATE_START
+–	O
+Jun	B-DATE_END
+2018	I-DATE_END
+
+Nashville,	B-LOCATION
+TN	I-LOCATION
+/	I-LOCATION
+National	I-LOCATION
+
+DoorDash	B-COMPANY
+::	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+::	O
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+::	O
+July	B-DATE_START
+2019	I-DATE_START
+::	O
+February	B-DATE_END
+2022	I-DATE_END
+
+Intern	B-ROLE
+@	O
+TATA	B-COMPANY
+Elxsi	I-COMPANY
+|	O
+Trivandrum	B-LOCATION
+|	O
+Jun	B-DATE_START
+2015	I-DATE_START
+-	O
+Nov	B-DATE_END
+2015	I-DATE_END
+
+Currently	O
+working	O
+with	O
+Apple	B-CLIENT
+as	O
+Sr.	B-ROLE
+iOS	I-ROLE
+Developer	I-ROLE
+(since	O
+February	B-DATE_START
+2023),	I-DATE_START
+based	O
+in	O
+Cupertino,	B-LOCATION
+CA.	I-LOCATION
+
+B.Tech:Electronics	B-FIELD
+and	I-FIELD
+Instrumentation,NIT	B-INSTITUTION
+Warangal,Telangana	B-LOCATION
+India(2008-2012)	B-EDU_YEAR_END
+
+Degree	O
+:	O
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Mechanical	B-FIELD
+Engineering	I-FIELD
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+Jun	B-DATE_END
+2017	I-DATE_END
+
+Houston,	B-LOCATION
+TX	I-LOCATION
+/	I-LOCATION
+Gulf	I-LOCATION
+Region	I-LOCATION
+
+Currently	O
+working	O
+with	O
+Wipro	B-COMPANY
+as	O
+Principal	B-ROLE
+Consultant	I-ROLE
+(since	O
+Feb	B-DATE_START
+2020)	I-DATE_START
+|	O
+Trivandrum	B-LOCATION
+
+Period:	O
+September	B-DATE_START
+2019	I-DATE_START
+–	O
+May	B-DATE_END
+2022	I-DATE_END
+
+[2022	B-DATE_START
+–	O
+Present]	B-DATE_END
+Sr.	B-ROLE
+Video	I-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+→	O
+Zoom,	B-COMPANY
+San	B-LOCATION
+Jose,	I-LOCATION
+CA	I-LOCATION
+
+B.Tech:	B-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+@	O
+RVCE	B-INSTITUTION
+Bangalore	B-LOCATION
+|	O
+2011–2015	B-DATE_END
+|	O
+74.1%	B-GRADE
+
+Oracle	B-COMPANY
+Financial	I-COMPANY
+Services	I-COMPANY
+Software,	I-COMPANY
+Bangalore	B-LOCATION
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Noida	B-LOCATION
+
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions	I-COMPANY
+~	O
+Senior	B-ROLE
+Developer	I-ROLE
+~	O
+Chennai	B-LOCATION
+~	O
+2014–2017	B-DATE_END
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+@	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2016	I-DATE_START
+-	O
+Jun	B-DATE_END
+2017	I-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+VTU	B-INSTITUTION
+Belgaum	I-INSTITUTION
+–	O
+Belgaum	B-LOCATION
+–	O
+2006-2009	B-EDU_YEAR_END
+–	O
+71%	B-GRADE
+
+[Degree]Master	B-DEGREE
+of	I-DEGREE
+Science:Artificial	B-FIELD
+Intelligence	I-FIELD
+[College]Carnegie	B-INSTITUTION
+Mellon	I-INSTITUTION
+University	I-INSTITUTION
+[Location]Pittsburgh	B-LOCATION
+PA	I-LOCATION
+[Year1]2014	B-EDU_YEAR_START
+[Year2]2016	B-EDU_YEAR_END
+
+Project	B-ROLE
+Engineer	I-ROLE
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+Jun	B-DATE_END
+2015	I-DATE_END
+
+iGate|Bangalore	B-LOCATION
+India|Software	B-ROLE
+Developer|September	B-DATE_START
+2014|March	B-DATE_END
+2018	I-DATE_END
+
+Morgan	B-COMPANY
+Stanley	I-COMPANY
+(Application	B-ROLE
+Developer)	I-ROLE
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+March	B-DATE_START
+2017	I-DATE_START
+to	O
+September	B-DATE_END
+2019	I-DATE_END
+
+Trainee	B-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+Aug	B-DATE_START
+2014	I-DATE_START
+-	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+Jan	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+B.E.,	B-DEGREE
+University	B-INSTITUTION
+of	I-INSTITUTION
+Mumbai,	I-INSTITUTION
+2014,	B-EDU_YEAR_END
+70%	B-GRADE
+
+2017	B-DATE_START
+to	O
+2019	B-DATE_END
+
+Mphasis	B-COMPANY
+/	O
+Software	B-ROLE
+Engineer	I-ROLE
+/	O
+Bangalore	B-LOCATION
+/	O
+2015	B-DATE_START
+-	O
+2018	B-DATE_END
+
+Integration	B-ROLE
+Developer	I-ROLE
+July	B-DATE_START
+2017	I-DATE_START
+–	O
+March	B-DATE_END
+2020	I-DATE_END
+
+Oklahoma	B-LOCATION
+City,	I-LOCATION
+OK	I-LOCATION
+
+Verizon_New	B-LOCATION
+Jersey_VP	B-ROLE
+Engineering_July	B-DATE_START
+2018_June	B-DATE_END
+2024_client_PeakLoad	B-CLIENT
+Energy	I-CLIENT
+
+KPMG	B-COMPANY
+INDIA	I-COMPANY
+|	O
+Digital	B-ROLE
+Transformation	I-ROLE
+Lead	I-ROLE
+|	O
+2020/01	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Mumbai	B-LOCATION
+
+Completed	O
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Electronics	B-ROLE
+&	I-ROLE
+Communication	I-ROLE
+from	O
+NIT	B-INSTITUTION
+Trichy,	I-INSTITUTION
+India	O
+in	O
+2011.	B-EDU_YEAR_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:Computer	B-FIELD
+Science,Manipal	B-INSTITUTION
+University,Karnataka	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+Zensar	B-COMPANY
+Technologies	I-COMPANY
+
+Company	O
+:	O
+Grubhub	B-COMPANY
+
+At	O
+Best	O
+Buy,	B-COMPANY
+I	O
+worked	O
+as	O
+Web	B-ROLE
+Developer	I-ROLE
+from	O
+April	B-DATE_START
+2015	I-DATE_START
+to	O
+September	B-DATE_END
+2017	I-DATE_END
+(Richfield,	B-LOCATION
+MN).	I-LOCATION
+
+Trainee	B-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+2013	B-DATE_START
+-	O
+2014	B-DATE_END
+
+Trainee	B-ROLE
+@	O
+TATA	B-COMPANY
+Elxsi	I-COMPANY
+|	O
+Trivandrum	B-LOCATION
+|	O
+Aug	B-DATE_START
+2015	I-DATE_START
+-	O
+Jun	B-DATE_END
+2016	I-DATE_END
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+>>	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Bengaluru	B-LOCATION
+|	O
+January	B-DATE_START
+2018	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Backend	B-ROLE
+Engineer	I-ROLE
+@	O
+BigBasket	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jan'20	B-DATE_START
+to	O
+Jan'23	B-DATE_END
+
+Senior	B-ROLE
+Developer	I-ROLE
+
+Qualification:	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+Senior	B-ROLE
+Developer	I-ROLE
+
+Snowflake	B-COMPANY
+::	O
+San	B-LOCATION
+Mateo	I-LOCATION
+CA	I-LOCATION
+::	O
+Staff	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+::	O
+July	B-DATE_START
+2021	I-DATE_START
+::	O
+Present	B-DATE_END
+
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Sr.	B-ROLE
+Manager	I-ROLE
+|	O
+Mumbai	B-LOCATION
+|	O
+2019/01	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Client:	O
+EMA	B-CLIENT
+
+Degree	O
+:	O
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+
+Kolkata	B-LOCATION
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+Jun	B-DATE_START
+2008	I-DATE_START
+–	O
+Dec	B-DATE_END
+2009	I-DATE_END
+
+Hexaware	B-COMPANY
+Technologies~Chennai	B-LOCATION
+India~Software	B-ROLE
+Developer~March	B-DATE_START
+2015~July	B-DATE_END
+2018	I-DATE_END
+
+Trainee	B-ROLE
+@	O
+NIIT	B-INSTITUTION
+Technologies	I-INSTITUTION
+|	O
+Delhi	B-LOCATION
+|	O
+2014	B-DATE_START
+-	O
+2015	B-DATE_END
+
+Arlington,	B-LOCATION
+VA	I-LOCATION
+
+First	O
+Class	O
+–	O
+80.6%	B-GRADE
+
+NIIT	B-COMPANY
+Technologies,	I-COMPANY
+Software	B-ROLE
+Developer,	I-ROLE
+Chennai,	B-LOCATION
+Jan	B-DATE_START
+2018	I-DATE_START
+-	O
+Feb	B-DATE_END
+2021	I-DATE_END
+
+Wipro	B-COMPANY
+Ltd.	I-COMPANY
+
+Uber==New	B-LOCATION
+York	I-LOCATION
+NY==Lead	B-ROLE
+Platform	I-ROLE
+Engineer==January	B-DATE_START
+2023==Present	B-DATE_END
+
+GOOGLE	B-COMPANY
+INDIA	I-COMPANY
+|	O
+Staff	B-ROLE
+Engineer	I-ROLE
+|	O
+2021/11	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Hyderabad	B-LOCATION
+
+Cognizant,	B-COMPANY
+Chennai	B-LOCATION
+
+Jul	B-DATE_START
+2010	I-DATE_START
+–	O
+Jun	B-DATE_END
+2014	I-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+-	O
+Snapchat,	B-COMPANY
+Santa	B-LOCATION
+Monica,	I-LOCATION
+CA	I-LOCATION
+(November	B-DATE_START
+2019	I-DATE_START
+-	O
+June	B-DATE_END
+2022)	I-DATE_END
+
+Nvidia,Santa	B-LOCATION
+Clara,CA,Principal	B-ROLE
+Systems	I-ROLE
+Architect,March	B-DATE_START
+2022,Present	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Electronics,RV	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering,Bangalore	B-LOCATION
+India(2012-2016)	B-EDU_YEAR_END
+
+Atlassian|Austin	B-LOCATION
+TX|Senior	B-ROLE
+Backend	I-ROLE
+Developer|March	B-DATE_START
+2018-July	B-DATE_END
+2021|client:DataStream	B-CLIENT
+Inc	I-CLIENT
+
+NIIT	B-INSTITUTION
+Technologies,	I-INSTITUTION
+Software	B-ROLE
+Developer,	I-ROLE
+Chennai,	B-LOCATION
+Jan	B-DATE_START
+2018	I-DATE_START
+-	O
+Feb	B-DATE_END
+2021	I-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+July	B-DATE_START
+2012	I-DATE_START
+–	O
+March	B-DATE_END
+2014	I-DATE_END
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+Cyient	B-COMPANY
+>>	O
+Hyderabad	B-LOCATION
+India	I-LOCATION
+>>	O
+Software	B-ROLE
+Developer	I-ROLE
+>>	O
+August	B-DATE_START
+2013	I-DATE_START
+>>	O
+May	B-DATE_END
+2017	I-DATE_END
+
+TCS,	B-COMPANY
+Senior	B-ROLE
+Software	I-ROLE
+Engineer,	I-ROLE
+Bangalore,	B-LOCATION
+2019–Present	B-DATE_END
+
+PG	B-DEGREE
+Diploma	I-DEGREE
+in	O
+Data	B-FIELD
+Science,	I-FIELD
+CDAC	B-INSTITUTION
+Pune	B-LOCATION
+(part-time,	O
+pursuing)	O
+
+Software	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+@	O
+Flipkart	B-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+Jan'21	B-DATE_START
+to	O
+Dec'22	B-DATE_END
+
+Infosys	B-COMPANY
+Limited,	I-COMPANY
+Bangalore	B-LOCATION
+
+B.Sc:Information	B-FIELD
+Technology,JNTU	B-INSTITUTION
+Hyderabad,Telangana	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+Intern	B-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jul	B-DATE_START
+2017	I-DATE_START
+-	O
+Dec	B-DATE_END
+2017	I-DATE_END
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+May	B-DATE_END
+2017	I-DATE_END
+
+Jan	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+VIT	B-INSTITUTION
+Vellore	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+82%	B-GRADE
+
+Engineer	B-ROLE
+@	O
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+2015	B-DATE_START
+-	O
+2018	B-DATE_END
+
+B.Tech:Information	B-FIELD
+Technology,JNTU	B-INSTITUTION
+Hyderabad,Telangana	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+B.Tech	B-DEGREE
+–	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+Hyderabad	B-LOCATION
+–	O
+2009-2012	B-EDU_YEAR_END
+–	O
+74%	B-GRADE
+
+CenturyLink	B-COMPANY
+•	O
+Monroe,	B-LOCATION
+LA	I-LOCATION
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Embedded	B-FIELD
+Systems|University	B-INSTITUTION
+of	I-INSTITUTION
+California|San	B-LOCATION
+Diego	I-LOCATION
+CA|2015|2017	B-EDU_YEAR_END
+
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions	I-COMPANY
+
+Jan	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Employer:	O
+Stripe	B-COMPANY
+
+Bangalore	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Computer	B-FIELD
+Networks	I-FIELD
+|	O
+Bengaluru	B-LOCATION
+|	O
+2009-2011	B-EDU_YEAR_END
+|	O
+77.9%	B-GRADE
+
+Accenture	B-COMPANY
+India,	B-LOCATION
+Bangalore	I-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+-	O
+Pune	B-INSTITUTION
+University,	I-INSTITUTION
+India	B-LOCATION
+(2006	B-EDU_YEAR_START
+2010)	B-EDU_YEAR_END
+
+Duration	O
+:	O
+March	B-DATE_START
+2020	I-DATE_START
+July	B-DATE_END
+2022	I-DATE_END
+
+L&T	B-COMPANY
+Infotech	I-COMPANY
+~	O
+Tech	B-ROLE
+Lead	I-ROLE
+~	O
+Trivandrum	B-LOCATION
+~	O
+Jan'17	B-DATE_START
+to	O
+Jan'20	B-DATE_END
+
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Artificial	B-FIELD
+Intelligence	I-FIELD
+|	O
+Hyderabad	B-LOCATION
+|	O
+2012-2014	B-EDU_YEAR_END
+|	O
+84.7%	B-GRADE
+
+Oracle	B-COMPANY
+India	I-COMPANY
+Pvt	I-COMPANY
+Ltd	I-COMPANY
+|	O
+Cloud	B-ROLE
+Architect	I-ROLE
+|	O
+Hyderabad	B-LOCATION
+|	O
+Feb'21	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+NTPC	B-CLIENT
+Limited	I-CLIENT
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Year:	O
+2015	B-EDU_YEAR_END
+
+B.Tech	B-DEGREE
+Information	B-FIELD
+Technology,	I-FIELD
+Amity	B-INSTITUTION
+University	I-INSTITUTION
+Noida,	B-LOCATION
+2017,	B-EDU_YEAR_END
+68.5%	B-GRADE
+
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions,	I-COMPANY
+Pune	B-LOCATION
+
+Client:	O
+T-Mobile	B-CLIENT
+USA	I-CLIENT
+|	O
+Billing	O
+system	O
+development	O
+in	O
+Java/Oracle	O
+
+B.Tech	B-DEGREE
+–	O
+CSE,	B-FIELD
+Pune	B-INSTITUTION
+University,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+CGPA:	O
+7.8/10	B-GRADE
+
+Year	O
+:	O
+2006–2010	B-EDU_YEAR_END
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+Chennai,	B-LOCATION
+2018,	B-EDU_YEAR_END
+74.2%	B-GRADE
+
+University	B-INSTITUTION
+of	I-INSTITUTION
+Texas,	I-INSTITUTION
+Austin	B-LOCATION
+(2012–2014)	B-EDU_YEAR_END
+
+Wipro,Bangalore	B-LOCATION
+India,Senior	B-ROLE
+Developer,April	B-DATE_START
+2017-May	B-DATE_END
+2020,client:FinCore	B-CLIENT
+Technologies	I-CLIENT
+
+MBA:	B-DEGREE
+Information	B-FIELD
+Systems	I-FIELD
+@	O
+Symbiosis	B-INSTITUTION
+Pune	B-LOCATION
+|	O
+2014–2016	B-EDU_YEAR_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Systems	B-FIELD
+Engineering;Cornell	B-INSTITUTION
+University;Ithaca	B-LOCATION
+NY;2014;2016	B-EDU_YEAR_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Technology:Computer	B-FIELD
+Science|IIT	B-INSTITUTION
+Bombay|Mumbai	B-LOCATION
+India|2015|2017	B-DATE_END
+
+Trainee	B-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+08/2013	B-DATE_START
+-	O
+06/2015	B-DATE_END
+
+Mphasis=Bengaluru	B-LOCATION
+India=Software	B-ROLE
+Engineer=May2014=Oct2017=client:HP	B-CLIENT
+Enterprise	I-CLIENT
+
+Citibank	B-COMPANY
+(Software	B-ROLE
+Developer)	I-ROLE
+Tampa,	B-LOCATION
+FL	I-LOCATION
+June	B-DATE_START
+2014	I-DATE_START
+to	O
+February	B-DATE_END
+2017	I-DATE_END
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2007–2011	B-EDU_YEAR_END
+|	O
+79%	B-GRADE
+
+Employer:	O
+American	B-COMPANY
+Express	I-COMPANY
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+
+Director	B-ROLE
+of	I-ROLE
+Energy	I-ROLE
+&	I-ROLE
+Utilities	I-ROLE
+IT	I-ROLE
+|	O
+GridForce	B-COMPANY
+Energy	I-COMPANY
+Solutions	I-COMPANY
+|	O
+2020	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Wipro,	B-COMPANY
+Pune	B-LOCATION
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Engineering	I-FIELD
+@	O
+UC	B-INSTITUTION
+Berkeley,	I-INSTITUTION
+Berkeley,	B-LOCATION
+completed	O
+2006-2009,	B-EDU_YEAR_END
+9.4	B-GRADE
+CGPA	O
+
+Intern	B-ROLE
+@	O
+HCL	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Apr	B-DATE_START
+2015	I-DATE_START
+-	O
+Jul	B-DATE_END
+2015	I-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+74%	B-GRADE
+
+TCS,	B-COMPANY
+Gurugram	B-LOCATION
+
+2013	B-DATE_START
+–	O
+2016	B-DATE_END
+
+M.Tech:	B-DEGREE
+Financial	B-FIELD
+Engineering	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Bombay	B-LOCATION
+|	O
+2013–2015	B-EDU_YEAR_END
+
+Mphasis	B-COMPANY
+Ltd.	I-COMPANY
+
+Jan	B-DATE_START
+2012	I-DATE_START
+–	O
+Mar	B-DATE_END
+2014	I-DATE_END
+
+Institution:	O
+George	B-INSTITUTION
+Mason	I-INSTITUTION
+University,	I-INSTITUTION
+Fairfax,	B-LOCATION
+VA	I-LOCATION
+
+QA	B-ROLE
+Engineer	I-ROLE
+@	O
+Tech	B-COMPANY
+Mahindra	I-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+2016	B-DATE_START
+-	O
+2019	B-DATE_END
+
+Stripe,South	B-LOCATION
+San	I-LOCATION
+Francisco,CA~VP	B-ROLE
+of	I-ROLE
+Engineering~February	B-DATE_START
+2023~Present	B-DATE_END
+
+Year	O
+:	O
+2012	O
+
+Google,	B-COMPANY
+Mountain	B-LOCATION
+View,	I-LOCATION
+CA	O
+-	O
+Principal	B-ROLE
+Cloud	I-ROLE
+Architect	I-ROLE
+(June	B-DATE_START
+2021–Present)	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+CSE,	B-FIELD
+University	B-INSTITUTION
+of	I-INSTITUTION
+Calicut,	I-INSTITUTION
+2014,	B-EDU_YEAR_END
+74%	B-GRADE
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Washington,	I-INSTITUTION
+Seattle,	B-LOCATION
+completed	O
+2009-2012,	B-EDU_YEAR_END
+9.5	B-GRADE
+CGPA	O
+
+Infosys	B-COMPANY
+Ltd,	I-COMPANY
+Software	B-ROLE
+Engineer,	I-ROLE
+Noida,	B-LOCATION
+2017	B-DATE_START
+-	O
+2020	B-DATE_END
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Working	O
+@	O
+Infosys	B-COMPANY
+as	O
+Sr	B-ROLE
+Manager	I-ROLE
+|	O
+Mumbai	B-LOCATION
+|	O
+since	O
+2019	B-DATE_START
+|	O
+Client:	O
+EMA	B-CLIENT
+
+Infosys	B-COMPANY
+(Senior	B-ROLE
+Consultant)	I-ROLE
+Chennai	B-LOCATION
+2018	B-DATE_START
+to	O
+Present	B-DATE_END
+|	O
+Client:	O
+Cognizant	B-CLIENT
+internal	I-CLIENT
+AI	I-CLIENT
+tools	I-CLIENT
+
+B.Tech	B-DEGREE
+–	O
+IT,	B-FIELD
+SRM	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Science	I-INSTITUTION
+and	I-INSTITUTION
+Technology,	I-INSTITUTION
+2018,	B-EDU_YEAR_END
+CGPA:	O
+8.4	B-GRADE
+
+Sr.	B-ROLE
+DevOps	I-ROLE
+Engineer	I-ROLE
+@	O
+Zepto	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+Feb	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Accenture	B-COMPANY
+India,	I-COMPANY
+Bangalore	B-LOCATION
+
+Accenture	B-COMPANY
+::	O
+Senior	B-ROLE
+Analyst	I-ROLE
+::	O
+Bangalore	B-LOCATION
+::	O
+2016–2020	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+@	O
+Twitter	B-COMPANY
+|	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+|	O
+September	B-DATE_START
+2017	I-DATE_START
+-	O
+March	B-DATE_END
+2020	I-DATE_END
+
+ACCENTURE	B-COMPANY
+|	O
+Cloud	B-ROLE
+Solutions	I-ROLE
+Lead	I-ROLE
+|	O
+2019/08	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Mumbai	B-LOCATION
+
+Minnetonka,	B-LOCATION
+MN	I-LOCATION
+|	O
+February	B-DATE_START
+2023	I-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Full-time	O
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+B.Tech:Electronics	B-FIELD
+and	I-FIELD
+Instrumentation*Andhra	B-INSTITUTION
+University*Visakhapatnam	B-LOCATION
+India*2009*2013*CGPA7.4/10	I-LOCATION
+
+B.Tech	B-DEGREE
+–	O
+Mumbai	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Mumbai	B-LOCATION
+–	O
+2007-2010	B-EDU_YEAR_END
+–	O
+73%	B-GRADE
+
+M.Tech	B-DEGREE
+Information	B-FIELD
+Security	I-FIELD
+–	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2018	B-EDU_YEAR_END
+–	O
+8.1	B-GRADE
+CGPA	O
+
+ServiceNow,Santa	B-LOCATION
+Clara	I-LOCATION
+CA,Lead	B-ROLE
+Cloud	I-ROLE
+Architect,January	B-DATE_START
+2022,Present	I-DATE_START
+
+CGPA:	O
+8.7	B-GRADE
+
+NIIT	B-COMPANY
+Technologies,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Software	B-ROLE
+Developer	I-ROLE
+
+Oct	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Zensar	B-COMPANY
+Technologies,	I-COMPANY
+Pune	B-LOCATION
+
+College:	O
+Mumbai	B-INSTITUTION
+University	I-INSTITUTION
+
+Intel-Santa	B-LOCATION
+Clara,CA-Cloud	B-ROLE
+Infrastructure	I-ROLE
+Engineer-February	B-DATE_START
+2017-July	B-DATE_END
+2020	I-DATE_END
+
+Organisation	O
+:	O
+SAIC	B-COMPANY
+
+2017	B-DATE_START
+-	O
+2020	B-DATE_END
+
+Infosys,	B-COMPANY
+Kolkata	B-LOCATION
+
+ProjectLead@Aug2019@Apr2024	B-DATE_END
+
+College	O
+:	O
+NIT	B-INSTITUTION
+Patna	I-INSTITUTION
+
+Airbnb~San	B-LOCATION
+Francisco	I-LOCATION
+CA~Senior	B-ROLE
+Full	I-ROLE
+Stack	I-ROLE
+Engineer~November	B-DATE_START
+2021~Present	B-DATE_END
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2014	I-DATE_END
+
+Publicis	B-COMPANY
+Sapient~Gurgaon	B-LOCATION
+India~Senior	B-ROLE
+Associate~October	B-DATE_START
+2018~February	B-DATE_END
+2021~client~TrustArc	B-CLIENT
+Insurance	I-CLIENT
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Jun	B-DATE_END
+2017	I-DATE_END
+
+DevOps	B-ROLE
+Engineer	I-ROLE
+November	B-DATE_START
+2016	I-DATE_START
+–	O
+June	B-DATE_END
+2019	I-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+[2019	B-DATE_START
+–	O
+2022]	B-DATE_END
+Software	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+→	O
+Slack	B-COMPANY
+(Salesforce),	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+B.Tech	B-DEGREE
+–	O
+Delhi	B-INSTITUTION
+Technological	I-INSTITUTION
+University	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+76%	B-GRADE
+
+Software	B-COMPANY
+Developer	I-COMPANY
+
+Robinhood|Menlo	B-LOCATION
+Park	I-LOCATION
+CA|Staff	B-ROLE
+Platform	I-ROLE
+Engineer|October	B-DATE_START
+2021|Present	B-DATE_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Nagpur	B-LOCATION
+
+Wipro,	B-COMPANY
+Bangalore	B-LOCATION
+
+Gujarat	B-INSTITUTION
+University,	I-INSTITUTION
+India	B-LOCATION
+
+Cloudflare	B-COMPANY
+•	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+Software	B-COMPANY
+Engineer	I-COMPANY
+
+M.Tech:Artificial	B-FIELD
+Intelligence,IIT	B-INSTITUTION
+Hyderabad,Telangana	I-INSTITUTION
+India(2014-2016)	B-EDU_YEAR_END
+
+Netflix|Los	B-LOCATION
+Angeles	I-LOCATION
+CA|Senior	B-ROLE
+Data	I-ROLE
+Engineer|July	B-DATE_START
+2021|Present|client=StreamCore	B-CLIENT
+Analytics	I-CLIENT
+
+Backend	B-ROLE
+Developer	I-ROLE
+-	O
+Pinterest,	B-COMPANY
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+(April	B-DATE_START
+2017	I-DATE_START
+-	O
+October	B-DATE_END
+2019)	I-DATE_END
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+SRM	B-INSTITUTION
+University	I-INSTITUTION
+Chennai	I-INSTITUTION
+|	O
+2009–2013	B-EDU_YEAR_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Texas	I-INSTITUTION
+at	O
+Austin	B-LOCATION
+in	O
+Network	B-FIELD
+Engineering	I-FIELD
+(2010-2012),	B-EDU_YEAR_START
+83%	B-GRADE
+
+M.Tech	B-DEGREE
+–	O
+Computer	B-FIELD
+Science	I-FIELD
+and	I-FIELD
+Engineering	I-FIELD
+
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+>>	O
+M.Tech	B-DEGREE
+>>	O
+2012-2014	B-EDU_YEAR_END
+>>	O
+82.6%	B-GRADE
+
+Percentage:	O
+75.8%	B-GRADE
+
+Publicis	B-COMPANY
+Sapient,	I-COMPANY
+Gurugram	B-LOCATION
+
+Systems	B-ROLE
+Developer	I-ROLE
+April	B-DATE_START
+2014	I-DATE_START
+–	O
+December	B-DATE_END
+2016	I-DATE_END
+
+2016–2019	B-DATE_END
+
+Software	B-ROLE
+Developer	I-ROLE
+
+Wipro	B-COMPANY
+::	O
+Security	B-ROLE
+Analyst	I-ROLE
+::	O
+Coimbatore	B-LOCATION
+::	O
+Aug'18	B-DATE_START
+to	O
+Mar'20	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Zoho	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+03/2016	B-DATE_START
+-	O
+12/2018	B-DATE_END
+
+Apr	B-DATE_START
+2019	I-DATE_START
+–	O
+Dec	B-DATE_END
+2021	I-DATE_END
+
+Cognizant,	B-COMPANY
+Kolkata	B-LOCATION
+
+TCS,	B-COMPANY
+Mumbai	B-LOCATION
+
+Jul	B-DATE_END
+2020	I-DATE_END
+–	O
+Present	B-DATE_END
+
+Persistent	B-COMPANY
+Systems	I-COMPANY
+::	O
+Module	B-ROLE
+Lead	I-ROLE
+::	O
+Nagpur	B-LOCATION
+::	O
+Sep'17	B-DATE_START
+to	O
+Mar'19	B-DATE_END
+
+VP	B-ROLE
+of	I-ROLE
+Engineering	I-ROLE
+|	O
+Stellar	B-COMPANY
+Systems	I-COMPANY
+Inc	I-COMPANY
+|	O
+2017	B-DATE_START
+–	O
+2021	B-DATE_END
+
+Client:	O
+Hindustan	B-CLIENT
+Unilever	I-CLIENT
+
+hyderabad,	B-LOCATION
+india	I-LOCATION
+·	O
+august	B-DATE_START
+2012	I-DATE_START
+–	O
+may	B-DEGREE
+2014	I-DEGREE
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Infosys,	B-COMPANY
+Bangalore,	B-LOCATION
+India	I-LOCATION
+-	O
+Associate	B-ROLE
+Developer	I-ROLE
+(June	B-DATE_START
+2012–July	B-DATE_END
+2014)	I-DATE_END
+
+Senior	B-ROLE
+Program	I-ROLE
+Manager	I-ROLE
+|	O
+Quantum	B-COMPANY
+Dynamics	I-COMPANY
+Corp	I-COMPANY
+|	O
+2015	B-DATE_START
+–	O
+2019	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+VTU	B-INSTITUTION
+Belgaum	I-INSTITUTION
+–	O
+Mysuru	B-LOCATION
+–	O
+2011-2014	B-EDU_YEAR_END
+–	O
+80%	B-GRADE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Electronics/PES	B-INSTITUTION
+University/Bangalore	B-LOCATION
+India/2012/2016	B-EDU_YEAR_END
+
+Goldman	B-COMPANY
+Sachs,	I-COMPANY
+Bangalore/Hyderabad	B-LOCATION
+
+Zensar	B-COMPANY
+Technologies	I-COMPANY
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+Pune	B-LOCATION
+(2017	B-DATE_START
+-	O
+2020)	B-DATE_END
+
+Trainee	B-ROLE
+
+Capgemini	B-COMPANY
+~	O
+Tech	B-ROLE
+Lead	I-ROLE
+~	O
+Chennai	B-LOCATION
+~	O
+2019	B-DATE_START
+to	O
+Present	B-DATE_END
+|	O
+Client:	O
+Orange	B-CLIENT
+Telecom	I-CLIENT
+France	I-CLIENT
+
+Wipro,	B-COMPANY
+Chennai	B-LOCATION
+
+Trainee	B-ROLE
+
+Jul	B-DATE_START
+2014	I-DATE_START
+–	O
+Jun	B-DATE_END
+2017	I-DATE_END
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Jun	B-DATE_END
+2014	I-DATE_END
+
+2016	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Accenture/Bangalore	B-LOCATION
+India/Delivery	B-ROLE
+Manager/March	B-DATE_START
+2017/August	B-DATE_END
+2023/client:MedCore	B-CLIENT
+Dynamics	I-CLIENT
+
+UI	B-ROLE
+Engineer	I-ROLE
+@	O
+MakeMyTrip	B-COMPANY
+|	O
+Gurgaon	B-LOCATION
+|	O
+04/2020	B-DATE_START
+-	O
+12/2022	B-DATE_END
+
+Walmart	B-COMPANY
+Global	I-COMPANY
+Tech	I-COMPANY
+(Client:	O
+Sam's	B-CLIENT
+Club)	I-CLIENT
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Bentonville,	B-LOCATION
+AR	I-LOCATION
+(Hybrid)	O
+
+Senior	B-ROLE
+Developer	I-ROLE
+
+Junior	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+2016	B-DATE_START
+-	O
+2018	B-DATE_END
+
+Client:	O
+Shell	B-CLIENT
+Oil	I-CLIENT
+&	I-CLIENT
+Gas	I-CLIENT
+
+Trainee	B-ROLE
+
+L&T	B-COMPANY
+Infotech	I-COMPANY
+/	O
+Developer	B-ROLE
+/	O
+Chennai	B-LOCATION
+/	O
+2015	B-DATE_START
+-	O
+2018	B-DATE_END
+
+Previously	O
+employed	O
+at	O
+SpaceX	B-COMPANY
+(Hawthorne,	B-LOCATION
+CA)	I-LOCATION
+as	O
+Software	B-ROLE
+Engineer	I-ROLE
+–	O
+Ground	O
+Systems	O
+from	O
+August	B-DATE_START
+2019	I-DATE_START
+–	O
+May	B-DATE_END
+2022.	I-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Information	B-FIELD
+Technology,Carnegie	B-INSTITUTION
+Mellon	I-INSTITUTION
+University,Pittsburgh	B-LOCATION
+PA(2014-2016)	B-EDU_YEAR_END
+
+MTech:	B-DEGREE
+Software	B-FIELD
+Engineering	I-FIELD
+@	O
+NIT	B-INSTITUTION
+Trichy	I-INSTITUTION
+|	O
+2013–2015	B-EDU_YEAR_END
+|	O
+CGPA	O
+7.4/10	B-GRADE
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Infosys	B-COMPANY
+
+At	O
+Cognizant,	B-COMPANY
+I	O
+worked	O
+as	O
+Junior	B-ROLE
+Developer	I-ROLE
+from	O
+June	B-DATE_START
+2013	I-DATE_START
+to	O
+March	B-DATE_END
+2015	I-DATE_END
+(Chennai,	B-LOCATION
+India).	I-LOCATION
+
+Developer	B-ROLE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+EEE	B-FIELD
+@	O
+NIT	B-INSTITUTION
+Calicut	I-INSTITUTION
+|	O
+2009–2013	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.0	B-GRADE
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Principal	B-ROLE
+Engineer,	I-ROLE
+Noida,	B-LOCATION
+2020–Present	B-DATE_END
+
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Cloud	B-FIELD
+Computing	I-FIELD
+|	O
+Hyderabad	B-LOCATION
+|	O
+2010-2012	B-EDU_YEAR_END
+|	O
+80.6%	B-GRADE
+
+Data	B-ROLE
+Analyst	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+2015	B-DATE_START
+-	O
+2018	B-DATE_END
+
+B.Tech:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2012–2016	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.8	B-GRADE
+
+Year	O
+:	O
+2018	B-EDU_YEAR_END
+
+Trainee	B-ROLE
+
+Senior	B-ROLE
+Engineer	I-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Percentage	O
+:	O
+81.2%	B-GRADE
+
+Adobe	B-COMPANY
+//	O
+San	B-LOCATION
+Jose	I-LOCATION
+CA	I-LOCATION
+//	O
+Cloud	B-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+//	O
+July	B-DATE_START
+2019	I-DATE_START
+//	O
+February	B-DATE_END
+2022	I-DATE_END
+
+Junior	B-ROLE
+Dev	I-ROLE
+@	O
+Persistent	B-ROLE
+Systems	I-ROLE
+|	O
+Pune	B-LOCATION
+|	O
+Jan'18	B-DATE_START
+to	O
+Mar'20	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Network	B-FIELD
+Engineering,Georgia	B-INSTITUTION
+Tech,Atlanta	B-LOCATION
+GA(2014-2016)	B-EDU_YEAR_END
+
+Jan	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Wipro,	B-COMPANY
+Bangalore,	B-LOCATION
+India	I-LOCATION
+-	O
+Junior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+(August	B-DATE_START
+2014–May	B-DATE_END
+2017)	I-DATE_END
+
+Accenture,Chicago,IL|Software	B-ROLE
+Developer|June	B-DATE_START
+2014–March	B-DATE_END
+2017	I-DATE_END
+
+Junior	B-ROLE
+Tester	I-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+08/2014	B-DATE_START
+-	O
+12/2015	B-DATE_END
+
+M.Tech	B-DEGREE
+Machine	B-FIELD
+Learning	I-FIELD
+–	O
+IISc	B-INSTITUTION
+Bengaluru	I-INSTITUTION
+–	O
+2017-2019	B-EDU_YEAR_END
+–	O
+9.4	B-GRADE
+CGPA	O
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+::	O
+Senior	B-ROLE
+Developer	I-ROLE
+::	O
+Chennai	B-LOCATION
+::	O
+Jan'18	B-DATE_START
+to	O
+Feb'20	B-DATE_END
+
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+Jan	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Cloudflare,Austin	B-LOCATION
+TX,Staff	B-ROLE
+Infrastructure	I-ROLE
+Engineer,January	B-DATE_START
+2023,Present	B-DATE_END
+
+Zensar	B-COMPANY
+Technologies::Pune	B-LOCATION
+India::Programmer	B-ROLE
+Analyst::March	B-DATE_START
+2013::December	B-DATE_END
+2015::client::OptiCore	B-CLIENT
+Retail	I-CLIENT
+
+M.Tech:	B-DEGREE
+AI	B-FIELD
+&	I-FIELD
+ML	I-FIELD
+@	O
+IIIT	B-INSTITUTION
+Hyderabad	B-LOCATION
+|	O
+2015–2017	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.6	B-GRADE
+
+B.Tech	B-DEGREE
+–	O
+Biju	B-INSTITUTION
+Patnaik	I-INSTITUTION
+University	I-INSTITUTION
+of	I-INSTITUTION
+Technology	I-INSTITUTION
+–	O
+Bhubaneswar	B-LOCATION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+71%	B-GRADE
+
+B.Tech,	B-DEGREE
+JNTU	B-INSTITUTION
+Hyderabad,	I-INSTITUTION
+2013,	B-EDU_YEAR_END
+75.4%	B-GRADE
+
+Director	B-ROLE
+of	I-ROLE
+Cybersecurity	I-ROLE
+&	I-ROLE
+Risk	I-ROLE
+|	O
+ShieldNet	B-COMPANY
+Defense	I-COMPANY
+Technologies	I-COMPANY
+|	O
+2020	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Capgemini,	B-COMPANY
+Pune	B-LOCATION
+-	O
+Senior	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+(Jan	B-DATE_START
+2020	I-DATE_START
+-	O
+Present)	B-DATE_END
+
+B.Tech	B-DEGREE
+CSE,	B-FIELD
+Punjab	B-INSTITUTION
+Technical	I-INSTITUTION
+University,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+72%	B-GRADE
+
+B.E.:	B-DEGREE
+Electronics	B-FIELD
+@	O
+Visvesvaraya	B-INSTITUTION
+Technological	I-INSTITUTION
+University	I-INSTITUTION
+|	O
+2009-2013	B-EDU_YEAR_END
+|	O
+66%	B-GRADE
+
+Accenture	B-COMPANY
+|	O
+Technology	B-ROLE
+Analyst	I-ROLE
+|	O
+2020–Now	B-DATE_END
+|	O
+Trivandrum	B-LOCATION
+|	O
+Client:	O
+Renault	B-CLIENT
+Nissan	I-CLIENT
+
+HCL	B-COMPANY
+Technologies/Pune	B-LOCATION
+India/Software	B-ROLE
+Developer/Aug2012/Mar2016/client:Barclays	B-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Mechanical	B-FIELD
+Engineering	I-FIELD
+@	O
+JNTU	B-INSTITUTION
+Hyderabad	B-LOCATION
+|	O
+2009–2013	B-EDU_YEAR_END
+|	O
+71%	B-GRADE
+
+Amazon/Seattle	B-LOCATION
+WA/Staff	B-ROLE
+Engineer	I-ROLE
+-	O
+Data	O
+Platform/Oct2020/Present/client:Netflix	B-CLIENT
+
+Jan	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Zoom	B-COMPANY
+Video	I-COMPANY
+Communications*San	B-LOCATION
+Jose	I-LOCATION
+CA*Staff	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+-	I-ROLE
+Data*Mar2021*Present*client:Enterprise	B-CLIENT
+Platform	I-CLIENT
+
+M.Tech:Artificial	B-FIELD
+Intelligence,IIT	B-INSTITUTION
+Delhi,New	B-LOCATION
+Delhi	I-LOCATION
+India(2014-2016)	B-EDU_YEAR_END
+
+Jun	B-DATE_START
+2008	I-DATE_START
+–	O
+Jun	B-DATE_END
+2010	I-DATE_END
+
+LeadEngineer+Sep2019+Feb2024	B-DATE_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Mysore	B-INSTITUTION
+University	I-INSTITUTION
+in	O
+Information	B-FEILD
+Technology	I-FEILD
+(2017),	B-EDU_YEAR_END
+scored	O
+76%	B-GRADE
+
+Designation	O
+:	O
+Systems	B-ROLE
+Software	I-ROLE
+Developer	I-ROLE
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Chennai	B-LOCATION
+
+Geometric	B-COMPANY
+Software,Nashik	B-LOCATION
+India,Developer,February	B-DATE_START
+2015,April	B-DATE_END
+2018	I-DATE_END
+
+Palantir	B-COMPANY
+Technologies;Denver	B-LOCATION
+CO;Principal	B-ROLE
+Software	I-ROLE
+Architect;April	B-DATE_START
+2022;Present	B-DATE_END
+
+Jan	B-DATE_START
+2017	I-DATE_START
+–	O
+May	B-DATE_END
+2018	I-DATE_END
+
+Client:	O
+Renault	B-CLIENT
+|	O
+Worked	O
+on	O
+SAP	O
+data	O
+migration	O
+project	O
+
+GitHub	B-COMPANY
+-	O
+Seattle	B-LOCATION
+WA	I-LOCATION
+-	O
+Principal	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+-	O
+August	B-DATE_START
+2021	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Infosys,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Jan	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Hexaware::Mumbai	B-LOCATION
+India::Java	B-ROLE
+Developer::January	B-DATE_START
+2016::August	B-DATE_END
+2019::client::TransGlobal	B-CLIENT
+Freight	I-CLIENT
+
+Employer:	O
+Discover	B-COMPANY
+Financial	I-COMPANY
+
+Wipro	B-COMPANY
+Limited,	I-COMPANY
+Hyderabad	B-LOCATION
+
+NIIT	B-COMPANY
+Technologies,	I-COMPANY
+Software	B-ROLE
+Developer,	I-ROLE
+Chennai,	B-LOCATION
+Jan	B-DATE_START
+2018	I-DATE_START
+-	O
+Feb	B-DATE_END
+2021	I-DATE_END
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+Nov	B-DATE_END
+2016	I-DATE_END
+
+TCS	B-COMPANY
+Ltd.	I-COMPANY
+
+Role:	O
+SR.	B-ROLE
+AZURE	I-ROLE
+SYNAPSE	I-ROLE
+DATA	I-ROLE
+ENGINEER	I-ROLE
+June	B-DATE_START
+2021	I-DATE_START
+-	O
+Current	B-DATE_END
+
+Infosys,	B-COMPANY
+Noida	B-LOCATION
+
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+/	I-LOCATION
+Global	I-LOCATION
+
+MICROSOFT	B-COMPANY
+INDIA	I-COMPANY
+|	O
+Azure	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+|	O
+2021/02	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Hyderabad	B-LOCATION
+
+Accenture,	B-COMPANY
+Gurugram	B-LOCATION
+
+shopify	B-COMPANY
+—	O
+sr.	B-ROLE
+e-commerce	I-ROLE
+engineer	I-ROLE
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+SRM	B-INSTITUTION
+University	I-INSTITUTION
+Chennai	B-LOCATION
+|	O
+2010–2014	B-DATE_END
+|	O
+CGPA	O
+7.8	B-GRADE
+
+Patni	B-COMPANY
+Computers>Mumbai	B-LOCATION
+India>Senior	B-ROLE
+Analyst>November	B-DATE_START
+2017>April	B-DATE_END
+2020>client>GreenRoute	B-CLIENT
+Energy	I-CLIENT
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+@	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2016	I-DATE_START
+-	O
+Jun	B-DATE_END
+2017	I-DATE_END
+
+M.Tech	B-DEGREE
+–	O
+Information	B-FIELD
+Technology	I-FIELD
+
+IBM	B-COMPANY
+India	I-COMPANY
+|	O
+Solution	B-ROLE
+Architect	I-ROLE
+|	O
+Chennai	B-LOCATION
+|	O
+Aug'17	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Chennai	B-CLIENT
+Petroleum	I-CLIENT
+Corporation	I-CLIENT
+
+University	O
+:	O
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIT	B-INSTITUTION
+Kharagpur,	I-INSTITUTION
+Kharagpur	I-INSTITUTION
+Campus,	I-INSTITUTION
+2012-2015,	B-EDU_YEAR_END
+8.2	B-GRADE
+CGPA	O
+
+Wipro,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Austin,	B-LOCATION
+TX	I-LOCATION
+/	I-LOCATION
+Global	I-LOCATION
+
+Technology	B-ROLE
+Analyst	I-ROLE
+
+Wipro!Chennai	B-LOCATION
+India!Project	B-ROLE
+Engineer!Jul2013!Aug2017!client:Goldman	B-CLIENT
+Sachs	I-CLIENT
+
+Integration	B-ROLE
+Engineer	I-ROLE
+@	O
+Mulesoft	B-ROLE
+India	I-ROLE
+|	O
+Hyd	B-LOCATION
+|	O
+January	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Percentage	O
+:	O
+84.2%	B-GRADE
+
+Client:	O
+UnitedHealth	B-CLIENT
+Group	I-CLIENT
+
+Infosys,	B-COMPANY
+Pune	B-LOCATION
+
+Red	B-COMPANY
+Hat~Raleigh	B-LOCATION
+NC~Senior	B-ROLE
+Software	I-ROLE
+Engineer~October	B-DATE_START
+2016~April	B-DATE_END
+2020	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:|	I-DEGREE
+SRM	O
+University,	B-INSTITUTION
+Chennai,	B-LOCATION
+India	I-LOCATION
+|	O
+2010	O
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+Dec	B-DATE_END
+2013	I-DATE_END
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+
+MBA	B-DEGREE
+(IT),	B-FIELD
+IGNOU,	B-LOCATION
+2021	B-EDU_YEAR_END
+(distance	O
+learning)	O
+
+2016–2020	B-DATE_END
+
+Senior	B-ROLE
+Associate	I-ROLE
+Engineer	I-ROLE
+
+Junior	B-ROLE
+Engineer	I-ROLE
+
+Trainee	B-COMPANY
+@	O
+INFOSYS	B-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+Aug'15	B-DATE_START
+to	O
+Dec'17	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+2015	B-DATE_START
+-	O
+2018	B-DATE_END
+
+MTech:	B-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Delhi	B-LOCATION
+|	O
+2014–2016	B-EDU_YEAR_END
+|	O
+CGPA	O
+8.1/10	B-GRADE
+
+Box	B-COMPANY
+>>	O
+Redwood	B-LOCATION
+City	I-LOCATION
+CA	I-LOCATION
+>>	O
+Software	B-ROLE
+Engineer	I-ROLE
+III	I-ROLE
+>>	O
+May	B-DATE_START
+2018	I-DATE_START
+>>	O
+January	B-DATE_END
+2022	I-DATE_END
+
+Wipro,	B-COMPANY
+Kolkata	B-LOCATION
+
+Infosys,	B-COMPANY
+Pune	B-LOCATION
+
+B.Tech	B-DEGREE
+IT,	B-FIELD
+Amrita	B-INSTITUTION
+School	I-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Coimbatore,	B-LOCATION
+2015,	B-EDU_YEAR_END
+CGPA:	O
+8.6	B-GRADE
+
+TCS,	B-COMPANY
+Bangalore	B-LOCATION
+
+2010–2012	B-EDU_YEAR_END
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Graphics	I-FIELD
+
+Jul	B-DATE_START
+2016	I-DATE_START
+–	O
+Feb	B-DATE_END
+2020	I-DATE_END
+
+M.Tech	B-DEGREE
+(Computer	B-FIELD
+Science),	I-FIELD
+IIT	B-INSTITUTION
+BHU	I-INSTITUTION
+Varanasi,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+8.8	B-GRADE
+CGPA	O
+
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+Jan	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+M.Tech	B-DEGREE
+(Computer	B-FIELD
+Science)	I-FIELD
+–	O
+JNTUK	B-INSTITUTION
+University	I-INSTITUTION
+-	O
+Kakinada	B-LOCATION
+–	O
+2016	B-EDU_YEAR_END
+–	O
+82.6%	B-GRADE
+
+SAP	B-COMPANY
+INDIA	I-COMPANY
+|	O
+SAP	B-ROLE
+S/4HANA	I-ROLE
+Lead	I-ROLE
+|	O
+2018/09	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Bengaluru	B-LOCATION
+
+Client:	O
+Sakthi	B-CLIENT
+Finance	I-CLIENT
+
+Client:	O
+Rolls	B-CLIENT
+Royce	I-CLIENT
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Completed	O
+B.Tech	B-DEGREE
+in	O
+ECE	B-FIELD
+from	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+in	O
+2016	B-EDU_YEAR_END
+with	O
+78.4%	B-GRADE
+
+Lead	B-ROLE
+Engineer	I-ROLE
+
+Los	B-LOCATION
+Angeles,	I-LOCATION
+CA	I-LOCATION
+/	I-LOCATION
+Global	I-LOCATION
+
+Infosys	B-COMPANY
+BPM,	I-COMPANY
+Trivandrum	B-LOCATION
+
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+
+NIIT	B-COMPANY
+Technologies/Gurgaon	B-LOCATION
+India/Software	B-ROLE
+Developer/February	B-DATE_START
+2016/May	B-DATE_END
+2019	I-DATE_END
+
+B.Tech	B-DEGREE
+Electrical	B-FIELD
+Engineering	I-FIELD
+@	O
+USC,	B-INSTITUTION
+Los	B-LOCATION
+Angeles,	I-LOCATION
+completed	O
+2010-	B-EDU_YEAR_START
+2013,	B-EDU_YEAR_END
+8.5	B-GRADE
+CGPA	O
+
+Infosys	B-COMPANY
+Ltd	I-COMPANY
+~	O
+Systems	B-ROLE
+Engineer	I-ROLE
+~	O
+Hyderabad	B-LOCATION
+~	O
+2014–2017	B-DATE_END
+
+B.E.	B-DEGREE
+(CS)	B-FIELD
+–	O
+VTU	B-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+69%	B-GRADE
+
+QA	B-ROLE
+Analyst	I-ROLE
+
+KPIT	B-COMPANY
+Technologies|Pune	B-LOCATION
+India|Embedded	B-ROLE
+Engineer|January	B-DATE_START
+2015|October	B-DATE_END
+2018|client:AutoCore	B-CLIENT
+Mobility	I-CLIENT
+
+Apr	B-DATE_START
+2015	I-DATE_START
+–	O
+Mar	B-DATE_END
+2018	I-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Lead	B-ROLE
+Engineer	I-ROLE
+@	O
+WIPRO	B-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+01/2021	B-DATE_START
+-	O
+Present	B-DATE_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+IIT	B-INSTITUTION
+Madras	I-INSTITUTION
+in	O
+Computer	B-FIELD
+Science	I-FIELD
+(2015),	B-EDU_YEAR_END
+scored	O
+9.2	B-GRADE
+CGPA	O
+
+Client:	O
+ICICI	B-CLIENT
+Bank	I-CLIENT
+
+VMware;Palo	B-LOCATION
+Alto	I-LOCATION
+CA;Senior	B-ROLE
+Cloud	I-ROLE
+Engineer;September	B-DATE_START
+2019;March	B-DATE_END
+2022	I-DATE_END
+
+2016–2020	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:Computer	B-FIELD
+Science,JNTU	B-INSTITUTION
+Hyderabad,Telangana	B-LOCATION
+India(2009-2013)	B-EDU_YEAR_END
+
+Senior	B-ROLE
+Associate	I-ROLE
+L1	I-ROLE
+
+Patni	B-COMPANY
+Computer	O
+Systems~Pune	B-LOCATION
+India~Programmer~June	B-DATE_START
+2013~September	B-DATE_END
+2016	I-DATE_END
+
+IT	B-ROLE
+Developer	I-ROLE
+
+M.Tech	B-DEGREE
+(Information	B-FIELD
+Systems),	I-FIELD
+Christ	B-INSTITUTION
+University,	I-INSTITUTION
+Bangalore	B-LOCATION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+77.5%	B-GRADE
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+Jun	B-DATE_END
+2015	I-DATE_END
+
+Business	B-ROLE
+Analyst	I-ROLE
+/	O
+Developer	O
+
+ThoughtWorks	B-COMPANY
+India,	B-LOCATION
+Bangalore	I-LOCATION
+
+Igate	B-COMPANY
+Corporation|Pune	B-LOCATION
+India|Junior	B-ROLE
+Developer|May	B-DATE_START
+2016|January	B-DATE_END
+2019|client:LogiCore	B-CLIENT
+Shipping	I-CLIENT
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+Mar	B-DATE_END
+2015	I-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Science:Information	B-FIELD
+Systems|Osmania	B-INSTITUTION
+University|Hyderabad	B-LOCATION
+India|2010|2014	B-EDU_YEAR_END
+
+Wipro,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Elastic;San	B-LOCATION
+Francisco	I-LOCATION
+CA;Senior	B-ROLE
+Search	I-ROLE
+Engineer;January	B-DATE_START
+2018;May	B-DATE_END
+2021	I-DATE_END
+
+TCS	B-COMPANY
+(Software	B-ROLE
+Engineer)	I-ROLE
+Mumbai,	B-LOCATION
+India	I-LOCATION
+August	B-DATE_START
+2012	I-DATE_START
+to	O
+May	B-DATE_END
+2014	I-DATE_END
+
+Tata	B-COMPANY
+Consultancy	I-COMPANY
+Services	I-COMPANY
+|	O
+Systems	B-ROLE
+Architect	I-ROLE
+|	O
+Kolkata	B-LOCATION
+|	O
+Mar'17	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Coal	B-CLIENT
+India	I-CLIENT
+Limited	I-CLIENT
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+LinkedIn	B-COMPANY
+|	O
+Sunnyvale,	B-LOCATION
+CA	I-LOCATION
+|	O
+February	B-DATE_START
+2015	I-DATE_START
+-	O
+August	B-DATE_END
+2017	I-DATE_END
+
+Vice	B-ROLE
+President	I-ROLE
+–	O
+Engineering	O
+
+Trainee	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jul	B-DATE_START
+2016	I-DATE_START
+-	O
+Mar	B-DATE_END
+2017	I-DATE_END
+
+B.Tech	B-DEGREE
+IT,	B-FIELD
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+Kolkata,	B-LOCATION
+2014,	B-EDU_YEAR_END
+81.4%	B-GRADE
+
+2016	B-EDU_YEAR_END
+
+ML	B-ROLE
+Ops	I-ROLE
+Engineer	I-ROLE
+@	O
+Walmart	B-COMPANY
+Labs	I-COMPANY
+India	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+January	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Lead	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Visa	B-COMPANY
+Inc	I-COMPANY
+(Client:	O
+Visa	B-CLIENT
+Direct	I-CLIENT
+Payments)	I-CLIENT
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Foster	B-LOCATION
+City,	I-LOCATION
+CA	I-LOCATION
+(Hybrid)	O
+
+Mphasis	B-COMPANY
+>	O
+Chennai	B-LOCATION
+India	I-LOCATION
+>	O
+Associate	B-ROLE
+Engineer	I-ROLE
+>	O
+March	B-DATE_START
+2014	I-DATE_START
+>	O
+September	B-DATE_END
+2017	I-DATE_END
+
+Intuit+Mountain	B-LOCATION
+View	I-LOCATION
+CA+Staff	B-ROLE
+Engineer	I-ROLE
+Data+Apr2022+Present+client:TurboTax	B-CLIENT
+
+Qualification:	O
+M.Tech	B-DEGREE
+
+B.Tech	B-DEGREE
+–	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Chennai	B-LOCATION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+72%	B-GRADE
+
+Working	O
+@	O
+Infosys	B-COMPANY
+as	O
+Sr.	B-ROLE
+Developer	I-ROLE
+|	O
+Kochi	B-LOCATION
+|	O
+since	O
+Jan	B-DATE_START
+2020	I-DATE_START
+|	O
+Client:	O
+Deutsche	B-CLIENT
+Bank	I-CLIENT
+
+M.Tech	B-DEGREE
+Artificial	B-FIELD
+Intelligence	I-FIELD
+–	O
+IIT	B-INSTITUTION
+Madras	I-INSTITUTION
+–	O
+2015-2018	B-EDU_YEAR_END
+–	O
+9.3	B-GRADE
+CGPA	O
+
+Mastech	B-COMPANY
+Digital>Pittsburgh	B-LOCATION
+PA>Full	B-ROLE
+Stack	I-ROLE
+Developer>June	B-DATE_START
+2015>October	B-DATE_END
+2017>client>PrimeLine	B-CLIENT
+Retail	I-CLIENT
+
+Hexaware	B-COMPANY
+Technologies	I-COMPANY
+~	O
+Java	B-ROLE
+Developer	I-ROLE
+~	O
+Mumbai	B-LOCATION
+~	O
+2013–2016	B-DATE_END
+
+Trainee	B-ROLE
+
+Pune,	B-LOCATION
+Maharashtra	I-LOCATION
+
+TCS	B-COMPANY
+|	O
+Tech	B-ROLE
+Lead	I-ROLE
+|	O
+Remote	B-LOCATION
+|	O
+Jan'20	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Engineering	B-ROLE
+Lead	I-ROLE
+@	O
+Chargebee	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+April	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Zoho	B-COMPANY
+Corporation,	I-COMPANY
+Chennai	B-LOCATION
+
+B.E.	B-DEGREE
+CSE,	B-FIELD
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+Chennai,	B-LOCATION
+2010,	B-EDU_YEAR_END
+First	O
+Class:	O
+74%	B-GRADE
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Mumbai	B-LOCATION
+
+Application	B-ROLE
+Development	I-ROLE
+Analyst	I-ROLE
+/	O
+Senior	O
+Analyst	O
+
+B.Sc:Information	B-FIELD
+Systems,University	B-INSTITUTION
+of	I-INSTITUTION
+Mumbai,Mumbai	B-LOCATION
+India(2008-2012)	B-EDU_YEAR_END
+
+Sr.	B-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+@	O
+Swiggy	B-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+Feb	B-DATE_START
+2023	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+M.Tech	B-DEGREE
+(Software	B-FIELD
+Engineering),	I-FIELD
+Pune	B-INSTITUTION
+University,	I-INSTITUTION
+Pune	B-LOCATION
+–	O
+2017	B-EDU_YEAR_END
+batch	O
+–	O
+scored	O
+77.8%	B-GRADE
+
+June	B-DATE_START
+2023	I-DATE_START
+-	O
+Current	B-DATE_END
+
+Infosys,	B-COMPANY
+Delhi	B-LOCATION
+NCR	O
+
+Application	B-ROLE
+Developer	I-ROLE
+
+Principal	B-ROLE
+QA	I-ROLE
+Automation	I-ROLE
+Architect	I-ROLE
+&	I-ROLE
+Test	I-ROLE
+Engineering	I-ROLE
+Lead	I-ROLE
+
+Jun	B-DATE_START
+2016	I-DATE_START
+–	O
+Dec	B-DATE_END
+2017	I-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2016	I-DATE_START
+-	O
+Dec	B-DATE_END
+2018	I-DATE_END
+
+Accenture,	B-COMPANY
+Pune	B-LOCATION
+
+[2017	B-DATE_START
+–	O
+2019]	B-DATE_END
+Software	B-ROLE
+Engineer	I-ROLE
+→	O
+Microsoft	B-COMPANY
+Teams,	I-COMPANY
+Redmond,	B-LOCATION
+WA	I-LOCATION
+
+SDE	B-ROLE
+I	I-ROLE
+@	O
+Razorpay	B-COMPANY
+|	O
+Bangalore,	B-LOCATION
+Karnataka	I-LOCATION
+|	O
+Feb	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Information	B-FIELD
+Systems	I-FIELD
+
+March	O
+2022	B-DATE_START
+-	O
+Current	B-DATE_END
+
+Apr	B-DATE_START
+2016	I-DATE_START
+–	O
+Mar	B-DATE_END
+2019	I-DATE_END
+
+PSG	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Technology	I-INSTITUTION
+|	O
+B.Tech	B-DEGREE
+|	O
+Information	B-FIELD
+Technology	I-FIELD
+|	O
+Coimbatore	B-LOCATION
+|	O
+2018	B-EDU_YEAR_END
+|	O
+8.0	B-GRADE
+CGPA	O
+
+TCS,	B-COMPANY
+Chennai	B-LOCATION
+
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+>>	O
+Associate	B-ROLE
+Consultant	I-ROLE
+>>	O
+Chennai	B-LOCATION
+>>	O
+2016–2019	B-DATE_END
+
+2012	B-DATE_START
+–	O
+2014	B-DATE_END
+
+B.Tech:Electronics	B-FIELD
+and	I-FIELD
+Computer	I-FIELD
+Engineering,NIT	B-INSTITUTION
+Trichy,Tamil	B-LOCATION
+Nadu	I-LOCATION
+India(2010-2014)	B-EDU_YEAR_END
+
+>>	O
+Northeastern	B-INSTITUTION
+University	I-INSTITUTION
+
+Wipro	B-COMPANY
+Technologies,	I-COMPANY
+Chennai	B-LOCATION
+
+Associate	B-ROLE
+–	O
+Projects	O
+
+Junior	B-ROLE
+Developer	I-ROLE
+@	O
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+Sep	B-DATE_START
+2015	I-DATE_START
+-	O
+Dec	B-DATE_END
+2017	I-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Mindtree	O
+(LTIMindtree),	B-COMPANY
+Bangalore	B-LOCATION
+
+ottawa,	B-LOCATION
+canada	I-LOCATION
+·	O
+august	B-DATE_START
+2022	I-DATE_START
+–	O
+present	B-DATE_END
+
+Location:	O
+Mumbai	B-LOCATION
+
+Trainee	B-ROLE
+@	O
+HCL	B-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+Jun	B-DATE_START
+2013	I-DATE_START
+-	O
+Jul	B-DATE_END
+2014	I-DATE_END
+
+Zensar	B-COMPANY
+Technologies;Pune	B-LOCATION
+India;Associate	B-ROLE
+Developer;July	B-DATE_START
+2012;January	B-DATE_END
+2015	I-DATE_END
+
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Satyam	B-COMPANY
+Computers	I-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+01/2013	B-DATE_START
+-	O
+12/2015	B-DATE_END
+
+Client:	O
+Standard	B-CLIENT
+Life	I-CLIENT
+Aberdeen	I-CLIENT
+
+Jul	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Tampa,	B-LOCATION
+FL	I-LOCATION
+
+Persistent	B-COMPANY
+Systems+Pune	B-LOCATION
+India+Software	B-ROLE
+Engineer+January	B-DATE_START
+2016+July	B-DATE_END
+2019	I-DATE_END
+
+M.Tech:	B-DEGREE
+Mobile	B-FIELD
+Computing	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Bombay	I-INSTITUTION
+|	O
+2016–2018	B-EDU_YEAR_END
+
+Senior	B-ROLE
+Associate	I-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Bengaluru	B-LOCATION
+|	O
+Mar	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Cigna	B-CLIENT
+Health	I-CLIENT
+USA	I-CLIENT
+
+Twilio~San	B-LOCATION
+Francisco	I-LOCATION
+CA~API	B-ROLE
+Platform	I-ROLE
+Engineer~March	B-DATE_START
+2021~Present~client~OmniTalk	B-CLIENT
+Communications	I-CLIENT
+
+Duration	O
+:	O
+August	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Client:	O
+GlaxoSmithKline	B-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Anna	B-INSTITUTION
+University,	I-INSTITUTION
+Chennai,	B-LOCATION
+India	I-LOCATION
+(2010–2014)	B-EDU_YEAR_END
+
+Director	B-ROLE
+of	I-ROLE
+Logistics	I-ROLE
+Technology	I-ROLE
+|	O
+SwiftChain	B-COMPANY
+Global	I-COMPANY
+Freight	I-COMPANY
+|	O
+2020	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Intern	B-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jan	B-DATE_START
+2016	I-DATE_START
+-	O
+Jul	B-DATE_END
+2016	I-DATE_END
+
+Cognizant@Hyderabad	B-LOCATION
+India@Programmer	B-ROLE
+Analyst@Jan2014@Jun2018@client:MetLife	B-CLIENT
+
+Data	B-ROLE
+Analyst	I-ROLE
+
+Cognizant,	B-COMPANY
+Trivandrum	B-LOCATION
+
+Client:	O
+Kellogg's	B-CLIENT
+
+Noida,	B-LOCATION
+UP	I-LOCATION
+
+2013	B-DATE_START
+–	O
+2015	B-DATE_END
+
+Cognizant,	B-COMPANY
+Chennai	B-LOCATION
+
+Burbank,	B-LOCATION
+CA	I-LOCATION
+
+Wipro	B-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Mindtree	B-COMPANY
+|	O
+Bengaluru	B-LOCATION
+|	O
+From	O
+2018	B-DATE_START
+to	O
+Present	B-DATE_END
+
+2015	B-DATE_START
+–	O
+2018	B-DATE_END
+
+Cognizant,	B-COMPANY
+Noida	B-LOCATION
+
+Infosys,	B-COMPANY
+Chennai	B-LOCATION
+
+Meta,Menlo	B-LOCATION
+Park,CA|Staff	B-ROLE
+Infrastructure	I-ROLE
+Engineer|September	B-DATE_START
+2020–Present	B-DATE_END
+
+Engineering	B-ROLE
+Manager	I-ROLE
+–	I-ROLE
+Streaming	I-ROLE
+Platform	I-ROLE
+|	O
+Luminary	B-COMPANY
+Studios	I-COMPANY
+Tech	I-COMPANY
+|	O
+2017	B-DATE_START
+–	O
+2021	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Telecommunications>KLE	B-INSTITUTION
+Technological	I-INSTITUTION
+University>Hubli	B-LOCATION
+India>2011>2015	B-EDU_YEAR_END
+
+Degree:	O
+M.Tech	B-DEGREE
+|	O
+Field:	O
+Software	B-FIELD
+Systems	I-FIELD
+|	O
+University:	O
+IIT	B-INSTITUTION
+Delhi	I-INSTITUTION
+|	O
+Year:	O
+2016	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.3	B-GRADE
+
+SAP	B-COMPANY
+India	I-COMPANY
+|	O
+SAP	B-ROLE
+Architect	I-ROLE
+|	O
+Gurugram	B-LOCATION
+|	O
+Nov'20	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Steel	B-CLIENT
+Authority	I-CLIENT
+of	I-CLIENT
+India	I-CLIENT
+
+GitHub|Seattle	B-LOCATION
+WA|Principal	B-ROLE
+Software	I-ROLE
+Engineer|August	B-DATE_START
+2021-Present|client:TechVision	B-CLIENT
+Corp	I-CLIENT
+
+Canva~Austin	B-LOCATION
+TX~Software	B-ROLE
+Engineer	I-ROLE
+II~February	B-DATE_START
+2019~July	B-DATE_END
+2022	I-DATE_END
+
+Boeing	B-COMPANY
+(Client:	O
+Boeing	B-CLIENT
+Defense	I-CLIENT
+Space	I-CLIENT
+&	I-CLIENT
+Security)	I-CLIENT
+|	O
+2023	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Arlington,	B-LOCATION
+VA	I-LOCATION
+(Hybrid)	O
+
+Hartford,	B-LOCATION
+CT	I-LOCATION
+|	O
+May	B-DATE_START
+2020	I-DATE_START
+–	O
+January	B-DATE_END
+2023	I-DATE_END
+|	O
+Full-time	O
+
+Splunk	B-COMPANY
+|	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+|	O
+Senior	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+|	O
+April	B-DATE_START
+2019	I-DATE_START
+|	O
+September	B-DATE_END
+2022	I-DATE_END
+
+B.Tech:Information	B-FIELD
+Technology!Anna	B-INSTITUTION
+University!Coimbatore	B-LOCATION
+India!2009!2013!CGPA7.6/10	B-GRADE
+
+Senior	B-ROLE
+Developer	I-ROLE
+@	O
+Persistent	B-COMPANY
+Systems	I-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+Present	B-DATE_END
+|	O
+Client:	O
+Tibco	B-CLIENT
+Software	I-CLIENT
+
+Year:	O
+2015	B-EDU_YEAR_END
+
+Technical	B-ROLE
+Lead	I-ROLE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+Osmania	B-INSTITUTION
+University,	I-INSTITUTION
+Hyderabad,	B-LOCATION
+India	I-LOCATION
+|	O
+2007–2011	B-EDU_YEAR_START
+
+NIIT	B-COMPANY
+Technologies	I-COMPANY
+::	O
+SAP	B-ROLE
+Consultant	I-ROLE
+::	O
+Delhi	B-LOCATION
+::	O
+Jan'16	B-DATE_START
+to	O
+Aug'18	B-DATE_END
+
+Salesforce,	B-COMPANY
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+-	O
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+(March	B-DATE_START
+2018–May	B-DATE_END
+2021)	I-DATE_END
+
+Junior	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+2016	B-DATE_START
+-	O
+2019	B-DATE_END
+
+2020	B-DATE_START
+–	O
+Present	B-DATE_END
+
+TechArchitect*Oct2018*Sep2023	B-DATE_END
+
+Application	B-COMPANY
+Developer	I-COMPANY
+·	O
+Aetna	B-COMPANY
+(CVS	I-COMPANY
+Health)	I-COMPANY
+
+M.Tech:	B-DEGREE
+Computer	B-FIELD
+Architecture	I-FIELD
+@	O
+IIT	B-INSTITUTION
+Madras	B-LOCATION
+|	O
+2015–2017	B-EDU_YEAR_END
+
+Client:	O
+Bajaj	B-CLIENT
+Auto	I-CLIENT
+
+Cisco>Bangalore	B-LOCATION
+India>Director	B-ROLE
+Engineering>January	B-DATE_START
+2018>September	B-DATE_END
+2023>client>ConnectSphere	B-CLIENT
+Telecom	I-CLIENT
+
+B.E:Electrical	B-FIELD
+and	I-FIELD
+Electronics#Coimbatore	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology#Coimbatore	B-LOCATION
+India#2010#2014#CGPA6.9/10	B-GRADE
+
+Sr.	B-ROLE
+Salesforce	I-ROLE
+Developer	I-ROLE
+January	B-DATE_START
+2023	I-DATE_START
+–	O
+Present	B-DATE_END
+
+SAP|Bangalore	B-LOCATION
+India|Solution	B-ROLE
+Architect|August	B-DATE_START
+2019|May	B-DATE_END
+2024|client=EmeraldCity	B-CLIENT
+Finance	I-CLIENT
+
+Infosys,	B-COMPANY
+Mysore	B-LOCATION
+/	O
+Chennai	O
+
+M.Tech	B-DEGREE
+Systems	B-FIELD
+&	I-FIELD
+Computer	I-FIELD
+Engineering,	I-FIELD
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+Hyderabad,	B-LOCATION
+2012,	B-DATE_START
+74%	B-GRADE
+
+Software	B-ROLE
+Developer	I-ROLE
+
+B.Tech	B-DEGREE
+(IT)	B-FIELD
+–	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+74.2%	B-GRADE
+
+Pursued	O
+Master	B-DEGREE
+of	I-DEGREE
+Business	I-DEGREE
+Administration:	I-DEGREE
+IT	B-FIELD
+Management	I-FIELD
+and	O
+graduated	O
+in	O
+2012	B-EDU_YEAR_END
+from	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Illinois,	I-INSTITUTION
+Chicago.	B-LOCATION
+
+Persistent	B-COMPANY
+Systems	I-COMPANY
+-	O
+Pune	B-LOCATION
+India	I-LOCATION
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+February	B-DATE_START
+2015	I-DATE_START
+-	O
+March	B-DATE_END
+2019	I-DATE_END
+
+M.S.:	B-DEGREE
+Health	B-FIELD
+Information	I-FIELD
+Technology	I-FIELD
+
+LTI	O
+(Larsen	B-COMPANY
+&	I-COMPANY
+Toubro	I-COMPANY
+Infotech),	I-COMPANY
+Pune	B-LOCATION
+
+M.Tech:Machine	B-FIELD
+Learning,IIT	B-INSTITUTION
+Madras,Chennai	B-LOCATION
+India(2016-2018)	B-EDU_YEAR_END
+
+Workday+Pleasanton	B-LOCATION
+CA+Senior	B-ROLE
+Software	I-ROLE
+Engineer+Aug2017+Mar2022+client:HCM	B-CLIENT
+Analytics	I-CLIENT
+
+Master	B-DEGREE
+of	I-DEGREE
+Engineering:Software	B-FIELD
+Systems,BITS	B-INSTITUTION
+Pilani,Rajasthan	B-LOCATION
+India(2013-2015)	B-EDU_YEAR_END
+
+Location	O
+:	O
+Bethesda,	B-LOCATION
+MD	I-LOCATION
+
+INFOSYS	B-COMPANY
+|	O
+SM	B-ROLE
+|	O
+Mumbai	B-LOCATION
+|	O
+2019–Present	B-DATE_END
+|	O
+Client:	O
+WHO	B-CLIENT
+
+B.E:Information	B-FIELD
+Science,RV	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering,Bangalore	B-LOCATION
+India(2012-2016)	B-EDU_YEAR_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:Information	B-FIELD
+Technology,JNTU	B-INSTITUTION
+Kakinada,Andhra	B-LOCATION
+Pradesh	I-LOCATION
+India(2009-2013)	B-EDU_YEAR_END
+
+Role	O
+:	O
+Backend	B-ROLE
+Developer	I-ROLE
+
+Sep	B-DATE_START
+2018	I-DATE_START
+–	O
+Jan	B-DATE_END
+2022	I-DATE_END
+
+Location:	O
+Bengaluru,	B-LOCATION
+India	I-LOCATION
+
+B.Tech	B-DEGREE
+EEE,	B-FIELD
+JNTU	B-INSTITUTION
+Hyderabad,	B-LOCATION
+2014,	B-EDU_YEAR_END
+69%	B-GRADE
+
+Completed	O
+M.Tech	B-DEGREE
+in	O
+Computer	B-FIELD
+Science	I-FIELD
+from	O
+IISc	B-INSTITUTION
+Bangalore	I-INSTITUTION
+in	O
+2015	B-EDU_YEAR_END
+with	O
+9.3	B-GRADE
+CGPA	O
+
+Oct	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Technology	B-ROLE
+Lead	I-ROLE
+
+[Company]IBM	B-COMPANY
+[Location]Bangalore	B-LOCATION
+India	I-LOCATION
+[Title]Associate	B-ROLE
+Director	I-ROLE
+[Start]September	B-DATE_START
+2018	I-DATE_START
+[End]October	B-DATE_END
+2023	I-DATE_END
+[Client]BancFirst	B-CLIENT
+Digital	I-CLIENT
+
+Tech	B-COMPANY
+Mahindra	I-COMPANY
+-	O
+Associate	B-ROLE
+-	O
+Pune	B-LOCATION
+(Aug	B-DATE_START
+2017	I-DATE_START
+-	O
+Feb	B-DATE_END
+2020)	I-DATE_END
+
+Programmer	B-ROLE
+Analyst	I-ROLE
+Trainee	I-ROLE
+/	O
+PA	O
+
+Jr.	B-ROLE
+Dev	I-ROLE
+@	O
+Syntel	B-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+06/2014	B-DATE_START
+-	O
+02/2016	B-DATE_END
+
+Hyderabad,	B-LOCATION
+TS	I-LOCATION
+
+Meta|Menlo	B-LOCATION
+Park	I-LOCATION
+CA|Staff	B-ROLE
+Infrastructure	I-ROLE
+Engineer|September	B-DATE_START
+2020|Present	B-DATE_END
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+MBA:	B-DEGREE
+IT	B-FIELD
+Management	I-FIELD
+@	O
+IIM	B-INSTITUTION
+Ahmedabad	B-LOCATION
+|	O
+2013–2015	B-EDU_YEAR_END
+
+B.E.	B-DEGREE
+–	O
+NIT	B-INSTITUTION
+Surathkal	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+8.2	B-GRADE
+CGPA	O
+
+Jul	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Nagarro,	B-COMPANY
+Mohali	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+Mumbai	B-INSTITUTION
+University,	I-INSTITUTION
+India	O
+2006–2010	B-EDU_YEAR_END
+
+June	B-DATE_START
+2016	I-DATE_START
+–	O
+December	B-DATE_END
+2018	I-DATE_END
+
+Location	O
+:	O
+Trivandrum,	B-LOCATION
+India	I-LOCATION
+
+B.E.	B-DEGREE
+–	O
+VTU	B-INSTITUTION
+Belgaum	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+71.6%	B-GRADE
+
+Deloitte	B-COMPANY
+USI	I-COMPANY
+India,	B-LOCATION
+Hyderabad	I-LOCATION
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Okta	B-COMPANY
+>>	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+>>	O
+Senior	B-ROLE
+Identity	I-ROLE
+Engineer	I-ROLE
+>>	O
+February	B-DATE_START
+2022	I-DATE_START
+>>	O
+Present	B-DATE_END
+
+Position:	O
+Data	B-ROLE
+Platform	I-ROLE
+Developer	I-ROLE
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+Junior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+·	O
+Syntel	B-COMPANY
+
+PGDBA	B-DEGREE
+Finance,	B-FIELD
+Symbiosis	B-INSTITUTION
+Pune,	B-LOCATION
+2012	B-EDU_YEAR_END
+(part-time)	O
+
+Trainee	B-ROLE
+
+Infrastructure	B-ROLE
+Engineer	I-ROLE
+July	B-DATE_START
+2019	I-DATE_START
+–	O
+March	B-DATE_END
+2022	I-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+India	I-LOCATION
+|	O
+July	B-DATE_START
+2013	I-DATE_START
+-	O
+January	B-DATE_END
+2015	I-DATE_END
+
+Trainee	B-ROLE
+
+TCS--Mumbai	B-LOCATION
+India--Systems	B-ROLE
+Engineer--Apr2013--May2017--client:Verizon	B-CLIENT
+
+Position:	O
+Sr.	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+
+Mphasis~Hyderabad	B-LOCATION
+India~Junior	B-ROLE
+Engineer~June	B-DATE_START
+2012~February	B-DATE_END
+2015	I-DATE_END
+
+SDE	B-ROLE
+I	I-ROLE
+@	O
+BookMyShow	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+03/2019	B-DATE_START
+-	O
+12/2021	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IIM	B-INSTITUTION
+Ahmedabad,	I-INSTITUTION
+Ahmedabad	I-INSTITUTION
+Campus,	I-INSTITUTION
+2012-2015,	B-EDU_YEAR_END
+8.4	B-GRADE
+CGPA	O
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+in	O
+Computer	B-FIELD
+Engineering	I-FIELD
+(2012-2014),84%	B-GRADE
+
+Jul	B-DATE_START
+2018	I-DATE_START
+–	O
+Dec	B-DATE_END
+2020	I-DATE_END
+
+Virtusa;Chennai	B-LOCATION
+India;Lead	B-ROLE
+Engineer;August	B-DATE_START
+2018;November	B-DATE_END
+2021;client;BlueSky	B-CLIENT
+Aviation	I-CLIENT
+
+Trainee	B-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Qualcomm	B-COMPANY
+India	I-COMPANY
+|	O
+Hyderabad	B-LOCATION
+|	O
+January	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Infosys	B-COMPANY
+Ltd	I-COMPANY
+|	O
+Data	B-ROLE
+Architect	I-ROLE
+|	O
+Mysuru	B-LOCATION
+|	O
+Jul'22	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Karnataka	B-CLIENT
+Power	I-CLIENT
+Corporation	I-CLIENT
+
+Client:	O
+ISRO-related	B-CLIENT
+aerospace	O
+data	O
+project	O
+
+Junior	B-ROLE
+Developer	I-ROLE
+@	O
+Freshworks	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+01/2018	B-DATE_START
+-	O
+02/2021	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+Aug'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Cloud	B-FIELD
+Computing|University	B-INSTITUTION
+of	I-INSTITUTION
+Texas|Austin	B-LOCATION
+TX|2014|2016	B-EDU_YEAR_END
+
+SRE	B-ROLE
+@	O
+Hotstar	B-COMPANY
+(Disney+)	O
+|	O
+Mumbai	B-LOCATION
+|	O
+Mar	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Location:	O
+Phoenix,	B-LOCATION
+AZ	I-LOCATION
+
+Sr.	B-ROLE
+Network	I-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+May	O
+2022	O
+to	O
+date	O
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:Computer	B-FIELD
+Engineering|University	B-INSTITUTION
+of	I-INSTITUTION
+Pune|Pune	B-LOCATION
+India|2012|2016	B-EDU_YEAR_END
+
+Adobe	B-COMPANY
+//	O
+San	B-LOCATION
+Jose	I-LOCATION
+CA	I-LOCATION
+//	I-LOCATION
+Cloud	B-ROLE
+Platform	I-ROLE
+Engineer	I-ROLE
+//	O
+May	B-DATE_START
+2019–December	B-DATE_END
+2021	I-DATE_END
+
+Employed	O
+at	O
+Infosys	B-COMPANY
+(Hyderabad)	B-LOCATION
+as	O
+Senior	B-ROLE
+Manager	I-ROLE
+since	O
+2019	B-DATE_START
+|	O
+Client:	O
+USFDA	B-CLIENT
+
+Abbott	B-COMPANY
+|	O
+Abbott	O
+Park,	O
+IL	B-LOCATION
+|	I-LOCATION
+Systems	I-LOCATION
+Developer	I-LOCATION
+|	I-ROLE
+January	I-ROLE
+2014	I-ROLE
+July	O
+2016	O
+
+B.Tech	B-DEGREE
+–	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+75.6%	B-GRADE
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Senior	B-ROLE
+Developer,	I-ROLE
+Mumbai,	B-LOCATION
+2015–2019	B-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Intermediate:BiPC,Narayana	B-INSTITUTION
+Junior	I-INSTITUTION
+College,Vijayawada	B-LOCATION
+India(2009-2011)	B-EDU_YEAR_END
+
+[Company]Deloitte	B-COMPANY
+[Location]Chicago	B-LOCATION
+IL	I-LOCATION
+[Title]Senior	B-ROLE
+Technology	I-ROLE
+Consultant	I-ROLE
+[Start]July	B-DATE_START
+2017	I-DATE_START
+[End]February	B-DATE_END
+2020	I-DATE_END
+[Client]WealthPath	B-CLIENT
+Advisors	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+NIT	B-INSTITUTION
+Trichy,	I-INSTITUTION
+Tiruchirappalli	I-INSTITUTION
+Campus,	I-INSTITUTION
+2012-2016,	B-EDU_YEAR_END
+7.8	B-GRADE
+CGPA	O
+
+>>	O
+Expedia	B-COMPANY
+(Seattle,	B-LOCATION
+WA)	I-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:Biotechnology_Amrita	B-INSTITUTION
+University_Coimbatore	B-LOCATION
+India_2012_2016	B-EDU_YEAR_END
+
+Boston,	B-LOCATION
+MA	I-LOCATION
+
+Principal	B-ROLE
+Engineer	I-ROLE
+
+TCS,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Employed	O
+at	O
+Wipro	B-COMPANY
+(Ahmedabad)	B-LOCATION
+as	O
+Senior	B-ROLE
+Consultant	I-ROLE
+since	O
+2019	B-DATE_START
+
+Junior	B-ROLE
+Analyst	I-ROLE
+
+Mindtree;Bangalore	B-LOCATION
+India;Associate	B-ROLE
+Developer;August	B-DATE_START
+2014;June	B-DATE_END
+2018	I-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+Andhra	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Vizag	B-LOCATION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+78%	B-GRADE
+
+Chief	B-ROLE
+Architect	I-ROLE
+–	I-ROLE
+FinTech	I-ROLE
+Platforms	I-ROLE
+|	O
+NexaPay	B-COMPANY
+Technologies	I-COMPANY
+|	O
+2019	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Trainee	B-ROLE
+
+Worked	O
+with	O
+Samsung	B-COMPANY
+as	O
+Mobile	B-ROLE
+Application	I-ROLE
+Engineer	I-ROLE
+from	O
+June	B-DATE_START
+2020	I-DATE_START
+to	O
+January	B-DATE_END
+2023,	I-DATE_END
+located	O
+in	O
+San	B-LOCATION
+Jose,	I-LOCATION
+CA.	I-LOCATION
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+May	B-DATE_END
+2016	I-DATE_END
+
+Infosys	B-COMPANY
+//	O
+Bangalore	B-LOCATION
+India	I-LOCATION
+//	O
+Systems	B-ROLE
+Consultant	I-ROLE
+//	O
+January	B-DATE_START
+2016	I-DATE_START
+//	O
+June	B-DATE_END
+2019	I-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+(Client:	O
+AT&T)	B-CLIENT
+|	O
+Hyd	B-LOCATION
+|	O
+Jan'17	B-DATE_START
+to	O
+Jan'20	B-DATE_END
+
+Hexaware#Pune	B-LOCATION
+India#Software	B-ROLE
+Engineer#Jun2014#Dec2017#client:Lloyds	B-CLIENT
+Bank	I-CLIENT
+
+2016	B-EDU_YEAR_END
+
+B.Tech:	B-DEGREE
+Computer	B-FIELD
+Engineering	I-FIELD
+@	O
+NIT	B-INSTITUTION
+Goa	B-LOCATION
+|	O
+2011–2015	B-DATE_END
+|	O
+75.4%	B-GRADE
+
+Dell	B-COMPANY
+Technologies~Bangalore	B-LOCATION
+India~Software	B-ROLE
+Development	I-ROLE
+Director~May	B-DATE_START
+2020~January	B-DATE_END
+2025~client~EdgeNet	B-CLIENT
+Infrastructure	I-CLIENT
+
+Manager	B-ROLE
+–	O
+Technology	O
+Advisory	O
+
+Tata	B-COMPANY
+Consultancy	I-COMPANY
+Services	I-COMPANY
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+IT	B-FIELD
+@	O
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2013–2017	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.2/10	B-GRADE
+
+M.Tech	B-DEGREE
+Cloud	B-DATE_END
+Computing	I-DATE_END
+–	O
+IIT	B-INSTITUTION
+Kharagpur	I-INSTITUTION
+–	O
+2014-2017	B-EDU_YEAR_END
+–	O
+8.8	B-GRADE
+CGPA	O
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+Jun	B-DATE_END
+2016	I-DATE_END
+
+B.Tech,	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+and	I-FIELD
+Engineering,	I-FIELD
+NIT	B-INSTITUTION
+Trichy,	B-LOCATION
+2018,	B-EDU_YEAR_END
+CPI:	O
+8.72	B-GRADE
+
+Mphasis	B-COMPANY
+Ltd.	I-COMPANY
+
+Wipro	B-COMPANY
+Technologies	I-COMPANY
+
+Backend	B-ROLE
+Engineer	I-ROLE
+@	O
+Grofers	B-COMPANY
+(now	O
+Blinkit)	B-CLIENT
+|	O
+Gurgaon	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+01/2022	B-DATE_END
+
+Ford	B-COMPANY
+Motor	I-COMPANY
+Company	I-COMPANY
+(Client:	O
+Ford	B-CLIENT
+Pro	I-CLIENT
+Fleet	I-CLIENT
+Solutions)	I-CLIENT
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Dearborn,	B-LOCATION
+MI	I-LOCATION
+(Hybrid)	O
+
+Freshworks	B-COMPANY
+Inc.,	I-COMPANY
+Chennai	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Computer	B-FIELD
+Science,RV	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering,Bangalore	B-LOCATION
+India,2009,2013	B-EDU_YEAR_END
+
+TechnicalManager;Jan2019;Dec2023	B-DATE_END
+
+Graduate	B-ROLE
+Trainee	I-ROLE
+@	O
+Wipro	B-LOCATION
+Ltd.	I-LOCATION
+|	O
+Kolkata	B-LOCATION
+|	O
+Jul	B-DATE_START
+2015	I-DATE_START
+-	O
+Jul	B-DATE_END
+2016	I-DATE_END
+
+Intermediate:CEC,Tirumala	B-INSTITUTION
+Junior	I-INSTITUTION
+College,Nellore	B-LOCATION
+India(2009-2011)	B-EDU_YEAR_END
+
+Oracle::Hyderabad	B-LOCATION
+India::Principal	B-ROLE
+Consultant::April	B-DATE_START
+2017::November	B-DATE_END
+2022::client::VisionaryAI	B-CLIENT
+Ltd	I-CLIENT
+
+san	B-LOCATION
+francisco,	I-LOCATION
+ca	I-LOCATION
+·	O
+march	B-DATE_START
+2017	I-DATE_START
+–	O
+october	B-DATE_END
+2019	I-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+-	O
+Reddit,	B-COMPANY
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+(September	B-DATE_START
+2014	I-DATE_START
+-	O
+March	B-DATE_END
+2017)	I-DATE_END
+
+Oct	B-DATE_START
+2018	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Jun	B-DATE_START
+2006	I-DATE_START
+–	O
+Dec	B-DATE_END
+2006	I-DATE_END
+
+Java	B-ROLE
+Developer	I-ROLE
+@	O
+Mphasis	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+01/2017	B-DATE_START
+-	O
+02/2020	B-DATE_END
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+L&T	B-COMPANY
+Infotech+Mumbai	B-LOCATION
+India+Software	B-ROLE
+Engineer+Jun2013+Jul2017+client:Shell	B-CLIENT
+
+Jan	B-DATE_START
+2012	I-DATE_START
+–	O
+Jul	B-DATE_END
+2014	I-DATE_END
+
+CGPA:	O
+7.4	B-GRADE
+
+WIPRO	B-COMPANY
+|	O
+Lead	B-ROLE
+Engineer	I-ROLE
+|	O
+2019/01	B-DATE_START
+–	O
+Current	B-DATE_END
+|	O
+Bengaluru	B-LOCATION
+
+B.E:Instrumentation	B-FIELD
+Engineering+Jadavpur	B-INSTITUTION
+University+Kolkata	B-LOCATION
+India+2009+2013+CGPA7.0/10	B-GRADE
+
+Duration	O
+:	O
+June	B-EDU_YEAR_START
+2012	I-EDU_YEAR_START
+–	O
+January	B-EDU_YEAR_END
+2014	I-EDU_YEAR_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Engineering:Data	B-FIELD
+Science,Carnegie	B-INSTITUTION
+Mellon	I-INSTITUTION
+University,Pittsburgh	B-LOCATION
+PA(2016-2018)	B-EDU_YEAR_END
+
+Jun	B-DATE_START
+2011	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+At	O
+Amazon,	B-COMPANY
+I	O
+worked	O
+as	O
+Software	B-ROLE
+Development	I-ROLE
+Engineer	I-ROLE
+from	O
+October	B-DATE_START
+2017	I-DATE_START
+to	O
+June	B-DATE_END
+2020	I-DATE_END
+(Seattle,	B-LOCATION
+WA).	I-LOCATION
+
+IIT	B-INSTITUTION
+Madras	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Systems	B-FIELD
+Engineering	I-FIELD
+|	O
+Chennai	B-LOCATION
+|	O
+2015	B-EDU_YEAR_END
+|	O
+88.5%	B-GRADE
+
+Kforce	B-COMPANY
+Inc,Tampa	B-LOCATION
+FL,Software	B-ROLE
+Consultant,April	B-DATE_START
+2015,May	B-DATE_END
+2018,client:DataVault	B-CLIENT
+Pharma	I-CLIENT
+
+Jul	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Siemens;Bangalore	B-LOCATION
+India;Head	B-ROLE
+of	I-ROLE
+Development;October	B-DATE_START
+2016;August	B-DATE_END
+2023;client;PowerGrid	B-CLIENT
+Renewables	I-CLIENT
+
+Jun	B-DATE_START
+2018	I-DATE_START
+–	O
+Aug	B-DATE_END
+2021	I-DATE_END
+
+B.E:Information	B-FIELD
+Technology,Anna	B-INSTITUTION
+University,Chennai	B-LOCATION
+India,2009,2013,CGPA7.5/10	B-GRADE
+
+Jun	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2017	I-DATE_END
+
+Nvidia+Santa	B-LOCATION
+Clara	I-LOCATION
+CA+Principal	B-ROLE
+Systems	I-ROLE
+Architect+March	B-DATE_START
+2023+Present	B-DATE_END
+
+Senior	B-ROLE
+Developer	I-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+L&T	B-COMPANY
+Infotech	I-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+03/2016	B-DATE_START
+-	O
+12/2017	B-DATE_END
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Goldman	B-COMPANY
+Sachs	I-COMPANY
+(Client:	O
+Marcus	B-CLIENT
+by	I-CLIENT
+Goldman)	I-CLIENT
+|	O
+2023	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+(Onsite)	O
+
+Duration	O
+:	O
+August	B-DATE_START
+2012	I-DATE_START
+September	B-DATE_END
+2014	I-DATE_END
+
+Principal	B-ROLE
+SAP	I-ROLE
+S/4HANA	I-ROLE
+&	I-ROLE
+Digital	I-ROLE
+Core	I-ROLE
+Transformation	I-ROLE
+Lead	I-ROLE
+
+Cigna	B-COMPANY
+Health	I-COMPANY
+(Client:	O
+Express	B-CLIENT
+Scripts)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Bloomfield,	B-LOCATION
+CT	I-LOCATION
+(Remote)	O
+
+B.Tech:	B-DEGREE
+IT	B-FIELD
+@	O
+JNTU	B-INSTITUTION
+Hyderabad	B-LOCATION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.4	B-GRADE
+
+TCS,	B-COMPANY
+Bangalore	B-LOCATION
+
+Jan	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+M.Tech	B-DEGREE
+Software	B-FIELD
+Engineering	I-FIELD
+–	O
+BITS	B-INSTITUTION
+Pilani	I-INSTITUTION
+–	O
+2017	B-EDU_YEAR_END
+–	O
+8.6	B-GRADE
+CGPA	O
+
+Client:	O
+Boeing	B-CLIENT
+
+Aug	B-DATE_START
+2010	I-DATE_START
+–	O
+Jul	B-DATE_END
+2014	I-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+Hyd	B-LOCATION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+73.6%	B-GRADE
+
+Director	B-ROLE
+of	I-ROLE
+Clinical	I-ROLE
+Systems	I-ROLE
+|	O
+Ascend	B-COMPANY
+Health	I-COMPANY
+Networks	I-COMPANY
+|	O
+2016	B-DATE_START
+–	O
+2021	B-DATE_END
+
+Tech	B-COMPANY
+Mahindra~Pune	B-LOCATION
+India~Associate	B-ROLE
+Software	I-ROLE
+Engineer~Aug2013~Apr2017~client:AT&T	B-CLIENT
+
+Infosys,	B-COMPANY
+Chennai	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Mechatronics|Jawaharlal	B-INSTITUTION
+Nehru	I-INSTITUTION
+Technological	I-INSTITUTION
+University|Hyderabad	B-LOCATION
+India|2011|2015	B-EDU_YEAR_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Associate	B-ROLE
+Developer	I-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+04/2015	B-DATE_START
+-	O
+12/2016	B-DATE_END
+
+Wipro,	B-COMPANY
+Gurugram	B-LOCATION
+
+Associate	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+Aug	B-DATE_START
+2017	I-DATE_START
+-	O
+Dec	B-DATE_END
+2018	I-DATE_END
+
+2017	B-DATE_START
+–	O
+2020	B-DATE_END
+
+Mphasis~Bangalore	B-LOCATION
+India~Trainee	B-ROLE
+Engineer~August	B-DATE_START
+2015~September	B-DATE_END
+2018~client~AquaCore	B-CLIENT
+Utilities	I-CLIENT
+
+Sr.	B-ROLE
+Engineer	I-ROLE
+@	O
+ICICI	B-COMPANY
+Bank	I-COMPANY
+Tech	I-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+03/2022	B-DATE_END
+
+Jan	B-DATE_START
+2016	I-DATE_START
+–	O
+May	B-DATE_END
+2017	I-DATE_END
+
+Jadavpur	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Computer	B-FIELD
+Science	I-FIELD
+|	O
+Kolkata	B-LOCATION
+|	O
+2011	B-EDU_YEAR_END
+|	O
+81.0%	B-GRADE
+
+TCS,	B-COMPANY
+Gurugram	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:IT,SRM	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Science	I-INSTITUTION
+and	I-INSTITUTION
+Technology,Chennai	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+Chartered	B-DEGREE
+Engineer	I-DEGREE
+(IE	B-INSTITUTION
+India),	I-INSTITUTION
+2018	B-LOCATION
+
+Sr.	B-ROLE
+Dev	I-ROLE
+@	O
+DXC	B-COMPANY
+Technology	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Apr'18	B-DATE_START
+to	O
+Dec'21	B-DATE_END
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+B.Tech	B-DEGREE
+CS,	B-FIELD
+Kerala	B-INSTITUTION
+University,	I-INSTITUTION
+2017,	B-EDU_YEAR_END
+CGPA:	O
+8.2	B-GRADE
+
+Year	O
+:	O
+2010–2012	B-EDU_YEAR_END
+
+Role:	O
+SR.	B-ROLE
+DATA	I-ROLE
+WAREHOUSE	I-ROLE
+ENGINEER	I-ROLE
+
+Graduate	B-ROLE
+Trainee	I-ROLE
+@	O
+Hexaware	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Jul	B-DATE_START
+2014	I-DATE_START
+-	O
+Aug	B-DATE_END
+2015	I-DATE_END
+
+Pfizer	B-COMPANY
+|	O
+New	O
+York,	O
+NY	O
+|	O
+Sr.	B-LOCATION
+Healthcare	I-LOCATION
+IT	O
+Developer	B-ROLE
+|	I-ROLE
+February	I-ROLE
+2022	I-ROLE
+–	I-ROLE
+Present	B-DATE_START
+
+Infosys,	B-COMPANY
+Bangalore	B-LOCATION
+
+Full	B-ROLE
+Stack	I-ROLE
+Engineer	I-ROLE
+@	O
+Limeroad	B-COMPANY
+|	O
+Gurgaon	B-LOCATION
+|	O
+Feb	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology	I-DEGREE
+–	O
+JNTU	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+2014	B-EDU_YEAR_END
+–	O
+77.8%	B-GRADE
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Systems	B-FIELD
+Engineering	I-FIELD
+–	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Maryland,	I-INSTITUTION
+College	O
+Park	O
+(2012)	B-EDU_YEAR_END
+
+Hexaware	B-COMPANY
+Technologies,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Embedded	B-ROLE
+Dev	I-ROLE
+@	O
+Continental	B-COMPANY
+AG	I-COMPANY
+India	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+03/2018	B-DATE_START
+-	O
+01/2021	B-DATE_END
+
+PG	B-DEGREE
+Diploma:	I-DEGREE
+Software	B-FIELD
+Development	I-FIELD
+@	O
+CDAC	B-INSTITUTION
+Bangalore	I-INSTITUTION
+|	O
+2014–2015	B-EDU_YEAR_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Wipro,	B-COMPANY
+Noida	B-LOCATION
+
+Unity	B-COMPANY
+Technologies,	I-COMPANY
+Austin,	B-LOCATION
+TX	I-LOCATION
+
+Junior	B-ROLE
+Developer	I-ROLE
+
+Worked	O
+with	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+as	O
+Software	B-ROLE
+Engineer	I-ROLE
+from	O
+July	B-DATE_START
+2013	I-DATE_START
+to	O
+February	B-DATE_END
+2015,	I-DATE_END
+located	O
+in	O
+Noida,	B-LOCATION
+India.	I-LOCATION
+
+B.Tech	B-DEGREE
+Electronics	B-FIELD
+&	I-FIELD
+Telecom	I-FIELD
+Engineering,	I-FIELD
+Babu	B-INSTITUTION
+Banarasi	I-INSTITUTION
+Das	I-INSTITUTION
+University	I-INSTITUTION
+Lucknow,	B-EDU_YEAR_END
+2016,	B-EDU_YEAR_END
+72.4%	B-GRADE
+
+Frontend	B-ROLE
+Developer	I-ROLE
+@	O
+Urban	B-COMPANY
+Company	I-COMPANY
+|	O
+Gurgaon	B-LOCATION
+|	O
+Jan	B-DATE_START
+2023	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Amazon/Seattle	B-LOCATION
+WA/Senior	B-ROLE
+SDE/February	B-DATE_START
+2022/Present/client:LogiStream	B-CLIENT
+Analytics	I-CLIENT
+
+Chennai	B-LOCATION
+
+>>	O
+TripAdvisor	B-COMPANY
+(Needham,	B-LOCATION
+MA)	I-LOCATION
+
+Mindtree;Bengaluru	B-LOCATION
+India;Software	B-ROLE
+Engineer;Nov2012;Sep2016;client:Microsoft	B-CLIENT
+
+Jan	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Cloud	B-ROLE
+Engineer	I-ROLE
+@	O
+Wipro	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+03/2016	B-DATE_START
+-	O
+12/2018	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Adobe	B-COMPANY
+Systems	I-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+12/2021	B-DATE_END
+
+B.E.:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+Oracle,	B-COMPANY
+Austin,	B-LOCATION
+TX	I-LOCATION
+-	O
+Systems	B-ROLE
+Developer	I-ROLE
+(August	B-DATE_START
+2015–February	B-DATE_END
+2018)	I-DATE_END
+
+Oct	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Trainee	B-ROLE
+
+NIT	B-INSTITUTION
+Karnataka	I-INSTITUTION
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+VIT	B-INSTITUTION
+Vellore	I-INSTITUTION
+|	O
+2010-2014	B-EDU_YEAR_END
+|	O
+CGPA:	O
+9.1	B-GRADE
+
+Infosys	B-COMPANY
+Ltd,	I-COMPANY
+Pune	B-LOCATION
+
+Location	O
+:	O
+Chicago,	B-LOCATION
+IL	I-LOCATION
+
+2014–2018	B-DATE_END
+
+B.E.	B-DEGREE
+–	O
+VTU	B-INSTITUTION
+Belgaum	I-INSTITUTION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+67.8%	B-GRADE
+
+CRESTLINEMEDTECHSYSTEMS|Tampa,FL	B-LOCATION
+
+Square|San	B-LOCATION
+Francisco	I-LOCATION
+CA|Senior	B-ROLE
+Software	I-ROLE
+Engineer|April	B-DATE_START
+2018|September	B-DATE_END
+2021	I-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Software	B-FIELD
+Systems	I-FIELD
+@	O
+BITS	B-INSTITUTION
+Pilani	I-INSTITUTION
+|	O
+2016–2018	B-EDU_YEAR_END
+
+ThoughtWorks,	B-COMPANY
+Bangalore	B-LOCATION
+
+Junior	B-ROLE
+Developer	B-ROLE
+
+RingCentral	B-COMPANY
+-	O
+Belmont	B-LOCATION
+CA	I-LOCATION
+-	O
+Senior	B-ROLE
+Developer	I-ROLE
+-	O
+November	B-DATE_START
+2016	I-DATE_START
+-	O
+April	B-DATE_END
+2020	I-DATE_END
+
+Trainee	B-ROLE
+
+B.Tech:Electrical	B-FIELD
+Engineering/NIT	B-INSTITUTION
+Trichy/Trichy	B-LOCATION
+India/2008/2012/CGPA6.9/10	B-GRADE
+
+B.E.:	B-DEGREE
+ECE	B-FIELD
+@	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2010-2014	B-EDU_YEAR_END
+|	O
+74.2%	B-GRADE
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Coimbatore	B-LOCATION
+|	O
+2021	B-DATE_START
+-	O
+Present	B-DATE_END
+
+Airbnb~San	B-LOCATION
+Francisco	I-LOCATION
+CA~Senior	B-ROLE
+Full	I-ROLE
+Stack	I-ROLE
+Engineer~November	B-DATE_START
+2021~Present	B-DATE_END
+
+B.E.:	B-DEGREE
+CSE	B-FIELD
+@	O
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2012-2016	B-EDU_YEAR_END
+|	O
+74%	B-GRADE
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Software	B-FIELD
+Engineering	I-FIELD
+@	O
+San	B-INSTITUTION
+Jose	I-INSTITUTION
+State	I-INSTITUTION
+University,	I-INSTITUTION
+CA	O
+|	O
+2011–2013	B-EDU_YEAR_END
+
+TCS	B-COMPANY
+||	O
+Technology	B-ROLE
+Lead	I-ROLE
+||	O
+Chennai	B-LOCATION
+||	O
+2019–Present	B-DATE_END
+
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+
+Netflix	B-COMPANY
+//	O
+Los	B-LOCATION
+Gatos	I-LOCATION
+CA	I-LOCATION
+//	O
+Senior	B-ROLE
+DevOps	I-ROLE
+Engineer	I-ROLE
+//	O
+January	B-DATE_START
+2022–Present	I-DATE_START
+
+Navi	B-LOCATION
+Mumbai,	I-LOCATION
+MH	I-LOCATION
+
+BE:	B-DEGREE
+Electronics	B-FIELD
+and	I-FIELD
+Communication	I-FIELD
+@	O
+Anna	B-INSTITUTION
+University,	I-INSTITUTION
+Chennai	I-INSTITUTION
+|	O
+2012-2016	B-EDU_YEAR_END
+|	O
+72%	B-GRADE
+
+Completed	O
+M.Tech	B-DEGREE
+in	O
+Information	B-FIELD
+Science	I-FIELD
+from	O
+Bangalore	B-INSTITUTION
+University	I-INSTITUTION
+in	O
+2016	B-EDU_YEAR_END
+with	O
+78.9%.	B-GRADE
+
+Title	O
+:	O
+Sr.	O
+Platform	B-ROLE
+Engineer	I-ROLE
+
+Infosys	B-COMPANY
+|	O
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+|	O
+2020–Present	B-DATE_END
+|	O
+Bengaluru	B-LOCATION
+|	O
+Client:	O
+Unilever	B-CLIENT
+
+Zensar	B-COMPANY
+Technologies	I-COMPANY
+
+Institution:	O
+Nagpur	B-INSTITUTION
+University,	I-INSTITUTION
+India	B-LOCATION
+
+Autodesk,	B-COMPANY
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+Trainee	B-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+2014	B-DATE_START
+-	O
+2016	B-DATE_END
+
+B.E.	B-DEGREE
+–	O
+Pune	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2015	B-EDU_YEAR_END
+–	O
+68%	B-GRADE
+
+Product	B-ROLE
+Manager	I-ROLE
+(Technical)	O
+@	O
+Juspay	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Apr	B-DATE_START
+2022	I-DATE_START
+-	O
+Present	B-DATE_END
+
+Cognizant	B-COMPANY
+//	O
+Pune	B-LOCATION
+India	I-LOCATION
+//	O
+Programmer	B-ROLE
+Analyst	I-ROLE
+//	O
+June	B-DATE_START
+2015	I-DATE_START
+//	O
+February	B-DATE_END
+2019	I-DATE_END
+
+2014	B-EDU_YEAR_END
+
+Employer:	O
+Capital	B-COMPANY
+One	I-COMPANY
+
+Sr.	B-ROLE
+Process	I-ROLE
+Engineer	I-ROLE
+
+Company	O
+:	O
+Uber	B-COMPANY
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Persistent	B-COMPANY
+Systems	I-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Pune	B-LOCATION
+~	O
+2011–2014	B-DATE_END
+
+Uber--San	B-COMPANY
+Francisco	I-LOCATION
+CA--Senior	I-LOCATION
+SDE--Jun2017--Oct2021--client:Internal	I-ROLE
+
+EPAM	B-COMPANY
+Systems	I-COMPANY
+India,	B-LOCATION
+Hyderabad	I-LOCATION
+
+Uber;Austin	B-LOCATION
+TX;Senior	B-ROLE
+Software	I-ROLE
+Engineer;November	B-DATE_START
+2020;Present;client;RideFlow	B-CLIENT
+Logistics	I-CLIENT
+
+New	B-LOCATION
+York,	I-LOCATION
+NY	I-LOCATION
+/	I-LOCATION
+Europe	I-LOCATION
+
+12th:	B-DEGREE
+CBSE	B-INSTITUTION
+Board,	I-INSTITUTION
+2014,	B-EDU_YEAR_END
+89%	B-GRADE
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+UCLA	B-INSTITUTION
+in	O
+Computer	B-FIELD
+Networks	I-FIELD
+&	I-FIELD
+Systems	I-FIELD
+(2013-2015),	B-EDU_YEAR_END
+85%	B-GRADE
+
+2014–2017	B-DATE_END
+
+Intermediate:CEC,Narayana	B-INSTITUTION
+Junior	I-INSTITUTION
+College,Tirupati	B-LOCATION
+India(2010-2012)	B-EDU_YEAR_END
+
+Cognizant,	B-COMPANY
+Hyderabad	B-LOCATION
+
+Visakhapatnam,	B-LOCATION
+AP	I-LOCATION
+
+Infosys|Hyderabad	B-LOCATION
+India|Associate	B-ROLE
+Engineer|May2013|Feb2017|client:Citi	B-CLIENT
+
+TCS	B-COMPANY
+::	O
+Data	B-ROLE
+Analyst	I-ROLE
+::	O
+Hyd	B-LOCATION
+::	O
+2015–2018	B-DATE_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Carnegie	B-INSTITUTION
+Mellon	I-INSTITUTION
+University	I-INSTITUTION
+in	O
+Software	B-FIELD
+Engineering	I-FIELD
+(2013-2015),	B-EDU_YEAR_END
+89%	B-GRADE
+
+Philips	B-COMPANY
+Innovation	I-COMPANY
+Campus,	I-COMPANY
+Bangalore	B-LOCATION
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+JNTU	B-INSTITUTION
+Hyderabad,	I-INSTITUTION
+Telangana	B-LOCATION
+India	I-LOCATION
+(2011-2015)	B-EDU_YEAR_END
+
+Client:	O
+Bosch	B-CLIENT
+India	I-CLIENT
+
+ML	B-ROLE
+Engineer	I-ROLE
+@	O
+InMobi	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Jun'18	B-DATE_START
+to	O
+Dec'21	B-DATE_END
+
+Duration	O
+:	O
+February	B-DATE_START
+2014	I-DATE_START
+–	O
+August	O
+2016	O
+
+Hyderabad,	B-LOCATION
+TS	I-LOCATION
+
+B.E.:	B-DEGREE
+ECE	B-FIELD
+@	O
+PSG	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Technology	I-INSTITUTION
+Coimbatore	B-LOCATION
+|	O
+2011-2015	B-EDU_YEAR_END
+|	O
+76.8%	B-GRADE
+
+Infosys	B-COMPANY
+Technologies,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Jan	B-DATE_START
+2010	I-DATE_START
+–	O
+Sep	B-DATE_END
+2012	I-DATE_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+Company	O
+:	O
+Persistent	B-COMPANY
+Systems	I-COMPANY
+
+SAP	B-ROLE
+Program	I-ROLE
+Director	I-ROLE
+|	O
+Precision	B-COMPANY
+Auto	I-COMPANY
+Components	I-COMPANY
+Inc	I-COMPANY
+|	O
+2015	B-DATE_START
+–	O
+2019	B-DATE_END
+
+Jul	B-DATE_START
+2017	I-DATE_START
+–	O
+Mar	B-DATE_END
+2021	I-DATE_END
+
+Osmania	B-INSTITUTION
+University	I-INSTITUTION
+
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Figma~San	B-LOCATION
+Francisco	I-LOCATION
+CA~Senior	B-ROLE
+Frontend	I-ROLE
+Engineer~August	B-DATE_START
+2022~Present	B-DATE_END
+
+Principal	B-ROLE
+Architect	I-ROLE
+@	O
+Infosys	B-COMPANY
+(Client:	O
+JP	B-CLIENT
+Morgan)	I-CLIENT
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+Apr'19	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Jan	B-DATE_START
+2018	I-DATE_START
+–	O
+Sep	B-DATE_END
+2021	I-DATE_END
+
+B.Tech:	B-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+@	O
+SRM	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2011-2015	B-EDU_YEAR_END
+|	O
+CGPA	O
+7.6	B-GRADE
+
+Enterprise	B-ROLE
+Architect	I-ROLE
+@	O
+IBM	B-COMPANY
+India	I-COMPANY
+(Client:	O
+BPCL)	B-CLIENT
+|	O
+Mumbai	B-LOCATION
+|	O
+February	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Trainee	B-ROLE
+
+B.Tech	B-DEGREE
+IT,	B-FIELD
+West	B-INSTITUTION
+Bengal	I-INSTITUTION
+University	I-INSTITUTION
+of	I-INSTITUTION
+Technology,	I-INSTITUTION
+2015,	B-EDU_YEAR_END
+CGPA:	O
+7.6	B-GRADE
+
+Degree	O
+:	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+
+Role:	O
+SR.	B-ROLE
+BIG	I-ROLE
+DATA	I-ROLE
+ENGINEER	I-ROLE
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Mphasis|Bangalore	B-LOCATION
+India|Software	B-ROLE
+Engineer	I-ROLE
+II|February	B-DATE_START
+2019|July	B-DATE_END
+2022|client:ClearTrust	B-CLIENT
+Banking	I-CLIENT
+
+Anthem	B-COMPANY
+Inc	I-COMPANY
+(Client:	O
+WellPoint	B-CLIENT
+Health)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Indianapolis,	B-LOCATION
+IN	I-LOCATION
+(Remote)	O
+
+2010	B-DATE_START
+–	O
+2015	B-DATE_END
+
+HCL	B-COMPANY
+Technologies>>>Hyderabad	B-LOCATION
+India>>>Associate	B-ROLE
+Engineer>>>July	B-DATE_START
+2014>>>April	B-DATE_END
+2018	I-DATE_END
+
+Jan	B-DATE_START
+2018	I-DATE_START
+–	O
+Jan	B-DATE_END
+2022	I-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+M.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+BITS	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2016-2018	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.0	B-GRADE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+NIT	B-INSTITUTION
+Warangal,	I-INSTITUTION
+Warangal	I-INSTITUTION
+Campus,	I-INSTITUTION
+2014-2017,	B-EDU_YEAR_END
+7.9	B-GRADE
+CGPA	O
+
+Accenture	B-COMPANY
+India	I-COMPANY
+|	O
+Enterprise	B-ROLE
+Architect	I-ROLE
+|	O
+Bengaluru	B-LOCATION
+|	O
+Apr'18	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+BPCL	B-CLIENT
+
+Technology	B-ROLE
+Analyst	I-ROLE
+
+Meta	B-COMPANY
+~	O
+Menlo	B-LOCATION
+Park	I-LOCATION
+CA	I-LOCATION
+~	O
+Principal	B-ROLE
+Engineer	I-ROLE
+~	O
+October	B-DATE_START
+2021	I-DATE_START
+~	O
+Present	B-DATE_END
+~	O
+client:SocialGrid	B-CLIENT
+Labs	I-CLIENT
+
+Mar	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Degree	O
+:	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Aerospace	B-FIELD
+Engineering	I-FIELD
+
+Mumbai,	B-LOCATION
+MH	I-LOCATION
+
+Client:	O
+Maruti	B-CLIENT
+Suzuki	I-CLIENT
+India	I-CLIENT
+
+Developer	B-ROLE
+Associate	I-ROLE
+/	O
+Developer	O
+
+Location	O
+:	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+SDE	B-ROLE
+II	I-ROLE
+@	O
+Paytm	B-COMPANY
+Money	I-COMPANY
+|	O
+Noida	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+02/2021	B-DATE_END
+
+2015–2019	B-DATE_END
+
+Infosys	B-COMPANY
+BPM	I-COMPANY
+Ltd,	I-COMPANY
+Mangalore	B-LOCATION
+
+Trainee	B-ROLE
+
+Slack	B-COMPANY
+>>	O
+San	B-LOCATION
+Francisco	I-LOCATION
+CA	I-LOCATION
+>>	O
+Staff	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+>>	O
+June	B-DATE_START
+2017	I-DATE_START
+>>	O
+January	B-DATE_END
+2021	I-DATE_END
+
+Completed:	O
+2012	B-EDU_YEAR_END
+
+Quality	B-ROLE
+Analyst	I-ROLE
+
+B.E.	B-DEGREE
+CSE,	B-FIELD
+RGPV	B-INSTITUTION
+University	I-INSTITUTION
+Bhopal,	B-LOCATION
+2013,	B-EDU_YEAR_END
+73.6%	B-GRADE
+
+Jan	B-DATE_START
+2011	I-DATE_START
+–	O
+Jun	B-DATE_END
+2013	I-DATE_END
+
+M.Tech	B-DEGREE
+Software	B-FIELD
+Engineering,	I-FIELD
+BITS	B-INSTITUTION
+Pilani	B-LOCATION
+(distance),	O
+2021	B-EDU_YEAR_END
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+May	B-DATE_END
+2014	I-DATE_END
+
+Diploma	B-DEGREE
+in	O
+Data	B-FIELD
+Science,	I-FIELD
+IIM	B-INSTITUTION
+Indore	B-LOCATION
+(Executive	O
+Program),	O
+2022	B-EDU_YEAR_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+George	B-INSTITUTION
+Washington	I-INSTITUTION
+University	I-INSTITUTION
+in	O
+Information	B-FIELD
+Security	I-FIELD
+(2012-2014),	B-EDU_YEAR_END
+87%	B-GRADE
+
+Snowflake^^San	B-LOCATION
+Mateo	I-LOCATION
+CA^^Staff	B-ROLE
+Data	I-ROLE
+Engineer^^July	B-DATE_START
+2021^^Present	B-DATE_END
+
+Senior	B-ROLE
+Associate	I-ROLE
+@	O
+Syntel	B-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+04/2018	B-DATE_START
+-	O
+02/2021	B-DATE_END
+
+Zensar	B-COMPANY
+Technologies	I-COMPANY
+>>	O
+Pune	B-LOCATION
+India	I-LOCATION
+>>	O
+Junior	B-ROLE
+Developer	I-ROLE
+>>	O
+August	B-DATE_START
+2015	I-DATE_START
+>>	O
+April	B-DATE_END
+2018	I-DATE_END
+
+B.Tech:	B-DEGREE
+ECE	B-FIELD
+@	O
+NIT	B-INSTITUTION
+Warangal	B-LOCATION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.1/10	B-GRADE
+
+Publicis	B-COMPANY
+Sapient,	I-COMPANY
+Bangalore	B-LOCATION
+
+SeniorManager#Feb2019#Mar2024	B-DATE_END
+
+Mastech,Pittsburgh	B-LOCATION
+PA,Systems	B-ROLE
+Analyst,July	B-DATE_START
+2016,August	B-DATE_END
+2019	I-DATE_END
+
+VP	B-ROLE
+of	I-ROLE
+Global	I-ROLE
+Supply	I-ROLE
+Chain	I-ROLE
+Operations	I-ROLE
+|	O
+Apex	B-COMPANY
+Aerospace	I-COMPANY
+Systems	I-COMPANY
+|	O
+2020–	B-DATE_START
+Present	B-DATE_END
+
+Designation	O
+:	O
+Software	B-ROLE
+Engineer	I-ROLE
+–	O
+Defense	O
+
+TCS	B-COMPANY
+BaNCS,	I-COMPANY
+Trivandrum	B-LOCATION
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Chennai	B-LOCATION
+
+TCS,	B-COMPANY
+Chennai	B-LOCATION
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Computer	B-FIELD
+Engineering~Purdue	B-INSTITUTION
+University~West	B-LOCATION
+Lafayette	I-LOCATION
+IN~2015~2017	B-EDU_YEAR_END
+
+Palo	B-COMPANY
+Alto	I-COMPANY
+Networks=Santa	B-LOCATION
+Clara	I-LOCATION
+CA=Data	B-ROLE
+Engineering	I-ROLE
+Lead=Aug2021=Present=client:Cybersecurity	B-CLIENT
+Ops	I-CLIENT
+
+VP	B-ROLE
+of	I-ROLE
+Analytics	I-ROLE
+&	I-ROLE
+Insights	I-ROLE
+|	O
+Clearstone	B-COMPANY
+Capital	I-COMPANY
+Group	I-COMPANY
+|	O
+2018	B-DATE_START
+–	O
+2022	B-DATE_END
+
+M.S.:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+IIIT	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+|	O
+2015–2017	B-EDU_YEAR_END
+
+Location	O
+:	O
+Falls	B-LOCATION
+Church,	I-LOCATION
+VA	I-LOCATION
+
+B.Tech	B-DEGREE
+–	O
+CSE,	B-FIELD
+Rajasthan	B-INSTITUTION
+Technical	I-INSTITUTION
+University	I-INSTITUTION
+Kota,	B-LOCATION
+2013,	B-EDU_YEAR_END
+74.8%	B-GRADE
+
+Master	B-DEGREE
+of	I-DEGREE
+Science:Human	B-FIELD
+Computer	I-FIELD
+Interaction|University	B-INSTITUTION
+of	I-INSTITUTION
+Washington|Seattle	B-LOCATION
+WA|2016|2018	B-EDU_YEAR_END
+
+B.Tech:Computer	B-FIELD
+Engineering^Mumbai	B-INSTITUTION
+University^Mumbai	B-LOCATION
+India^2008^2012^CGPA7.3/10	B-GRADE
+
+Associate	B-ROLE
+–	O
+Projects	O
+
+Jan	B-DATE_START
+2014	I-DATE_START
+–	O
+Jun	B-DATE_END
+2016	I-DATE_END
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+Client:	O
+Citibank	B-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Chemical,NIT	B-INSTITUTION
+Warangal,Warangal	B-LOCATION
+India,2011,2015	B-EDU_YEAR_END
+
+Software	B-ROLE
+Developer	I-ROLE
+@	O
+Zoho	B-COMPANY
+Corporation	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Mar'21	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Twitter>San	B-LOCATION
+Francisco	I-LOCATION
+CA>Senior	B-ROLE
+Data	I-ROLE
+Engineer>Sep2016>Dec2020>client:Ads	B-CLIENT
+Platform	I-CLIENT
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+
+Microsoft|Redmond	B-LOCATION
+WA|Principal	B-ROLE
+Data	I-ROLE
+Engineer|Aug2020|Present|client:Amazon	B-CLIENT
+
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions,	I-COMPANY
+Chennai	B-LOCATION
+
+IBM	B-COMPANY
+India	I-COMPANY
+Pvt	I-COMPANY
+Ltd,	I-COMPANY
+Bangalore	B-LOCATION
+
+Trainee	B-ROLE
+@	O
+NIIT	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Delhi	B-LOCATION
+|	O
+2013	B-DATE_START
+-	O
+2015	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Computer	B-FIELD
+Science,Madras	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology,Chennai	B-LOCATION
+India(2010-2014)	B-EDU_YEAR_END
+
+Jun	B-DATE_START
+2013	I-DATE_START
+–	O
+Dec	B-DATE_END
+2013	I-DATE_END
+
+Greenwich,	B-LOCATION
+CT	I-LOCATION
+
+Trainee	B-ROLE
+Engineer	I-ROLE
+
+B.Tech	B-DEGREE
+CSE,	B-FIELD
+NIT	B-INSTITUTION
+Patna,	B-LOCATION
+2016,	B-EDU_YEAR_END
+CGPA:	O
+8.1/10	B-GRADE
+
+{degree:	O
+M.Tech,	B-DEGREE
+field:	O
+Bioinformatics	B-FIELD
++	I-FIELD
+CS,	I-FIELD
+university:	O
+University	B-INSTITUTION
+of	I-INSTITUTION
+Hyderabad,	I-INSTITUTION
+year:	O
+2015,	B-EDU_YEAR_END
+score:	O
+8.6	B-GRADE
+CGPA}	O
+
+Jan	B-DATE_START
+2013	I-DATE_START
+–	O
+May	B-DATE_END
+2015	I-DATE_END
+
+Graduate	B-ROLE
+Engineer	I-ROLE
+Trainee	I-ROLE
+/	O
+Software	O
+Engineer	O
+
+Jr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+@	O
+Mindtree	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Apr	B-DATE_START
+2017	I-DATE_START
+-	O
+Mar	B-DATE_END
+2019	I-DATE_END
+
+Jul	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2014	I-DATE_END
+
+Test	B-ROLE
+&	I-ROLE
+Integration	I-ROLE
+Engineer	I-ROLE
+
+Dec	B-DATE_START
+2016	I-DATE_START
+–	O
+Nov	B-DATE_END
+2019	I-DATE_END
+
+Deloitte	B-COMPANY
+India	I-COMPANY
+|	O
+Technology	B-ROLE
+Architect	I-ROLE
+|	O
+Mumbai	B-LOCATION
+|	O
+Sep'19	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Reliance	B-CLIENT
+Industries	I-CLIENT
+
+March	B-DATE_START
+2015	I-DATE_START
+–	O
+December	B-DATE_END
+2018	I-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+NIT	B-INSTITUTION
+Trichy	I-INSTITUTION
+–	O
+Tiruchirappalli	B-LOCATION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+82%	B-GRADE
+
+B.Sc:Information	B-FIELD
+Systems,University	B-INSTITUTION
+of	I-INSTITUTION
+Waterloo,Ontario,Canada(2012-2016)	B-EDU_YEAR_END
+
+NTT	B-COMPANY
+Data	I-COMPANY
+India,	B-LOCATION
+Hyderabad	I-LOCATION
+
+Completed	O
+Master	B-DEGREE
+of	I-DEGREE
+Science:	I-DEGREE
+Electrical	B-FIELD
+Engineering	I-FIELD
+from	O
+UC	B-INSTITUTION
+San	I-INSTITUTION
+Diego	I-INSTITUTION
+in	O
+2013.	B-EDU_YEAR_END
+
+Palantir@New	B-LOCATION
+York	I-LOCATION
+NY@Lead	B-ROLE
+Data	I-ROLE
+Engineer@Mar2022@Present@client:US	B-CLIENT
+DoD	I-CLIENT
+
+Dec	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Mumbai	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+M.Tech	B-DEGREE
+|	O
+Cyber	B-FIELD
+Security	I-FIELD
+|	O
+Mumbai	B-LOCATION
+|	O
+2010-2012	B-EDU_YEAR_END
+|	O
+78.3%	B-GRADE
+
+Infosys,	B-COMPANY
+Pune	B-LOCATION
+
+Accenture,	B-COMPANY
+Mumbai	B-LOCATION
+
+Junior	B-ROLE
+Dev	I-ROLE
+@	O
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+Sep'16	B-DATE_START
+to	O
+Dec'18	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Science:Electrical	B-FIELD
+Engineering,IIT	B-INSTITUTION
+Bombay,Mumbai	B-LOCATION
+India(2009-2013)	B-EDU_YEAR_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Information	B-FIELD
+Technology,Anna	B-INSTITUTION
+University,Coimbatore	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+Columbia	B-INSTITUTION
+University	I-INSTITUTION
+in	O
+Applied	B-FIELD
+Mathematics	I-FIELD
+(2014-2016),	B-EDU_YEAR_END
+92%	B-GRADE
+
+Client:	O
+AXA	B-CLIENT
+Insurance	I-CLIENT
+
+Degree	O
+:	O
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Information	B-FIELD
+Science	I-FIELD
+
+Completed	O
+M.Tech	B-DEGREE
+in	O
+Information	B-FIELD
+Technology	I-FIELD
+from	O
+Cochin	B-INSTITUTION
+University	I-INSTITUTION
+of	I-INSTITUTION
+Science	I-INSTITUTION
+and	I-INSTITUTION
+Technology	I-INSTITUTION
+in	O
+2017	B-EDU_YEAR_END
+with	O
+79.4%.	B-GRADE
+
+MBA:	B-DEGREE
+Technology	B-FIELD
+Management	I-FIELD
+@	O
+NMIMS	B-INSTITUTION
+Mumbai	I-INSTITUTION
+|	O
+2014–2016	B-EDU_YEAR_END
+
+Previously	O
+employed	O
+at	O
+L&T	B-COMPANY
+Infotech	I-COMPANY
+(Chennai,	B-LOCATION
+India)	I-LOCATION
+as	O
+Software	B-ROLE
+Engineer	I-ROLE
+from	O
+May	B-DATE_START
+2012	I-DATE_START
+–	O
+June	B-DATE_END
+2014.	I-DATE_END
+
+Humana	B-COMPANY
+(Client:	O
+Humana	B-CLIENT
+Medicare	I-CLIENT
+Advantage)	I-CLIENT
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Louisville,	B-LOCATION
+KY	I-LOCATION
+(Remote)	O
+
+Cyber	B-ROLE
+Security	I-ROLE
+Analyst	I-ROLE
+@	O
+Wipro	B-COMPANY
+(Client:	O
+HDFC	B-CLIENT
+Bank)	I-CLIENT
+|	O
+Hyd	B-LOCATION
+|	O
+Jan'19	B-DATE_START
+to	O
+Jan'22	B-DATE_END
+
+HashiCorp/San	B-LOCATION
+Francisco	I-LOCATION
+CA/Senior	B-ROLE
+Platform	I-ROLE
+Engineer/November	B-DATE_START
+2022/Present	B-DATE_END
+
+B.E:Electronics	B-FIELD
+and	I-FIELD
+Communication;SRM	B-INSTITUTION
+University;Chennai	B-LOCATION
+India;2008;2012;CGPA6.7/10	B-GRADE
+
+B.E.	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+–	O
+Visvesvaraya	B-INSTITUTION
+Technological	I-INSTITUTION
+University	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+First	O
+Class	O
+
+Senior	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+
+Apr	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Tech	B-COMPANY
+Mahindra	I-COMPANY
+
+Bengaluru,	B-LOCATION
+KA	I-LOCATION
+
+Meta|Menlo	B-LOCATION
+Park	I-LOCATION
+CA|Staff	B-ROLE
+Infrastructure	I-ROLE
+Engineer|September	B-DATE_START
+2020|Present	B-DATE_END
+
+SAP	B-COMPANY
+Labs	I-COMPANY
+India,	B-LOCATION
+Bangalore	I-LOCATION
+
+Engineer	B-ROLE
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+RGPV	B-INSTITUTION
+University	I-INSTITUTION
+Bhopal,	B-LOCATION
+2016,	B-EDU_YEAR_END
+CGPA:	O
+8.3	B-GRADE
+
+Senior	B-ROLE
+Developer	I-ROLE
+
+Software	B-ROLE
+Engineer	I-ROLE
+·	O
+Humana	B-COMPANY
+
+Cognizant	B-COMPANY
+Technologies	I-COMPANY
+
+Jun	B-DATE_START
+2015	I-DATE_START
+–	O
+Aug	B-DATE_END
+2018	I-DATE_END
+
+Software	B-ROLE
+Developer	I-ROLE
+L2	I-ROLE
+
+Stripe~San	B-LOCATION
+Francisco	I-LOCATION
+CA~Software	B-ROLE
+Engineer	I-ROLE
+L5~May2017~Jan2021~client:Payments	B-CLIENT
+Core	I-CLIENT
+
+AT&T,	B-COMPANY
+Dallas,	B-LOCATION
+TX	I-LOCATION
+
+Client:	O
+Johnson	B-CLIENT
+&	I-CLIENT
+Johnson	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Information	B-FIELD
+Science,BMS	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering,Bangalore	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+Wipro,	B-COMPANY
+Bangalore,	B-LOCATION
+India	I-LOCATION
+-	O
+Junior	B-ROLE
+Developer	I-ROLE
+(January	B-DATE_START
+2013–July	B-DATE_END
+2015)	I-DATE_END
+
+BE:Electronics	B-FIELD
+and	I-FIELD
+Communication,VTU,Belgaum	B-LOCATION
+India(2011-2015)	B-EDU_YEAR_END
+
+VANGUARDRISKSOLUTIONS|Miami,FL	B-LOCATION
+
+Junior	B-ROLE
+Dev	I-ROLE
+@	O
+Infosys	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Mysore	B-LOCATION
+|	O
+2016	B-DATE_START
+-	O
+2019	B-DATE_END
+
+Chennai,	B-LOCATION
+TN	I-LOCATION
+
+Senior	B-ROLE
+Developer	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+04/2020	B-DATE_START
+-	O
+03/2023	B-EDU_YEAR_END
+
+Mphasis	B-COMPANY
+::	O
+Software	B-ROLE
+Engineer	I-ROLE
+::	O
+Hyderabad	B-LOCATION
+::	O
+Mar'19	B-DATE_START
+to	O
+May'21	B-DATE_END
+
+Jul	B-DATE_START
+2018	I-DATE_START
+–	O
+Dec	B-DATE_END
+2018	I-DATE_END
+
+Mphasis	B-COMPANY
+
+Sr.	B-ROLE
+Backend	I-ROLE
+Dev	I-ROLE
+@	O
+Freshdesk	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Jan'19	B-DATE_START
+to	O
+Mar'22	B-DATE_END
+
+Data	B-ROLE
+Engineer	I-ROLE
+@	O
+Zoho	B-COMPANY
+Corp	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+04/2018	B-DATE_START
+-	O
+12/2021	B-DATE_END
+
+2013	B-DATE_START
+–	O
+2017	B-DATE_END
+
+Twitter(X);New	B-LOCATION
+York	I-LOCATION
+NY;Staff	B-ROLE
+Backend	I-ROLE
+Engineer;December	B-DATE_START
+2021;Present;client;SpeedLink	B-CLIENT
+Networks	I-CLIENT
+
+Designation	O
+:	O
+Software	B-ROLE
+Engineer	I-ROLE
+
+DevOps	B-ROLE
+@	O
+Jio	B-COMPANY
+Platforms	I-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+01/2019	B-DATE_START
+-	O
+02/2022	B-DATE_END
+
+Workday,Pleasanton	B-LOCATION
+CA,Senior	B-ROLE
+Software	I-ROLE
+Engineer,May	B-DATE_START
+2018,December	B-DATE_END
+2021	I-DATE_END
+
+Software	B-ROLE
+Analyst	I-ROLE
+@	O
+Cognizant	B-COMPANY
+Technology	I-COMPANY
+Solutions	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+2016	B-DATE_START
+-	O
+2018	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+PSG	B-INSTITUTION
+Tech	I-INSTITUTION
+Coimbatore	I-INSTITUTION
+–	O
+2013	B-EDU_YEAR_END
+–	O
+8.7	B-GRADE
+CGPA	O
+
+Duration:	O
+2015–2018	B-DATE_END
+
+Wipro	B-COMPANY
+Technologies,	I-COMPANY
+Bangalore	B-LOCATION
+
+B.E.	B-DEGREE
+Mechanical,	B-FIELD
+SPPU	B-INSTITUTION
+Pune,	B-LOCATION
+2015,	B-EDU_YEAR_END
+62%	B-GRADE
+
+Client:	O
+Siemens	B-CLIENT
+India	I-CLIENT
+
+Associate	B-ROLE
+@	O
+Wipro	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+08/2013	B-DATE_START
+-	O
+06/2015	B-DATE_END
+
+HCL	B-COMPANY
+Technologies,	I-COMPANY
+Noida	B-LOCATION
+
+Client:	O
+Philips	B-CLIENT
+
+Huntsville,	B-LOCATION
+AL	I-LOCATION
+/	I-LOCATION
+Global	I-LOCATION
+
+Jan	B-DATE_START
+2018	I-DATE_START
+–	O
+Jun	B-DATE_END
+2018	I-DATE_END
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+IIT	B-INSTITUTION
+Madras	B-LOCATION
+|	O
+2011–2015	B-EDU_YEAR_END
+|	O
+CGPA:	O
+9.0	B-GRADE
+
+B.Tech	B-DEGREE
+Dual	O
+Degree	O
+CSE,	B-FIELD
+IIT	B-INSTITUTION
+Roorkee,	B-LOCATION
+2017,	B-EDU_YEAR_END
+CPI:	O
+9.1/10	B-GRADE
+
+TCS,	B-COMPANY
+Bangalore	B-LOCATION
+
+B.Tech,	B-DEGREE
+JNTU	B-INSTITUTION
+Hyderabad,	I-INSTITUTION
+2013,	B-EDU_YEAR_END
+71%	B-GRADE
+
+M.Tech	B-DEGREE
+–	O
+Data	B-FIELD
+Engineering	I-FIELD
+
+Jan	B-DATE_START
+2017	I-DATE_START
+-	O
+Dec	B-DATE_END
+2019	I-DATE_END
+
+Salesforce>San	B-LOCATION
+Francisco	I-LOCATION
+CA>Principal	B-ROLE
+Architect>May	B-DATE_START
+2020>Present>client>NovaTech	B-CLIENT
+Solutions	I-CLIENT
+
+Master	B-DEGREE
+of	I-DEGREE
+Engineering:Data	B-FIELD
+Science/BITS	B-INSTITUTION
+Pilani/Pilani	B-LOCATION
+India/2016/2018	B-EDU_YEAR_END
+
+Joined	O
+Deloitte	B-COMPANY
+in	O
+April	B-DATE_START
+2022	I-DATE_START
+as	O
+Sr.	B-ROLE
+IT	I-ROLE
+Consultant	I-ROLE
+and	O
+still	O
+working	O
+(Chicago,	B-LOCATION
+IL).	I-LOCATION
+
+Jan	B-DATE_START
+2014	I-DATE_START
+–	O
+May	B-DATE_END
+2016	I-DATE_END
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2017	I-DATE_END
+
+Master	B-DEGREE
+of	I-DEGREE
+Business	I-DEGREE
+Administration:Technology	B-FIELD
+Management	I-FIELD
+~	O
+ISB	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+~	O
+India	O
+~	O
+2015	B-EDU_YEAR_START
+~	O
+2017	B-EDU_YEAR_END
+
+Robert	B-COMPANY
+Bosch	I-COMPANY
+Engineering	I-COMPANY
+India,	B-LOCATION
+Bangalore	I-LOCATION
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+B.Tech	B-DEGREE
+Aerospace	B-FIELD
+Engineering	I-FIELD
+@	O
+Purdue	B-INSTITUTION
+University,	I-INSTITUTION
+West	B-LOCATION
+Lafayette,	I-LOCATION
+completed	O
+2010-2013,	B-EDU_YEAR_END
+8.6	B-GRADE
+CGPA	O
+
+Principal	B-ROLE
+Engineer	I-ROLE
+@	O
+Zomato	B-COMPANY
+|	O
+Gurgaon	B-LOCATION
+|	O
+Jan'22	B-DATE_START
+to	O
+Present	B-DATE_END
+
+Mobile	B-ROLE
+Engineer	I-ROLE
+@	O
+Vedantu	B-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+01/2018	B-DATE_START
+-	O
+01/2021	B-DATE_END
+
+Bengaluru,	B-LOCATION
+KA	I-LOCATION
+
+Campus	B-ROLE
+Hire	I-ROLE
+@	O
+CTS	B-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2014	I-DATE_START
+-	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+Jun	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+Global	B-ROLE
+Head	I-ROLE
+of	I-ROLE
+IT	I-ROLE
+Strategy	I-ROLE
+|	O
+Meridian	B-COMPANY
+Pharma	I-COMPANY
+Group	I-COMPANY
+|	O
+2021	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Senior	B-ROLE
+Analyst	I-ROLE
+
+[Company]Google	B-COMPANY
+[Location]Sunnyvale	B-LOCATION
+CA	I-LOCATION
+[Title]Senior	B-ROLE
+Staff	I-ROLE
+Engineer	I-ROLE
+[Start]March	B-DATE_START
+2020	I-DATE_START
+[End]Present	B-DATE_END
+[Client]Quantum	B-CLIENT
+Metrics	I-CLIENT
+Inc	I-CLIENT
+
+B.Tech:	B-DEGREE
+Computer	B-FIELD
+Science	I-FIELD
+@	O
+Manipal	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology	I-INSTITUTION
+|	O
+2012–2016	B-EDU_YEAR_END
+|	O
+CGPA:	O
+7.9	B-GRADE
+
+M.Tech	B-DEGREE
+Systems	B-FIELD
+Engineering	I-FIELD
+–	O
+BITS	B-INSTITUTION
+Pilani	I-INSTITUTION
+–	O
+2015-2017	B-EDU_YEAR_END
+–	O
+8.7	B-GRADE
+CGPA	O
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Infosys	B-COMPANY
+Limited,	I-COMPANY
+Hyderabad	B-LOCATION
+
+Client:	O
+Walmart	B-CLIENT
+Labs	I-CLIENT
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:Information	B-FIELD
+Science|BMS	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering|Bangalore	B-LOCATION
+India|2010|2015	B-EDU_YEAR_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:Information	B-FIELD
+Technology	I-FIELD
+~	O
+VTU	B-INSTITUTION
+~	O
+Belgaum	B-LOCATION
+India	I-LOCATION
+~	O
+2011	B-EDU_YEAR_START
+~	O
+2015	B-EDU_YEAR_END
+
+Senior	B-ROLE
+Developer	I-ROLE
+@	O
+IBM	B-COMPANY
+India	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+06/2018	B-DATE_START
+-	O
+12/2021	B-DATE_END
+
+Twitter,San	B-LOCATION
+Francisco,CA|Senior	B-ROLE
+Backend	I-ROLE
+Engineer|April	B-DATE_START
+2017–August	B-DATE_END
+2020	I-DATE_END
+
+Working	O
+@	O
+Infosys	B-COMPANY
+as	O
+Sr	B-ROLE
+Manager	I-ROLE
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+since	O
+Jan	B-DATE_START
+2019	I-DATE_START
+|	O
+Client:	O
+EMA	B-CLIENT
+
+Software	B-ROLE
+Architect	I-ROLE
+
+Client:	O
+Standard	B-CLIENT
+Chartered	I-CLIENT
+Bank	I-CLIENT
+
+Flipkart	B-COMPANY
+::	O
+Senior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+::	O
+Bengaluru	B-LOCATION
+::	O
+Jun'19	B-DATE_START
+to	O
+Oct'21	B-DATE_END
+
+Software	B-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jan'16	B-DATE_START
+to	O
+Mar'18	B-DATE_END
+
+Sr.	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+·	O
+UnitedHealth	B-COMPANY
+Group	I-COMPANY
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+May	B-DATE_END
+2017	I-DATE_END
+
+Mindtree	B-COMPANY
+(LTIMindtree),	O
+Bengaluru	B-LOCATION
+
+M.S:Computer	B-FIELD
+Science,Illinois	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology,Chicago	B-LOCATION
+IL(2013-2015)	B-EDU_YEAR_END
+
+B.Tech:	B-DEGREE
+CSE	B-FIELD
+@	O
+BITS	B-INSTITUTION
+Pilani	B-LOCATION
+|	O
+2009–2013	B-EDU_YEAR_END
+|	O
+CGPA:	O
+8.3	B-GRADE
+
+B.Tech:	B-DEGREE
+IT	B-FIELD
+@	O
+JNTU	B-INSTITUTION
+Kakinada	I-INSTITUTION
+|	O
+2010–2014	B-EDU_YEAR_END
+|	O
+76.3%	B-GRADE
+
+BE:	B-DEGREE
+Information	B-FIELD
+Science	I-FIELD
+@	O
+RV	B-INSTITUTION
+College	I-INSTITUTION
+of	I-INSTITUTION
+Engineering	I-INSTITUTION
+Bangalore	I-INSTITUTION
+|	O
+2012–2016	B-EDU_YEAR_END
+|	O
+71%	B-GRADE
+
+Cloud	B-ROLE
+Architect	I-ROLE
+@	O
+Accenture	B-COMPANY
+(Client:	O
+Vodafone)	B-CLIENT
+|	O
+Hyd	B-LOCATION
+|	O
+January	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Solution	B-ROLE
+Architect	I-ROLE
+@	O
+Capgemini	B-COMPANY
+(Client:	O
+Total	B-CLIENT
+Energies)	I-CLIENT
+|	O
+Hyderabad,	B-LOCATION
+Telangana	I-LOCATION
+|	O
+2021	B-DATE_START
+-	O
+Present	B-DATE_END
+
+Mar	B-DATE_START
+2020	I-DATE_START
+–	O
+Present	B-DATE_END
+
+M.Tech	B-DEGREE
+(Computer	B-FIELD
+Science)	I-FIELD
+–	O
+Bangalore	B-INSTITUTION
+University	I-INSTITUTION
+–	O
+2016	B-EDU_YEAR_END
+–	O
+78.2%	B-GRADE
+
+Junior	B-ROLE
+Software	I-ROLE
+Engineer	I-ROLE
+
+Joined	O
+KPMG	B-COMPANY
+in	O
+May	B-DATE_START
+2014	I-DATE_START
+as	O
+Senior	B-ROLE
+Associate	I-ROLE
+–	I-ROLE
+Technology,	I-ROLE
+left	O
+in	O
+December	B-DATE_END
+2016	I-DATE_END
+(Atlanta,	B-LOCATION
+GA).	I-LOCATION
+
+Wipro	B-COMPANY
+(Senior	B-ROLE
+Developer)	I-ROLE
+Bhubaneswar	B-LOCATION
+Jan	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Infosys	B-COMPANY
+~	O
+Software	B-ROLE
+Developer	I-ROLE
+~	O
+Coimbatore	B-LOCATION
+~	O
+2018–2021	B-DATE_END
+
+[B.Tech	B-DEGREE
+|	O
+Anna	B-INSTITUTION
+University	I-INSTITUTION
+|	O
+2018	B-EDU_YEAR_END
+|	O
+76%]	B-GRADE
+
+Adobe/San	B-LOCATION
+Jose	I-LOCATION
+CA/Senior	B-ROLE
+Engineer/Apr2016/Sep2020/client:Target	B-CLIENT
+
+Zensar	B-COMPANY
+Technologies	I-COMPANY
+::	O
+Senior	B-ROLE
+Analyst	I-ROLE
+::	O
+Noida	B-LOCATION
+::	O
+Apr'20	B-DATE_START
+to	O
+Dec'21	B-DATE_END
+
+Jan	B-DATE_START
+2019	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Associate	B-ROLE
+
+Score	O
+:	O
+82.3%	B-GRADE
+
+Morgan	B-COMPANY
+Stanley	I-COMPANY
+India,	B-LOCATION
+Delhi	I-LOCATION
+
+Jun	B-DATE_START
+2015	I-DATE_START
+–	O
+Dec	B-DATE_END
+2015	I-DATE_END
+
+2015	B-DATE_START
+–	O
+2019	B-DATE_END
+
+Microsoft	B-COMPANY
+India	I-COMPANY
+|	O
+Azure	B-ROLE
+Architect	I-ROLE
+|	O
+Hyderabad	B-LOCATION
+|	O
+Jan'21	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+HPCL	B-CLIENT
+
+Infosys	B-COMPANY
+Ltd.	I-COMPANY
+|	O
+Senior	B-ROLE
+Consultant	I-ROLE
+|	O
+Bengaluru	B-LOCATION
+|	O
+Jan'19	B-DATE_START
+–	O
+Present	B-DATE_END
+|	O
+Client:	O
+Rolls	B-CLIENT
+Royce	I-CLIENT
+
+Intern	B-ROLE
+@	O
+HCL	B-COMPANY
+Technologies	I-COMPANY
+|	O
+Chennai	B-LOCATION
+|	O
+Feb	B-DATE_START
+2018	I-DATE_START
+-	O
+Aug	B-DATE_END
+2018	I-DATE_END
+
+Jan	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Salesforce	B-ROLE
+Consultant	I-ROLE
+
+Wipro,	B-COMPANY
+Bangalore	B-LOCATION
+
+IBM,	B-COMPANY
+Austin,	B-LOCATION
+TX	I-LOCATION
+-	O
+Software	B-ROLE
+Engineer	I-ROLE
+(January	B-DATE_START
+2017–June	B-DATE_END
+2019)	I-DATE_END
+
+BITS	B-INSTITUTION
+Pilani,	I-INSTITUTION
+India	B-LOCATION
+2007–2011	B-EDU_YEAR_END
+
+M.Tech	B-DEGREE
+(CS)	B-FIELD
+–	O
+IIIT	B-INSTITUTION
+Hyderabad	I-INSTITUTION
+–	O
+2016	B-EDU_YEAR_END
+–	O
+9.1	B-GRADE
+CGPA	O
+
+Jun	B-DATE_START
+2012	I-DATE_START
+–	O
+Dec	B-DATE_END
+2012	I-DATE_END
+
+NIIT	B-COMPANY
+Technologies^^Delhi	B-LOCATION
+India^^Trainee	B-ROLE
+Developer^^August	B-DATE_START
+2012^^March	B-DATE_END
+2015	I-DATE_END
+
+Mindtree	B-COMPANY
+~	O
+Associate	B-ROLE
+Engineer	I-ROLE
+~	O
+Bengaluru	B-LOCATION
+~	O
+2012–2015	B-DATE_END
+
+Visvesvaraya	B-INSTITUTION
+Technological	I-INSTITUTION
+University	I-INSTITUTION
+|	O
+B.E.	B-DEGREE
+|	O
+Computer	B-FIELD
+Science	I-FIELD
+|	O
+2015	B-EDU_YEAR_END
+|	O
+74%	B-GRADE
+
+Location	O
+:	O
+Nagpur,	B-LOCATION
+India	I-LOCATION
+
+Mphasis,	B-COMPANY
+Remote	O
+
+Client:	O
+Hero	B-CLIENT
+MotoCorp	I-CLIENT
+
+Client:	O
+NALCO	B-CLIENT
+(National	B-CLIENT
+Aluminium)	I-CLIENT
+
+Sr.	B-ROLE
+Systems	I-ROLE
+Engineer	I-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Hyderabad	B-LOCATION
+|	O
+January	B-DATE_START
+2021	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Jan	B-DATE_START
+2015	I-DATE_START
+–	O
+Jun	B-DATE_END
+2016	I-DATE_END
+
+TCS,	B-COMPANY
+Pune	B-LOCATION
+
+Junior	B-ROLE
+Dev	I-ROLE
+@	O
+Infosys	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Sep	B-DATE_START
+2015	I-DATE_START
+-	O
+Feb	B-DATE_END
+2017	I-DATE_END
+
+Cloud	B-ROLE
+Engineer	I-ROLE
+II	I-ROLE
+
+Chief	B-ROLE
+Data	I-ROLE
+Officer	I-ROLE
+|	O
+FuturePath	B-COMPANY
+Financial	I-COMPANY
+Services	I-COMPANY
+|	O
+2022	B-DATE_START
+–	O
+Present	B-DATE_END
+
+Degree	O
+:	O
+M.Tech	B-DEGREE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology:	I-DEGREE
+Information	B-FIELD
+Technology	I-FIELD
+–	O
+Andhra	B-INSTITUTION
+University,	I-INSTITUTION
+India	O
+(2010)	B-EDU_YEAR_END
+
+Mindtree	B-COMPANY
+::	O
+Application	B-ROLE
+Developer	I-ROLE
+::	O
+Mysuru	B-LOCATION
+::	O
+Feb'16	B-DATE_START
+to	O
+Apr'18	B-DATE_END
+
+2014	B-DATE_START
+–	O
+2016	B-DATE_END
+
+Wipro,	B-COMPANY
+Bangalore	B-LOCATION
+
+HCL	B-COMPANY
+Technologies	I-COMPANY
+//	O
+Hyderabad	B-LOCATION
+India	I-LOCATION
+//	O
+Associate	B-ROLE
+Engineer	I-ROLE
+//	O
+August	B-DATE_START
+2013	I-DATE_START
+//	O
+December	B-DATE_END
+2015	I-DATE_END
+
+Graduate	B-ROLE
+Trainee	I-ROLE
+@	O
+TCS	B-COMPANY
+|	O
+Mumbai	B-LOCATION
+|	O
+Aug	B-DATE_START
+2015	I-DATE_START
+-	O
+Aug	B-DATE_END
+2016	I-DATE_END
+
+Location	O
+:	O
+San	B-LOCATION
+Francisco,	I-LOCATION
+CA	I-LOCATION
+
+Did	O
+my	O
+M.Tech	B-DEGREE
+from	O
+IIT	B-INSTITUTION
+Delhi	I-INSTITUTION
+in	O
+Data	B-FEILD
+Science	I-FEILD
+&	I-FEILD
+Analytics	I-FEILD
+(2012-2014),	B-EDU_YEAR_END
+86%	B-GRADE
+
+Google,	B-CLIENT
+Mountain	B-LOCATION
+View,	I-LOCATION
+CA	O
+-	O
+Principal	B-ROLE
+Cloud	I-ROLE
+Architect	I-ROLE
+(June	B-DATE_START
+2021–Present)	B-DATE_END
+
+University:	O
+Sardar	B-INSTITUTION
+Patel	I-INSTITUTION
+University	I-INSTITUTION
+
+Architech	B-ROLE
+Developer	I-ROLE
+
+Cognizant,Chennai	B-LOCATION
+India,Software	B-ROLE
+Analyst,July	B-DATE_START
+2013-March	B-DATE_END
+2017,client:RetailNext	B-CLIENT
+Corp	I-CLIENT
+
+Jun	B-DATE_START
+2014	I-DATE_START
+–	O
+Dec	B-DATE_END
+2014	I-DATE_END
+
+INFOSYS	B-COMPANY
+BPM	I-COMPANY
+|	O
+RPA	B-ROLE
+Architect	I-ROLE
+|	O
+2019/06	B-DATE_START
+–	O
+Current	O
+|	O
+Bengaluru	B-LOCATION
+
+Capgemini,	B-COMPANY
+Noida	B-LOCATION
+-	O
+Tech	B-ROLE
+Analyst	I-ROLE
+(August	B-DATE_START
+2019	I-DATE_START
+-	O
+Present)	B-DATE_END
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Engineering:	I-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Anna	B-INSTITUTION
+University,	I-INSTITUTION
+Chennai,	B-LOCATION
+India	I-LOCATION
+(2009–2013)	B-EDU_YEAR_END
+
+Hexaware	B-COMPANY
+Technologies==Mumbai	B-LOCATION
+India==Software	B-ROLE
+Developer==March	B-DATE_START
+2016==December	B-DATE_END
+2019	I-DATE_END
+
+Systems	B-ROLE
+Engineer	I-ROLE
+
+Client:	O
+Airbus	B-CLIENT
+
+Client:	O
+Morgan	B-CLIENT
+Stanley	I-CLIENT
+
+B.Tech	B-DEGREE
+Computer	B-FIELD
+Science,	I-FIELD
+Savitribai	B-INSTITUTION
+Phule	I-INSTITUTION
+Pune	I-INSTITUTION
+University,	I-INSTITUTION
+2016,	B-EDU_YEAR_END
+CGPA:	O
+8.9/10	B-GRADE
+
+Bachelor	B-DEGREE
+of	I-DEGREE
+Technology,	I-DEGREE
+IISc	B-INSTITUTION
+Bengaluru,	I-INSTITUTION
+Bengaluru	I-INSTITUTION
+Campus,	I-INSTITUTION
+2014-2017,	B-EDU_YEAR_END
+9.0	B-GRADE
+CGPA	O
+
+Trainee	B-ROLE
+@	O
+Cognizant	B-COMPANY
+|	O
+Hyd	B-LOCATION
+|	O
+Jul	B-DATE_START
+2015	I-DATE_START
+-	O
+Feb	B-DATE_END
+2017	I-DATE_END
+
+NIT	B-INSTITUTION
+Trichy	I-INSTITUTION
+
+Distinguished	B-ROLE
+AI/ML	I-ROLE
+Systems	I-ROLE
+Architect	I-ROLE
+&	I-ROLE
+Research	I-ROLE
+Lead	I-ROLE
+
+Ilink	B-COMPANY
+Systems|Hyderabad	B-LOCATION
+India|Senior	B-ROLE
+Developer|November	B-DATE_START
+2018|May	B-DATE_END
+2021|client:PrimePath	B-CLIENT
+Logistics	I-CLIENT
+
+ArchitectLead>Nov2018>Oct2023	B-DATE_END
+
+(M.Tech,	B-DEGREE
+Symbiosis	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology,	I-INSTITUTION
+Pune,	B-LOCATION
+2017,	B-EDU_YEAR_END
+76.8%)	B-GRADE
+
+Sr.	B-ROLE
+Data	I-ROLE
+Engineer	I-ROLE
+@	O
+Mu	B-COMPANY
+Sigma	I-COMPANY
+|	O
+Bangalore	B-LOCATION
+|	O
+Mar'21	B-DATE_START
+to	O
+Present	B-DATE_END
+
+2017–2020	B-DATE_END
+
+B.Tech	B-DEGREE
+–	O
+SPPU	B-INSTITUTION
+Pune	I-INSTITUTION
+–	O
+Pune	B-LOCATION
+–	O
+2008-2011	B-EDU_YEAR_END
+–	O
+76%	B-GRADE
+
+Year	O
+:	O
+2015	B-EDU_YEAR_END
+
+Data	B-ROLE
+Analyst	I-ROLE
+
+Client:	O
+Amazon	B-CLIENT
+India	I-CLIENT
+
+Apr	B-DATE_START
+2022	I-DATE_START
+–	O
+Present	B-DATE_END
+
+Junior	B-ROLE
+Programmer	I-ROLE
+@	O
+Persistent	B-COMPANY
+Systems	I-COMPANY
+|	O
+Pune	B-LOCATION
+|	O
+Sep	B-DATE_START
+2014	I-DATE_START
+-	O
+Jul	B-DATE_END
+2016	I-DATE_END
+
+M.S:Data	B-FIELD
+Engineering,Georgia	B-INSTITUTION
+Institute	I-INSTITUTION
+of	I-INSTITUTION
+Technology,Atlanta	B-LOCATION
+GA(2015-2017)	B-EDU_YEAR_END
+

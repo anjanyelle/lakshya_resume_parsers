@@ -15,6 +15,7 @@ from parsers.rule_parser import RuleBasedParser
 from parsers.experience_extractor import ExperienceExtractor
 from parsers.education_extractor import EducationExtractor
 from parsers.ai_ner_parser import AINamedEntityParser
+from parsers.deberta_ner_parser import DeBERTaNerParser
 from parsers.hybrid_merger import HybridMerger
 from parsers.confidence_scorer import ConfidenceScorer
 from parsers.entity_normalizer import EntityNormalizer
@@ -87,6 +88,16 @@ class MasterParser:
         except Exception as e:
             self.logger.error(f"❌ Failed to initialize AINamedEntityParser: {e}")
             self.ai_parser = None
+        
+        try:
+            self.deberta_parser = DeBERTaNerParser()
+            if self.deberta_parser.is_available():
+                self.logger.info("✅ DeBERTa NER Parser initialized (model loaded or structured parser available)")
+            else:
+                self.logger.warning("⚠️  DeBERTa NER Parser initialized but no parsers available")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize DeBERTa NER Parser: {e}")
+            self.deberta_parser = None
         
         try:
             self.hybrid_merger = HybridMerger()
@@ -774,9 +785,14 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         rule_results = self._run_rule_parsing(text, sections)
         metrics['rule_parsing_ms'] = (time.time() - step_start) * 1000
         
-        # Step 4: AI entity extraction (conditional - only if needed based on rule_results)
+        # Step 3b: DeBERTa NER parsing (if available)
         step_start = time.time()
-        ai_results = self._run_ai_parsing(text, sections, rule_results=rule_results, llm_provider=llm_provider)
+        deberta_results = self._run_deberta_parsing(text)
+        metrics['deberta_parsing_ms'] = (time.time() - step_start) * 1000
+        
+        # Step 4: AI entity extraction (conditional - only if needed based on rule_results and deberta_results)
+        step_start = time.time()
+        ai_results = self._run_ai_parsing(text, sections, rule_results=rule_results, deberta_results=deberta_results, llm_provider=llm_provider)
         metrics['ai_parsing_ms'] = (time.time() - step_start) * 1000
         
         # Log if AI was skipped
@@ -801,7 +817,7 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         # Step 7: Merge all results
         step_start = time.time()
-        merged_results = self._merge_results(rule_results, ai_results, experience_results, education_results)
+        merged_results = self._merge_results(rule_results, ai_results, deberta_results, experience_results, education_results)
         merged_results['summary'] = summary
         
         # Step 7b: Normalize entities
@@ -880,7 +896,49 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         return result
     
-    def _run_ai_parsing(self, text: str, sections: Dict[str, str] = None, rule_results: Dict[str, Any] = None, llm_provider: Optional[str] = None) -> Dict[str, Any]:
+    def _run_deberta_parsing(self, text: str) -> Dict[str, Any]:
+        """
+        Run DeBERTa NER parsing with focused section extraction for better accuracy.
+        Uses the trained DeBERTa model for entity extraction on only Work Experience & Education sections.
+        
+        Args:
+            text: Text to parse with DeBERTa
+            
+        Returns:
+            DeBERTa parsing results or empty results if model not available
+        """
+        if not self.deberta_parser or not self.deberta_parser.is_available():
+            self.logger.info("DeBERTa parser not available, skipping DeBERTa parsing")
+            return {}
+        
+        try:
+            self.logger.info("🤖 Running DeBERTa NER parsing with focused sections...")
+            
+            # Step 1: Extract only Work Experience and Education sections
+            sections = self.deberta_parser.extract_target_sections(text)
+            
+            # Step 2: Parse only those sections with DeBERTa (focused approach)
+            deberta_results = self.deberta_parser.parse_focused_sections(sections)
+            
+            # Log what DeBERTa returned
+            self.logger.info(f"🔍 DeBERTa results keys: {list(deberta_results.keys())}")
+            self.logger.info(f"🔍 DeBERTa work_experience count: {len(deberta_results.get('work_experience', []))}")
+            self.logger.info(f"🔍 DeBERTa companies: {deberta_results.get('companies', [])}")
+            self.logger.info(f"🔍 DeBERTa job_titles: {deberta_results.get('job_titles', [])}")
+            
+            if deberta_results:
+                entity_count = sum(len(v) for v in deberta_results.values() if isinstance(v, list))
+                self.logger.info(f"✅ DeBERTa parsing completed - found {entity_count} entities from focused sections")
+                return deberta_results
+            else:
+                self.logger.warning("⚠️ DeBERTa parsing returned empty results")
+                return {}
+                
+        except Exception as e:
+            self.logger.error(f"❌ DeBERTa parsing failed: {e}")
+            return {}
+    
+    def _run_ai_parsing(self, text: str, sections: Dict[str, str] = None, rule_results: Dict[str, Any] = None, deberta_results: Dict[str, Any] = None, llm_provider: Optional[str] = None) -> Dict[str, Any]:
         """
         Run AI entity extraction on text with hybrid skills optimization.
         Only calls AI if rule-based extraction has low confidence (<0.85) for any field.
@@ -904,21 +962,31 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             self.logger.info(f"🤖 LLM provider '{llm_provider}' selected - FORCING AI parsing for enhanced quality")
             force_ai_parsing = True
         
-        # OPTIMIZATION: Check if AI is even needed based on rule_results confidence
-        # Skip fields where rule-based extraction has high confidence (>=0.85)
+        # OPTIMIZATION: Check if AI is even needed based on rule_results and deberta_results confidence
+        # Skip fields where rule-based extraction has high confidence (>=0.85) or DeBERTa found good results
         # BUT: Skip this optimization if force_ai_parsing is True
         skip_ai_entirely = False
-        if not force_ai_parsing and rule_results:
-            # Check confidence for key fields
+        if not force_ai_parsing and (rule_results or deberta_results):
+            # Check confidence for key fields from both rule_results and deberta_results
             high_confidence_fields = []
-            for field in ['name', 'email', 'phone', 'linkedin', 'github', 'skills', 'locations']:
-                field_value = rule_results.get(field)
-                # Consider field high confidence if it exists and has data
-                if field_value:
-                    if isinstance(field_value, (list, str)):
-                        if (isinstance(field_value, list) and len(field_value) > 0) or \
-                           (isinstance(field_value, str) and len(field_value) > 0):
-                            high_confidence_fields.append(field)
+            
+            # Check rule-based results
+            if rule_results:
+                for field in ['name', 'email', 'phone', 'linkedin', 'github', 'skills', 'locations']:
+                    field_value = rule_results.get(field)
+                    # Consider field high confidence if it exists and has data
+                    if field_value:
+                        if isinstance(field_value, (list, str)):
+                            if (isinstance(field_value, list) and len(field_value) > 0) or \
+                               (isinstance(field_value, str) and len(field_value) > 0):
+                                high_confidence_fields.append(field)
+            
+            # Check DeBERTa results for entities
+            if deberta_results:
+                deberta_entities = deberta_results.get('confidence', {}).get('entities_found', 0)
+                if deberta_entities >= 3:  # Found at least 3 good entities
+                    high_confidence_fields.extend(['companies', 'locations', 'job_titles'])
+                    self.logger.info(f"🤖 DeBERTa found {deberta_entities} entities - may skip AI for some fields")
             
             # If all critical fields have high confidence from rules, skip AI entirely
             critical_fields = ['name', 'email', 'skills']
@@ -1173,8 +1241,9 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             'degrees': degrees
         }
     
-    def _merge_results(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any],
-                      experience_results: Dict[str, Any], education_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _merge_results(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any], 
+                   deberta_results: Dict[str, Any], experience_results: Dict[str, Any], 
+                   education_results: Dict[str, Any]) -> Dict[str, Any]:
         """Merge all parsing results using HybridMerger with resolve_conflicts."""
         if not self.hybrid_merger:
             self.logger.warning("HybridMerger not available, using simple combination")
@@ -1185,16 +1254,24 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         # Combine all results for merger
         self.logger.debug(f"Original rule_results has email: {rule_results.get('email')}, phone: {rule_results.get('phone')}")
         self.logger.debug(f"AI results keys: {list(ai_results.keys())}")
+        self.logger.debug(f"DeBERTa results keys: {list(deberta_results.keys())}")
         self.logger.debug(f"Experience results keys: {list(experience_results.keys())}")
         self.logger.debug(f"Education results keys: {list(education_results.keys())}")
         
         # Prepare combined results for each source
         combined_rule = rule_results.copy()
         combined_ai = ai_results.copy()
+        combined_deberta = deberta_results.copy()
         combined_llm = {}  # Empty for now, could be populated later
         
-        # Add experience and education results to all sources
+        # Add experience and education results to sources that don't have them
+        # IMPORTANT: Don't override DeBERTa's structured work_experience
         for key, value in {**experience_results, **education_results}.items():
+            # Skip adding to combined_deberta if it already has work_experience (structured)
+            if key == 'work_experience' and combined_deberta.get('work_experience'):
+                self.logger.info(f"Skipping old experience_results for work_experience - using DeBERTa structured results")
+                continue
+            
             if key in combined_rule and isinstance(combined_rule[key], list) and isinstance(value, list):
                 combined_rule[key] = combined_rule[key] + value
             elif key not in combined_rule:
@@ -1205,30 +1282,41 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             elif key not in combined_ai:
                 combined_ai[key] = value
                 
+            if key in combined_deberta and isinstance(combined_deberta[key], list) and isinstance(value, list):
+                combined_deberta[key] = combined_deberta[key] + value
+            elif key not in combined_deberta:
+                combined_deberta[key] = value
+                
             if key in combined_llm and isinstance(combined_llm[key], list) and isinstance(value, list):
                 combined_llm[key] = combined_llm[key] + value
             elif key not in combined_llm:
                 combined_llm[key] = value
         
-        # Use the new resolve_conflicts method
-        merged = self.hybrid_merger.merge(combined_rule, combined_ai, combined_llm)
+        # Use the new resolve_conflicts method with DeBERTa prioritized for entities
+        merged = self.hybrid_merger.merge_with_deberta(combined_rule, combined_ai, combined_deberta, combined_llm)
         return merged
     
-    def _simple_merge(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any],
-                     experience_results: Dict[str, Any], education_results: Dict[str, Any]) -> Dict[str, Any]:
+    def _simple_merge(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any], 
+                   deberta_results: Dict[str, Any], experience_results: Dict[str, Any], 
+                   education_results: Dict[str, Any]) -> Dict[str, Any]:
         """Simple merge fallback when HybridMerger is not available."""
         merged = {}
         
-        # Add all results with AI priority for certain fields
-        ai_priority = ['name', 'companies', 'locations']
+        # Add all results with DeBERTa priority for entities, rules for contact info
+        deberta_priority = ['companies', 'locations', 'job_titles', 'work_experience', 'education']
+        rule_priority = ['name', 'email', 'phone', 'linkedin', 'github']
         
-        for key in set(rule_results) | set(ai_results) | set(experience_results) | set(education_results):
-            if key in ai_priority and ai_results.get(key):
-                merged[key] = ai_results[key]
-            elif rule_results.get(key):
+        for key in set(rule_results) | set(ai_results) | set(deberta_results) | set(experience_results) | set(education_results):
+            if key in deberta_priority and deberta_results.get(key):
+                merged[key] = deberta_results[key]
+            elif key in rule_priority and rule_results.get(key):
                 merged[key] = rule_results[key]
             elif ai_results.get(key):
                 merged[key] = ai_results[key]
+            elif rule_results.get(key):
+                merged[key] = rule_results[key]
+            elif deberta_results.get(key):
+                merged[key] = deberta_results[key]
             elif experience_results.get(key):
                 merged[key] = experience_results[key]
             elif education_results.get(key):
@@ -1282,6 +1370,7 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             'summary': merged_results.get('summary'),
             'skills': merged_results.get('skills', []),
             'work_experience': merged_results.get('work_experience', []),
+            'work_history': merged_results.get('work_experience', []),  # Backend compatibility field
             'education': merged_results.get('education', []),
             'job_titles': merged_results.get('job_titles', []),
             'companies': merged_results.get('companies', []),

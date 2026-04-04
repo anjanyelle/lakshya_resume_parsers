@@ -3,10 +3,13 @@
 Fine-tuning script for DeBERTa-v3 on resume NER task.
 
 This script:
-1. Loads training data from JSON files
+1. Loads training data from JSON files or Doccano JSONL format
 2. Tokenizes and aligns labels
 3. Fine-tunes DeBERTa-v3-base on resume entity recognition
 4. Evaluates and saves the best model
+
+Supports custom labels:
+PERSON, COMPANY, CLIENT, ROLE, LOCATION, START_DATE, END_DATE, EDUCATION, DEGREE
 """
 
 import os
@@ -23,33 +26,21 @@ if _this_dir in sys.path:
 
 from datasets import Dataset
 from transformers import (
-    AutoTokenizer, 
-    AutoModelForTokenClassification,
     TrainingArguments, 
     Trainer, 
     DataCollatorForTokenClassification
 )
-import evaluate
 from sklearn.metrics import precision_recall_fscore_support, classification_report
 import torch
 from datetime import datetime
 
+# Import model loader
+from model_loader import ModelLoader, get_label_mappings, LABELS, LABEL_TO_ID, ID_TO_LABEL
+
 # Configuration
-_LOCAL_PRETRAINED = os.path.join(os.path.dirname(__file__), '..', 'models', 'deberta-v3-base-pretrained')
-MODEL_NAME = _LOCAL_PRETRAINED if os.path.exists(_LOCAL_PRETRAINED) else 'microsoft/deberta-v3-base'
 OUTPUT_DIR = './training/checkpoints'
 FINAL_MODEL_DIR = os.path.join(os.path.dirname(__file__), '..', 'models', 'resume-ner-deberta')
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-
-# Entity labels
-LABELS = [
-    'O', 'B-NAME', 'I-NAME', 'B-ORG', 'I-ORG', 'B-TITLE', 'I-TITLE',
-    'B-SKILL', 'I-SKILL', 'B-EDU', 'I-EDU', 'B-DATE', 'I-DATE', 'B-LOC', 'I-LOC'
-]
-
-# Create label to ID mapping
-LABEL_TO_ID = {label: i for i, label in enumerate(LABELS)}
-ID_TO_LABEL = {i: label for i, label in enumerate(LABELS)}
 
 class ResumeNERTrainer:
     def __init__(self):
@@ -79,19 +70,12 @@ class ResumeNERTrainer:
         return train_data, test_data
         
     def initialize_model_and_tokenizer(self):
-        """Initialize DeBERTa-v3 model and tokenizer"""
+        """Initialize DeBERTa-v3 model and tokenizer using ModelLoader"""
         print("🤖 Initializing DeBERTa-v3 model and tokenizer...")
         
-        # Load tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        
-        # Load model for token classification
-        self.model = AutoModelForTokenClassification.from_pretrained(
-            MODEL_NAME,
-            num_labels=len(LABELS),
-            id2label=ID_TO_LABEL,
-            label2id=LABEL_TO_ID
-        )
+        # Use ModelLoader to load model and tokenizer
+        loader = ModelLoader()
+        self.tokenizer, self.model = loader.load(for_training=True)
         
         # Initialize data collator
         self.data_collator = DataCollatorForTokenClassification(
@@ -100,6 +84,7 @@ class ResumeNERTrainer:
         )
         
         print(f"✅ Model initialized with {len(LABELS)} labels")
+        print(f"   Labels: {', '.join(LABELS[:5])}...")
         
     def tokenize_and_align_labels(self, examples: List[Dict]) -> Dict:
         """Tokenize text and align NER labels with tokenized inputs"""
@@ -286,7 +271,7 @@ class ResumeNERTrainer:
         print("\n📈 Per-Entity F1 Scores:")
         print("-" * 40)
         
-        entity_types = ['NAME', 'ORG', 'TITLE', 'SKILL', 'EDU', 'DATE', 'LOC']
+        entity_types = ['PERSON', 'COMPANY', 'CLIENT', 'ROLE', 'LOCATION', 'START_DATE', 'END_DATE', 'EDUCATION', 'DEGREE']
         
         for entity in entity_types:
             b_entity = f'B-{entity}'
@@ -315,34 +300,22 @@ class ResumeNERTrainer:
         print("-" * 40)
         
     def save_model(self, trainer):
-        """Save the fine-tuned model"""
+        """Save the fine-tuned model using ModelLoader"""
         print(f"💾 Saving model to {FINAL_MODEL_DIR}...")
         
-        # Create directory if it doesn't exist
-        os.makedirs(FINAL_MODEL_DIR, exist_ok=True)
-        
-        # Save the model directly (avoid trainer.save_model which may trigger checkpoint logic)
-        self.model.save_pretrained(FINAL_MODEL_DIR, safe_serialization=True)
-        
-        # Save tokenizer
-        self.tokenizer.save_pretrained(FINAL_MODEL_DIR)
-        
-        # Save label mappings
-        with open(os.path.join(FINAL_MODEL_DIR, 'label_mappings.json'), 'w') as f:
-            json.dump({
-                'label_to_id': LABEL_TO_ID,
-                'id_to_label': ID_TO_LABEL,
-                'labels': LABELS
-            }, f, indent=2)
+        # Use ModelLoader to save model
+        loader = ModelLoader()
+        loader.save_model(FINAL_MODEL_DIR, self.tokenizer, self.model)
         
         print(f"✅ Model saved to {FINAL_MODEL_DIR}")
         
     def train(self):
         """Main training pipeline"""
         print("🚀 Starting DeBERTa-v3 NER training pipeline")
-        print(f"Model: {MODEL_NAME}")
+        print(f"Model: microsoft/deberta-v3-base")
         print(f"Output directory: {OUTPUT_DIR}")
         print(f"Final model directory: {FINAL_MODEL_DIR}")
+        print(f"Custom Labels: {len(LABELS)}")
         print(f"Timestamp: {datetime.now().isoformat()}")
         print("="*60)
         
@@ -359,14 +332,17 @@ class ResumeNERTrainer:
             # Train model
             trainer, eval_results = self.train_model()
             
-            # Save model
+            # Save model using ModelLoader
             self.save_model(trainer)
             
             print("\n🎉 Training completed successfully!")
             print(f"Final F1 Score: {eval_results['eval_f1']:.4f}")
+            print(f"Model saved to: {FINAL_MODEL_DIR}")
             
         except Exception as e:
             print(f"❌ Training failed: {e}")
+            import traceback
+            traceback.print_exc()
             raise
 
 def main():
