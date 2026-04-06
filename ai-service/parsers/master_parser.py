@@ -1264,14 +1264,20 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         combined_deberta = deberta_results.copy()
         combined_llm = {}  # Empty for now, could be populated later
         
-        # Add experience and education results to sources that don't have them
-        # IMPORTANT: Don't override DeBERTa's structured work_experience
+        # Add experience and education results with proper priority
+        # PRIORITY: DeBERTa/Structured Parser > Old ExperienceExtractor
         for key, value in {**experience_results, **education_results}.items():
-            # Skip adding to combined_deberta if it already has work_experience (structured)
+            # If DeBERTa has work_experience, completely skip old ExperienceExtractor results
             if key == 'work_experience' and combined_deberta.get('work_experience'):
-                self.logger.info(f"Skipping old experience_results for work_experience - using DeBERTa structured results")
+                self.logger.info(f"✅ Using DeBERTa/Structured parser work_experience ({len(combined_deberta['work_experience'])} entries) - skipping old ExperienceExtractor")
                 continue
             
+            # If DeBERTa has companies/job_titles/locations, skip old extractor for those too
+            if key in ['companies', 'job_titles', 'locations'] and combined_deberta.get(key):
+                self.logger.info(f"✅ Using DeBERTa/Structured parser {key} - skipping old extractor")
+                continue
+            
+            # Only add old extractor results if DeBERTa doesn't have them
             if key in combined_rule and isinstance(combined_rule[key], list) and isinstance(value, list):
                 combined_rule[key] = combined_rule[key] + value
             elif key not in combined_rule:
@@ -1282,10 +1288,12 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             elif key not in combined_ai:
                 combined_ai[key] = value
                 
-            if key in combined_deberta and isinstance(combined_deberta[key], list) and isinstance(value, list):
-                combined_deberta[key] = combined_deberta[key] + value
-            elif key not in combined_deberta:
-                combined_deberta[key] = value
+            # Never add to combined_deberta if DeBERTa already has it
+            if not combined_deberta.get(key):
+                if key in combined_deberta and isinstance(combined_deberta[key], list) and isinstance(value, list):
+                    combined_deberta[key] = combined_deberta[key] + value
+                elif key not in combined_deberta:
+                    combined_deberta[key] = value
                 
             if key in combined_llm and isinstance(combined_llm[key], list) and isinstance(value, list):
                 combined_llm[key] = combined_llm[key] + value
@@ -1294,6 +1302,21 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         # Use the new resolve_conflicts method with DeBERTa prioritized for entities
         merged = self.hybrid_merger.merge_with_deberta(combined_rule, combined_ai, combined_deberta, combined_llm)
+        
+        # Log which parser provided work_experience in final result
+        if merged.get('work_experience'):
+            work_exp_count = len(merged['work_experience'])
+            companies_count = len(merged.get('companies', []))
+            self.logger.info(f"📊 FINAL WORK EXPERIENCE: {work_exp_count} entries, {companies_count} companies")
+            
+            # Check if it came from DeBERTa/structured parser
+            if combined_deberta.get('work_experience'):
+                self.logger.info(f"✅ Source: DeBERTa/Structured Parser (structured format with clients)")
+            else:
+                self.logger.info(f"⚠️  Source: Old ExperienceExtractor (fallback - may be incomplete)")
+        else:
+            self.logger.warning(f"❌ No work experience in final result")
+        
         return merged
     
     def _simple_merge(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any], 

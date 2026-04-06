@@ -12,7 +12,14 @@ from typing import Dict, List, Any, Optional
 from collections import defaultdict
 import logging
 
-# Add the parent directory to path to import the trained model
+# Import configuration
+try:
+    from config.deberta_config import DEBERTA_MODEL_PATH, REQUIRED_MODEL_FILES, REQUIRED_MODEL_WEIGHTS
+except ImportError:
+    # Fallback if config not available
+    DEBERTA_MODEL_PATH = str(Path(__file__).parent.parent / "models" / "resume-ner-final")
+    REQUIRED_MODEL_FILES = ['config.json', 'tokenizer_config.json', 'tokenizer.json']
+    REQUIRED_MODEL_WEIGHTS = ['pytorch_model.bin', 'model.safetensors']
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +32,13 @@ class DeBERTaNerParser:
     
     def __init__(self, model_path: str = None):
         """Initialize DeBERTa NER parser with model path."""
-        self.model_path = model_path or str(Path(__file__).parent.parent / "models" / "resume-ner-final")
+        self.model_path = model_path or DEBERTA_MODEL_PATH
         self.model = None
         self.tokenizer = None
         self.id_to_label = {}
         self.label_to_id = {}
         self.is_loaded = False
+        self.deberta_available = False
         
         # Import structured parser
         try:
@@ -42,17 +50,59 @@ class DeBERTaNerParser:
         
         self._load_model()
     
+    def _check_model_files_exist(self) -> bool:
+        """
+        Check if all required DeBERTa model files exist.
+        
+        Required files:
+        - config.json
+        - pytorch_model.bin OR model.safetensors
+        - tokenizer_config.json
+        - tokenizer.json
+        
+        Returns:
+            bool: True if all required files exist, False otherwise
+        """
+        if not os.path.exists(self.model_path):
+            logger.info(f"📁 Model directory not found: {self.model_path}")
+            return False
+        
+        # Check for model weights (at least one required)
+        has_model_weights = any(
+            os.path.exists(os.path.join(self.model_path, weight_file))
+            for weight_file in REQUIRED_MODEL_WEIGHTS
+        )
+        
+        if not has_model_weights:
+            logger.warning(f"⚠️  DeBERTa model weights not found. Expected one of: {', '.join(REQUIRED_MODEL_WEIGHTS)}")
+            return False
+        
+        # Check other required files
+        missing_files = []
+        for file_name in REQUIRED_MODEL_FILES:
+            file_path = os.path.join(self.model_path, file_name)
+            if not os.path.exists(file_path):
+                missing_files.append(file_name)
+        
+        if missing_files:
+            logger.warning(f"⚠️  Required files missing: {', '.join(missing_files)}")
+            return False
+        
+        return True
+    
     def _load_model(self):
-        """Load the trained DeBERTa NER model."""
+        """Load the trained DeBERTa NER model with graceful fallback."""
+        # First check if model files exist
+        if not self._check_model_files_exist():
+            logger.warning(f"⚠️  DeBERTa model not found at {self.model_path}. Using structured parser fallback.")
+            self.is_loaded = False
+            self.deberta_available = False
+            return
+        
         try:
             # Try to load transformers-based model
             from transformers import AutoTokenizer, AutoModelForTokenClassification
             import json
-            
-            if not os.path.exists(self.model_path):
-                logger.warning(f"Model path not found: {self.model_path}")
-                self.is_loaded = False
-                return
             
             # Load tokenizer and model
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, local_files_only=True)
@@ -67,14 +117,16 @@ class DeBERTaNerParser:
                     self.label_to_id = mappings['label_to_id']
             
             self.is_loaded = True
+            self.deberta_available = True
             logger.info("✅ DeBERTa NER model loaded successfully")
             
         except Exception as e:
             logger.error(f"❌ Failed to load DeBERTa model: {e}")
-            logger.info("Will use structured parser fallback for work experience")
+            logger.warning(f"⚠️  DeBERTa model not found at {self.model_path}. Using structured parser fallback.")
             self.model = None
             self.tokenizer = None
             self.is_loaded = False
+            self.deberta_available = False
     
     def is_available(self) -> bool:
         """Check if DeBERTa parser is available (model loaded or structured parser available)."""
@@ -90,9 +142,15 @@ class DeBERTaNerParser:
         Returns:
             Dictionary with extracted entities
         """
+        # Skip DeBERTa entirely if not available
+        if not self.deberta_available:
+            logger.info("DeBERTa not available, using structured parser")
+            sections = self.extract_target_sections(text)
+            return self.parse_focused_sections(sections)
+        
+        # Additional safety check
         if not self.is_loaded or self.model is None:
             logger.warning("DeBERTa model not loaded, using structured parser fallback")
-            # Use structured parser fallback
             sections = self.extract_target_sections(text)
             return self.parse_focused_sections(sections)
         

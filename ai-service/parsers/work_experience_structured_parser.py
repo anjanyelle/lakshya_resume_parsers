@@ -145,21 +145,97 @@ class StructuredWorkExperienceParser:
         
         return clients
         
+    def _parse_label_value_format(self, work_text: str) -> List[Dict[str, Any]]:
+        """Parse label-value format (Company:, Role:, Location:, Date:)."""
+        experiences = []
+        lines = work_text.split('\n')
+        
+        current_exp = None
+        current_client = None
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            # Check for labeled fields (handle "Work Experience: Company:" on same line)
+            if 'company:' in line.lower():
+                # Save previous experience
+                if current_exp and current_exp.get('company_name'):
+                    if current_client:
+                        current_exp['clients'].append(current_client)
+                        current_client = None
+                    experiences.append(current_exp)
+                
+                # Extract company name (handle "Work Experience: Company: Wipro" format)
+                company_match = re.search(r'company:\s*(.+)', line, re.IGNORECASE)
+                company_name = company_match.group(1).strip() if company_match else ''
+                
+                # Start new experience
+                current_exp = {
+                    'job_title': '',
+                    'company_name': company_name,
+                    'location': '',
+                    'start_date': None,
+                    'end_date': None,
+                    'is_current': False,
+                    'clients': []
+                }
+            elif line.lower().startswith('client:') and current_exp:
+                # Save previous client
+                if current_client:
+                    current_exp['clients'].append(current_client)
+                
+                # Start new client
+                current_client = {
+                    'client_name': self._clean_label_value(line, 'Client'),
+                    'descriptions': []
+                }
+            elif line.lower().startswith('role:') and current_exp:
+                current_exp['job_title'] = self._clean_label_value(line, 'Role')
+            elif line.lower().startswith('location:') and current_exp:
+                current_exp['location'] = self._clean_label_value(line, 'Location')
+            elif line.lower().startswith('date:') and current_exp:
+                date_str = self._clean_label_value(line, 'Date')
+                dates = self._parse_date_range(date_str)
+                current_exp['start_date'] = dates.get('start_date')
+                current_exp['end_date'] = dates.get('end_date')
+                current_exp['is_current'] = dates.get('is_current', False)
+            elif line.startswith(('•', '-', '*', '+', '►', '▸', '▶', '→')) and current_client:
+                # Description for current client
+                clean_line = re.sub(r'^[•\-\*\+►▸▶→]\s*', '', line).strip()
+                if clean_line:
+                    current_client['descriptions'].append(clean_line)
+        
+        # Save last experience
+        if current_exp and current_exp.get('company_name'):
+            if current_client:
+                current_exp['clients'].append(current_client)
+            experiences.append(current_exp)
+        
+        return experiences
+    
     def parse_work_section(self, work_text: str) -> List[Dict[str, Any]]:
         """
         Parse work experience section into structured entries.
         
-        Supports two formats:
-        1. Structured format:
+        Supports three formats:
+        1. Label-value format (PDF forms):
+           Company: Wipro
+           Client: ICICI Bank
+           Role: Full Stack Developer
+           Location: Hyderabad
+           Date: Aug 2022 - Present
+        
+        2. Structured format:
            Job Title
            Company, Location
            Start Date – End Date
            Client: Client Name
            Description lines...
         
-        2. Narrative format:
+        3. Narrative format:
            Currently working with Company (since Date) as Job Title.
-           Previously associated with Company (Date - Date) as Job Title.
            
         Args:
             work_text: Work experience section text
@@ -170,9 +246,17 @@ class StructuredWorkExperienceParser:
         if not work_text or not work_text.strip():
             return []
         
-        # Try narrative format first
+        # Check if this is label-value format (has "Company:", "Role:", etc.)
+        if re.search(r'(?:Company|Role|Location|Date)\s*:', work_text, re.IGNORECASE):
+            label_value_experiences = self._parse_label_value_format(work_text)
+            if label_value_experiences:
+                logger.info(f"📊 Parsed {len(label_value_experiences)} work experiences (label-value format)")
+                return label_value_experiences
+        
+        # Try narrative format
         narrative_experiences = self._parse_narrative_format(work_text)
         if narrative_experiences:
+            logger.info(f"📊 Parsed {len(narrative_experiences)} work experiences (narrative format)")
             return narrative_experiences
         
         # Fall back to structured format
@@ -199,7 +283,7 @@ class StructuredWorkExperienceParser:
             else:
                 i += 1
         
-        logger.info(f"📊 Parsed {len(experiences)} work experiences from section")
+        logger.info(f"📊 Parsed {len(experiences)} work experiences (structured format)")
         return experiences
     
     def _is_job_title_line(self, line: str) -> bool:
@@ -252,6 +336,16 @@ class StructuredWorkExperienceParser:
         
         return has_job_keyword and looks_like_title
     
+    def _clean_label_value(self, text: str, label: str) -> str:
+        """Remove label prefix from text (e.g., 'Role: Developer' -> 'Developer')."""
+        if not text:
+            return text
+        
+        # Remove label prefix if present
+        pattern = rf'^{label}\s*:\s*'
+        cleaned = re.sub(pattern, '', text, flags=re.IGNORECASE).strip()
+        return cleaned
+    
     def _parse_experience_block(self, lines: List[str], start_idx: int) -> Optional[Dict[str, Any]]:
         """Parse a single work experience block starting from job title."""
         if start_idx >= len(lines):
@@ -268,26 +362,31 @@ class StructuredWorkExperienceParser:
             '_next_index': start_idx + 1
         }
         
-        # Line 1: Job Title
-        experience['job_title'] = lines[start_idx].strip()
+        # Line 1: Job Title (clean "Role:" prefix if present)
+        job_title_line = lines[start_idx].strip()
+        experience['job_title'] = self._clean_label_value(job_title_line, 'Role')
         idx = start_idx + 1
         
-        # Line 2: Company, Location
+        # Line 2: Company, Location (clean "Company:" and "Location:" prefixes)
         if idx < len(lines):
             company_line = lines[idx].strip()
             if company_line and not self._is_date_line(company_line) and not company_line.lower().startswith('client:'):
+                # Clean "Company:" prefix
+                company_line = self._clean_label_value(company_line, 'Company')
+                
                 # Parse "Company, Location" or "Company"
                 if ',' in company_line:
                     parts = company_line.split(',', 1)
                     experience['company_name'] = parts[0].strip()
-                    experience['location'] = parts[1].strip()
+                    experience['location'] = self._clean_label_value(parts[1].strip(), 'Location')
                 else:
                     experience['company_name'] = company_line
                 idx += 1
         
-        # Line 3: Date range
+        # Line 3: Date range (clean "Date:" prefix if present)
         if idx < len(lines):
             date_line = lines[idx].strip()
+            date_line = self._clean_label_value(date_line, 'Date')
             if self._is_date_line(date_line):
                 dates = self._parse_date_range(date_line)
                 experience['start_date'] = dates.get('start_date')
