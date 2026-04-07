@@ -24,6 +24,11 @@ _this_dir = os.path.dirname(os.path.abspath(__file__))
 if _this_dir in sys.path:
     sys.path.remove(_this_dir)
 
+# Add parent directory to sys.path to import model_loader
+_parent_dir = os.path.dirname(_this_dir)
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
+
 from datasets import Dataset
 from transformers import (
     TrainingArguments, 

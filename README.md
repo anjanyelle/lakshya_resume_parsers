@@ -77,8 +77,8 @@ pip install -r requirements.txt
 - `seqeval` - Evaluation metrics for sequence labeling
 - `torch` - PyTorch deep learning framework
 - `accelerate` - Distributed training and mixed precision
-- `evaluate` - Evaluation metrics library
-- `scikit-learn` - Machine learning utilities
+- `evaluate` - Evaluation metrics library   python training/data/colab_train.py
+- `scikit-learn` - Machine learning utilities  
 
 
 cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service"

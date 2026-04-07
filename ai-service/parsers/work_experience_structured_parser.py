@@ -272,8 +272,30 @@ class StructuredWorkExperienceParser:
                 i += 1
                 continue
             
-            # Check if this looks like a job title (not a date, not a bullet point)
-            if self._is_job_title_line(line):
+            # Skip section headers
+            if line.upper() == line and len(line.split()) <= 4:
+                i += 1
+                continue
+            
+            # Check if this looks like a job title OR company name followed by job title
+            next_line = lines[i + 1].strip() if i + 1 < len(lines) else ''
+            
+            # Check if next line has job title + date combined
+            next_line_has_title_and_date = False
+            if next_line and self._is_date_line(next_line):
+                for keyword in ['developer', 'engineer', 'architect', 'manager', 'lead', 'senior', 
+                               'analyst', 'consultant', 'designer', 'specialist', 'administrator']:
+                    if keyword in next_line.lower():
+                        next_line_has_title_and_date = True
+                        break
+            
+            is_experience_start = (
+                self._is_job_title_line(line) or  # Job title first
+                (next_line and self._is_job_title_line(next_line)) or  # Company first, job title second
+                next_line_has_title_and_date  # Company first, job title+date second
+            )
+            
+            if is_experience_start:
                 experience = self._parse_experience_block(lines, i)
                 if experience:
                     experiences.append(experience)
@@ -347,7 +369,7 @@ class StructuredWorkExperienceParser:
         return cleaned
     
     def _parse_experience_block(self, lines: List[str], start_idx: int) -> Optional[Dict[str, Any]]:
-        """Parse a single work experience block starting from job title."""
+        """Parse a single work experience block starting from job title OR company name."""
         if start_idx >= len(lines):
             return None
         
@@ -362,26 +384,85 @@ class StructuredWorkExperienceParser:
             '_next_index': start_idx + 1
         }
         
-        # Line 1: Job Title (clean "Role:" prefix if present)
-        job_title_line = lines[start_idx].strip()
-        experience['job_title'] = self._clean_label_value(job_title_line, 'Role')
-        idx = start_idx + 1
+        # CRITICAL: Detect if this is company-first or job-title-first format
+        first_line = lines[start_idx].strip()
+        second_line = lines[start_idx + 1].strip() if start_idx + 1 < len(lines) else ''
         
-        # Line 2: Company, Location (clean "Company:" and "Location:" prefixes)
-        if idx < len(lines):
-            company_line = lines[idx].strip()
-            if company_line and not self._is_date_line(company_line) and not company_line.lower().startswith('client:'):
-                # Clean "Company:" prefix
-                company_line = self._clean_label_value(company_line, 'Company')
+        # Check if second line has job title + date combined (e.g., "Engineer Dec 2022 - Current")
+        second_line_has_title_and_date = False
+        if second_line and self._is_date_line(second_line):
+            # Check if line also contains job keywords before the date
+            for keyword in ['developer', 'engineer', 'architect', 'manager', 'lead', 'senior', 
+                           'analyst', 'consultant', 'designer', 'specialist', 'administrator']:
+                if keyword in second_line.lower():
+                    second_line_has_title_and_date = True
+                    break
+        
+        # Check if first line is a company name (no job keywords) and second line is a job title
+        is_company_first = (
+            not self._is_job_title_line(first_line) and  # First line is NOT a job title
+            (second_line and (self._is_job_title_line(second_line) or second_line_has_title_and_date))  # Second line IS a job title or has title+date
+        )
+        
+        if is_company_first:
+            # Format: Company, Job Title, Date
+            # Line 1: Company
+            company_line = self._clean_label_value(first_line, 'Company')
+            if ',' in company_line:
+                parts = company_line.split(',', 1)
+                experience['company_name'] = parts[0].strip()
+                experience['location'] = self._clean_label_value(parts[1].strip(), 'Location')
+            else:
+                experience['company_name'] = company_line
+            
+            # Line 2: Job Title (may have date on same line)
+            idx = start_idx + 1
+            if idx < len(lines):
+                job_title_line = lines[idx].strip()
                 
-                # Parse "Company, Location" or "Company"
-                if ',' in company_line:
-                    parts = company_line.split(',', 1)
-                    experience['company_name'] = parts[0].strip()
-                    experience['location'] = self._clean_label_value(parts[1].strip(), 'Location')
+                # Check if this line has both job title and date
+                if second_line_has_title_and_date:
+                    # Split job title from date
+                    # Pattern: "Job Title Month Year - Month Year" or "Job Title Month Year - Current"
+                    date_match = re.search(rf'({self.month_patterns}\s+{self.year_pattern}.*)', job_title_line, re.IGNORECASE)
+                    if date_match:
+                        # Extract job title (everything before the date)
+                        job_title = job_title_line[:date_match.start()].strip()
+                        experience['job_title'] = self._clean_label_value(job_title, 'Role')
+                        
+                        # Extract and parse date
+                        date_str = date_match.group(1).strip()
+                        dates = self._parse_date_range(date_str)
+                        experience['start_date'] = dates.get('start_date')
+                        experience['end_date'] = dates.get('end_date')
+                        experience['is_current'] = dates.get('is_current', False)
+                    else:
+                        experience['job_title'] = self._clean_label_value(job_title_line, 'Role')
                 else:
-                    experience['company_name'] = company_line
+                    experience['job_title'] = self._clean_label_value(job_title_line, 'Role')
                 idx += 1
+        else:
+            # Format: Job Title, Company, Date (original format)
+            # Line 1: Job Title (clean "Role:" prefix if present)
+            job_title_line = first_line
+            experience['job_title'] = self._clean_label_value(job_title_line, 'Role')
+            idx = start_idx + 1
+            
+            # Line 2: Company, Location (clean "Company:" and "Location:" prefixes)
+            if idx < len(lines):
+                company_line = lines[idx].strip()
+                if company_line and not self._is_date_line(company_line) and not company_line.lower().startswith('client:'):
+                    # Clean "Company:" prefix
+                    company_line = self._clean_label_value(company_line, 'Company')
+                    
+                    # Parse "Company, Location" or "Company"
+                    if ',' in company_line:
+                        parts = company_line.split(',', 1)
+                        experience['company_name'] = parts[0].strip()
+                        experience['location'] = self._clean_label_value(parts[1].strip(), 'Location')
+                    else:
+                        experience['company_name'] = company_line
+                    idx += 1
         
         # Line 3: Date range (clean "Date:" prefix if present)
         if idx < len(lines):
@@ -399,9 +480,25 @@ class StructuredWorkExperienceParser:
         while idx < len(lines):
             line = lines[idx].strip()
             
-            # Stop if we hit another job title
+            # Stop if we hit another experience (job title OR company followed by job title)
             if line and self._is_job_title_line(line):
                 break
+            
+            # Also stop if this looks like a company name followed by a job title (next experience)
+            next_line = lines[idx + 1].strip() if idx + 1 < len(lines) else ''
+            
+            # Check if next line has job title + date combined
+            next_has_title_date = False
+            if next_line and self._is_date_line(next_line):
+                for keyword in ['developer', 'engineer', 'architect', 'manager', 'lead', 'senior']:
+                    if keyword in next_line.lower():
+                        next_has_title_date = True
+                        break
+            
+            if line and next_line and not self._is_job_title_line(line):
+                # This line is NOT a job title but next line IS (or has title+date) - likely company name starting new experience
+                if self._is_job_title_line(next_line) or next_has_title_date:
+                    break
             
             # Check for client line
             if line.lower().startswith('client:'):
@@ -460,8 +557,9 @@ class StructuredWorkExperienceParser:
         if re.search(r'present|current', date_line, re.IGNORECASE):
             result['is_current'] = True
         
-        # Split by common separators
-        parts = re.split(r'(?:–|—|-|to)\s*', date_line, maxsplit=1)
+        # Split by common separators (dashes, 'to', or multiple spaces before Present/Current)
+        # Handle formats like "Dec 2022 - Current", "Dec 2022 to Current", "Dec 2022  Current"
+        parts = re.split(r'(?:–|—|-|to|\s{2,})\s*', date_line, maxsplit=1)
         
         if len(parts) >= 1:
             # Parse start date

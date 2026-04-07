@@ -210,7 +210,7 @@ class DeBERTaNerParser:
             
             # Check if this line is a work experience header
             if any(header == line_lower or line_lower.startswith(header) for header in work_headers):
-                work_start = i + 1  # Start from next line
+                work_start = i  # Include the header line (structured parser will handle it)
                 continue
             
             # Check if this line is an education header (marks end of work experience)
@@ -239,7 +239,7 @@ class DeBERTaNerParser:
             
             # Check if this line is an education header
             if any(header == line_lower or line_lower.startswith(header) for header in edu_headers):
-                edu_start = i + 1  # Start from next line
+                edu_start = i  # Include the header line
                 continue
             
             # Check if this line is another section header (marks end of education)
@@ -602,30 +602,36 @@ class DeBERTaNerParser:
         Format DeBERTa results to match expected API format.
         
         Args:
-            entities: Raw entities from DeBERTa model
+            entities: Raw entities from DeBERTa model OR structured parser results
             
         Returns:
             Formatted results compatible with existing API
         """
-        # Extract companies and locations
-        companies = entities.get('COMPANY', [])
-        locations = entities.get('LOCATION', [])
-        
-        # Extract work experience
-        work_experience = []
-        if companies:
-            # Create structured work experience from entities
-            for i, company in enumerate(companies):
-                exp = {
-                    'company': company,
-                    'role': entities.get('ROLE', [f'Position {i+1}'])[i] if i < len(entities.get('ROLE', [])) else f'Position {i+1}',
-                    'location': locations[i] if i < len(locations) else None,
-                    'start_date': entities.get('DATE_START', [None])[i] if i < len(entities.get('DATE_START', [])) else None,
-                    'end_date': entities.get('DATE_END', [None])[i] if i < len(entities.get('DATE_END', [])) else None,
-                    'description': '',
-                    'source': 'deberta_ner'
-                }
-                work_experience.append(exp)
+        # CRITICAL: Check if structured parser already provided work_experience
+        # Structured parser uses lowercase keys and provides fully structured data
+        if 'work_experience' in entities and isinstance(entities['work_experience'], list):
+            # Use structured parser results directly (already in correct format)
+            work_experience = entities['work_experience']
+        else:
+            # Extract companies and locations from DeBERTa NER (uppercase keys)
+            companies = entities.get('COMPANY', [])
+            locations = entities.get('LOCATION', [])
+            
+            # Extract work experience from DeBERTa entities
+            work_experience = []
+            if companies:
+                # Create structured work experience from entities
+                for i, company in enumerate(companies):
+                    exp = {
+                        'company': company,
+                        'role': entities.get('ROLE', [f'Position {i+1}'])[i] if i < len(entities.get('ROLE', [])) else f'Position {i+1}',
+                        'location': locations[i] if i < len(locations) else None,
+                        'start_date': entities.get('DATE_START', [None])[i] if i < len(entities.get('DATE_START', [])) else None,
+                        'end_date': entities.get('DATE_END', [None])[i] if i < len(entities.get('DATE_END', [])) else None,
+                        'description': '',
+                        'source': 'deberta_ner'
+                    }
+                    work_experience.append(exp)
         
         # Extract education
         education = []
@@ -646,24 +652,27 @@ class DeBERTaNerParser:
             education.append(edu)
         
         # Extract job titles and other entities
-        job_titles = entities.get('ROLE', [])
-        clients = entities.get('CLIENT', [])
+        # Check both lowercase (structured parser) and uppercase (DeBERTa NER) keys
+        job_titles = entities.get('job_titles', entities.get('ROLE', []))
+        clients = entities.get('clients', entities.get('CLIENT', []))
+        companies_list = entities.get('companies', entities.get('COMPANY', []))
+        locations_list = entities.get('locations', entities.get('LOCATION', []))
         
         return {
-            'companies': companies,
-            'locations': locations,
+            'companies': companies_list,
+            'locations': locations_list,
             'work_experience': work_experience,
             'education': education,
             'job_titles': job_titles,
             'clients': clients,
-            'dates': entities.get('DATE_START', []) + entities.get('DATE_END', []),
+            'dates': entities.get('dates', entities.get('DATE_START', []) + entities.get('DATE_END', [])),
             'degrees': degrees,
             'institutions': institutions,
             'fields_of_study': fields,
-            'source': 'deberta_ner',
+            'source': 'deberta_ner' if 'COMPANY' in entities else 'structured_parser',
             'confidence': {
-                'deberta_confidence': 0.85,  # High confidence for NER model
-                'entities_found': len(companies) + len(institutions) + len(job_titles)
+                'deberta_confidence': 0.85,
+                'entities_found': len(companies_list) + len(institutions) + len(job_titles)
             }
         }
     

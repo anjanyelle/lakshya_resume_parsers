@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import { useJobStore } from "../store/useJobStore";
 import toast from "react-hot-toast";
+import SkillsTreeChart from "../components/candidate/SkillsTreeChart";
 
 interface MatchResult {
   id: string;
@@ -291,6 +292,19 @@ export default function CandidateDetailPage() {
               {/* Skills Tab */}
               {activeTab === "skills" && (
                 <div className="space-y-6">
+                  {/* Skills Tree Visualization */}
+                  {currentCandidate.skills && currentCandidate.skills.length > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        Skills Overview
+                      </h3>
+                      <SkillsTreeChart 
+                        skills={currentCandidate.skills}
+                      />
+                    </div>
+                  )}
+
+                  {/* Skills Grid */}
                   {Object.entries(groupedSkills).map(([category, skills]) => (
                     <div key={category}>
                       <h3 className="text-lg font-medium text-gray-900 mb-3">

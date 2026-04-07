@@ -1060,10 +1060,20 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         Extract structured work experience using HYBRID approach:
         1. PRIMARY: Custom NER Model + Rule-based extraction
         2. FALLBACK: Gemini LLM (only if API key is valid and primary methods fail)
+        
+        NOTE: This method is DEPRECATED when DeBERTa/Structured parser is available.
+        It should only be used as a last resort fallback.
         """
         self.logger.info("=" * 80)
         self.logger.info("🔍 HYBRID EXPERIENCE EXTRACTION")
         self.logger.info("=" * 80)
+        
+        # CRITICAL: Return empty if DeBERTa parser is available
+        # DeBERTa/Structured parser is more accurate than old ExperienceExtractor
+        if self.deberta_parser and self.deberta_parser.is_available():
+            self.logger.info("⚠️  DeBERTa parser available - skipping old ExperienceExtractor entirely")
+            self.logger.info("💡 Work experience will be extracted by DeBERTa/Structured parser instead")
+            return {'work_experience': [], 'job_titles': [], 'companies': [], 'locations': []}
         
         if not self.exp_extractor:
             self.logger.warning("ExperienceExtractor not available, returning empty results")
@@ -1266,15 +1276,13 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         # Add experience and education results with proper priority
         # PRIORITY: DeBERTa/Structured Parser > Old ExperienceExtractor
+        # CRITICAL: If DeBERTa has work_experience, COMPLETELY IGNORE old ExperienceExtractor
+        has_deberta_work_exp = bool(combined_deberta.get('work_experience'))
+        
         for key, value in {**experience_results, **education_results}.items():
-            # If DeBERTa has work_experience, completely skip old ExperienceExtractor results
-            if key == 'work_experience' and combined_deberta.get('work_experience'):
-                self.logger.info(f"✅ Using DeBERTa/Structured parser work_experience ({len(combined_deberta['work_experience'])} entries) - skipping old ExperienceExtractor")
-                continue
-            
-            # If DeBERTa has companies/job_titles/locations, skip old extractor for those too
-            if key in ['companies', 'job_titles', 'locations'] and combined_deberta.get(key):
-                self.logger.info(f"✅ Using DeBERTa/Structured parser {key} - skipping old extractor")
+            # If DeBERTa has work_experience, completely skip ALL old ExperienceExtractor work-related results
+            if has_deberta_work_exp and key in ['work_experience', 'companies', 'job_titles', 'locations', 'work_history']:
+                self.logger.info(f"✅ Using DeBERTa/Structured parser {key} - COMPLETELY SKIPPING old ExperienceExtractor")
                 continue
             
             # Only add old extractor results if DeBERTa doesn't have them

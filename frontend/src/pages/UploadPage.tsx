@@ -10,6 +10,7 @@ import {
 } from "../services/socket";
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
+import SpeedGauge from "../components/upload/SpeedGauge";
 
 interface LLMModel {
   id: string;
@@ -570,6 +571,13 @@ export default function UploadPage() {
             </div>
           </div>
 
+          {/* Speed Gauge - Show during parsing */}
+          {currentUpload.status === "parsing" && (
+            <div className="mb-4 bg-gray-50 rounded-lg p-4">
+              <SpeedGauge value={currentUpload.progress} label="Parsing Progress" />
+            </div>
+          )}
+
           {/* Error State */}
           {currentUpload.status === "error" && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -584,6 +592,19 @@ export default function UploadPage() {
                 <h4 className="text-green-800 font-medium mb-2">
                   ✅ Parsing Complete!
                 </h4>
+              </div>
+
+              {/* Large Confidence Score Display */}
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-6">
+                <div className="text-center">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Confidence Score</p>
+                  <div className="text-6xl font-bold text-indigo-600 mb-2">
+                    {Math.round((currentUpload.result.confidence?.overall || 0) * 100)}%
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {currentUpload.result.confidence?.quality_level || 'N/A'} quality
+                  </p>
+                </div>
               </div>
 
               {/* Preview Card */}

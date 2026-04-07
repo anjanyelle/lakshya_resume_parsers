@@ -20,17 +20,20 @@ from datasets import Dataset
 from sklearn.metrics import precision_recall_fscore_support
 
 MODEL_NAME = "microsoft/deberta-v3-base"
-OUTPUT_DIR = "./resume-ner-deberta"
+# Save model to the correct location
+OUTPUT_DIR = str(Path(__file__).parent.parent.parent / "models" / "resume-ner-deberta")
 
 LABELS = [
     "O",
-    "B-NAME", "I-NAME",
-    "B-EMAIL", "I-EMAIL",
-    "B-PHONE", "I-PHONE",
+    "B-PERSON", "I-PERSON",
+    "B-COMPANY", "I-COMPANY",
+    "B-CLIENT", "I-CLIENT",
+    "B-ROLE", "I-ROLE",
+    "B-LOCATION", "I-LOCATION",
+    "B-START_DATE", "I-START_DATE",
+    "B-END_DATE", "I-END_DATE",
     "B-EDUCATION", "I-EDUCATION",
-    "B-EXPERIENCE", "I-EXPERIENCE",
-    "B-SKILLS", "I-SKILLS",
-    "B-CERTIFICATION", "I-CERTIFICATION"
+    "B-DEGREE", "I-DEGREE"
 ]
 
 label2id = {label: i for i, label in enumerate(LABELS)}
@@ -38,13 +41,15 @@ id2label = {i: label for i, label in enumerate(LABELS)}
 
 class ResumeNERTrainer:
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        # Force CPU to avoid MPS memory issues on Mac
+        self.device = "cpu"
         print("="*50)
         print("🎯 Resume NER Model Training (Colab Version)")
         print("="*50)
         print(f"🖥️  Using device: {self.device}")
         if torch.cuda.is_available():
             print(f"GPU: {torch.cuda.get_device_name(0)}")
+        print("⚠️  Training on CPU to avoid memory issues")
         
         self.tokenizer = None
         self.model = None
@@ -52,8 +57,16 @@ class ResumeNERTrainer:
         self.test_dataset = None
         self.data_collator = None
         
-    def load_data(self, train_file: str = "train.json", test_file: str = "test.json"):
+    def load_data(self, train_file: str = None, test_file: str = None):
         """Load training and test data"""
+        # Default to files in the same directory as this script
+        if train_file is None:
+            script_dir = Path(__file__).parent
+            train_file = script_dir / "train.json"
+        if test_file is None:
+            script_dir = Path(__file__).parent
+            test_file = script_dir / "test.json"
+            
         print(f"📂 Loading data from {train_file} and {test_file}...")
         
         with open(train_file, 'r') as f:
@@ -87,7 +100,7 @@ class ResumeNERTrainer:
             examples["tokens"],
             truncation=True,
             is_split_into_words=True,
-            max_length=512,
+            max_length=256,
             padding=False
         )
         
@@ -101,7 +114,10 @@ class ResumeNERTrainer:
                 if word_idx is None:
                     label_ids.append(-100)
                 elif word_idx != previous_word_idx:
-                    label_ids.append(label[word_idx])
+                    # Convert string label to ID
+                    label_str = label[word_idx]
+                    label_id = label2id.get(label_str, 0)  # Default to 'O' if not found
+                    label_ids.append(label_id)
                 else:
                     label_ids.append(-100)
                 previous_word_idx = word_idx
@@ -165,26 +181,27 @@ class ResumeNERTrainer:
         }
         
     def setup_training_arguments(self) -> TrainingArguments:
-        """Setup training arguments for Colab GPU"""
+        """Setup training arguments optimized for Mac CPU"""
         return TrainingArguments(
             output_dir=OUTPUT_DIR,
             num_train_epochs=10,
             learning_rate=3e-5,
-            per_device_train_batch_size=4,
-            per_device_eval_batch_size=4,
-            gradient_accumulation_steps=4,
+            per_device_train_batch_size=2,
+            per_device_eval_batch_size=2,
+            gradient_accumulation_steps=8,
             warmup_steps=200,
             weight_decay=0.01,
             logging_dir='./logs',
-            logging_steps=10,
+            logging_steps=50,
             eval_strategy='epoch',
             save_strategy='epoch',
             load_best_model_at_end=True,
             metric_for_best_model='f1',
-            dataloader_num_workers=2,
+            dataloader_num_workers=0,
             fp16=False,
             report_to=[],
             save_total_limit=2,
+            use_cpu=True,
         )
         
     def train_model(self):
