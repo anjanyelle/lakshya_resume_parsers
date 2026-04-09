@@ -438,6 +438,16 @@ class DeBERTaNerParser:
         tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
         predicted_labels = [self.id_to_label[int(label_id)] for label_id in predictions[0]]
         
+        # Debug: Log label distribution
+        label_counts = {}
+        for label in predicted_labels:
+            label_counts[label] = label_counts.get(label, 0) + 1
+        logger.info(f"🔍 Label distribution: {label_counts}")
+        
+        # Debug: Log first 20 token-label pairs
+        sample_pairs = [(t, l) for t, l in zip(tokens[:20], predicted_labels[:20]) if t not in ['[CLS]', '[SEP]', '[PAD]']]
+        logger.info(f"🔍 Sample predictions (first 20): {sample_pairs}")
+        
         # Group entities using BIO tagging
         current_entity = None
         current_tokens = []
@@ -479,7 +489,11 @@ class DeBERTaNerParser:
         
         # Log extracted entities
         entity_summary = {k: len(v) for k, v in entities.items() if v}
-        logger.info(f"🔍 DeBERTa extracted from {section_type}: {entity_summary}")
+        if not entity_summary:
+            logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type}. Text length: {len(text)} chars")
+            logger.warning(f"⚠️ First 200 chars of text: {text[:200]}")
+        else:
+            logger.info(f"🔍 DeBERTa extracted from {section_type}: {entity_summary}")
         
         return entities
     
