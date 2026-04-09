@@ -16,12 +16,17 @@ LABEL_MAP = {
     'COMPANY': 'COMPANY',
     'ROLE': 'ROLE',
     'LOCATION': 'LOCATION',
-    'START_DATE': 'START_DATE',
-    'END_DATE': 'END_DATE',
-    'PERSON': 'PERSON',
+    'DATE_START': 'DATE_START',
+    'DATE_END': 'DATE_END',
+    'START_DATE': 'DATE_START',  # Handle both formats
+    'END_DATE': 'DATE_END',      # Handle both formats
     'CLIENT': 'CLIENT',
-    'EDUCATION': 'EDUCATION',
-    'DEGREE': 'DEGREE'
+    'DEGREE': 'DEGREE',
+    'INSTITUTION': 'INSTITUTION',
+    'FIELD': 'FIELD',
+    'GRADE': 'GRADE',
+    'EDU_YEAR_START': 'EDU_YEAR_START',
+    'EDU_YEAR_END': 'EDU_YEAR_END'
 }
 
 def convert_label_studio_to_ner(data: List[Dict]) -> List[Dict]:
@@ -135,9 +140,9 @@ def main():
     # Define input files
     data_dir = os.path.dirname(os.path.abspath(__file__))
     input_files = [
-        os.path.join(data_dir, 'data', '292_label.json'),
-        os.path.join(data_dir, 'data', 'project-11-at-2026-04-06-17-21-de2eb7d3.json'),
-        os.path.join(data_dir, 'data', 'project-12-at-2026-04-06-17-29-f3ec51ec.json'),
+        os.path.join(data_dir, 'data', '548_lable.json'),
+        os.path.join(data_dir, 'data', 'project-11-at-2026-04-08-15-38-a8419544.json'),
+        os.path.join(data_dir, 'data', 'project-12-at-2026-04-08-15-46-22c9eaca.json'),
     ]
     
     # Merge and split data
