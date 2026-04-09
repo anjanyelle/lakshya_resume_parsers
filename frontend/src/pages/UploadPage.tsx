@@ -11,6 +11,7 @@ import {
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
+import ParsedResultCard from "../components/upload/ParsedResultCard";
 
 interface LLMModel {
   id: string;
@@ -587,117 +588,21 @@ export default function UploadPage() {
 
           {/* Completed State */}
           {currentUpload.status === "completed" && currentUpload.result && (
-            <div className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="text-green-800 font-medium mb-2">
-                  ✅ Parsing Complete!
-                </h4>
-              </div>
-
-              {/* Large Confidence Score Display */}
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-6">
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-600 mb-2">Confidence Score</p>
-                  <div className="text-6xl font-bold text-indigo-600 mb-2">
-                    {Math.round((currentUpload.result.confidence?.overall || 0) * 100)}%
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {currentUpload.result.confidence?.quality_level || 'N/A'} quality
-                  </p>
-                </div>
-              </div>
-
-              {/* Preview Card */}
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-3">
-                  Extracted Information
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Name</p>
-                    <p className="font-medium">
-                      {currentUpload.result.name || "Not found"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-medium">
-                      {currentUpload.result.email || "Not found"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Phone</p>
-                    <p className="font-medium">
-                      {currentUpload.result.phone || "Not found"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Experience</p>
-                    <p className="font-medium">
-                      {currentUpload.result.work_experience?.length || 0}{" "}
-                      positions
-                    </p>
-                  </div>
-                </div>
-
-                {/* Skills */}
-                {currentUpload.result.skills &&
-                  currentUpload.result.skills.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-sm text-gray-600 mb-2">Top Skills</p>
-                      <div className="flex flex-wrap gap-2">
-                        {currentUpload.result.skills
-                          .slice(0, 5)
-                          .map((skill: string, index: number) => (
-                            <span
-                              key={index}
-                              className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded"
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                {/* Confidence Score */}
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600 mb-2">Confidence Score</p>
-                  <div
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getConfidenceColor(currentUpload.result.confidence?.overall || 0)}`}
-                  >
-                    {Math.round(
-                      (currentUpload.result.confidence?.overall || 0) * 100,
-                    )}
-                    %
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="mt-6 flex space-x-3">
-                  <button
-                    onClick={() =>
-                      navigate(`/candidates/${currentUpload.candidateId}`)
-                    }
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  >
-                    View Full Profile
-                  </button>
-                  <button
-                    onClick={resetUpload}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-                  >
-                    Upload Another
-                  </button>
-                </div>
-              </div>
-
-              {/* Debug View - Full Parsed JSON */}
-              <ParsedDataDebugView 
-                data={currentUpload.result} 
+            <>
+              <ParsedResultCard
+                result={currentUpload.result}
                 candidateId={currentUpload.candidateId}
+                onUploadAnother={resetUpload}
               />
-            </div>
+              
+              {/* Debug View - Full Parsed JSON */}
+              <div className="mt-6">
+                <ParsedDataDebugView 
+                  data={currentUpload.result} 
+                  candidateId={currentUpload.candidateId}
+                />
+              </div>
+            </>
           )}
         </div>
       )}
