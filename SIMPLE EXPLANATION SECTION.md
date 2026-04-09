@@ -4,7 +4,7 @@ Purpose & Problem Statement
 This is a comprehensive AI-powered resume parsing system that extracts structured information from unstructured resume documents (PDF, DOCX, TXT) and converts it into machine-readable JSON format.
 
 Core Problems Solved:
-
+   
 Manual Resume Processing: Eliminates hours of manual data entry from resumes
 Inconsistent Data Formats: Standardizes resume data into consistent JSON structure
 Recruitment Efficiency: Enables automated candidate screening and matching
