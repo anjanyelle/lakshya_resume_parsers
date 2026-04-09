@@ -23,9 +23,9 @@ MODEL_NAME = "microsoft/deberta-v3-base"
 # Save model to the correct location
 OUTPUT_DIR = str(Path(__file__).parent.parent.parent / "models" / "resume-ner-deberta")
 
+# Note: PERSON removed - handled separately with regex pattern matching
 LABELS = [
     "O",
-    "B-PERSON", "I-PERSON",
     "B-COMPANY", "I-COMPANY",
     "B-CLIENT", "I-CLIENT",
     "B-ROLE", "I-ROLE",

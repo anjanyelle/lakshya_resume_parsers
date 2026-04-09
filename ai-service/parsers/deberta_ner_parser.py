@@ -134,13 +134,15 @@ class DeBERTaNerParser:
     
     def parse_text(self, text: str) -> Dict[str, Any]:
         """
-        Parse resume text using DeBERTa NER model with fallback.
+        Parse resume text using DeBERTa NER model with section-focused approach.
+        IMPORTANT: DeBERTa only processes experience and education sections,
+        never the full resume text. This prevents token overflow and improves accuracy.
         
         Args:
-            text: Resume text to parse
+            text: Full resume text
             
         Returns:
-            Dictionary with extracted entities
+            Dictionary with extracted entities from focused sections
         """
         # Skip DeBERTa entirely if not available
         if not self.deberta_available:
@@ -155,18 +157,44 @@ class DeBERTaNerParser:
             return self.parse_focused_sections(sections)
         
         try:
-            # Use chunking for long resumes
-            entities = self._parse_long_resume(text)
+            # CRITICAL: Extract only relevant sections — don't pass full text to DeBERTa
+            logger.info("🎯 Extracting focused sections for DeBERTa processing...")
+            sections = self.extract_target_sections(text)
+            
+            # Parse only the extracted sections (not full text)
+            exp_entities = {}
+            edu_entities = {}
+            
+            # Parse work experience section
+            if sections['work_experience_text']:
+                logger.info(f"📊 Parsing work experience section ({len(sections['work_experience_text'])} chars)")
+                exp_entities = self._parse_single_section(
+                    sections['work_experience_text'], 
+                    section_type='experience'
+                )
+            
+            # Parse education section
+            if sections['education_text']:
+                logger.info(f"🎓 Parsing education section ({len(sections['education_text'])} chars)")
+                edu_entities = self._parse_single_section(
+                    sections['education_text'], 
+                    section_type='education'
+                )
+            
+            # Merge entities from both sections
+            all_entities = self._merge_section_entities(exp_entities, edu_entities)
             
             # Check if DeBERTa found any entities
-            entity_count = sum(len(v) for v in entities.values() if isinstance(v, list))
+            entity_count = sum(len(v) for v in all_entities.values() if isinstance(v, list))
             
             if entity_count == 0:
                 logger.warning("DeBERTa found no entities, using rule-based fallback")
                 return self._rule_based_fallback(text)
             
+            logger.info(f"✅ DeBERTa extracted {entity_count} entities from focused sections")
+            
             # Convert to expected format
-            return self._format_results(entities)
+            return self._format_results(all_entities)
             
         except Exception as e:
             logger.error(f"Error parsing text with DeBERTa: {e}")
@@ -270,7 +298,7 @@ class DeBERTaNerParser:
     def parse_focused_sections(self, sections: Dict[str, str]) -> Dict[str, Any]:
         """
         Parse only the extracted sections with DeBERTa for maximum accuracy.
-        Uses structured parser for work experience to properly handle client blocks.
+        Uses TRAINED DeBERTa model to extract entities, then builds structured experiences.
         
         Args:
             sections: Dictionary with work_experience_text and education_text
@@ -279,39 +307,63 @@ class DeBERTaNerParser:
             Dictionary with extracted entities from both sections
         """
         if not self.is_loaded or self.model is None:
-            logger.warning("DeBERTa model not loaded, using structured parser fallback")
+            logger.warning("DeBERTa model not loaded, using fallback")
             return self._structured_fallback_sections(sections)
         
         try:
             all_entities = {}
             
-            # Parse Work Experience section with structured parser
-            if sections['work_experience_text'] and self.structured_parser:
-                logger.info("🎯 Parsing Work Experience section with structured parser...")
-                work_experiences = self.structured_parser.parse_work_section(sections['work_experience_text'])
+            # Parse Work Experience section with TRAINED DeBERTa MODEL
+            if sections['work_experience_text']:
+                logger.info("🤖 Parsing Work Experience with TRAINED DeBERTa model...")
                 
-                # Extract entities from structured experiences
-                companies = []
-                locations = []
-                job_titles = []
-                clients = []
+                # Use DeBERTa to extract entities
+                exp_entities = self._parse_single_section(
+                    sections['work_experience_text'], 
+                    section_type='experience'
+                )
                 
-                for exp in work_experiences:
-                    if exp.get('company_name'):
-                        companies.append(exp['company_name'])
-                    if exp.get('location'):
-                        locations.append(exp['location'])
-                    if exp.get('job_title'):
-                        job_titles.append(exp['job_title'])
-                    for client in exp.get('clients', []):
-                        if client.get('client_name'):
-                            clients.append(client['client_name'])
+                logger.info(f"📊 DeBERTa extracted: {len(exp_entities.get('COMPANY', []))} companies, {len(exp_entities.get('ROLE', []))} roles")
+                
+                # Build structured experiences from DeBERTa entities
+                from parsers.deberta_experience_builder import DeBERTaExperienceBuilder
+                builder = DeBERTaExperienceBuilder()
+                work_experiences = builder.build_experiences_from_entities(
+                    exp_entities, 
+                    sections['work_experience_text']
+                )
+                
+                # If DeBERTa didn't find enough entities, fallback to extract_experience
+                if len(work_experiences) == 0:
+                    logger.warning("⚠️ DeBERTa found no experiences, using extract_experience fallback")
+                    from parsers.experience_extractor import extract_experience
+                    raw_experiences = extract_experience(sections['work_experience_text'])
+                    
+                    work_experiences = []
+                    for exp in raw_experiences:
+                        work_experiences.append({
+                            'job_title': exp.get('title', ''),
+                            'company_name': exp.get('company', ''),
+                            'location': '',
+                            'start_date': exp.get('start_date'),
+                            'end_date': exp.get('end_date'),
+                            'is_current': exp.get('is_current', False),
+                            'clients': [],
+                            'description': exp.get('description', '')
+                        })
+                
+                # Collect entities for compatibility
+                companies = [exp['company_name'] for exp in work_experiences if exp.get('company_name')]
+                job_titles = [exp['job_title'] for exp in work_experiences if exp.get('job_title')]
+                locations = [exp['location'] for exp in work_experiences if exp.get('location')]
                 
                 all_entities['companies'] = companies
                 all_entities['locations'] = locations
                 all_entities['job_titles'] = job_titles
-                all_entities['clients'] = clients
+                all_entities['clients'] = exp_entities.get('CLIENT', [])
                 all_entities['work_experience'] = work_experiences
+                
+                logger.info(f"✅ DeBERTa model built {len(work_experiences)} work experiences")
             
             # Parse Education section  
             if sections['education_text']:
@@ -333,12 +385,41 @@ class DeBERTaNerParser:
             logger.error(f"Error parsing sections: {e}")
             return self._structured_fallback_sections(sections)
     
+    def _merge_section_entities(self, exp_entities: Dict, edu_entities: Dict) -> Dict[str, List[str]]:
+        """Merge entities from experience and education sections."""
+        merged = {}
+        
+        # Merge all entity types
+        all_keys = set(exp_entities.keys()) | set(edu_entities.keys())
+        
+        for key in all_keys:
+            exp_list = exp_entities.get(key, [])
+            edu_list = edu_entities.get(key, [])
+            
+            # Combine and deduplicate
+            if isinstance(exp_list, list) and isinstance(edu_list, list):
+                merged[key] = exp_list + edu_list
+            elif isinstance(exp_list, list):
+                merged[key] = exp_list
+            elif isinstance(edu_list, list):
+                merged[key] = edu_list
+            else:
+                merged[key] = []
+        
+        return merged
+    
     def _parse_single_section(self, text: str, section_type: str) -> Dict[str, List[str]]:
         """Parse a single section with DeBERTa."""
+        if not text or not text.strip():
+            logger.warning(f"Empty {section_type} section, skipping DeBERTa parsing")
+            return {}
+        
+        # Initialize entities with label names from trained model
         entities = {
-            'companies': [], 'clients': [], 'job_titles': [], 'locations': [],
-            'dates': [], 'degrees': [], 'institutions': [], 'fields_of_study': [],
-            'grades': []
+            'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
+            'DATE_START': [], 'DATE_END': [],
+            'DEGREE': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
+            'EDU_YEAR_START': [], 'EDU_YEAR_END': []
         }
         
         # Tokenize and predict
@@ -357,7 +438,7 @@ class DeBERTaNerParser:
         tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
         predicted_labels = [self.id_to_label[int(label_id)] for label_id in predictions[0]]
         
-        # Group entities
+        # Group entities using BIO tagging
         current_entity = None
         current_tokens = []
         
@@ -368,22 +449,23 @@ class DeBERTaNerParser:
             if label.startswith('B-'):
                 # Save previous entity
                 if current_entity and current_tokens:
-                    entity_text = ' '.join(current_tokens).replace(' ##', '')
-                    if current_entity in entities:
+                    entity_text = ' '.join(current_tokens).replace(' ##', '').strip()
+                    if entity_text and current_entity in entities:
                         entities[current_entity].append(entity_text)
                 
-                # Start new entity
+                # Start new entity (extract label name after B-)
                 current_entity = label[2:]
                 current_tokens = [token]
             
             elif label.startswith('I-') and current_entity:
+                # Continue current entity
                 current_tokens.append(token)
             
             else:
                 # Save current entity and reset
                 if current_entity and current_tokens:
-                    entity_text = ' '.join(current_tokens).replace(' ##', '')
-                    if current_entity in entities:
+                    entity_text = ' '.join(current_tokens).replace(' ##', '').strip()
+                    if entity_text and current_entity in entities:
                         entities[current_entity].append(entity_text)
                 
                 current_entity = None
@@ -391,43 +473,57 @@ class DeBERTaNerParser:
         
         # Save final entity
         if current_entity and current_tokens:
-            entity_text = ' '.join(current_tokens).replace(' ##', '')
-            if current_entity in entities:
+            entity_text = ' '.join(current_tokens).replace(' ##', '').strip()
+            if entity_text and current_entity in entities:
                 entities[current_entity].append(entity_text)
         
-        logger.info(f"🔍 {section_type.title()} section entities: {sum(len(v) for v in entities.values())}")
+        # Log extracted entities
+        entity_summary = {k: len(v) for k, v in entities.items() if v}
+        logger.info(f"🔍 DeBERTa extracted from {section_type}: {entity_summary}")
+        
         return entities
     
     def _structured_fallback_sections(self, sections: Dict[str, str]) -> Dict[str, Any]:
-        """Structured parser fallback for extracted sections."""
+        """Enhanced fallback using extract_experience function."""
         result = {}
         
-        # Parse work experience with structured parser
-        if sections['work_experience_text'] and self.structured_parser:
-            work_experiences = self.structured_parser.parse_work_section(sections['work_experience_text'])
+        # Parse work experience with ENHANCED extract_experience function
+        if sections['work_experience_text']:
+            from parsers.experience_extractor import extract_experience
             
-            # Extract entities
+            raw_experiences = extract_experience(sections['work_experience_text'])
+            
+            # Convert to expected format
+            work_experiences = []
             companies = []
             locations = []
             job_titles = []
-            clients = []
             
-            for exp in work_experiences:
-                if exp.get('company_name'):
-                    companies.append(exp['company_name'])
-                if exp.get('location'):
-                    locations.append(exp['location'])
-                if exp.get('job_title'):
-                    job_titles.append(exp['job_title'])
-                for client in exp.get('clients', []):
-                    if client.get('client_name'):
-                        clients.append(client['client_name'])
+            for exp in raw_experiences:
+                formatted_exp = {
+                    'job_title': exp.get('title', ''),
+                    'company_name': exp.get('company', ''),
+                    'location': '',
+                    'start_date': exp.get('start_date'),
+                    'end_date': exp.get('end_date'),
+                    'is_current': exp.get('is_current', False),
+                    'clients': [],
+                    'description': exp.get('description', '')
+                }
+                work_experiences.append(formatted_exp)
+                
+                if exp.get('company'):
+                    companies.append(exp['company'])
+                if exp.get('title'):
+                    job_titles.append(exp['title'])
             
             result['companies'] = companies
             result['locations'] = locations
             result['job_titles'] = job_titles
-            result['clients'] = clients
+            result['clients'] = []
             result['work_experience'] = work_experiences
+            
+            logger.info(f"✅ Fallback extractor found {len(work_experiences)} work experiences")
         
         # Use rule-based for education if no structured parser
         if sections['education_text']:

@@ -9,7 +9,8 @@ This script:
 4. Evaluates and saves the best model
 
 Supports custom labels:
-PERSON, COMPANY, CLIENT, ROLE, LOCATION, START_DATE, END_DATE, EDUCATION, DEGREE
+COMPANY, CLIENT, ROLE, LOCATION, START_DATE, END_DATE, EDUCATION, DEGREE
+Note: PERSON handled separately with regex pattern matching
 """
 
 import os
@@ -276,7 +277,8 @@ class ResumeNERTrainer:
         print("\n📈 Per-Entity F1 Scores:")
         print("-" * 40)
         
-        entity_types = ['PERSON', 'COMPANY', 'CLIENT', 'ROLE', 'LOCATION', 'START_DATE', 'END_DATE', 'EDUCATION', 'DEGREE']
+        # Note: PERSON removed - handled separately with regex
+        entity_types = ['COMPANY', 'CLIENT', 'ROLE', 'LOCATION', 'START_DATE', 'END_DATE', 'EDUCATION', 'DEGREE']
         
         for entity in entity_types:
             b_entity = f'B-{entity}'

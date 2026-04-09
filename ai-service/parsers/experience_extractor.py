@@ -339,11 +339,19 @@ DATE_LINE_PATTERN = re.compile(
     r'|\d{1,2}[\/\-](?:19|20)\d{2}'
     # Quarter format: "Q1 2022"
     r'|Q[1-4]\s*(?:19|20)\d{2}'
-    # Month name ranges: "Jan 2020 - Dec 2022", "September 2020 - Present"
+    # Month name ranges with dash: "Jan 2020 - Dec 2022", "September 2020 - Present"
     r'|(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
     r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
     r'dec(?:ember)?)'
     r'\.?\s*(?:19|20)\d{2}\s*[-–—]\s*'
+    r'(?:(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
+    r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
+    r'dec(?:ember)?)\.?\s*(?:19|20)\d{2}|present|current|now)'
+    # Month name ranges with 'to': "February 2021 to Present", "March 2018 to January 2021"
+    r'|(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
+    r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
+    r'dec(?:ember)?)'
+    r'\.?\s*(?:19|20)\d{2}\s+to\s+'
     r'(?:(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|'
     r'jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|'
     r'dec(?:ember)?)\.?\s*(?:19|20)\d{2}|present|current|now)'
@@ -372,12 +380,25 @@ def extract_date_range(text: str) -> dict:
     ))
     start_date = None
     end_date = None
+    
     if dates:
-        start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
-        if is_current:
-            end_date = None
+        # Handle "Month YYYY to Month YYYY" or "Month YYYY to Present" format
+        if ' to ' in text.lower():
+            parts = re.split(r'\s+to\s+', text, flags=re.IGNORECASE)
+            if len(parts) >= 2:
+                start_date = parse_date_safe(parts[0].strip())
+                if not is_current:
+                    end_date = parse_date_safe(parts[1].strip())
+            else:
+                start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
         else:
-            end_date = parse_date_safe(dates[1]) if len(dates) >= 2 else None
+            # Original logic for dash-separated dates
+            start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
+            if is_current:
+                end_date = None
+            else:
+                end_date = parse_date_safe(dates[1]) if len(dates) >= 2 else None
+    
     return {
         'start_date': start_date.isoformat() if start_date else None,
         'end_date': end_date.isoformat() if end_date else None,
@@ -428,6 +449,8 @@ def extract_experience(experience_text: str) -> list:
         r'|https?://|[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}'
         r'|\+\d[\d\s\-]{7,}'
         r'|environment[:\s]|technologies[:\s]|tech stack[:\s]'
+        r'|professional\s+experience|work\s+experience|employment\s+history'
+        r'|experience|career\s+history|work\s+history'
         r')'
     )
 

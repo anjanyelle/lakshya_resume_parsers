@@ -154,6 +154,34 @@ class MasterParser:
         # Check overall health
         self._check_parser_health()
     
+    def extract_person_name(self, text: str) -> str:
+        """
+        Extract name from first 3 lines using regex — no ML needed.
+        This runs before DeBERTa to avoid wasting model capacity on easy extractions.
+        
+        Args:
+            text: Resume text
+            
+        Returns:
+            Extracted name or empty string
+        """
+        lines = [l.strip() for l in text.split('\n') if l.strip()]
+        
+        # Name is almost always in the first 1-3 lines
+        for line in lines[:3]:
+            # Skip lines that look like emails, phones, URLs, or headers
+            if re.search(r'[@|http|www|\d{5}|resume|curriculum]', line, re.I):
+                continue
+            # Skip lines with too many words (likely a summary)
+            if len(line.split()) > 5:
+                continue
+            # Looks like a name: 2-4 capitalized words
+            if re.match(r'^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}$', line):
+                return line
+        
+        # Fallback: return first non-empty line if nothing matched
+        return lines[0] if lines else ""
+    
     def _check_parser_health(self):
         """Check health of all parsers and log status."""
         critical_parsers = ['section_splitter', 'rule_parser', 'hybrid_merger', 'confidence_scorer', 'preprocessor']
@@ -775,6 +803,12 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                 # Fall through to standard pipeline
         
         # OPTION 2: Standard Hybrid Pipeline (rule-based + AI entity extraction)
+        # Step 1: Extract person name with regex (before DeBERTa)
+        step_start = time.time()
+        person_name = self.extract_person_name(text)
+        metrics['name_extraction_ms'] = (time.time() - step_start) * 1000
+        self.logger.info(f"✅ Person name extracted: '{person_name}'")
+        
         # Step 2: Split sections
         step_start = time.time()
         sections = self._split_sections(text)
@@ -819,6 +853,11 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         step_start = time.time()
         merged_results = self._merge_results(rule_results, ai_results, deberta_results, experience_results, education_results)
         merged_results['summary'] = summary
+        
+        # Add regex-extracted name (overrides other sources if present)
+        if person_name:
+            merged_results['name'] = person_name
+            self.logger.info(f"✅ Using regex-extracted name: '{person_name}'")
         
         # Step 7b: Normalize entities
         if self.entity_normalizer:

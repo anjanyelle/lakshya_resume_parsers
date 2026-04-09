@@ -15,9 +15,9 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification
 import torch
 
 # Custom labels for resume NER
+# Note: PERSON removed - handled separately with regex pattern matching
 LABELS = [
     'O',
-    'B-PERSON', 'I-PERSON',
     'B-COMPANY', 'I-COMPANY',
     'B-CLIENT', 'I-CLIENT',
     'B-ROLE', 'I-ROLE',

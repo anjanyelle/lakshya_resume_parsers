@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 # Default model path (relative to ai-service directory)
-DEFAULT_MODEL_PATH = str(Path(__file__).parent.parent / "models" / "resume-ner-final")
+DEFAULT_MODEL_PATH = str(Path(__file__).parent.parent / "models" / "resume-ner-deberta")
 
 # Allow override via environment variable
 DEBERTA_MODEL_PATH = os.getenv('DEBERTA_MODEL_PATH', DEFAULT_MODEL_PATH)

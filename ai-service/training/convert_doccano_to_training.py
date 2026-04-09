@@ -13,12 +13,13 @@ from typing import List, Dict, Tuple
 
 # Entity label mapping from Doccano to BIO format
 # Maps various Doccano label formats to standardized entity types
+# Note: PERSON/NAME entities excluded - handled separately with regex
 ENTITY_MAPPING = {
-    # Person/Name mappings
-    'PERSON_NAME': 'PERSON',
-    'NAME': 'PERSON',
-    'PERSON': 'PERSON',
-    'CANDIDATE_NAME': 'PERSON',
+    # Person/Name mappings - REMOVED (handled with regex)
+    # 'PERSON_NAME': 'PERSON',
+    # 'NAME': 'PERSON',
+    # 'PERSON': 'PERSON',
+    # 'CANDIDATE_NAME': 'PERSON',
     
     # Company mappings
     'COMPANY_NAME': 'COMPANY',
