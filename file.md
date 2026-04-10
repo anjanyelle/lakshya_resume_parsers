@@ -734,3 +734,47 @@ Command Awaiting Approval
 
 
 Drop to add to Cascade
+
+
+
+
+
+
+
+# 1. Check GPU
+import torch
+if torch.cuda.is_available():
+    print("✅ GPU:", torch.cuda.get_device_name(0))
+else:
+    print("❌ Enable GPU: Runtime → Change runtime type → GPU")
+
+# 2. Upload NEW zip
+from google.colab import files
+print("\n📤 Upload the NEW Lakshya-Colab-Training.zip...")
+uploaded = files.upload()
+
+# 3. Unzip
+!unzip -q "Lakshya-Colab-Training.zip"
+
+# 4. Navigate
+%cd Lakshya-Colab-Training/ai-service
+
+
+
+!pip install -q -r requirements.txt
+
+
+
+# 5. Install dependencies (specific versions only)
+print("\n📥 Installing dependencies...")
+!pip install -q transformers==4.44.0 datasets==2.19.0 accelerate==0.33.0 evaluate==0.4.1 seqeval scikit-learn torch
+
+# 6. Train
+print("\n🚀 Starting training...")
+!python training/train.py
+
+# 7. Download model
+!zip -r resume_model.zip models/resume-ner-deberta
+files.download("resume_model.zip")
+
+print("\n✅ Complete!")
