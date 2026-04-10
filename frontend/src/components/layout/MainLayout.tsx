@@ -1,29 +1,44 @@
 import type { ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
-import { useLayout } from '../../contexts/LayoutContext'
-import Header from './Header'
 import Sidebar from './Sidebar'
+import Header from './Header'
 
 interface MainLayoutProps {
   children: ReactNode
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
-  const location = useLocation()
-  const { sidebarOpen } = useLayout()
-  const isCandidateDetail = /^\/candidates\/[^/]+$/.test(location.pathname)
-  const maxWidth = isCandidateDetail ? 'max-w-[1600px]' : 'max-w-6xl'
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Header />
-      <div className={`mx-auto flex ${maxWidth} gap-6 px-6 py-8`}>
-        <Sidebar open={sidebarOpen} />
-        <main className="min-w-0 flex-1">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle">
+    <div
+      className="flex min-h-screen"
+      style={{
+        background: 'linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%)',
+      }}
+    >
+      {/* Fixed Sidebar */}
+      <Sidebar open={true} />
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Top gradient band (teal accent on right) */}
+        <div
+          className="absolute top-0 right-0 w-1/3 h-48 pointer-events-none z-0"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(204,251,241,0.6) 0%, rgba(153,246,228,0.4) 50%, transparent 100%)',
+            borderRadius: '0 0 0 80px',
+          }}
+        />
+
+        {/* Page content wrapper */}
+        <div className="relative z-10 flex flex-1 flex-col min-h-screen bg-white/70 rounded-tl-2xl shadow-sm ml-0">
+          {/* Header */}
+          <Header />
+
+          {/* Page Body */}
+          <main className="flex-1 overflow-auto p-6">
             {children}
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   )

@@ -1,88 +1,49 @@
-import { NavLink, useNavigate } from 'react-router-dom'
-import {
-  BarChart3,
-  ClipboardCheck,
-  Database,
-  FileText,
-  Menu,
-  UploadCloud,
-  Users,
-} from 'lucide-react'
-import { useLayout } from '../../contexts/LayoutContext'
-import Button from '../common/Button'
-import { NAV_ITEMS } from '../../utils/constants'
-import { useAuthStore } from '../../store/authStore'
+import { useLocation } from 'react-router-dom'
 
-const icons = {
-  '/': FileText,
-  '/upload': UploadCloud,
-  '/candidates': Users,
-  '/accuracy': BarChart3,
-  '/corrections': ClipboardCheck,
-  '/taxonomy': Database,
+const pageTitles: Record<string, { title: string; subtitle: string }> = {
+  '/': {
+    title: 'ATS Resume Analyzer',
+    subtitle: 'AI-powered recruitment insights and candidate analysis.',
+  },
+  '/upload': {
+    title: 'Resume Analyzer',
+    subtitle: 'Upload and analyze resumes with AI-powered insights.',
+  },
+  '/candidates': {
+    title: 'Candidate Management',
+    subtitle: 'Manage and review analyzed candidates.',
+  },
+  '/job-postings': {
+    title: 'Job Postings',
+    subtitle: 'Manage job postings and requirements.',
+  },
+  '/analytics': {
+    title: 'Analytics',
+    subtitle: 'Deep insights into your recruitment pipeline.',
+  },
+  '/settings': {
+    title: 'Settings',
+    subtitle: 'Configure your ATS preferences.',
+  },
 }
 
 export default function Header() {
-  const navigate = useNavigate()
-  const { accessToken, clearTokens } = useAuthStore()
-  const { sidebarOpen, setSidebarOpen } = useLayout()
+  const location = useLocation()
 
-  const handleAuthClick = () => {
-    if (accessToken) {
-      clearTokens()
-      return
-    }
-    navigate('/auth')
-  }
+  // Find the best matching path
+  const matchedPath = Object.keys(pageTitles)
+    .filter((p) => location.pathname === p || location.pathname.startsWith(p + '/'))
+    .sort((a, b) => b.length - a.length)[0] ?? '/'
+
+  const pageInfo = pageTitles[matchedPath] ?? pageTitles['/']
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-3">
-          {!sidebarOpen && (
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50"
-              aria-label="Show sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          )}
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-subtle">
-            <FileText className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-base font-semibold text-slate-900">
-              Resume Parser
-            </p>
-            <p className="text-xs text-slate-500">Talent Intelligence Suite</p>
-          </div>
-        </div>
-
-        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
-          {NAV_ITEMS.map((item) => {
-            const Icon = icons[item.path as keyof typeof icons]
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 transition ${
-                    isActive ? 'text-brand-600' : 'hover:text-slate-900'
-                  }`
-                }
-              >
-                {Icon && <Icon className="h-4 w-4" />}
-                {item.label}
-              </NavLink>
-            )
-          })}
-          <Button variant="ghost" size="sm" onClick={handleAuthClick}>
-            {accessToken ? 'Logout' : 'Login'}
-          </Button>
-        </nav>
+    <div className="flex items-start justify-between px-6 py-5 border-b border-slate-100 bg-white">
+      {/* Left: Title */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">{pageInfo.title}</h1>
+        <p className="mt-0.5 text-sm text-slate-500">{pageInfo.subtitle}</p>
       </div>
-    </header>
+    </div>
   )
 }

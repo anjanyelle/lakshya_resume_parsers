@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,8 +9,14 @@
     color-scheme: light;
   }
 
+  * {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-800 antialiased;
+    @apply text-slate-800 antialiased;
+    background: linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%);
+    min-height: 100vh;
   }
 
   h1,
@@ -18,10 +26,11 @@
   h5,
   h6 {
     @apply text-slate-900;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   a {
-    @apply text-brand-600 hover:text-brand-700;
+    @apply text-violet-600 hover:text-violet-700;
   }
 }
 

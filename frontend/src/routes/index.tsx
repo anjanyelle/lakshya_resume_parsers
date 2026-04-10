@@ -1,8 +1,11 @@
 import type { RouteObject } from 'react-router-dom'
-import HomePage from '../pages/HomePage'
-import UploadPage from '../pages/UploadPage'
+import DashboardPage from '../pages/DashboardPage'
+import ResumeAnalyzerPage from '../pages/ResumeAnalyzerPage'
 import CandidatesPage from '../pages/CandidatesPage'
 import CandidateDetailPage from '../pages/CandidateDetailPage'
+import JobPostingsPage from '../pages/JobPostingsPage'
+import AnalyticsPage from '../pages/AnalyticsPage'
+import SettingsPage from '../pages/SettingsPage'
 import AuthPage from '../pages/AuthPage'
 import TaxonomyPage from '../pages/TaxonomyPage'
 import CorrectionsPage from '../pages/CorrectionsPage'
@@ -11,11 +14,11 @@ import AccuracyPage from '../pages/AccuracyPage'
 export const appRoutes: RouteObject[] = [
   {
     path: '/',
-    element: <HomePage />,
+    element: <DashboardPage />,
   },
   {
     path: '/upload',
-    element: <UploadPage />,
+    element: <ResumeAnalyzerPage />,
   },
   {
     path: '/candidates',
@@ -24,6 +27,18 @@ export const appRoutes: RouteObject[] = [
   {
     path: '/candidates/:id',
     element: <CandidateDetailPage />,
+  },
+  {
+    path: '/job-postings',
+    element: <JobPostingsPage />,
+  },
+  {
+    path: '/analytics',
+    element: <AnalyticsPage />,
+  },
+  {
+    path: '/settings',
+    element: <SettingsPage />,
   },
   {
     path: '/taxonomy',

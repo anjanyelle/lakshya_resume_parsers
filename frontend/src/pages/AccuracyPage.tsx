@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, ShieldCheck, TrendingUp } from 'lucide-react'
+import { BarChart3, ShieldCheck, TrendingUp, Target, Activity } from 'lucide-react'
 import { fetchAccuracyOverview, type AccuracyOverview } from '../services/api/accuracy'
+import Skeleton from '../components/common/Skeleton'
 
 export default function AccuracyPage() {
   const [overview, setOverview] = useState<AccuracyOverview | null>(null)
@@ -26,110 +27,142 @@ export default function AccuracyPage() {
   const recentRuns = overview?.recent_runs ?? []
 
   return (
-    <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Accuracy dashboard</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Track extraction performance and identify weak sections.
-        </p>
-      </div>
-
+    <div className="space-y-6 animate-fade-in">
+      {/* Metrics Row */}
       <div className="grid gap-4 md:grid-cols-3">
         {[
           {
-            label: 'Overall accuracy',
+            label: 'Overall Accuracy',
             value: overview ? `${overview.success_rate}%` : '—',
+            sub: 'Extraction success rate',
             icon: ShieldCheck,
-            tone: 'text-emerald-600',
+            iconBg: 'linear-gradient(135deg,#10b981,#34d399)',
           },
           {
-            label: 'Human correction rate',
+            label: 'Correction Rate',
             value: overview ? `${overview.correction_rate}%` : '—',
-            icon: TrendingUp,
-            tone: 'text-amber-600',
+            sub: 'Requires manual edit',
+            icon: Activity,
+            iconBg: 'linear-gradient(135deg,#f59e0b,#fbbf24)',
           },
           {
-            label: 'Average confidence',
+            label: 'Avg. Confidence',
             value: overview ? overview.avg_confidence.toFixed(2) : '—',
-            icon: BarChart3,
-            tone: 'text-brand-600',
+            sub: 'AI model certainty',
+            icon: Target,
+            iconBg: 'linear-gradient(135deg,#7c3aed,#a78bfa)',
           },
         ].map((card) => {
           const Icon = card.icon
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle"
+              className="group rounded-xl bg-white p-5 shadow-card border border-slate-100 transition-all duration-200 hover:shadow-card-hover"
             >
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-500">{card.label}</p>
-                <Icon className={`h-5 w-5 ${card.tone}`} />
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium text-slate-400">{card.sub}</p>
+                  <p className="mt-1 text-2xl font-bold text-slate-800">{card.value}</p>
+                  <p className="mt-0.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{card.label}</p>
+                </div>
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md transition-transform group-hover:scale-110"
+                  style={{ background: card.iconBg }}
+                >
+                  <Icon className="h-5 w-5" />
+                </div>
               </div>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">{card.value}</p>
             </div>
           )
         })}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-          <h3 className="text-sm font-semibold text-slate-900">Section accuracy</h3>
-          <div className="mt-4 space-y-3">
+        {/* Section Accuracy Card */}
+        <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="h-2 w-2 rounded-full bg-violet-500" />
+            <h3 className="text-sm font-bold text-slate-800">Section Accuracy</h3>
+          </div>
+          
+          <div className="space-y-5">
             {loading ? (
-              <div className="text-sm text-slate-500">Loading...</div>
+              <Skeleton lines={5} />
             ) : error ? (
-              <div className="text-sm text-red-500">{error}</div>
+              <div className="rounded-lg bg-red-50 p-4 text-xs text-red-600 border border-red-100">
+                {error}
+              </div>
             ) : sectionMetrics.length === 0 ? (
-              <div className="text-sm text-slate-500">No section data yet.</div>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <BarChart3 className="h-8 w-8 text-slate-200 mb-2" />
+                <p className="text-sm text-slate-400">No section data yet</p>
+              </div>
             ) : (
               sectionMetrics.map((metric) => (
-              <div key={metric.label}>
-                <div className="flex items-center justify-between text-sm text-slate-600">
-                  <span>{metric.label}</span>
-                  <span className="font-semibold text-slate-900">
-                    {(metric.score * 100).toFixed(0)}%
-                  </span>
+                <div key={metric.label} className="group">
+                  <div className="flex items-center justify-between text-xs mb-1.5">
+                    <span className="font-semibold text-slate-600 transition-colors group-hover:text-violet-600">{metric.label}</span>
+                    <span className="font-bold text-slate-800">
+                      {(metric.score * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-50 overflow-hidden border border-slate-100 flex p-[1px]">
+                    <div
+                      className="h-full rounded-full transition-all duration-1000 ease-out"
+                      style={{ 
+                        width: `${metric.score * 100}%`,
+                        background: 'linear-gradient(90deg, #7c3aed, #14b8a6)'
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="mt-2 h-2 rounded-full bg-slate-100">
-                  <div
-                    className="h-2 rounded-full bg-brand-500"
-                    style={{ width: `${metric.score * 100}%` }}
-                  />
-                </div>
-              </div>
-            ))
+              ))
             )}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-          <h3 className="text-sm font-semibold text-slate-900">Recent parsing runs</h3>
-          <div className="mt-4 space-y-3">
+        {/* Recent Runs Card */}
+        <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="h-2 w-2 rounded-full bg-teal-500" />
+            <h3 className="text-sm font-bold text-slate-800">Recent Parsing Runs</h3>
+          </div>
+          
+          <div className="space-y-3">
             {loading ? (
-              <div className="text-sm text-slate-500">Loading...</div>
+              <Skeleton lines={5} />
             ) : error ? (
-              <div className="text-sm text-red-500">{error}</div>
+              <div className="rounded-lg bg-red-50 p-4 text-xs text-red-600 border border-red-100">
+                {error}
+              </div>
             ) : recentRuns.length === 0 ? (
-              <div className="text-sm text-slate-500">No runs yet.</div>
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <Activity className="h-8 w-8 text-slate-200 mb-2" />
+                <p className="text-sm text-slate-400">No recent runs</p>
+              </div>
             ) : (
               recentRuns.map((run) => (
                 <div
                   key={run.job_id}
-                  className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-600"
+                  className="group rounded-xl border border-slate-100 bg-slate-50/50 p-3 transition-all hover:bg-white hover:shadow-md hover:border-violet-100"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-900">{run.job_id}</span>
-                    <span className="text-xs text-slate-400">
-                      {(run.confidence * 100).toFixed(0)}%
+                    <span className="text-xs font-bold text-slate-700">{run.job_id.slice(0, 12)}...</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      run.confidence > 0.8 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                    }`}>
+                      {(run.confidence * 100).toFixed(0)}% Confidence
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">{run.notes}</p>
+                  <p className="mt-2 text-[11px] text-slate-500 leading-relaxed italic border-l-2 border-slate-200 pl-2">
+                    {run.notes || 'No notes available for this run.'}
+                  </p>
                 </div>
               ))
             )}
           </div>
         </div>
       </div>
-    </section>
+    </div>
   )
 }

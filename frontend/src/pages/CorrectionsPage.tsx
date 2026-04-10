@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ClipboardCheck, Filter, UserRound } from 'lucide-react'
+import { ClipboardCheck, Filter, UserRound, Search, Trash2, ArrowRight } from 'lucide-react'
 import Button from '../components/common/Button'
 import Input from '../components/common/Input'
 import { fetchRecentCorrections, type CorrectionRecord } from '../services/api/corrections'
+import Skeleton from '../components/common/Skeleton'
 
 export default function CorrectionsPage() {
   const [rows, setRows] = useState<CorrectionRecord[]>([])
@@ -38,113 +39,165 @@ export default function CorrectionsPage() {
   }, [rows, search])
 
   return (
-    <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Corrections</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Review human feedback applied to parsed resumes.
-          </p>
+    <div className="space-y-6 animate-fade-in">
+      {/* Search & Stats Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-card border border-slate-100">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-violet-400 focus:bg-white focus:ring-2 focus:ring-violet-100"
+            placeholder="Search candidate, field, or value..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
         </div>
-        <Button variant="secondary" icon={<Filter className="h-4 w-4" />}>
-          Filter
-        </Button>
+        <div className="flex items-center gap-2">
+           <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
+            <Filter className="h-4 w-4" />
+            Advanced Filters
+          </button>
+        </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-            <ClipboardCheck className="h-4 w-4 text-brand-600" />
-            Recent corrections
-          </div>
-          <div className="mt-4">
-            <Input
-              placeholder="Search candidate or field..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
-          <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
-            <div className="grid grid-cols-[1.2fr_0.9fr_1fr_1fr_0.8fr] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-600">
-              <span>Candidate</span>
-              <span>Field</span>
-              <span>Original</span>
-              <span>Corrected</span>
-              <span>Date</span>
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
+        {/* Main Table Card */}
+        <div className="rounded-xl bg-white shadow-card border border-slate-100 overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50 bg-slate-50/30">
+            <div className="flex items-center gap-2">
+              <ClipboardCheck className="h-4 w-4 text-violet-600" />
+              <h3 className="text-sm font-bold text-slate-800">Recent Corrections</h3>
             </div>
-            <div className="divide-y divide-slate-100">
-              {loading ? (
-                <div className="px-4 py-6 text-sm text-slate-500">Loading...</div>
-              ) : error ? (
-                <div className="px-4 py-6 text-sm text-red-500">{error}</div>
-              ) : filtered.length === 0 ? (
-                <div className="px-4 py-6 text-sm text-slate-500">
-                  No corrections found.
-                </div>
-              ) : (
-                filtered.map((row) => (
-                  <div
-                    key={`${row.corrected_at}-${row.field}`}
-                    className="grid grid-cols-[1.2fr_0.9fr_1fr_1fr_0.8fr] gap-3 px-4 py-3 text-sm text-slate-700"
-                  >
-                    <span className="font-medium text-slate-900">
-                      {row.candidate_name ?? row.candidate_email ?? 'Unknown'}
-                    </span>
-                    <span className="text-slate-500">{row.field}</span>
-                    <span className="text-slate-500">{row.original ?? '—'}</span>
-                    <span className="font-medium text-brand-700">
-                      {row.corrected ?? '—'}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {new Date(row.corrected_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
+            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
+              {filtered.length} entries
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                  <th className="px-6 py-3">Candidate</th>
+                  <th className="px-6 py-3">Field</th>
+                  <th className="px-6 py-3">Original</th>
+                  <th className="px-6 py-3">Corrected</th>
+                  <th className="px-6 py-3">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8"><Skeleton lines={4} /></td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-8 text-center text-sm text-red-500">{error}</td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-20 text-center">
+                       <div className="flex flex-col items-center justify-center opacity-40">
+                         <ClipboardCheck className="h-10 w-10 text-slate-400 mb-2" />
+                         <p className="text-sm text-slate-500">No corrections found</p>
+                       </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((row) => (
+                    <tr
+                      key={`${row.corrected_at}-${row.field}`}
+                      className="group transition-colors hover:bg-violet-50/30"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-slate-700">{row.candidate_name ?? 'Unknown'}</span>
+                          <span className="text-[10px] text-slate-400">{row.candidate_email}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                          {row.field}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-xs text-slate-500 line-through decoration-slate-300 decoration-1">
+                          {row.original || '—'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="flex items-center gap-1.5 text-xs font-bold text-teal-600">
+                          <ArrowRight className="h-3 w-3" />
+                          {row.corrected || '—'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-xs text-slate-400 font-medium">
+                          {new Date(row.corrected_at).toLocaleDateString()}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-            <h3 className="text-sm font-semibold text-slate-900">Reviewer activity</h3>
-            <div className="mt-4 space-y-3 text-sm text-slate-600">
+        {/* Sidebar Cards */}
+        <div className="space-y-6 flex flex-col">
+          {/* Reviewer Activity */}
+          <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
+            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
+              Reviewer Activity
+            </h3>
+            <div className="space-y-3">
               {['Admin', 'Reviewer', 'Recruiter'].map((name) => (
                 <div
                   key={name}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                  className="flex items-center justify-between group cursor-pointer"
                 >
-                  <div className="flex items-center gap-2">
-                    <UserRound className="h-4 w-4 text-slate-500" />
-                    <span>{name}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600 transition-colors group-hover:bg-violet-600 group-hover:text-white">
+                      <UserRound className="h-4 w-4" />
+                    </div>
+                    <span className="text-xs font-semibold text-slate-600">{name}</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-500">
-                    {loading
-                      ? '—'
-                      : `${rows.filter((row) =>
-                          (row.reviewer || '').toLowerCase().includes(name.toLowerCase()),
-                        ).length} edits`}
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
+                    {loading ? '—' : `${rows.filter(r => (r.reviewer || '').toLowerCase().includes(name.toLowerCase())).length} edits`}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-            <h3 className="text-sm font-semibold text-slate-900">Most corrected fields</h3>
-            <div className="mt-4 space-y-2 text-sm text-slate-600">
-              {['contact.name.name', 'education.degree', 'work_experience.company'].map(
-                (field) => (
-                  <div key={field} className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
-                    <span>{field}</span>
-                    <span className="text-xs text-slate-400">Needs training</span>
+          {/* Training Needs */}
+          <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
+            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-teal-500" />
+              Fields Needing Training
+            </h3>
+            <div className="space-y-2">
+              {[
+                { field: 'contact.name.name', level: 'High' },
+                { field: 'education.degree', level: 'Medium' },
+                { field: 'work_experience.company', level: 'Low' }
+              ].map((item) => (
+                <div key={item.field} className="group rounded-xl border border-dashed border-slate-200 p-3 hover:border-violet-300 transition-colors">
+                  <p className="text-[11px] font-bold text-slate-700 truncate">{item.field}</p>
+                  <div className="mt-2 flex items-center justify-between">
+                     <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter ${
+                       item.level === 'High' ? 'bg-red-50 text-red-500' : 
+                       item.level === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-500'
+                     }`}>
+                       {item.level} Priority
+                     </span>
                   </div>
-                ),
-              )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
