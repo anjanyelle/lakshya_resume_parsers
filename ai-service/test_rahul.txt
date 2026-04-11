@@ -1,0 +1,29 @@
+Rahul Sharma
+Email: rahul.sharma@gmail.com
+Phone: +91 9876543210
+Location: Hyderabad, India
+
+PROFESSIONAL SUMMARY
+Software Developer with 4 years of experience in building scalable web applications using modern JavaScript frameworks and backend technologies.
+
+PROFESSIONAL EXPERIENCE
+Software Developer
+Infosys Ltd
+Jan 2022 – Present
+Developed scalable web applications using React.js and Node.js
+Integrated REST APIs and improved application performance
+Associate Software Engineer
+Tata Consultancy Services (TCS)
+Jun 2020 – Dec 2021
+Worked on enterprise applications and bug fixing
+Collaborated with cross-functional teams
+Junior Developer
+Wipro Technologies
+Jul 2019 – May 2020
+Assisted in frontend development and UI enhancements
+Supported backend API integration
+
+EDUCATION
+Bachelor of Technology (Computer Science)
+JNTU Hyderabad
+2015 – 2019

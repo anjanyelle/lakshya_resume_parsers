@@ -180,6 +180,17 @@ interface AIServiceResponse {
     overall: number;
     [key: string]: any;
   };
+  model_results?: {
+    deberta_extraction?: {
+      work_experience?: any[];
+      education?: any[];
+      companies?: string[];
+      job_titles?: string[];
+      institutions?: string[];
+      degrees?: string[];
+      source?: string;
+    };
+  };
   error?: string;
 }
 

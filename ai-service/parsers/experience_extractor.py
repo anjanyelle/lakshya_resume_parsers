@@ -577,51 +577,68 @@ def extract_experience(experience_text: str) -> list:
             i = i + max(1, lines_consumed)
             continue
 
-        # ── FORMAT 2: Title, Company, Location, Dates (Your format) ───────────
-        # Format: Title (line 1), Company (line 2), Location (line 3), Dates (line 4+)
-        if (i + 3 < len(lines) and 
+        # ── FORMAT 2: Title, Company, Dates (Standard format) ───────────
+        # Format: Title (line 1), Company (line 2), Dates (line 3), Description (line 4+)
+        # Example:
+        #   Software Developer
+        #   Lalataksha Consulting Services Pvt Ltd
+        #   Jan 2024 – Present
+        #   Developed and maintained web applications...
+        if (i + 2 < len(lines) and 
             is_valid_job_title(line) and 
             not DATE_LINE_PATTERN.search(line) and
             not NOISE_LINE.match(line) and
+            not BULLET_RE.match(line) and
             len(line) < 80):
             
-            # Look ahead to see if this matches your format
+            # Look ahead to see if this matches the format
             next_line = lines[i + 1].strip()
-            next_next_line = lines[i + 2].strip()
             
-            # Check if line 4+ contains dates
-            date_found = False
+            # Check if line 3 contains dates
+            date_line_idx = None
             date_info = None
-            description_lines = []
             
-            # Look for dates in the next few lines
-            for j in range(i + 3, min(i + 8, len(lines))):
+            # Look for dates in the next 2-4 lines
+            for j in range(i + 1, min(i + 5, len(lines))):
                 future_line = lines[j].strip()
                 if DATE_LINE_PATTERN.search(future_line):
                     date_info = extract_date_range(future_line)
                     if date_info['start_date']:
-                        date_found = True
-                        # Everything before the date line is part of the block
-                        for k in range(i + 3, j):
-                            desc_line = lines[k].strip()
-                            if desc_line and not NOISE_LINE.match(desc_line):
-                                description_lines.append(desc_line)
+                        date_line_idx = j
                         break
-                elif future_line.startswith('Environment:') or future_line.startswith('-'):
-                    # Found environment or bullets, stop looking for dates
-                    break
             
-            if date_found and next_line and next_next_line:
-                # This matches your format!
+            # If we found dates within 2-4 lines, this is likely the format
+            if date_line_idx and next_line and not NOISE_LINE.match(next_line):
                 title = line.strip()
                 company = next_line.strip()
-                location = next_next_line.strip()
-                description = ' '.join(description_lines)
+                
+                # Debug logging
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"📋 FORMAT 2 Match - Title: '{title}', Company: '{company}', Date line idx: {date_line_idx}")
+                
+                # Collect description lines after the date line
+                description_lines = []
+                for k in range(date_line_idx + 1, min(date_line_idx + 10, len(lines))):
+                    desc_line = lines[k].strip()
+                    # Stop at next job (another title-like line followed by company)
+                    if (k + 2 < len(lines) and 
+                        is_valid_job_title(desc_line) and 
+                        not BULLET_RE.match(desc_line) and
+                        not DATE_LINE_PATTERN.search(desc_line)):
+                        logger.info(f"  ⏹️ Stopping at line {k}: '{desc_line}' (looks like next job title)")
+                        break
+                    if desc_line and not NOISE_LINE.match(desc_line):
+                        description_lines.append(desc_line)
+                
+                description = '\n'.join(description_lines)
                 
                 # Clean up company name (remove location if mixed)
                 if ',' in company and len(company.split(',')) > 1:
                     # Company might have location mixed in, keep first part
                     company = company.split(',')[0].strip()
+                
+                logger.info(f"  ✅ Extracted - Title: '{title}', Company: '{company}', Desc lines: {len(description_lines)}")
                 
                 results.append({
                     'title': title,
@@ -633,7 +650,7 @@ def extract_experience(experience_text: str) -> list:
                 })
                 
                 # Skip ahead past this block
-                i += 4  # Skip title, company, location, at least one more line
+                i = date_line_idx + len(description_lines) + 1
                 continue
 
         # ── FORMAT 3: Date-boundary split ──────────────────────────

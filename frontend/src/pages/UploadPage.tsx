@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
+import ModelResultsView from "../components/upload/ModelResultsView";
 
 interface LLMModel {
   id: string;
@@ -633,11 +634,27 @@ export default function UploadPage() {
           {/* Completed State - No wrapper */}
           {currentUpload.status === "completed" && currentUpload.result && (
             <>
+              {console.log("📊 Upload result:", currentUpload.result)}
+              {console.log("🔍 model_results field:", currentUpload.result.model_results)}
+              
               <ParsedResultCard
                 result={currentUpload.result}
                 candidateId={currentUpload.candidateId}
                 onUploadAnother={resetUpload}
               />
+              
+              {/* Model Results View - Raw DeBERTa Extraction */}
+              {currentUpload.result.model_results ? (
+                <div className="mt-6">
+                  <ModelResultsView modelResults={currentUpload.result.model_results} />
+                </div>
+              ) : (
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 text-sm">
+                    ⚠️ No model_results found in API response. Check backend logs.
+                  </p>
+                </div>
+              )}
               
               {/* Debug View - Full Parsed JSON */}
               <div className="mt-6">

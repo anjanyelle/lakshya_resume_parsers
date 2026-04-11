@@ -1,0 +1,30 @@
+SURYA
+
+PROFESSIONAL EXPERIENCE
+
+Client Humana
+Role Sr Python Big Data Engineer
+Duration August 2023 to Present
+
+Client Morgan Stanley
+Role Sr Python Data Engineer
+Duration October 2020 to July 2023
+
+Client Delta Airlines
+Role Python Data Engineer Data Analyst
+Duration December 2017 to September 2020
+
+Client Cisco
+Role Python Data Engineer Migration Specialist
+Duration February 2016 to November 2017
+
+Client Flipkart
+Role Python ETL Developer
+Duration August 2014 to December 2015
+
+
+EDUCATION
+
+Bachelor of Technology Computer Science Engineering
+Koneru Lakshmaiah University
+2010 to 2014

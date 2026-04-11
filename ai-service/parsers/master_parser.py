@@ -854,6 +854,20 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         merged_results = self._merge_results(rule_results, ai_results, deberta_results, experience_results, education_results)
         merged_results['summary'] = summary
         
+        # Store raw model extraction results for UI display
+        merged_results['model_results'] = {
+            'deberta_extraction': {
+                'work_experience': deberta_results.get('work_experience', []),
+                'education': deberta_results.get('education', []),
+                'companies': deberta_results.get('companies', []),
+                'job_titles': deberta_results.get('job_titles', []),
+                'institutions': deberta_results.get('institutions', []),
+                'degrees': deberta_results.get('degrees', []),
+                'source': 'deberta_ner'
+            }
+        }
+        self.logger.info(f"✅ Added model_results to merged_results: {len(deberta_results.get('work_experience', []))} work exp, {len(deberta_results.get('companies', []))} companies")
+        
         # Add regex-extracted name (overrides other sources if present)
         if person_name:
             merged_results['name'] = person_name
@@ -1471,6 +1485,13 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         # Add extraction quality report if available
         if quality_report:
             result['extraction_quality'] = quality_report
+        
+        # Add model results if available (for UI display)
+        if 'model_results' in merged_results:
+            result['model_results'] = merged_results['model_results']
+            self.logger.info(f"✅ Added model_results to final result")
+        else:
+            self.logger.warning(f"⚠️ model_results NOT found in merged_results")
         
         # Add merge metadata if available
         if '_merge_metadata' in merged_results:

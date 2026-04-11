@@ -2706,6 +2706,15 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                 ai_result = response.json()
                 ai_work_experience = ai_result.get("work_experience", [])
                 
+                # Preserve model_results for UI display
+                model_results = ai_result.get("model_results")
+                if model_results:
+                    _update_job(
+                        job_id,
+                        parsed_data=_merge_parsed(job, {"model_results": model_results})
+                    )
+                    logger.info(f"Preserved model_results from AI service")
+                
                 # Convert AI service format to backend format
                 for exp in ai_work_experience:
                     payload.append({

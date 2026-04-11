@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 from collections import defaultdict
 import logging
+import re
 
 # Import configuration
 try:
@@ -90,6 +91,16 @@ class DeBERTaNerParser:
         
         return True
     
+    @staticmethod
+    def _preprocess_text(text: str) -> str:
+        """
+        Pre-process text to normalize format for better model inference.
+        Minimal normalization - preserves Client vs Company distinction.
+        """
+        # No conversion needed - Client and Company are different entities
+        # Model should learn to distinguish between them
+        return text
+    
     def _load_model(self):
         """Load the trained DeBERTa NER model with graceful fallback."""
         # First check if model files exist
@@ -108,17 +119,27 @@ class DeBERTaNerParser:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, local_files_only=True)
             self.model = AutoModelForTokenClassification.from_pretrained(self.model_path, local_files_only=True)
             
-            # Load label mappings
+            # Load label mappings - try multiple sources
             label_path = os.path.join(self.model_path, 'label_mappings.json')
             if os.path.exists(label_path):
                 with open(label_path, 'r') as f:
                     mappings = json.load(f)
                     self.id_to_label = {int(k): v for k, v in mappings['id_to_label'].items()}
                     self.label_to_id = mappings['label_to_id']
+            elif hasattr(self.model.config, 'id2label'):
+                # Fallback to model config
+                self.id_to_label = self.model.config.id2label
+                self.label_to_id = self.model.config.label2id
+            else:
+                # Last resort: create from model config
+                num_labels = self.model.config.num_labels
+                self.id_to_label = {i: f"LABEL_{i}" for i in range(num_labels)}
+                self.label_to_id = {f"LABEL_{i}": i for i in range(num_labels)}
+                logger.warning("⚠️ Using default label mappings - accuracy may be affected")
             
             self.is_loaded = True
             self.deberta_available = True
-            logger.info("✅ DeBERTa NER model loaded successfully")
+            logger.info(f"✅ DeBERTa NER model loaded successfully with {len(self.id_to_label)} labels")
             
         except Exception as e:
             logger.error(f"❌ Failed to load DeBERTa model: {e}")
@@ -409,10 +430,13 @@ class DeBERTaNerParser:
         return merged
     
     def _parse_single_section(self, text: str, section_type: str) -> Dict[str, List[str]]:
-        """Parse a single section with DeBERTa."""
+        """Parse a single section with DeBERTa using production-ready pipeline."""
         if not text or not text.strip():
             logger.warning(f"Empty {section_type} section, skipping DeBERTa parsing")
             return {}
+        
+        # Pre-process text to normalize format
+        text = self._preprocess_text(text)
         
         # Initialize entities with label names from trained model
         entities = {
@@ -422,80 +446,144 @@ class DeBERTaNerParser:
             'EDU_YEAR_START': [], 'EDU_YEAR_END': []
         }
         
-        # Tokenize and predict
+        # Tokenize and predict with offset mapping for accurate text extraction
         inputs = self.tokenizer(
             text,
             return_tensors="pt",
             truncation=True,
-            max_length=512,  # Full token budget for focused text
-            padding=True
+            max_length=512,
+            return_offsets_mapping=True
         )
+        offset_mapping = inputs.pop("offset_mapping")[0]
         
         with torch.no_grad():
             outputs = self.model(**inputs)
         
-        predictions = torch.argmax(outputs.logits, dim=2)
+        predictions = torch.argmax(outputs.logits, dim=2)[0]
         tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
-        predicted_labels = [self.id_to_label[int(label_id)] for label_id in predictions[0]]
         
-        # Debug: Log label distribution
-        label_counts = {}
-        for label in predicted_labels:
-            label_counts[label] = label_counts.get(label, 0) + 1
-        logger.info(f"🔍 Label distribution: {label_counts}")
-        
-        # Debug: Log first 20 token-label pairs
-        sample_pairs = [(t, l) for t, l in zip(tokens[:20], predicted_labels[:20]) if t not in ['[CLS]', '[SEP]', '[PAD]']]
-        logger.info(f"🔍 Sample predictions (first 20): {sample_pairs}")
-        
-        # Group entities using BIO tagging
+        # Extract entities using offset mapping for accurate text
         current_entity = None
-        current_tokens = []
+        current_text = ""
+        current_label = None
         
-        for token, label in zip(tokens, predicted_labels):
-            if token in ['[CLS]', '[SEP]', '[PAD]']:
+        for idx, (token, pred_id, offset) in enumerate(zip(tokens, predictions, offset_mapping)):
+            if token in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
                 continue
+            
+            label = self.id_to_label[pred_id.item()]
+            start, end = offset
+            
+            if start == end:  # Special token
+                continue
+            
+            actual_text = text[start:end]
             
             if label.startswith('B-'):
                 # Save previous entity
-                if current_entity and current_tokens:
-                    entity_text = ' '.join(current_tokens).replace(' ##', '').strip()
-                    if entity_text and current_entity in entities:
-                        entities[current_entity].append(entity_text)
+                if current_entity and current_text:
+                    clean_text = current_text.strip()
+                    # Post-processing: remove person names from COMPANY
+                    if current_entity == 'COMPANY' and self._is_person_name(clean_text):
+                        pass  # Skip person names
+                    # Post-processing: remove skills from DEGREE
+                    elif current_entity == 'DEGREE' and self._is_skill(clean_text):
+                        pass  # Skip skills
+                    elif clean_text and current_entity in entities:
+                        entities[current_entity].append(clean_text)
                 
-                # Start new entity (extract label name after B-)
-                current_entity = label[2:]
-                current_tokens = [token]
-            
-            elif label.startswith('I-') and current_entity:
-                # Continue current entity
-                current_tokens.append(token)
-            
+                # Start new entity
+                current_label = label[2:]
+                current_text = actual_text
+                current_entity = current_label
+                
+            elif label.startswith('I-') and current_entity and label[2:] == current_label:
+                # Continue entity
+                current_text += actual_text
+                
             else:
-                # Save current entity and reset
-                if current_entity and current_tokens:
-                    entity_text = ' '.join(current_tokens).replace(' ##', '').strip()
-                    if entity_text and current_entity in entities:
-                        entities[current_entity].append(entity_text)
-                
-                current_entity = None
-                current_tokens = []
+                # End entity
+                if current_entity and current_text:
+                    clean_text = current_text.strip()
+                    # Post-processing
+                    if current_entity == 'COMPANY' and self._is_person_name(clean_text):
+                        pass
+                    elif current_entity == 'DEGREE' and self._is_skill(clean_text):
+                        pass
+                    elif clean_text and current_entity in entities:
+                        entities[current_entity].append(clean_text)
+                    current_entity = None
+                    current_text = ""
+                    current_label = None
         
         # Save final entity
-        if current_entity and current_tokens:
-            entity_text = ' '.join(current_tokens).replace(' ##', '').strip()
-            if entity_text and current_entity in entities:
-                entities[current_entity].append(entity_text)
+        if current_entity and current_text:
+            clean_text = current_text.strip()
+            if current_entity == 'COMPANY' and self._is_person_name(clean_text):
+                pass
+            elif current_entity == 'DEGREE' and self._is_skill(clean_text):
+                pass
+            elif clean_text and current_entity in entities:
+                entities[current_entity].append(clean_text)
         
         # Log extracted entities
         entity_summary = {k: len(v) for k, v in entities.items() if v}
         if not entity_summary:
             logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type}. Text length: {len(text)} chars")
-            logger.warning(f"⚠️ First 200 chars of text: {text[:200]}")
         else:
             logger.info(f"🔍 DeBERTa extracted from {section_type}: {entity_summary}")
         
         return entities
+    
+    def _is_person_name(self, text: str) -> bool:
+        """Check if text looks like a person name."""
+        text = text.strip()
+        
+        # Exclude company suffixes - these indicate it's a company, not a person
+        company_suffixes = [
+            'corporation', 'corp', 'inc', 'llc', 'ltd', 'limited', 
+            'company', 'co', 'group', 'services', 'solutions', 'technologies',
+            'systems', 'consulting', 'partners', 'associates', 'holdings',
+            'enterprises', 'industries', 'international', 'global', 'worldwide',
+            'airlines', 'airways', 'bank', 'financial', 'insurance', 'healthcare'
+        ]
+        
+        text_lower = text.lower()
+        if any(suffix in text_lower for suffix in company_suffixes):
+            return False  # It's a company, not a person
+        
+        # Common person name patterns
+        patterns = [
+            r'^[A-Z][a-z]+ [A-Z][a-z]+$',  # First Last
+            r'^[A-Z]\. [A-Z][a-z]+$',       # F. Last
+            r'^[A-Z][a-z]+ [A-Z]\.$',       # First L.
+        ]
+        
+        for pattern in patterns:
+            if re.match(pattern, text):
+                return True
+        
+        # Check if it's exactly 2 capitalized words (typical person name)
+        # But NOT 3+ words (more likely company name)
+        words = text.split()
+        if len(words) == 2:
+            if all(word[0].isupper() and len(word) > 1 for word in words if word):
+                # Additional check: person names are usually shorter
+                if len(text) < 30:  # Person names rarely exceed 30 chars
+                    return True
+        
+        return False
+    
+    def _is_skill(self, text: str) -> bool:
+        """Check if text is a skill/technology."""
+        skill_keywords = [
+            'react', 'node', 'python', 'java', 'javascript', 'typescript',
+            'angular', 'vue', 'django', 'flask', 'spring', 'aws', 'docker',
+            'kubernetes', 'mongodb', 'sql', 'mysql', 'postgresql', 'redis',
+            'html', 'css', 'git', 'jenkins', 'ci/cd', 'agile', 'scrum'
+        ]
+        text_lower = text.lower().strip()
+        return any(skill in text_lower for skill in skill_keywords)
     
     def _structured_fallback_sections(self, sections: Dict[str, str]) -> Dict[str, Any]:
         """Enhanced fallback using extract_experience function."""
@@ -722,51 +810,64 @@ class DeBERTaNerParser:
         if 'work_experience' in entities and isinstance(entities['work_experience'], list):
             # Use structured parser results directly (already in correct format)
             work_experience = entities['work_experience']
+            companies_list = entities.get('companies', [])
+            job_titles = entities.get('job_titles', [])
+            locations_list = entities.get('locations', [])
         else:
-            # Extract companies and locations from DeBERTa NER (uppercase keys)
+            # Extract from DeBERTa NER (uppercase keys)
             companies = entities.get('COMPANY', [])
+            roles = entities.get('ROLE', [])
             locations = entities.get('LOCATION', [])
+            start_dates = entities.get('START_DATE', entities.get('DATE_START', []))
+            end_dates = entities.get('END_DATE', entities.get('DATE_END', []))
             
-            # Extract work experience from DeBERTa entities
+            # Build structured work experience
             work_experience = []
-            if companies:
-                # Create structured work experience from entities
-                for i, company in enumerate(companies):
-                    exp = {
-                        'company': company,
-                        'role': entities.get('ROLE', [f'Position {i+1}'])[i] if i < len(entities.get('ROLE', [])) else f'Position {i+1}',
-                        'location': locations[i] if i < len(locations) else None,
-                        'start_date': entities.get('DATE_START', [None])[i] if i < len(entities.get('DATE_START', [])) else None,
-                        'end_date': entities.get('DATE_END', [None])[i] if i < len(entities.get('DATE_END', [])) else None,
-                        'description': '',
-                        'source': 'deberta_ner'
-                    }
+            max_entries = max(len(companies), len(roles))
+            
+            for i in range(max_entries):
+                exp = {
+                    'company': companies[i] if i < len(companies) else '',
+                    'role': roles[i] if i < len(roles) else '',
+                    'location': locations[i] if i < len(locations) else '',
+                    'start_date': start_dates[i] if i < len(start_dates) else None,
+                    'end_date': end_dates[i] if i < len(end_dates) else None,
+                    'description': '',
+                    'source': 'deberta_ner'
+                }
+                # Only add if has company or role
+                if exp['company'] or exp['role']:
                     work_experience.append(exp)
+            
+            companies_list = companies
+            job_titles = roles
+            locations_list = locations
         
         # Extract education
         education = []
-        institutions = entities.get('INSTITUTION', [])
+        institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
         degrees = entities.get('DEGREE', [])
         fields = entities.get('FIELD', [])
+        edu_start = entities.get('EDU_YEAR_START', [])
+        edu_end = entities.get('EDU_YEAR_END', [])
         
-        for i, institution in enumerate(institutions):
+        max_edu = max(len(institutions), len(degrees))
+        for i in range(max_edu):
             edu = {
-                'institution': institution,
-                'degree': degrees[i] if i < len(degrees) else None,
+                'institution': institutions[i] if i < len(institutions) else '',
+                'degree': degrees[i] if i < len(degrees) else '',
                 'field_of_study': fields[i] if i < len(fields) else None,
-                'start_year': entities.get('EDU_YEAR_START', [None])[i] if i < len(entities.get('EDU_YEAR_START', [])) else None,
-                'end_year': entities.get('EDU_YEAR_END', [None])[i] if i < len(entities.get('EDU_YEAR_END', [])) else None,
+                'start_year': edu_start[i] if i < len(edu_start) else None,
+                'end_year': edu_end[i] if i < len(edu_end) else None,
                 'grade': entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None,
                 'source': 'deberta_ner'
             }
-            education.append(edu)
+            # Only add if has institution or degree
+            if edu['institution'] or edu['degree']:
+                education.append(edu)
         
-        # Extract job titles and other entities
-        # Check both lowercase (structured parser) and uppercase (DeBERTa NER) keys
-        job_titles = entities.get('job_titles', entities.get('ROLE', []))
+        # Extract other entities
         clients = entities.get('clients', entities.get('CLIENT', []))
-        companies_list = entities.get('companies', entities.get('COMPANY', []))
-        locations_list = entities.get('locations', entities.get('LOCATION', []))
         
         return {
             'companies': companies_list,
@@ -775,7 +876,7 @@ class DeBERTaNerParser:
             'education': education,
             'job_titles': job_titles,
             'clients': clients,
-            'dates': entities.get('dates', entities.get('DATE_START', []) + entities.get('DATE_END', [])),
+            'dates': start_dates + end_dates if 'COMPANY' in entities else entities.get('dates', []),
             'degrees': degrees,
             'institutions': institutions,
             'fields_of_study': fields,
