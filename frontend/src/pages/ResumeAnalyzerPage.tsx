@@ -35,18 +35,25 @@ export default function ResumeAnalyzerPage() {
   }, [loadCandidates])
 
   useEffect(() => {
+    // We use a ref-like approach by accessing the live store state inside the interval 
+    // to avoid stale closures and infinite loop triggers.
     const interval = window.setInterval(async () => {
-      const prevSuccessCount = queue.filter(q => q.status === 'success').length
-      await pollStatuses()
-      const newSuccessCount = useUploadStore.getState().queue.filter(q => q.status === 'success').length
+      const currentQueue = useUploadStore.getState().queue
+      const prevSuccessCount = currentQueue.filter(q => q.status === 'success').length
       
+      await pollStatuses()
+      
+      const updatedQueue = useUploadStore.getState().queue
+      const newSuccessCount = updatedQueue.filter(q => q.status === 'success').length
+      
+      // Only trigger a candidate refresh if we actually transitioned a new item to 'success'
       if (newSuccessCount > prevSuccessCount) {
-        if (import.meta.env.DEV) console.log('[UI-SYNC] New success detected, refreshing candidates...')
+        if (import.meta.env.DEV) console.log('[UI-SYNC] New processing success detected, refreshing candidates...')
         loadCandidates()
       }
-    }, 3000)
+    }, 5000) // 5s is plenty for background polling
     return () => window.clearInterval(interval)
-  }, [pollStatuses, loadCandidates, queue])
+  }, [pollStatuses, loadCandidates])
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
@@ -270,7 +277,7 @@ export default function ResumeAnalyzerPage() {
             <div className="flex flex-col gap-1 mb-4">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Processing Model</span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-base font-black text-slate-700">Lakshya-NER v2</span>
+                <span className="text-base font-black text-slate-700">NER v2</span>
                 <span className="px-2 py-0.5 rounded-lg bg-emerald-50 text-[8px] font-black text-emerald-600 uppercase tracking-wider">Active</span>
               </div>
             </div>

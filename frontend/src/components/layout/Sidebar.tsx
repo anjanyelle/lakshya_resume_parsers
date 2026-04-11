@@ -60,7 +60,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <FileText className="relative h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <p className="text-[15px] font-black text-slate-800 tracking-tight leading-[1.2]">Resume Parser</p>
+              <p className="text-[15px] font-black text-slate-800 tracking-tight leading-[1.2]">Resume</p>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.12em] leading-none mt-1">ADMIN CONSOLE</p>
             </div>
           </div>

@@ -16,6 +16,7 @@ import {
 
 export default function TaxonomyPage() {
   const [skills, setSkills] = useState<TaxonomySkill[]>([])
+  const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null)
   const [degrees, setDegrees] = useState<TaxonomyItem[]>([])
   const [universities, setUniversities] = useState<TaxonomyItem[]>([])
   const [certifications, setCertifications] = useState<TaxonomyItem[]>([])
@@ -98,6 +99,44 @@ export default function TaxonomyPage() {
     setAddCategory('')
     setAddSynonyms('')
     toast.success('Entry added to local state')
+  }
+  
+  const handleImportCsv = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const text = e.target?.result as string
+      if (!text) return
+
+      const lines = text.split('\n')
+      const newSkills: TaxonomySkill[] = []
+      
+      lines.forEach((line, index) => {
+        if (index === 0 && (line.toLowerCase().includes('name') || line.toLowerCase().includes('category'))) return
+        const [name, category, synonyms] = line.split(',').map(s => s.trim())
+        if (name) {
+          newSkills.push({
+            name,
+            category: category || 'MISC',
+            synonyms: synonyms || null,
+            group: null
+          })
+        }
+      })
+
+      if (newSkills.length > 0) {
+        setSkills(prev => [...newSkills, ...prev])
+        toast.success(`Imported ${newSkills.length} skills successfully`)
+      } else {
+        toast.error('No valid skills found in CSV')
+      }
+      
+      // Reset input
+      event.target.value = ''
+    }
+    reader.readAsText(file)
   }
 
   return (
@@ -199,7 +238,17 @@ export default function TaxonomyPage() {
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{filteredSkills.length} Total Skills</p>
               </div>
             </div>
-            <button className="flex items-center gap-2 text-[10px] font-bold text-violet-600 bg-violet-50 px-4 py-2 rounded-xl uppercase tracking-widest hover:bg-violet-600 hover:text-white transition-all shadow-sm">
+            <input
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleImportCsv}
+              ref={(el) => setFileInputRef(el)}
+            />
+            <button 
+              onClick={() => fileInputRef?.click()}
+              className="flex items-center gap-2 text-[10px] font-bold text-violet-600 bg-violet-50 px-4 py-2 rounded-xl uppercase tracking-widest hover:bg-violet-600 hover:text-white transition-all shadow-sm"
+            >
               <Tag className="h-3.5 w-3.5" />
               Import CSV
             </button>

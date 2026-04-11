@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   FileText,
@@ -27,24 +27,6 @@ import {
 } from 'recharts'
 import { useCandidateStore } from '../store/candidateStore'
 
-// Monthly applications demo data
-const monthlyData = [
-  { month: 'Jan', value: 4 },
-  { month: 'Feb', value: 6 },
-  { month: 'Mar', value: 20 },
-  { month: 'Apr', value: 18 },
-  { month: 'May', value: 16 },
-  { month: 'Jun', value: 18 },
-]
-
-// Score distribution demo data
-const scoreDistData = [
-  { range: '0-20', count: 1 },
-  { range: '21-40', count: 2 },
-  { range: '41-60', count: 3 },
-  { range: '61-80', count: 8 },
-  { range: '81-100', count: 12 },
-]
 
 const SKILL_COLORS = ['#7c3aed', '#14b8a6', '#6366f1', '#f97316', '#ef4444', '#eab308']
 
@@ -83,15 +65,64 @@ export default function DashboardPage() {
   const { candidates, loadCandidates } = useCandidateStore()
   const [skillData, setSkillData] = useState<{ name: string; value: number }[]>([])
 
+  // Functionality: Dynamic data mapping for charts
+  const dynamicMonthlyData = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const now = new Date()
+    const last6 = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      last6.push({
+        month: months[d.getMonth()],
+        fullMonth: d.getMonth(),
+        year: d.getFullYear(),
+        value: 0
+      })
+    }
+    candidates.forEach(c => {
+      const created = new Date(c.created_at)
+      const match = last6.find(m => m.fullMonth === created.getMonth() && m.year === created.getFullYear())
+      if (match) match.value += 1
+    })
+    return last6
+  }, [candidates])
+
+  const dynamicScoreDistData = useMemo(() => {
+    const ranges = [
+      { range: '0-20', count: 0 },
+      { range: '21-40', count: 0 },
+      { range: '41-60', count: 0 },
+      { range: '61-80', count: 0 },
+      { range: '81-100', count: 0 },
+    ]
+    candidates.forEach(c => {
+      const score = (c.parsing_jobs?.[0]?.confidence_score || 0) * 100
+      if (score <= 20) ranges[0].count++
+      else if (score <= 40) ranges[1].count++
+      else if (score <= 60) ranges[2].count++
+      else if (score <= 80) ranges[3].count++
+      else ranges[4].count++
+    })
+    return ranges
+  }, [candidates])
+
+  // Functionality: Polling logic
   useEffect(() => {
     const controller = new AbortController()
     loadCandidates(controller.signal)
-    return () => controller.abort()
+    
+    // Background refresh every 10s
+    const interval = window.setInterval(() => loadCandidates(), 10000)
+    
+    return () => {
+      controller.abort()
+      window.clearInterval(interval)
+    }
   }, [loadCandidates])
 
   // Compute stats from real data
   const totalResumes = candidates.length
-  const analyzedCandidates = candidates.filter((c) => c.status === 'success').length
+  const analyzedCandidates = candidates.filter((c) => c.status === 'success' || c.status === 'completed').length
   const scores = candidates
     .map((c) => c.parsing_jobs?.[0]?.confidence_score)
     .filter((s): s is number => typeof s === 'number')
@@ -99,19 +130,19 @@ export default function DashboardPage() {
   const avgProcessingDays =
     candidates.length > 0
       ? Math.round(
-          candidates.reduce((sum, c) => {
-            const created = new Date(c.created_at).getTime()
-            const updated = new Date(c.updated_at).getTime()
-            return sum + (updated - created) / (1000 * 60 * 60 * 24)
-          }, 0) / candidates.length,
-        )
+        candidates.reduce((sum, c) => {
+          const created = new Date(c.created_at).getTime()
+          const updated = new Date(c.updated_at).getTime()
+          return sum + (updated - created) / (1000 * 60 * 60 * 24)
+        }, 0) / candidates.length,
+      )
       : 0
 
   // Compute skill frequency
   useEffect(() => {
     const skillMap: Record<string, number> = {}
     candidates.forEach((c) => {
-      ;(c.skills ?? []).forEach((s) => {
+      ; (c.skills ?? []).forEach((s) => {
         skillMap[s.name] = (skillMap[s.name] ?? 0) + 1
       })
     })
@@ -135,73 +166,81 @@ export default function DashboardPage() {
     {
       label: 'Total Resumes',
       value: totalResumes > 0 ? String(totalResumes) : '—',
-      trend: '+12%',
+      trend: '+12.5%',
       up: true,
       icon: FileText,
-      iconBg: 'linear-gradient(135deg,#7c3aed,#a78bfa)',
+      colors: 'from-violet-500 to-indigo-600',
+      shadow: 'shadow-violet-100',
     },
     {
       label: 'Analyzed Candidates',
       value: analyzedCandidates > 0 ? String(analyzedCandidates) : '—',
-      trend: '+8%',
+      trend: '+8.2%',
       up: true,
       icon: Users,
-      iconBg: 'linear-gradient(135deg,#14b8a6,#2dd4bf)',
+      colors: 'from-teal-400 to-emerald-600',
+      shadow: 'shadow-emerald-100',
     },
     {
       label: 'Avg. Match Score',
       value: displayScore,
-      trend: '+5%',
+      trend: '+5.4%',
       up: true,
       icon: Star,
-      iconBg: 'linear-gradient(135deg,#10b981,#34d399)',
+      colors: 'from-amber-400 to-orange-500',
+      shadow: 'shadow-orange-100',
     },
     {
       label: 'Avg. Processing Time',
       value:
         candidates.length > 0 ? `${avgProcessingDays} days` : '—',
-      trend: '-2 days',
+      trend: '-2.1%',
       up: false,
       icon: Clock,
-      iconBg: 'linear-gradient(135deg,#f97316,#fb923c)',
+      colors: 'from-blue-400 to-indigo-500',
+      shadow: 'shadow-blue-100',
     },
   ]
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statsCards.map((stat) => {
           const Icon = stat.icon
           return (
             <div
               key={stat.label}
-              className="rounded-xl bg-white p-5 shadow-card border border-slate-100 transition-all duration-200 hover:shadow-card-hover"
+              className={`group relative overflow-hidden rounded-3xl bg-white p-6 border border-slate-100 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-slate-200/50 ${stat.shadow} shadow-sm`}
             >
-              <div className="flex items-start justify-between">
+              {/* Decorative background shape */}
+              <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${stat.colors} opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-125 transition-all duration-500`} />
+              
+              <div className="flex items-start justify-between relative z-10">
                 <div
-                  className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-md"
-                  style={{ background: stat.iconBg }}
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg bg-gradient-to-br ${stat.colors} ring-4 ring-white transition-transform duration-500 group-hover:scale-110`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-5 w-5" />
                 </div>
-                <span
-                  className={`flex items-center gap-1 text-xs font-semibold ${
-                    stat.up ? 'text-emerald-600' : 'text-rose-500'
-                  }`}
-                >
-                  {stat.up ? (
-                    <TrendingUp className="h-3 w-3" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3" />
-                  )}
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight transition-colors ${
+                  stat.up ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                }`}>
+                  {stat.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {stat.trend}
-                </span>
+                </div>
               </div>
-              <div className="mt-4">
-                <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
-                <p className="mt-0.5 text-xs text-slate-500">{stat.label}</p>
+              
+              <div className="mt-6 relative z-10">
+                <h3 className="text-3xl font-black text-slate-700 tracking-tighter transition-colors group-hover:text-slate-800">
+                  {stat.value}
+                </h3>
+                <p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                  {stat.label}
+                </p>
               </div>
+
+              {/* Bottom accent line */}
+              <div className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${stat.colors} transition-all duration-500 group-hover:w-full opacity-60`} />
             </div>
           )
         })}
@@ -212,13 +251,13 @@ export default function DashboardPage() {
         {/* Monthly Applications */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-700">Monthly Applications</h3>
+            <h3 className="text-sm font-black text-slate-700 uppercase tracking-tight">Monthly Applications</h3>
             <button className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreVertical className="h-4 w-4" />
             </button>
           </div>
           <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={monthlyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+            <AreaChart data={dynamicMonthlyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
@@ -259,7 +298,7 @@ export default function DashboardPage() {
         {/* Top Skills Detected */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-700">Top Skills Detected</h3>
+            <h3 className="text-sm font-black text-slate-700 uppercase tracking-tight">Top Skills Detected</h3>
             <button className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreVertical className="h-4 w-4" />
             </button>
@@ -439,13 +478,12 @@ export default function DashboardPage() {
                         </span>
                       )}
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          candidate.status === 'success'
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${candidate.status === 'success'
                             ? 'bg-emerald-50 text-emerald-600'
                             : candidate.status === 'failed'
                               ? 'bg-red-50 text-red-500'
                               : 'bg-amber-50 text-amber-600'
-                        }`}
+                          }`}
                       >
                         {candidate.status === 'success' ? 'completed' : candidate.status}
                       </span>
@@ -485,13 +523,13 @@ export default function DashboardPage() {
       {/* Score Distribution */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-700">Score Distribution</h3>
+          <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Score Distribution</h3>
           <button className="text-slate-400 hover:text-slate-600 transition-colors">
             <MoreVertical className="h-4 w-4" />
           </button>
         </div>
         <ResponsiveContainer width="100%" height={160}>
-          <BarChart data={scoreDistData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+          <BarChart data={dynamicScoreDistData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis
               dataKey="range"
@@ -513,14 +551,14 @@ export default function DashboardPage() {
               }}
             />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-              {scoreDistData.map((_, index) => (
+              {dynamicScoreDistData.map((_, index) => (
                 <Cell
                   key={index}
                   fill={`url(#barGrad${index})`}
                 />
               ))}
               <defs>
-                {scoreDistData.map((_, index) => (
+                {dynamicScoreDistData.map((_, index) => (
                   <linearGradient key={index} id={`barGrad${index}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#7c3aed" />
                     <stop offset="100%" stopColor="#14b8a6" />

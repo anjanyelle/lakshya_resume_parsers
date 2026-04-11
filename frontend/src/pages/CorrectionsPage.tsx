@@ -10,6 +10,8 @@ export default function CorrectionsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [fieldFilter, setFieldFilter] = useState('All Fields')
 
   useEffect(() => {
     const load = async () => {
@@ -31,12 +33,23 @@ export default function CorrectionsPage() {
     const term = search.toLowerCase()
     return rows.filter((row) => {
       return (
-        row.candidate_name?.toLowerCase().includes(term) ||
+        row.full_name?.toLowerCase().includes(term) ||
         row.candidate_email?.toLowerCase().includes(term) ||
         row.field.toLowerCase().includes(term)
       )
     })
-  }, [rows, search])
+
+    if (fieldFilter !== 'All Fields') {
+      result = result.filter(row => row.field.toLowerCase() === fieldFilter.toLowerCase())
+    }
+
+    return result
+  }, [rows, search, fieldFilter])
+
+  const fields = useMemo(() => {
+    const set = new Set(rows.map(r => r.field))
+    return ['All Fields', ...Array.from(set)]
+  }, [rows])
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -52,12 +65,40 @@ export default function CorrectionsPage() {
           />
         </div>
         <div className="flex items-center gap-2">
-           <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all">
+           <button 
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
+              isFilterOpen ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+            }`}
+          >
             <Filter className="h-4 w-4" />
             Advanced Filters
           </button>
         </div>
       </div>
+
+      {isFilterOpen && (
+        <div className="bg-white p-5 rounded-xl shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-wrap gap-4 animate-slide-down">
+          <div className="space-y-1.5 flex-1 min-w-[200px]">
+             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filter by Field</label>
+             <select
+               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:border-violet-400"
+               value={fieldFilter}
+               onChange={(e) => setFieldFilter(e.target.value)}
+             >
+               {fields.map(f => <option key={f} value={f}>{f}</option>)}
+             </select>
+          </div>
+          <div className="space-y-1.5 flex-1 min-w-[200px]">
+             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reviewer</label>
+             <input disabled className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed" placeholder="Coming soon..." />
+          </div>
+          <div className="space-y-1.5 flex-1 min-w-[200px]">
+             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date Range</label>
+             <input disabled className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed" placeholder="Coming soon..." />
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main Table Card */}

@@ -1,4 +1,5 @@
-import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar } from 'lucide-react'
+import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState } from 'react'
 import type { Candidate } from '../../types/candidate'
 import { getInitials, Gauge, getAvatarColor, formatScore } from './CandidateUIUtils'
 
@@ -21,6 +22,41 @@ export default function CandidateCard({
   const scoreValue = formatScore(rawScore)
   const skills = candidate.skills ?? []
   const topSkills = skills.slice(0, 6)
+  const [showAllSkills, setShowAllSkills] = useState(false)
+
+  const handleDownload = () => {
+    const content = `
+RESUME SUMMARY REPORT: ${candidate.full_name || 'Anonymous'}
+Generated: ${new Date().toLocaleString()}
+--------------------------------------------------
+MATCH SCORE: ${scoreValue !== null ? scoreValue : 'N/A'}%
+
+CONTACT DETAILS:
+- Email: ${candidate.email || 'N/A'}
+- Phone: ${candidate.phone || 'N/A'}
+- Location: ${candidate.location || 'N/A'}
+
+EXPERIENCE:
+- Total: ${candidate.years_experience !== null ? `${candidate.years_experience} years` : 'N/A'}
+- Current Title: ${candidate.current_title || 'N/A'}
+- Current Company: ${candidate.current_company || 'N/A'}
+
+TECHNICAL SKILLS:
+${skills.map(s => `- ${s.name} (${s.category || 'General'})`).join('\n')}
+
+CERTIFICATIONS:
+${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None listed'}
+
+--------------------------------------------------
+`
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `resume_summary_${(candidate.full_name || 'candidate').replace(/\s+/g, '_').toLowerCase()}.txt`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className={`relative flex flex-col rounded-2xl bg-white p-4 border transition-all duration-500 hover:-translate-y-1.5 h-full ${
@@ -106,7 +142,7 @@ export default function CandidateCard({
           <div className="min-h-[44px]">
             <p className="text-[10px] font-bold tracking-widest text-slate-300 uppercase mb-2">Top Skills</p>
             <div className="flex flex-wrap gap-1.5">
-              {topSkills.map((skill) => (
+              {(showAllSkills ? skills : topSkills).map((skill) => (
                 <span
                   key={skill.id}
                   className="rounded-lg border border-slate-100 bg-white px-3 py-1 text-[11px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-200"
@@ -115,9 +151,14 @@ export default function CandidateCard({
                 </span>
               ))}
               {skills.length > 6 && (
-                <span className="rounded-lg border border-slate-100 bg-slate-50 px-2 py-1 text-[11px] font-medium text-slate-400">
-                  +{skills.length - 6} more
-                </span>
+                <button 
+                  onClick={() => setShowAllSkills(!showAllSkills)}
+                  className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold transition-all shadow-sm ${
+                    showAllSkills ? 'bg-violet-600 border-violet-600 text-white shadow-violet-100' : 'border-slate-100 bg-slate-50 text-slate-400 hover:bg-slate-100'
+                  }`}
+                >
+                  {showAllSkills ? <><ChevronUp className="h-3 w-3" /> Hide</> : <>+{skills.length - 6} more</>}
+                </button>
               )}
             </div>
           </div>
@@ -135,7 +176,10 @@ export default function CandidateCard({
         </button>
 
         <div className="flex items-center gap-6">
-          <button className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-slate-500 bg-slate-50/0 hover:bg-slate-50 transition-all hover:-translate-y-0.5">
+          <button 
+            onClick={handleDownload}
+            className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-slate-500 bg-slate-50/0 hover:bg-slate-50 transition-all hover:-translate-y-0.5"
+          >
             <Download className="h-4 w-4" />
             <span>Download</span>
           </button>
