@@ -40,9 +40,9 @@ export default function AuthPage() {
         await register(email, password, role)
       }
       const tokens = await login(email, password)
-      setTokens(tokens.access_token, tokens.refresh_token)
+      setTokens(tokens.access_token, tokens.refresh_token, { email, role })
       toast.success(mode === 'register' ? 'Account created' : 'Logged in')
-      navigate('/upload')
+      navigate('/')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Auth failed')
     } finally {

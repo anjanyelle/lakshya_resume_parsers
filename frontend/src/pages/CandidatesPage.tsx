@@ -4,51 +4,13 @@ import {
   Search,
   Filter,
   Download,
-  Eye,
-  Trash2,
-  MoreVertical,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Star,
-  ChevronDown,
   ArrowUpDown,
+  Trash2,
 } from 'lucide-react'
 import { useCandidateStore } from '../store/candidateStore'
 import { useFilterStore } from '../store/filterStore'
 import Skeleton from '../components/common/Skeleton'
-
-function getInitials(name?: string | null) {
-  if (!name) return '?'
-  return name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-}
-
-function getAvatarColor(name?: string | null) {
-  const colors = [
-    'linear-gradient(135deg,#7c3aed,#a78bfa)',
-    'linear-gradient(135deg,#14b8a6,#2dd4bf)',
-    'linear-gradient(135deg,#f97316,#fb923c)',
-    'linear-gradient(135deg,#ec4899,#f472b6)',
-    'linear-gradient(135deg,#3b82f6,#60a5fa)',
-    'linear-gradient(135deg,#10b981,#34d399)',
-  ]
-  const idx = (name?.charCodeAt(0) ?? 0) % colors.length
-  return colors[idx]
-}
-
-function getScoreColor(score?: number | null) {
-  if (!score && score !== 0) return '#94a3b8'
-  const s = score > 1 ? score : score * 100
-  if (s >= 80) return '#10b981'
-  if (s >= 60) return '#f59e0b'
-  return '#ef4444'
-}
-
-function formatScore(score?: number | null) {
-  if (score == null) return null
-  return score > 1 ? `${Math.round(score)}%` : `${Math.round(score * 100)}%`
-}
+import CandidateCard from '../components/candidates/CandidateCard'
 
 export default function CandidatesPage() {
   const navigate = useNavigate()
@@ -124,85 +86,91 @@ export default function CandidatesPage() {
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Export Button Row */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
+      <div className="flex items-center justify-between px-1">
+        <p className="text-[13px] font-semibold text-slate-400 uppercase tracking-widest">
           Manage and review analyzed candidates ({filtered.length} of {candidates.length})
         </p>
         <button
-          className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90"
+          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 active:scale-95 uppercase tracking-wider"
           style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
         >
           <Download className="h-4 w-4" />
-          Export
+          EXPORT DATA
         </button>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl bg-white p-3 shadow-card border border-slate-100">
+      <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3 rounded-xl bg-white p-3 shadow-xl shadow-slate-200/50 border border-slate-100/50">
         {/* Search */}
-        <div className="relative flex-1 min-w-40">
+        <div className="relative w-full sm:flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search candidates..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full rounded-lg border-0 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+            className="w-full rounded-lg border-0 bg-slate-50 py-2.5 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-300 transition-all font-medium"
           />
         </div>
 
-        {/* Score Filter */}
-        <div className="flex items-center gap-1.5">
-          <Filter className="h-3.5 w-3.5 text-slate-400" />
-          <select
-            value={scoreFilter}
-            onChange={(e) => setScoreFilter(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-8 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-300"
+        {/* Filters Group */}
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          {/* Score Filter */}
+          <div className="flex flex-1 sm:flex-initial items-center gap-1.5">
+            <select
+              value={scoreFilter}
+              onChange={(e) => setScoreFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-300 cursor-pointer"
+            >
+              <option>All Scores</option>
+              <option>80%+</option>
+              <option>60-79%</option>
+              <option>Below 60%</option>
+            </select>
+          </div>
+
+          {/* Sort */}
+          <div className="flex flex-1 sm:flex-initial items-center gap-1.5">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-300 cursor-pointer"
+            >
+              <option>Sort by Date</option>
+              <option>Sort by Score</option>
+              <option>Sort by Name</option>
+            </select>
+          </div>
+
+          {/* Direction */}
+          <button
+            onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
+            className="flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-500 hover:bg-slate-50 transition-colors shadow-sm"
           >
-            <option>All Scores</option>
-            <option>80%+</option>
-            <option>60-79%</option>
-            <option>Below 60%</option>
-          </select>
+            <ArrowUpDown className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{sortDir === 'desc' ? 'Descending' : 'Ascending'}</span>
+          </button>
         </div>
-
-        {/* Sort */}
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="rounded-lg border border-slate-200 bg-white py-2 pl-3 pr-8 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-violet-300"
-        >
-          <option>Sort by Date</option>
-          <option>Sort by Score</option>
-          <option>Sort by Name</option>
-        </select>
-
-        {/* Direction */}
-        <button
-          onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
-          className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-        >
-          <ArrowUpDown className="h-3.5 w-3.5" />
-          {sortDir === 'desc' ? 'Descending' : 'Ascending'}
-        </button>
       </div>
 
       {/* Select All Row */}
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="select-all"
-          checked={allSelected}
-          onChange={() => allSelected ? clearSelected() : selectAll(filtered.map((c) => c.id))}
-          className="h-4 w-4 rounded border-slate-300 accent-violet-600 cursor-pointer"
-        />
-        <label htmlFor="select-all" className="text-sm text-slate-600 cursor-pointer">
-          Select All ({filtered.length} candidates)
-        </label>
+      <div className="flex items-center justify-between gap-3 px-1">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="select-all"
+            checked={allSelected}
+            onChange={() => allSelected ? clearSelected() : selectAll(filtered.map((c) => c.id))}
+            className="h-4 w-4 rounded border-slate-300 accent-violet-600 cursor-pointer shadow-sm"
+          />
+          <label htmlFor="select-all" className="text-[12.5px] font-semibold text-slate-400 cursor-pointer uppercase tracking-wider">
+            Select All <span className="text-violet-500/80 ml-1 font-bold">({filtered.length} candidates)</span>
+          </label>
+        </div>
         {selectedIds.size > 0 && (
           <button
             onClick={() => removeCandidates(Array.from(selectedIds))}
-            className="ml-auto flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors shadow-sm"
           >
             <Trash2 className="h-3.5 w-3.5" />
             Delete Selected ({selectedIds.size})
@@ -212,153 +180,35 @@ export default function CandidatesPage() {
 
       {/* Candidates Grid */}
       {loading ? (
-        <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
+        <div className="rounded-xl bg-white p-6 shadow-xl shadow-slate-200/50 border border-slate-100/50">
           <Skeleton lines={6} />
         </div>
       ) : error && candidates.length === 0 ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm font-semibold text-red-600 shadow-sm">
           {error}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-16 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-50 text-violet-400">
-            <Search className="h-5 w-5" />
+        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white/50 p-12 md:p-20 text-center shadow-sm">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 text-violet-400 shadow-inner">
+            <Search className="h-7 w-7" />
           </div>
-          <p className="text-sm font-medium text-slate-600">No candidates found</p>
-          <p className="text-xs text-slate-400">Try adjusting your search or filters</p>
+          <div>
+            <p className="text-base font-bold text-slate-800">No candidates found</p>
+            <p className="text-sm text-slate-500 mt-1">Try adjusting your search or filters to see more results.</p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {filtered.map((candidate) => {
-            const score = candidate.parsing_jobs?.[0]?.confidence_score
-            const scoreDisplay = formatScore(score)
-            const skills = candidate.skills ?? []
-            const topSkills = skills.slice(0, 4)
-            const extraCount = skills.length - 4
-
-            return (
-              <div
-                key={candidate.id}
-                className="relative rounded-xl bg-white p-5 shadow-card border border-slate-100 transition-all duration-200 hover:shadow-card-hover"
-              >
-                {/* Card Header */}
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(candidate.id)}
-                    onChange={() => toggleSelected(candidate.id)}
-                    className="mt-1 h-4 w-4 rounded border-slate-300 accent-violet-600 cursor-pointer flex-shrink-0"
-                  />
-                  <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
-                    style={{ background: getAvatarColor(candidate.full_name) }}
-                  >
-                    {getInitials(candidate.full_name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-800">
-                          {candidate.full_name || 'Unknown Candidate'}
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                          {new Date(candidate.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {scoreDisplay && (
-                          <span
-                            className="text-lg font-bold"
-                            style={{ color: getScoreColor(score) }}
-                          >
-                            {scoreDisplay}
-                          </span>
-                        )}
-                        <button className="text-slate-300 hover:text-slate-500 transition-colors">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Info */}
-                <div className="mt-3 grid grid-cols-2 gap-2 pl-[52px]">
-                  <div className="flex items-center gap-1.5">
-                    <Mail className="h-3 w-3 text-slate-400 flex-shrink-0" />
-                    <span className="truncate text-xs text-slate-500">
-                      {candidate.email || '—'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Phone className="h-3 w-3 text-slate-400 flex-shrink-0" />
-                    <span className="truncate text-xs text-slate-500">
-                      {candidate.phone || '—'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="h-3 w-3 text-slate-400 flex-shrink-0" />
-                    <span className="truncate text-xs text-slate-500">
-                      {candidate.location || '—'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3 text-slate-400 flex-shrink-0" />
-                    <span className="text-xs text-slate-500">
-                      {candidate.years_experience != null
-                        ? `${candidate.years_experience} years exp.`
-                        : '—'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Skills */}
-                {topSkills.length > 0 && (
-                  <div className="mt-3 pl-[52px]">
-                    <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                      Top Skills
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {topSkills.map((skill) => (
-                        <span
-                          key={skill.id}
-                          className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600"
-                        >
-                          {skill.name}
-                        </span>
-                      ))}
-                      {extraCount > 0 && (
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-400">
-                          +{extraCount} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 pl-[52px]">
-                  <button
-                    onClick={() => navigate(`/candidates/${candidate.id}`)}
-                    className="flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-violet-600 transition-colors"
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                    View Details
-                  </button>
-                  <button className="flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-violet-600 transition-colors">
-                    <Download className="h-3.5 w-3.5" />
-                    Download
-                  </button>
-                  <button
-                    onClick={() => removeCandidates([candidate.id])}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-300 hover:bg-red-50 hover:text-red-400 transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            )
-          })}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch">
+          {filtered.map((candidate) => (
+            <CandidateCard
+              key={candidate.id}
+              candidate={candidate}
+              isSelected={selectedIds.has(candidate.id)}
+              onToggleSelect={() => toggleSelected(candidate.id)}
+              onDelete={(id) => removeCandidates([id])}
+              onView={(id) => navigate(`/candidates/${id}`)}
+            />
+          ))}
         </div>
       )}
     </div>

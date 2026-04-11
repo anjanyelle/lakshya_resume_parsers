@@ -81,12 +81,20 @@ export default function UploadPage() {
             </p>
           </div>
 
-          <DragDropZone onFilesSelected={handleFilesSelected} />
-          <FileValidator files={files} />
+          <div className="hover-lift">
+            <DragDropZone onFilesSelected={handleFilesSelected} />
+          </div>
+          <div className="hover-lift">
+            <FileValidator files={files} />
+          </div>
 
           <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-            <BatchUpload queue={queue} onUpload={uploadAll} />
-            <UploadHistory items={queue} />
+            <div className="hover-lift">
+              <BatchUpload queue={queue} onUpload={uploadAll} />
+            </div>
+            <div className="hover-lift">
+              <UploadHistory items={queue} />
+            </div>
           </div>
         </>
       )}
