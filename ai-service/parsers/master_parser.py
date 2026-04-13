@@ -6,8 +6,14 @@ Provides unified interface for file and text parsing with timing metrics.
 import re
 import time
 import logging
+import sys
+import os
 from typing import Dict, List, Any, Optional
 from pathlib import Path
+
+# Add utils to path for logger import
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from utils.logger import get_request_logger, generate_request_id
 
 from parsers.text_extractor import TextExtractor
 from parsers.section_splitter import SectionSplitter
@@ -322,13 +328,14 @@ class MasterParser:
                 }
             }
 
-    def parse_text(self, text: str, candidate_id: str) -> Dict[str, Any]:
+    def parse_text(self, text: str, candidate_id: str, request_id: str = None) -> Dict[str, Any]:
         """
         Parse resume text through the complete pipeline.
         
         Args:
             text: Resume text to parse
             candidate_id: Unique candidate identifier
+            request_id: Optional request ID for tracking
             
         Returns:
             Complete parsed resume data with confidence scores and metrics
@@ -336,22 +343,48 @@ class MasterParser:
         start_time = time.time()
         metrics = {}
         
+        # Generate request ID if not provided
+        if not request_id:
+            request_id = generate_request_id()
+        
+        # Get request-scoped logger
+        req_logger = get_request_logger(request_id)
+        
         try:
-            self.logger.info(f"🚀 Starting text parse pipeline for {candidate_id}")
+            req_logger.info("🚀 PARSE REQUEST STARTED", 
+                candidate_id=candidate_id,
+                text_length=len(text) if text else 0,
+                timestamp=time.time()
+            )
             
             if not text or not text.strip():
+                req_logger.error("❌ Empty text provided", candidate_id=candidate_id)
                 raise ValueError("Empty text provided")
+            
+            # Log text extraction stage
+            req_logger.info("📄 TEXT EXTRACTION STAGE",
+                text_length=len(text),
+                text_preview=text[:500] if len(text) > 500 else text,
+                word_count=len(text.split()),
+                line_count=len(text.split('\n'))
+            )
             
             # Use original text for parsing (cleaning removes emails/phones)
             # We'll handle cleaning in the final result if needed
             cleaned_text = text.strip()
             
-            # Run text parsing pipeline
+            req_logger.debug("🧹 Text cleaned", 
+                original_length=len(text),
+                cleaned_length=len(cleaned_text)
+            )
+            
+            # Run text parsing pipeline with request logger
             result = self._parse_text_pipeline(
                 cleaned_text, 
                 candidate_id, 
                 metrics,
-                file_info={'parsing_method': 'direct_text'}
+                file_info={'parsing_method': 'direct_text'},
+                request_id=request_id
             )
             
             # Add text-specific metadata
@@ -367,14 +400,38 @@ class MasterParser:
             metrics['total_ms'] = total_time
             self.last_parse_metrics = metrics
             
-            self.logger.info(f"✅ Text parse completed for {candidate_id} in {total_time:.1f}ms")
+            # Log final response
+            work_exp_count = len(result.get('work_experience', []))
+            education_count = len(result.get('education', []))
+            
+            req_logger.info("✅ PARSE REQUEST COMPLETED",
+                candidate_id=candidate_id,
+                total_time_ms=total_time,
+                work_experience_count=work_exp_count,
+                education_count=education_count,
+                skills_count=len(result.get('skills', [])),
+                metrics=metrics
+            )
+            
+            # Log extracted work experience and education
+            req_logger.info("📊 FINAL EXTRACTION RESULTS",
+                work_experience=result.get('work_experience', []),
+                education=result.get('education', [])
+            )
+            
+            # Add request ID to result
+            result['request_id'] = request_id
             
             return result
             
         except Exception as e:
             import traceback
-            self.logger.error(f"❌ Error parsing text for {candidate_id}: {e}")
-            self.logger.error(f"Traceback: {traceback.format_exc()}")
+            req_logger.exception("❌ PARSE REQUEST FAILED",
+                candidate_id=candidate_id,
+                error=str(e),
+                error_type=type(e).__name__,
+                traceback=traceback.format_exc()
+            )
             return self._create_error_result(candidate_id, str(e), metrics)
     
     def _run_complete_pipeline(self, raw_text: str, candidate_id: str, metrics: Dict[str, float], 
@@ -741,7 +798,8 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             return {'error': str(e)}
 
     def _parse_text_pipeline(self, text: str, candidate_id: str, metrics: Dict[str, float], 
-                           llm_provider: Optional[str] = None, file_info: Dict[str, Any] = None) -> Dict[str, Any]:
+                           llm_provider: Optional[str] = None, file_info: Dict[str, Any] = None,
+                           request_id: str = None) -> Dict[str, Any]:
         """
         Core text parsing pipeline (shared by file and text parsing).
         
@@ -751,10 +809,15 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             metrics: Timing metrics dictionary
             llm_provider: Optional LLM provider for full LLM parsing or experience extraction
             file_info: File-specific information
+            request_id: Request ID for logging
             
         Returns:
             Parsed result dictionary
         """
+        # Get request logger
+        if not request_id:
+            request_id = generate_request_id()
+        req_logger = get_request_logger(request_id)
         # OPTION 1: Full LLM Parsing (when specific LLM provider is selected)
         # This uses the LLM to parse the entire resume with strict cleaning rules
         if llm_provider and llm_provider != 'own-model':
@@ -814,6 +877,31 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         sections = self._split_sections(text)
         metrics['section_splitting_ms'] = (time.time() - step_start) * 1000
         
+        # Log section extraction
+        section_names = list(sections.keys()) if sections else []
+        req_logger.info("📑 SECTION EXTRACTION STAGE",
+            sections_detected=section_names,
+            section_count=len(section_names),
+            has_work_experience='experience' in [s.lower() for s in section_names],
+            has_education='education' in [s.lower() for s in section_names]
+        )
+        
+        # Warn if WORK EXPERIENCE section is missing
+        if not any('experience' in s.lower() for s in section_names):
+            req_logger.warning("⚠️ WORK EXPERIENCE SECTION NOT DETECTED",
+                detected_sections=section_names,
+                text_preview=text[:300]
+            )
+        
+        # Log section content for debugging
+        for section_name, section_text in sections.items():
+            if 'experience' in section_name.lower():
+                req_logger.debug(f"📋 WORK EXPERIENCE SECTION CONTENT",
+                    section_name=section_name,
+                    content_length=len(section_text),
+                    content_preview=section_text[:500] if len(section_text) > 500 else section_text
+                )
+        
         # Step 3: Rule-based parsing (pass sections for skills extraction)
         step_start = time.time()
         rule_results = self._run_rule_parsing(text, sections)
@@ -821,8 +909,37 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         # Step 3b: DeBERTa NER parsing (if available)
         step_start = time.time()
+        req_logger.info("🤖 MODEL INFERENCE STAGE - Starting DeBERTa NER parsing")
+        
         deberta_results = self._run_deberta_parsing(text)
         metrics['deberta_parsing_ms'] = (time.time() - step_start) * 1000
+        
+        # Log model input and output
+        req_logger.info("🔍 MODEL INPUT",
+            text_length=len(text),
+            text_preview=text[:500] if len(text) > 500 else text
+        )
+        
+        req_logger.info("📤 MODEL RAW OUTPUT",
+            companies=deberta_results.get('companies', []),
+            job_titles=deberta_results.get('job_titles', []),
+            institutions=deberta_results.get('institutions', []),
+            degrees=deberta_results.get('degrees', []),
+            work_experience_count=len(deberta_results.get('work_experience', [])),
+            education_count=len(deberta_results.get('education', []))
+        )
+        
+        # Log parsed entities
+        req_logger.info("🎯 MODEL PARSED ENTITIES",
+            work_experience=deberta_results.get('work_experience', []),
+            education=deberta_results.get('education', [])
+        )
+        
+        # Warn if model didn't extract work experience
+        if not deberta_results.get('work_experience') and not deberta_results.get('companies'):
+            req_logger.warning("⚠️ MODEL DID NOT EXTRACT WORK EXPERIENCE",
+                deberta_results=deberta_results
+            )
         
         # Step 4: AI entity extraction (conditional - only if needed based on rule_results and deberta_results)
         step_start = time.time()
@@ -836,13 +953,34 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         # Step 5: Extract structured experience
         step_start = time.time()
+        req_logger.info("💼 EXPERIENCE EXTRACTION STAGE")
+        
         experience_results = self._extract_experience(sections, text, llm_provider)
         metrics['experience_extraction_ms'] = (time.time() - step_start) * 1000
         
+        req_logger.info("✅ Experience extraction completed",
+            experience_count=len(experience_results.get('work_experience', [])),
+            experiences=experience_results.get('work_experience', [])
+        )
+        
+        # Warn if experience extraction failed
+        if not experience_results.get('work_experience'):
+            req_logger.warning("⚠️ EXPERIENCE EXTRACTION RETURNED EMPTY",
+                sections_available=list(sections.keys()) if sections else [],
+                experience_results=experience_results
+            )
+        
         # Step 6: Extract structured education
         step_start = time.time()
+        req_logger.info("🎓 EDUCATION EXTRACTION STAGE")
+        
         education_results = self._extract_education(sections, text)
         metrics['education_extraction_ms'] = (time.time() - step_start) * 1000
+        
+        req_logger.info("✅ Education extraction completed",
+            education_count=len(education_results.get('education', [])),
+            educations=education_results.get('education', [])
+        )
         
         # Step 6b: Extract summary
         step_start = time.time()

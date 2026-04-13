@@ -144,6 +144,7 @@ class ParseResponse(BaseModel):
     source_info: Optional[Dict[str, Any]] = None
     text_info: Optional[Dict[str, Any]] = None
     extraction_quality: Optional[Dict[str, Any]] = None
+    model_results: Optional[Dict[str, Any]] = None
     
     # Validators to ensure None values are converted to empty lists
     @field_validator('websites', 'skills', 'work_experience', 'work_history', 'education', 'job_titles', 'companies', 'locations', 'dates', mode='before')

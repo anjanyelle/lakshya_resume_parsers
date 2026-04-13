@@ -72,5 +72,6 @@ class CandidatePublicRead(BaseModel):
     parsing_jobs: List[ParsingJobPublic] = Field(default_factory=list)
     certifications: List[CertificationRead] = Field(default_factory=list)
     achievements: List[CandidateAchievementRead] = Field(default_factory=list)
+    model_results: Optional[dict] = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -73,14 +73,26 @@ def is_valid_job_title(text: str) -> bool:
         if keyword in text_lower:
             return False
     
-    # Check for section headers
+    # Check for section headers (both with and without colons)
     section_headers = [
         'environment:', 'technologies:', 'tech stack:',
         'skills:', 'tools:', 'responsibilities:',
-        'achievements:', 'projects:', 'summary:'
+        'achievements:', 'projects:', 'summary:',
+        'work experience', 'professional experience', 'employment history',
+        'education', 'academic background', 'qualifications',
+        'certifications', 'awards', 'publications',
+        'references', 'hobbies', 'interests'
     ]
     for header in section_headers:
-        if text_lower.startswith(header):
+        if text_lower.startswith(header) or text_lower == header.rstrip(':'):
+            return False
+    
+    # Reject if it's ONLY a section header (all caps)
+    if text.isupper() and len(text.split()) <= 3:
+        common_sections = ['SKILLS', 'EDUCATION', 'EXPERIENCE', 'WORK EXPERIENCE', 
+                          'SUMMARY', 'PROFILE', 'PROJECTS', 'CERTIFICATIONS',
+                          'REFERENCES', 'AWARDS', 'PUBLICATIONS']
+        if text in common_sections:
             return False
     
     # Must contain at least one alphabetic word (not just numbers/symbols)
@@ -612,6 +624,41 @@ def extract_experience(experience_text: str) -> list:
                 title = line.strip()
                 company = next_line.strip()
                 
+                # CRITICAL: Validate that we haven't swapped title and company
+                # Company names often have: Ltd, Pvt, Inc, Corp, Technologies, Solutions, Services
+                company_indicators = ['ltd', 'pvt', 'inc', 'corp', 'llc', 'technologies', 
+                                     'solutions', 'services', 'systems', 'consulting', 'group']
+                
+                # Job title indicators
+                title_indicators = ['engineer', 'developer', 'manager', 'director', 'analyst',
+                                   'specialist', 'consultant', 'architect', 'lead', 'senior',
+                                   'junior', 'associate', 'coordinator', 'designer', 'programmer']
+                
+                title_lower = title.lower()
+                company_lower = company.lower()
+                
+                # Check if title has company indicators (means they're swapped)
+                title_has_company_indicator = any(ind in title_lower for ind in company_indicators)
+                company_has_title_indicator = any(ind in company_lower for ind in title_indicators)
+                
+                # If title looks like a company and company looks like a title, swap them
+                if title_has_company_indicator and company_has_title_indicator:
+                    title, company = company, title
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"⚠️ SWAPPED title and company: Title='{title}', Company='{company}'")
+                
+                # Additional validation: Reject if company is empty or looks invalid
+                if not company or len(company) < 2:
+                    i += 1
+                    continue
+                
+                # Reject if title is actually a section header
+                if title.isupper() and title in ['SKILLS', 'EDUCATION', 'EXPERIENCE', 'SUMMARY', 
+                                                  'PROJECTS', 'CERTIFICATIONS', 'REFERENCES']:
+                    i += 1
+                    continue
+                
                 # Debug logging
                 import logging
                 logger = logging.getLogger(__name__)
@@ -621,6 +668,13 @@ def extract_experience(experience_text: str) -> list:
                 description_lines = []
                 for k in range(date_line_idx + 1, min(date_line_idx + 10, len(lines))):
                     desc_line = lines[k].strip()
+                    
+                    # Stop at section headers (EDUCATION, SKILLS, etc.)
+                    if desc_line.isupper() and desc_line in ['SKILLS', 'EDUCATION', 'EXPERIENCE', 
+                                                              'SUMMARY', 'PROJECTS', 'CERTIFICATIONS']:
+                        logger.info(f"  ⏹️ Stopping at section header: '{desc_line}'")
+                        break
+                    
                     # Stop at next job (another title-like line followed by company)
                     if (k + 2 < len(lines) and 
                         is_valid_job_title(desc_line) and 
@@ -628,15 +682,23 @@ def extract_experience(experience_text: str) -> list:
                         not DATE_LINE_PATTERN.search(desc_line)):
                         logger.info(f"  ⏹️ Stopping at line {k}: '{desc_line}' (looks like next job title)")
                         break
+                    
                     if desc_line and not NOISE_LINE.match(desc_line):
                         description_lines.append(desc_line)
                 
                 description = '\n'.join(description_lines)
                 
-                # Clean up company name (remove location if mixed)
-                if ',' in company and len(company.split(',')) > 1:
-                    # Company might have location mixed in, keep first part
-                    company = company.split(',')[0].strip()
+                # DON'T remove company suffixes - keep the full company name
+                # Only remove location if it's clearly separated by comma
+                # Example: "TechNova Solutions Pvt Ltd, Hyderabad" -> "TechNova Solutions Pvt Ltd"
+                if ',' in company:
+                    parts = company.split(',')
+                    # Check if last part looks like a location (city name)
+                    last_part = parts[-1].strip()
+                    # Common location patterns: single word, or "City, State"
+                    if len(last_part.split()) <= 2 and not any(ind in last_part.lower() for ind in company_indicators):
+                        # Last part is likely a location, remove it
+                        company = ','.join(parts[:-1]).strip()
                 
                 logger.info(f"  ✅ Extracted - Title: '{title}', Company: '{company}', Desc lines: {len(description_lines)}")
                 

@@ -95,11 +95,35 @@ class DeBERTaNerParser:
     def _preprocess_text(text: str) -> str:
         """
         Pre-process text to normalize format for better model inference.
-        Minimal normalization - preserves Client vs Company distinction.
+        Removes format artifacts that confuse the model.
         """
-        # No conversion needed - Client and Company are different entities
-        # Model should learn to distinguish between them
-        return text
+        import re
+        
+        # Remove common prefixes that confuse the model
+        # These prefixes make the model think the label is part of the entity
+        prefixes_to_remove = [
+            r'^Role:\s*',
+            r'^Responsibilities:\s*',
+            r'^Environment:\s*',
+            r'^Company:\s*',
+            r'^Position:\s*',
+            r'^Title:\s*',
+            r'^Location:\s*',
+            r'^Duration:\s*',
+            r'^Period:\s*',
+        ]
+        
+        lines = text.split('\n')
+        cleaned_lines = []
+        
+        for line in lines:
+            cleaned_line = line
+            # Remove prefixes from each line
+            for prefix_pattern in prefixes_to_remove:
+                cleaned_line = re.sub(prefix_pattern, '', cleaned_line, flags=re.IGNORECASE)
+            cleaned_lines.append(cleaned_line)
+        
+        return '\n'.join(cleaned_lines)
     
     def _load_model(self):
         """Load the trained DeBERTa NER model with graceful fallback."""
@@ -124,8 +148,15 @@ class DeBERTaNerParser:
             if os.path.exists(label_path):
                 with open(label_path, 'r') as f:
                     mappings = json.load(f)
-                    self.id_to_label = {int(k): v for k, v in mappings['id_to_label'].items()}
-                    self.label_to_id = mappings['label_to_id']
+                    # Handle both naming conventions: id2label/label2id and id_to_label/label_to_id
+                    if 'id2label' in mappings:
+                        self.id_to_label = {int(k): v for k, v in mappings['id2label'].items()}
+                        self.label_to_id = mappings['label2id']
+                    elif 'id_to_label' in mappings:
+                        self.id_to_label = {int(k): v for k, v in mappings['id_to_label'].items()}
+                        self.label_to_id = mappings['label_to_id']
+                    else:
+                        raise KeyError("Label mappings file missing required keys")
             elif hasattr(self.model.config, 'id2label'):
                 # Fallback to model config
                 self.id_to_label = self.model.config.id2label
@@ -438,6 +469,11 @@ class DeBERTaNerParser:
         # Pre-process text to normalize format
         text = self._preprocess_text(text)
         
+        # Log the input text for debugging
+        logger.info(f"🔍 DeBERTa parsing {section_type} section:")
+        logger.info(f"   Text length: {len(text)} chars")
+        logger.info(f"   Text preview: {text[:300]}...")
+        
         # Initialize entities with label names from trained model
         entities = {
             'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
@@ -461,6 +497,19 @@ class DeBERTaNerParser:
         
         predictions = torch.argmax(outputs.logits, dim=2)[0]
         tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
+        
+        # Log raw predictions for debugging
+        raw_entities_found = []
+        for idx, (token, pred_id) in enumerate(zip(tokens, predictions)):
+            if token not in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
+                label = self.id_to_label[pred_id.item()]
+                if label != 'O':  # Not "Outside" label
+                    raw_entities_found.append(f"{token}:{label}")
+        
+        if raw_entities_found:
+            logger.info(f"   🎯 Raw model predictions: {', '.join(raw_entities_found[:20])}")
+        else:
+            logger.warning(f"   ⚠️ Model predicted NO entities (all 'O' labels)")
         
         # Extract entities using offset mapping for accurate text
         current_entity = None
@@ -489,6 +538,15 @@ class DeBERTaNerParser:
                     # Post-processing: remove skills from DEGREE
                     elif current_entity == 'DEGREE' and self._is_skill(clean_text):
                         pass  # Skip skills
+                    # Filter out invalid companies (too short, single words, numbers)
+                    elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
+                        pass  # Skip invalid companies
+                    # Filter out invalid job titles (single words, tech names)
+                    elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
+                        pass  # Skip invalid job titles
+                    # Filter out invalid locations (tech names, numbers)
+                    elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
+                        pass  # Skip invalid locations
                     elif clean_text and current_entity in entities:
                         entities[current_entity].append(clean_text)
                 
@@ -510,6 +568,12 @@ class DeBERTaNerParser:
                         pass
                     elif current_entity == 'DEGREE' and self._is_skill(clean_text):
                         pass
+                    elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
+                        pass
+                    elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
+                        pass
+                    elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
+                        pass
                     elif clean_text and current_entity in entities:
                         entities[current_entity].append(clean_text)
                     current_entity = None
@@ -523,15 +587,26 @@ class DeBERTaNerParser:
                 pass
             elif current_entity == 'DEGREE' and self._is_skill(clean_text):
                 pass
+            elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
+                pass
+            elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
+                pass
+            elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
+                pass
             elif clean_text and current_entity in entities:
                 entities[current_entity].append(clean_text)
         
-        # Log extracted entities
+        # Log extracted entities (after validation filters)
         entity_summary = {k: len(v) for k, v in entities.items() if v}
         if not entity_summary:
-            logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type}. Text length: {len(text)} chars")
+            logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type} after validation filters")
+            logger.warning(f"   This could mean: (1) Model didn't detect entities, or (2) Validation filters rejected them")
         else:
-            logger.info(f"🔍 DeBERTa extracted from {section_type}: {entity_summary}")
+            logger.info(f"✅ DeBERTa extracted from {section_type} (after filters): {entity_summary}")
+            if entities.get('ROLE'):
+                logger.info(f"   Roles extracted: {entities['ROLE']}")
+            if entities.get('COMPANY'):
+                logger.info(f"   Companies extracted: {entities['COMPANY'][:5]}")  # First 5
         
         return entities
     
@@ -584,6 +659,117 @@ class DeBERTaNerParser:
         ]
         text_lower = text.lower().strip()
         return any(skill in text_lower for skill in skill_keywords)
+    
+    def _is_valid_company(self, text: str) -> bool:
+        """Validate if text is a legitimate company name."""
+        text = text.strip()
+        
+        # Must be at least 2 characters
+        if len(text) < 2:
+            return False
+        
+        # Reject if it's just numbers or single letters
+        if len(text) <= 3 and (text.isdigit() or len(text.split()) == 1):
+            return False
+        
+        # Reject common tech/skill names
+        tech_keywords = ['react', 'angular', 'vue', 'node', 'python', 'java', 'django', 
+                        'flask', 'spring', 'mongodb', 'sql', 'postgresql', 'mysql']
+        if text.lower() in tech_keywords:
+            return False
+        
+        # Reject if it looks like an email fragment
+        if '@' in text or '.com' in text.lower():
+            return False
+        
+        # Accept if it contains company indicators
+        company_indicators = ['ltd', 'pvt', 'inc', 'corp', 'llc', 'technologies', 
+                             'solutions', 'systems', 'labs', 'software', 'group']
+        if any(indicator in text.lower() for indicator in company_indicators):
+            return True
+        
+        # Accept if it's multiple words (likely a company name)
+        if len(text.split()) >= 2:
+            return True
+        
+        return False
+    
+    def _is_valid_job_title(self, text: str) -> bool:
+        """Validate if text is a legitimate job title."""
+        text = text.strip()
+        
+        # Must be at least 3 characters
+        if len(text) < 3:
+            return False
+        
+        # Reject if it's a person name (from contact section)
+        if self._is_person_name(text):
+            return False
+        
+        # Reject ONLY single-word tech names (not multi-word like "React Developer")
+        single_word_tech = ['react', 'angular', 'vue', 'node', 'python', 'java', 'django',
+                           'flask', 'spring', 'mongodb', 'sql', 'postgresql', 'mysql',
+                           'html', 'css', 'javascript', 'typescript']
+        if len(text.split()) == 1 and text.lower() in single_word_tech:
+            return False
+        
+        # Reject ONLY single-word description words
+        single_word_descriptions = ['responsive', 'scalable', 'modern', 'client', 'server',
+                                   'system', 'application', 'web', 'mobile', 'cloud',
+                                   'developed', 'building', 'working', 'basic']
+        if len(text.split()) == 1 and text.lower() in single_word_descriptions:
+            return False
+        
+        # Reject multi-word phrases that are clearly not job titles
+        invalid_phrases = ['responsive layouts', 'basic web development', 'web development',
+                          'application development', 'bug fixing', 'ui enhancements']
+        if text.lower() in invalid_phrases:
+            return False
+        
+        # Accept if it contains job title keywords
+        job_keywords = ['developer', 'engineer', 'manager', 'architect', 'analyst',
+                       'designer', 'consultant', 'specialist', 'lead', 'senior',
+                       'junior', 'trainee', 'intern', 'director', 'coordinator',
+                       'programmer', 'administrator', 'technician']
+        if any(keyword in text.lower() for keyword in job_keywords):
+            return True
+        
+        # Accept multi-word titles (likely legitimate)
+        if len(text.split()) >= 2:
+            return True
+        
+        return False
+    
+    def _is_valid_location(self, text: str) -> bool:
+        """Validate if text is a legitimate location."""
+        text = text.strip()
+        
+        # Must be at least 2 characters
+        if len(text) < 2:
+            return False
+        
+        # Reject if it's just numbers
+        if text.isdigit():
+            return False
+        
+        # Reject tech/skill names
+        tech_keywords = ['react', 'angular', 'vue', 'node', 'python', 'java', 'django',
+                        'flask', 'spring', 'mongodb', 'sql', 'postgresql', 'mysql',
+                        'javascript', 'typescript', 'html', 'css']
+        if text.lower() in tech_keywords:
+            return False
+        
+        # Accept if it contains location indicators
+        location_indicators = ['india', 'usa', 'uk', 'city', 'bangalore', 'hyderabad',
+                              'mumbai', 'delhi', 'chennai', 'pune', 'kolkata']
+        if any(indicator in text.lower() for indicator in location_indicators):
+            return True
+        
+        # Accept if it looks like "City, Country" format
+        if ',' in text:
+            return True
+        
+        return False
     
     def _structured_fallback_sections(self, sections: Dict[str, str]) -> Dict[str, Any]:
         """Enhanced fallback using extract_experience function."""

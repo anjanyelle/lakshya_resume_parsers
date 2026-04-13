@@ -95,3 +95,9 @@ npm run dev
 cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/frontend"
 npm install
 npm run dev
+
+
+
+cd /Users/anjanyelle/Desktop/untitled\ folder\ 3/Lakshya-LLM-Resume-Parser
+source venv/bin/activate
+python3 test_deberta_model.py --file resume1.txt

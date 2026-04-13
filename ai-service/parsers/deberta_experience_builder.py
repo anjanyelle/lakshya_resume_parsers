@@ -97,15 +97,30 @@ class DeBERTaExperienceBuilder:
         
         # For each company, find the nearest entities
         for i, (company_pos, company_name) in enumerate(company_positions):
-            # Define search window: from company position to next company (or end of text)
-            window_start = company_pos
-            window_end = company_positions[i + 1][0] if i + 1 < len(company_positions) else len(text)
+            # Define search windows
+            prev_company_pos = company_positions[i - 1][0] if i > 0 else 0
+            next_company_pos = company_positions[i + 1][0] if i + 1 < len(company_positions) else len(text)
             
-            # Find entities within this window
-            role = self._find_nearest_entity(role_positions, window_start, window_end)
-            start_date = self._find_nearest_entity(start_date_positions, window_start, window_end)
-            end_date = self._find_nearest_entity(end_date_positions, window_start, window_end)
-            location = self._find_nearest_entity(location_positions, window_start, window_end)
+            # Smart role detection - handle multiple formats:
+            # Format 1: "Job Title\nCompany Name\nDates" (most common)
+            # Format 2: "Company Name\nJob Title\nDates"
+            # Format 3: "Job Title - Company Name" (same line)
+            
+            # Search BEFORE company (within 200 chars)
+            role_search_start = max(prev_company_pos, company_pos - 200)
+            role_before = self._find_nearest_entity_before(role_positions, role_search_start, company_pos)
+            
+            # Search AFTER company (within 200 chars)
+            role_search_end = min(next_company_pos, company_pos + 200)
+            role_after = self._find_nearest_entity(role_positions, company_pos, role_search_end)
+            
+            # Determine which role to use based on proximity
+            role = self._choose_best_role(role_before, role_after, company_pos, role_positions, text)
+            
+            # Search for dates and location AFTER the company
+            start_date = self._find_nearest_entity(start_date_positions, company_pos, next_company_pos)
+            end_date = self._find_nearest_entity(end_date_positions, company_pos, next_company_pos)
+            location = self._find_nearest_entity(location_positions, company_pos, next_company_pos)
             
             # Check if end date indicates current position
             is_current = False
@@ -148,6 +163,89 @@ class DeBERTaExperienceBuilder:
             if window_start <= pos < window_end:
                 return value
         return None
+    
+    def _find_nearest_entity_before(self, entity_positions: List[tuple], window_start: int, window_end: int) -> str:
+        """
+        Find the nearest entity BEFORE the window_end position (for job titles before company).
+        
+        Args:
+            entity_positions: List of (position, value) tuples
+            window_start: Start of search window
+            window_end: End of search window (typically company position)
+            
+        Returns:
+            Entity value if found within window, None otherwise
+        """
+        # Find all entities in the window, return the one closest to window_end
+        candidates = [(pos, value) for pos, value in entity_positions if window_start <= pos < window_end]
+        if candidates:
+            # Sort by position descending (closest to company first)
+            candidates.sort(key=lambda x: x[0], reverse=True)
+            return candidates[0][1]
+        return None
+    
+    def _choose_best_role(self, role_before: str, role_after: str, company_pos: int, 
+                         role_positions: List[tuple], text: str) -> str:
+        """
+        Intelligently choose the best role based on resume format detection.
+        
+        Handles multiple formats:
+        - Format 1: "Job Title\nCompany Name\nDates" (role before company)
+        - Format 2: "Company Name\nJob Title\nDates" (role after company)
+        - Format 3: "Job Title - Company Name" (same line)
+        
+        Args:
+            role_before: Role found before company (if any)
+            role_after: Role found after company (if any)
+            company_pos: Position of company in text
+            role_positions: All role positions for distance calculation
+            text: Full text for context analysis
+            
+        Returns:
+            Best matching role or empty string
+        """
+        # If only one exists, use it
+        if role_before and not role_after:
+            return role_before
+        if role_after and not role_before:
+            return role_after
+        if not role_before and not role_after:
+            return ''
+        
+        # Both exist - need to determine which is correct
+        # Strategy: Check which one is closer and analyze the text structure
+        
+        # Find positions
+        role_before_pos = None
+        role_after_pos = None
+        for pos, value in role_positions:
+            if value == role_before and pos < company_pos:
+                role_before_pos = pos
+            if value == role_after and pos > company_pos:
+                role_after_pos = pos
+                break
+        
+        # Calculate distances
+        dist_before = company_pos - role_before_pos if role_before_pos is not None else float('inf')
+        dist_after = role_after_pos - company_pos if role_after_pos is not None else float('inf')
+        
+        # Prefer the closer one, but with some heuristics:
+        # 1. If role is within 100 chars before company, likely Format 1 (most common)
+        # 2. If role is within 50 chars after company, likely Format 2
+        # 3. If distances are similar, prefer before (more common format)
+        
+        if dist_before <= 100:
+            # Very close before - likely correct (Format 1)
+            return role_before
+        elif dist_after <= 50:
+            # Very close after - likely Format 2
+            return role_after
+        elif dist_before < dist_after:
+            # Closer before
+            return role_before
+        else:
+            # Closer after or equal - prefer before for tie-breaking
+            return role_before if dist_before == dist_after else role_after
     
     
     def _parse_date(self, date_str: str) -> str:

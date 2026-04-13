@@ -4752,6 +4752,12 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
             if inferred_summary:
                 inferred_summary = clean_summary(inferred_summary)
                 candidate.summary = inferred_summary
+            
+            # Store model_results for UI display
+            if parsed_data.get("model_results"):
+                candidate.model_results = parsed_data.get("model_results")
+                logger.info(f"Saved model_results to candidate record")
+            
             candidate.status = CandidateStatus.SUCCESS
 
         session.execute(delete(WorkHistory).where(WorkHistory.candidate_id == job.candidate_id))
