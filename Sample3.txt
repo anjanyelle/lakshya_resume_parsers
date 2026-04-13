@@ -1,0 +1,9 @@
+Software Engineer
+TechNova Solutions Pvt Ltd
+Jan 2024 - Present
+Worked on enterprise applications using React.js, Redux, and Node.js
+
+Frontend Developer
+WebSpark Technologies Pvt Ltd
+Aug 2022 - Dec 2023
+Implemented UI designs and integrated APIs using React.js

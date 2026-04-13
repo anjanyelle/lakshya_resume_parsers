@@ -1,0 +1,18 @@
+WORK EXPERIENCE
+
+Full Stack Developer
+NextGen Software Pvt Ltd
+Mar 2023 - Present
+Developing scalable web applications using React.js, Node.js, and MongoDB.
+
+React Developer
+CodeCraft Technologies Pvt Ltd
+Jul 2021 - Feb 2023
+Worked on UI components, state management, and API integrations.
+
+
+EDUCATION
+
+B.Tech in Information Technology
+Osmania University
+2017 - 2021

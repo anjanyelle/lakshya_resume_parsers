@@ -1,0 +1,9 @@
+Software Developer
+ABC Tech Solutions Pvt Ltd
+Feb 2023 - Present
+Built scalable web applications using React.js, Node.js, and REST APIs
+
+Frontend Developer
+XYZ Innovations Pvt Ltd
+Jan 2021 - Jan 2023
+Developed responsive UI components using React.js and Tailwind CSS
