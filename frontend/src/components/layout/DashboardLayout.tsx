@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
+import {
+  LayoutDashboard, Users, UploadCloud, BarChart3,
+  ClipboardCheck, Database, Menu, Bell, Search,
+  ChevronDown, LogOut, FileText, Settings, X
+} from "lucide-react";
 
 interface NavItem {
   name: string;
@@ -9,151 +14,30 @@ interface NavItem {
 }
 
 export default function DashboardLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const navigation: NavItem[] = [
-    {
-      name: "Dashboard",
-      href: "/dashboard",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Candidates",
-      href: "/candidates",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Upload Resume",
-      href: "/upload",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Jobs",
-      href: "/jobs",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Matching",
-      href: "/matching",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Labeling",
-      href: "/labeling",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: "Settings",
-      href: "/settings",
-      icon: (
-        <svg
-          className="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      ),
-    },
+    { name: "Overview", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
+    { name: "Upload Resume", href: "/upload", icon: <UploadCloud size={20} /> },
+    { name: "Candidates", href: "/candidates", icon: <Users size={20} /> },
+    { name: "Accuracy", href: "/accuracy", icon: <BarChart3 size={20} /> },
+    { name: "Corrections", href: "/corrections", icon: <ClipboardCheck size={20} /> },
+    { name: "Taxonomy", href: "/taxonomy", icon: <Database size={20} /> },
   ];
 
   const handleLogout = () => {
@@ -161,178 +45,180 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
-  const isActive = (href: string) => {
-    return location.pathname === href;
-  };
+  const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(`${href}/`);
+  const currentPage = navigation.find((n) => isActive(n.href))?.name || "Overview";
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75"
-            onClick={() => setSidebarOpen(false)}
-          />
-        </div>
+    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] font-sans antialiased text-slate-900">
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+        />
       )}
 
       {/* Sidebar */}
-      <div
-        className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:relative lg:inset-0 lg:flex-shrink-0
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-      `}
-      >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <svg
-                  className="h-5 w-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-[#F5F8FF] border-r border-indigo-50/50 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0
+        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+      `}>
+
+        {/* Logo Section */}
+        <div className="flex h-16 shrink-0 items-center px-6 mt-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#4F46E5] text-white shadow-lg shadow-indigo-100">
+              <FileText size={20} className="stroke-[2.5]" />
             </div>
-            <span className="ml-2 text-xl font-semibold text-gray-900">
-              Resume Parser
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-extrabold tracking-tight text-[#1E293B] leading-none">Resume</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1 uppercase">ADMIN CONSOLE</span>
+            </div>
           </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-400 hover:text-gray-500"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
         </div>
 
         {/* Navigation */}
-        <nav className="mt-5 px-2">
-          <div className="space-y-1">
-            {navigation.map((item) => (
+        <nav className="flex-1 overflow-y-auto px-4 space-y-2">
+          {navigation.map((item) => {
+            const active = isActive(item.href);
+            return (
               <button
                 key={item.name}
                 onClick={() => {
                   navigate(item.href);
-                  setSidebarOpen(false);
+                  setMobileMenuOpen(false);
                 }}
                 className={`
-                  group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-colors
-                  ${
-                    isActive(item.href)
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
+                  group flex w-full items-center gap-4 rounded-xl px-2.5 py-2.5 text-base font-bold transition-all duration-300 relative overflow-hidden
+                  ${active
+                    ? "bg-gradient-to-r from-[#7C3AED] to-[#2DD4BF] text-white shadow-xl shadow-indigo-200"
+                    : "text-[#475569] hover:bg-white hover:text-indigo-600 hover:shadow-sm"}
                 `}
               >
-                <div
-                  className={`
-                  mr-3 h-5 w-5 flex-shrink-0
-                  ${isActive(item.href) ? "text-indigo-500" : "text-gray-400 group-hover:text-gray-500"}
-                `}
-                >
+                {/* Hover indicator for inactive items */}
+                {!active && (
+                  <div className="absolute left-0 w-1 h-0 bg-indigo-500 rounded-full transition-all duration-300 group-hover:h-6" />
+                )}
+
+                <div className={`${active ? "text-white" : "text-slate-400 group-hover:text-indigo-600 transition-colors"}`}>
                   {item.icon}
                 </div>
-                {item.name}
+                <span className="tracking-tight">{item.name}</span>
+
+                {/* Colorful Sparkle on hover for inactive items */}
+                {!active && (
+                  <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-indigo-500/5 rounded-full blur-xl group-hover:bg-indigo-500/10 transition-colors" />
+                )}
               </button>
-            ))}
-          </div>
+            );
+          })}
         </nav>
-      </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
-        {/* Top header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 lg:order-1 order-2">
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-gray-400 hover:text-gray-500"
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
+        {/* Sidebar Footer - Logout */}
+        <div className="p-6 border-t border-slate-50 mt-auto">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full rounded-2xl p-4 text-sm font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50/50 transition-all duration-300 group border border-transparent hover:border-rose-100"
+          >
+            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 group-hover:bg-rose-100 group-hover:scale-110 shadow-sm transition-all">
+              <LogOut size={20} />
             </div>
+            <span className="font-bold">Logout</span>
+          </button>
+        </div>
+      </aside>
 
-            <div className="flex items-center space-x-4">
-              {/* User info */}
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
-                    {user?.name || "User"}
-                  </p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
-                </div>
-                <div className="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-white">
-                    {user?.name?.charAt(0).toUpperCase() || "U"}
-                  </span>
-                </div>
-              </div>
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
 
-              {/* Logout button */}
+        {/* Header */}
+        <header className="flex h-16 shrink-0 items-center justify-between px-8 bg-white border-b border-slate-50 z-30">
+
+          <div className="flex items-center gap-4">
+            <button
+              className="text-slate-400 lg:hidden p-2 hover:bg-slate-50 rounded-xl"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu size={24} />
+            </button>
+
+            <div className="flex items-center gap-3">
+               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 shadow-sm shadow-indigo-100/30">
+                  {navigation.find(n => isActive(n.href))?.icon || <LayoutDashboard size={20} />}
+               </div>
+               <h1 className="text-lg font-black text-slate-800 tracking-tight">{currentPage}</h1>
+            </div>
+          </div>
+
+          {/* Search Bar - Center */}
+          <div className="hidden lg:flex flex-1 max-w-lg mx-8 relative items-center group">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
+              <Search size={18} className="text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder="SEARCH INTELLIGENCE"
+              className="h-12 w-full rounded-2xl border border-slate-100 bg-[#F8FAFC] pl-12 pr-16 text-xs font-bold tracking-widest uppercase outline-none transition-all focus:bg-white focus:border-indigo-400 focus:shadow-xl focus:shadow-indigo-500/5 placeholder:text-slate-300"
+            />
+            <div className="absolute right-4 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white px-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+              CTRL + K
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button className="text-slate-400 hover:text-indigo-600 hover:bg-slate-50 p-2.5 rounded-xl transition-all relative">
+              <Bell size={20} />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 border-2 border-white rounded-full"></span>
+            </button>
+
+            {/* User Menu */}
+            <div className="relative" ref={userMenuRef}>
               <button
-                onClick={handleLogout}
-                className="text-gray-400 hover:text-gray-500 transition-colors"
-                title="Logout"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-3 p-1 rounded-xl transition-all"
               >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
+                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-[#6366F1] text-white font-black text-sm shadow-md shadow-indigo-100 shrink-0">
+                  <Users size={18} />
+                </div>
+                <div className="hidden sm:flex items-center gap-2">
+                  <p className="text-xs font-black text-slate-800 tracking-widest uppercase">ADMIN</p>
+                  <ChevronDown size={14} className="text-slate-400" />
+                </div>
               </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 top-[calc(100%+12px)] w-56 bg-white rounded-2xl border border-slate-100 shadow-2xl z-50 overflow-hidden py-2 animate-in fade-in slide-in-from-top-4">
+                  <div className="px-4 py-3 mb-2 bg-slate-50/50">
+                    <p className="text-[12px] font-black text-slate-900">{user?.name || "Admin User"}</p>
+                    <p className="text-[10px] font-bold text-slate-400 truncate mt-0.5">{user?.email || "admin@example.com"}</p>
+                  </div>
+                  <button className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-700 flex items-center gap-3 transition-colors">
+                    <Settings size={14} />
+                    Account Settings
+                  </button>
+                  <div className="my-2 border-t border-slate-100"></div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-3 transition-colors"
+                  >
+                    <LogOut size={14} />
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto lg:order-2 order-3">
-          <Outlet />
+        {/* Content Render Area */}
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 relative">
+          <div className="max-w-[1500px] mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
   );
 }
+

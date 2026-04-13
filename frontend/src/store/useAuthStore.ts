@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { apiRequest } from "../services/api";
 
 interface User {
   id: string;
@@ -37,24 +38,12 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true });
         try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/auth/login`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ email, password }),
-            },
-          );
+          const response = await apiRequest.post("/auth/login", {
+            email,
+            password,
+          });
 
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || "Login failed");
-          }
-
-          const data = await response.json();
-          const { user, token } = data;
+          const { user, token } = response.data;
 
           set({
             user,

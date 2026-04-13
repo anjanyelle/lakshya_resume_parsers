@@ -44,10 +44,10 @@ interface MatchResult {
   extra_skills: string[];
   experience_gap_years: number;
   recommendation:
-    | "Strong Match"
-    | "Good Match"
-    | "Partial Match"
-    | "Not Recommended";
+  | "Strong Match"
+  | "Good Match"
+  | "Partial Match"
+  | "Not Recommended";
   reason: string;
   created_at: string;
 }

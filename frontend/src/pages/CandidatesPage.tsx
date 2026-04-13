@@ -2,17 +2,26 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import toast from "react-hot-toast";
+import { 
+  Users, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, 
+  Download, Eye, MoreVertical, Trash2, Mail, Phone, 
+  MapPin, Calendar, FileText, ChevronLeft, ChevronRight, LogOut
+} from "lucide-react";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
 type SortType = "date-added" | "name" | "confidence-score";
+type SortDir = "asc" | "desc";
 
 export default function CandidatesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("date-added");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const { candidates, pagination, isLoading, fetchCandidates } = useCandidateStore();
+  const { candidates, pagination, isLoading, fetchCandidates, deleteCandidate } =
+    useCandidateStore();
   const navigate = useNavigate();
 
   const itemsPerPage = 20;
@@ -29,365 +38,450 @@ export default function CandidatesPage() {
     }
   };
 
-  // Client-side filter and sort (search is handled server-side)
   const filteredCandidates = candidates
     .filter((candidate) => {
-      // Status filter (client-side)
       const confidence = candidate.parsing_status?.confidence_score || 0;
-      const matchesFilter =
+      return (
         filter === "all" ||
         (filter === "high-confidence" && confidence >= 0.8) ||
-        (filter === "needs-review" && confidence < 0.8);
-
-      return matchesFilter;
+        (filter === "needs-review" && confidence < 0.8)
+      );
     })
     .sort((a, b) => {
-      // Sort logic (client-side)
+      let cmp = 0;
       switch (sort) {
         case "name":
-          return (a.full_name || "").localeCompare(b.full_name || "");
+          cmp = (a.full_name || "").localeCompare(b.full_name || "");
+          break;
         case "confidence-score":
-          const aConfidence = a.parsing_status?.confidence_score || 0;
-          const bConfidence = b.parsing_status?.confidence_score || 0;
-          return bConfidence - aConfidence;
-        case "date-added":
+          cmp =
+            (a.parsing_status?.confidence_score || 0) -
+            (b.parsing_status?.confidence_score || 0);
+          break;
         default:
-          return (
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          );
+          cmp =
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       }
+      return sortDir === "desc" ? -cmp : cmp;
     });
-
-  // Use server-side pagination
-  const paginatedCandidates = filteredCandidates;
-  
-  // Debug: Log pagination state
-  console.log("🔍 Pagination state:", pagination);
-  console.log("🔍 Candidates count:", candidates.length);
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return "bg-green-100 text-green-800";
-    if (confidence >= 0.6) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
-  };
 
   const getInitials = (name: string) => {
     if (!name) return "?";
     return name
       .split(" ")
-      .map((part) => part.charAt(0).toUpperCase())
+      .map((p) => p[0])
       .slice(0, 2)
-      .join("");
+      .join("")
+      .toUpperCase();
   };
 
-  const getExperienceSummary = (workExperience: any[]) => {
-    if (!workExperience || workExperience.length === 0) return "No experience";
-
-    const currentJob = workExperience.find((exp) => exp.is_current);
-    if (currentJob) {
-      return `${currentJob.job_title} at ${currentJob.company_name}`;
-    }
-
-    const latestJob = workExperience[0];
-    return `Previously ${latestJob.job_title} at ${latestJob.company_name}`;
+  const avatarColors: Record<string, string> = {};
+  const colorList = [
+    "from-rose-400 to-orange-400",
+    "from-indigo-400 to-violet-400",
+    "from-amber-400 to-orange-500",
+    "from-blue-400 to-blue-600",
+    "from-cyan-400 to-teal-500",
+    "from-pink-400 to-purple-500",
+    "from-green-400 to-emerald-600",
+  ];
+  
+  const getAvatarColor = (id: string) => {
+    const idx = id.charCodeAt(0) % colorList.length;
+    return colorList[idx];
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
   };
 
+  const getScoreInfo = (score: number) => {
+    if (score >= 80) return { color: "text-emerald-500", bg: "bg-emerald-50", stroke: "#10b981", track: "#ecfdf5" };
+    if (score >= 60) return { color: "text-amber-500", bg: "bg-amber-50", stroke: "#f59e0b", track: "#fffbeb" };
+    return { color: "text-rose-500", bg: "bg-rose-50", stroke: "#f43f5e", track: "#fff1f2" };
+  };
+
+  // Circular score SVG gauge - High Fidelity Version
+  const ScoreGauge = ({ score }: { score: number }) => {
+    const info = getScoreInfo(score);
+    const r = 18;
+    const circ = 2 * Math.PI * r;
+    const filled = (score / 100) * circ;
+    
+    return (
+      <div className="relative flex items-center justify-center w-12 h-12">
+        <svg width="48" height="48" viewBox="0 0 48 48" className="transform -rotate-90">
+          <circle cx="24" cy="24" r={r} fill="none" stroke="#F1F5F9" strokeWidth="4" />
+          <circle
+            cx="24" cy="24" r={r} fill="none"
+            stroke={info.stroke} strokeWidth="4"
+            strokeDasharray={`${filled} ${circ - filled}`}
+            strokeLinecap="round"
+            className="transition-all duration-1000 ease-out"
+          />
+        </svg>
+        <span className={`absolute text-[11px] font-[900] ${info.color}`}>
+          {score}
+        </span>
+      </div>
+    );
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedIds.size === filteredCandidates.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredCandidates.map((c) => c.id)));
+    }
+  };
+
+  const handleExport = () => {
+    const rows = filteredCandidates
+      .filter((c) => selectedIds.size === 0 || selectedIds.has(c.id))
+      .map((c) => ({
+        name: c.full_name,
+        email: c.email,
+        phone: c.phone,
+        location: c.location,
+        score: Math.round((c.parsing_status?.confidence_score || 0) * 100),
+        status: c.parsing_status?.status,
+        date: c.created_at,
+      }));
+
+    if (rows.length === 0) return;
+
+    const csv = [
+      Object.keys(rows[0] || {}).join(","),
+      ...rows.map((r) => Object.values(r).join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "candidates.csv";
+    a.click();
+  };
+
+  const handleDelete = async (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!confirm("Delete this candidate?")) return;
+    try {
+      if (deleteCandidate) await deleteCandidate(id);
+      toast.success("Candidate deleted");
+      loadCandidates();
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  const handleDownload = (candidate: any, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const data = JSON.stringify(candidate, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${candidate.full_name || "candidate"}.json`;
+    a.click();
+  };
+
+  const totalCount = pagination?.total_items || filteredCandidates.length;
+
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
-        <p className="text-gray-600">Manage and review candidate profiles</p>
-      </div>
+    <div className="relative min-h-[calc(100vh-64px)] animate-in fade-in duration-700 py-8 px-6 max-w-[1400px] mx-auto overflow-hidden">
+      
+      {/* Dynamic Background Blobs */}
+      <div className="absolute top-0 right-0 -z-10 w-[600px] h-[600px] bg-indigo-500/5 blur-[120px] rounded-full -mr-48 -mt-48 animate-pulse" />
+      <div className="absolute bottom-0 left-0 -z-10 w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full -ml-32 -mb-32 animate-pulse" style={{ animationDelay: '2s' }} />
 
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search Bar */}
-          <div className="flex-1">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by name, email, or skill..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              />
-              <svg
-                className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {/* Filter Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              All ({pagination?.total_items || candidates.length})
-            </button>
-            <button
-              onClick={() => setFilter("high-confidence")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "high-confidence"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              High Confidence
-            </button>
-            <button
-              onClick={() => setFilter("needs-review")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "needs-review"
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Needs Review
-            </button>
-          </div>
-
-          {/* Sort Options */}
-          <select
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as SortType);
-              setCurrentPage(1);
-            }}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="date-added">Date Added</option>
-            <option value="name">Name</option>
-            <option value="confidence-score">Confidence Score</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Debug Info - TEMPORARY */}
-      {pagination && (
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-xs font-mono">
-            <strong>DEBUG:</strong> Pagination = {JSON.stringify(pagination)}
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+            MANAGE AND REVIEW ANALYZED CANDIDATES ({filteredCandidates.length} OF {totalCount})
           </p>
         </div>
-      )}
-      {!pagination && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-xs font-mono">
-            <strong>DEBUG:</strong> Pagination is NULL or undefined
-          </p>
-        </div>
-      )}
-
-      {/* Results Count */}
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-gray-600">
-          Showing {paginatedCandidates.length} of {pagination?.total_items || filteredCandidates.length}{" "}
-          candidates
-          {pagination && ` (Page ${pagination.current_page} of ${pagination.total_pages})`}
-        </p>
+        
         <button
-          onClick={loadCandidates}
-          disabled={isLoading}
-          className="text-sm text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
+          onClick={handleExport}
+          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 rounded-xl text-[12px] font-[900] text-white shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-95 transition-all outline-none"
         >
-          {isLoading ? "Refreshing..." : "Refresh"}
+          <Download size={14} />
+          EXPORT DATA
         </button>
       </div>
 
-      {/* Candidates Grid */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      {/* Modern Filter Bar */}
+      <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-2 mb-6 border border-white/50 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col lg:flex-row items-center gap-3">
+        <div className="relative flex-1 group w-full">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <Search size={16} className="text-slate-300 group-focus-within:text-indigo-500 transition-colors" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search Intelligence - name, email, or technical assets..."
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            className="w-full h-11 pl-12 pr-4 bg-slate-50/20 rounded-xl border border-transparent focus:border-slate-100 focus:bg-white transition-all outline-none text-[12px] font-bold text-slate-700 placeholder:text-slate-300"
+          />
         </div>
-      ) : paginatedCandidates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {paginatedCandidates.map((candidate) => (
-            <div
-              key={candidate.id}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6"
+
+        <div className="flex items-center gap-2 w-full lg:w-auto h-11">
+          {/* Status Filter */}
+          <div className="flex items-center gap-2 h-full px-4 bg-white rounded-xl border border-slate-50 shadow-sm transition-all min-w-[160px] group/select">
+            <Filter size={14} className="text-slate-300 group-focus-within:text-indigo-500" />
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as FilterType)}
+              className="bg-transparent outline-none text-[12px] font-black text-slate-600 cursor-pointer w-full uppercase tracking-tighter"
             >
-              {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                    <span className="text-indigo-600 font-semibold">
-                      {getInitials(candidate.full_name)}
-                    </span>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="font-semibold text-gray-900">
-                      {candidate.full_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{candidate.email}</p>
-                  </div>
-                </div>
+              <option value="all">ALL SCORES</option>
+              <option value="high-confidence">HIGH MATCH</option>
+              <option value="needs-review">NEEDS REVIEW</option>
+            </select>
+          </div>
 
-                {/* Confidence Badge */}
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(candidate.parsing_status?.confidence_score || 0)}`}
-                >
-                  {Math.round(
-                    (candidate.parsing_status?.confidence_score || 0) * 100,
-                  )}
-                  %
-                </span>
-              </div>
+          {/* Sort Menu */}
+          <div className="flex items-center gap-2 h-full px-4 bg-white rounded-xl border border-slate-50 shadow-sm transition-all min-w-[160px] group/select">
+            <ArrowUpDown size={14} className="text-slate-300 group-focus-within:text-indigo-500" />
+            <select
+              value={sort}
+              onChange={(e) => { setSort(e.target.value as SortType); setCurrentPage(1); }}
+              className="bg-transparent outline-none text-[12px] font-black text-slate-600 cursor-pointer w-full uppercase tracking-tighter"
+            >
+              <option value="date-added">SORT BY DATE</option>
+              <option value="name">SORT BY NAME</option>
+              <option value="confidence-score">SORT BY SCORE</option>
+            </select>
+          </div>
 
-              {/* Skills */}
-              {candidate.skills && candidate.skills.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-2">Top Skills</p>
-                  <div className="flex flex-wrap gap-1">
-                    {candidate.skills.slice(0, 3).map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded"
-                      >
-                        {skill.skill_name}
-                      </span>
-                    ))}
-                    {candidate.skills.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                        +{candidate.skills.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+          {/* Sort Direction */}
+          <button
+            onClick={() => setSortDir((d) => d === "desc" ? "asc" : "desc")}
+            className="h-full px-5 bg-white rounded-xl border border-slate-50 shadow-sm hover:border-indigo-100 transition-all flex items-center gap-2 text-slate-400 hover:text-indigo-600"
+          >
+            {sortDir === "desc" ? <ArrowDown size={14} /> : <ArrowUp size={14} />}
+            <span className="text-[11px] font-black uppercase tracking-tighter">{sortDir === "desc" ? "DESCENDING" : "ASCENDING"}</span>
+          </button>
+        </div>
+      </div>
 
-              {/* Experience Summary */}
-              <div className="mb-4">
-                <p className="text-sm text-gray-600 mb-1">Experience</p>
-                <p className="text-sm text-gray-900">
-                  {getExperienceSummary(candidate.work_experience || [])}
-                </p>
-              </div>
+      {/* Batch Selection Bar */}
+      <div className="flex items-center gap-4 mb-6 px-1">
+        <label className="group flex items-center gap-3 cursor-pointer">
+          <div 
+            onClick={selectAll}
+            className={`
+              w-5 h-5 rounded-md border-2 transition-all flex items-center justify-center
+              ${selectedIds.size === filteredCandidates.length && filteredCandidates.length > 0 
+                ? "bg-indigo-600 border-indigo-600" 
+                : "bg-white border-slate-200 group-hover:border-indigo-300"}
+            `}
+          >
+             {selectedIds.size === filteredCandidates.length && filteredCandidates.length > 0 && <CheckCircle2 size={14} className="text-white" />}
+          </div>
+          <span className="text-[12px] font-black text-indigo-500/80 uppercase tracking-widest">
+            Select All ({filteredCandidates.length} Candidates)
+          </span>
+        </label>
+      </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => navigate(`/candidates/${candidate.id}`)}
-                  className="flex-1 mr-2 px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  View Profile
-                </button>
-                <div className="text-xs text-gray-500">
-                  Added {formatDate(candidate.created_at)}
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Content Area */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-32 animate-in fade-in zoom-in duration-500">
+           <div className="relative w-16 h-16 blur-2xl bg-indigo-600/20 absolute -z-10 animate-pulse" />
+           <div className="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin" />
+           <p className="mt-6 text-[11px] font-[900] text-slate-400 tracking-[0.3em] uppercase">Deep Scanning Assets...</p>
+        </div>
+      ) : filteredCandidates.length === 0 ? (
+        <div className="bg-white/50 backdrop-blur-md rounded-[32px] border border-white/80 p-24 text-center shadow-xl shadow-slate-200/50">
+           <div className="w-20 h-20 bg-indigo-50 text-indigo-200 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <Users size={40} />
+           </div>
+           <h3 className="text-xl font-black text-slate-800 mb-2 uppercase tracking-tight">Zero Matches Found</h3>
+           <p className="text-slate-400 text-sm max-w-sm mx-auto leading-relaxed">
+             We couldn't find any candidates matching your current intelligence filters. 
+             Try adjusting your search terms or confidence metrics.
+           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
-            No candidates found
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            {searchTerm
-              ? "Try adjusting your search terms"
-              : "Get started by uploading some resumes"}
-          </p>
-        </div>
-      )}
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {filteredCandidates.map((candidate) => {
+              const score = Math.round((candidate.parsing_status?.confidence_score || 0) * 100);
+              const topSkills = (candidate.skills || []).slice(0, 6);
+              const extraSkills = (candidate.skills || []).length - topSkills.length;
+              const isSelected = selectedIds.has(candidate.id);
 
-      {/* Pagination */}
-      {pagination && pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between mt-6 bg-white rounded-lg shadow-sm p-4">
-          <div className="text-sm text-gray-600">
-            Page {pagination.current_page} of {pagination.total_pages}
+              return (
+                <div
+                  key={candidate.id}
+                  onClick={() => navigate(`/candidates/${candidate.id}`)}
+                  className={`
+                    group bg-white rounded-2xl p-6 border transition-all duration-300 cursor-pointer relative overflow-hidden
+                    ${isSelected 
+                      ? "border-indigo-600 shadow-xl shadow-indigo-600/10" 
+                      : "border-slate-50 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-xl hover:shadow-indigo-600/5 hover:border-indigo-100"}
+                  `}
+                >
+                  <div className="flex gap-5">
+                     {/* Selection Checkbox */}
+                     <div 
+                       onClick={(e) => { e.stopPropagation(); toggleSelect(candidate.id); }}
+                       className={`
+                        w-5 h-5 rounded-md border-2 mt-2 flex-shrink-0 transition-all flex items-center justify-center
+                        ${isSelected ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-200"}
+                       `}
+                     >
+                        {isSelected && <CheckCircle2 size={14} className="text-white" />}
+                     </div>
+
+                     <div className="flex-1 min-w-0">
+                        {/* Top Profile Header */}
+                        <div className="flex items-start justify-between gap-4 mb-6">
+                           <div className="flex items-center gap-4 min-w-0">
+                              <div className={`
+                                w-11 h-11 rounded-xl bg-gradient-to-br ${getAvatarColor(candidate.id)} 
+                                flex items-center justify-center text-white text-sm font-black shadow-lg shadow-indigo-100 flex-shrink-0
+                              `}>
+                                 {getInitials(candidate.full_name || "")}
+                              </div>
+                              <div className="min-w-0">
+                                 <h3 className="text-base font-black text-slate-800 tracking-tight leading-none truncate group-hover:text-indigo-600 transition-colors">
+                                   {candidate.full_name || "Unknown Asset"}
+                                 </h3>
+                                 <p className="text-[10px] font-bold text-slate-400 mt-1.5 uppercase tracking-wider">{formatDate(candidate.created_at)}</p>
+                              </div>
+                           </div>
+                           <div className="flex items-center gap-2">
+                              <ScoreGauge score={score} />
+                              <button className="p-1.5 text-slate-300 hover:text-slate-500 transition-colors">
+                                 <MoreVertical size={16} />
+                              </button>
+                           </div>
+                        </div>
+
+                        {/* Metadata 2x2 Grid */}
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
+                           <div className="flex items-center gap-3 min-w-0">
+                              <div className="text-slate-300"><Mail size={14} /></div>
+                              <span className="text-[12px] font-bold text-slate-500 truncate">{candidate.email || "No Email"}</span>
+                           </div>
+                           <div className="flex items-center gap-3 min-w-0">
+                              <div className="text-slate-300"><Phone size={14} /></div>
+                              <span className="text-[12px] font-bold text-slate-500 truncate">{candidate.phone || "+914692696680"}</span>
+                           </div>
+                           <div className="flex items-center gap-3 min-w-0">
+                              <div className="text-slate-300"><MapPin size={14} /></div>
+                              <span className="text-[12px] font-bold text-slate-500 truncate">{candidate.location || "Remote"}</span>
+                           </div>
+                           <div className="flex items-center gap-3 min-w-0">
+                              <div className="text-slate-300"><Calendar size={14} /></div>
+                              <span className="text-[11px] font-bold text-slate-300 italic truncate">Exp. not listea</span>
+                           </div>
+                        </div>
+
+                        {/* Skills Section */}
+                        <div className="mb-6">
+                           <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-3">Top Skills</p>
+                           <div className="flex flex-wrap gap-2">
+                              {topSkills.map((skill: any, i: number) => (
+                                <span key={i} className="px-3 py-1.5 bg-slate-50 text-slate-500 text-[11px] font-bold rounded-lg border border-slate-100/50">
+                                   {skill.skill_name || skill.name || ""}
+                                </span>
+                              ))}
+                              {extraSkills > 0 && (
+                                <span className="px-3 py-1.5 bg-slate-50 text-indigo-500/60 text-[11px] font-bold rounded-lg border border-slate-100/50">
+                                   +{extraSkills} more
+                                </span>
+                              )}
+                           </div>
+                        </div>
+
+                        {/* Card Action Footer */}
+                        <div className="flex items-center justify-between pt-5 border-t border-slate-50">
+                           <button className="flex items-center gap-2 text-indigo-600 text-[12px] font-black uppercase tracking-widest hover:gap-3 transition-all">
+                              <Eye size={16} /> View Details
+                           </button>
+                           
+                           <div className="flex items-center gap-3">
+                              <button 
+                                onClick={(e) => handleDownload(candidate, e)}
+                                className="flex items-center gap-2 px-3 py-1.5 text-slate-400 hover:text-indigo-600 transition-all font-bold text-[12px]"
+                              >
+                                 <Download size={16} /> Download
+                              </button>
+                              <button 
+                                onClick={(e) => handleDelete(candidate.id, e)}
+                                className="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 rounded-xl border border-slate-100 hover:border-rose-100 transition-all"
+                              >
+                                 <Trash2 size={16} />
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={!pagination.has_prev_page}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
 
-            {/* Page Numbers */}
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-                let pageNum;
-                if (pagination.total_pages <= 5) {
-                  pageNum = i + 1;
-                } else if (pagination.current_page <= 3) {
-                  pageNum = i + 1;
-                } else if (pagination.current_page >= pagination.total_pages - 2) {
-                  pageNum = pagination.total_pages - 4 + i;
-                } else {
-                  pageNum = pagination.current_page - 2 + i;
-                }
+          {/* Pagination */}
+          {pagination && pagination.total_pages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-12 bg-white/50 backdrop-blur-sm p-3 rounded-2xl border border-white/50 w-fit mx-auto shadow-xl shadow-slate-200/20">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={!pagination.has_prev_page}
+                className="p-2.5 bg-white rounded-xl border border-slate-100 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              
+              <div className="flex items-center gap-1.5 px-3">
+                {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+                  const pageNum = i + 1;
+                  const active = pagination.current_page === pageNum;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`
+                        w-10 h-10 rounded-xl text-[13px] font-black transition-all
+                        ${active 
+                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
+                          : "bg-white text-slate-500 border border-slate-100 hover:border-indigo-100 hover:text-indigo-600"}
+                      `}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
 
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`px-3 py-1 text-sm border rounded-md ${
-                      pagination.current_page === pageNum
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(pagination.total_pages, p + 1))}
+                disabled={!pagination.has_next_page}
+                className="p-2.5 bg-white rounded-xl border border-slate-100 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
-
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(pagination.total_pages, prev + 1))
-              }
-              disabled={!pagination.has_next_page}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+          )}
+        </>
       )}
     </div>
   );

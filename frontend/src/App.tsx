@@ -14,6 +14,9 @@ import CandidatesPage from "./pages/CandidatesPage";
 import CandidateDetailPage from "./pages/CandidateDetailPage";
 import JobsPage from "./pages/JobsPage";
 import MatchingPage from "./pages/MatchingPage";
+import AccuracyPage from "./pages/AccuracyPage";
+import CorrectionsPage from "./pages/CorrectionsPage";
+import TaxonomyPage from "./pages/TaxonomyPage";
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -43,7 +46,6 @@ function App() {
   // Initialize auth state from localStorage on app load
   useEffect(() => {
     if (token && isAuthenticated) {
-      // User is already authenticated
       console.log("User authenticated from localStorage");
     }
   }, [token, isAuthenticated]);
@@ -63,85 +65,27 @@ function App() {
       {/* Redirect root to login */}
       <Route path="/" element={<Navigate to="/login" replace />} />
 
-      {/* Protected Routes */}
+      {/* Protected Routes — all share DashboardLayout */}
       <Route
-        path="/dashboard"
         element={
           <ProtectedRoute>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
-        <Route index element={<DashboardPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/candidates" element={<CandidatesPage />} />
+        <Route path="/candidates/:id" element={<CandidateDetailPage />} />
+        <Route path="/accuracy" element={<AccuracyPage />} />
+        <Route path="/corrections" element={<CorrectionsPage />} />
+        <Route path="/taxonomy" element={<TaxonomyPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/matching" element={<MatchingPage />} />
+        <Route path="/labeling" element={<LabelingPage />} />
       </Route>
 
-      <Route
-        path="/upload"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<UploadPage />} />
-      </Route>
-
-      <Route
-        path="/candidates"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<CandidatesPage />} />
-      </Route>
-
-      <Route
-        path="/candidates/:id"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<CandidateDetailPage />} />
-      </Route>
-
-      <Route
-        path="/jobs"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<JobsPage />} />
-      </Route>
-
-      <Route
-        path="/matching"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<MatchingPage />} />
-      </Route>
-
-      <Route
-        path="/labeling"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<LabelingPage />} />
-      </Route>
-
-      {/* Catch all route - redirect to dashboard if authenticated, login if not */}
+      {/* Catch all route */}
       <Route
         path="*"
         element={

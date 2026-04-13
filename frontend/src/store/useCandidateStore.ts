@@ -98,16 +98,16 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
         if (search) {
           params.append("search", search);
         }
-        
+
         const response = await api.get(`/candidates?${params.toString()}`);
         console.log("📊 API Response:", response.data);
         console.log("📄 Pagination data:", response.data.pagination);
         console.log("👥 Candidates count:", response.data.candidates?.length);
-        
-        set({ 
-          candidates: response.data.candidates || [], 
+
+        set({
+          candidates: response.data.candidates || [],
           pagination: response.data.pagination || null,
-          isLoading: false 
+          isLoading: false
         });
       } catch (error: any) {
         const errorMessage =
@@ -170,8 +170,8 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
         set((state) => ({
           candidates: candidateId
             ? state.candidates.map((c) =>
-                c.id === candidateId ? newCandidate : c,
-              )
+              c.id === candidateId ? newCandidate : c,
+            )
             : [...state.candidates, newCandidate],
           isUploading: false,
           uploadProgress: 100,

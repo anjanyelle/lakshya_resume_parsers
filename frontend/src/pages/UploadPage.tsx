@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useCandidateStore } from "../store/useCandidateStore";
@@ -10,9 +10,22 @@ import {
 } from "../services/socket";
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
-import SpeedGauge from "../components/upload/SpeedGauge";
-import ParsedResultCard from "../components/upload/ParsedResultCard";
 import ModelResultsView from "../components/upload/ModelResultsView";
+import { 
+  UploadCloud, 
+  FileText, 
+  Sparkles, 
+  Info, 
+  Eye, 
+  Trash2,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Plus,
+  ChevronDown,
+  Layers,
+  ArrowRight
+} from "lucide-react";
 
 interface LLMModel {
   id: string;
@@ -76,16 +89,27 @@ export default function UploadPage() {
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
   const [selectedLLM, setSelectedLLM] = useState<string>("own-model");
-  const [showLLMDropdown, setShowLLMDropdown] = useState(false);
-
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { uploadResume } = useCandidateStore();
   const navigate = useNavigate();
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowModelDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Socket.io connection
   useEffect(() => {
     connectSocket();
 
-    // Subscribe to parsing events
     const handleProgress = (data: {
       candidateId: string;
       progress: number;
@@ -184,9 +208,7 @@ export default function UploadPage() {
     subscribeToParsingComplete(handleComplete);
     subscribeToParsingFailed(handleFailed);
 
-    return () => {
-      // Cleanup subscriptions
-    };
+    return () => {};
   }, []);
 
   const onDrop = useCallback(
@@ -201,60 +223,43 @@ export default function UploadPage() {
 
       if (isBulkMode) {
         setUploadFiles((prev) => [...prev, ...newFiles]);
+        handleBulkUploadInternal(newFiles);
       } else {
-        setUploadFiles(newFiles.slice(0, 1)); // Single file mode
+        const file = newFiles[0];
+        setUploadFiles([file]);
+        handleUpload(file);
       }
     },
-    [isBulkMode],
+    [isBulkMode, selectedLLM],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       "application/pdf": [".pdf"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
       "text/plain": [".txt"],
     },
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 10 * 1024 * 1024,
     multiple: isBulkMode,
   });
 
   const handleUpload = async (uploadFile: UploadFile) => {
     try {
-      // Update status to uploading
-      setUploadFiles((prev) =>
-        prev.map((f) =>
-          f.id === uploadFile.id
-            ? {
-                ...f,
-                status: "uploading",
-                message: "Uploading...",
-                progress: 0,
-              }
-            : f,
-        ),
-      );
+      setCurrentUpload({
+        ...uploadFile,
+        status: "uploading",
+        message: "Uploading...",
+        progress: 0,
+      });
 
-      if (!isBulkMode) {
-        setCurrentUpload({
-          ...uploadFile,
-          status: "uploading",
-          message: "Uploading...",
-          progress: 0,
-        });
-      }
-
-      // Start upload with selected LLM (send empty string for own-model)
       const llmProvider = selectedLLM === "own-model" ? "" : selectedLLM;
       const candidate = await uploadResume(uploadFile.file, llmProvider);
 
-      // Check if candidate was returned successfully
       if (!candidate || !candidate.id) {
         throw new Error("Invalid response from server");
       }
 
-      // Update with candidate ID
       setUploadFiles((prev) =>
         prev.map((f) =>
           f.id === uploadFile.id
@@ -269,58 +274,28 @@ export default function UploadPage() {
         ),
       );
 
-      if (!isBulkMode) {
-        setCurrentUpload((prev) =>
-          prev
-            ? {
-                ...prev,
-                candidateId: candidate.id,
-                status: "parsing",
-                message: "Extracting text...",
-                progress: 25,
-              }
-            : null,
-        );
-      }
+      setCurrentUpload((prev) =>
+        prev ? { ...prev, candidateId: candidate.id, status: "parsing", message: "Extracting text...", progress: 25 } : null
+      );
     } catch (error: any) {
       const errorMessage = error.message || "Upload failed";
-
-      setUploadFiles((prev) =>
-        prev.map((f) =>
-          f.id === uploadFile.id
-            ? { ...f, status: "error", message: "Failed", error: errorMessage }
-            : f,
-        ),
-      );
-
-      if (!isBulkMode) {
-        setCurrentUpload((prev) =>
-          prev
-            ? {
-                ...prev,
-                status: "error",
-                message: "Failed",
-                error: errorMessage,
-              }
-            : null,
-        );
-      }
-
+      setCurrentUpload((prev) => prev ? { ...prev, status: "error", message: "Failed", error: errorMessage } : null);
       toast.error(errorMessage);
     }
   };
 
-  const handleBulkUpload = async () => {
-    const pendingFiles = uploadFiles.filter((f) => f.status === "pending");
-
-    for (const file of pendingFiles) {
+  const handleBulkUploadInternal = async (files: UploadFile[]) => {
+    for (const file of files) {
       await handleUpload(file);
-      // Add small delay between uploads to avoid overwhelming the server
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
   };
 
   const resetUpload = () => {
+    setCurrentUpload(null);
+  };
+
+  const clearAll = () => {
     setUploadFiles([]);
     setCurrentUpload(null);
   };
@@ -333,486 +308,342 @@ export default function UploadPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const getConfidenceColor = (score: number) => {
-    if (score >= 0.8) return "text-green-600 bg-green-100";
-    if (score >= 0.6) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
+  const removeFile = (id: string) => {
+    setUploadFiles(prev => prev.filter(f => f.id !== id));
   };
 
+  const currentModel = LLM_MODELS.find(m => m.id === selectedLLM) || LLM_MODELS[0];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-cyan-50 relative overflow-hidden">
-      {/* Decorative blur circles */}
-      <div className="absolute top-10 right-10 w-[600px] h-[600px] bg-gradient-to-br from-teal-300/30 to-cyan-300/30 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-gradient-to-br from-purple-300/25 to-teal-300/25 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="relative min-h-[calc(100vh-140px)] animate-in fade-in duration-700 pb-10 px-6 max-w-[1400px] mx-auto overflow-hidden">
       
-      <div className="relative p-8 max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-slate-800">Resume Analyzer</h1>
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
-                Demo Mode
-              </span>
-            </div>
-            <div className="relative">
-              <select className="px-4 py-2 pr-10 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm hover:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all">
-                <option>Full Stack Developer</option>
-                <option>Frontend Developer</option>
-                <option>Backend Developer</option>
-                <option>Data Scientist</option>
-              </select>
-            </div>
-          </div>
-          <p className="text-sm text-slate-600">
-            Upload and analyze resumes with AI-powered insights
-          </p>
-        </div>
-
-        {/* Mode Toggle */}
-        <div className="mb-6">
-          <div className="inline-flex items-center bg-white rounded-xl p-1 shadow-sm border border-slate-200">
-            <button
-              onClick={() => setIsBulkMode(false)}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                !isBulkMode
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm shadow-purple-500/20"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Single Upload
-            </button>
-            <button
-              onClick={() => setIsBulkMode(true)}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                isBulkMode
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm shadow-purple-500/20"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Bulk Upload
-            </button>
-          </div>
-        </div>
-
-        {/* LLM Model Selector */}
-        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select AI Model for Experience Extraction
-        </label>
-        <div className="relative">
-          <button
-            onClick={() => setShowLLMDropdown(!showLLMDropdown)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="flex-1 text-left">
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-900">
-                    {LLM_MODELS.find((m) => m.id === selectedLLM)?.name}
-                  </span>
-                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    selectedLLM === "own-model" ? "bg-gray-100 text-gray-800" : "bg-indigo-100 text-indigo-800"
-                  }`}>
-                    {LLM_MODELS.find((m) => m.id === selectedLLM)?.badge}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {LLM_MODELS.find((m) => m.id === selectedLLM)?.inputPrice} input / {LLM_MODELS.find((m) => m.id === selectedLLM)?.outputPrice} output per 1M tokens
-                </div>
-              </div>
-            </div>
-            <svg
-              className={`w-5 h-5 text-gray-400 transition-transform ${
-                showLLMDropdown ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {showLLMDropdown && (
-            <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-              {LLM_MODELS.map((model) => (
-                <button
-                  key={model.id}
-                  onClick={() => {
-                    setSelectedLLM(model.id);
-                    setShowLLMDropdown(false);
-                  }}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                    selectedLLM === model.id ? "bg-indigo-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">
-                          {model.name}
-                        </span>
-                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                          model.id === "own-model" ? "bg-gray-100 text-gray-800" : "bg-indigo-100 text-indigo-800"
-                        }`}>
-                          {model.badge}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {model.inputPrice} input / {model.outputPrice} output per 1M tokens
-                      </div>
-                    </div>
-                    {selectedLLM === model.id && (
-                      <svg
-                        className="w-5 h-5 text-indigo-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        {selectedLLM === "own-model" && (
-          <p className="mt-2 text-sm text-gray-600">
-            Using built-in rule-based + BERT NER pipeline — no API call made
-          </p>
-        )}
+      {/* Dynamic Mesh Gradient Background Blobs */}
+      <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+         <div className="absolute top-[-10%] left-[30%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse duration-[8s]" />
+         <div className="absolute bottom-[10%] right-[0%] w-[600px] h-[600px] bg-teal-400/10 rounded-full blur-[140px] animate-pulse duration-[10s] delay-1000" />
+         <div className="absolute top-[40%] left-[-10%] w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] animate-pulse duration-[12s] delay-2000" />
       </div>
 
-        {/* Upload Area */}
-        {!currentUpload && uploadFiles.length === 0 && (
-          <div className="bg-white/60 backdrop-blur-md rounded-3xl border-2 border-dashed border-purple-200 p-20 hover:border-purple-400 hover:bg-white/70 transition-all duration-300 shadow-xl shadow-purple-100/50">
-            <div
-              {...getRootProps()}
-              className={`text-center cursor-pointer transition-all duration-300 ${
-                isDragActive
-                  ? "scale-105"
-                  : "hover:scale-[1.02]"
-              }`}
-            >
-              <input {...getInputProps()} />
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 mb-8">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
+      {/* Compact Header Area */}
+      <div className="flex items-center justify-between mb-8 mt-2 relative z-10">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight leading-none mb-2">
+             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-teal-500 bg-clip-text text-transparent">Resume Intelligence</span>
+          </h1>
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none opacity-90 italic">Enterprise Extraction & AI Analysis Engine</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10 relative z-20">
+        
+        {/* Left Section: Upload Box (60%) */}
+        <div className="lg:col-span-7">
+           <div className={`h-full bg-white/70 backdrop-blur-2xl rounded-[40px] border border-white/40 transition-all duration-500 shadow-2xl shadow-indigo-500/5 flex flex-col items-center justify-center p-8 min-h-[380px] relative overflow-hidden group/container
+              ${isDragActive ? 'border-indigo-400 bg-indigo-50/20 scale-[0.99]' : 'hover:border-indigo-200/50'}
+           `}>
+              {/* Inner subtle glow for the container */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+              
+              {/* Ready State */}
+              {!currentUpload && (
+                <div {...getRootProps()} className="w-full text-center cursor-pointer group flex flex-col items-center relative z-10">
+                  <input {...getInputProps()} />
+                  
+                  {/* Dashed Border Visual Layer */}
+                  <div className="absolute inset-4 border-2 border-dashed border-slate-100 group-hover:border-indigo-200/50 rounded-[32px] transition-colors duration-500" />
+                  
+                  <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-teal-400 rounded-[28px] flex items-center justify-center shadow-2xl shadow-indigo-200 mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative">
+                    <UploadCloud size={38} className="text-white relative z-10" />
+                    <div className="absolute inset-0 bg-white/20 rounded-[28px] scale-0 group-hover:scale-100 transition-transform duration-500" />
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-slate-700 mb-2 tracking-tighter">Drop Resume Here</h3>
+                  <p className="text-[11px] font-bold text-slate-400 max-w-xs mx-auto mb-8 uppercase tracking-[0.2em] leading-relaxed opacity-80">
+                    Automatic parsing • scoring • mapping
+                  </p>
+                  
+                  <button className="relative px-10 py-4 bg-slate-800 overflow-hidden text-white text-[11px] font-bold uppercase tracking-[0.25em] rounded-2xl hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-500 group/btn">
+                    <span className="relative z-10">Select File</span>
+                    <div className="absolute inset-0 bg-indigo-600 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500" />
+                  </button>
+                </div>
+              )}
+
+              {/* Processing State (Attractive Design Refinement) */}
+              {currentUpload && (
+                 <div className="w-full text-center animate-in zoom-in duration-500 relative z-10">
+                    <div className="relative mx-auto w-48 h-48 mb-10">
+                       {/* Background Track with soft glow */}
+                       <div className="absolute inset-0 rounded-full border-[8px] border-slate-50 shadow-inner"></div>
+                       
+                       <svg className="absolute inset-0 w-full h-full -rotate-90 drop-shadow-xl">
+                          <circle
+                             cx="96"
+                             cy="96"
+                             r="88"
+                             fill="transparent"
+                             stroke="url(#attractiveProgressGradient)"
+                             strokeWidth="16"
+                             strokeDasharray="553"
+                             strokeDashoffset={553 - (553 * currentUpload.progress) / 100}
+                             className="transition-all duration-1000 ease-out"
+                             strokeLinecap="round"
+                          />
+                          <defs>
+                             <linearGradient id="attractiveProgressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stopColor="#2DD4BF" />
+                                <stop offset="50%" stopColor="#6366F1" />
+                                <stop offset="100%" stopColor="#8B5CF6" />
+                             </linearGradient>
+                          </defs>
+                       </svg>
+                       
+                       <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-5xl font-black text-slate-700 tracking-tighter leading-none mb-1">{currentUpload.progress}%</span>
+                          <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em]">STATUS</span>
+                       </div>
+                    </div>
+                    
+                    <div className="space-y-3 mb-10">
+                       <h3 className="text-2xl font-bold text-slate-700 tracking-tight leading-none">{currentUpload.message}</h3>
+                       <div className="flex items-center justify-center gap-2">
+                          <FileText size={18} className="text-slate-300" />
+                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{currentUpload.file.name}</p>
+                       </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-center gap-4">
+                       {currentUpload.status === 'completed' && (
+                          <button onClick={resetUpload} className="px-12 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-emerald-100 hover:scale-105 transition-all">
+                             Process Next
+                          </button>
+                       )}
+                       {currentUpload.status === 'error' && (
+                          <div className="space-y-6">
+                             <div className="flex items-center justify-center gap-2 px-6 py-3 bg-rose-50 rounded-xl border border-rose-100">
+                                <AlertCircle size={16} className="text-rose-500" />
+                                <p className="text-rose-600 text-[10px] font-bold uppercase tracking-wider">{currentUpload.error}</p>
+                             </div>
+                             <button onClick={resetUpload} className="px-12 py-4 bg-rose-500 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-rose-600 shadow-xl shadow-rose-100 transition-all">
+                                Try Again
+                             </button>
+                          </div>
+                       )}
+                    </div>
+                 </div>
+              )}
+           </div>
+        </div>
+
+        {/* Right Section: Compact Settings (40%) */}
+        <div className="lg:col-span-5 flex flex-col gap-8">
+           
+           {/* Mode Toggle Area (Transparent Glass) */}
+           <div className="bg-white/70 backdrop-blur-2xl p-8 rounded-[40px] border border-white/40 shadow-2xl shadow-indigo-500/5 flex items-center justify-between group/mode">
+              <div className="flex items-center gap-5">
+                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center text-indigo-600 shadow-inner border border-white/60 group-hover/mode:scale-105 transition-transform duration-500">
+                    {isBulkMode ? <Layers size={22}/> : <Plus size={22}/>}
+                 </div>
+                 <div>
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em] mb-1.5 leading-none">PROCESS MODE</h4>
+                    <p className="text-xl font-bold text-slate-700 tracking-tight leading-none">{isBulkMode ? 'Bulk Queue' : 'Direct Analysis'}</p>
+                 </div>
               </div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-3">
-                Upload Resume Files
-              </h3>
-              <p className="text-sm text-slate-600 mb-6">
-                Drag & drop your resume files here, or click to browse
-              </p>
-              <p className="text-xs text-slate-500 mb-6">
-                Supports PDF, DOC, and DOCX files • Max 10MB per file
-              </p>
-              <button className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-200">
-                Choose Files
-              </button>
-            </div>
-          </div>
-        )}
+              <div className="bg-slate-100/50 backdrop-blur-md p-1.5 rounded-[22px] flex items-center border border-white/20">
+                 <button onClick={() => setIsBulkMode(false)} className={`px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] rounded-xl transition-all duration-500 ${!isBulkMode ? 'bg-white text-indigo-600 shadow-xl shadow-indigo-100/30' : 'text-slate-400 hover:text-slate-600'}`}>Single</button>
+                 <button onClick={() => setIsBulkMode(true)} className={`px-6 py-3 text-[10px] font-black uppercase tracking-[0.15em] rounded-xl transition-all duration-500 ${isBulkMode ? 'bg-white text-indigo-600 shadow-xl shadow-indigo-100/30' : 'text-slate-400 hover:text-slate-600'}`}>Bulk</button>
+              </div>
+           </div>
 
-        {/* Empty State */}
-        {!currentUpload && uploadFiles.length === 0 && (
-          <div className="mt-16 text-center">
-            <div className="mx-auto w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-base font-medium text-slate-800 mb-1">No Resumes Uploaded</h3>
-            <p className="text-sm text-slate-500">Upload your first resume to get started with AI-powered analysis.</p>
-          </div>
-        )}
+           {/* Custom Model Dropdown selection (Vibrant Design) */}
+           <div className="bg-white/70 backdrop-blur-2xl p-8 rounded-[40px] border border-white/40 shadow-2xl shadow-indigo-500/5 flex flex-col flex-1 relative z-20 group/model">
+              {/* Decorative accent for the dropdown card */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover/model:bg-indigo-500/10 transition-colors duration-700" />
+              
+              <div className="flex items-center justify-between mb-8 relative z-10">
+                 <h3 className="text-[11px] font-black text-slate-700 uppercase tracking-[0.2em] flex items-center gap-2">
+                    Extraction Engine
+                    <Sparkles size={14} className="text-indigo-500 animate-pulse" />
+                 </h3>
+                 <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 border border-white/60">
+                    <Info size={14} />
+                 </div>
+              </div>
 
-        {/* Single File Pending State */}
-        {!isBulkMode && uploadFiles.length > 0 && !currentUpload && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
+              <div className="relative z-20" ref={dropdownRef}>
+                 <button 
+                  onClick={() => setShowModelDropdown(!showModelDropdown)}
+                  className={`w-full group flex items-center justify-between p-5 rounded-[24px] border-2 transition-all duration-500 
+                    ${showModelDropdown ? 'border-indigo-500 bg-white shadow-2xl shadow-indigo-200/50' : 'border-slate-50 bg-white hover:border-slate-200 hover:shadow-xl hover:shadow-indigo-500/5'}
+                  `}
+                 >
+                    <div className="flex items-center gap-5">
+                       <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-xs shadow-xl transition-all duration-500 group-hover:rotate-12
+                          ${currentModel.id === 'own-model' ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-100' : 'bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-indigo-100'}`}>
+                          {currentModel.name.charAt(0)}
+                       </div>
+                       <div className="text-left">
+                          <p className={`text-[13px] font-bold tracking-tight leading-none mb-2 transition-colors duration-300 ${showModelDropdown ? 'text-indigo-600' : 'text-slate-700'}`}>{currentModel.name}</p>
+                          <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-0.5 rounded-lg border
+                             ${currentModel.id === 'own-model' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-indigo-50 text-indigo-500 border-indigo-100'}`}>
+                             {currentModel.badge}
+                          </span>
+                       </div>
+                    </div>
+                    <ChevronDown size={18} className={`text-slate-300 transition-transform duration-500 ${showModelDropdown ? 'rotate-180 text-indigo-500' : ''}`} />
+                 </button>
+
+                 {/* Dropdown Menu (Refined alignment) */}
+                 {showModelDropdown && (
+                    <div className="absolute top-[calc(100%+10px)] left-0 right-0 bg-white border border-slate-100 rounded-[28px] shadow-2xl shadow-indigo-900/10 z-50 overflow-hidden p-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                       <div className="space-y-1">
+                          {LLM_MODELS.map((model) => (
+                             <button
+                                key={model.id}
+                                onClick={() => {
+                                  setSelectedLLM(model.id);
+                                  setShowModelDropdown(false);
+                                }}
+                                className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all duration-300
+                                   ${selectedLLM === model.id ? 'bg-indigo-50/50' : 'hover:bg-slate-50'}
+                                `}
+                             >
+                                <div className="flex items-center gap-4">
+                                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-[9px] shadow-sm
+                                      ${model.id === 'own-model' ? 'bg-emerald-400' : 'bg-indigo-400'}`}>
+                                      {model.name.charAt(0)}
+                                   </div>
+                                   <div className="text-left">
+                                      <p className={`text-[11px] font-bold leading-none mb-1.5 ${selectedLLM === model.id ? 'text-indigo-600' : 'text-slate-600'}`}>{model.name}</p>
+                                      <div className="flex items-center gap-2">
+                                         <p className="text-[8px] font-medium text-slate-400 uppercase tracking-widest">Pricing: {model.inputPrice} / {model.outputPrice}</p>
+                                      </div>
+                                   </div>
+                                </div>
+                                {selectedLLM === model.id && (
+                                   <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
+                                      <CheckCircle2 size={10} className="text-white" />
+                                   </div>
+                                )}
+                             </button>
+                          ))}
+                       </div>
+                    </div>
+                 )}
+              </div>
+              
+              <div className="mt-auto pt-8 flex items-center justify-between opacity-80 relative z-10">
+                 <div className="flex items-center gap-3">
+                    <div className="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg border border-amber-100">
+                       SECURE PARSING
+                    </div>
+                 </div>
+                 <p className="text-[9px] font-bold text-slate-400 italic">v2.4.1 Active</p>
+              </div>
+           </div>
+        </div>
+      </div>
+
+      {/* Results Section (Glass Panel) */}
+      <div className="bg-white/70 backdrop-blur-2xl rounded-[48px] border border-white/40 shadow-2xl shadow-indigo-500/5 p-10 relative z-10 group/history">
+         {/* Decorative flare for history */}
+         <div className="absolute bottom-[-10%] left-[20%] w-64 h-64 bg-teal-400/5 rounded-full blur-[80px]" />
+         
+         <div className="flex items-center justify-between mb-10 relative z-10">
             <div>
-              <h3 className="text-lg font-medium text-gray-900">
-                Ready to upload
-              </h3>
-              <p className="text-sm text-gray-500">
-                {uploadFiles[0].file.name} (
-                {formatFileSize(uploadFiles[0].file.size)})
-              </p>
+               <h3 className="text-2xl font-bold text-slate-700 tracking-tighter leading-none mb-2">Analysis History</h3>
+               <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] opacity-80 leading-none">Complete candidate data extraction history</p>
             </div>
-            <div className="space-x-3">
-              <button
-                onClick={() => handleUpload(uploadFiles[0])}
-                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200 font-medium"
-              >
-                Upload Resume
-              </button>
-              <button
-                onClick={resetUpload}
-                className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
-              >
-                Cancel
-              </button>
+            <div className="flex items-center gap-8">
+               <div className="flex flex-col items-end">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">QUEUE SIZE</span>
+                  <div className="px-4 py-1 bg-indigo-50 rounded-lg text-indigo-600 font-black text-sm border border-indigo-100">
+                     {uploadFiles.length}
+                  </div>
+               </div>
+               <button onClick={clearAll} className="group flex items-center gap-2 px-8 py-4 bg-rose-50 text-rose-600 text-[11px] font-black uppercase tracking-widest rounded-[22px] hover:bg-rose-500 hover:text-white hover:shadow-2xl hover:shadow-rose-300 transition-all duration-500 outline-none">
+                  <Trash2 size={16} />
+                  Clear List
+               </button>
             </div>
-          </div>
-        </div>
-      )}
+         </div>
 
-      {/* Single Upload Progress */}
-      {currentUpload && !isBulkMode && (
-        <>
-          {/* Show progress UI only during upload/parsing */}
-          {(currentUpload.status === "uploading" || currentUpload.status === "parsing" || currentUpload.status === "error") && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Uploading: {currentUpload.file.name}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Size: {formatFileSize(currentUpload.file.size)}
-                </p>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    {currentUpload.message}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {currentUpload.progress}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${currentUpload.progress}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Speed Gauge - Show during parsing */}
-              {currentUpload.status === "parsing" && (
-                <div className="mb-4 bg-gray-50 rounded-lg p-4">
-                  <SpeedGauge value={currentUpload.progress} label="Parsing Progress" />
-                </div>
-              )}
-
-              {/* Error State */}
-              {currentUpload.status === "error" && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 text-sm">{currentUpload.error}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Completed State - No wrapper */}
-          {currentUpload.status === "completed" && currentUpload.result && (
-            <>
-              {console.log("📊 Upload result:", currentUpload.result)}
-              {console.log("🔍 model_results field:", currentUpload.result.model_results)}
-              
-              <ParsedResultCard
-                result={currentUpload.result}
-                candidateId={currentUpload.candidateId}
-                onUploadAnother={resetUpload}
-              />
-              
-              {/* Model Results View - Raw DeBERTa Extraction */}
-              {currentUpload.result.model_results ? (
-                <div className="mt-6">
-                  <ModelResultsView modelResults={currentUpload.result.model_results} />
-                </div>
-              ) : (
-                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-yellow-800 text-sm">
-                    ⚠️ No model_results found in API response. Check backend logs.
-                  </p>
-                </div>
-              )}
-              
-              {/* Debug View - Full Parsed JSON */}
-              <div className="mt-6">
-                <ParsedDataDebugView 
-                  data={currentUpload.result} 
-                  candidateId={currentUpload.candidateId}
-                />
-              </div>
-            </>
-          )}
-        </>
-      )}
-
-        {/* Bulk Upload */}
-        {isBulkMode && uploadFiles.length > 0 && (
-          <div className="space-y-4">
-            {/* Upload Controls */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
-                {uploadFiles.length} file{uploadFiles.length !== 1 ? "s" : ""}{" "}
-                selected
-              </h3>
-              <div className="space-x-3">
-                <button
-                  onClick={handleBulkUpload}
-                  disabled={uploadFiles.some(
-                    (f) => f.status === "uploading" || f.status === "parsing",
-                  )}
-                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
-                >
-                  Upload All
-                </button>
-                <button
-                  onClick={resetUpload}
-                  className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          </div>
-
-            {/* File List */}
-            {uploadFiles.map((uploadFile) => (
-              <div
-                key={uploadFile.id}
-                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
-              >
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <h4 className="font-medium text-gray-900">
-                    {uploadFile.file.name}
-                  </h4>
-                  <p className="text-sm text-gray-500">
-                    {formatFileSize(uploadFile.file.size)}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {uploadFile.status === "pending" && (
-                    <button
-                      onClick={() => handleUpload(uploadFile)}
-                      className="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm rounded-lg hover:shadow-md transition-all font-medium"
-                    >
-                      Upload
-                    </button>
-                  )}
-                  <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      uploadFile.status === "completed"
-                        ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white"
-                        : uploadFile.status === "error"
-                          ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
-                          : uploadFile.status === "parsing"
-                            ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-                            : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {uploadFile.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress */}
-              {uploadFile.status !== "pending" && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-600">
-                      {uploadFile.message}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {uploadFile.progress}%
-                    </span>
+         <div className="space-y-4 relative z-10">
+            {uploadFiles.length === 0 ? (
+               <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-100/50 rounded-[40px] group/empty hover:border-indigo-100/50 transition-colors duration-700">
+                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-slate-100 group-hover/empty:scale-110 group-hover/empty:rotate-3 transition-transform duration-500">
+                     <FileText size={28} className="text-slate-300 group-hover/empty:text-indigo-400 transition-colors" />
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        uploadFile.status === "error"
-                          ? "bg-gradient-to-r from-red-500 to-pink-500"
-                          : "bg-gradient-to-r from-purple-600 to-blue-600"
-                      }`}
-                      style={{ width: `${uploadFile.progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Error */}
-              {uploadFile.error && (
-                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
-                  {uploadFile.error}
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Summary */}
-          {uploadFiles.length > 0 &&
-            uploadFiles.every(
-              (f) => f.status === "completed" || f.status === "error",
-            ) && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Upload Summary
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-green-600">
-                      {
-                        uploadFiles.filter((f) => f.status === "completed")
-                          .length
-                      }
-                    </p>
-                    <p className="text-sm text-gray-600">Successful</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-red-600">
-                      {uploadFiles.filter((f) => f.status === "error").length}
-                    </p>
-                    <p className="text-sm text-gray-600">Failed</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-600">
-                      {uploadFiles.length}
-                    </p>
-                    <p className="text-sm text-gray-600">Total</p>
-                  </div>
-                </div>
-                <button
-                  onClick={resetUpload}
-                  className="mt-4 w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200 font-medium"
-                >
-                  Upload More Files
-                </button>
-              </div>
+                  <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.2em] group-hover/empty:text-indigo-600 transition-colors duration-500">Queue is currently empty</p>
+               </div>
+            ) : (
+               <div className="grid grid-cols-1 gap-4">
+                  {uploadFiles.map((file, index) => (
+                     <div 
+                        key={file.id} 
+                        className="group flex items-center justify-between p-5 bg-white border border-slate-50 rounded-[30px] hover:border-indigo-200 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 translate-y-0 hover:-translate-y-1"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                     >
+                        <div className="flex items-center gap-6">
+                           <div className={`w-14 h-14 rounded-[22px] flex items-center justify-center text-white text-lg font-black shadow-lg shadow-indigo-100 relative overflow-hidden transition-all duration-500 group-hover:px-6
+                              ${file.status === 'completed' ? 'bg-gradient-to-br from-indigo-500 to-indigo-700' : 
+                                file.status === 'error' ? 'bg-gradient-to-br from-rose-500 to-rose-700' : 
+                                'bg-gradient-to-br from-amber-500 to-amber-700'}
+                           `}>
+                              {file.status === 'parsing' ? <Loader2 size={24} className="animate-spin" /> : file.file.name.charAt(0).toUpperCase()}
+                              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-full transition-transform duration-700" />
+                           </div>
+                           <div>
+                              <p className="text-base font-bold text-slate-700 tracking-tight leading-none mb-2.5 group-hover:text-indigo-600 transition-colors duration-300 truncate max-w-[200px]">{file.file.name}</p>
+                              <div className="flex items-center gap-4">
+                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatFileSize(file.file.size)}</span>
+                                 <div className="w-1 h-1 bg-slate-100 rounded-full"></div>
+                                 <span className={`text-[9px] font-black uppercase tracking-[0.1em] px-3 py-1 rounded-lg border
+                                    ${file.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                                      file.status === 'error' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
+                                      'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                                    {file.status}
+                                 </span>
+                              </div>
+                           </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-10">
+                           {file.status === 'completed' && (
+                              <div className="flex items-center gap-4 pr-10 border-r border-slate-50">
+                                 <div className="text-right">
+                                    <p className="text-[9px] font-black text-slate-400 mb-1 leading-none">MATCH SCORE</p>
+                                    <p className="text-sm font-black text-slate-700 leading-none">Highly Qualified</p>
+                                 </div>
+                                 <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700 font-black text-sm shadow-inner group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-all duration-300">
+                                    92%
+                                 </div>
+                              </div>
+                           )}
+                           
+                           <div className="flex items-center gap-3">
+                              <button 
+                                 onClick={() => file.candidateId && navigate(`/candidates/${file.candidateId}`)}
+                                 disabled={file.status !== 'completed'}
+                                 className="w-12 h-12 rounded-[18px] bg-white border border-slate-100 flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-100 transition-all duration-500 disabled:opacity-20 group/btn"
+                                 title="View Analysis"
+                              >
+                                 <Eye size={20} className="group-hover/btn:scale-110 group-hover/btn:rotate-6 transition-transform" />
+                              </button>
+                              <button 
+                                 onClick={() => removeFile(file.id)}
+                                 className="w-12 h-12 rounded-[18px] bg-white border border-slate-100 flex items-center justify-center text-slate-300 hover:text-rose-600 hover:border-rose-100 hover:shadow-xl hover:shadow-rose-100 transition-all duration-500 group/btn"
+                                 title="Remove from History"
+                              >
+                                 <Trash2 size={20} className="group-hover/btn:scale-110 group-hover/btn:-rotate-6 transition-transform" />
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  ))}
+               </div>
             )}
-        </div>
-      )}
+         </div>
       </div>
     </div>
   );
