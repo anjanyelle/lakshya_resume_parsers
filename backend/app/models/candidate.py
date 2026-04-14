@@ -16,6 +16,7 @@ class CandidateStatus(str, enum.Enum):
     PROCESSING = "processing"
     SUCCESS = "success"
     FAILED = "failed"
+    COMPLETED = "completed"
 
 
 class ReviewStatus(str, enum.Enum):

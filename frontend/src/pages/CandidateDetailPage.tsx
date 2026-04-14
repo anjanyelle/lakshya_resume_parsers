@@ -20,13 +20,13 @@ import {
   submitCorrections,
 } from '../services/api/candidates'
 import { fetchJobExtractionDebug } from '../services/api/uploads'
-import { 
-  getDisplaySummary, 
-  shouldUseParsedDataFallback, 
-  contactFromParsed, 
-  getDisplayWorkHistory, 
-  getDisplayEducation, 
-  getDisplayCertifications 
+import {
+  getDisplaySummary,
+  shouldUseParsedDataFallback,
+  contactFromParsed,
+  getDisplayWorkHistory,
+  getDisplayEducation,
+  getDisplayCertifications
 } from '../utils/parsedDataFallback'
 
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
@@ -63,7 +63,7 @@ export default function CandidateDetailPage() {
           fetchCandidate(id),
           fetchCandidateReview(id),
         ])
-        setCandidate(candidateData) 
+        setCandidate(candidateData)
         setOriginalCandidate(candidateData)
         setLatestJob(reviewData.latest_job)
         setParsedData(clone(reviewData.latest_job?.parsed_data || {}))
@@ -106,7 +106,7 @@ export default function CandidateDetailPage() {
                   used_ocr: debug.used_ocr,
                 })
               })
-              .catch(() => {})
+              .catch(() => { })
           }
         }
       } catch (error) {
@@ -219,7 +219,7 @@ export default function CandidateDetailPage() {
               console.log('HTML type:', typeof html)
               console.log('HTML length:', html?.length || 0)
               console.log('HTML trimmed length:', html?.trim()?.length || 0)
-              
+
               if (html && html.trim().length > 0) {
                 console.log('✅ Setting HTML preview state')
                 setResumePreviewHtml(html)
@@ -382,7 +382,7 @@ export default function CandidateDetailPage() {
       setActiveFieldId(fieldId)
       setPanelScrollToFieldId(fieldId)
       setAutoEditFieldId(fieldId)
-      
+
       // ✅ Only navigate for specific field types, not all fields
       if (fieldId.includes('skill') || fieldId === 'skills') {
         // Skills - navigate to Skills section
@@ -443,7 +443,7 @@ export default function CandidateDetailPage() {
   const displayEducation = getDisplayEducation(parsedData, candidate.education ?? [])
   const displayCertifications = getDisplayCertifications(parsedData, candidate.certifications ?? [])
   const displaySummary = getDisplaySummary(parsedData, candidate.summary, candidate.summary_manually_edited ?? false)
-  
+
   // Debug logging for summary
   console.log('🔍 SUMMARY DEBUG:', {
     candidateId: id,
@@ -461,19 +461,19 @@ export default function CandidateDetailPage() {
   // Prefer parsed name/contact when DB fields are empty (fixes "Unnamed candidate" for PDFs)
   const displayCandidate: Candidate = useParsedDataFallback
     ? {
-        ...candidate,
-        full_name: fallbackContact.full_name ?? candidate.full_name,
-        email: fallbackContact.email ?? candidate.email,
-        phone: fallbackContact.phone ?? candidate.phone,
-        location: fallbackContact.location ?? candidate.location,
-      }
+      ...candidate,
+      full_name: fallbackContact.full_name ?? candidate.full_name,
+      email: fallbackContact.email ?? candidate.email,
+      phone: fallbackContact.phone ?? candidate.phone,
+      location: fallbackContact.location ?? candidate.location,
+    }
     : {
-        ...candidate,
-        full_name: (candidate.full_name?.trim() || fallbackContact.full_name) ?? candidate.full_name,
-        email: candidate.email || fallbackContact.email || candidate.email,
-        phone: candidate.phone || fallbackContact.phone || candidate.phone,
-        location: candidate.location || fallbackContact.location || candidate.location,
-      }
+      ...candidate,
+      full_name: (candidate.full_name?.trim() || fallbackContact.full_name) ?? candidate.full_name,
+      email: candidate.email || fallbackContact.email || candidate.email,
+      phone: candidate.phone || fallbackContact.phone || candidate.phone,
+      location: candidate.location || fallbackContact.location || candidate.location,
+    }
 
   const showMismatchBanner =
     dbHistory.length === 0 && parsedExperience.length > 0 && !useParsedDataFallback
@@ -482,9 +482,9 @@ export default function CandidateDetailPage() {
     (displaySummary ?? '').trim().length > 3
       ? (displaySummary ?? '').trim().slice(0, 60)
       : ''
-  
+
   const fieldMappings: FieldMapping[] = [
-  // 🟢 Candidate details → green
+    // 🟢 Candidate details → green
     { id: 'full_name', value: displayCandidate.full_name ?? '', label: 'Candidate Name' },
     { id: 'email', value: displayCandidate.email ?? '', label: 'Candidate Email' },
     { id: 'phone', value: displayCandidate.phone ?? '', label: 'Candidate Phone' },
@@ -494,28 +494,28 @@ export default function CandidateDetailPage() {
     ...(summaryExcerpt
       ? [{ id: 'summary' as const, value: summaryExcerpt, label: 'Summary' }]
       : []),
-  // 🔵 Skills → light blue
+    // 🔵 Skills → light blue
     ...displaySkills
       .filter((s) => s.name?.trim().length > 2)
       .map((s) => ({ id: 'skills' as const, value: s.name })),
-  // 🟡 Experience company names → light yellow
+    // 🟡 Experience company names → light yellow
     ...displayWorkHistory
       .filter((wh) => (wh.company_name ?? '').trim().length > 2)
       .map((wh) => ({ id: 'experience_company' as const, value: wh.company_name ?? '' })),
-  // 🟡 Experience job titles → light yellow
+    // 🟡 Experience job titles → light yellow
     ...displayWorkHistory
       .filter((wh) => (wh.job_title ?? '').trim().length > 2)
       .map((wh) => ({ id: 'experience_role' as const, value: wh.job_title ?? '' })),
-  // 🟠 Education institution → light orange
+    // 🟠 Education institution → light orange
     ...displayEducation
       .filter((e) => (e.institution ?? '').trim().length > 2)
       .map((e) => ({ id: 'education_institution' as const, value: e.institution ?? '' })),
-  // 🟠 Education degree → light orange
+    // 🟠 Education degree → light orange
     ...displayEducation
       .filter((e) => (e.degree ?? '').trim().length > 2)
       .map((e) => ({ id: 'education_degree' as const, value: e.degree ?? '' })),
-  ]    
-      
+  ]
+
   // Debug: log data availability for troubleshooting missing UI data
   if (import.meta.env.DEV) {
     console.log('[CandidateDetail] Data loaded:', {
@@ -610,7 +610,7 @@ export default function CandidateDetailPage() {
               candidate={displayCandidate}
               displayWorkHistory={displayWorkHistory}
               displayEducation={displayEducation}
-              displayCertifications={displayCertifications}              displaySkills={displaySkills}
+              displayCertifications={displayCertifications} displaySkills={displaySkills}
               displayCandidateSkills={displayCandidateSkills}
               displaySummary={displaySummary}
               activeFieldId={activeField ?? activeFieldId}

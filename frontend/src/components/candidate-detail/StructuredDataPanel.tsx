@@ -84,7 +84,7 @@ export default function StructuredDataPanel({
     >
       {/* Personal Details */}
       <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow duration-200">
-        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-600">
           <Briefcase className="h-4 w-4 text-slate-500" />
           Personal Details
         </h3>
@@ -106,7 +106,7 @@ export default function StructuredDataPanel({
         ref={summarySectionRef}
         className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
       >
-        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-600">
           <Sparkles className="h-4 w-4 text-slate-500" />
           Summary
         </h3>
@@ -129,7 +129,7 @@ export default function StructuredDataPanel({
         ref={experienceSectionRef}
         className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
       >
-        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-600">
           <Briefcase className="h-4 w-4 text-slate-500" />
           Experience
         </h3>
@@ -148,7 +148,7 @@ export default function StructuredDataPanel({
         ref={educationSectionRef}
         className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
       >
-        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-600">
           <GraduationCap className="h-4 w-4 text-slate-500" />
           Education
         </h3>
@@ -161,13 +161,13 @@ export default function StructuredDataPanel({
           onFieldSelect={onFieldSelect}
         />
       </section>
-      
+
       {/* Certifications */}
       <section
         ref={certificationsSectionRef}
         className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-     >
-        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-900">
+      >
+        <h3 className="mb-4 flex items-center gap-2 text-base font-semibold text-slate-600">
           <Award className="h-4 w-4 text-slate-500" />
           Certifications
         </h3>

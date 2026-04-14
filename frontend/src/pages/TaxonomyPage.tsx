@@ -234,7 +234,7 @@ export default function TaxonomyPage() {
                 <Database className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-slate-700 tracking-tight">Skills Taxonomy</h3>
+                <h3 className="text-[15px] font-semibold text-slate-600 tracking-tight">Skills Taxonomy</h3>
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{filteredSkills.length} Total Skills</p>
               </div>
             </div>
@@ -299,7 +299,7 @@ export default function TaxonomyPage() {
         <div className="space-y-6 flex flex-col">
           {/* Degrees */}
           <div className="rounded-2xl bg-white p-6 shadow-xl shadow-slate-200/40 border border-slate-100/50 flex flex-col">
-            <h3 className="text-[14px] font-black text-slate-800 mb-5 flex items-center justify-between">
+            <h3 className="text-[14px] font-semibold text-slate-600 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-violet-600 shadow-sm border border-violet-200/50">
                   <BookOpen className="h-4 w-4" />
@@ -319,7 +319,7 @@ export default function TaxonomyPage() {
 
           {/* Universities */}
           <div className="rounded-2xl bg-white p-6 shadow-xl shadow-slate-200/40 border border-slate-100/50 flex flex-col">
-            <h3 className="text-[14px] font-black text-slate-800 mb-5 flex items-center justify-between">
+            <h3 className="text-[14px] font-semibold text-slate-600 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-100 text-teal-600 shadow-sm border border-teal-200/50">
                   <GraduationCap className="h-4 w-4" />
@@ -339,7 +339,7 @@ export default function TaxonomyPage() {
 
           {/* Certifications */}
           <div className="rounded-2xl bg-white p-6 shadow-xl shadow-slate-200/40 border border-slate-100/50 flex flex-col">
-            <h3 className="text-[14px] font-black text-slate-800 mb-5 flex items-center justify-between">
+            <h3 className="text-[14px] font-semibold text-slate-600 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 shadow-sm border border-amber-200/50">
                   <Award className="h-4 w-4" />

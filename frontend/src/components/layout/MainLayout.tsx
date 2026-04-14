@@ -14,7 +14,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div
-      className="flex min-h-screen relative overflow-x-hidden"
+      className="flex h-screen relative overflow-hidden"
       style={{
         background: 'linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%)',
       }}
@@ -43,7 +43,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         />
 
         {/* Page content wrapper */}
-        <div className="relative z-10 flex flex-1 flex-col min-h-screen bg-white/70 lg:rounded-tl-2xl shadow-sm ml-0">
+        <div className="relative z-10 flex flex-1 flex-col h-full overflow-hidden bg-white/70 lg:rounded-tl-2xl shadow-sm ml-0">
           {/* Header */}
           <Header onMenuClick={toggleSidebar} />
 

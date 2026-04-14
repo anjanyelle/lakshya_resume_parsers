@@ -16,8 +16,8 @@ export default function GlobalSearch({ isOpen, onClose, query }: GlobalSearchPro
   if (!isOpen) return null
 
   const q = query.toLowerCase()
-  const results = !q.trim() ? [] : candidates.filter((c) => 
-    c.full_name?.toLowerCase().includes(q) || 
+  const results = !q.trim() ? [] : candidates.filter((c) =>
+    c.full_name?.toLowerCase().includes(q) ||
     c.email?.toLowerCase().includes(q) ||
     (c.skills ?? []).some(s => s.name.toLowerCase().includes(q))
   ).slice(0, 6)
@@ -62,13 +62,13 @@ export default function GlobalSearch({ isOpen, onClose, query }: GlobalSearchPro
                   </p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 text-[9px] font-black tracking-widest uppercase">
-                       <Cpu className="h-2.5 w-2.5" />
-                       Match {Math.round((result.parsing_jobs?.[0]?.confidence_score || 0) * 100)}%
+                      <Cpu className="h-2.5 w-2.5" />
+                      Match {Math.round((result.parsing_jobs?.[0]?.confidence_score || 0) * 100)}%
                     </div>
                   </div>
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1">
-                   <Hash className="h-4 w-4 text-violet-300" />
+                  <Hash className="h-4 w-4 text-violet-300" />
                 </div>
               </button>
             ))}
@@ -77,13 +77,13 @@ export default function GlobalSearch({ isOpen, onClose, query }: GlobalSearchPro
       </div>
 
       <div className="flex items-center justify-between px-4 py-3 bg-slate-50/50 border-t border-slate-100 text-[10px] text-slate-400 font-black uppercase tracking-widest">
-         <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5 italic-placeholder"><Command className="h-3 w-3" /> SELECT</span>
-            <span className="flex items-center gap-1.5 italic-placeholder"><Hash className="h-3 w-3" /> NAVIGATE</span>
-         </div>
-         <div className="animate-pulse">
-            RESUME AI
-         </div>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5 italic-placeholder"><Command className="h-3 w-3" /> SELECT</span>
+          <span className="flex items-center gap-1.5 italic-placeholder"><Hash className="h-3 w-3" /> NAVIGATE</span>
+        </div>
+        <div className="animate-pulse">
+          RESUME AI
+        </div>
       </div>
     </div>
   )

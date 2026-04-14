@@ -166,11 +166,10 @@ export default function PersonalDetailsSection({
                     else startEdit(key, value)
                   }
                 }}
-                className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-all duration-200 ${
-                  activeFieldId === id
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                } ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
+                className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-all duration-200 ${activeFieldId === id
+                  ? 'border-blue-400 bg-blue-50'
+                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                  } ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
               >
                 <div className="flex items-center gap-2">
                   {FIELD_ICONS[key]}

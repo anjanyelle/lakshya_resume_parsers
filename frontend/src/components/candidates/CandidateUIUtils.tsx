@@ -28,104 +28,83 @@ export function formatScore(score?: number | null) {
   return score > 1 ? Math.round(score) : Math.round(score * 100)
 }
 
-interface GaugeProps {
+interface ScoreBadgeProps {
   value: number
   size?: number
 }
 
-export function Gauge({ value, size = 42 }: GaugeProps) {
-  const radius = size * 0.4
-  const strokeWidth = size * 0.12
-  const center = size / 2
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference - (value / 100) * circumference
-  
-  // Decide colors and gradient IDs
-  let gradientId = 'grad-red'
-  let textColor = '#f43f5e'
-  if (value >= 80) {
-    gradientId = 'grad-green'
-    textColor = '#0d9488' // Teal 600
-  } else if (value >= 50) {
-    gradientId = 'grad-amber'
-    textColor = '#d97706' // Amber 600
+export function ScoreBadge({ value, size = 42 }: ScoreBadgeProps) {
+  // Color configuration based on score
+  let theme = {
+    bg: 'bg-emerald-50/60',
+    border: 'border-emerald-200/60',
+    text: 'text-emerald-500',
+    glow: 'shadow-emerald-200/40',
+    gradient: 'from-emerald-400 to-teal-500',
+    label: 'Match'
   }
 
+  if (value < 50) {
+    theme = {
+      bg: 'bg-rose-50/60',
+      border: 'border-rose-200/60',
+      text: 'text-rose-500',
+      glow: 'shadow-rose-200/40',
+      gradient: 'from-rose-400 to-pink-500',
+      label: 'Poor'
+    }
+  } else if (value < 80) {
+    theme = {
+      bg: 'bg-orange-50/60',
+      border: 'border-orange-200/60',
+      text: 'text-orange-500',
+      glow: 'shadow-orange-200/40',
+      gradient: 'from-orange-400 to-amber-500',
+      label: 'Good'
+    }
+  }
+
+  const isCompact = size < 40
+
   return (
-    <div className="relative flex items-center justify-center group" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90 overflow-visible drop-shadow-sm transition-transform duration-500 group-hover:scale-110">
-        <defs>
-          <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2dd4bf" />
-            <stop offset="50%" stopColor="#14b8a6" />
-            <stop offset="100%" stopColor="#0d9488" />
-          </linearGradient>
-          <linearGradient id="grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fbbf24" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#d97706" />
-          </linearGradient>
-          <linearGradient id="grad-red" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fb7185" />
-            <stop offset="50%" stopColor="#f43f5e" />
-            <stop offset="100%" stopColor="#e11d48" />
-          </linearGradient>
-          
-          <filter id="gauge-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1.2" result="blur" />
-            <feFlood floodColor="white" floodOpacity="0.3" result="glowColor" />
-            <feComposite in="glowColor" in2="blur" operator="in" result="softGlow" />
-            <feMerge>
-              <feMergeNode in="softGlow" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        
-        {/* Track (Background Case) */}
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="none"
-          stroke="#f1f5f9"
-          strokeWidth={strokeWidth}
+    <div
+      className={`relative flex items-center justify-center overflow-hidden rounded-xl border backdrop-blur-md transition-all duration-300 group hover:scale-[1.02] shadow-sm ${theme.bg} ${theme.border} ${theme.glow}`}
+      style={{
+        width: isCompact ? 'auto' : size * 2.2,
+        height: size * 0.85,
+        padding: isCompact ? '0 8px' : '0 12px'
+      }}
+    >
+      {/* Dynamic Background Glow */}
+      <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 bg-gradient-to-br ${theme.gradient} transition-opacity duration-500`} />
+
+      <div className="relative flex items-center gap-2">
+        {!isCompact && (
+          <span className={`text-[8px] font-black uppercase tracking-[0.2em] opacity-50 ${theme.text}`}>
+            {theme.label}
+          </span>
+        )}
+
+        <div className="flex items-baseline gap-0.5">
+          <span className={`text-[16px] font-black tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-br ${theme.gradient} drop-shadow-sm`}>
+            {value}
+          </span>
+          <span className={`text-[9px] font-black bg-clip-text text-transparent bg-gradient-to-br ${theme.gradient} opacity-80`}>%</span>
+        </div>
+      </div>
+
+      {/* Micro-Progress Underline */}
+      <div className="absolute bottom-0 left-0 h-[2.5px] w-full bg-white/40">
+        <div
+          className={`h-full bg-gradient-to-r ${theme.gradient} transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(0,0,0,0.1)]`}
+          style={{ width: `${value}%` }}
         />
-        
-        {/* Inner Groove */}
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="none"
-          stroke="#e2e8f0"
-          strokeWidth={strokeWidth * 0.3}
-          opacity="0.5"
-        />
-        
-        {/* Progress Arc */}
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="none"
-          stroke={`url(#${gradientId})`}
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          filter="url(#gauge-glow)"
-          className="transition-all duration-1000 ease-out"
-        />
-      </svg>
-      
-      {/* Percentage Text */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-[0.5px]">
-        <span className="text-[9px] font-black tracking-tight leading-none" style={{ color: textColor }}>
-          {Math.round(value)}
-        </span>
-        <span className="text-[5.5px] font-bold opacity-30 uppercase tracking-widest mt-0.5" style={{ color: textColor }}>%</span>
       </div>
     </div>
   )
 }
+
+export function Gauge({ value, size = 42 }: { value: number; size?: number }) {
+  return <ScoreBadge value={value} size={size} />
+}
+

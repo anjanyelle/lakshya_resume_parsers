@@ -80,7 +80,7 @@ export default function CorrectionsPage() {
       {isFilterOpen && (
         <div className="bg-white p-5 rounded-xl shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-wrap gap-4 animate-slide-down">
           <div className="space-y-1.5 flex-1 min-w-[200px]">
-             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filter by Field</label>
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Filter by Field</label>
              <select
                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:border-violet-400"
                value={fieldFilter}
@@ -90,11 +90,11 @@ export default function CorrectionsPage() {
              </select>
           </div>
           <div className="space-y-1.5 flex-1 min-w-[200px]">
-             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Reviewer</label>
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Reviewer</label>
              <input disabled className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed" placeholder="Coming soon..." />
           </div>
           <div className="space-y-1.5 flex-1 min-w-[200px]">
-             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Date Range</label>
+             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Date Range</label>
              <input disabled className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed" placeholder="Coming soon..." />
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function CorrectionsPage() {
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center gap-2">
               <ClipboardCheck className="h-4 w-4 text-violet-600" />
-              <h3 className="text-sm font-bold text-slate-800">Recent Corrections</h3>
+              <h3 className="text-sm font-semibold text-slate-600">Recent Corrections</h3>
             </div>
             <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
               {filtered.length} entries
@@ -150,7 +150,7 @@ export default function CorrectionsPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-slate-700">{row.candidate_name ?? 'Unknown'}</span>
+                          <span className="text-sm font-semibold text-slate-600">{row.candidate_name ?? 'Unknown'}</span>
                           <span className="text-[10px] text-slate-400">{row.candidate_email}</span>
                         </div>
                       </td>
@@ -187,7 +187,7 @@ export default function CorrectionsPage() {
         <div className="space-y-6 flex flex-col">
           {/* Reviewer Activity */}
           <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
               Reviewer Activity
             </h3>
@@ -213,7 +213,7 @@ export default function CorrectionsPage() {
 
           {/* Training Needs */}
           <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
-            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-teal-500" />
               Fields Needing Training
             </h3>

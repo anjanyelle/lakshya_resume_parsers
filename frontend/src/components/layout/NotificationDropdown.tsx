@@ -29,13 +29,13 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
     <div className="absolute right-0 mt-3 w-80 sm:w-96 overflow-hidden rounded-2xl bg-white/95 backdrop-blur-xl shadow-2xl ring-1 ring-slate-100 z-50 animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-300">
       <div className="flex items-center justify-between border-b border-slate-100 bg-white/50 px-4 py-4">
         <div className="flex flex-col">
-           <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">System Alerts</h3>
+           <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">System Alerts</h3>
            <p className="text-[10px] font-bold text-slate-400 mt-0.5">{unreadCount} UNREAD NOTIFICATIONS</p>
         </div>
         <div className="flex items-center gap-1">
           <button 
             onClick={markAllAsRead} 
-            className="p-2 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all uppercase text-[10px] font-black tracking-widest"
+            className="p-2 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all uppercase text-[10px] font-bold tracking-widest"
             title="Mark all as read"
           >
             Mark All
@@ -56,7 +56,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 mx-auto mb-3 shadow-inner">
               <Bell className="h-6 w-6" />
             </div>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Inbox Zero</p>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Inbox Zero</p>
             <p className="text-[10px] text-slate-300 mt-1 uppercase tracking-tighter italic-placeholder">— All system events cleared —</p>
           </div>
         ) : (
@@ -77,7 +77,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                       <p className={`text-xs font-black tracking-tight ${!notif.read ? 'text-slate-900' : 'text-slate-600'}`}>
+                       <p className={`text-xs font-bold tracking-tight ${!notif.read ? 'text-slate-800' : 'text-slate-600'}`}>
                          {notif.title}
                        </p>
                        {!notif.read && (
@@ -88,7 +88,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
                        {notif.message}
                     </p>
                     <div className="flex items-center gap-3 mt-2">
-                       <span className="flex items-center gap-1.5 text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none">
+                       <span className="flex items-center gap-1.5 text-[9px] font-bold text-slate-300 uppercase tracking-widest leading-none">
                           <Calendar className="h-3 w-3" />
                           {formatTime(notif.timestamp)}
                        </span>
@@ -96,7 +96,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
                           <a 
                             href={notif.link} 
                             onClick={(e) => { e.stopPropagation(); onClose(); }}
-                            className="flex items-center gap-1 text-[9px] font-black text-violet-400 hover:text-violet-600 uppercase tracking-widest"
+                            className="flex items-center gap-1 text-[9px] font-bold text-violet-400 hover:text-violet-600 uppercase tracking-widest"
                           >
                              View <ExternalLink className="h-2.5 w-2.5" />
                           </a>
@@ -117,7 +117,7 @@ export default function NotificationDropdown({ onClose }: NotificationDropdownPr
       </div>
 
       <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-center">
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
            Resume Center
         </p>
       </div>

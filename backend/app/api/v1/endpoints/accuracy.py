@@ -68,13 +68,32 @@ def accuracy_overview(
     top_fields = (
         db.query(CorrectionStat.field_name, CorrectionStat.correction_count)
         .order_by(CorrectionStat.correction_count.desc())
-        .limit(5)
+        .limit(10)
         .all()
     )
-    field_scores = []
+    
+    # Ensure all core sections are represented
+    standard_fields = {
+        "full_name": 1.0,
+        "email": 1.0,
+        "phone": 1.0,
+        "location": 1.0,
+        "work_experience": 1.0,
+        "education": 1.0,
+        "skills": 1.0,
+    }
+    
+    # Merge with real correction data
     for field, count in top_fields:
         score = 1.0 if total == 0 else max(0.4, 1 - (count / max(total, 1)))
-        field_scores.append({"label": field, "score": round(score, 2)})
+        standard_fields[field] = round(score, 2)
+
+    field_scores = [
+        {"label": field.replace('_', ' ').title(), "score": score} 
+        for field, score in standard_fields.items()
+    ]
+    # Keep most relevant items
+    field_scores = sorted(field_scores, key=lambda x: x["label"])
 
     recent_jobs = (
         db.query(ParsingJob)

@@ -1,6 +1,6 @@
 import { Eye, Download, Trash2, Mail, FileText, CheckCircle2 } from 'lucide-react'
 import type { Candidate } from '../../types/candidate'
-import { getInitials, Gauge, getAvatarColor, formatScore } from './CandidateUIUtils'
+import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore } from './CandidateUIUtils'
 
 interface CompactCandidateRowProps {
   candidate?: Candidate
@@ -31,7 +31,7 @@ export default function CompactCandidateRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <h4 className="text-[13px] font-bold text-slate-700 truncate">{item.file.name}</h4>
-            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{item.status}</span>
+            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{item.status}</span>
           </div>
           <div className="mt-1.5 h-1.5 w-full max-w-xs rounded-full bg-slate-50 overflow-hidden border border-slate-100/50">
             <div 
@@ -42,7 +42,7 @@ export default function CompactCandidateRow({
         </div>
 
         <div className="flex items-center gap-3 pr-2">
-          <span className="text-xs font-black text-violet-600">{Math.round(item.progress)}%</span>
+          <span className="text-xs font-bold text-violet-600">{Math.round(item.progress)}%</span>
           <div className="h-4 w-px bg-slate-100" />
           <button className="text-slate-300 hover:text-red-400 transition-colors">
             <Trash2 className="h-4 w-4" />
@@ -60,7 +60,7 @@ export default function CompactCandidateRow({
     return (
       <div className="flex items-center gap-4 rounded-xl border border-slate-100 bg-white p-3 shadow-sm hover:border-violet-200 hover:shadow-md transition-all duration-300 group animate-in fade-in slide-in-from-top-2">
         <div 
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-xs font-black text-white shadow-sm flex-shrink-0"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-xs font-bold text-white shadow-sm flex-shrink-0"
           style={{ background: getAvatarColor(candidate.full_name) }}
         >
           {getInitials(candidate.full_name)}
@@ -68,7 +68,7 @@ export default function CompactCandidateRow({
 
         <div className="flex-1 min-w-0">
            <div className="flex items-center gap-2">
-              <h4 className="text-[14px] font-black text-slate-800 truncate">{candidate.full_name || 'Anonymous'}</h4>
+              <h4 className="text-[14px] font-bold text-slate-800 truncate">{candidate.full_name || 'Anonymous'}</h4>
               <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
                 <CheckCircle2 className="h-3.5 w-3.5" />
               </div>
@@ -87,10 +87,7 @@ export default function CompactCandidateRow({
 
         <div className="flex items-center gap-6 pr-2">
            {scoreValue !== null && (
-             <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none">Score</span>
-                <Gauge value={scoreValue} size={36} />
-             </div>
+             <ScoreBadge value={scoreValue} size={34} />
            )}
            
            <div className="h-4 w-px bg-slate-100" />

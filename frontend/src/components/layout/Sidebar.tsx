@@ -60,7 +60,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <FileText className="relative h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <p className="text-[15px] font-black text-slate-800 tracking-tight leading-[1.2]">Resume</p>
+              <p className="text-[15px] font-extrabold text-slate-800 tracking-tight leading-[1.2]">Resume Parser</p>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.12em] leading-none mt-1">ADMIN CONSOLE</p>
             </div>
           </div>
@@ -104,19 +104,26 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* Auth Section */}
-        <div className="mt-auto border-t border-slate-200 pt-6">
+        <div className="mt-auto border-t border-slate-100 pt-6">
           <button
             onClick={handleAuthClick}
-            className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-500 transition-all duration-300 hover:bg-white/60 hover:text-slate-900"
+            className={`group flex w-full items-center gap-4 rounded-2xl p-3 text-sm font-bold transition-all duration-500 border border-transparent active:scale-95 ${accessToken
+              ? 'text-slate-500 hover:bg-rose-50/50 hover:text-rose-600 hover:border-rose-100/50'
+              : 'text-slate-500 hover:bg-violet-50/50 hover:text-violet-600 hover:border-violet-100/50'
+              }`}
           >
-            <div className={`flex h-9 w-9 items-center justify-center rounded-xl shadow-sm transition-all duration-300 group-hover:scale-105 ${
-              accessToken
-                ? 'bg-rose-50 text-rose-500 border border-rose-100/50 group-hover:bg-rose-500 group-hover:text-white group-hover:shadow-rose-100/50'
-                : 'bg-violet-50 text-violet-500 border border-violet-100/50 group-hover:bg-violet-600 group-hover:text-white group-hover:shadow-violet-100/50'
-            }`}>
-              {accessToken ? <LogOut className="h-4 w-4" /> : <Users className="h-4 w-4" />}
+            <div className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-sm transition-all duration-500 group-hover:rotate-12 group-hover:shadow-lg ${accessToken
+              ? 'bg-rose-50 text-rose-500 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-rose-200'
+              : 'bg-violet-50 text-violet-500 group-hover:bg-violet-600 group-hover:text-white group-hover:shadow-violet-200'
+              }`}>
+              {accessToken ? <LogOut className="h-5 w-5" /> : <Users className="h-5 w-5" />}
             </div>
-            <span className="transition-colors">{accessToken ? 'Logout' : 'Login'}</span>
+            <div className="flex flex-col items-start">
+              <span className="leading-none transition-colors">{accessToken ? 'Logout' : 'Login'}</span>
+              <span className={`text-[10px] font-bold uppercase tracking-widest mt-1.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ${accessToken ? 'text-rose-400' : 'text-violet-400'}`}>
+                {accessToken ? 'End Session' : 'Access Console'}
+              </span>
+            </div>
           </button>
         </div>
       </div>

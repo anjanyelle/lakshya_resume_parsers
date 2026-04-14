@@ -62,7 +62,7 @@ export default function AccuracyPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium text-slate-400">{card.sub}</p>
-                  <p className="mt-1 text-2xl font-bold text-slate-800">{card.value}</p>
+                  <p className="mt-1 text-2xl font-medium text-slate-600">{card.value}</p>
                   <p className="mt-0.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{card.label}</p>
                 </div>
                 <div
@@ -82,7 +82,7 @@ export default function AccuracyPage() {
         <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
           <div className="flex items-center gap-2 mb-6">
             <div className="h-2 w-2 rounded-full bg-violet-500" />
-            <h3 className="text-sm font-bold text-slate-800">Section Accuracy</h3>
+            <h3 className="text-sm font-semibold text-slate-600">Section Accuracy</h3>
           </div>
           
           <div className="space-y-5">
@@ -102,7 +102,7 @@ export default function AccuracyPage() {
                 <div key={metric.label} className="group">
                   <div className="flex items-center justify-between text-xs mb-1.5">
                     <span className="font-semibold text-slate-600 transition-colors group-hover:text-violet-600">{metric.label}</span>
-                    <span className="font-bold text-slate-800">
+                    <span className="font-semibold text-slate-600">
                       {(metric.score * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -125,7 +125,7 @@ export default function AccuracyPage() {
         <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
           <div className="flex items-center gap-2 mb-6">
             <div className="h-2 w-2 rounded-full bg-teal-500" />
-            <h3 className="text-sm font-bold text-slate-800">Recent Parsing Runs</h3>
+            <h3 className="text-sm font-semibold text-slate-600">Recent Parsing Runs</h3>
           </div>
           
           <div className="space-y-3">
@@ -147,7 +147,7 @@ export default function AccuracyPage() {
                   className="group rounded-xl border border-slate-100 bg-slate-50/50 p-3 transition-all hover:bg-white hover:shadow-md hover:border-violet-100"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700">{run.job_id.slice(0, 12)}...</span>
+                    <span className="text-xs font-semibold text-slate-600">{run.job_id.slice(0, 12)}...</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       run.confidence > 0.8 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
                     }`}>

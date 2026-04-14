@@ -110,10 +110,10 @@ export default function DashboardPage() {
   useEffect(() => {
     const controller = new AbortController()
     loadCandidates(controller.signal)
-    
+
     // Background refresh every 10s
     const interval = window.setInterval(() => loadCandidates(), 10000)
-    
+
     return () => {
       controller.abort()
       window.clearInterval(interval)
@@ -215,23 +215,22 @@ export default function DashboardPage() {
             >
               {/* Decorative background shape */}
               <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${stat.colors} opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-125 transition-all duration-500`} />
-              
+
               <div className="flex items-start justify-between relative z-10">
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg bg-gradient-to-br ${stat.colors} ring-4 ring-white transition-transform duration-500 group-hover:scale-110`}
                 >
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight transition-colors ${
-                  stat.up ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                }`}>
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight transition-colors ${stat.up ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                  }`}>
                   {stat.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {stat.trend}
                 </div>
               </div>
-              
+
               <div className="mt-6 relative z-10">
-                <h3 className="text-3xl font-black text-slate-700 tracking-tighter transition-colors group-hover:text-slate-800">
+                <h3 className="text-3xl font-medium text-slate-600 tracking-tighter transition-colors group-hover:text-slate-700">
                   {stat.value}
                 </h3>
                 <p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">
@@ -251,7 +250,7 @@ export default function DashboardPage() {
         {/* Monthly Applications */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-black text-slate-700 uppercase tracking-tight">Monthly Applications</h3>
+            <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Monthly Applications</h3>
             <button className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreVertical className="h-4 w-4" />
             </button>
@@ -298,7 +297,7 @@ export default function DashboardPage() {
         {/* Top Skills Detected */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-black text-slate-700 uppercase tracking-tight">Top Skills Detected</h3>
+            <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Top Skills Detected</h3>
             <button className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreVertical className="h-4 w-4" />
             </button>
@@ -382,7 +381,7 @@ export default function DashboardPage() {
         {/* Processing Queue */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-700">Processing Queue</h3>
+            <h3 className="text-sm font-semibold text-slate-600">Processing Queue</h3>
             <span className="text-xs text-slate-400">
               {candidates.filter((c) => c.status === 'processing').length} active
             </span>
@@ -434,7 +433,7 @@ export default function DashboardPage() {
         {/* Recent Resumes */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-700">Recent Resumes</h3>
+            <h3 className="text-sm font-semibold text-slate-600">Recent Resumes</h3>
             <button
               onClick={() => navigate('/candidates')}
               className="text-xs font-medium text-violet-600 hover:text-violet-700 transition-colors"
@@ -479,10 +478,10 @@ export default function DashboardPage() {
                       )}
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${candidate.status === 'success'
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : candidate.status === 'failed'
-                              ? 'bg-red-50 text-red-500'
-                              : 'bg-amber-50 text-amber-600'
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : candidate.status === 'failed'
+                            ? 'bg-red-50 text-red-500'
+                            : 'bg-amber-50 text-amber-600'
                           }`}
                       >
                         {candidate.status === 'success' ? 'completed' : candidate.status}
@@ -523,7 +522,7 @@ export default function DashboardPage() {
       {/* Score Distribution */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Score Distribution</h3>
+          <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Score Distribution</h3>
           <button className="text-slate-400 hover:text-slate-600 transition-colors">
             <MoreVertical className="h-4 w-4" />
           </button>

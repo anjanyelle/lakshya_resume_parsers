@@ -1,7 +1,7 @@
 import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import type { Candidate } from '../../types/candidate'
-import { getInitials, Gauge, getAvatarColor, formatScore } from './CandidateUIUtils'
+import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore } from './CandidateUIUtils'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -78,14 +78,14 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
         )}
 
         <div
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-xs font-black text-white shadow-sm"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white shadow-sm"
           style={{ background: getAvatarColor(candidate.full_name) }}
         >
           {getInitials(candidate.full_name)}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-bold text-slate-800 truncate leading-tight tracking-tight">
+          <h3 className="text-[15px] font-semibold text-slate-600 truncate leading-tight tracking-tight">
             {candidate.full_name || 'Anonymous'}
           </h3>
           <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">
@@ -93,14 +93,12 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <div className="flex h-[42px] w-[42px] items-center justify-center">
-            {scoreValue !== null ? (
-              <Gauge value={scoreValue} size={42} />
-            ) : (
-              <div className="h-8 w-8 rounded-full border-2 border-dashed border-slate-100" />
-            )}
-          </div>
+        <div className="flex items-center gap-2">
+          {scoreValue !== null ? (
+            <ScoreBadge value={scoreValue} size={40} />
+          ) : (
+            <div className="h-8 w-8 rounded-xl border-2 border-dashed border-slate-100" />
+          )}
           <button className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-300 hover:bg-slate-50 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100 shadow-none hover:shadow-sm">
             <MoreVertical className="h-4 w-4" />
           </button>

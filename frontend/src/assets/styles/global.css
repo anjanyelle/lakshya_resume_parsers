@@ -25,7 +25,7 @@
   h4,
   h5,
   h6 {
-    @apply text-slate-900;
+    @apply text-slate-600 font-bold;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 

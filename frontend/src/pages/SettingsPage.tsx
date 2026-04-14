@@ -5,7 +5,7 @@ export default function SettingsPage() {
     <div className="space-y-6 animate-fade-in">
       {/* General Settings */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-700">General</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-600">General</h3>
         <div className="space-y-4">
           {[
             { label: 'Application Name', value: 'ATS Analyzer', type: 'text' },
