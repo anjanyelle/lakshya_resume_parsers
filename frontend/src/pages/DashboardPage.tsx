@@ -26,10 +26,12 @@ import {
   Bar,
 } from 'recharts'
 import { useCandidateStore } from '../store/candidateStore'
-
+import { useTheme } from '../contexts/ThemeContext'
+import { useAuthStore } from '../store/authStore'
 
 const SKILL_COLORS = ['#7c3aed', '#14b8a6', '#6366f1', '#f97316', '#ef4444', '#eab308']
 
+// Helper components
 function getInitials(name?: string | null) {
   if (!name) return '?'
   return name
@@ -60,9 +62,30 @@ function getScoreColor(score?: number | null) {
   return '#ef4444'
 }
 
+function CountUp({ end, duration = 1000, suffix = '' }: { end: number; duration?: number; suffix?: string }) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    let startTimestamp: number | null = null
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1)
+      setCount(Math.floor(progress * end))
+      if (progress < 1) {
+        window.requestAnimationFrame(step)
+      }
+    }
+    window.requestAnimationFrame(step)
+  }, [end, duration])
+
+  return <span>{count}{suffix}</span>
+}
+
 export default function DashboardPage() {
   const navigate = useNavigate()
   const { candidates, loadCandidates } = useCandidateStore()
+  const { theme } = useTheme()
+  const { user } = useAuthStore()
   const [skillData, setSkillData] = useState<{ name: string; value: number }[]>([])
 
   // Functionality: Dynamic data mapping for charts
@@ -110,10 +133,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const controller = new AbortController()
     loadCandidates(controller.signal)
-
-    // Background refresh every 10s
     const interval = window.setInterval(() => loadCandidates(), 10000)
-
     return () => {
       controller.abort()
       window.clearInterval(interval)
@@ -157,53 +177,93 @@ export default function DashboardPage() {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 3)
 
-  const displayScore =
-    avgScore > 0
-      ? `${avgScore}%`
-      : '—'
-
   const statsCards = [
     {
       label: 'Total Resumes',
-      value: totalResumes > 0 ? String(totalResumes) : '—',
+      value: totalResumes,
+      display: totalResumes > 0 ? <CountUp end={totalResumes} /> : '—',
       trend: '+12.5%',
       up: true,
       icon: FileText,
-      colors: 'from-violet-500 to-indigo-600',
-      shadow: 'shadow-violet-100',
+      colors: 'from-orange-500 to-orange-600',
+      shadow: 'shadow-orange-200/50 dark:shadow-orange-900/20',
+      glow: 'group-hover:shadow-orange-500/40',
     },
     {
       label: 'Analyzed Candidates',
-      value: analyzedCandidates > 0 ? String(analyzedCandidates) : '—',
+      value: analyzedCandidates,
+      display: analyzedCandidates > 0 ? <CountUp end={analyzedCandidates} /> : '—',
       trend: '+8.2%',
       up: true,
       icon: Users,
       colors: 'from-teal-400 to-emerald-600',
-      shadow: 'shadow-emerald-100',
+      shadow: 'shadow-emerald-200/50 dark:shadow-emerald-900/20',
+      glow: 'group-hover:shadow-emerald-500/40',
     },
     {
       label: 'Avg. Match Score',
-      value: displayScore,
+      value: avgScore,
+      display: avgScore > 0 ? <CountUp end={avgScore} suffix="%" /> : '—',
       trend: '+5.4%',
       up: true,
       icon: Star,
       colors: 'from-amber-400 to-orange-500',
-      shadow: 'shadow-orange-100',
+      shadow: 'shadow-orange-200/50 dark:shadow-orange-900/20',
+      glow: 'group-hover:shadow-orange-500/40',
     },
     {
       label: 'Avg. Processing Time',
-      value:
-        candidates.length > 0 ? `${avgProcessingDays} days` : '—',
+      value: avgProcessingDays,
+      display: candidates.length > 0 ? <CountUp end={avgProcessingDays} suffix=" days" /> : '—',
       trend: '-2.1%',
       up: false,
       icon: Clock,
       colors: 'from-blue-400 to-indigo-500',
-      shadow: 'shadow-blue-100',
+      shadow: 'shadow-blue-200/50 dark:shadow-blue-900/20',
+      glow: 'group-hover:shadow-blue-500/40',
     },
   ]
 
+  const chartTheme = theme === 'dark' ? {
+    text: '#94a3b8',
+    grid: '#334155',
+    bg: '#1e293b',
+    border: '#475569'
+  } : {
+    text: '#64748b',
+    grid: '#f1f5f9',
+    bg: '#ffffff',
+    border: '#e2e8f0'
+  }
+
+  const timeGreeting = useMemo(() => {
+    const hour = new Date().getHours()
+    if (hour < 12) return 'Morning'
+    if (hour < 17) return 'Afternoon'
+    return 'Evening'
+  }, [])
+
+  const displayName = useMemo(() => {
+    if (user?.full_name) return user.full_name
+    if (user?.name) return user.name
+    const emailPrefix = user?.email.split('@')[0] || 'User'
+    return emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
+  }, [user])
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in pb-10">
+      {/* Welcome Greeting */}
+      <div className="flex flex-col gap-0.5">
+        <p className="text-[14px] font-black text-slate-500 uppercase tracking-[0.2em] select-none">Welcome</p>
+        <h2 className="text-xl font-bold text-slate-700 dark:text-slate-100 tracking-tight flex items-center gap-3">
+          Good {timeGreeting}, {displayName}
+          <span className="animate-wave inline-block origin-[70%_70%]">👋</span>
+        </h2>
+        <p className="text-[13px] font-medium text-slate-400 dark:text-slate-500">
+          Here's an overview of your resume analysis activity.
+        </p>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statsCards.map((stat) => {
@@ -211,350 +271,225 @@ export default function DashboardPage() {
           return (
             <div
               key={stat.label}
-              className={`group relative overflow-hidden rounded-3xl bg-white p-6 border border-slate-100 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-slate-200/50 ${stat.shadow} shadow-sm`}
+              className={`group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800/50 p-4 border border-slate-100 dark:border-slate-700/50 shadow-md ${stat.shadow} transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${stat.glow} cursor-pointer backdrop-blur-sm`}
             >
-              {/* Decorative background shape */}
-              <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${stat.colors} opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-125 transition-all duration-500`} />
+              <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${stat.colors} opacity-[0.05] group-hover:opacity-[0.1] group-hover:scale-150 transition-all duration-700 blur-2xl`} />
 
               <div className="flex items-start justify-between relative z-10">
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg bg-gradient-to-br ${stat.colors} ring-4 ring-white transition-transform duration-500 group-hover:scale-110`}
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl text-white shadow-md bg-gradient-to-br ${stat.colors} ring-4 ring-white dark:ring-slate-700/50 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4" />
                 </div>
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-tight transition-colors ${stat.up ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black tracking-tight transition-all duration-300 ${stat.up
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'
                   }`}>
                   {stat.up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {stat.trend}
                 </div>
               </div>
 
-              <div className="mt-6 relative z-10">
-                <h3 className="text-3xl font-medium text-slate-600 tracking-tighter transition-colors group-hover:text-slate-700">
-                  {stat.value}
+              <div className="mt-4 relative z-10">
+                <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-100 tracking-tighter transition-colors leading-none">
+                  {stat.display}
                 </h3>
-                <p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                <p className="mt-1.5 text-[8.5px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
                   {stat.label}
                 </p>
               </div>
 
-              {/* Bottom accent line */}
-              <div className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${stat.colors} transition-all duration-500 group-hover:w-full opacity-60`} />
+              <div className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${stat.colors} transition-all duration-700 group-hover:w-full opacity-40`} />
             </div>
           )
         })}
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Monthly Applications */}
-        <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Monthly Applications</h3>
-            <button className="text-slate-400 hover:text-slate-600 transition-colors">
-              <MoreVertical className="h-4 w-4" />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col">
+              <h3 className="text-[9px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-[0.2em]">Application Velocity</h3>
+              <p className="text-lg font-bold text-slate-700 dark:text-slate-100 mt-1">Monthly Analytics</p>
+            </div>
+            <button className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              <MoreVertical className="h-5 w-5" />
             </button>
           </div>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={dynamicMonthlyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={dynamicMonthlyData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#7c3aed" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#38bdf8" stopOpacity={0.01} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
               <XAxis
                 dataKey="month"
-                tick={{ fontSize: 11, fill: '#94a3b8' }}
+                tick={{ fontSize: 11, fill: chartTheme.text, fontWeight: 600 }}
                 axisLine={false}
                 tickLine={false}
+                dy={10}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#94a3b8' }}
+                tick={{ fontSize: 11, fill: chartTheme.text, fontWeight: 600 }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 contentStyle={{
                   fontSize: 12,
-                  borderRadius: 8,
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  borderRadius: 16,
+                  backgroundColor: chartTheme.bg,
+                  border: `1px solid ${chartTheme.border}`,
+                  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                  color: chartTheme.text,
                 }}
+                itemStyle={{ color: '#0ea5e9', fontWeight: 800 }}
               />
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#7c3aed"
-                strokeWidth={2}
+                stroke="#0ea5e9"
+                strokeWidth={4}
                 fill="url(#areaGrad)"
+                animationDuration={2000}
+                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 3, shadow: '0 0 12px rgba(14, 165, 233, 0.5)' }}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Top Skills Detected */}
-        <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Top Skills Detected</h3>
-            <button className="text-slate-400 hover:text-slate-600 transition-colors">
-              <MoreVertical className="h-4 w-4" />
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col">
+              <h3 className="text-[9px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-[0.2em]">Talent Composition</h3>
+              <p className="text-lg font-bold text-slate-700 dark:text-slate-100 mt-1">Skill Distribution</p>
+            </div>
+            <button className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+              <MoreVertical className="h-5 w-5" />
             </button>
           </div>
-          {skillData.length > 0 ? (
-            <>
-              <div className="flex justify-center">
-                <PieChart width={160} height={160}>
-                  <Pie
-                    data={skillData}
-                    cx={75}
-                    cy={75}
-                    innerRadius={50}
-                    outerRadius={75}
-                    dataKey="value"
-                    paddingAngle={2}
-                  >
-                    {skillData.map((_, index) => (
-                      <Cell key={index} fill={SKILL_COLORS[index % SKILL_COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2 justify-center">
-                {skillData.map((skill, index) => (
-                  <span key={skill.name} className="flex items-center gap-1 text-xs text-slate-600">
-                    <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ backgroundColor: SKILL_COLORS[index % SKILL_COLORS.length] }}
-                    />
-                    {skill.name} ({skill.value})
-                  </span>
-                ))}
-              </div>
-            </>
-          ) : (
-            // Demo pie chart
-            <div className="flex flex-col items-center">
-              <PieChart width={160} height={160}>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-10">
+            <div className="relative">
+              <PieChart width={200} height={200}>
                 <Pie
-                  data={[
+                  data={skillData.length > 0 ? skillData : [
                     { name: 'Python', value: 2 },
                     { name: 'Django', value: 1 },
                     { name: 'PostgreSQL', value: 1 },
                     { name: 'Docker', value: 1 },
                     { name: 'JavaScript', value: 1 },
                   ]}
-                  cx={75}
-                  cy={75}
-                  innerRadius={50}
-                  outerRadius={75}
+                  cx={100}
+                  cy={100}
+                  innerRadius={65}
+                  outerRadius={95}
                   dataKey="value"
-                  paddingAngle={2}
+                  paddingAngle={5}
+                  stroke="none"
+                  animationDuration={1500}
                 >
                   {SKILL_COLORS.map((color, index) => (
                     <Cell key={index} fill={color} />
                   ))}
                 </Pie>
               </PieChart>
-              <div className="mt-2 flex flex-wrap gap-2 justify-center">
-                {[
-                  { name: 'Python', count: 2, color: SKILL_COLORS[0] },
-                  { name: 'Django', count: 1, color: SKILL_COLORS[1] },
-                  { name: 'PostgreSQL', count: 1, color: SKILL_COLORS[2] },
-                  { name: 'Docker', count: 1, color: SKILL_COLORS[3] },
-                  { name: 'JavaScript', count: 1, color: SKILL_COLORS[4] },
-                ].map((s) => (
-                  <span key={s.name} className="flex items-center gap-1 text-xs text-slate-600">
-                    <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
-                    {s.name} ({s.count})
-                  </span>
-                ))}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-2xl font-black text-slate-700 dark:text-slate-200">{skillData.length}</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Skills</span>
               </div>
             </div>
-          )}
+            <div className="flex-1 grid grid-cols-2 gap-4">
+              {skillData.map((skill, index) => (
+                <div key={skill.name} className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 transition-transform hover:scale-105">
+                  <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: SKILL_COLORS[index % SKILL_COLORS.length] }} />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{skill.name}</span>
+                    <span className="text-[10px] font-medium text-slate-400">{skill.value} Resumes</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Processing Queue */}
-        <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600">Processing Queue</h3>
-            <span className="text-xs text-slate-400">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-100">Processing Queue</p>
+            <span className="px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-wider">
               {candidates.filter((c) => c.status === 'processing').length} active
             </span>
           </div>
           {candidates.filter((c) => c.status === 'processing').length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-slate-200">
-                <Clock className="h-7 w-7 text-slate-300" />
-              </div>
-              <p className="mt-3 text-sm text-slate-400">No resumes processing</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Clock className="h-10 w-10 text-slate-200 dark:text-slate-700" />
+              <p className="mt-5 text-sm font-bold text-slate-400 dark:text-slate-500">Engine Idle.</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {candidates
-                .filter((c) => c.status === 'processing')
-                .slice(0, 3)
-                .map((c) => (
-                  <div
-                    key={c.id}
-                    className="flex items-center gap-3 rounded-lg border border-slate-100 p-3"
-                  >
-                    <div
-                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-                      style={{ background: getAvatarColor(c.full_name) }}
-                    >
-                      {getInitials(c.full_name)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-700">
-                        {c.full_name || 'Unknown'}
-                      </p>
-                      <p className="text-xs text-slate-400">Processing...</p>
-                    </div>
-                    <div className="h-1.5 w-20 rounded-full bg-slate-100">
-                      <div
-                        className="h-1.5 rounded-full"
-                        style={{
-                          width: '60%',
-                          background: 'linear-gradient(90deg,#7c3aed,#14b8a6)',
-                        }}
-                      />
+            <div className="space-y-4">
+              {candidates.filter((c) => c.status === 'processing').slice(0, 3).map((c) => (
+                <div key={c.id} className="flex items-center gap-4 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-xs font-black text-white" style={{ background: getAvatarColor(c.full_name) }}>
+                    {getInitials(c.full_name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-200">{c.full_name || 'Candidate'}</p>
+                    <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-slate-900 mt-1 overflow-hidden">
+                      <div className="h-full rounded-full animate-pulse" style={{ width: '65%', background: 'linear-gradient(90deg,#ea580c,#f97316)' }} />
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Recent Resumes */}
-        <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600">Recent Resumes</h3>
-            <button
-              onClick={() => navigate('/candidates')}
-              className="text-xs font-medium text-violet-600 hover:text-violet-700 transition-colors"
-            >
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-lg font-bold text-slate-700 dark:text-slate-100">Global Feed</p>
+            <button onClick={() => navigate('/candidates')} className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 text-[10px] font-black text-orange-500 dark:text-orange-400 uppercase tracking-widest">
               View All
             </button>
           </div>
-
-          {recentResumes.length > 0 ? (
-            <div className="space-y-3">
-              {recentResumes.map((candidate) => {
-                const score = candidate.parsing_jobs?.[0]?.confidence_score
-                const scoreDisplay = score != null ? `${Math.round(score * 100)}%` : '—'
-                return (
-                  <div
-                    key={candidate.id}
-                    className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 rounded-lg p-2 -mx-2 transition-colors"
-                    onClick={() => navigate(`/candidates/${candidate.id}`)}
-                  >
-                    <div
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white"
-                      style={{ background: getAvatarColor(candidate.full_name) }}
-                    >
-                      {getInitials(candidate.full_name)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate text-sm font-medium text-slate-700">
-                        {candidate.full_name || 'Unknown candidate'}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {new Date(candidate.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {score != null && (
-                        <span
-                          className="text-sm font-bold"
-                          style={{ color: getScoreColor(score * 100) }}
-                        >
-                          {scoreDisplay}
-                        </span>
-                      )}
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${candidate.status === 'success'
-                          ? 'bg-emerald-50 text-emerald-600'
-                          : candidate.status === 'failed'
-                            ? 'bg-red-50 text-red-500'
-                            : 'bg-amber-50 text-amber-600'
-                          }`}
-                      >
-                        {candidate.status === 'success' ? 'completed' : candidate.status}
-                      </span>
-                      <button
-                        className="text-slate-300 hover:text-slate-500 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          navigate(`/candidates/${candidate.id}`)
-                        }}
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                      </button>
-                      <button className="text-slate-300 hover:text-slate-500 transition-colors">
-                        <Download className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
+          <div className="space-y-4">
+            {recentResumes.map((candidate) => {
+              const score = candidate.parsing_jobs?.[0]?.confidence_score
+              return (
+                <div key={candidate.id} className="flex items-center gap-4 cursor-pointer p-4 -mx-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900 group" onClick={() => navigate(`/candidates/${candidate.id}`)}>
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-xs font-black text-white" style={{ background: getAvatarColor(candidate.full_name) }}>
+                    {getInitials(candidate.full_name)}
                   </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <FileText className="h-8 w-8 text-slate-200 mb-2" />
-              <p className="text-sm text-slate-400">No resumes uploaded yet</p>
-              <button
-                onClick={() => navigate('/upload')}
-                className="mt-3 rounded-lg px-4 py-1.5 text-xs font-medium text-white transition-all hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
-              >
-                Upload Resume
-              </button>
-            </div>
-          )}
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-orange-600">{candidate.full_name || 'Anonymous'}</p>
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mt-1">{new Date(candidate.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    {score != null && <span className="text-xs font-black" style={{ color: getScoreColor(score * 100) }}>{Math.round(score * 100)}%</span>}
+                    <span className={`mt-1.5 rounded-full px-2 py-0.5 text-[9px] font-black uppercase ${candidate.status === 'success' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-50 text-red-500'}`}>{candidate.status}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Score Distribution */}
-      <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Score Distribution</h3>
-          <button className="text-slate-400 hover:text-slate-600 transition-colors">
-            <MoreVertical className="h-4 w-4" />
-          </button>
-        </div>
-        <ResponsiveContainer width="100%" height={160}>
-          <BarChart data={dynamicScoreDistData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis
-              dataKey="range"
-              tick={{ fontSize: 11, fill: '#94a3b8' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: '#94a3b8' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              contentStyle={{
-                fontSize: 12,
-                borderRadius: 8,
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              }}
-            />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+      <div className="rounded-3xl bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+        <p className="text-lg font-bold text-slate-700 dark:text-slate-100 mb-8">Accuracy Distribution</p>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={dynamicScoreDistData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
+            <XAxis dataKey="range" tick={{ fontSize: 11, fill: chartTheme.text, fontWeight: 700 }} axisLine={false} tickLine={false} dy={10} />
+            <YAxis tick={{ fontSize: 11, fill: chartTheme.text, fontWeight: 700 }} axisLine={false} tickLine={false} />
+            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 16, backgroundColor: chartTheme.bg, border: `1px solid ${chartTheme.border}` }} />
+            <Bar dataKey="count" radius={[8, 8, 8, 8]} barSize={40}>
               {dynamicScoreDistData.map((_, index) => (
-                <Cell
-                  key={index}
-                  fill={`url(#barGrad${index})`}
-                />
+                <Cell key={index} fill={`url(#barGrad${index})`} />
               ))}
               <defs>
                 {dynamicScoreDistData.map((_, index) => (

@@ -5,16 +5,16 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
         },
         teal: {
           50: '#f0fdfa',
@@ -78,10 +78,10 @@ export default {
         'slide-in-left': 'slide-in-left 0.3s ease-out forwards',
       },
       backgroundImage: {
-        'sidebar-gradient': 'linear-gradient(135deg, #f5f3ff 0%, #e0f2fe 50%, #f0fdfa 100%)',
-        'header-gradient': 'linear-gradient(90deg, #7c3aed 0%, #14b8a6 100%)',
-        'card-gradient': 'linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%)',
-        'accent-gradient': 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+        'sidebar-gradient': 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+        'header-gradient': 'linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%)',
+        'card-gradient': 'linear-gradient(135deg, #f0f9ff 0%, #fdfdfd 100%)',
+        'accent-gradient': 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

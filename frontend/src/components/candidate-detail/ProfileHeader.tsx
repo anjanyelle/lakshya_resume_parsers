@@ -100,7 +100,7 @@ export default function ProfileHeader({
           <Button variant="secondary" onClick={onReprocess} icon={<RefreshCcw className="h-4 w-4" />}>
             Reprocess
           </Button>
-          <Button onClick={onApprove} icon={<CheckCircle className="h-4 w-4" />}>
+          <Button variant="orange" onClick={onApprove} icon={<CheckCircle className="h-4 w-4" />}>
             Mark reviewed
           </Button>
           <Button variant="danger" onClick={onDelete} icon={<Trash2 className="h-4 w-4" />}>

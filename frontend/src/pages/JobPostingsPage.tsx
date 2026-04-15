@@ -7,7 +7,7 @@ export default function JobPostingsPage() {
         <div />
         <button
           className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
+          style={{ background: 'linear-gradient(135deg,#ea580c,#fb923c)' }}
         >
           <Plus className="h-4 w-4" />
           New Job Posting
@@ -18,10 +18,10 @@ export default function JobPostingsPage() {
         <div
           className="flex h-20 w-20 items-center justify-center rounded-3xl mb-5"
           style={{
-            background: 'linear-gradient(135deg,rgba(124,58,237,0.1),rgba(20,184,166,0.1))',
+            background: 'linear-gradient(135deg,rgba(234,88,12,0.1),rgba(249,115,22,0.1))',
           }}
         >
-          <Briefcase className="h-10 w-10 text-violet-400" />
+          <Briefcase className="h-10 w-10 text-orange-400" />
         </div>
         <h3 className="text-lg font-semibold text-slate-700">No Job Postings Yet</h3>
         <p className="mt-2 text-sm text-slate-400 max-w-sm">
@@ -30,7 +30,7 @@ export default function JobPostingsPage() {
         </p>
         <button
           className="mt-6 flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
+          style={{ background: 'linear-gradient(135deg,#ea580c,#fb923c)' }}
         >
           <Plus className="h-4 w-4" />
           Create First Job Posting

@@ -12,27 +12,39 @@ import {
   CheckCircle2,
   Settings,
   ShieldCheck,
+  HelpCircle,
 } from 'lucide-react'
 import { useUploadStore } from '../store/uploadStore'
 import { useCandidateStore } from '../store/candidateStore'
+import { useTheme } from '../contexts/ThemeContext'
 import CandidateCard from '../components/candidates/CandidateCard'
 import CompactCandidateRow from '../components/candidates/CompactCandidateRow'
+import { ProcessingGauge } from '../components/candidates/CandidateUIUtils'
 
 
 export default function ResumeAnalyzerPage() {
   const navigate = useNavigate()
+  const { theme } = useTheme()
   const [activeTab, setActiveTab] = useState<'single' | 'bulk'>('single')
   const [showModelDetails, setShowModelDetails] = useState(false)
-  const { queue, addFiles, uploadAll, pollStatuses, setActivePreviewId } = useUploadStore()
+  const [isDragging, setIsDragging] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const { queue, addFiles, uploadAll, pollStatuses, setActivePreviewId, resetQueue } = useUploadStore()
   const { candidates, loadCandidates } = useCandidateStore()
 
   const files = useMemo(() => queue.map((item) => item.file), [queue])
 
   useEffect(() => {
+    // Reset queue if it only contains finished items when mounting
+    // Fixes the issue where navigating back shows a stale success screen
+    if (queue.length > 0 && queue.every(q => q.status === 'success' || q.status === 'failed')) {
+      resetQueue()
+    }
+
     const controller = new AbortController()
     loadCandidates(controller.signal)
     return () => controller.abort()
-  }, [loadCandidates])
+  }, []) // Only on mount
 
   useEffect(() => {
     // We use a ref-like approach by accessing the live store state inside the interval 
@@ -101,6 +113,19 @@ export default function ResumeAnalyzerPage() {
     : 0
 
   // Combine processing items and success candidates for a unified list
+  const activeItemsCount = queue.filter(item => item.status === 'processing' || item.status === 'uploading').length
+  const hasJustFinished = useMemo(() => {
+    return queue.length > 0 && activeItemsCount === 0 && queue.every(q => q.status === 'success' || q.status === 'error')
+  }, [queue, activeItemsCount])
+
+  useEffect(() => {
+    if (hasJustFinished && queue.some(q => q.status === 'success')) {
+      setShowSuccess(true)
+      const timer = setTimeout(() => setShowSuccess(false), 8000)
+      return () => clearTimeout(timer)
+    }
+  }, [hasJustFinished, queue])
+
   const successItems = queue.filter(item => item.status === 'success')
   const processedCandidates = candidates.filter(c =>
     successItems.some(item => c.parsing_jobs?.some(job => job.id === item.jobId))
@@ -115,9 +140,9 @@ export default function ResumeAnalyzerPage() {
         <div className="lg:col-span-8 space-y-6">
           {/* Header */}
           <div className="mb-2">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-teal-500 tracking-tight drop-shadow-sm">
-              Upload & Analyze Resumes
-            </h1>
+            <p className="text-[14px] font-black text-slate-500 uppercase tracking-[0.2em] select-none">
+              Resume Analyzer
+            </p>
             <p className="mt-1.5 text-[13px] font-semibold text-slate-400 uppercase tracking-widest leading-none">
               Transforming raw talent data into actionable AI intelligence
             </p>
@@ -125,13 +150,25 @@ export default function ResumeAnalyzerPage() {
 
           {/* Upload Drop Zone */}
           <div
-            className="relative rounded-3xl border-2 border-dashed border-violet-200 transition-all duration-300 hover:border-violet-400 group cursor-pointer overflow-hidden shadow-sm"
-            style={{
-              background: 'linear-gradient(135deg, rgba(245,243,255,0.7) 0%, rgba(204,251,241,0.5) 100%)',
-              minHeight: 320,
+            onDrop={(e) => {
+              handleDrop(e)
+              setIsDragging(false)
             }}
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setIsDragging(true)
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            className={`relative rounded-3xl border-2 border-dashed transition-all duration-500 group cursor-pointer overflow-hidden shadow-sm flex items-center justify-center ${isDragging
+              ? 'border-orange-500 bg-orange-50 shadow-orange-100'
+              : 'border-slate-200 hover:border-orange-400 bg-white hover:bg-orange-50/20'
+              }`}
+            style={{
+              background: isDragging
+                ? 'rgba(234, 88, 12, 0.05)'
+                : undefined, // Let the hover class or base bg-white handle it
+              minHeight: 280,
+            }}
             onClick={() => document.getElementById('file-input')?.click()}
           >
             <input
@@ -142,60 +179,64 @@ export default function ResumeAnalyzerPage() {
               className="hidden"
               onChange={handleInputChange}
             />
-            <div className="flex flex-col items-center justify-center py-20 text-center px-6 h-full">
+            <div className="flex flex-col items-center justify-center py-10 text-center px-6 h-full">
               {activeQueue.length > 0 ? (
                 <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in-95 duration-500">
                   <div className="flex flex-col items-center gap-4">
-                    <div className="relative h-20 w-20 flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-[2.5rem] bg-violet-600 animate-ping opacity-20" />
-                      <div className="relative flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-white text-violet-600 shadow-xl border border-violet-50">
-                        <Upload className="h-9 w-9 animate-bounce" />
-                      </div>
-                    </div>
+
                     <div>
-                      <h3 className="text-xl font-bold text-slate-600 tracking-tight">AI Scanning in Progress...</h3>
-                      <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">Processing {activeQueue.length} {activeQueue.length === 1 ? 'Resume' : 'Resumes'}</p>
+                      <h3 className="text-xl font-bold text-slate-600 dark:text-slate-200 tracking-tight">
+                        AI Scanning in Progress<span className="dots-loading" />
+                      </h3>
+                      <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest animate-pulse">Processing {activeQueue.length} {activeQueue.length === 1 ? 'Resume' : 'Resumes'}</p>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between px-1">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Overall Progress</span>
-                      <span className="text-sm font-bold text-violet-600">{Math.round(averageProgress)}%</span>
-                    </div>
-                    <div className="h-4 w-full rounded-full bg-white shadow-inner p-1 border border-violet-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-700 ease-out shadow-lg"
-                        style={{
-                          width: `${Math.max(averageProgress, 5)}%`,
-                          background: 'linear-gradient(90deg, #7c3aed, #14b8a6)'
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-center gap-2 pt-2">
-                      <span className="px-3 py-1 rounded-lg bg-indigo-50 text-[9px] font-bold text-indigo-500 uppercase tracking-tight">Extracting Skills</span>
-                      <span className="px-3 py-1 rounded-lg bg-emerald-50 text-[9px] font-bold text-emerald-500 uppercase tracking-tight">Mapping Entities</span>
+                  <div className="flex flex-col items-center gap-6">
+                    <ProcessingGauge value={averageProgress} size={240} />
+
+                    <div className="flex justify-center gap-2 -mt-4">
+                      <span className="px-3 py-1 rounded-lg bg-orange-50 dark:bg-orange-500/10 text-[9px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-tight">Extracting Skills</span>
+                      <span className="px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[9px] font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-tight">Mapping Entities</span>
                     </div>
                   </div>
                 </div>
+              ) : showSuccess ? (
+                <div className="flex flex-col items-center justify-center py-10 animate-in zoom-in-95 duration-700">
+                  <div className="h-20 w-20 rounded-[2.5rem] bg-emerald-500 text-white flex items-center justify-center shadow-xl shadow-emerald-200 mb-6 pulse-glow">
+                    <CheckCircle2 className="h-10 w-10" />
+                  </div>
+                  <h3 className="text-2xl font-black text-emerald-600 tracking-tight">Process Complete!</h3>
+                  <p className="text-slate-500 font-bold mt-2">All resumes have been successfully analyzed.</p>
+                  <button
+                    onClick={() => setShowSuccess(false)}
+                    className="mt-6 px-6 py-2 rounded-xl bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-colors"
+                  >
+                    Upload More
+                  </button>
+                </div>
               ) : (
                 <>
-                  <div className="flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-white text-violet-500 group-hover:scale-110 transition-all duration-500 mb-6 shadow-xl shadow-violet-100 border border-violet-50">
-                    <Upload className="h-9 w-9" />
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <div className="mb-6 relative transition-transform duration-500 group-hover:scale-110">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-[1.2rem] bg-orange-50 dark:bg-orange-900/20 shadow-sm border border-orange-100/50">
+                        <FileText className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+                      </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-slate-700 dark:text-slate-100 tracking-tight mb-2">
+                      Upload Your Resume
+                    </h3>
+
+                    <p className="text-[14px] text-slate-400 dark:text-slate-500 font-medium max-w-sm mb-6 leading-relaxed">
+                      Drag & drop or click to browse<br />
+                      PDF, DOC, DOCX — Max 5MB
+                    </p>
+
+                    <span className="text-[14px] font-bold text-orange-500 hover:text-orange-600 transition-colors">
+                      Browse Files
+                    </span>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-600">Ready to Analyze?</h3>
-                  <p className="mt-2 text-sm text-slate-500 font-medium max-w-xs mx-auto">
-                    Drag & drop your resumes here for deep AI insights and optimization scoring
-                  </p>
-                  <button
-                    className="mt-8 rounded-2xl px-10 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-700 hover:to-violet-600 active:scale-95 uppercase tracking-wider"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      document.getElementById('file-input')?.click()
-                    }}
-                  >
-                    Choose Resume Files
-                  </button>
                 </>
               )}
             </div>
@@ -246,17 +287,17 @@ export default function ResumeAnalyzerPage() {
         </div>
 
         {/* RIGHT COLUMN: Sidebar Controls (Span 4) */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+        <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-8">
 
           {/* Upload Mode Tabs */}
-          <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Upload Mode</h3>
+          <div className="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 px-1">Upload Mode</h3>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => setActiveTab('single')}
-                className={`flex items-center justify-between w-full px-5 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeTab === 'single'
-                  ? 'bg-violet-50 text-violet-700 shadow-sm border-violet-200 scale-[1.01]'
-                  : 'bg-slate-50/50 text-slate-500 border-slate-100 hover:border-violet-100'
+                className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-[13px] font-bold transition-all border ${activeTab === 'single'
+                  ? 'bg-blue-50 text-blue-600 shadow-sm border-blue-200'
+                  : 'bg-slate-50/50 text-slate-500 border-slate-100/50 hover:border-blue-100'
                   }`}
               >
                 Single Upload
@@ -264,9 +305,9 @@ export default function ResumeAnalyzerPage() {
               </button>
               <button
                 onClick={() => setActiveTab('bulk')}
-                className={`flex items-center justify-between w-full px-5 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeTab === 'bulk'
-                  ? 'bg-violet-50 text-violet-700 shadow-sm border-violet-200 scale-[1.01]'
-                  : 'bg-slate-50/50 text-slate-500 border-slate-100 hover:border-violet-100'
+                className={`flex items-center justify-between w-full px-4 py-3 rounded-xl text-[13px] font-bold transition-all border ${activeTab === 'bulk'
+                  ? 'bg-blue-50 text-blue-600 shadow-sm border-blue-200'
+                  : 'bg-slate-50/50 text-slate-500 border-slate-100/50 hover:border-blue-100'
                   }`}
               >
                 Bulk Upload
@@ -276,46 +317,56 @@ export default function ResumeAnalyzerPage() {
           </div>
 
           {/* Model Selection sidebar card */}
-          <div className="rounded-3xl bg-white border border-slate-100 shadow-sm overflow-hidden p-5">
-            <div className="flex flex-col gap-1 mb-4">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Processing Model</span>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-base font-bold text-slate-700">NER v2</span>
-                <span className="px-2 py-0.5 rounded-lg bg-emerald-50 text-[8px] font-bold text-emerald-600 uppercase tracking-wider">Active</span>
+          <div className="rounded-[2rem] bg-white border border-slate-100 shadow-sm overflow-hidden p-4">
+            <div className="flex flex-col gap-1 mb-3">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Processing Model</span>
+              <div className="flex items-center gap-2 mt-1 relative group/model px-1">
+                <span className="text-[15px] font-bold text-slate-700 dark:text-slate-200">NER v2</span>
+                <span className="px-2 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Active</span>
+                <button className="text-slate-300 hover:text-orange-500 transition-colors">
+                  <HelpCircle className="h-3 w-3" />
+                </button>
+                <div className="absolute bottom-full left-0 mb-2 w-48 p-3 rounded-xl bg-slate-800 text-white text-[10px] leading-relaxed opacity-0 invisible group-hover/model:opacity-100 group-hover/model:visible transition-all duration-300 shadow-xl z-20">
+                  <p className="font-bold border-b border-slate-700 pb-1 mb-1 italic">NER v2 Details:</p>
+                  Built-in BERT & Rule-based extraction optimized for zero-latency resume parsing and high entity accuracy.
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4 pt-2">
-              <div className="p-4 rounded-2xl bg-slate-50/50 border border-slate-100/50">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center border border-slate-100 text-violet-500">
-                    <Settings className="h-4 w-4" />
+            <div className="space-y-3 pt-1">
+              <div className="p-3.5 rounded-2xl bg-slate-50/50 border border-slate-100/50">
+                <div className="flex items-center gap-3 mb-1.5">
+                  <div className="h-7 w-7 rounded-lg bg-white flex items-center justify-center border border-slate-100 text-orange-500">
+                    <Settings className="h-3.5 w-3.5" />
                   </div>
-                  <span className="text-xs font-bold text-slate-600">Model Engine</span>
+                  <span className="text-[11px] font-bold text-slate-600">Model Engine</span>
                 </div>
-                <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
+                <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
                   Using our built-in rule-based + BERT NER pipeline for zero-latency extraction.
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50/30 border border-indigo-100/50">
+              <div className="p-3 rounded-2xl bg-indigo-50/30 border border-indigo-100/50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                    <span className="text-xs font-bold text-slate-700">Data Privacy</span>
+                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                    <span className="text-[11px] font-bold text-slate-700">Data Privacy</span>
                   </div>
-                  <span className="text-[9px] font-black text-emerald-600 uppercase">Secure</span>
+                  <span className="text-[8px] font-black text-emerald-600 uppercase">Secure</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions (Future placeholder) */}
-          <div className="flex items-center gap-3">
-            <button className="flex-1 py-3 px-4 rounded-2xl bg-white border border-slate-100 text-xs font-bold text-slate-500 hover:bg-slate-50 transition-colors">
+          {/* Quick Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => resetQueue()}
+              className="flex-1 py-3 px-4 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:bg-slate-50 transition-colors"
+            >
               Clear Queue
             </button>
-            <button className="flex-1 py-3 px-4 rounded-2xl bg-white border border-slate-100 text-xs font-bold text-slate-500 hover:bg-slate-50 transition-colors">
+            <button className="flex-1 py-3 px-4 rounded-2xl bg-white border border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:bg-slate-50 transition-colors">
               Help Docs
             </button>
           </div>

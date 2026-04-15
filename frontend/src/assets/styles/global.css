@@ -4,9 +4,57 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 active:translate-y-0 hover:shadow-xl hover:shadow-sky-200/40 dark:hover:shadow-sky-900/40;
+  }
+
+  .shadow-premium {
+    @apply shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-shadow duration-300;
+  }
+
+  .shadow-premium-hover {
+    @apply hover:shadow-[0_20px_50px_rgba(14,165,233,0.15)] dark:hover:shadow-sky-900/30;
+  }
+}
+
+.animate-slide-up-fade {
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer base {
   :root {
     color-scheme: light;
+    --bg-main: #f1f5f9;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: #f1f5f9;
+    --shadow-main: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    --bg-main: linear-gradient(160deg, #020617 0%, #0f172a 40%, #1e1b4b 100%);
+    --bg-sidebar: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+    --bg-card: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --shadow-main: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
   }
 
   * {
@@ -14,9 +62,11 @@
   }
 
   body {
-    @apply text-slate-800 antialiased;
-    background: linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%);
+    @apply antialiased;
+    color: var(--text-primary);
+    background: var(--bg-main);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1,
@@ -25,12 +75,17 @@
   h4,
   h5,
   h6 {
-    @apply text-slate-600 font-bold;
+    color: var(--text-secondary);
+    @apply font-bold;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  a {
-    @apply text-violet-600 hover:text-violet-700;
+  .btn-primary {
+    @apply bg-brand-500 text-white hover:bg-brand-600 transition-all font-bold active:scale-95 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider;
+  }
+
+  .link-primary {
+    @apply text-brand-500 hover:text-brand-600 transition-colors font-bold;
   }
 }
 
@@ -61,10 +116,10 @@
   @apply mb-4 mt-8 flex flex-col items-start text-xl font-bold uppercase tracking-wide text-brand-800;
 }
 
-/* Reddish-orange line under h2 sections */
+/* Sky blue line under h2 sections */
 .elegant-resume-preview h2::after {
   content: '';
-  @apply mt-2 h-[2px] w-full bg-orange-600/80;
+  @apply mt-2 h-[2px] w-full bg-brand-500/80;
 }
 
 .elegant-resume-preview h3 {
@@ -84,5 +139,85 @@
 }
 
 .elegant-resume-preview a {
-  @apply font-medium text-orange-700 underline decoration-orange-300 transition-colors hover:text-orange-800;
+  @apply font-medium text-brand-600 underline decoration-sky-300 transition-colors hover:text-brand-700;
+}
+
+@keyframes wave {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  10% {
+    transform: rotate(14deg);
+  }
+
+  20% {
+    transform: rotate(-8deg);
+  }
+
+  30% {
+    transform: rotate(14deg);
+  }
+
+  40% {
+    transform: rotate(-4deg);
+  }
+
+  50% {
+    transform: rotate(10deg);
+  }
+
+  60% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-wave {
+  animation: wave 2.5s infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 25px 8px rgba(124, 58, 237, 0.2);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes dots {
+
+  0%,
+  20% {
+    content: '.';
+  }
+
+  40% {
+    content: '..';
+  }
+
+  60% {
+    content: '...';
+  }
+
+  80%,
+  100% {
+    content: '';
+  }
+}
+
+.dots-loading::after {
+  content: '';
+  animation: dots 1.5s infinite;
 }

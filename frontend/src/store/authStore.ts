@@ -3,8 +3,8 @@ import { create } from 'zustand'
 type AuthState = {
   accessToken: string | null
   refreshToken: string | null
-  user: { email: string; role: string } | null
-  setTokens: (accessToken: string, refreshToken: string, user?: { email: string; role: string }) => void
+  user: { email: string; role: string; full_name?: string; name?: string } | null
+  setTokens: (accessToken: string, refreshToken: string, user?: { email: string; role: string; full_name?: string; name?: string }) => void
   clearTokens: () => void
 }
 

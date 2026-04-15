@@ -16,6 +16,9 @@ import { useFilterStore } from '../store/filterStore'
 import Skeleton from '../components/common/Skeleton'
 import CandidateCard from '../components/candidates/CandidateCard'
 import CustomDropdown from '../components/common/CustomDropdown'
+import BulkActions from '../components/candidates/BulkActions'
+import { toast } from 'react-hot-toast'
+import { FileText, FileSpreadsheet, ChevronDown } from 'lucide-react'
 
 export default function CandidatesPage() {
   const navigate = useNavigate()
@@ -32,9 +35,11 @@ export default function CandidatesPage() {
   } = useCandidateStore()
   const { searchTerm, skills, location, minExperience, maxExperience } = useFilterStore()
   const [scoreFilter, setScoreFilter] = useState('All Scores')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [sortBy, setSortBy] = useState('Sort by Date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [localSearch, setLocalSearch] = useState('')
+  const [showExportDropdown, setShowExportDropdown] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -64,12 +69,17 @@ export default function CandidatesPage() {
             .toLowerCase()
           if (!values.includes(search)) return false
         }
-        
+
         // Match Score Filter Logic
         const score = (candidate.parsing_jobs?.[0]?.confidence_score || 0) * 100
         if (scoreFilter === '80%+ ' && score < 80) return false
         if (scoreFilter === '60-79% ' && (score < 60 || score >= 80)) return false
         if (scoreFilter === 'Below 60% ' && score >= 60) return false
+
+        // Status Filter Logic
+        if (statusFilter !== 'all' && candidate.status?.toLowerCase() !== statusFilter) {
+          return false
+        }
 
         // Status/Store Filter Logic
         if (location && !candidate.location?.toLowerCase().includes(location.toLowerCase())) {
@@ -89,7 +99,7 @@ export default function CandidatesPage() {
       })
       .sort((a, b) => {
         const dir = sortDir === 'asc' ? 1 : -1
-        
+
         if (sortBy === 'Sort by Score') {
           const scoreA = a.parsing_jobs?.[0]?.confidence_score || 0
           const scoreB = b.parsing_jobs?.[0]?.confidence_score || 0
@@ -112,6 +122,16 @@ export default function CandidatesPage() {
     { label: '80%+ ', value: '80%+ ', icon: Star, iconColor: 'text-emerald-500' },
     { label: '60-79% ', value: '60-79% ', icon: Star, iconColor: 'text-amber-500' },
     { label: 'Below 60% ', value: 'Below 60% ', icon: Star, iconColor: 'text-rose-500' },
+  ]
+
+  const statusOptions = [
+    { label: 'All Statuses', value: 'all' },
+    { label: 'New', value: 'new' },
+    { label: 'Reviewing', value: 'reviewing' },
+    { label: 'Shortlisted', value: 'shortlisted' },
+    { label: 'Interviewed', value: 'interviewed' },
+    { label: 'Hired', value: 'hired' },
+    { label: 'Rejected', value: 'rejected' },
   ]
 
   const sortOptions = [
@@ -151,7 +171,7 @@ export default function CandidatesPage() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    
+
     toast.success(`Exported ${filtered.length} candidates`)
   }
 
@@ -159,85 +179,108 @@ export default function CandidatesPage() {
     <div className="space-y-5 animate-fade-in">
       {/* Export Button Row */}
       <div className="flex items-center justify-between px-1">
-        <p className="text-[13px] font-semibold text-slate-400 uppercase tracking-widest">
+        <p className="text-[14px] font-black text-slate-500 uppercase tracking-[0.2em] select-none">
           Candidates ({candidates.length})
         </p>
-        <button
-          onClick={handleExportData}
-          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 active:scale-95 uppercase tracking-wider"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
-        >
-          <Download className="h-4 w-4" />
-          EXPORT DATA
-        </button>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowExportDropdown(!showExportDropdown)}
+            className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-orange-500/15 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95 uppercase tracking-widest bg-orange-500"
+          >
+            <Download className="h-4 w-4" />
+            EXPORT DATA
+            <ChevronDown className={`ml-1 h-3 w-3 transition-transform ${showExportDropdown ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showExportDropdown && (
+            <div className="absolute right-0 top-full mt-2 z-[60] w-56 overflow-hidden rounded-2xl border border-slate-100 bg-white/95 p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 slide-in-from-top-2">
+              <button
+                onClick={() => { handleExportData(); setShowExportDropdown(false); }}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all uppercase tracking-tight"
+              >
+                <FileSpreadsheet className="h-4 w-4 text-emerald-500" />
+                Excel / CSV Spreadsheet
+              </button>
+              <button
+                onClick={() => setShowExportDropdown(false)}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all uppercase tracking-tight"
+              >
+                <FileText className="h-4 w-4 text-rose-500" />
+                Detailed PDF Report
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col lg:flex-row flex-wrap items-center gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-slate-200/40 border border-slate-100">
-        {/* Search */}
-        <div className="relative w-full lg:flex-1 min-w-[300px]">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search candidates..."
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full rounded-xl border-slate-100 bg-slate-50/50 py-3 pl-11 pr-4 text-sm text-slate-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-all font-semibold"
-          />
+      {/* Search & Filter Bar Decoupled */}
+      <div className="flex flex-col xl:flex-row items-stretch gap-4 transition-all duration-300">
+        {/* Search Island */}
+        <div className="flex-1 min-w-0 flex items-stretch rounded-2xl bg-white shadow-premium border border-slate-200/60 overflow-hidden focus-within:ring-2 focus-within:ring-orange-500/10 transition-all duration-300 h-[52px]">
+          <div className="relative flex-1 group bg-slate-50/5">
+            <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search candidates..."
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              className="w-full h-full bg-transparent pl-12 pr-4 text-[13px] text-slate-600 placeholder-slate-400 focus:outline-none font-bold placeholder:font-medium"
+            />
+          </div>
         </div>
 
-        {/* Filters Group */}
-        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+        {/* Filters & Sorting Islands */}
+        <div className="flex flex-wrap items-center gap-3">
           <CustomDropdown
             options={scoreOptions}
             value={scoreFilter}
             onChange={setScoreFilter}
             icon={Filter}
-            className="flex-1 lg:flex-initial"
+            className="!min-w-[140px] shadow-premium"
+          />
+
+          <CustomDropdown
+            options={statusOptions}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            icon={LayoutGrid}
+            className="!min-w-[140px] shadow-premium"
           />
 
           <CustomDropdown
             options={sortOptions}
             value={sortBy}
             onChange={setSortBy}
-            icon={LayoutGrid}
-            className="flex-1 lg:flex-initial"
+            icon={Calendar}
+            className="!min-w-[140px] shadow-premium"
           />
 
-          {/* Direction */}
+          {/* Direction Island */}
           <button
             onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
-            className="flex h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-100 bg-white px-4 text-xs font-bold text-slate-400 hover:bg-slate-50 transition-all shadow-sm uppercase tracking-widest"
+            className={`flex items-center justify-center gap-2 px-5 rounded-2xl border border-slate-200/60 bg-white shadow-premium text-[10px] font-black transition-all uppercase tracking-widest h-[52px] ${sortDir === 'asc' ? 'text-orange-600 ring-2 ring-orange-500/10' : 'text-slate-400 hover:border-orange-200 hover:text-slate-600 shadow-sm'}`}
           >
-            <ArrowUpDown className={`h-3.5 w-3.5 transition-transform duration-300 ${sortDir === 'asc' ? 'rotate-180 text-violet-500' : ''}`} />
-            <span className="hidden xl:inline">{sortDir === 'desc' ? 'Descending' : 'Ascending'}</span>
+            <ArrowUpDown className={`h-3.5 w-3.5 transition-transform duration-500 ${sortDir === 'asc' ? 'rotate-180 scale-110' : ''}`} />
+            <span className="hidden xl:inline">{sortDir === 'desc' ? 'Desc' : 'Asc'}</span>
           </button>
         </div>
       </div>
 
       {/* Select All Row */}
-      <div className="flex items-center justify-between gap-3 px-1">
+      <div className="flex items-center justify-between gap-3 px-2">
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
             id="select-all"
             checked={allSelected}
             onChange={() => allSelected ? clearSelected() : selectAll(filtered.map((c) => c.id))}
-            className="h-4 w-4 rounded border-slate-300 accent-violet-600 cursor-pointer shadow-sm"
+            className="h-3.5 w-3.5 rounded border-slate-300 accent-orange-600 cursor-pointer shadow-sm transition-transform active:scale-90"
           />
-          <label htmlFor="select-all" className="text-[12.5px] font-bold text-slate-400 cursor-pointer uppercase tracking-wider">
-            Select All <span className="text-violet-500 ml-1 font-bold">({filtered.length})</span>
+          <label htmlFor="select-all" className="text-[11px] font-black text-slate-400 cursor-pointer uppercase tracking-[0.15em] select-none">
+            Select All <span className="text-orange-500 ml-1">({filtered.length})</span>
           </label>
         </div>
-        {selectedIds.size > 0 && (
-          <button
-            onClick={() => removeCandidates(Array.from(selectedIds))}
-            className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors shadow-sm"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete Selected ({selectedIds.size})
-          </button>
-        )}
       </div>
 
       {/* Candidates Grid */}
@@ -251,7 +294,7 @@ export default function CandidatesPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white/50 p-12 md:p-20 text-center shadow-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-50 text-violet-400 shadow-inner">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-orange-400 shadow-inner">
             <Search className="h-7 w-7" />
           </div>
           <div>
@@ -273,6 +316,17 @@ export default function CandidatesPage() {
           ))}
         </div>
       )}
+
+      {/* Sticky Bulk Actions */}
+      <BulkActions
+        selectedIds={selectedIds}
+        candidates={candidates}
+        onDelete={() => {
+          removeCandidates(Array.from(selectedIds))
+          clearSelected()
+        }}
+        onClear={clearSelected}
+      />
     </div>
   )
 }

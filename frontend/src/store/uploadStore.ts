@@ -25,6 +25,7 @@ type UploadState = {
   setError: (id: string, error: string) => void
   pollStatuses: () => Promise<void>
   setActivePreviewId: (id: string | null) => void
+  resetQueue: () => void
 }
 
 export const useUploadStore = create<UploadState>((set, get) => ({
@@ -139,4 +140,5 @@ export const useUploadStore = create<UploadState>((set, get) => ({
       }),
     )
   },
+  resetQueue: () => set({ queue: [], activePreviewId: null }),
 }))

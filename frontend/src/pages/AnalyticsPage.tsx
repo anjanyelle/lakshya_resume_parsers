@@ -138,8 +138,8 @@ export default function AnalyticsPage() {
               <AreaChart data={weeklyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                 <defs>
                   <linearGradient id="appGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="#fb923c" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#fb923c" stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="anaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.25} />
@@ -150,13 +150,13 @@ export default function AnalyticsPage() {
                 <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
-                <Area type="monotone" dataKey="applications" stroke="#7c3aed" strokeWidth={2} fill="url(#appGrad)" name="Applications" />
+                <Area type="monotone" dataKey="applications" stroke="#fb923c" strokeWidth={2} fill="url(#appGrad)" name="Applications" />
                 <Area type="monotone" dataKey="analyzed" stroke="#14b8a6" strokeWidth={2} fill="url(#anaGrad)" name="Analyzed" />
               </AreaChart>
             </ResponsiveContainer>
             <div className="mt-2 flex items-center gap-4 justify-center">
               <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                <span className="h-2 w-2 rounded-full bg-violet-500" /> Applications
+                <span className="h-2 w-2 rounded-full bg-orange-400" /> Applications
               </span>
               <span className="flex items-center gap-1.5 text-xs text-slate-500">
                 <span className="h-2 w-2 rounded-full bg-teal-500" /> Analyzed

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Plus, X, Edit2 } from 'lucide-react'
 import type { CandidateSkill, Skill } from '../../types/candidate'
+import { SkillChip } from '../candidates/CandidateUIUtils'
 
 type SkillsSectionProps = {
   skills?: Skill[]
@@ -22,6 +23,7 @@ const ALL_SKILLS_DATABASE = [
 
 export default function SkillsSection({
   skills: initialSkills = [],
+  candidateSkills = [],
   onUpdate,
   activeFieldId = null,
   onFieldSelect,
@@ -103,9 +105,8 @@ export default function SkillsSection({
       onKeyDown={(e) => {
         if (e.key === 'Enter' && !editing && onFieldSelect) onFieldSelect('skills')
       }}
-      className={`rounded-lg border p-6 shadow-sm font-sans transition-all duration-200 ${
-        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
-      }`}
+      className={`rounded-lg border p-6 shadow-sm font-sans transition-all duration-200 ${isActive ? 'border-brand-400 bg-brand-50' : 'border-slate-200 bg-white'
+        }`}
     >
       {/* Header Description */}
       <div className="mb-8 flex items-center justify-between">
@@ -159,32 +160,26 @@ export default function SkillsSection({
 
       {/* Active Skills Cloud — sorted, cleaned array; badge for LLM-added */}
       <div className="flex flex-wrap gap-3 mb-8">
-        {sortedSkills.map((skill) => (
-          <div
-            key={skill.id}
-            className="flex items-center gap-2 rounded-full border border-[#2D3E50] bg-white px-4 py-2 hover:bg-slate-50 transition-colors"
-          >
-            <span className="text-[14px] font-medium text-[#2D3E50]">
-              {skill.name}
-            </span>
-            {skill.source === 'llm' && (
-              <span
-                className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800"
-                title="Added via LLM"
-              >
-                Added via LLM
-              </span>
-            )}
-            {editing && (
-              <button
-                onClick={() => removeSkill(skill.id)}
-                className="text-[#64748B] hover:text-[#2D3E50] transition-colors"
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        ))}
+        {sortedSkills.map((skill) => {
+          const candSkill = candidateSkills?.find(cs => cs.skill?.id === skill.id || cs.skill?.name === skill.name);
+          return (
+            <div key={skill.id} className="relative group">
+              <SkillChip
+                name={skill.name}
+                experience={candSkill?.years_experience}
+                source={skill.source}
+              />
+              {editing && (
+                <button
+                  onClick={() => removeSkill(skill.id)}
+                  className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
+                >
+                  <X size={10} />
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {editing && (

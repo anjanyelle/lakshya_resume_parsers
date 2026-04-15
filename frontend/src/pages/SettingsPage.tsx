@@ -17,7 +17,7 @@ export default function SettingsPage() {
               <input
                 type={field.type}
                 defaultValue={field.value}
-                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-300"
+                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
               />
             </div>
           ))}
@@ -34,7 +34,7 @@ export default function SettingsPage() {
             <input
               type="text"
               defaultValue="http://localhost:8000"
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-300"
+              className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
             />
           </div>
           <div className="flex items-center gap-4">
@@ -44,7 +44,7 @@ export default function SettingsPage() {
               <span className="text-sm text-slate-500">Disconnected — Demo Mode active</span>
               <button
                 className="rounded-lg px-3 py-1.5 text-xs font-medium text-white transition-all hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
+                style={{ background: 'linear-gradient(135deg,#ea580c,#fb923c)' }}
               >
                 Test Connection
               </button>
@@ -57,7 +57,7 @@ export default function SettingsPage() {
       <div className="flex justify-end">
         <button
           className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:opacity-90"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
+          style={{ background: 'linear-gradient(135deg,#ea580c,#fb923c)' }}
         >
           Save Changes
         </button>

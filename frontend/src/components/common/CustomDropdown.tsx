@@ -45,7 +45,7 @@ export default function CustomDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex w-full items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-xs font-bold transition-all duration-300 hover:border-violet-200 hover:shadow-lg hover:shadow-violet-50/50 ${isOpen ? 'ring-2 ring-violet-100 border-violet-300' : 'shadow-sm shadow-slate-100/50'
+        className={`flex w-full items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-4 py-2.5 text-xs font-bold transition-all duration-300 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-50/50 ${isOpen ? 'ring-2 ring-orange-100 border-orange-300' : 'shadow-sm shadow-slate-100/50'
           }`}
       >
         <div className="flex items-center gap-2.5 overflow-hidden">
@@ -55,7 +55,7 @@ export default function CustomDropdown({
           </span>
         </div>
         <ChevronDown
-          className={`h-4 w-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-violet-500' : ''}`}
+          className={`h-4 w-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-orange-500' : ''}`}
         />
       </button>
 
@@ -75,8 +75,8 @@ export default function CustomDropdown({
                     setIsOpen(false)
                   }}
                   className={`flex w-full items-center justify-between rounded-[10px] px-3 py-2.5 text-left text-[13px] font-bold transition-all duration-200 ${isSelected
-                      ? 'bg-violet-50 text-violet-700'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-orange-50 text-orange-600'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -88,7 +88,7 @@ export default function CustomDropdown({
                     <span className="truncate uppercase tracking-tighter italic-placeholder">{option.label}</span>
                   </div>
                   {isSelected && (
-                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-violet-600 shadow-sm shadow-violet-200">
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 shadow-sm shadow-orange-200">
                       <Check className="h-2.5 w-2.5 text-white stroke-[4]" />
                     </div>
                   )}

@@ -1,7 +1,7 @@
-import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp, Clock } from 'lucide-react'
 import { useState } from 'react'
 import type { Candidate } from '../../types/candidate'
-import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore } from './CandidateUIUtils'
+import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore, SkillChip, formatRelativeTime } from './CandidateUIUtils'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -11,20 +11,21 @@ interface CandidateCardProps {
   onView?: (id: string) => void
 }
 
-export default function CandidateCard({ 
-  candidate, 
-  isSelected, 
-  onToggleSelect, 
-  onDelete, 
-  onView 
+export default function CandidateCard({
+  candidate,
+  isSelected,
+  onToggleSelect,
+  onDelete,
+  onView
 }: CandidateCardProps) {
   const rawScore = candidate.parsing_jobs?.[0]?.confidence_score
   const scoreValue = formatScore(rawScore)
   const skills = candidate.skills ?? []
-  const topSkills = skills.slice(0, 6)
+  const topSkills = skills.slice(0, 5)
   const [showAllSkills, setShowAllSkills] = useState(false)
 
-  const handleDownload = () => {
+  const handleDownload = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
     const content = `
 RESUME SUMMARY REPORT: ${candidate.full_name || 'Anonymous'}
 Generated: ${new Date().toLocaleString()}
@@ -59,20 +60,21 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
   }
 
   return (
-    <div className={`relative flex flex-col rounded-2xl bg-white p-4 border transition-all duration-500 hover:-translate-y-1.5 h-full ${
-      isSelected 
-        ? 'border-violet-300 ring-4 ring-violet-50 shadow-2xl shadow-violet-100' 
-        : 'border-slate-100/60 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-indigo-100/50'
-    }`}>
+    <div
+      onClick={() => onView?.(candidate.id)}
+      className={`relative flex flex-col rounded-2xl bg-white dark:bg-slate-800/80 p-3.5 border transition-all duration-500 cursor-pointer hover-lift h-full ${isSelected
+        ? 'border-orange-300 ring-4 ring-orange-50 dark:ring-orange-900/20 shadow-2xl shadow-orange-100 dark:shadow-none'
+        : 'border-slate-100/60 dark:border-slate-700/50 shadow-premium shadow-slate-200/40 dark:shadow-none hover:shadow-2xl hover:shadow-orange-100/30 dark:hover:shadow-orange-900/20'
+        }`}>
       {/* Header Row */}
       <div className="flex items-start gap-3">
         {onToggleSelect && (
-          <div className="pt-0.5">
+          <div className="pt-0.5" onClick={(e) => e.stopPropagation()}>
             <input
               type="checkbox"
               checked={isSelected}
               onChange={() => onToggleSelect(candidate.id)}
-              className="h-4 w-4 rounded border-slate-200 accent-violet-600 cursor-pointer shadow-sm"
+              className="h-3.5 w-3.5 rounded border-slate-200 dark:border-slate-600 accent-orange-500 cursor-pointer shadow-sm transition-all duration-200 active:scale-95 hover:border-orange-300"
             />
           </div>
         )}
@@ -85,21 +87,24 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-semibold text-slate-600 truncate leading-tight tracking-tight">
+          <h3 className="text-[15px] font-bold text-slate-600 dark:text-slate-100 truncate leading-tight tracking-tight uppercase">
             {candidate.full_name || 'Anonymous'}
           </h3>
-          <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">
-            {new Date(candidate.created_at).toLocaleDateString()}
-          </p>
+          <div className="flex items-center gap-1.5 mt-1 text-slate-400 dark:text-slate-500">
+            <Clock className="h-3 w-3" />
+            <span className="text-[9px] font-bold uppercase tracking-widest">
+              {formatRelativeTime(candidate.created_at)}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           {scoreValue !== null ? (
-            <ScoreBadge value={scoreValue} size={40} />
+            <ScoreBadge value={scoreValue} size={36} />
           ) : (
-            <div className="h-8 w-8 rounded-xl border-2 border-dashed border-slate-100" />
+            <div className="h-8 w-8 rounded-xl border-2 border-dashed border-slate-100 dark:border-slate-800" />
           )}
-          <button className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-300 hover:bg-slate-50 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100 shadow-none hover:shadow-sm">
+          <button className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-200 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-600 shadow-none hover:shadow-sm">
             <MoreVertical className="h-4 w-4" />
           </button>
         </div>
@@ -108,28 +113,28 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
       {/* Content Wrapper to push footer down */}
       <div className="flex flex-1 flex-col">
         {/* Metadata Grid (2x2) */}
-        <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3 pl-[52px]">
+        <div className="mt-3.5 grid grid-cols-2 gap-x-8 gap-y-2.5 pl-[52px]">
           <div className="flex items-center gap-2.5 min-w-0">
-            <Mail className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.email ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <Mail className={`h-3.5 w-3.5 flex-shrink-0 ${candidate.email ? 'text-slate-400' : 'text-slate-200'}`} />
+            <span className={`text-[12.5px] truncate ${candidate.email ? 'text-slate-600 dark:text-slate-300 font-semibold' : 'text-slate-300 dark:text-slate-600 font-normal italic'}`}>
               {candidate.email || 'Email not listed'}
             </span>
           </div>
           <div className="flex items-center gap-2.5 min-w-0">
-            <Phone className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.phone ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <Phone className={`h-3.5 w-3.5 flex-shrink-0 ${candidate.phone ? 'text-slate-400' : 'text-slate-200'}`} />
+            <span className={`text-[12.5px] truncate ${candidate.phone ? 'text-slate-600 dark:text-slate-300 font-semibold' : 'text-slate-300 dark:text-slate-600 font-normal italic'}`}>
               {candidate.phone || 'Phone not listed'}
             </span>
           </div>
           <div className="flex items-center gap-2.5 min-w-0">
-            <MapPin className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.location ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <MapPin className={`h-3.5 w-3.5 flex-shrink-0 ${candidate.location ? 'text-slate-400' : 'text-slate-200'}`} />
+            <span className={`text-[12.5px] truncate ${candidate.location ? 'text-slate-600 dark:text-slate-300 font-semibold' : 'text-slate-300 dark:text-slate-600 font-normal italic'}`}>
               {candidate.location || 'Location not listed'}
             </span>
           </div>
           <div className="flex items-center gap-2.5 min-w-0">
-            <Calendar className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.years_experience !== null ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <Calendar className={`h-3.5 w-3.5 flex-shrink-0 ${candidate.years_experience !== null ? 'text-slate-400' : 'text-slate-200'}`} />
+            <span className={`text-[12.5px] truncate ${candidate.years_experience !== null ? 'text-slate-600 dark:text-slate-300 font-semibold' : 'text-slate-300 dark:text-slate-600 font-normal italic'}`}>
               {candidate.years_experience !== null ? `${candidate.years_experience} yrs exp.` : 'Exp. not listed'}
             </span>
           </div>
@@ -137,25 +142,27 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
 
         {/* Skills Section */}
         <div className="mt-4 pl-[52px]">
-          <div className="min-h-[44px]">
-            <p className="text-[10px] font-bold tracking-widest text-slate-300 uppercase mb-2">Top Skills</p>
-            <div className="flex flex-wrap gap-1.5">
-              {(showAllSkills ? skills : topSkills).map((skill) => (
-                <span
-                  key={skill.id}
-                  className="rounded-lg border border-slate-100 bg-white px-3 py-1 text-[11px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-200"
-                >
-                  {skill.name}
-                </span>
-              ))}
-              {skills.length > 6 && (
-                <button 
+          <div className="min-h-[40px]">
+            <p className="text-[10px] font-bold tracking-widest text-slate-300 dark:text-slate-600 uppercase mb-2">Top Skills</p>
+            <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
+              {(showAllSkills ? skills : topSkills).map((skill) => {
+                const candSkill = candidate.candidate_skills?.find(cs => cs.skill?.id === skill.id || cs.skill?.name === skill.name);
+                return (
+                  <SkillChip
+                    key={skill.id}
+                    name={skill.name}
+                    experience={candSkill?.years_experience}
+                    source={skill.source}
+                  />
+                );
+              })}
+              {skills.length > 5 && (
+                <button
                   onClick={() => setShowAllSkills(!showAllSkills)}
-                  className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold transition-all shadow-sm ${
-                    showAllSkills ? 'bg-violet-600 border-violet-600 text-white shadow-violet-100' : 'border-slate-100 bg-slate-50 text-slate-400 hover:bg-slate-100'
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold transition-all shadow-sm ${showAllSkills ? 'bg-orange-500 border-orange-500 text-white shadow-orange-100' : 'border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
                 >
-                  {showAllSkills ? <><ChevronUp className="h-3 w-3" /> Hide</> : <>+{skills.length - 6} more</>}
+                  {showAllSkills ? <><ChevronUp className="h-3 w-3" /> Hide</> : <>+{skills.length - 5} more</>}
                 </button>
               )}
             </div>
@@ -164,19 +171,19 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
       </div>
 
       {/* Footer Actions */}
-      <div className="mt-auto border-t border-slate-50 px-2 pt-4 flex items-center justify-between gap-6">
+      <div className="mt-auto border-slate-50 dark:border-slate-800 px-1 pt-3.5 flex items-center justify-between gap-6" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={() => onView?.(candidate.id)}
-          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-violet-600 bg-violet-50/0 hover:bg-violet-50 transition-all hover:-translate-y-0.5"
+          className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-bold text-orange-600 dark:text-orange-400 bg-orange-50/0 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all hover:-translate-y-0.5"
         >
           <Eye className="h-4 w-4" />
           <span>View Details</span>
         </button>
 
-        <div className="flex items-center gap-6">
-          <button 
+        <div className="flex items-center gap-4">
+          <button
             onClick={handleDownload}
-            className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-slate-500 bg-slate-50/0 hover:bg-slate-50 transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[13px] font-bold text-slate-500 dark:text-slate-400 bg-slate-50/0 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hover:-translate-y-0.5"
           >
             <Download className="h-4 w-4" />
             <span>Download</span>
@@ -185,9 +192,9 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
           {onDelete && (
             <button
               onClick={() => onDelete(candidate.id)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-red-400 hover:bg-red-50 hover:text-red-500 transition-all border border-red-50 shadow-sm"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-all active:scale-90"
             >
-              <Trash2 className="h-[18px] w-[18px]" />
+              <Trash2 className="h-[17px] w-[17px]" />
             </button>
           )}
         </div>

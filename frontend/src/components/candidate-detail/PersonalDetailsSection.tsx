@@ -167,7 +167,7 @@ export default function PersonalDetailsSection({
                   }
                 }}
                 className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-all duration-200 ${activeFieldId === id
-                  ? 'border-blue-400 bg-blue-50'
+                  ? 'border-brand-400 bg-brand-50'
                   : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                   } ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
               >

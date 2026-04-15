@@ -58,7 +58,7 @@ export default function CorrectionsPage() {
         <div className="relative flex-1 min-w-[240px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-violet-400 focus:bg-white focus:ring-2 focus:ring-violet-100"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100"
             placeholder="Search candidate, field, or value..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -68,7 +68,7 @@ export default function CorrectionsPage() {
            <button 
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
-              isFilterOpen ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+              isFilterOpen ? 'bg-orange-500 border-orange-500 text-white shadow-lg' : 'border-slate-200 bg-white text-slate-600 hover:bg-orange-50 hover:text-brand-600 hover:border-orange-100'
             }`}
           >
             <Filter className="h-4 w-4" />
@@ -82,7 +82,7 @@ export default function CorrectionsPage() {
           <div className="space-y-1.5 flex-1 min-w-[200px]">
              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Filter by Field</label>
              <select
-               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:border-violet-400"
+               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400"
                value={fieldFilter}
                onChange={(e) => setFieldFilter(e.target.value)}
              >
@@ -105,7 +105,7 @@ export default function CorrectionsPage() {
         <div className="rounded-xl bg-white shadow-card border border-slate-100 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center gap-2">
-              <ClipboardCheck className="h-4 w-4 text-violet-600" />
+              <ClipboardCheck className="h-4 w-4 text-orange-600" />
               <h3 className="text-sm font-semibold text-slate-600">Recent Corrections</h3>
             </div>
             <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
@@ -146,7 +146,7 @@ export default function CorrectionsPage() {
                   filtered.map((row) => (
                     <tr
                       key={`${row.corrected_at}-${row.field}`}
-                      className="group transition-colors hover:bg-violet-50/30"
+                      className="group transition-colors hover:bg-orange-50/30"
                     >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
@@ -188,7 +188,7 @@ export default function CorrectionsPage() {
           {/* Reviewer Activity */}
           <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
             <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
+              <div className="h-1.5 w-1.5 rounded-full bg-orange-600" />
               Reviewer Activity
             </h3>
             <div className="space-y-3">
@@ -198,7 +198,7 @@ export default function CorrectionsPage() {
                   className="flex items-center justify-between group cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600 transition-colors group-hover:bg-violet-600 group-hover:text-white">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600 transition-colors group-hover:bg-orange-600 group-hover:text-white">
                       <UserRound className="h-4 w-4" />
                     </div>
                     <span className="text-xs font-semibold text-slate-600">{name}</span>
@@ -223,7 +223,7 @@ export default function CorrectionsPage() {
                 { field: 'education.degree', level: 'Medium' },
                 { field: 'work_experience.company', level: 'Low' }
               ].map((item) => (
-                <div key={item.field} className="group rounded-xl border border-dashed border-slate-200 p-3 hover:border-violet-300 transition-colors">
+                <div key={item.field} className="group rounded-xl border border-dashed border-slate-200 p-3 hover:border-orange-300 transition-colors">
                   <p className="text-[11px] font-bold text-slate-700 truncate">{item.field}</p>
                   <div className="mt-2 flex items-center justify-between">
                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter ${

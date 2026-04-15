@@ -6,6 +6,8 @@ import { Toaster } from 'react-hot-toast'
 import App from './App'
 import './assets/styles/global.css'
 
+import { ThemeProvider } from './contexts/ThemeContext'
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -19,8 +21,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <App />
-        <Toaster position="top-right" />
+        <ThemeProvider>
+          <App />
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,

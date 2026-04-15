@@ -32,7 +32,7 @@ export default function GlobalSearch({ isOpen, onClose, query }: GlobalSearchPro
       <div className="max-h-[380px] overflow-y-auto scrollbar-thin">
         {!query.trim() ? (
           <div className="py-12 px-4 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-500 mx-auto mb-3 shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-400 mx-auto mb-3 shadow-inner">
               <Command className="h-6 w-6" />
             </div>
             <p className="text-sm font-black text-slate-800 uppercase tracking-tight">Intelligence Search</p>
@@ -48,13 +48,13 @@ export default function GlobalSearch({ isOpen, onClose, query }: GlobalSearchPro
               <button
                 key={result.id}
                 onClick={() => handleNavigate(result.id)}
-                className="flex w-full items-center gap-4 rounded-xl px-3 py-3 text-left transition-all duration-300 hover:bg-violet-50/50 group"
+                className="flex w-full items-center gap-4 rounded-xl px-3 py-3 text-left transition-all duration-300 hover:bg-orange-50/50 group"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-white group-hover:shadow-md transition-all duration-300">
-                  <User className="h-5.5 w-5.5 group-hover:text-violet-600" />
+                  <User className="h-5.5 w-5.5 group-hover:text-orange-500" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-black text-slate-800 truncate leading-none uppercase tracking-tight mb-1 group-hover:text-violet-900 transition-colors">
+                  <p className="text-[13px] font-black text-slate-800 truncate leading-none uppercase tracking-tight mb-1 group-hover:text-orange-900 transition-colors">
                     {result.full_name}
                   </p>
                   <p className="text-[11px] font-bold text-slate-400 truncate tracking-tight uppercase opacity-70 italic-placeholder">
@@ -68,7 +68,7 @@ export default function GlobalSearch({ isOpen, onClose, query }: GlobalSearchPro
                   </div>
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1">
-                  <Hash className="h-4 w-4 text-violet-300" />
+                  <Hash className="h-4 w-4 text-orange-300" />
                 </div>
               </button>
             ))}

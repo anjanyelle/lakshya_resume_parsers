@@ -40,9 +40,8 @@ export default function SummarySection({
           else if (!readOnly) setEditing(true)
         }
       }}
-      className={`rounded-lg border p-4 transition-all duration-200 ${
-        isActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
-      }`}
+      className={`rounded-lg border p-4 transition-all duration-200 ${isActive ? 'border-brand-400 bg-brand-50' : 'border-slate-200 bg-white'
+        }`}
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Summary</h2>

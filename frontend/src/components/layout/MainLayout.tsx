@@ -14,14 +14,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div
-      className="flex h-screen relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%)',
-      }}
+      className="flex h-screen relative overflow-hidden bg-slate-100"
     >
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity lg:hidden"
           onClick={closeSidebar}
         />
@@ -32,18 +29,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main Content Area */}
       <div className="flex flex-1 flex-col min-w-0">
-        {/* Top gradient band (teal accent on right) */}
-        <div
-          className="absolute top-0 right-0 w-1/3 h-48 pointer-events-none z-0"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(204,251,241,0.6) 0%, rgba(153,246,228,0.4) 50%, transparent 100%)',
-            borderRadius: '0 0 0 80px',
-          }}
-        />
+
 
         {/* Page content wrapper */}
-        <div className="relative z-10 flex flex-1 flex-col h-full overflow-hidden bg-white/70 lg:rounded-tl-2xl shadow-sm ml-0">
+        <div className="relative z-10 flex flex-1 flex-col h-full overflow-hidden bg-slate-50/40 shadow-sm ml-0">
           {/* Header */}
           <Header onMenuClick={toggleSidebar} />
 
