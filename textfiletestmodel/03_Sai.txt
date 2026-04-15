@@ -1,0 +1,92 @@
+================================================================================
+SAI
+Sr. Big Data Engineer
+================================================================================
+Phone: +1 (341) 203-5403
+Email: sai1912@gmail.com
+Location: New York, NY
+LinkedIn: linkedin.com/in/sai
+
+SUMMARY
+Results-driven Sr. Big Data Engineer with 10+ years of experience designing and deploying
+production-grade data pipelines, agentic AI/LLM systems, and cloud-native architectures
+across healthcare, finance, aviation, and technology sectors. Expert in Python, Apache Spark,
+AWS, Azure, Dagster, DSPy, LangChain, and distributed systems. Deep expertise in LLM prompt
+optimization, NER-based metadata classification, and real-time streaming architectures.
+Proven track record delivering HIPAA/PCI-DSS/SOX-compliant platforms processing millions of
+records daily.
+
+TECHNICAL SKILLS
+Programming    : Python, Scala, Java, PySpark, SQL, T-SQL, Unix, Spring Boot
+Cloud          : AWS, GCP, Azure
+AWS Services   : S3, Glue, EMR, Lambda, ECS, EKS, EC2, RDS, Redshift, SageMaker, CDK,
+                 EventBridge, CloudWatch, SQS, SNS, WAF
+GCP Services   : BigQuery, DataProc, GKE, Spanner, Cloud Functions
+Azure Services : Azure Data Factory, Azure Databricks, Azure SQL, Azure Data Lake,
+                 CosmosDB, HDInsight
+Big Data       : Apache Spark, Kafka, Airflow, Hive, HDFS, NiFi, Spark Streaming,
+                 Zookeeper, Sqoop, Flume, MapReduce, Yarn
+Orchestration  : Dagster, Apache Airflow
+AI/ML          : DSPy, LangChain, LangGraph, MLflow, MLLIB, Scikit-Learn
+Databases      : Teradata, MySQL, Oracle, MS SQL Server, MongoDB, PostgreSQL, Snowflake
+ETL Tools      : AWS Glue, Informatica PowerCenter, Talend, SSIS
+Containers     : Docker, Kubernetes, Jenkins
+BI Tools       : Power BI, Tableau, Grafana, Prometheus, Collibra, Splunk
+Compliance     : HIPAA, HITECH, PCI-DSS, SOX, GLBA, SOC 2, FAA, IATA, HL7 FHIR
+
+EXPERIENCE
+
+Sr. Big Data Engineer | Humana | August 2023 – Present | Louisville, KY
+- Designed and deployed agentic retrieval workflows using Python, LangChain, and LangGraph
+  for automated CES scoring and healthcare quality metrics.
+- Migrated legacy orchestration from Apache Airflow to Dagster across 40+ production
+  pipelines on AWS ECS and EKS.
+- Built production-grade LLM-driven scoring systems using DSPy (GPT-4, Claude, AWS SageMaker,
+  MLflow) for healthcare PR-level scoring.
+- Engineered backend services using Python, AWS Lambda, AWS EventBridge, and AWS CDK.
+- Orchestrated large-scale backfills processing over 10 million commits and clinical records.
+- Implemented SonarQube integration for code-quality scoring with HIPAA-compliant governance.
+- Built observability using AWS CloudWatch, AWS Lambda, and Dagster asset sensors.
+- Deployed AI/ML pipelines using MLLIB and NumPy to predict patient readmission risk.
+Stack: AWS SageMaker, Dagster, DSPy, LangChain, LangGraph, Python, MLflow, Power BI,
+  Pandas, NumPy, AWS EKS, AWS Glue, Airflow, ECS, SonarQube
+
+Sr. Data Engineer | Morgan Stanley | October 2020 – July 2023 | New York, NY
+- Designed production-grade data pipelines using Python and Dagster on AWS with PCI-DSS
+  compliance.
+- Built retrieval agents using Python and DSPy with SOX-compliant audit trails.
+- Migrated orchestration from Airflow to Dagster; enhanced PR/commit linking and epic tracking.
+- Developed anomaly detection using Python, AWS Glue, and AWS CloudWatch.
+- Built AWS-native pipelines (ECS, Lambda, S3, RDS, CDK) for high-volume financial data ingestion.
+- Implemented AWS WAF rules mitigating SQL injection, XSS, and DDoS attacks.
+Stack: Lambda, Airflow, S3, Dagster, ECS, AWS EC2, AWS RDS, AWS EKS, AWS WAF, DSPy,
+  Python, Glue, EventBridge, AWS SQS
+
+Data Engineer / Data Analyst | Delta Airlines | December 2017 – September 2020 | Atlanta, GA
+- Designed production data pipelines using Python and Apache Airflow with FAA/IATA compliance.
+- Orchestrated migration using Dagster and Airflow on AWS ECS and EKS.
+- Built analytics platforms using Python, AWS RDS, and Power BI for CES metrics.
+- Built observability using Prometheus, Grafana, and AWS CloudWatch.
+- Integrated SonarQube with Airflow and AWS Glue; mapped code severity to FAA DAL levels.
+Stack: AWS CDK, Python, AWS EC2, EventBridge, SonarQube, AWS Lambda, Prometheus, AWS EKS,
+  Dagster, Airflow, AWS S3, ECS, Glue, Jenkins, AWS RDS, Grafana, Power BI, Collibra
+
+Data Engineer / Migration Specialist | Cisco | February 2016 – November 2017 | San Jose, CA
+- Built Network Data Integration platform using Azure Cloud for global networking systems.
+- Developed scalable data ingestion pipelines using Talend ETL and Azure Data Factory.
+- Executed data migration from legacy network management systems to modern SDN platforms.
+- Built orchestration workflows using Apache Airflow for distributed ETL across global regions.
+- Developed predictive capacity forecasting models using Azure Databricks.
+Stack: Azure Cloud, Talend ETL, Azure Data Factory, Apache Airflow, Azure SQL, Azure
+  Databricks, Python, Streaming Analytics
+
+ETL Developer | Flipkart | August 2014 – December 2015 | Bangalore, India
+- Built scalable ETL pipeline using AWS Services, Informatica, and Talend for e-commerce data.
+- Utilized Informatica PowerCenter to extract from MySQL, PostgreSQL, and MongoDB.
+- Designed AWS Glue jobs loading data into Amazon Redshift.
+- Connected Tableau to Amazon Redshift for interactive sales and inventory dashboards.
+Stack: AWS (S3, Glue, Lambda, CloudWatch, Redshift), Informatica PowerCenter, Talend,
+  MySQL, PostgreSQL, MongoDB, Tableau
+
+EDUCATION
+B.Tech Computer Science & Engineering – Koneru Lakshmaiah University, 2010–2014

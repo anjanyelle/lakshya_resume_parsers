@@ -1,0 +1,63 @@
+APPLE SURESH BABU
+.NET Full Stack Developer
+apple.sureshbabu@gmail.com
++1-678-543-9017
+Atlanta, GA
+LinkedIn: linkedin.com/in/appledotnet
+
+
+EXECUTIVE SUMMARY
+
+Accomplished .NET Full Stack Developer with 7 years of experience building enterprise web applications and APIs using C#, ASP.NET Core, and Azure. Strong expertise in microservices, Azure cloud services, and SQL Server. Demonstrated ability to deliver high-quality solutions in retail, supply chain, and insurance domains. Known for writing clean, maintainable code and driving code quality initiatives across development teams.
+
+
+TECHNICAL TOOLKIT
+
+Backend             C#, ASP.NET Core, .NET 6/7/8, Entity Framework Core, LINQ, Web API
+Frontend            Angular, React, Blazor, HTML5, CSS3, Bootstrap, JavaScript, TypeScript
+Azure Services      Azure App Service, Azure Functions, Azure Service Bus, Azure SQL, Azure DevOps, Cosmos DB
+Database            SQL Server, Azure SQL Database, PostgreSQL, Cosmos DB, Redis Cache
+Architecture        Microservices, RESTful APIs, CQRS, Event-Driven Architecture, Domain-Driven Design
+Testing             xUnit, NUnit, Moq, Selenium
+DevOps              Azure DevOps, GitHub Actions, Docker, Kubernetes
+
+
+EMPLOYMENT HISTORY
+
+Senior .NET Developer
+Client: The Home Depot, Atlanta, GA
+Duration: Mar 2021 – Present
+
+Architected and developed inventory management microservices platform using ASP.NET Core handling 3M+ SKUs
+Built Azure Service Bus event-driven messaging for real-time inventory sync across 2,200 stores
+Developed RESTful APIs consumed by Angular frontend and mobile applications
+Implemented CQRS pattern using MediatR library for clean separation of read and write operations
+Deployed applications to Azure Kubernetes Service with CI/CD pipelines in Azure DevOps
+Optimized Entity Framework Core queries reducing API response time from 800ms to 120ms
+Reviewed code for 6 team members and enforced coding standards using SonarQube
+
+
+.NET Developer
+Client: UPS, Atlanta, GA
+Duration: Jun 2018 – Feb 2021
+
+Developed shipment tracking and label generation modules using ASP.NET Web API
+Built Windows Services and Azure Functions for scheduled logistics data processing jobs
+Created SQL Server stored procedures and optimized indexes for high-volume shipment data
+Integrated with third-party customs compliance APIs for international shipment handling
+Migrated legacy ASP.NET WebForms application to ASP.NET Core MVC
+Wrote automated unit tests using xUnit and Moq achieving 82% code coverage
+
+
+ACADEMIC BACKGROUND
+
+Bachelor of Technology in Information Technology
+VIT University, Vellore
+Graduated: 2017
+
+
+PROFESSIONAL CERTIFICATIONS
+
+Microsoft Certified: Azure Developer Associate AZ-204 (2022)
+Microsoft Certified: Azure Solutions Architect Expert AZ-305 (2023)
+Microsoft Certified: .NET Fundamentals (2018)

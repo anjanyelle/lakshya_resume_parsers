@@ -1,0 +1,7 @@
+Kiran Rao
+Exp1: Senior Software Engineer -- Cyient Ltd Hyderabad -- Jun 2014 to present -- Client: Bayer AG Leverkusen Germany
+Exp2: Golang Developer -- Infogain Noida -- Oct 2011 - Jul 2014 -- Client: BT Group London UK
+Exp3: Junior QA Analyst -- Infosys Bangalore -- Aug 2009 - Sep 2011 -- Client: Loblaws Brampton Canada
+Exp4: Associate Technical Trainee -- SLK Software Bangalore -- Apr 2007 - Aug 2009 -- Client: AGL Energy Sydney Australia
+Edu1: MBA Information Technology -- Amity University Noida -- Jan 2007 to Feb 2009 -- CGPA 7.5
+Edu2: B.Tech Instrumentation Engineering -- Mumbai University -- Jan 2003 to Feb 2007 -- 92.3%

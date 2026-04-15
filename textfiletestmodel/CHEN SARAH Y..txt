@@ -1,0 +1,80 @@
+	CHEN SARAH Y. 
+Principal Cybersecurity Engineer  |  Cloud Security Architect  |  Red Team Lead
+Austin, TX  |  +1 (512) 889-7732  |  s.chen@securityprincipal.io  |  linkedin.com/in/sarahchen-sec  |  github.com/schen-security
+
+▌ PROFESSIONAL SUMMARY
+Principal Cybersecurity Engineer with 14 years of hands-on experience designing, implementing, and managing enterprise security programs across critical infrastructure, financial services, and cloud-native environments. Expert practitioner in penetration testing, threat intelligence, zero trust architecture, cloud security posture management, and security operations center (SOC) design.
+Nationally recognized vulnerability researcher with 47 disclosed CVEs, including 3 critical vulnerabilities in major enterprise platforms (VMware, Cisco, Palo Alto). Regular Black Hat and DEF CON presenter. OSCP, CISSP, CISM, and AWS Security Specialty certified. Former NSA and US-CERT advisory panel member.
+
+
+▌▌ PROFESSIONAL EXPERIENCE
+Principal Security Architect  —  Booz Allen Hamilton	Jan 2021 – Present
+Client: Lockheed Martin Defense Cyber Program — Zero Trust Architecture
+•	Architected Lockheed Martin's Zero Trust implementation compliant with DoD Zero Trust Reference Architecture v2.0, protecting 35,000 endpoints across classified and unclassified environments.
+•	Led 18-person red team conducting adversarial assessment simulating APT40 (Chinese state actor) tactics against F-35 program supply chain infrastructure — identified 23 critical vulnerabilities.
+•	Designed micro-segmentation strategy using Illumio and Zscaler Private Access, reducing lateral movement attack surface by 91% across manufacturing floor OT networks.
+•	Implemented continuous Threat Exposure Management (TEM) program using Attack Surface Management (ASM) tools, reducing mean time to remediate critical CVEs from 45 to 9 days.
+•	Authored Lockheed's Cloud Security Baseline (AWS GovCloud, Azure Government) adopted as program-wide policy for 12 classified computing environments.
+•	Achieved DoD IL5 ATO (Authority to Operate) for 4 cloud-hosted classified systems within aggressive 6-month timeline.
+•	Delivered 3 sessions at NSA Cybersecurity Symposium 2022 on Zero Trust implementation lessons from defense industrial base.
+
+Senior Red Team Lead  —  Mandiant (FireEye)	Jul 2019 – Dec 2020
+Client: Citigroup Inc. — Advanced Persistent Threat Simulation Program
+•	Led Advanced Red Team operations simulating Lazarus Group (DPRK) and Carbanak threat actor TTPs against Citigroup's global banking infrastructure across 38 countries.
+•	Discovered 6 critical vulnerabilities in Citigroup's core banking platform during red team operations, including an unauthenticated RCE in trading system middleware (CVSS 9.8).
+•	Designed and executed cloud-native red team methodology for Citigroup's AWS Financial Services Cloud, including novel container escape and lateral movement techniques.
+•	Developed custom C2 framework (Go-based) evading 14/15 commercial EDR products tested; techniques later incorporated into Mandiant Advantage Threat Intelligence platform.
+•	Built Citigroup's Assume Breach simulation program running quarterly adversarial exercises across 6 critical business units, improving SOC detection rate from 31% to 74%.
+
+CISO Advisory & Cloud Security Lead  —  Optiv Security	Mar 2017 – Jun 2019
+Client: CommonSpirit Health — Healthcare Security Transformation
+•	Served as fractional CISO advisory for CommonSpirit Health during 3-hospital merger, designing unified security architecture for 85,000-employee healthcare system.
+•	Led ransomware resilience program protecting 140 hospitals from Ryuk and Conti ransomware campaigns; implemented network segmentation preventing $82M estimated ransomware loss.
+•	Designed HIPAA Security Rule compliance framework for 15M patient records with automated PHI discovery, classification, and access logging using Microsoft Purview.
+•	Built 24/7 SOC for CommonSpirit on Microsoft Sentinel, ingesting 8TB/day of security logs; achieved MTTD of 4 minutes for ransomware indicators.
+•	Achieved HITRUST CSF Certification for 3 hospital systems within 9 months — first such certification in CommonSpirit's network history.
+
+Principal Vulnerability Researcher  —  Palo Alto Networks (UNIT 42)	Aug 2015 – Feb 2017
+Threat Intelligence & Vulnerability Research Team
+•	Discovered and responsibly disclosed 22 critical CVEs in enterprise network products including VMware vCenter (CVE-2021-21985, CVSS 9.8), Cisco IOS XE, and Fortinet FortiOS.
+•	Led threat intelligence campaigns tracking SolarWinds-style supply chain attack vectors; findings contributed to CISA Emergency Directive ED-21-03.
+•	Developed YARA ruleset library of 340+ rules for detecting APT malware families; integrated into Palo Alto Cortex XDR and WildFire platforms.
+•	Presented original research at Black Hat USA 2016: 'Breaking the Industrial Firewall: Novel ICS Protocol Exploitation Techniques' (800+ attendees).
+
+ICS/OT Security Engineer  —  Dragos Inc.	May 2013 – Jul 2015
+Client: ExxonMobil — Industrial Control Systems Security
+•	Secured ExxonMobil's OT/SCADA environments across 6 refinery sites using Dragos Platform and custom IEC 62443-compliant security architecture.
+•	Conducted first-of-kind Modbus/DNP3 protocol penetration test for ExxonMobil; identified 8 exploitable vulnerabilities in Emerson DeltaV DCS systems.
+•	Designed ICS network segmentation using Purdue Model, ISA/IEC 62443 zones and conduits, reducing IT-OT attack surface by 88%.
+
+Security Analyst  —  US-CERT / CISA	Jun 2010 – Apr 2013
+•	Analyzed 400+ incident reports monthly as part of National Cyber Awareness System (NCAS), authoring 15 public US-CERT Technical Alerts.
+•	Conducted forensic analysis of Advanced Persistent Threat (APT) intrusions against federal civilian agencies, producing classified intelligence reports.
+•	Developed automated malware analysis pipeline processing 5,000+ samples/day using Cuckoo Sandbox, reducing analyst triage time by 70%.
+
+▌ CERTIFICATIONS (ACTIVE)
+Certification	Organization	Year
+OSCP — Offensive Security Certified Professional	Offensive Security	2023
+CISSP — Certified Information Systems Security Professional	ISC2	2021
+CISM — Certified Information Security Manager	ISACA	2020
+AWS Certified Security – Specialty	Amazon Web Services	2022
+GREM — GIAC Reverse Engineering Malware	GIAC / SANS	2019
+GCIH — GIAC Certified Incident Handler	GIAC / SANS	2018
+CEH — Certified Ethical Hacker	EC-Council	2015
+Security+, Network+	CompTIA	2012
+
+▌ EDUCATION
+M.S. Information Security  —  Carnegie Mellon University (CyLab)	2008 – 2010
+Thesis: 'Side-Channel Attacks on Hardware Security Modules'  |  GPA: 3.95/4.0  |  NSF CyberCorps Scholarship Recipient
+
+B.S. Computer Science — Cybersecurity Track  —  Purdue University	2004 – 2008
+Summa Cum Laude  |  National Cyber League 1st Place  |  CCDC National Champion (Team Captain) 2007, 2008
+
+▌ TOOLS & TECHNICAL SKILLS
+Category	Tools
+Penetration Testing	Metasploit, Cobalt Strike, Burp Suite Pro, Nessus, Nuclei, BloodHound, Impacket, CrackMapExec
+Cloud Security	Prisma Cloud, Wiz, Orca Security, AWS Security Hub, Defender for Cloud, Cloud Custodian, ScoutSuite
+SIEM & Detection	Splunk ES, Microsoft Sentinel, IBM QRadar, Elastic SIEM, Chronicle SIEM, Sumo Logic
+IDS/IPS & Network	Snort 3, Suricata, Zeek (Bro), Palo Alto NGFW, Cisco ASA, Fortinet, Wireshark, Shodan
+Forensics & IR	Volatility, Velociraptor, FTK, Autopsy, Rekall, KAPE, DFIR Orc, Carbon Black XDR
+Programming	Python, Go, PowerShell, Bash, C, Assembly (x86/ARM), Rust (security tooling)

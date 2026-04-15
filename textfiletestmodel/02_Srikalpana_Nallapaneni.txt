@@ -1,0 +1,92 @@
+================================================================================
+SRIKALPANA NALLAPANENI
+Senior Java Full Stack Developer
+================================================================================
+Email: srikalpananallapaneni2@gmail.com
+Phone: +1 (901)-625-1764
+
+SUMMARY
+Senior Java Full Stack Developer with 11+ years of experience across healthcare, banking,
+retail, and aviation domains. Expert in Java EE, Spring Boot, Spring MVC, microservices,
+RESTful APIs, cloud-native solutions (AWS, Azure, GCP), CI/CD, AI/ML integrations, and
+secure application development.
+
+TECHNICAL SKILLS
+Backend            : Java (8/11/17/21), Core Java, J2EE, Spring Boot, Spring MVC, Spring
+                     Framework, Hibernate, JDBC, JMS, REST APIs, SOAP, Microservices,
+                     Multithreading, Node.js, Scala, Python
+Frontend           : HTML5, CSS3, JavaScript, TypeScript, Angular, ReactJS, Bootstrap, jQuery, AJAX
+Data/Config        : XML, JSON, YAML, XSLT, XPath, SAX, DOM
+Databases          : Oracle, PostgreSQL, MySQL, SQL Server, MongoDB, Cassandra
+Messaging/Security : Apache Kafka, RabbitMQ, JMS, Amazon SQS, Spring Security, OAuth 2.0, JWT
+DevOps/CI/CD       : Docker, Kubernetes, OpenShift, Terraform, Maven, Ant, Jenkins, GitHub Actions
+Testing            : JUnit, TestNG, Mockito, Cucumber, Jest, JMeter, Postman, SoapUI, Cypress
+Cloud              : AWS, Microsoft Azure, Google Cloud Platform (GCP)
+AI/Dev Tools       : GitHub Copilot, LLM
+Version Control/OS : Git, GitHub, GitLab, SVN, Linux, UNIX, Windows
+App Servers        : Apache Tomcat, IBM WebSphere, WebLogic, JBoss
+IDEs               : Eclipse, IntelliJ IDEA, VS Code, IBM RAD, NetBeans
+
+EXPERIENCE
+
+Senior Java Full Stack Developer | UnitedHealth Group | May 2023 – Present | Basking Ridge, NJ
+- Designed HIPAA-compliant healthcare applications using Core Java, Spring Boot, and Spring MVC
+  with RESTful APIs for patient records and appointment scheduling on Azure.
+- Built HL7 FHIR-based interoperability APIs with Spring Security, OAuth 2.0, and JWT tokens.
+- Integrated AI/ML clinical decision support using Spring AI, LangChain, Azure Functions,
+  TensorFlow, and PyTorch.
+- Developed microservices with Spring Boot, Spring Cloud, and Apache Kafka on Azure Kubernetes Service.
+- Built CI/CD pipelines using Jenkins and Azure DevOps; provisioned infrastructure with Terraform.
+- Enhanced patient portals using Angular, React.js, and Next.js.
+- Integrated Azure OpenAI Service for automated medical coding (ICD-10/CPT) workflows.
+- Optimized performance using Prometheus, Grafana, and Azure Monitor; maintained 99.9% uptime.
+- Mentored developers on Core Java, Spring Boot, Spring Cloud, and AI/ML integration strategies.
+Stack: Spring AI, LangChain, Spring Boot, Spring Cloud, Angular, React.js, Next.js, Azure,
+  Kubernetes, Kafka, PostgreSQL, MongoDB, Cosmos DB, Docker, Terraform, Jenkins
+
+Senior Full Stack Developer | BNY Mellon | July 2020 – April 2023 | New York, NY
+- Developed enterprise banking applications using Core Java, Java EE, and Spring Boot on AWS
+  EC2 and EKS with PCI-DSS compliance.
+- Built microservices for loan origination and fraud detection with Spring Boot and RabbitMQ.
+- Architected payment processing systems using Java EE, Spring Boot, AWS SQS, Oracle, DynamoDB.
+- Integrated AI for credit risk assessment connecting Java backend with AWS SageMaker.
+- Designed cloud-native solutions on AWS (EC2, RDS, S3, Lambda, Redshift, EKS).
+- Implemented DevOps practices using GitHub Actions, Docker, Kubernetes, and Ansible.
+- Created automated testing using Mockito, Cucumber, and Postman.
+- Built ETL pipelines using AWS Glue, Lambda, and S3.
+Stack: Java, Spring Boot, React.js, Next.js, AWS, EKS, Oracle, DynamoDB, Cassandra,
+  RabbitMQ, ELK Stack, GitHub Actions, Docker
+
+Java Developer | Target | September 2017 – June 2020 | Minneapolis, MN
+- Designed enterprise Java applications for retail platforms using Core Java, Spring Boot,
+  Spring MVC, and Spring Data JPA processing millions of daily transactions.
+- Built scalable microservices on AWS EKS and OpenShift with GitLab CI and Helm CI/CD.
+- Integrated MySQL, MongoDB, AWS RDS, and DynamoDB for retail catalog, customer profiles,
+  and inventory.
+- Developed RESTful APIs and GraphQL services using Spring Boot and OpenAPI.
+- Built asynchronous messaging using ActiveMQ and AWS SNS/SQS.
+Stack: Java, Spring Boot, Spring MVC, Angular, React.js, AWS, Kubernetes, EKS, Docker,
+  MySQL, MongoDB, DynamoDB, Maven
+
+Backend Developer | Southwest Airlines | January 2016 – August 2017 | Dallas, TX
+- Designed and developed backend microservices using Java 8 and Spring Boot for OpsSuite,
+  a real-time airline operations platform at 100+ airport locations.
+- Built secured RESTful APIs using Spring Security and Apigee API Management.
+- Worked with PostgreSQL on GCP Cloud SQL; developed PL/SQL procedures.
+- Implemented asynchronous messaging using RabbitMQ.
+- Containerized services using Docker; deployed on GKE and OpenShift.
+- Automated infrastructure provisioning with Terraform on GCP.
+Stack: Java 8, Spring Boot, Spring Cloud, PostgreSQL, GCP, RabbitMQ, Docker, Kubernetes,
+  GKE, OpenShift, Terraform, Jenkins
+
+Backend Developer | Ramco Systems | August 2014 – October 2015 | Chennai, India
+- Worked on enterprise Java applications using Java 8, J2EE, and Spring MVC.
+- Applied design patterns: Singleton, Factory, DAO, Business Delegate, Session Facade.
+- Implemented Spring IoC, Dependency Injection, and Spring AOP.
+- Used Hibernate ORM with Microsoft SQL Server; improved data access performance by 25%.
+- Built web services using SOAP, WSDL, JAX-B, XML, JMS, and JNDI.
+- Reduced code conflicts by 30% through structured SVN source control practices.
+Stack: Java 8, Spring MVC, Hibernate, Microsoft SQL Server, JMS, SOAP, JUnit, IBM WebSphere
+
+EDUCATION
+Bachelor of Technology in Computer Science – MLWE College, June 2010 – July 2014

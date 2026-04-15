@@ -1,0 +1,89 @@
+BRUNO REZENDE
+Email: bruno.rezende@techbr.com
+Phone: +55 21 9 9234-7801
+Location: Rio de Janeiro Brazil
+GitHub: github.com/brunorzd
+LinkedIn: linkedin.com/in/brunorzd
+
+JOB TITLE
+Platform Engineer Site Reliability Engineer
+
+PROFESSIONAL SUMMARY
+Senior SRE and Platform Engineer with 9 years of experience building and operating mission critical infrastructure for high traffic products. Expert in reliability engineering observability and developer productivity platforms.
+
+WORK EXPERIENCE
+
+Senior SRE Platform Engineer
+GlobalSports Analytics Rio de Janeiro Brazil
+Feb 2022 Present
+Managed SLOs and SLAs for 40+ services maintaining 99.97 percent uptime
+Built internal developer platform using Backstage used by 120+ engineers reducing environment setup from 3 days to 2 hours
+Led blameless postmortems for 15 P0 and P1 incidents resulting in systemic improvements
+Implemented chaos engineering program identifying 9 systemic failure modes before reaching production
+Reduced on call alert noise by 80 percent through improved alerting thresholds and runbooks
+
+SRE Engineer
+Nexus Digital Rio de Janeiro Brazil
+Jun 2019 Jan 2022
+Built Kubernetes platform on AWS EKS supporting 300+ microservices and 1.5M daily active users
+Automated disaster recovery failover reducing RTO from 2 hours to 8 minutes
+Delivered on call runbooks and escalation playbooks for 6 engineering teams
+Improved deployment frequency from weekly to multiple times per day using GitOps with ArgoCD
+
+Infrastructure Engineer
+Vertex Solutions Rio de Janeiro Brazil
+Apr 2016 May 2019
+Managed on premise VMware and hybrid cloud infrastructure
+Migrated 40 services from bare metal to Docker and Kubernetes
+Designed multi region network topology using BGP and VPN
+Reduced monthly infrastructure cost by 90K via rightsizing and reserved capacity
+
+Systems Administrator
+TechNova Inc Sao Paulo Brazil
+Jan 2015 Mar 2016
+Supported Linux server fleet of 200+ nodes
+Automated patch management with Ansible
+Set up Nagios and Zabbix monitoring infrastructure
+Maintained 99.9 percent uptime for internal tooling services
+
+EDUCATION
+
+B Sc Computer Networks and Systems
+Universidade Federal do Rio de Janeiro UFRJ Rio de Janeiro Brazil
+2011 2015
+
+SKILLS
+Platforms: Kubernetes AWS EKS GCP GKE Azure AKS Istio Envoy
+Infrastructure as Code: Terraform Helm Pulumi Ansible
+CI/CD and GitOps: GitHub Actions GitLab CI ArgoCD Spinnaker Tekton
+Observability: Prometheus Grafana Jaeger ELK Stack Datadog PagerDuty
+Languages: Go Python Bash
+Databases: PostgreSQL Redis ClickHouse
+Developer Platforms: Backstage Internal Developer Portals Crossplane
+
+CERTIFICATIONS
+Certified Kubernetes Administrator CKA 2023
+AWS Certified Solutions Architect Professional 2022
+GCP Professional Cloud Architect 2021
+HashiCorp Terraform Associate 2020
+
+LANGUAGES
+Portuguese Native
+English Fluent
+Spanish Basic
+
+PROJECTS
+
+InternalPlatform v2.0 GlobalSports Analytics 2023
+Redesigned developer platform using Backstage ArgoCD and Terraform Cloud
+Onboarded 120 engineers and reduced service provisioning time by 85 percent
+
+Multi Region Active Active Setup Nexus Digital 2021
+Architected active active deployment across 3 AWS regions
+Achieved RPO equal to zero and RTO under 5 minutes for all core services
+
+ACHIEVEMENTS AND SPEAKING
+SRE Excellence Award GlobalSports Analytics 2023
+First Place Internal Hackathon DevX Tools Nexus Digital 2022
+Speaker DevOpsDays Sao Paulo 2022
+Speaker SREcon Americas 2021

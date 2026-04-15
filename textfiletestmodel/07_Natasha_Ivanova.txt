@@ -1,0 +1,49 @@
+================================================================================
+NATASHA IVANOVA
+Platform Engineering Manager
+================================================================================
+Email: natasha.ivanova@plateng.com
+Phone: +1 (617) 443-7788
+Location: Boston, MA
+
+SUMMARY
+Engineering leader with 11 years building high-performing platform teams. Scaled engineering
+orgs from 8 to 80+ engineers. Deep expertise in internal developer platforms, SRE practices,
+and FinOps.
+
+SKILLS & PROFICIENCY
+- Kubernetes / Helm          : 100%
+- Platform Engineering       : 100%
+- SRE / Chaos Engineering    : 90%
+- FinOps / Cost Optimization : 90%
+- Go / Python / Bash         : 90%
+- Engineering Leadership     : 90%
+
+EXPERIENCE
+
+Engineering Manager – Platform | HubSpot | 2021 – Present
+- Built and scaled internal developer platform serving 1,200+ engineers.
+- Reduced deployment time from 2 hours to 8 minutes.
+- Grew team from 6 to 28 engineers.
+
+Sr. Staff Engineer | Wayfair | 2018 – 2021
+- Designed Kubernetes-based microservices platform processing 3M+ orders/day.
+- Implemented FinOps practices saving $8M annually in cloud spend.
+
+Site Reliability Engineer | Akamai | 2015 – 2018
+- Maintained 99.999% uptime for CDN serving 2.5T+ requests daily.
+- Built chaos engineering framework and automated runbook system.
+
+Systems Engineer | VMware | 2012 – 2015
+- Delivered virtualization and private cloud solutions for enterprise clients.
+- Managed vSphere/NSX environments of 10,000+ VMs.
+
+CLIENTS
+HubSpot, Wayfair, Akamai, VMware, Fidelity, Toast
+
+EDUCATION & CERTIFICATIONS
+M.S. Computer Engineering – Boston University, 2012
+- CKA (Certified Kubernetes Administrator)
+- CKAD (Certified Kubernetes Application Developer)
+- AWS DevOps Professional
+- Google SRE Certified

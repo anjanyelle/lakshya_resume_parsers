@@ -1,0 +1,7 @@
+Indira Gopal
+ORG=Wipro Bangalore | POST=Platform Engineering Lead | SINCE=2019 | CLIENT=Lazada Singapore
+ORG=Evoke Technologies Bangalore | POST=Angular Developer | PERIOD=2017 - 2019 | CLIENT=IBM Corporation Armonk USA
+ORG=Capgemini Pune | POST=Junior iOS Developer | PERIOD=2014 - 2017 | CLIENT=Bosch Group Stuttgart Germany
+ORG=EXL Service Noida | POST=Fresher Software Engineer | PERIOD=2012 - 2014 | CLIENT=DBS Bank Singapore
+DEGREE=M.Tech Internet of Things | INSTITUTE=University of Hyderabad | YEAR=2012-2014 | CGPA=8.4
+DEGREE=B.Tech Software Engineering | INSTITUTE=VTU Bangalore | YEAR=2008-2012 | PCT=88.1%

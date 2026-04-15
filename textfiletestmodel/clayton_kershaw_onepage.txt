@@ -1,0 +1,125 @@
+CLAYTON KERSHAW
+Email: clayton.kershaw@ecomarch.com
+Phone: +1 323 671 4408
+Location: Los Angeles CA USA
+LinkedIn: linkedin.com/in/claytonkershaw-arch
+GitHub: github.com/ckershaw-ecom
+Portfolio: claytonkershaw.dev
+
+JOB TITLE
+E-commerce Solutions Architect
+
+PROFESSIONAL SUMMARY
+Forward thinking E-commerce Solutions Architect with 9 years of end to end experience designing building and scaling high performance retail and B2B commerce platforms that process hundreds of millions in annual gross merchandise value. Deep expertise in composable and headless commerce architecture omnichannel integration strategies API first platform design and cloud native infrastructure for retail workloads. Extensive hands on experience with Commercetools Shopify Plus Salesforce Commerce Cloud Magento 2 and SAP Commerce. Strong background integrating complex enterprise systems including ERP CRM OMS WMS and PIM platforms into unified commerce ecosystems. Track record of leading cross functional teams through large scale replatforming programs accelerating time to market and delivering measurable improvements in conversion rate performance and operational efficiency. Trusted advisor to VP and C suite retail technology leaders.
+
+WORK EXPERIENCE
+
+Lead E-commerce Solutions Architect
+Cascade Retail Solutions Los Angeles CA
+Jan 2022 Present
+Designed and delivered headless composable commerce platform using Commercetools as commerce engine Next.js 14 for storefront rendering and GraphQL API layer supporting 80K concurrent users during peak sale events with zero performance degradation
+Architected microservices based order management system integrating real time inventory allocation from 6 fulfillment centers 3 third party logistics providers and 3 last mile carrier APIs achieving 99.7 percent order accuracy and average ship confirmation within 4 hours of placement
+Led full replatforming program from Magento 2 monolith to composable architecture over 14 months with 0 revenue impacting incidents during cutover reducing median page load time from 5.8 seconds to 1.4 seconds and Google Core Web Vitals scores from poor to good across all 3 metrics
+Defined and governed API gateway strategy using AWS API Gateway and Kong reducing average third party integration delivery time from 6 weeks to 5 days and enabling business teams to onboard new marketplace channels independently
+Designed real time personalization architecture using Segment CDP Bloomreach Engagement and custom ML recommendations engine increasing average order value by 22 percent and repeat purchase rate by 18 percent
+Oversaw platform reliability engineering achieving 99.99 percent uptime across all major commercial events including Black Friday Cyber Monday and 4 major promotional campaigns with peak traffic exceeding 12x baseline
+Established platform architecture governance including API design standards frontend performance budgets testing strategy and deployment pipeline requirements adopted by 8 product engineering teams
+Led technical evaluation and selection of 3 major platform vendors including OMS WMS and PIM systems with total contract value of 4.8M producing detailed RFP scoring models and recommendation reports for executive stakeholders
+Mentored team of 3 solution architects and 2 senior engineers conducting weekly design reviews and monthly architecture guild sessions
+Delivered 40 percent reduction in cloud infrastructure spend through right sizing autoscaling policy optimization CDN cache hit rate improvements and reserved capacity planning
+
+E-commerce Solutions Architect
+BluePeak Technologies Pasadena CA
+Mar 2019 Dec 2021
+Designed and delivered B2B e-commerce portal for wholesale distribution operations processing 45M in annual orders supporting 800+ wholesale buyer accounts with tiered pricing contract specific catalogs and self service order management
+Built bi directional real time inventory synchronization between SAP S4 HANA ERP and Shopify Plus storefronts ensuring stock accuracy within 60 seconds across 3 warehouse locations reducing oversell cancellations by 96 percent
+Delivered AI powered product search and personalization using Algolia and customer behavioral segmentation boosting search conversion rate by 31 percent and reducing zero results search rate from 14 percent to 3 percent
+Reduced checkout abandonment by 24 percent through data driven UX redesign informed by Hotjar session recordings heatmaps and 12 rounds of user testing with representative customer cohorts
+Architected MACH compliant platform using Contentful headless CMS Algolia search Akeneo PIM and Stripe payments reducing content publishing cycle from 5 days to same day for merchandising and marketing teams
+Led implementation of Salesforce Commerce Cloud for a 120M revenue fashion retailer managing system integrator relationship and approving all technical design decisions across 9 month program
+Built automated regression testing suite using Playwright and Cypress covering 300+ critical user journeys reducing post deployment defect discovery time by 85 percent
+Developed e-commerce performance benchmarking framework tracking 40+ technical and commercial KPIs with weekly automated reporting to product and engineering leadership
+
+Software Engineer E-commerce
+Ironbridge Consulting San Diego CA
+Jun 2017 Feb 2019
+Developed 14 Magento 2 custom modules covering subscription billing loyalty reward redemption gift cards custom product configurator and B2B quote management for 6 enterprise retail clients
+Built high performance product catalog import and delta update pipeline processing 500K SKU updates nightly from PIM system with automated data validation error handling and rollback capability
+Integrated Stripe Braintree and PayPal payment gateways with PCI DSS Level 1 compliant tokenization vaulting and 3D Secure 2 authentication reducing card fraud chargebacks by 78 percent
+Delivered Magento 2 to Shopify Plus migration for 2 mid market retailers completing both projects ahead of schedule with full historical order and customer data migration
+Built Google Tag Manager and Adobe Analytics event tracking implementation covering 120+ custom events enabling data driven decision making by marketing and merchandising teams
+
+Junior Web Developer
+Orion Health Systems Los Angeles CA
+Jan 2015 May 2017
+Developed and maintained patient facing web portals and internal clinical staff tools using PHP Laravel and Vue.js
+Built automated appointment reminder and online scheduling integration reducing no show rate by 34 percent for 5 outpatient clinic clients
+Created API integrations between patient portal and EHR systems including Epic MyChart and Athenahealth
+Supported migration of 3 healthcare client websites from shared hosting to AWS increasing reliability and reducing page load time by 60 percent
+
+EDUCATION
+
+B Sc Computer Science
+University of California Los Angeles UCLA Los Angeles CA
+2011 2015
+GPA 3.74 out of 4.00
+Minor in Business Administration
+Senior Capstone: Scalable Product Catalog Architecture for High SKU Count E-commerce Applications
+
+SKILLS
+Commerce Platforms: Commercetools Shopify Plus Salesforce Commerce Cloud SFCC Magento 2 SAP Commerce BigCommerce VTEX
+Frontend: Next.js 14 React TypeScript TailwindCSS GraphQL Apollo Client Storybook Web Performance API Core Web Vitals
+Backend: Node.js Python Go REST APIs GraphQL gRPC Event Driven Architecture Apache Kafka
+Cloud and DevOps: AWS GCP Azure Docker Kubernetes Terraform GitHub Actions ArgoCD New Relic Datadog
+Integration Layer: AWS API Gateway Kong MuleSoft Apigee SAP Integration Suite Boomi
+Enterprise Systems: SAP S4 HANA NetSuite Salesforce OMS Manhattan WMS Akeneo PIM Contentful Bloomreach
+Payments and Fraud: Stripe Adyen Braintree PayPal Klarna Afterpay Sift Kount PCI DSS 3DS2
+Search and Personalization: Algolia Elasticsearch Bloomreach Discovery Nosto Dynamic Yield Segment CDP
+Analytics: Google Analytics 4 Adobe Analytics Mixpanel Amplitude Hotjar FullStory Power BI
+
+CERTIFICATIONS
+Commercetools Certified Developer 2023
+AWS Certified Solutions Architect Professional 2023
+Salesforce B2C Commerce Architect 2022
+Google Cloud Professional Cloud Architect 2022
+Shopify Partner Academy Advanced 2021
+SAP Certified Application Associate SAP Commerce Cloud 2021
+Google Analytics Individual Qualification 2020
+
+LANGUAGES
+English Native
+Spanish Fluent
+French Basic
+
+AWARDS AND RECOGNITION
+Cascade Retail Solutions Technology Innovation Award 2023 for Composable Commerce Platform Delivery
+IR Magazine Top 100 E-commerce Technology Leaders 2023
+BluePeak Technologies Engineer of the Year 2021
+
+PUBLICATIONS AND SPEAKING
+Kershaw C. Composable Commerce Architecture Patterns for High Traffic Retail. RE Commerce Conference Los Angeles 2023
+Kershaw C. From Monolith to MACH: A Practical Replatforming Playbook. Commercetools Connect Virtual Summit 2022
+Kershaw C. Real World GraphQL Federation in E-commerce. GraphQL Summit 2021
+
+VOLUNTEER AND COMMUNITY
+Mentor Shopify Unite Partner Program 2021 Present coaching 5 early stage e-commerce startup founders
+Advisory Board Member Los Angeles E-commerce Association 2022 Present
+Guest Lecturer UCLA Anderson School of Management Digital Commerce Strategy Course 2022 2023
+
+PROJECTS
+
+Peak Season Platform Reliability Cascade Retail Solutions 2023
+Designed auto scaling architecture using AWS EKS Karpenter and custom predictive scaling policies to handle 12x traffic surge on Black Friday and Cyber Monday
+Implemented feature flagging dark launch strategy and progressive rollout pipeline enabling new feature deployment during active sale windows without risk
+Zero downtime achieved across entire 9 hour peak window processing 2.4M orders 18M page views and 480M in GMV in single day
+
+B2B Wholesale Commerce Portal BluePeak Technologies 2020
+End to end architecture and delivery lead for wholesale buyer portal supporting 800+ accounts and 45M annual GMV
+Delivered complex requirements including tiered pricing matrices contract specific product visibility net payment terms and CSV bulk order upload
+Integration with SAP S4 HANA for real time credit limit checking inventory availability and automated invoice generation
+Achieved 98 percent buyer adoption rate within 3 months of launch replacing manual phone and email order processes entirely
+
+Headless Replatforming Cascade Retail Solutions 2022
+Led 14 month program replacing 8 year old Magento 2 monolith serving 2 brand storefronts with Composable Commerce stack
+Coordinated delivery across 4 engineering squads system integrator 3 SaaS platform vendors and internal IT teams
+Delivered 68 percent page load improvement 99.99 percent uptime during first peak season and 15 percent conversion rate lift within 90 days post launch

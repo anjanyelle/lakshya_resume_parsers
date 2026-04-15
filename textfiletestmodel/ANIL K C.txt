@@ -1,0 +1,183 @@
+ANIL K C
+SENIOR FULL STACK DEVELOPER
+ LinkedIn | Email: siranilworkspace92@gmail.com | Mobile: 260-255-4858
+________________________________________
+PROFESSIONAL SUMMARY
+•	Senior Full Stack Developer with 11 years of experience in delivering enterprise scale applications using Java, J2EE, and Spring Boot, supporting complex business workflows across multiple domains and platforms.
+•	Engineered resilient payment platforms by designing multi-currency transaction flows, fraud detection pipelines, and secure APIs using Java, Spring Boot, Kafka, OAuth2, and SSL/TLS, while ensuring observability, fault isolation, and compliance across globally distributed banking systems.
+•	Revitalized high-traffic retail pricing ecosystems by delivering responsive user interfaces and stable backend services through React, Spring Boot, REST, and JSON, enabling accurate promotions, consistent API behavior, and scalable workflows supporting nationwide retail operations.
+•	Strengthened regulated pharmacy and healthcare platforms by modernizing legacy processing pipelines with Java, Spring Framework, Hibernate, and JPA, improving prescription reliability, data integrity, and transactional consistency across enterprise healthcare systems.
+•	Architected scalable service layers by structuring modular business logic, persistence boundaries, and transactional flows using Spring MVC, Spring AOP, Hibernate, and JDBC, ensuring maintainable codebases aligned with enterprise performance and reliability expectations.
+•	Delivered secure system integrations by designing contract-driven interfaces with REST, GraphQL, SOAP, JSON, and XML, enabling reliable communication between internal platforms, financial partners, and external enterprise services.
+•	Implemented distributed microservice ecosystems using Microservices Architecture, Spring Boot, Micronaut, and Dapr, standardizing service invocation, retries, pub/sub messaging, and state management while isolating business logic from infrastructure concerns.
+•	Supported financial data reconciliation and automation pipelines by developing backend workflows with Python, Apache Spark, and Scala, integrating batch and distributed processing seamlessly alongside Java-based enterprise systems.
+•	Advanced real-time processing capabilities by applying Apache Kafka and Apache Flink for event streaming, low-latency analytics, and asynchronous workflows, ensuring reliable message delivery and scalable stream consumption across distributed platforms.
+•	Enabled enterprise messaging and system orchestration by integrating RabbitMQ, ActiveMQ, IBM MQ, and Apache Camel, facilitating message routing, transformation, and interoperability across modern microservices and legacy enterprise environments.
+•	Standardized enterprise integrations by implementing API-led connectivity with MuleSoft, REST, and OAuth2, enabling loosely coupled B2B exchanges, secure data movement, and scalable service orchestration across heterogeneous systems.
+•	Delivered modern web applications by building accessible, responsive interfaces using React, Angular, Vue, JavaScript, HTML, and CSS, aligning usability standards with performance optimization and consistent design systems.
+•	Optimized relational data platforms by designing schemas, tuning queries, and enforcing integrity using Oracle, PostgreSQL, and SQL Server, supporting high-volume transactional workloads and enterprise analytics requirements.
+•	Expanded data scalability strategies by applying distributed data models with MongoDB and Cassandra, enabling horizontal growth, high availability, and resilient access patterns across transactional and analytical enterprise workloads.
+•	Modernized legacy enterprise applications by migrating Struts and JSF implementations into Spring Framework architectures, improving maintainability, security controls, and long-term scalability without disrupting ongoing business operations.
+•	Automated delivery pipelines by integrating Jenkins, GitHub Actions, GitLab CI/CD, Azure DevOps, and AWS CodePipeline, enabling consistent build, test, and deployment workflows across regulated enterprise environments.
+•	Deployed cloud-native services by orchestrating containerized workloads with Docker, Kubernetes, OpenShift, and Helm, supporting portable, scalable runtime environments across multi-region production clusters.
+•	Operated enterprise systems across public cloud platforms using AWS, EC2, EKS, S3, RDS, IAM, CloudWatch, Azure, and GCP, ensuring availability, security governance, monitoring, and cost-aware operations.
+•	Provisioned and governed infrastructure through Terraform and Infrastructure as Code practices, delivering repeatable, auditable deployments aligned with enterprise security, compliance, and multi-cloud architectural standards.
+•	Strengthened production stability by implementing logging, monitoring, and diagnostics using Log4j, Logback, and observability practices on Red Hat Enterprise Linux, supporting rapid incident response and root cause analysis.
+•	Led enterprise iOS initiatives by delivering secure, reactive mobile applications using Swift, SwiftUI, RXSwift, Combine, XCTest, and CocoaPods, applying clean architecture, modern UI patterns, and rigorous testing across financial-grade mobile platforms.
+
+
+TECHNICAL SKILLS
+Programming Languages: Java/J2EE, Swift, Objective-C, C/C++, SQL, PL/SQL, Python, Scala, JavaScript (ES6), TypeScript
+Java Technologies: Core Java, Spring Framework 6 (Spring Boot, Spring MVC, Spring Core, Spring Security), J2EE, JSP, Servlets, Struts, JSTL, JDBC, Hibernate, JPA, JSON, XML, Web Services (RESTful & SOAP), WebSocket, JAX-RS
+Mobile Technologies (iOS): Swift, SwiftUI, UIKit, iOS SDK, Combine, RXSwift, ReactiveSwift, Async/Await, CoreData, Keychain, Secure Enclave, CocoaPods, Swift Package Manager, XCTest, XCUITest, Storyboards, XIB, Auto Layout, Size Classes, TouchID, FaceID, Wallet APIs, Visa SDKs, Secure Payments SDKs
+Web Technologies: HTML5, Bootstrap, CSS3, JavaScript, jQuery, AJAX, Angular, Vue.js, Vuex, Vuetify, React, React Router, Redux, NodeJS, GraphQL (Apollo Client), JSON, XML, SOAP, JSTL
+Web/Application Servers: Apache Tomcat, Jetty, IBM WebSphere, WebLogic, AWS Elastic Beanstalk
+Microservices & Distributed Systems: Microservices Architecture, Dapr, Spring Boot, Kubernetes, Docker, Service Mesh Concepts, Event-Driven Architecture, AWS Lambda, AWS API Gateway, AWS SNS
+Databases: MySQL, PostgreSQL, Oracle, SQL Server, MongoDB, Cassandra, Redis, AWS S3
+Cloud Computing: AWS (EC2, S3, RDS, Lambda, API Gateway, CloudWatch, SNS, Elastic Beanstalk, ELB, EFS), Azure (App Service, AKS, Functions, Blob Storage, DevOps), GCP
+Messaging & Streaming: Apache Kafka, Kafka Streams, Apache Flink, RabbitMQ, IBM MQ, Apache Camel, gRPC
+DevOps & CI/CD Tools: Docker, Kubernetes, OpenShift, Helm, Terraform, Jenkins, GitHub Actions, Maven, Gradle, Git, GitHub, Azure DevOps, TestFlight
+Testing Tools: JUnit 5, TestNG, Mockito, Jest, Cypress, Selenium, Mocha, Integration Testing, Regression Testing, Penetration Testing Awareness
+Observability & Monitoring: Datadog, Firebase Analytics, New Relic, AWS CloudWatch, Prometheus, Grafana, Dynatrace, AppDynamics, Log4j, Xcode Instruments, LLDB, Splunk, Splunk Phantom
+Integration & API Tools: GraphQL, MuleSoft, REST API Design, API Gateway, OAuth 2.0, JWT, OpenID Connect (OIDC)
+XML Technologies: XML, SAX, DOM, XSL, WSDL, SOAP
+Methodologies & Tools: Agile Scrum, Jira, Confluence, CI/CD Pipelines, Infrastructure as Code (IaC), DORA Metrics, TDD, Pair Programming, Code Reviews, Technical Documentation
+Operating Systems: UNIX/Linux, Red Hat Enterprise Linux (RHEL), Windows 10.
+PROFESSIONAL EXPERIENCE
+Visa, Foster City, CA  	June 2023 – Current
+Sr. Full Stack Developer
+Responsibilities:
+•	Architected and launched enterprise-grade iOS applications for banking platforms using Swift and SwiftUI, delivering customer-facing features for account management, fund transfers, and transaction history while implementing Clean Architecture principles with PCI-DSS compliance controls and SOX audit requirements through UIKit frameworks and iOS SDK components across scalable mobile banking solutions.
+•	Drove development of mobile wallet integrations using Visa SDKs, Wallet APIs, and POS Integrations with RXSwift, ReactiveSwift, and Combine reactive frameworks to manage asynchronous completion blocks and multi-threaded processes for real-time payment processing while maintaining Secure Payments SDKs integration and PCI-DSS compliance throughout transaction lifecycle with SOX awareness for financial audits.
+•	Transformed legacy codebases through comprehensive refactoring across large-scale iOS projects with complex dependencies using Swift Package Manager, migrating monolithic systems to Microservices Architecture patterns with AWS API Gateway, AWS Lambda, and Event-Driven Systems while applying Object-Oriented Programming, Protocol-Oriented Programming, and Functional Programming paradigms to reduce technical debt.
+•	Engineered UI components through deep understanding of View Controller lifecycle, designing interfaces using storyboards, XIB files, and programmatic UIKit code while building reusable SwiftUI components for consistent banking experiences and ensuring GDPR and Data Privacy Handling compliance through secure session management, Role-Based Access Control, and Zero Trust Architecture principles.
+•	Constructed full stack solutions integrating React Native with native iOS modules using Bridge Modules and JavaScript, enabling cross-platform feature parity while maintaining native performance for critical banking operations through React, React Router, and Redux state management with GraphQL APIs communicating with backend Microservices deployed on AWS EC2 and AWS S3.
+•	Resolved production issues identified by QA using XCTest and XCUITest frameworks, implementing quality assurance through SonarQube code analysis, Penetration Testing awareness, and Threat Modeling for security vulnerabilities while maintaining Audit Logging for user actions and system events supporting SOX compliance requirements and forensic analysis capabilities across banking applications.
+•	Collaborated actively in agile delivery workflows including sprint planning, daily standups, retrospectives, and backlog grooming using Jira for story tracking and Confluence for technical documentation while mentoring junior engineers on iOS development best practices, Swift coding standards, SwiftUI declarative syntax, and reactive programming patterns using RXSwift and Combine frameworks.
+•	Introduced performance monitoring solutions including Firebase Analytics and New Relic for real-time application insights enabling data-driven optimization and crash analysis while implementing AWS SNS for push notification delivery and leveraging iOS SDK native capabilities for enhanced user engagement in mobile banking applications with comprehensive tracking mechanisms.
+•	Established CI/CD pipelines using Jenkins and Git for automated build, test, and deployment workflows, implementing quality gates with XCTest unit testing coverage, XCUITest UI automation, and SonarQube static analysis to ensure code quality before production releases while maintaining SOX compliant change management documentation and approval processes.
+•	Delivered secure payment systems integrating Visa SDKs and Secure Payments SDKs with PCI-DSS compliance controls including tokenization, encryption at rest and in transit using AWS services while designing Event-Driven Systems using AWS Lambda functions triggered by AWS API Gateway endpoints to process transactions and maintain Audit Logging for regulatory reporting.
+•	Created scalable solutions for banking problems including account aggregation, bill payment scheduling, and peer-to-peer transfers using Swift and SwiftUI, implementing Combine reactive framework to handle complex data flows and asynchronous completion blocks while maintaining GDPR compliance through Data Privacy Handling, consent management, and right-to-deletion workflows integrated with backend Microservices Architecture.
+•	Executed modernization initiatives on legacy code within large-scale iOS projects, transitioning deprecated UIKit patterns to SwiftUI declarative syntax, replacing callback-based networking with Combine publishers, and implementing Clean Architecture with defined layers for presentation, domain, and data access while ensuring backward compatibility during incremental migration phases.
+•	Implemented custom View Controller transitions, container view controllers, and complex navigation flows for multi-step banking processes including loan applications using storyboards for rapid prototyping and programmatic UIKit code for dynamic interfaces while ensuring accessibility compliance and responsive design across iOS device sizes with SwiftUI components.
+•	Evaluated and adopted latest iOS development patterns including SwiftUI features, async/await concurrency model replacing traditional RXSwift patterns where appropriate, and modern Swift Package Manager dependency management while demonstrating ability to adopt new technologies quickly meeting evolving business requirements in competitive banking sector with iOS SDK capabilities.
+•	Integrated full stack capabilities developing React Native components communicating with native Swift modules through Bridge Modules, implementing secure GraphQL queries using Apollo Client fetching customer data from AWS Lambda functions, and managing application state with Redux while ensuring PCI-DSS compliant data handling practices throughout technology stack.
+•	Established Role-Based Access Control and Zero Trust Architecture security models within iOS applications, validating user permissions using JWT tokens, enforcing Secure Session Handling with automatic timeout mechanisms, and integrating biometric authentication using iOS SDK TouchID and FaceID capabilities while maintaining SOX awareness through comprehensive Audit Logging of privileged operations.
+•	Delivered core features for mobile check deposit, card management, and transaction dispute resolution using Swift and SwiftUI, implementing multi-threaded processes for image processing and OCR functionality, integrating with Wallet APIs for digital card provisioning, and utilizing AWS S3 for secure document storage with encryption coordinated with QA teams.
+•	Conducted technical design reviews, presenting architectural decisions to stakeholders, documenting API contracts and integration patterns in Confluence, and sharing knowledge through code reviews focused on reactive programming concepts, Protocol-Oriented Programming design patterns, and Clean Architecture implementation strategies using RXSwift and Combine for iOS development teams.
+•	Mentored junior engineers on advanced iOS concepts including View Controller lifecycle management, memory management with ARC, asynchronous completion blocks error handling, reactive frameworks operator chaining using RXSwift and Combine, and proper implementation of Object-Oriented Programming, Protocol-Oriented Programming, and Functional Programming paradigms within banking application contexts.
+•	Validated quality assurance through comprehensive testing strategies including XCTest unit tests with high coverage, XCUITest end-to-end automation for critical user journeys, integration testing with mock AWS services, SonarQube continuous inspection for code quality and security vulnerabilities, and exploratory testing coordinated with QA teams using Jira and Git version control.
+•	Optimized backend integration using Java microservices deployed on AWS EC2 instances communicating with iOS applications through AWS API Gateway REST endpoints, implementing secure data synchronization with AWS S3 storage buckets and AWS Lambda serverless functions while maintaining PCI-DSS compliance and utilizing AWS SNS for event-driven notifications across distributed banking systems.
+
+Environment: Swift, SwiftUI, Clean Architecture, PCI-DSS, SOX, UIKit, iOS SDK, Visa SDKs, Wallet APIs, POS Integrations, RXSwift, ReactiveSwift, Combine, Secure Payments SDKs, Swift Package Manager, Microservices Architecture, AWS API Gateway, AWS Lambda, Event-Driven Systems, Object-Oriented Programming, Protocol-Oriented Programming, Functional Programming, GDPR, Data Privacy Handling, Role-Based Access Control, Zero Trust Architecture, React Native, Bridge Modules, JavaScript, React, React Router, Redux, GraphQL APIs, AWS EC2, AWS S3, XCTest, XCUITest, SonarQube, Penetration Testing, Threat Modeling, Audit Logging, Jira, Confluence, Firebase Analytics, New Relic, AWS SNS, CI/CD, Jenkins, Git, Secure Session Handling, Java.
+
+Home Depot, Location: Atlanta, GA	August 2020 – May 2023
+Sr. Java Full Stack Developer
+Responsibilities:
+•	Delivered enterprise retail iOS applications by implementing scalable customer workflows for browsing, cart management, and checkout using Swift, SwiftUI, and Combine, integrating secure payment flows, real-time data synchronization, and multi-threaded processing while meeting PCI-DSS requirements during peak traffic periods.
+•	Owned core mobile architectures by designing modular feature pipelines with SwiftUI, Clean Architecture, Combine, and protocol abstractions, separating presentation, domain, and data layers while maintaining deep control over navigation, state management, and lifecycle handling across complex retail journeys.
+•	Refactored legacy mobile platforms by migrating monolithic Objective-C codebases into modular Swift architectures using MVC, MVVM, and SwiftUI, preserving payment tokenization logic, backward compatibility, and uninterrupted production availability throughout phased modernization efforts.
+•	Diagnosed and stabilized production issues by tracing memory leaks, crashes, and latency using Xcode Instruments, LLDB, and Datadog, strengthening asynchronous error handling across Combine pipelines and multi-threaded operations to improve application resilience during high-demand retail events.
+•	Implemented hybrid mobile features by integrating React Native with native Swift modules through custom bridge layers, enabling shared logic while preserving native performance for camera access, biometric authentication, and secure storage managed via CocoaPods dependencies.
+•	Designed adaptive interfaces by building reusable components with SwiftUI, Storyboards, XIB, Auto Layout, and Size Classes, ensuring consistent branding, accessibility compliance, dynamic type support, and optimized rendering across iPhone and iPad device families.
+•	Integrated mobile applications with backend services hosted on Azure App Service and Azure AKS by consuming REST APIs using URLSession, Combine, and OAuth2, implementing encrypted communication, token handling, and secure credential storage via Keychain.
+•	Ensured application quality by validating business logic with XCTest, JUnit, and PMD, aligning secure coding practices with OWASP Mobile Top 10 while testing payment, inventory, and session workflows shared between Swift and Java backend services.
+•	Contributed within agile delivery models by collaborating through Azure DevOps, Trello, and Notion, mentoring junior engineers on Swift, SwiftUI, and Combine, and reinforcing code quality via reviews, architectural discussions, and shared development standards.
+•	Implemented advanced state synchronization by orchestrating Combine publishers with CoreData, Azure Blob Storage, and Azure Functions, enabling offline-first inventory and order workflows with consistent reconciliation between local persistence and cloud-driven backend events.
+•	Developed compliant payment workflows by integrating third-party SDKs through Swift wrappers, applying PCI-DSS and GDPR safeguards, enforcing tokenization, certificate pinning, and encrypted transport to protect sensitive transaction and identity data across mobile retail systems.
+•	Optimized mobile performance by analyzing runtime metrics with Datadog, refining network behavior, memory usage, and background execution while implementing caching, pagination, and lazy loading strategies within SwiftUI collection views displaying large retail catalogs.
+•	Automated mobile delivery pipelines by configuring Azure DevOps, Git, XCTest, and Mocha, managing code signing, provisioning profiles, and TestFlight deployments while enforcing quality gates through pull requests and pre-merge validation checks.
+•	Modernized concurrency models by transitioning callback-driven APIs to structured concurrency using Swift, Combine, and Async/Await, presenting architectural proposals informed by WWDC insights to improve responsiveness, maintainability, and long-term platform evolution.
+•	Built resilient data synchronization pipelines by coordinating Combine reactive streams with Azure Functions event triggers, implementing retries, exponential backoff, and offline queues to guarantee reliable inventory updates and order notifications during network instability.
+•	Applied domain-driven boundaries by implementing Clean Architecture, dependency injection, and protocol-based abstractions in Swift, encapsulating cart, wishlist, and checkout logic independent of SwiftUI, enabling testability and future UI framework migrations.
+•	Enforced mobile security posture by auditing applications against OWASP Mobile Top 10, applying code obfuscation, jailbreak detection, Secure Enclave, and biometric authentication while maintaining compliance across regulated retail and European data protection environments.
+•	Sustained large-scale mobile platforms by managing dependencies with CocoaPods and Swift Package Manager, modularizing internal frameworks, reducing build times, and coordinating shared libraries across applications exceeding hundreds of thousands of lines of Swift code.
+
+Environment: Swift, SwiftUI, Combine, Async/Await, Objective-C, MVC, MVVM, Clean Architecture, Protocol-Oriented Programming, Core Data, React Native, CocoaPods, Swift Package Manager, Storyboards, XIB, Auto Layout, Size Classes, URLSession, REST APIs, OAuth2, Keychain, Azure App Service, Azure AKS, Azure Functions, Azure Blob Storage, Azure DevOps, Git, TestFlight, XCTest, JUnit, PMD, OWASP Mobile Top 10, Datadog, Xcode Instruments, LLDB, Secure Enclave, Java, PCI-DSS, GDPR, Mocha.
+
+
+
+CVS, Woonsocket, RI	October 2017 – July 2020
+Full Stack Developer
+Responsibilities:
+•	Practiced Agile Scrum delivery using paired programming and TDD, contributing across requirements, development, testing, and release phases to ensure predictable sprint execution and timely healthcare feature delivery.
+•	Defined backend domain workflows using Spring MVC supporting evolving healthcare regulations and pharmacy business rules while Spring MVC layers isolated logic preserved extensibility prevented tight coupling across regulated application modules.
+•	Enforced application workflows aligned with HIPAA, PHI, and prescription adjudication requirements, ensuring compliant transaction processing, audit traceability, and consistent state handling across pharmacy dispensing, insurance claims, and billing.
+•	Formalized ORM using Hibernate, tuning fetch strategies and transaction boundaries for stability under sustained request volume. Hibernate persistence remained portable testable consistent across development staging and production environments.
+•	Modernized front-end by aligning REST APIs with Angular consumption patterns, defining stable payload contracts to preserve backward compatibility while reducing UI–backend coupling during phased migration of prescription and refill workflows.
+•	Structured frontend feature modules using Vue.js, emphasizing component isolation and predictable state transitions across prescription and refill screens while applying reactivity patterns to improve responsiveness efficiently.
+•	Centralized client-side state using Vuex enforcing unidirectional flow to reduce regression risk simplify debugging and maintain UI stability across complex pharmacy screens while Vuetify components enforced consistent design accessibility standards.
+•	Delivered production backend services using Spring Boot with embedded Tomcat and Jetty runtimes standardizing startup behavior configuration management and health checks improving deployment reliability predictability and runtime consistency.
+•	Secured application endpoints using Spring Security, applying XML-based role definitions aligned to enterprise IAM standards to enforce least-privilege access consistently across service boundaries and regulated pharmacy workflows.
+•	Automated build, test, and deploy pipelines using Jenkins CI/CD, enforcing controlled approvals, consistent artifact generation, and reliable releases across regulated pharmacy environments with strict compliance requirements.
+•	Centralized application, security, and transaction logs using Splunk, enabling real-time visibility into prescription workflows, API failures, authentication events, and audit trails required for compliance and operational troubleshooting at scale.
+•	Implemented automated security incident response using Splunk Phantom, orchestrating alert enrichment, ticket creation, and containment actions triggered by Splunk detections, reducing manual effort and improving response consistency across systems.
+•	Integrated SOAP and REST services using JAX-RS, designing service contracts resilient to partial failures while maintaining interoperability across heterogeneous healthcare platforms and downstream partner systems.
+•	Improved JVM stability through proactive memory profiling and heap tuning, identifying leak patterns and garbage collection pressure under peak pharmacy workloads, resolving long-running degradation issues impacting uptime.
+•	Processed structured XML, CSV data using Apache Camel with JAXB, StAX, and Bindy, optimizing transformation pipelines for throughput and fault tolerance supporting batch and near-real-time healthcare data ingestion workloads.
+•	Implemented fault-tolerant recovery strategies across Apache Camel and service integrations, applying retries, dead-letter routing, and controlled reprocessing to preserve data integrity during transient partner and network failures.
+•	Engineered NoSQL persistence using MongoDB, modeling JSON documents for high-volume transactional access while balancing schema flexibility with indexing and query performance constraints under sustained production load.
+•	Introduced distributed caching for reference healthcare data, including drug catalogs and eligibility rules, reducing repeated database access. Cache invalidation strategies aligned with regulatory updates and ensured consistency across workflows.
+•	Planned phased migration of legacy services to AWS EC2 Auto Scaling prioritizing low risk healthcare domains while migrating transactional data to AWS RDS preserving integrity and introducing secure artifact storage using AWS S3.
+•	Centralized logging and monitoring after migration using AWS CloudWatch consolidating application and infrastructure signals to improve issue detection root cause analysis and operational visibility across healthcare environments via AWS CloudWatch
+
+Environment: Java 8, Spring MVC, Spring Boot , Spring Security, Hibernate, JAX-RS, Apache Camel, Vue.js 2, Vuex, Vuetify, HTML5, CSS3, JavaScript (ES6), RESTful APIs, SOAP Web Services, XML, XSD, JSON, MongoDB, SQL, Apache Airflow, Groovy, Tomcat, Jetty, Maven, Git, Jenkins, Splunk, Splunk Phantom, Agile Scrum, AWS (EC2, RDS, S3, CloudWatch)
+
+
+Southwest Airlines, Dallas, TX	December 2015 – September 2017
+Java Developer 
+Responsibilities: 
+•	Developed dynamic airline operation screens using JSP, JSTL, Servlets, HTML5, JavaScript, jQuery, DOJO, and Struts Tiles, maintaining consistent backend integration and predictable user interaction flows.
+•	Established layered web structure using Spring MVC and Spring Core, separating controllers, services, and data access while enforcing consistent request handling and view resolution to improve maintainability across airline operational modules.
+•	Applied Spring IoC and dependency injection across Controller, Service, and DAO layers, standardizing configuration-driven wiring, reducing runtime coupling, and enabling isolated validation of components.
+•	Refactored airline business workflows using Core Java and Java Collections, aligning domain execution with Spring MVC patterns. In-memory processing paths were optimized for deterministic behaviour under operational transaction loads.
+•	Introduced early Spring Boot service components to modularize backend capabilities selectively. Deployment cycles improved while preserving monolithic stability. Service boundaries were defined conservatively to prevent premature fragmentation.
+•	Structured MongoDB storage behavior by defining collections and indexes from real access patterns, keeping application logic, query performance, and data consistency aligned under operational workloads.
+•	Built enterprise integrations using SOAP Web Services with XML scripts, defining strict XSD schemas to ensure secure, backward-compatible communication between airline systems with predictable behavior.
+•	Standardized build and delivery workflows using Maven and Gradle, integrating Jenkins for continuous validation across environments. Repeatable builds, controlled promotions, and early defect detection were maintained.
+•	Implemented centralized logging using Log4j, defining structured log levels and formats to support production troubleshooting, auditing requirements, and cross-tier correlation during operational incident analysis.
+•	Supported early cloud deployments using AWS EC2, ELB, and RDS (SQL Server), aligning infrastructure choices with availability, compliance, and operational maturity constraints, while Stability and predictability were prioritized.
+•	Enabled AWS CloudWatch for defining alarms and thresholds from observed production behavior, improving incident response accuracy, reducing alert fatigue, and supporting clearer operational decision-making during peak usage periods.
+•	Utilized AWS Elastic Beanstalk for managed deployments and selectively applied AWS Lambda for isolated automation tasks, keeping serverless usage constrained to avoid operational complexity, fragmented ownership, and unpredictable runtime behavior.
+•	Executed phased migration of legacy workloads to AWS using controlled cutovers and rollback strategies, keeping airline operations stable while balancing cost efficiency, reliability expectations, and adoption of cloud-native infrastructure patterns.
+•	Upgraded secure object and file storage using Amazon S3, aligning durability, access frequency, and retention needs while supporting internal operational dashboards through Apache HTTP Server with controlled access patterns.
+•	Integrated Apache Kafka for real-time event streaming where asynchronous processing was required across airline platforms. Event-driven flows enabled decoupled data exchange, reduced synchronous dependencies, and supported reliable operational message delivery while maintaining predictable behavior under fluctuating traffic.
+Environment: Core Java (Java 8), J2EE, Spring Core, Spring MVC, Spring Boot (early adoption), Servlets, JSP, JSTL, Struts Tiles, HTML5, CSS3, JavaScript, jQuery, Dojo Toolkit, AJAX, SOAP Web Services, XML, XSD, MongoDB, SQL Server (Amazon RDS), Apache Kafka, Maven, Gradle, Jenkins, SVN, Log4j, AWS CloudWatch, AWS EC2, Elastic Load Balancer (ELB), Amazon RDS, Amazon S3, Amazon EFS, AWS Elastic Beanstalk, AWS Lambda, Apache HTTP Server.
+
+
+Mastek, Mumbai, India	May 2014 – October 2015
+Java Developer 
+Responsibilities: 
+•	Applied Spring MVC to structure controller request flows and reusable view components while following existing architectural conventions. Separation between presentation logic and backend processing was consistently reinforced.
+•	Contributed to features development using Java, JSP, Servlets, Struts, and Hibernate, implementing scoped changes under senior guidance Enhancements followed standards, respected patterns, and reinforced consistency across modules using Spring MVC.
+•	Implemented persistence behavior using Hibernate, mapping entities and supporting CRUD operations while reducing direct SQL usage. Transaction boundaries and session handling practices were applied carefully to maintain predictable data access consistency, and stability during iterative development and testing cycles.
+•	Supported relational data activities using MySQL, PostgreSQL, and Oracle, assisting with schema updates, validation scripts, test data preparation, and performance checks. Changes preserved data integrity, consistency, and referential accuracy across development and testing environments through structured review and controlled execution processes.
+•	Participated in Agile ceremonies including stand-ups, sprint planning, and retrospectives. Progress updates and blockers were communicated early, supporting team coordination and incremental delivery discipline
+•	Tracked assignments and sprint documentation using JIRA and Confluence, updating task status consistently. Artifacts improved work visibility, supported onboarding, and preserved shared knowledge across distributed teams.
+•	Developed automated test cases using JUnit and TestNG, validating core logic paths and boundary conditions. Consistent test execution reduced regression risk and strengthened confidence in incremental feature changes.
+•	Assisted functional testing workflows using Selenium and participated in Jenkins-driven CI pipelines. Build failures and test issues were analyzed and resolved, reinforcing early exposure to continuous integration.
+
+Environment: Java, JSP, Servlets, Struts, Spring MVC, Hibernate, MySQL, PostgreSQL, Oracle, JUnit, TestNG, Selenium, Jenkins, JIRA, Confluence, Agile
+
+
+
+
+CERTIFICATIONS: 
+
+• SAPCertified Application Associate: S/4HANA Sales & SCM (2023) 
+• SAPCertified Professional: S/4HANA Implementation Lead (SAP Activate) 
+• SAPCertified Development Associate: ABAP with SAP NetWeaver 7.5 
+• SAPCertified Technology Associate: SAP HANA 2.0 SPS05 
+• PMP:Project Management Professional– Project Management Institute (PMI) 
+• LeanSix Sigma Black Belt (Focus on Manufacturing Process Optimization) 
+• TOGAF9.2Certified Enterprise Architect
+
+
+
+
+
+
+EDUCATION
+Bachelor of Technology: Computer Science Engineering	2010 – 2014
+Bapatla Engineering College, India
+

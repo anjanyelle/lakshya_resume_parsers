@@ -1,0 +1,7 @@
+Oshin Kapoor
+{Company: Publicis Sapient Delhi} {Role: Lead Backend Engineer} {Duration: October 2015 to present} {Client: KPMG UK London UK}
+{Company: Sapient Corporation Gurgaon} {Role: Kotlin Developer} {Duration: August 2013 - July 2015} {Client: KPMG Australia Sydney Australia}
+{Company: TCS Mumbai} {Role: Graduate Software Engineer} {Duration: April 2011 - March 2013} {Client: Amazon Web Services Seattle USA}
+{Company: Nucleus Software Noida} {Role: Technology Graduate Trainee} {Duration: December 2010 - June 2011} {Client: ComfortDelGro Singapore}
+{Degree: MBA Information Technology} {Institute: Anna University Chennai} {Year: October 2010 to February 2012} {CGPA: 8.2}
+{Degree: B.E. Information Science} {Institute: VTU Bangalore} {Year: August 2006 to August 2010} {Score: 73.6%}

@@ -1,0 +1,70 @@
+================================================================================
+RAJAT LODHI
+Software Quality Assurance Engineer
+================================================================================
+Phone: +91-9977418195
+Email: rajatlodhi1804@gmail.com
+Location (Current)  : Bhawar Kuaa, Indore (M.P.)
+Location (Permanent): 91k, Indira Colony, Nevri, Distt-Dewas (M.P.) – 455223
+
+OBJECTIVE
+Dedicated and detail-oriented Software Quality Assurance Engineer with a strong background
+in web and mobile application testing. Seeking to leverage skills and expertise to ensure
+top-notch software quality while collaborating with a dynamic team.
+
+EXPERIENCE
+
+Software Quality Assurance Engineer | Paragon Business Solutions Ltd., Indore
+January 2023 – May 2024
+- Primarily responsible for CasaDigi, a home automation system.
+- Conducted manual testing for iOS, Android mobile, and web applications.
+- Wrote user stories and prepared comprehensive test scenarios.
+- Executed test cycles to ensure software quality and reliability.
+- Involved in IoT integrations, Linux, GraphQL, and Google Firebase testing.
+
+Software Quality Assurance Intern | Paragon Business Solutions Ltd., Indore
+September 2021 – December 2022
+- Actively participated in all QA tasks from the start of internship.
+
+PROJECT: CasaDigi (PBSL, Indore) | September 2021 – May 2024
+Total tenure: 2.9 years
+- Participated in initial requirement meetings and conducted feature dry runs.
+- Documented major and minor benefits and limitations of each feature.
+- Crafted user stories from end-user perspective.
+- Designed comprehensive test plans and created detailed test cases.
+- Key features owned:
+  * CasaDigi 3.0
+  * CasaDigi Studio
+  * CasaDigi iPad apps
+  * CasaDigi Meeting app
+  * CasaDigi 4.0:
+    - CasaDigi Studio
+    - Preparation of CasaDigi Home Server
+    - Single-home user operations
+    - Multi-home user operations
+    - UAC implementations
+    - CasaDigi room automation
+    - CasaDigi media automation
+    - CasaDigi Services
+    - CasaDigi Air troubleshooting
+
+CORE COMPETENCIES
+Manual Testing, Mobile Application Testing, Web Application Testing, Test Planning,
+Test Case Designing, Agile Methodology, User Story Writing
+
+TECHNICAL SKILLS
+Appium, Linux, GraphQL Testing, Internet of Things (IoT)
+
+QUALITATIVE SKILLS
+- Problem Solving: identifying issues, analyzing causes, and implementing effective solutions.
+- Adaptability and Resilience: ability to thrive in challenging and dynamic environments.
+- Teamwork and Leadership: strong teamwork skills with capability to lead group activities.
+- Continuous Learning: passion for continuous learning and adapting to new technologies.
+
+EDUCATION
+B.Tech – CSE | Chameli Devi Group of Institutes, Indore | Aug 2019 – Jun 2023 | CGPA: 8.0
+12th Grade | Himalaya Public School, Nevri | Jul 2018 – Apr 2019 | 64% (MP Board)
+10th Grade | Himalaya Public School, Nevri | Jul 2016 – Apr 2017 | 78% (MP Board)
+
+LANGUAGES: English, Hindi
+DOB: April 18, 2000 | Marital Status: Married

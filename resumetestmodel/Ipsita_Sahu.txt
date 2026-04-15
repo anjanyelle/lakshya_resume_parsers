@@ -1,0 +1,7 @@
+Ipsita Sahu
+#Company: Mphasis Mumbai #Role: Senior BI Developer #Since: 11/2019 #Client: GlaxoSmithKline London UK
+#Company: Prodapt Solutions Chennai #Role: Azure Developer #Period: 02/2017 - 09/2019 #Client: BT Group London UK
+#Company: Mastech Digital Mumbai #Role: Junior Full Stack Developer #Period: 12/2014 - 04/2017 #Client: Temasek Holdings Singapore
+#Company: Ramco Systems Chennai #Role: QA Intern #Period: 06/2012 - 02/2014 #Client: AT&T Dallas USA
+#Degree: M.Tech Digital Transformation #College: IIT Madras #Year: 11/2012 to 06/2014 #CGPA: 9.2
+#Degree: B.E. Information Technology #College: Vasavi College Hyderabad #Year: 10/2008 to 02/2012 #Score: 89.4%

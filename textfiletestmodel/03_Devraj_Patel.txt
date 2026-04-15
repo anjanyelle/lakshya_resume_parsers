@@ -1,0 +1,155 @@
+DEVRAJ PATEL
+
+PRINCIPAL DATA ARCHITECT | ML ENGINEERING LEADER | 14+ YEARS
+
+devraj.patel@datacraft.io
++1 (214) 555-0391
+Dallas, TX
+linkedin.com/in/devrajpatel
+github.com/devrajpatel
+
+14+ Years Experience
+$35M TCO Savings
+100+ Engineers Led
+5 Industries
+
+
+EXECUTIVE SUMMARY
+
+Principal Data Architect and ML Engineering Leader with 14 years delivering enterprise data transformation programs for financial services, healthcare, and logistics companies.
+
+Expert in designing scalable cloud-native data architectures on Snowflake, AWS, and Azure that support AI/ML at scale.
+
+Track record leading 100+ engineer data platform teams, managing $30M+ budgets, and achieving $50M+ in annual cost savings.
+
+Recognized speaker at Strata, DataCouncil, and Snowflake Summit.
+
+Open-source contributor with dbt and Kafka tools.
+
+
+PROFESSIONAL EXPERIENCE
+
+PRINCIPAL DATA ARCHITECT
+Wells Fargo | Charlotte, NC | Feb 2021 - Present
+
+Client: Wells Fargo
+Domain: Financial Services, Regulatory Compliance
+
+- Defined 5-year enterprise data strategy migrating 3,000+ workloads from Teradata to Snowflake with $35M savings.
+- Established DataOps platform using dbt, GitHub Actions, Airflow enabling fast deployments with 99.9% reliability.
+- Designed real-time regulatory reporting pipeline processing 100M+ daily transactions.
+- Built ML platform integrating Snowflake Cortex, MLflow, SageMaker enabling 40 deployments annually.
+- Led data governance using Collibra achieving 95% data coverage and ISO 27001 compliance.
+- Managed team of 35 engineers with high retention and internal promotions.
+- Reduced Snowflake cost by $4.2M annually through optimization.
+- Implemented security and compliance for PCI-DSS, GLBA, CCPA.
+- Designed identity management using Okta SSO.
+
+Environment:
+Snowflake, dbt, Kafka, PySpark, MLflow, SageMaker, AWS, Collibra, Airflow, Terraform
+
+
+SENIOR DATA ENGINEER - LEAD
+CVS Health | Woonsocket, RI | Apr 2018 - Jan 2021
+
+Client: CVS Health
+Domain: Healthcare, Pharmacy Analytics
+
+- Built clinical data platform ingesting 2B+ patient records.
+- Developed real-time prescription monitoring system with sub-second latency.
+- Created NLP pipeline using spaCy and BERT reducing costs by $8M.
+- Designed Snowflake data sharing for secure collaboration.
+- Built 800+ dbt models supporting analytics.
+- Developed patient 360 data platform for 20M+ members.
+
+Environment:
+Snowflake, AWS Kinesis, Lambda, spaCy, BERT, dbt, Python, PySpark, Airflow
+
+
+DATA ENGINEER
+FedEx | Memphis, TN | Jul 2015 - Mar 2018
+
+Client: FedEx
+Domain: Logistics, IoT
+
+- Built analytics platform processing 15M+ daily shipment events.
+- Developed ML route optimization saving $25M annually.
+- Designed streaming system handling 50,000+ events per second.
+- Created data warehouse supporting multiple analytics domains.
+
+Environment:
+GCP BigQuery, Dataflow, Pub/Sub, TensorFlow, Python, dbt, Looker
+
+
+DATA ANALYST / ETL DEVELOPER
+Deloitte Consulting | Chicago, IL | Sep 2013 - Jun 2015
+
+- Delivered 12 data engineering projects.
+- Developed Informatica ETL integrating SAP, Oracle, Salesforce.
+- Built Tableau dashboards for business insights.
+
+Environment:
+Informatica, SAP, Oracle, Tableau, SQL Server
+
+
+JUNIOR ETL DEVELOPER
+Wipro Technologies | Hyderabad, India | Jun 2011 - Aug 2013
+
+- Built ETL pipelines processing 10M+ daily records.
+- Developed SQL procedures for data transformation.
+- Supported production ETL operations.
+
+
+KEY ACHIEVEMENTS
+
+- $35M TCO Savings from Snowflake migration
+- $25M fuel savings via ML optimization
+- $8M cost reduction using NLP automation
+- 100M+ events/day real-time processing
+- 95% enterprise data governance coverage
+- 90% team retention
+
+
+TECHNICAL SKILLS
+
+Architecture:
+Data Mesh, Medallion Architecture, Lambda, Kappa, CQRS, Event Sourcing, Data Lakehouse
+
+Data Warehouse:
+Snowflake, Redshift, BigQuery, Azure Synapse, Teradata, Oracle, SQL Server
+
+Streaming:
+Kafka, Kinesis, Pub/Sub, Flink, Spark Streaming, Kafka Streams
+
+ML / AI:
+MLflow, Kubeflow, SageMaker, TensorFlow, PyTorch, spaCy, BERT
+
+Governance:
+Collibra, Alation, Monte Carlo, DataHub, Apache Atlas, dbt Tests
+
+DevOps:
+GitHub Actions, Jenkins, Terraform, Docker, Kubernetes, Helm, ArgoCD
+
+
+CERTIFICATIONS
+
+- AWS Solutions Architect Professional
+- Snowflake SnowPro Advanced Data Engineer
+- GCP Professional Data Engineer
+- Azure Data Engineer Associate
+
+
+EDUCATION
+
+M.S. Computer Science
+UT Dallas | 2013
+
+B.Tech. Information Technology
+Gujarat Technological University | 2011
+
+
+LINKS
+
+LinkedIn: linkedin.com/in/devrajpatel
+GitHub: github.com/devrajpatel
+Portfolio: devrajpatel.com

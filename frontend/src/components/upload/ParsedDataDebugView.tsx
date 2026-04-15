@@ -18,7 +18,7 @@ export default function ParsedDataDebugView({ data, candidateId }: ParsedDataDeb
 
   const formatJson = (obj: any, indent = 0): JSX.Element[] => {
     const elements: JSX.Element[] = [];
-    const indentStr = '  '.repeat(indent);
+  
 
     if (obj === null || obj === undefined) {
       return [<span key="null" className="text-gray-500">null</span>];

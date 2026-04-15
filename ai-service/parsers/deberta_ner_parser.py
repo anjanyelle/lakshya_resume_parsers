@@ -475,10 +475,11 @@ class DeBERTaNerParser:
         logger.info(f"   Text preview: {text[:300]}...")
         
         # Initialize entities with label names from trained model
+        # CRITICAL: Include both EDUCATION and INSTITUTION to handle model variations
         entities = {
             'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
-            'DATE_START': [], 'DATE_END': [],
-            'DEGREE': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
+            'START_DATE': [], 'END_DATE': [], 'DATE_START': [], 'DATE_END': [],
+            'DEGREE': [], 'EDUCATION': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
             'EDU_YEAR_START': [], 'EDU_YEAR_END': []
         }
         
@@ -695,7 +696,7 @@ class DeBERTaNerParser:
         return False
     
     def _is_valid_job_title(self, text: str) -> bool:
-        """Validate if text is a legitimate job title."""
+        """Validate if text is a legitimate job title - LESS STRICT."""
         text = text.strip()
         
         # Must be at least 3 characters
@@ -706,36 +707,26 @@ class DeBERTaNerParser:
         if self._is_person_name(text):
             return False
         
-        # Reject ONLY single-word tech names (not multi-word like "React Developer")
-        single_word_tech = ['react', 'angular', 'vue', 'node', 'python', 'java', 'django',
-                           'flask', 'spring', 'mongodb', 'sql', 'postgresql', 'mysql',
-                           'html', 'css', 'javascript', 'typescript']
-        if len(text.split()) == 1 and text.lower() in single_word_tech:
-            return False
-        
-        # Reject ONLY single-word description words
-        single_word_descriptions = ['responsive', 'scalable', 'modern', 'client', 'server',
-                                   'system', 'application', 'web', 'mobile', 'cloud',
-                                   'developed', 'building', 'working', 'basic']
-        if len(text.split()) == 1 and text.lower() in single_word_descriptions:
-            return False
-        
-        # Reject multi-word phrases that are clearly not job titles
-        invalid_phrases = ['responsive layouts', 'basic web development', 'web development',
-                          'application development', 'bug fixing', 'ui enhancements']
-        if text.lower() in invalid_phrases:
+        # Reject ONLY obvious non-titles
+        obvious_non_titles = ['responsive', 'scalable', 'modern', 'developed', 'building', 'working']
+        if len(text.split()) == 1 and text.lower() in obvious_non_titles:
             return False
         
         # Accept if it contains job title keywords
         job_keywords = ['developer', 'engineer', 'manager', 'architect', 'analyst',
                        'designer', 'consultant', 'specialist', 'lead', 'senior',
                        'junior', 'trainee', 'intern', 'director', 'coordinator',
-                       'programmer', 'administrator', 'technician']
+                       'programmer', 'administrator', 'technician', 'principal']
         if any(keyword in text.lower() for keyword in job_keywords):
             return True
         
         # Accept multi-word titles (likely legitimate)
         if len(text.split()) >= 2:
+            return True
+        
+        # Accept single-word professional titles
+        professional_titles = ['ceo', 'cto', 'cfo', 'vp', 'president', 'founder']
+        if text.lower() in professional_titles:
             return True
         
         return False
@@ -992,6 +983,10 @@ class DeBERTaNerParser:
             Formatted results compatible with existing API
         """
         # CRITICAL: Check if structured parser already provided work_experience
+        # Initialize variables to prevent 'not initialized' error
+        start_dates = []
+        end_dates = []
+        
         # Structured parser uses lowercase keys and provides fully structured data
         if 'work_experience' in entities and isinstance(entities['work_experience'], list):
             # Use structured parser results directly (already in correct format)
@@ -999,6 +994,8 @@ class DeBERTaNerParser:
             companies_list = entities.get('companies', [])
             job_titles = entities.get('job_titles', [])
             locations_list = entities.get('locations', [])
+            start_dates = entities.get('dates', [])
+            end_dates = []
         else:
             # Extract from DeBERTa NER (uppercase keys)
             companies = entities.get('COMPANY', [])
@@ -1029,7 +1026,7 @@ class DeBERTaNerParser:
             job_titles = roles
             locations_list = locations
         
-        # Extract education
+        # Extract education - FIXED to handle DEGREE-only cases
         education = []
         institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
         degrees = entities.get('DEGREE', [])
@@ -1037,20 +1034,33 @@ class DeBERTaNerParser:
         edu_start = entities.get('EDU_YEAR_START', [])
         edu_end = entities.get('EDU_YEAR_END', [])
         
-        max_edu = max(len(institutions), len(degrees))
-        for i in range(max_edu):
-            edu = {
-                'institution': institutions[i] if i < len(institutions) else '',
-                'degree': degrees[i] if i < len(degrees) else '',
-                'field_of_study': fields[i] if i < len(fields) else None,
-                'start_year': edu_start[i] if i < len(edu_start) else None,
-                'end_year': edu_end[i] if i < len(edu_end) else None,
-                'grade': entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None,
-                'source': 'deberta_ner'
-            }
-            # Only add if has institution or degree
-            if edu['institution'] or edu['degree']:
-                education.append(edu)
+        # Build education entries
+        max_edu = max(len(institutions), len(degrees)) if (institutions or degrees) else 0
+        
+        if max_edu > 0:
+            for i in range(max_edu):
+                edu = {
+                    'institution': institutions[i] if i < len(institutions) else '',
+                    'degree': degrees[i] if i < len(degrees) else '',
+                    'field_of_study': fields[i] if i < len(fields) else None,
+                    'start_year': edu_start[i] if i < len(edu_start) else None,
+                    'end_year': edu_end[i] if i < len(edu_end) else None,
+                    'grade': entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None,
+                    'source': 'deberta_ner'
+                }
+                # Add if has institution OR degree (not both required)
+                if edu['institution'] or edu['degree']:
+                    education.append(edu)
+        
+        # Log education extraction for debugging
+        if degrees:
+            logger.info(f"📚 DeBERTa extracted {len(degrees)} degrees: {degrees}")
+        if institutions:
+            logger.info(f"🏫 DeBERTa extracted {len(institutions)} institutions: {institutions}")
+        if education:
+            logger.info(f"✅ DeBERTa built {len(education)} education entries")
+        else:
+            logger.warning(f"⚠️ DeBERTa built 0 education entries (degrees: {len(degrees)}, institutions: {len(institutions)})")
         
         # Extract other entities
         clients = entities.get('clients', entities.get('CLIENT', []))

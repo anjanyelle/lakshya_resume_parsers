@@ -1,0 +1,84 @@
+BAVANA KRISHNAMURTHY
+Senior Java Backend Engineer & Enterprise Solutions Architect
+
+Location: Bengaluru, Karnataka
+Phone: +91-9845-123456
+Email: bavana.krishnamurthy@email.com
+LinkedIn: linkedin.com/in/bavana-krishnamurthy
+GitHub: github.com/bavana-dev
+
+
+PROFESSIONAL SUMMARY
+Dynamic Senior Java Backend Engineer with 13+ years of experience designing and deploying enterprise-grade microservices and distributed systems.
+
+Expert in Java/J2EE, Spring Boot, Kubernetes, and cloud-native architectures. Proven ability to lead engineering teams and deliver fintech platforms serving 5M+ users.
+
+Skilled across full software lifecycle including design, development, CI/CD, monitoring, and optimization. Strong expertise in event-driven systems (Kafka), REST & GraphQL APIs, and database engineering.
+
+
+TECHNICAL SKILLS
+
+Languages: Java, Python, SQL, PL/SQL, Bash, Groovy, XML, JSON, YAML
+Frameworks: Spring Boot, Spring MVC, Spring Security, Spring Cloud, Hibernate, JPA, Quarkus, Micronaut
+Microservices: Docker, Kubernetes, Helm, Istio, API Gateway, Resilience4j
+Cloud: AWS, Azure, GCP
+Messaging: Kafka, RabbitMQ, ActiveMQ, SQS, SNS, Redis Pub/Sub
+Databases: PostgreSQL, MySQL, Oracle, MongoDB, Redis, Cassandra, Elasticsearch
+DevOps: Jenkins, GitLab CI, GitHub Actions, Maven, Gradle, Terraform, Ansible
+Testing: JUnit, Mockito, TestContainers, Postman, JMeter, Gatling, Selenium
+Monitoring: Prometheus, Grafana, ELK, Splunk, Dynatrace, CloudWatch
+Architecture: Microservices, Event-Driven, CQRS, Saga, DDD, REST, GraphQL, gRPC
+
+
+PROFESSIONAL EXPERIENCE
+
+Principal Engineer — Infosys (2020–Present)
+- Led team of 14 engineers across India and Singapore
+- Migrated monolith to microservices (deployment time -65%, throughput +40%)
+- Built Kafka-based system (2M+ events/day, <100ms latency)
+- Managed 80+ microservices on Kubernetes (EKS)
+- Implemented OAuth2, JWT security (reduced unauthorized access by 92%)
+- Improved performance (P99 from 1.8s to 280ms)
+- Optimized PostgreSQL queries (73% faster)
+- Conducted 200+ interviews and mentored engineers
+
+Key Achievements:
+- Promoted to Principal Engineer in 18 months
+- Infosys Innovation Award 2022
+- Built zero-downtime deployment strategy
+
+Senior Software Engineer — Wipro (2016–2019)
+- Built payment gateway ($3B+ annual transactions, 99.99% uptime)
+- Designed Spring Cloud architecture (35+ services)
+- Modernized legacy SOAP APIs to REST (58% faster)
+- Implemented DB sharding (10M+ records)
+- Reduced DB load by 45% using Redis caching
+- Automated PCI-DSS compliance reporting
+- Managed multi-region AWS deployments
+
+Software Engineer — Cognizant (2013–2016)
+- Built middleware for SAP ERP integration
+- Processed 5M+ records nightly via Spring Batch
+- Developed SOAP/REST APIs
+- Increased test coverage from 28% to 82%
+- Reduced defects by 67%
+- Served as Scrum Master
+
+Associate Software Engineer — HCL Technologies (2011–2013)
+- Built Java web apps for insurance claims (10K/day)
+- Implemented Hibernate ORM
+- Developed reporting dashboards
+- Integrated third-party APIs
+- Resolved 150+ production issues
+
+
+EDUCATION
+Bachelor’s Degree in Engineering (assumed based on role progression)
+
+
+ACHIEVEMENTS
+- Infosys Excellence in Innovation Award (2022)
+- Fastest promotion to Principal Engineer
+- Designed high-scale fintech systems serving millions of users
+
+

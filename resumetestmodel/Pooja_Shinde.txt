@@ -1,0 +1,7 @@
+Pooja Shinde
+ORG=Wipro Bangalore | POST=Principal Data Scientist | SINCE=2015 | CLIENT=News Corp Australia Sydney Australia
+ORG=Tata Elxsi Mumbai | POST=ETL Developer | PERIOD=2013 - 2015 | CLIENT=Deloitte Australia Sydney Australia
+ORG=Datamatics Mumbai | POST=Associate QA Engineer | PERIOD=2011 - 2013 | CLIENT=National Grid London UK
+ORG=Persistent Systems Bangalore | POST=IT Graduate Trainee | PERIOD=2009 - 2011 | CLIENT=Bosch Group Stuttgart Germany
+DEGREE=M.S. Artificial Intelligence | INSTITUTE=XLRI Jamshedpur | YEAR=2009-2011 | CGPA=8.9
+DEGREE=B.Sc Data Science | INSTITUTE=JNTU Hyderabad | YEAR=2005-2009 | PCT=93.1%

@@ -409,8 +409,10 @@ class SectionSplitter:
             if not line or len(line.strip()) < 3:
                 return None
             
-            # Remove extra whitespace and check patterns
-            clean_line = line.strip()
+            # HEADER NORMALIZATION - Handle whitespace and case variations
+            # Handles: "EDUCATION ", "Education", " EDUCATION", "EDUCATION\n"
+            clean_line = line.strip()  # Remove leading/trailing whitespace
+            normalized = clean_line.lower()  # Normalize to lowercase for matching
             
             # STRICT HEADER DETECTION - Only detect actual section headers, not content
             
@@ -424,24 +426,28 @@ class SectionSplitter:
                 if len(after_colon) > 10:
                     return None
             
-            # Strategy 1: ALL CAPS headers (most reliable)
+            # Strategy 1: Check normalized version against keywords (handles all case variations)
+            # This works for: "EDUCATION", "Education", "education", "EdUcAtIoN"
+            if len(clean_line.split()) <= 10:  # Reasonable header length
+                result = self._match_section_keywords(normalized)
+                if result:
+                    # Verify it looks like a header (not a sentence)
+                    # Headers are typically short and don't have common sentence words
+                    sentence_indicators = ['the', 'a', 'an', 'is', 'are', 'was', 'were', 'have', 'has', 'had']
+                    if not any(word in normalized.split() for word in sentence_indicators):
+                        self.logger.info(f"✅ Detected header: '{clean_line}' → section: {result}")
+                        return result
+            
+            # Strategy 2: ALL CAPS headers (backward compatibility)
             if clean_line.isupper() and len(clean_line) > 2 and len(clean_line.split()) <= 10:
-                result = self._match_section_keywords(clean_line.lower())
+                result = self._match_section_keywords(normalized)
                 if result:
                     self.logger.info(f"✅ Detected ALL CAPS header: '{clean_line}' → section: {result}")
                     return result
             
-            # Strategy 2: Short standalone lines that match section keywords exactly
-            # Must be ≤ 6 words to avoid matching descriptive sentences
-            if len(clean_line.split()) <= 6:
-                result = self._match_section_keywords(clean_line.lower())
-                if result:
-                    self.logger.info(f"✅ Detected short header: '{clean_line}' → section: {result}")
-                    return result
-            
             # Strategy 3: Title Case headers (short only)
             if clean_line.istitle() and len(clean_line.split()) <= 5:
-                result = self._match_section_keywords(clean_line.lower())
+                result = self._match_section_keywords(normalized)
                 if result:
                     self.logger.info(f"✅ Detected title case header: '{clean_line}' → section: {result}")
                     return result

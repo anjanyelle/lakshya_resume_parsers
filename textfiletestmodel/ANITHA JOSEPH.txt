@@ -1,0 +1,109 @@
+ANITHA JOSEPH
+Data Engineering Manager
+Email: [anitha.joseph@dataops.io](mailto:anitha.joseph@dataops.io)
+Phone: +1 (214) 555-0922
+Location: Dallas, TX
+LinkedIn: linkedin.com/in/anithajoseph
+GitHub: github.com/ajoseph
+
+---
+
+PROFESSIONAL SUMMARY
+
+Data Engineering Manager with 13 years of experience leading high-performance data engineering teams and building enterprise data platforms. Strong expertise in translating business goals into scalable data solutions. Deep technical background in Snowflake, AWS, Spark, and dbt. Proven success in managing large teams, budgets, and delivering impactful data strategies in healthcare organizations.
+
+---
+
+CORE SKILLS
+
+Leadership: Team building, career development, OKR/KPI frameworks, Agile, hiring
+Management: Budget management, vendor negotiation, stakeholder communication, risk management
+Data Platforms: Snowflake, Databricks, AWS Redshift, BigQuery, Azure Synapse, Teradata, Oracle
+ETL/ELT: dbt, AWS Glue, Azure Data Factory, Informatica, Talend, SSIS, Fivetran, Airbyte
+Streaming: Kafka, AWS Kinesis, PySpark Streaming, Flink, Event Hubs
+DataOps: Monte Carlo, Great Expectations, dbt Tests, Collibra, Alation, DataHub
+Languages: Python, PySpark, SQL, Scala, R, Bash, JavaScript
+Healthcare: HIPAA, HITRUST, HEDIS, NCQA, HL7, FHIR
+
+---
+
+PROFESSIONAL EXPERIENCE
+
+DATA ENGINEERING MANAGER
+Humana Inc.
+Feb 2022 – Present
+
+* Led team of 28 engineers across multiple data platform squads
+* Migrated large-scale ETL workloads to Snowflake and dbt
+* Established DataOps practices reducing data incidents
+* Defined enterprise data strategy including data mesh and AI initiatives
+* Managed multi-million dollar budget and vendor contracts
+* Improved team growth and retention through mentorship programs
+* Delivered healthcare analytics platforms supporting millions of users
+
+Environment: Snowflake, dbt, Databricks, Python, PySpark, Kafka, Airflow, AWS, MLflow
+
+---
+
+SENIOR DATA ENGINEER – TEAM LEAD
+Anthem (Elevance Health)
+Apr 2018 – Jan 2022
+
+* Led engineering team building analytics platforms for healthcare data
+* Migrated data warehouse to Snowflake improving performance and cost
+* Built real-time analytics pipelines using Kafka and PySpark
+* Implemented Airflow orchestration for large-scale workflows
+* Mentored engineers and supported career growth
+
+Environment: Snowflake, Kafka, PySpark, Airflow, dbt, AWS
+
+---
+
+SENIOR DATA ENGINEER
+Cigna Healthcare
+Aug 2015 – Mar 2018
+
+* Built analytics pipelines for pharmacy and provider data
+* Developed predictive models improving healthcare outcomes
+* Designed large-scale data processing systems
+
+Environment: AWS Glue, Redshift, Informatica, Python, SQL
+
+---
+
+DATA ENGINEER
+Aetna (CVS Health)
+Jan 2012 – Jul 2015
+
+* Developed ETL pipelines for healthcare claims data
+* Built data warehouse solutions for actuarial analytics
+* Created dashboards for financial and healthcare insights
+
+Environment: Informatica, SSIS, SQL Server, Tableau
+
+---
+
+CERTIFICATIONS
+
+* PMP – Project Management Professional
+* Certified Scrum Master
+* AWS Solutions Architect Professional
+* Snowflake SnowPro Core
+* CPHIMS – Health Informatics Certification
+* dbt Certified Developer
+* Databricks Data Engineer Professional
+
+---
+
+EDUCATION
+
+M.S. Health Informatics – Indiana University – 2012
+B.Tech Computer Science – Mahatma Gandhi University – 2010
+
+---
+
+PROFESSIONAL LINKS
+
+LinkedIn: linkedin.com/in/anithajoseph
+GitHub: github.com/ajoseph
+Blog: medium.com/@anithajoseph
