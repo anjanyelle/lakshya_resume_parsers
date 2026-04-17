@@ -34,17 +34,17 @@ export default function ProfileHeader({
   const githubUrl = cleanUrl(candidate.github_url)
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle">
+    <div className="rounded-2xl border border-brand-100 bg-white/80 p-6 shadow-subtle backdrop-blur-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-lg font-semibold text-brand-700">
             {candidate.full_name?.charAt(0).toUpperCase() ?? 'C'}
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-slate-600">
+            <h1 className="text-base font-black text-[#1a2340] dark:text-slate-100 uppercase tracking-tight">
               {candidate.full_name || 'Unnamed candidate'}
             </h1>
-            <p className="text-sm text-slate-600">
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-300 mt-1">
               {candidate.current_title || 'Role'} · {candidate.current_company || 'Company'}
             </p>
             <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
@@ -100,7 +100,7 @@ export default function ProfileHeader({
           <Button variant="secondary" onClick={onReprocess} icon={<RefreshCcw className="h-4 w-4" />}>
             Reprocess
           </Button>
-          <Button variant="orange" onClick={onApprove} icon={<CheckCircle className="h-4 w-4" />}>
+          <Button variant="official" onClick={onApprove} icon={<CheckCircle className="h-4 w-4" />}>
             Mark reviewed
           </Button>
           <Button variant="danger" onClick={onDelete} icon={<Trash2 className="h-4 w-4" />}>

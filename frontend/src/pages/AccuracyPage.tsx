@@ -28,7 +28,7 @@ export default function AccuracyPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <p className="text-[13px] font-bold text-slate-400 uppercase tracking-[0.1em] select-none">
+      <p className="text-[16px] font-black text-slate-800 uppercase tracking-[0.1em] select-none">
         Accuracy Analytics
       </p>
       {/* Metrics Row */}
@@ -39,7 +39,7 @@ export default function AccuracyPage() {
             value: overview ? `${overview.success_rate}%` : '—',
             sub: 'Extraction success rate',
             icon: ShieldCheck,
-            iconBg: 'linear-gradient(135deg,#10b981,#34d399)',
+            iconBg: 'linear-gradient(135deg,#ea580c,#f97316)',
           },
           {
             label: 'Correction Rate',
@@ -65,7 +65,7 @@ export default function AccuracyPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium text-slate-400">{card.sub}</p>
-                  <p className="mt-1 text-2xl font-medium text-slate-600">{card.value}</p>
+                  <p className="mt-1 text-2xl font-medium text-slate-800">{card.value}</p>
                   <p className="mt-0.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{card.label}</p>
                 </div>
                 <div
@@ -84,7 +84,7 @@ export default function AccuracyPage() {
         {/* Section Accuracy Card */}
         <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
           <div className="flex items-center gap-2 mb-6">
-            <div className="h-2 w-2 rounded-full bg-sky-400" />
+            <div className="h-2 w-2 rounded-full bg-brand-400" />
             <h3 className="text-sm font-semibold text-slate-600">Section Accuracy</h3>
           </div>
 
@@ -104,8 +104,8 @@ export default function AccuracyPage() {
               sectionMetrics.map((metric) => (
                 <div key={metric.label} className="group">
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-semibold text-slate-600 transition-colors group-hover:text-brand-600">{metric.label}</span>
-                    <span className="font-semibold text-slate-600">
+                    <span className="font-semibold text-slate-800 transition-colors group-hover:text-brand-600">{metric.label}</span>
+                    <span className="font-semibold text-slate-800">
                       {(metric.score * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -114,7 +114,7 @@ export default function AccuracyPage() {
                       className="h-full rounded-full transition-all duration-1000 ease-out"
                       style={{
                         width: `${metric.score * 100}%`,
-                        background: 'linear-gradient(90deg, #38bdf8, #0ea5e9)'
+                        background: 'linear-gradient(90deg, #fb923c, #f97316)'
                       }}
                     />
                   </div>
@@ -127,7 +127,7 @@ export default function AccuracyPage() {
         {/* Recent Runs Card */}
         <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
           <div className="flex items-center gap-2 mb-6">
-            <div className="h-2 w-2 rounded-full bg-teal-500" />
+            <div className="h-2 w-2 rounded-full bg-brand-500" />
             <h3 className="text-sm font-semibold text-slate-600">Recent Parsing Runs</h3>
           </div>
 

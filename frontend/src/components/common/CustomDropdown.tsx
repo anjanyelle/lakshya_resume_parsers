@@ -49,13 +49,13 @@ export default function CustomDropdown({
           }`}
       >
         <div className="flex items-center gap-2.5 overflow-hidden">
-          {HeaderIcon && <HeaderIcon className="h-4 w-4 text-slate-400 flex-shrink-0" />}
-          <span className="truncate text-slate-400 uppercase tracking-widest">
+          {HeaderIcon && <HeaderIcon className="h-4 w-4 text-slate-500 flex-shrink-0" />}
+          <span className="truncate text-slate-500 uppercase tracking-widest leading-none">
             {selectedOption.label}
           </span>
         </div>
         <ChevronDown
-          className={`h-4 w-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-orange-500' : ''}`}
+          className={`h-4 w-4 text-slate-500 transition-transform duration-300 flex-shrink-0 ${isOpen ? 'rotate-180 text-orange-500' : ''}`}
         />
       </button>
 

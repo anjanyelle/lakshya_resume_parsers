@@ -54,15 +54,15 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <div className="mb-10 flex items-center justify-between px-2">
           <div className="flex items-center gap-4">
             <div
-              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-2xl shadow-orange-500/20 flex-shrink-0 ring-1 ring-white/10"
-              style={{ background: 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)' }}
+              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-2xl shadow-brand-500/20 flex-shrink-0 ring-1 ring-white/10"
+              style={{ background: 'linear-gradient(135deg, var(--orange2) 0%, var(--orange) 100%)' }}
             >
               <div className="absolute inset-0 rounded-xl bg-white/5 backdrop-blur-[1px]"></div>
               <FileText className="relative h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <p className="text-[15px] font-extrabold text-slate-800 dark:text-slate-100 tracking-tight leading-[1.2]">Resume Parser</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.12em] leading-none mt-1">ADMIN CONSOLE</p>
+              <p className="text-[18px] font-extrabold text-slate-800 dark:text-slate-100 tracking-tight leading-[1.2]">Resume Parser</p>
+              <p className="text-[13px] font-bold text-slate-800/60 uppercase tracking-[0.12em] leading-none mt-1">ADMIN CONSOLE</p>
             </div>
           </div>
 
@@ -88,14 +88,14 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 className={({ isActive }) =>
                   `group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all duration-300 ${isActive
                     ? 'bg-orange-50 text-orange-600 dark:bg-orange-900/30'
-                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/80 hover:text-slate-900'
+                    : 'text-slate-800/70 dark:text-slate-400 hover:bg-slate-100/80 hover:text-slate-800'
                   }`
                 }
                 style={() => ({})}
               >
                 {({ isActive }) => (
                   <>
-                    <Icon className={`h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-orange-600 scale-110' : 'text-slate-400 group-hover:text-slate-700'}`} />
+                    <Icon className={`h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-orange-600 scale-110' : 'text-slate-800/40 group-hover:text-slate-800'}`} />
                     <span className="transition-transform duration-300 group-hover:translate-x-1">{item.label}</span>
                   </>
                 )}

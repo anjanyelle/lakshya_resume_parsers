@@ -54,12 +54,12 @@ export default function CorrectionsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Search & Stats Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-card border border-slate-100">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-card border border-slate-300">
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100"
-            placeholder="Search candidate, field, or value..."
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+            <input
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 placeholder-slate-500 font-bold"
+              placeholder="Search candidate, field, or value..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
@@ -68,7 +68,7 @@ export default function CorrectionsPage() {
            <button 
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition-all ${
-              isFilterOpen ? 'bg-orange-500 border-orange-500 text-white shadow-lg' : 'border-slate-200 bg-white text-slate-600 hover:bg-orange-50 hover:text-brand-600 hover:border-orange-100'
+              isFilterOpen ? 'bg-orange-500 border-orange-500 text-white shadow-lg' : 'border-slate-200 bg-white text-slate-600 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-100'
             }`}
           >
             <Filter className="h-4 w-4" />
@@ -80,7 +80,7 @@ export default function CorrectionsPage() {
       {isFilterOpen && (
         <div className="bg-white p-5 rounded-xl shadow-xl shadow-slate-200/40 border border-slate-100 flex flex-wrap gap-4 animate-slide-down">
           <div className="space-y-1.5 flex-1 min-w-[200px]">
-             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Filter by Field</label>
+             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Filter by Field</label>
              <select
                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:border-orange-400"
                value={fieldFilter}
@@ -90,11 +90,11 @@ export default function CorrectionsPage() {
              </select>
           </div>
           <div className="space-y-1.5 flex-1 min-w-[200px]">
-             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Reviewer</label>
+             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Reviewer</label>
              <input disabled className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed" placeholder="Coming soon..." />
           </div>
           <div className="space-y-1.5 flex-1 min-w-[200px]">
-             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Date Range</label>
+             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Date Range</label>
              <input disabled className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-300 cursor-not-allowed" placeholder="Coming soon..." />
           </div>
         </div>
@@ -102,13 +102,13 @@ export default function CorrectionsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         {/* Main Table Card */}
-        <div className="rounded-xl bg-white shadow-card border border-slate-100 overflow-hidden flex flex-col">
+        <div className="rounded-xl bg-white shadow-card border border-slate-300 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center gap-2">
               <ClipboardCheck className="h-4 w-4 text-orange-600" />
-              <h3 className="text-sm font-semibold text-slate-600">Recent Corrections</h3>
+              <h3 className="text-sm font-bold text-slate-800">Recent Corrections</h3>
             </div>
-            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
+            <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
               {filtered.length} entries
             </span>
           </div>
@@ -116,7 +116,7 @@ export default function CorrectionsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                <tr className="bg-slate-50/50 text-[11px] font-black text-slate-500 uppercase tracking-wider border-b border-slate-100">
                   <th className="px-6 py-3">Candidate</th>
                   <th className="px-6 py-3">Field</th>
                   <th className="px-6 py-3">Original</th>
@@ -137,8 +137,8 @@ export default function CorrectionsPage() {
                   <tr>
                     <td colSpan={5} className="px-6 py-20 text-center">
                        <div className="flex flex-col items-center justify-center opacity-40">
-                         <ClipboardCheck className="h-10 w-10 text-slate-400 mb-2" />
-                         <p className="text-sm text-slate-500">No corrections found</p>
+                         <ClipboardCheck className="h-10 w-10 text-slate-200 mb-2" />
+                         <p className="text-sm font-bold text-slate-500">No corrections found</p>
                        </div>
                     </td>
                   </tr>
@@ -150,17 +150,17 @@ export default function CorrectionsPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-slate-600">{row.candidate_name ?? 'Unknown'}</span>
-                          <span className="text-[10px] text-slate-400">{row.candidate_email}</span>
+                          <span className="text-sm font-bold text-slate-800">{row.candidate_name ?? 'Unknown'}</span>
+                          <span className="text-[10px] font-bold text-slate-500">{row.candidate_email}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                        <span className="inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500 uppercase tracking-tight">
                           {row.field}
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs text-slate-500 line-through decoration-slate-300 decoration-1">
+                        <span className="text-xs text-slate-500 font-bold line-through decoration-slate-300 decoration-1">
                           {row.original || '—'}
                         </span>
                       </td>
@@ -171,7 +171,7 @@ export default function CorrectionsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-xs text-slate-400 font-medium">
+                        <span className="text-xs text-slate-500 font-bold">
                           {new Date(row.corrected_at).toLocaleDateString()}
                         </span>
                       </td>
@@ -186,8 +186,8 @@ export default function CorrectionsPage() {
         {/* Sidebar Cards */}
         <div className="space-y-6 flex flex-col">
           {/* Reviewer Activity */}
-          <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
+          <div className="rounded-xl bg-white p-6 shadow-card border border-slate-300">
+            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-orange-600" />
               Reviewer Activity
             </h3>
@@ -201,9 +201,9 @@ export default function CorrectionsPage() {
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600 transition-colors group-hover:bg-orange-600 group-hover:text-white">
                       <UserRound className="h-4 w-4" />
                     </div>
-                    <span className="text-xs font-semibold text-slate-600">{name}</span>
+                    <span className="text-xs font-bold text-slate-800">{name}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
+                  <span className="text-[10px] font-black text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">
                     {loading ? '—' : `${rows.filter(r => (r.reviewer || '').toLowerCase().includes(name.toLowerCase())).length} edits`}
                   </span>
                 </div>
@@ -212,8 +212,8 @@ export default function CorrectionsPage() {
           </div>
 
           {/* Training Needs */}
-          <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
+          <div className="rounded-xl bg-white p-6 shadow-card border border-slate-300">
+            <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-teal-500" />
               Fields Needing Training
             </h3>
@@ -224,7 +224,7 @@ export default function CorrectionsPage() {
                 { field: 'work_experience.company', level: 'Low' }
               ].map((item) => (
                 <div key={item.field} className="group rounded-xl border border-dashed border-slate-200 p-3 hover:border-orange-300 transition-colors">
-                  <p className="text-[11px] font-bold text-slate-700 truncate">{item.field}</p>
+                  <p className="text-[11px] font-black text-slate-800 truncate">{item.field}</p>
                   <div className="mt-2 flex items-center justify-between">
                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter ${
                        item.level === 'High' ? 'bg-red-50 text-red-500' : 

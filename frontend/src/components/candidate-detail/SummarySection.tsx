@@ -44,7 +44,7 @@ export default function SummarySection({
         }`}
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Summary</h2>
+        <h2 className="text-lg font-black text-[#1a2340] uppercase tracking-tight">Summary</h2>
         {!readOnly && !editing && (
           <button
             type="button"

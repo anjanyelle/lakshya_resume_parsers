@@ -14,10 +14,10 @@ export function getScoreColor(score: number) {
 export function getAvatarColor(name?: string | null) {
   const colors = [
     '#ec4899', // Pink
-    '#fb923c', // Orange-Light
-    '#f97316', // Orange-Medium
+    '#fb923c', // Brand Light
+    '#f97316', // Brand
+    '#0ea5e9', // Blue
     '#10b981', // Emerald
-    '#3b82f6', // Blue
   ]
   const idx = (name?.charCodeAt(0) ?? 0) % colors.length
   return colors[idx]
@@ -90,11 +90,11 @@ export function ScoreBadge({ value, size = 44 }: ScoreBadgeProps) {
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className="text-orange-500 transition-all duration-1000 ease-[cubic-bezier(0.34, 1.56, 0.64, 1)]"
+          className="text-brand-500 transition-all duration-1000 ease-[cubic-bezier(0.34, 1.56, 0.64, 1)]"
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center z-20">
-        <span className="text-[11px] font-black text-orange-600 dark:text-orange-400 tracking-tight">
+        <span className="text-[11px] font-black text-brand-600 dark:text-brand-400 tracking-tight">
           {value}%
         </span>
       </div>
@@ -127,8 +127,8 @@ export function ProcessingGauge({ value, size = 200 }: { value: number; size?: n
       >
         <defs>
           <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#fb923c" />
-            <stop offset="100%" stopColor="#fdba74" />
+            <stop offset="0%" stopColor="#f97316" />
+            <stop offset="100%" stopColor="#fb923c" />
           </linearGradient>
           <filter id="needleShadow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceAlpha" stdDeviation="1" />

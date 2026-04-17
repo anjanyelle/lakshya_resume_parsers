@@ -534,7 +534,7 @@ export default function CandidateDetailPage() {
   return (
     <section className="space-y-6">
       {useParsedDataFallback && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <div className="rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800">
           Showing parsed data (not yet saved to database). Reprocess or save corrections to persist.
         </div>
       )}
@@ -573,7 +573,7 @@ export default function CandidateDetailPage() {
       <div className="grid min-h-[calc(100vh-14rem)] grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left: Resume Document Viewer */}
         <div className="flex min-h-[400px] flex-col lg:min-h-[calc(100vh-14rem)]">
-          <div className="mb-2 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
+          <div className="mb-2 flex items-center justify-between rounded-lg border border-brand-100 bg-white/60 px-4 py-2 shadow-sm backdrop-blur-sm">
             <span className="text-sm font-medium text-slate-700">
               {latestJob?.filename ?? 'Resume'}
             </span>
@@ -597,7 +597,7 @@ export default function CandidateDetailPage() {
 
         {/* Right: Structured Candidate Data Panel */}
         <div className="flex min-h-[400px] flex-col lg:min-h-[calc(100vh-14rem)]">
-          <div className="mb-2 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
+          <div className="mb-2 flex items-center justify-between rounded-lg border border-brand-100 bg-white/60 px-4 py-2 shadow-sm backdrop-blur-sm">
             <span className="text-sm font-medium text-slate-700">
               Structured Data
             </span>

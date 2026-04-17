@@ -32,7 +32,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
 
         {/* Page content wrapper */}
-        <div className="relative z-10 flex flex-1 flex-col h-full overflow-hidden bg-slate-50/40 shadow-sm ml-0">
+        <div className="relative z-10 flex flex-1 flex-col h-full overflow-hidden bg-slate-100/30 shadow-sm ml-0">
           {/* Header */}
           <Header onMenuClick={toggleSidebar} />
 

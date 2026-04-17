@@ -18,7 +18,7 @@ export default function DragDropZone({ onFilesSelected }: DragDropZoneProps) {
 
   return (
     <label
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed p-10 text-center transition-all duration-500 ${isDragging ? 'border-orange-500 bg-orange-50 shadow-orange-100' : 'border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/20'
+      className={`flex cursor-pointer flex-col items-center justify-center rounded-[2rem] border-2 border-dashed p-10 text-center transition-all duration-500 shadow-xl shadow-slate-200/60 ${isDragging ? 'border-orange-500 bg-orange-50 shadow-orange-100' : 'border-slate-300 bg-white hover:border-orange-400 hover:bg-orange-50/10'
         }`}
       onDragOver={(event) => {
         event.preventDefault()
@@ -40,7 +40,7 @@ export default function DragDropZone({ onFilesSelected }: DragDropZoneProps) {
 
       <div className="flex flex-col items-center justify-center text-center group">
         <div className="mb-6 relative transition-transform duration-500 group-hover:scale-110">
-          <div className="flex h-16 w-16 items-center justify-center rounded-[1.2rem] bg-orange-50 dark:bg-orange-950/20 shadow-sm border border-orange-100/50">
+          <div className="flex h-16 w-16 items-center justify-center rounded-[1.2rem] bg-orange-50 dark:bg-orange-950/20 shadow-sm border border-orange-200/80">
             <FileText className="h-8 w-8 text-slate-300 dark:text-slate-600" />
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function DragDropZone({ onFilesSelected }: DragDropZoneProps) {
           PDF, DOC, DOCX — Max 5MB
         </p>
 
-        <span className="text-[14px] font-bold text-orange-500 group-hover:text-orange-600 transition-colors">
+        <span className="text-[14px] font-bold text-orange-600 group-hover:text-orange-700 transition-colors">
           Browse Files
         </span>
       </div>

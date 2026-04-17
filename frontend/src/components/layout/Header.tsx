@@ -31,20 +31,20 @@ interface HeaderProps {
 }
 
 const pageTitles: Record<string, { title: string; icon: any; color: string }> = {
-  '/': { title: 'OVERVIEW', icon: LayoutDashboard, color: 'bg-orange-50 text-orange-600 border-orange-100' },
-  '/upload': { title: 'UPLOAD', icon: CloudUpload, color: 'bg-orange-50 text-orange-600 border-orange-100' },
-  '/candidates': { title: 'CANDIDATES', icon: Users, color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-  '/accuracy': { title: 'ACCURACY', icon: Target, color: 'bg-orange-50 text-orange-600 border-orange-100' },
-  '/quality': { title: 'QUALITY', icon: BarChart2, color: 'bg-orange-50 text-orange-600 border-orange-100' },
-  '/corrections': { title: 'CORRECTIONS', icon: ClipboardCheck, color: 'bg-rose-50 text-rose-600 border-rose-100' },
-  '/taxonomy': { title: 'TAXONOMY', icon: Database, color: 'bg-blue-50 text-blue-600 border-blue-100' },
-  '/settings': { title: 'SETTINGS', icon: SettingsIcon, color: 'bg-slate-50 text-slate-600 border-slate-100' },
+  '/': { title: 'OVERVIEW', icon: LayoutDashboard, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/upload': { title: 'UPLOAD', icon: CloudUpload, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/candidates': { title: 'CANDIDATES', icon: Users, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/accuracy': { title: 'ACCURACY', icon: Target, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/quality': { title: 'QUALITY', icon: BarChart2, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/corrections': { title: 'CORRECTIONS', icon: ClipboardCheck, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/taxonomy': { title: 'TAXONOMY', icon: Database, color: 'bg-brand-50 text-brand-600 border-brand-100' },
+  '/settings': { title: 'SETTINGS', icon: SettingsIcon, color: 'bg-brand-50 text-brand-600 border-brand-100' },
 }
 
 const roleConfig: Record<string, { label: string; iconClass: string; boxClass: string }> = {
-  admin: { label: 'Admin', iconClass: 'text-orange-600', boxClass: 'bg-orange-50 dark:bg-orange-900/30' },
-  recruiter: { label: 'Recruiter', iconClass: 'text-emerald-600', boxClass: 'bg-emerald-50 dark:bg-emerald-900/30' },
-  default: { label: 'User', iconClass: 'text-slate-600', boxClass: 'bg-slate-50 dark:bg-slate-800' },
+  admin: { label: 'Admin', iconClass: 'text-brand-600', boxClass: 'bg-brand-50 dark:bg-brand-900/30' },
+  recruiter: { label: 'Recruiter', iconClass: 'text-brand-500', boxClass: 'bg-brand-50/50 dark:bg-brand-900/20' },
+  default: { label: 'User', iconClass: 'text-brand-400', boxClass: 'bg-brand-50/30 dark:bg-brand-900/10' },
 }
 
 export default function Header({ onMenuClick }: HeaderProps) {
@@ -101,7 +101,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-sm transition-all duration-300 ${pageInfo.color} dark:border-slate-700`}>
             <pageInfo.icon className="h-5.5 w-5.5" />
           </div>
-          <p className="text-[14px] font-black text-slate-500 uppercase tracking-[0.2em] select-none">
+          <p className="text-[15px] font-black text-slate-800 dark:text-slate-500 uppercase tracking-[0.2em] select-none">
             {pageInfo.title}
           </p>
         </div>
@@ -121,7 +121,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <input
               type="text"
               placeholder="SEARCH..."
-              className="flex-1 bg-transparent border-none text-[11px] font-bold text-slate-700 dark:text-slate-200 focus:outline-none placeholder:text-slate-400/50 placeholder:font-bold placeholder:tracking-[0.2em] uppercase"
+              className="flex-1 bg-transparent border-none text-[11px] font-bold text-slate-800 dark:text-slate-200 focus:outline-none placeholder:text-slate-400/50 placeholder:font-bold placeholder:tracking-[0.2em] uppercase"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value)
@@ -184,7 +184,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-slate-800 bg-emerald-500 shadow-sm shadow-emerald-200" />
               </div>
               <div className="hidden sm:flex flex-col min-w-[70px]">
-                <h4 className="text-[13px] font-bold text-slate-700 dark:text-slate-200 leading-none uppercase tracking-tight">
+                <h4 className="text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-none uppercase tracking-tight">
                   {config.label}
                 </h4>
                 <span className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">

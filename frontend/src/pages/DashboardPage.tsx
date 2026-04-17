@@ -218,9 +218,9 @@ export default function DashboardPage() {
       trend: '-2.1%',
       up: false,
       icon: Clock,
-      colors: 'from-blue-400 to-indigo-500',
-      shadow: 'shadow-blue-200/50 dark:shadow-blue-900/20',
-      glow: 'group-hover:shadow-blue-500/40',
+      colors: 'from-orange-400 to-brand-600',
+      shadow: 'shadow-orange-200/50 dark:shadow-orange-900/20',
+      glow: 'group-hover:shadow-brand-500/40',
     },
   ]
 
@@ -254,12 +254,12 @@ export default function DashboardPage() {
     <div className="space-y-6 animate-fade-in pb-10">
       {/* Welcome Greeting */}
       <div className="flex flex-col gap-0.5">
-        <p className="text-[14px] font-black text-slate-500 uppercase tracking-[0.2em] select-none">Welcome</p>
-        <h2 className="text-xl font-bold text-slate-700 dark:text-slate-100 tracking-tight flex items-center gap-3">
+        <p className="text-[16px] font-black text-slate-800 uppercase tracking-[0.2em] select-none">Welcome</p>
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-3">
           Good {timeGreeting}, {displayName}
           <span className="animate-wave inline-block origin-[70%_70%]">👋</span>
         </h2>
-        <p className="text-[13px] font-medium text-slate-400 dark:text-slate-500">
+        <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400">
           Here's an overview of your resume analysis activity.
         </p>
       </div>
@@ -271,7 +271,7 @@ export default function DashboardPage() {
           return (
             <div
               key={stat.label}
-              className={`group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800/50 p-4 border border-slate-100 dark:border-slate-700/50 shadow-md ${stat.shadow} transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${stat.glow} cursor-pointer backdrop-blur-sm`}
+              className={`group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800/50 p-4 border border-slate-300 dark:border-slate-700/50 shadow-md ${stat.shadow} transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${stat.glow} cursor-pointer backdrop-blur-sm`}
             >
               <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br ${stat.colors} opacity-[0.05] group-hover:opacity-[0.1] group-hover:scale-150 transition-all duration-700 blur-2xl`} />
 
@@ -291,10 +291,10 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-4 relative z-10">
-                <h3 className="text-2xl font-bold text-slate-700 dark:text-slate-100 tracking-tighter transition-colors leading-none">
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tighter transition-colors leading-none">
                   {stat.display}
                 </h3>
-                <p className="mt-1.5 text-[8.5px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
+                <p className="mt-1.5 text-[8.5px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
                   {stat.label}
                 </p>
               </div>
@@ -307,11 +307,11 @@ export default function DashboardPage() {
 
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-300 dark:border-slate-700/50 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col">
-              <h3 className="text-[9px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-[0.2em]">Application Velocity</h3>
-              <p className="text-lg font-bold text-slate-700 dark:text-slate-100 mt-1">Monthly Analytics</p>
+              <h3 className="text-[12px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">Application Velocity</h3>
+              <p className="text-lg font-bold text-slate-800 dark:text-slate-100 mt-1">Monthly Analytics</p>
             </div>
             <button className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
               <MoreVertical className="h-5 w-5" />
@@ -321,8 +321,8 @@ export default function DashboardPage() {
             <AreaChart data={dynamicMonthlyData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#38bdf8" stopOpacity={0.01} />
+                  <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#fb923c" stopOpacity={0.01} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.grid} vertical={false} />
@@ -347,26 +347,26 @@ export default function DashboardPage() {
                   boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
                   color: chartTheme.text,
                 }}
-                itemStyle={{ color: '#0ea5e9', fontWeight: 800 }}
+                itemStyle={{ color: '#f97316', fontWeight: 800 }}
               />
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#0ea5e9"
+                stroke="#f97316"
                 strokeWidth={4}
                 fill="url(#areaGrad)"
                 animationDuration={2000}
-                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 3, shadow: '0 0 12px rgba(14, 165, 233, 0.5)' }}
+                activeDot={{ r: 6, stroke: '#fff', strokeWidth: 3, shadow: '0 0 12px rgba(249, 115, 22, 0.5)' }}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-300 dark:border-slate-700/50 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex flex-col">
-              <h3 className="text-[9px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-[0.2em]">Talent Composition</h3>
-              <p className="text-lg font-bold text-slate-700 dark:text-slate-100 mt-1">Skill Distribution</p>
+              <h3 className="text-[12px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">Talent Composition</h3>
+              <p className="text-lg font-bold text-slate-800 dark:text-slate-100 mt-1">Skill Distribution</p>
             </div>
             <button className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
               <MoreVertical className="h-5 w-5" />
@@ -399,7 +399,7 @@ export default function DashboardPage() {
               </PieChart>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-black text-slate-700 dark:text-slate-200">{skillData.length}</span>
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Skills</span>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Skills</span>
               </div>
             </div>
             <div className="flex-1 grid grid-cols-2 gap-4">
@@ -408,7 +408,7 @@ export default function DashboardPage() {
                   <div className="h-3 w-3 rounded-full shadow-sm" style={{ backgroundColor: SKILL_COLORS[index % SKILL_COLORS.length] }} />
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{skill.name}</span>
-                    <span className="text-[10px] font-medium text-slate-400">{skill.value} Resumes</span>
+                    <span className="text-[11px] font-bold text-slate-500">{skill.value} Resumes</span>
                   </div>
                 </div>
               ))}
@@ -418,9 +418,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-300 dark:border-slate-700/50 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-6">
-            <p className="text-lg font-bold text-slate-700 dark:text-slate-100">Processing Queue</p>
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-100">Processing Queue</p>
             <span className="px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[10px] font-black uppercase tracking-wider">
               {candidates.filter((c) => c.status === 'processing').length} active
             </span>
@@ -433,7 +433,7 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-4">
               {candidates.filter((c) => c.status === 'processing').slice(0, 3).map((c) => (
-                <div key={c.id} className="flex items-center gap-4 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/50">
+                <div key={c.id} className="flex items-center gap-4 rounded-2xl border border-slate-300 dark:border-slate-800 p-4 transition-all hover:bg-slate-50 dark:hover:bg-slate-900/50">
                   <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl text-xs font-black text-white" style={{ background: getAvatarColor(c.full_name) }}>
                     {getInitials(c.full_name)}
                   </div>
@@ -449,10 +449,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+        <div className="rounded-[1.5rem] bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-300 dark:border-slate-700/50 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-6">
-            <p className="text-lg font-bold text-slate-700 dark:text-slate-100">Global Feed</p>
-            <button onClick={() => navigate('/candidates')} className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 text-[10px] font-black text-orange-500 dark:text-orange-400 uppercase tracking-widest">
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-100">Global Feed</p>
+            <button onClick={() => navigate('/candidates')} className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest">
               View All
             </button>
           </div>
@@ -465,7 +465,7 @@ export default function DashboardPage() {
                     {getInitials(candidate.full_name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-orange-600">{candidate.full_name || 'Anonymous'}</p>
+                    <p className="truncate text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-brand-600">{candidate.full_name || 'Anonymous'}</p>
                     <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase mt-1">{new Date(candidate.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex flex-col items-end">
@@ -479,7 +479,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-3xl bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-100 dark:border-slate-700/50 backdrop-blur-sm">
+      <div className="rounded-3xl bg-white dark:bg-slate-800/50 p-6 shadow-xl border border-slate-300 dark:border-slate-700/50 backdrop-blur-sm">
         <p className="text-lg font-bold text-slate-700 dark:text-slate-100 mb-8">Accuracy Distribution</p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={dynamicScoreDistData} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>

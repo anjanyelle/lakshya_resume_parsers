@@ -119,8 +119,8 @@ export default function CandidatesPage() {
 
   const scoreOptions = [
     { label: 'All Scores ', value: 'All Scores' },
-    { label: '80%+ ', value: '80%+ ', icon: Star, iconColor: 'text-emerald-500' },
-    { label: '60-79% ', value: '60-79% ', icon: Star, iconColor: 'text-amber-500' },
+    { label: '80%+ ', value: '80%+ ', icon: Star, iconColor: 'text-brand-600' },
+    { label: '60-79% ', value: '60-79% ', icon: Star, iconColor: 'text-brand-400' },
     { label: 'Below 60% ', value: 'Below 60% ', icon: Star, iconColor: 'text-rose-500' },
   ]
 
@@ -179,14 +179,14 @@ export default function CandidatesPage() {
     <div className="space-y-5 animate-fade-in">
       {/* Export Button Row */}
       <div className="flex items-center justify-between px-1">
-        <p className="text-[14px] font-black text-slate-500 uppercase tracking-[0.2em] select-none">
+        <p className="text-[16px] font-black text-slate-800 uppercase tracking-[0.2em] select-none">
           Candidates ({candidates.length})
         </p>
 
         <div className="relative">
           <button
             onClick={() => setShowExportDropdown(!showExportDropdown)}
-            className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-orange-500/15 transition-all hover:bg-orange-600 hover:scale-[1.02] active:scale-95 uppercase tracking-widest bg-orange-500"
+            className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[11px] font-black text-white shadow-lg shadow-brand-600/15 transition-all hover:bg-brand-700 hover:scale-[1.02] active:scale-95 uppercase tracking-widest bg-brand-600"
           >
             <Download className="h-4 w-4" />
             EXPORT DATA
@@ -217,15 +217,15 @@ export default function CandidatesPage() {
       {/* Search & Filter Bar Decoupled */}
       <div className="flex flex-col xl:flex-row items-stretch gap-4 transition-all duration-300">
         {/* Search Island */}
-        <div className="flex-1 min-w-0 flex items-stretch rounded-2xl bg-white shadow-premium border border-slate-200/60 overflow-hidden focus-within:ring-2 focus-within:ring-orange-500/10 transition-all duration-300 h-[52px]">
+        <div className="flex-1 min-w-0 flex items-stretch rounded-2xl bg-white shadow-premium border border-slate-300 overflow-hidden focus-within:ring-2 focus-within:ring-orange-500/10 transition-all duration-300 h-[52px]">
           <div className="relative flex-1 group bg-slate-50/5">
-            <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+            <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 group-focus-within:text-brand-600 transition-colors" />
             <input
               type="text"
               placeholder="Search candidates..."
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
-              className="w-full h-full bg-transparent pl-12 pr-4 text-[13px] text-slate-600 placeholder-slate-400 focus:outline-none font-bold placeholder:font-medium"
+              className="w-full h-full bg-transparent pl-12 pr-4 text-[13px] text-slate-600 placeholder-slate-500 focus:outline-none font-bold placeholder:font-medium"
             />
           </div>
         </div>
@@ -259,7 +259,7 @@ export default function CandidatesPage() {
           {/* Direction Island */}
           <button
             onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
-            className={`flex items-center justify-center gap-2 px-5 rounded-2xl border border-slate-200/60 bg-white shadow-premium text-[10px] font-black transition-all uppercase tracking-widest h-[52px] ${sortDir === 'asc' ? 'text-orange-600 ring-2 ring-orange-500/10' : 'text-slate-400 hover:border-orange-200 hover:text-slate-600 shadow-sm'}`}
+            className={`flex items-center justify-center gap-2 px-5 rounded-2xl border border-slate-200/60 bg-white shadow-premium text-[10px] font-black transition-all uppercase tracking-widest h-[52px] ${sortDir === 'asc' ? 'text-brand-600 ring-2 ring-brand-500/10' : 'text-slate-500 hover:border-brand-200 hover:text-slate-600 shadow-sm'}`}
           >
             <ArrowUpDown className={`h-3.5 w-3.5 transition-transform duration-500 ${sortDir === 'asc' ? 'rotate-180 scale-110' : ''}`} />
             <span className="hidden xl:inline">{sortDir === 'desc' ? 'Desc' : 'Asc'}</span>
@@ -275,12 +275,33 @@ export default function CandidatesPage() {
             id="select-all"
             checked={allSelected}
             onChange={() => allSelected ? clearSelected() : selectAll(filtered.map((c) => c.id))}
-            className="h-3.5 w-3.5 rounded border-slate-300 accent-orange-600 cursor-pointer shadow-sm transition-transform active:scale-90"
+            className="h-3.5 w-3.5 rounded border-slate-300 accent-brand-600 cursor-pointer shadow-sm transition-transform active:scale-90"
           />
-          <label htmlFor="select-all" className="text-[11px] font-black text-slate-400 cursor-pointer uppercase tracking-[0.15em] select-none">
-            Select All <span className="text-orange-500 ml-1">({filtered.length})</span>
+          <label htmlFor="select-all" className="text-[11px] font-black text-slate-500 cursor-pointer uppercase tracking-[0.15em] select-none">
+            Select All <span className="text-brand-500 ml-1">({filtered.length})</span>
           </label>
         </div>
+
+        {/* Right Corner: Delete Selected Action */}
+        {selectedIds.size > 0 && (
+          <div className="flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-300">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:inline">
+              {selectedIds.size} {selectedIds.size === 1 ? 'Candidate' : 'Candidates'} Selected
+            </span>
+            <button
+              onClick={() => {
+                if (window.confirm(`Are you sure you want to delete ${selectedIds.size} selected candidates?`)) {
+                  removeCandidates(Array.from(selectedIds))
+                  clearSelected()
+                }
+              }}
+              className="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-2 text-[10px] font-black text-rose-600 border border-rose-100 shadow-sm transition-all hover:bg-rose-600 hover:text-white hover:shadow-rose-200 active:scale-95 uppercase tracking-widest"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete Selected
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Candidates Grid */}
@@ -294,7 +315,7 @@ export default function CandidatesPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white/50 p-12 md:p-20 text-center shadow-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-orange-400 shadow-inner">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-400 shadow-inner">
             <Search className="h-7 w-7" />
           </div>
           <div>
@@ -303,7 +324,7 @@ export default function CandidatesPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 items-stretch">
           {filtered.map((candidate) => (
             <CandidateCard
               key={candidate.id}
@@ -317,16 +338,7 @@ export default function CandidatesPage() {
         </div>
       )}
 
-      {/* Sticky Bulk Actions */}
-      <BulkActions
-        selectedIds={selectedIds}
-        candidates={candidates}
-        onDelete={() => {
-          removeCandidates(Array.from(selectedIds))
-          clearSelected()
-        }}
-        onClear={clearSelected}
-      />
+      {/* Pagination or Footer can go here */}
     </div>
   )
 }

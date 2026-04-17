@@ -153,7 +153,7 @@ export default function WorkHistoryTimeline({
         }`}
     >
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Work history</h2>
+        <h2 className="text-lg font-black text-[#1a2340] uppercase tracking-tight">Work history</h2>
         {!readOnly && (
           <button
             type="button"

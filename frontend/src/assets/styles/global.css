@@ -1,20 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer utilities {
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 active:translate-y-0 hover:shadow-xl hover:shadow-sky-200/40 dark:hover:shadow-sky-900/40;
+    @apply transition-all duration-300 hover:-translate-y-1 active:translate-y-0 hover:shadow-xl hover:shadow-brand-300/40;
   }
 
   .shadow-premium {
-    @apply shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none transition-shadow duration-300;
+    @apply shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-shadow duration-300;
   }
 
   .shadow-premium-hover {
-    @apply hover:shadow-[0_20px_50px_rgba(14,165,233,0.15)] dark:hover:shadow-sky-900/30;
+    @apply hover:shadow-[0_20px_50px_rgba(249,115,22,0.15)];
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
   }
 }
 
@@ -37,28 +43,67 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bg-main: #f1f5f9;
-    --bg-sidebar: #ffffff;
-    --bg-card: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --border-color: #f1f5f9;
-    --shadow-main: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    /* Official Brand Colors */
+    --orange: #f47920;
+    --orange2: #e05c0a;
+    --orange-light: #fff4eb;
+    --orange-mid: #fde8d4;
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #f8f9fd;
+    --border: #e4e9f2;
+    --border2: #9aa3bc;
+    --text: #1a2340;
+    --text2: #5a6785;
+    --text3: #9aa3bc;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --yellow: #d97706;
+    --yellow-bg: #fffbeb;
+    --yellow-border: #fde68a;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    
+    /* Official Shadows */
+    --shadow-sm: 0 1px 3px rgba(26, 35, 64, .06), 0 1px 2px rgba(26, 35, 64, .04);
+    --shadow: 0 4px 16px rgba(26, 35, 64, .08), 0 1px 4px rgba(26, 35, 64, .04);
+    --shadow-lg: 0 8px 32px rgba(26, 35, 64, .1), 0 2px 8px rgba(26, 35, 64, .06);
+
+    /* Totl Specific */
+    --totl-primary-background: rgba(255, 255, 255, .8);
+    --totl-primary-font-color: var(--text);
+    --totl-primate-font-descolor: var(--text2);
+
+    /* Semantic mappings for the app */
+    --bg-main: var(--bg);
+    --bg-sidebar: var(--surface);
+    --bg-card: var(--surface);
+    --text-primary: var(--text);
+    --text-secondary: var(--text2);
+    --border-color: var(--border);
+    --shadow-main: var(--shadow);
   }
 
   :root.dark {
     color-scheme: dark;
-    --bg-main: linear-gradient(160deg, #020617 0%, #0f172a 40%, #1e1b4b 100%);
-    --bg-sidebar: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+    --bg-main: linear-gradient(160deg, #020617 0%, #0f172a 40%, #2b1d0e 100%);
+    --bg-sidebar: linear-gradient(180deg, #0f172a 0%, #2b1d0e 100%);
     --bg-card: #1e293b;
     --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
-    --border-color: #334155;
+    --border-color: #43302b;
     --shadow-main: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
   }
 
   * {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
   body {
@@ -66,6 +111,7 @@
     color: var(--text-primary);
     background: var(--bg-main);
     min-height: 100vh;
+    overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
@@ -75,17 +121,17 @@
   h4,
   h5,
   h6 {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     @apply font-bold;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
   .btn-primary {
-    @apply bg-brand-500 text-white hover:bg-brand-600 transition-all font-bold active:scale-95 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider;
+    @apply bg-brand-600 text-white hover:bg-brand-700 transition-all font-bold active:scale-95 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .link-primary {
-    @apply text-brand-500 hover:text-brand-600 transition-colors font-bold;
+    @apply text-brand-600 hover:text-brand-500 transition-colors font-bold;
   }
 }
 
@@ -94,6 +140,7 @@
     text-wrap: balance;
   }
 }
+
 
 /* Elegant Resume Preview Styles */
 .elegant-resume-page {
@@ -139,7 +186,7 @@
 }
 
 .elegant-resume-preview a {
-  @apply font-medium text-brand-600 underline decoration-sky-300 transition-colors hover:text-brand-700;
+  @apply font-medium text-brand-600 underline decoration-brand-300 transition-colors hover:text-brand-700;
 }
 
 @keyframes wave {
@@ -184,11 +231,11 @@
 
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
   }
 
   50% {
-    box-shadow: 0 0 25px 8px rgba(124, 58, 237, 0.2);
+    box-shadow: 0 0 25px 8px rgba(249, 115, 22, 0.2);
   }
 }
 

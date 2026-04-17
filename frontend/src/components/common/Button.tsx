@@ -1,7 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'orange'
-type Size = 'sm' | 'md' | 'lg'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'official'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
@@ -12,15 +11,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-brand-700 text-white hover:bg-brand-800 focus-visible:ring-brand-600',
+    'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500 shadow-md shadow-brand-200/50 active:scale-95',
   secondary:
-    'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-slate-900 focus-visible:ring-slate-300',
+    'bg-white text-slate-700 border border-slate-200 hover:border-brand-200 hover:text-brand-600 focus-visible:ring-brand-100',
   ghost:
-    'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-slate-200',
+    'bg-transparent text-slate-600 hover:bg-brand-50 hover:text-brand-700 focus-visible:ring-brand-100',
   danger:
     'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-red-400',
-  orange:
-    'bg-orange-600 text-white hover:bg-orange-700 focus-visible:ring-orange-500 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-orange-600/20 active:scale-95',
+  official:
+    'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-600 rounded-xl font-bold transition-all hover:shadow-lg hover:shadow-brand-600/20 active:scale-95',
 }
 
 const sizeClasses: Record<Size, string> = {

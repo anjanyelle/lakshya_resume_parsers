@@ -175,7 +175,7 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Work history</h4>
+          <h4 className="text-sm font-black text-[#1a2340] uppercase tracking-wider">Work history</h4> { /* #1a2340 branding */ }
           <div className="mt-3 space-y-3">
             {workHistory.map((item: any) => (
               <div key={item.id} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
@@ -258,7 +258,7 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Skills</h4>
+          <h4 className="text-sm font-black text-[#1a2340] uppercase tracking-wider">Skills</h4> { /* #1a2340 branding */ }
           <div className="mt-3 space-y-2">
             {skills.map((item: any, index: number) => (
               <EditableField
@@ -277,7 +277,7 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Education</h4>
+          <h4 className="text-sm font-black text-[#1a2340] uppercase tracking-wider">Education</h4> { /* #1a2340 branding */ }
           <div className="mt-3 space-y-2">
             {education.map((item: any, index: number) => (
               <div key={`education-${index}`} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
@@ -307,7 +307,7 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Certifications</h4>
+          <h4 className="text-sm font-black text-[#1a2340] uppercase tracking-wider">Certifications</h4> { /* #1a2340 branding */ }
           <div className="mt-3 space-y-2">
             {certifications.map((item: any) => (
               <div key={item.id} className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
@@ -370,7 +370,7 @@ export default function CorrectionSplitView({
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <h4 className="text-sm font-semibold text-slate-900">Confidence summary</h4>
+          <h4 className="text-sm font-black text-[#1a2340] uppercase tracking-wider">Confidence summary</h4> { /* #1a2340 branding */ }
           <div className="mt-2 text-xs text-slate-500">
             {Object.entries(flaggedFields).map(([field, value]) => (
               <div key={field} className="flex items-center justify-between py-1">

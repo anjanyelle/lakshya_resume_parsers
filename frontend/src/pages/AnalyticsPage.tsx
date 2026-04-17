@@ -18,8 +18,8 @@ const SCORE_RANGES = [
   { range: '0-20', min: 0, max: 0.2, color: '#ef4444' },
   { range: '21-40', min: 0.2, max: 0.4, color: '#f97316' },
   { range: '41-60', min: 0.4, max: 0.6, color: '#f59e0b' },
-  { range: '61-80', min: 0.6, max: 0.8, color: '#3b82f6' },
-  { range: '81-100', min: 0.8, max: 1.01, color: '#10b981' },
+  { range: '61-80', min: 0.6, max: 0.8, color: '#ea580c' },
+  { range: '81-100', min: 0.8, max: 1.01, color: '#c2410c' },
 ]
 
 export default function AnalyticsPage() {
@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
   // Top Skill
   const skillMap: Record<string, number> = {}
   candidates.forEach((c) => {
-    ;(c.skills ?? []).forEach((s) => {
+    ; (c.skills ?? []).forEach((s) => {
       skillMap[s.name] = (skillMap[s.name] ?? 0) + 1
     })
   })
@@ -120,18 +120,18 @@ export default function AnalyticsPage() {
         {summaryStats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-xl bg-white p-4 shadow-card border border-slate-100"
+            className="rounded-xl bg-white p-4 shadow-card border border-slate-300"
           >
-            <p className="text-xs text-slate-400">{stat.sub}</p>
-            <p className="mt-1 text-2xl font-bold text-slate-800">{stat.value}</p>
-            <p className="mt-0.5 text-xs font-medium text-slate-500">{stat.label}</p>
+            <h3 className="text-[12px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]">Platform Pulse</h3>
+          <p className="text-2xl font-bold text-slate-800 dark:text-slate-100 mt-1">Analytics Intelligence</p>
+            <p className="mt-0.5 text-sm font-medium text-slate-500">{stat.label}</p>
           </div>
         ))}
       </div>
 
       {/* Weekly Activity Chart */}
-      <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-700">Weekly Activity</h3>
+      <div className="rounded-xl bg-white p-5 shadow-card border border-slate-300">
+        <h3 className="mb-4 text-sm font-semibold text-slate-800">Weekly Activity</h3>
         {hasAnyData ? (
           <>
             <ResponsiveContainer width="100%" height={200}>
@@ -142,8 +142,8 @@ export default function AnalyticsPage() {
                     <stop offset="95%" stopColor="#fb923c" stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="anaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="#f97316" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#f97316" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
                 <Area type="monotone" dataKey="applications" stroke="#fb923c" strokeWidth={2} fill="url(#appGrad)" name="Applications" />
-                <Area type="monotone" dataKey="analyzed" stroke="#14b8a6" strokeWidth={2} fill="url(#anaGrad)" name="Analyzed" />
+                <Area type="monotone" dataKey="analyzed" stroke="#ea580c" strokeWidth={2} fill="url(#anaGrad)" name="Analyzed" />
               </AreaChart>
             </ResponsiveContainer>
             <div className="mt-2 flex items-center gap-4 justify-center">
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
                 <span className="h-2 w-2 rounded-full bg-orange-400" /> Applications
               </span>
               <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                <span className="h-2 w-2 rounded-full bg-teal-500" /> Analyzed
+                <span className="h-2 w-2 rounded-full bg-brand-600" /> Analyzed
               </span>
             </div>
           </>
@@ -173,8 +173,8 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Score Distribution */}
-      <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-700">Score Distribution</h3>
+      <div className="rounded-xl bg-white p-5 shadow-card border border-slate-300">
+        <h3 className="mb-4 text-sm font-semibold text-slate-800">Score Distribution</h3>
         {scores.length > 0 ? (
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={scoreDistData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
