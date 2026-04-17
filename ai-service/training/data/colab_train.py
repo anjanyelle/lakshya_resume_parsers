@@ -23,17 +23,22 @@ MODEL_NAME = "microsoft/deberta-v3-base"
 # Save model to the correct location
 OUTPUT_DIR = str(Path(__file__).parent.parent.parent / "models" / "resume-ner-deberta")
 
-# Note: PERSON removed - handled separately with regex pattern matching
+# All labels from the training data (label1.json, label2.json, label3.json)
 LABELS = [
     "O",
     "B-COMPANY", "I-COMPANY",
     "B-CLIENT", "I-CLIENT",
     "B-ROLE", "I-ROLE",
     "B-LOCATION", "I-LOCATION",
-    "B-START_DATE", "I-START_DATE",
-    "B-END_DATE", "I-END_DATE",
-    "B-EDUCATION", "I-EDUCATION",
-    "B-DEGREE", "I-DEGREE"
+    "B-DATE_START", "I-DATE_START",
+    "B-DATE_END", "I-DATE_END",
+    "B-INSTITUTION", "I-INSTITUTION",
+    "B-DEGREE", "I-DEGREE",
+    "B-FIELD", "I-FIELD",
+    "B-EDU_YEAR_START", "I-EDU_YEAR_START",
+    "B-EDU_YEAR_END", "I-EDU_YEAR_END",
+    "B-GRADE", "I-GRADE",
+    "B-PERSON_NAME", "I-PERSON_NAME"
 ]
 
 label2id = {label: i for i, label in enumerate(LABELS)}
@@ -41,15 +46,21 @@ id2label = {i: label for i, label in enumerate(LABELS)}
 
 class ResumeNERTrainer:
     def __init__(self):
-        # Force CPU to avoid MPS memory issues on Mac
-        self.device = "cpu"
-        print("="*50)
-        print("🎯 Resume NER Model Training (Colab Version)")
-        print("="*50)
-        print(f"🖥️  Using device: {self.device}")
+        # Auto-detect GPU (CUDA for Colab)
         if torch.cuda.is_available():
-            print(f"GPU: {torch.cuda.get_device_name(0)}")
-        print("⚠️  Training on CPU to avoid memory issues")
+            self.device = "cuda"
+            print("="*50)
+            print("🎯 Resume NER Model Training (Colab Version)")
+            print("="*50)
+            print(f"✅ GPU Available: {torch.cuda.get_device_name(0)}")
+            print(f"🖥️  Using device: {self.device}")
+        else:
+            self.device = "cpu"
+            print("="*50)
+            print("🎯 Resume NER Model Training (Colab Version)")
+            print("="*50)
+            print("⚠️  No GPU detected - using CPU")
+            print(f"🖥️  Using device: {self.device}")
         
         self.tokenizer = None
         self.model = None
@@ -105,7 +116,7 @@ class ResumeNERTrainer:
         )
         
         labels = []
-        for i, label in enumerate(examples["ner_tags"]):
+        for i, label in enumerate(examples["labels"]):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             label_ids = []
             previous_word_idx = None
@@ -181,15 +192,15 @@ class ResumeNERTrainer:
         }
         
     def setup_training_arguments(self) -> TrainingArguments:
-        """Setup training arguments optimized for Mac CPU"""
+        """Setup training arguments optimized for high F1 score"""
         return TrainingArguments(
             output_dir=OUTPUT_DIR,
             num_train_epochs=10,
-            learning_rate=3e-5,
-            per_device_train_batch_size=2,
-            per_device_eval_batch_size=2,
-            gradient_accumulation_steps=8,
-            warmup_steps=200,
+            learning_rate=2e-5,
+            per_device_train_batch_size=16,
+            per_device_eval_batch_size=16,
+            gradient_accumulation_steps=1,
+            warmup_steps=500,
             weight_decay=0.01,
             logging_dir='./logs',
             logging_steps=50,
@@ -197,11 +208,13 @@ class ResumeNERTrainer:
             save_strategy='epoch',
             load_best_model_at_end=True,
             metric_for_best_model='f1',
-            dataloader_num_workers=0,
-            fp16=False,
+            greater_is_better=True,
+            dataloader_num_workers=2,
+            bf16=torch.cuda.is_available(),
             report_to=[],
-            save_total_limit=2,
-            use_cpu=True,
+            save_total_limit=3,
+            lr_scheduler_type='linear',
+            max_grad_norm=1.0,
         )
         
     def train_model(self):
@@ -217,7 +230,7 @@ class ResumeNERTrainer:
             train_dataset=self.train_dataset,
             eval_dataset=self.test_dataset,
             data_collator=self.data_collator,
-            compute_metrics=self.compute_metrics
+            compute_metrics=self.compute_metrics,
         )
         
         trainer.train()

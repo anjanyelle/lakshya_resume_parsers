@@ -104,7 +104,7 @@ class ResumeNERTrainer:
         
         labels = []
         
-        for i, label_seq in enumerate(examples['ner_tags']):
+        for i, label_seq in enumerate(examples['labels']):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             previous_word_idx = None
             label_ids = []
