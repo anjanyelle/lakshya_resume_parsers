@@ -106,7 +106,7 @@ export default function CorrectionsPage() {
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-50 bg-slate-50/30">
             <div className="flex items-center gap-2">
               <ClipboardCheck className="h-4 w-4 text-violet-600" />
-              <h3 className="text-sm font-semibold text-slate-600">Recent Corrections</h3>
+              <h3 className="text-sm font-semibold text-slate-800">Recent Corrections</h3>
             </div>
             <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-widest">
               {filtered.length} entries
@@ -150,12 +150,12 @@ export default function CorrectionsPage() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-slate-600">{row.candidate_name ?? 'Unknown'}</span>
+                          <span className="text-sm font-bold text-slate-800">{row.candidate_name ?? 'Unknown'}</span>
                           <span className="text-[10px] text-slate-400">{row.candidate_email}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                        <span className="inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-800 uppercase tracking-tight">
                           {row.field}
                         </span>
                       </td>
@@ -187,7 +187,7 @@ export default function CorrectionsPage() {
         <div className="space-y-6 flex flex-col">
           {/* Reviewer Activity */}
           <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-violet-600" />
               Reviewer Activity
             </h3>
@@ -201,7 +201,7 @@ export default function CorrectionsPage() {
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600 transition-colors group-hover:bg-violet-600 group-hover:text-white">
                       <UserRound className="h-4 w-4" />
                     </div>
-                    <span className="text-xs font-semibold text-slate-600">{name}</span>
+                    <span className="text-xs font-bold text-slate-800">{name}</span>
                   </div>
                   <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
                     {loading ? '—' : `${rows.filter(r => (r.reviewer || '').toLowerCase().includes(name.toLowerCase())).length} edits`}
@@ -213,7 +213,7 @@ export default function CorrectionsPage() {
 
           {/* Training Needs */}
           <div className="rounded-xl bg-white p-6 shadow-card border border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-600 mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
               <div className="h-1.5 w-1.5 rounded-full bg-teal-500" />
               Fields Needing Training
             </h3>

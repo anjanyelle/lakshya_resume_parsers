@@ -159,7 +159,7 @@ export default function CandidatesPage() {
     <div className="space-y-5 animate-fade-in">
       {/* Export Button Row */}
       <div className="flex items-center justify-between px-1">
-        <p className="text-[13px] font-semibold text-slate-400 uppercase tracking-widest">
+        <p className="text-[13px] font-bold text-slate-800 uppercase tracking-widest">
           Candidates ({candidates.length})
         </p>
         <button
@@ -182,7 +182,7 @@ export default function CandidatesPage() {
             placeholder="Search candidates..."
             value={localSearch}
             onChange={(e) => setLocalSearch(e.target.value)}
-            className="w-full rounded-xl border-slate-100 bg-slate-50/50 py-3 pl-11 pr-4 text-sm text-slate-600 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-all font-semibold"
+            className="w-full rounded-xl border-slate-100 bg-slate-50/50 py-3 pl-11 pr-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-all font-semibold"
           />
         </div>
 
@@ -255,7 +255,7 @@ export default function CandidatesPage() {
             <Search className="h-7 w-7" />
           </div>
           <div>
-            <p className="text-base font-semibold text-slate-600">No candidates found</p>
+            <p className="text-base font-semibold text-slate-800">No candidates found</p>
             <p className="text-sm text-slate-500 mt-1">Try adjusting your search or filters to see more results.</p>
           </div>
         </div>

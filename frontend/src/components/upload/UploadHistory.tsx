@@ -15,7 +15,7 @@ export default function UploadHistory({ items }: UploadHistoryProps) {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6">
-      <h3 className="text-lg font-semibold text-slate-900">Recent uploads</h3>
+      <h3 className="text-lg font-bold text-slate-800">Recent uploads</h3>
       <div className="mt-4 space-y-3">
         {items.slice(0, 5).map((item) => (
           <div
@@ -23,12 +23,12 @@ export default function UploadHistory({ items }: UploadHistoryProps) {
             className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
           >
             <div>
-              <p className="text-sm font-medium text-slate-900">{item.file.name}</p>
+              <p className="text-sm font-bold text-slate-800">{item.file.name}</p>
               <p className="text-xs text-slate-500">
                 {item.uploadedAt ?? 'Just now'}
               </p>
             </div>
-            <span className="text-xs font-semibold text-slate-600">
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-tighter">
               {item.status}
             </span>
           </div>

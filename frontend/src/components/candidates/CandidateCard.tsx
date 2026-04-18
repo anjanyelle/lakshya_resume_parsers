@@ -85,7 +85,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-semibold text-slate-600 truncate leading-tight tracking-tight">
+          <h3 className="text-[15px] font-bold text-slate-800 truncate leading-tight tracking-tight">
             {candidate.full_name || 'Anonymous'}
           </h3>
           <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">
@@ -111,25 +111,25 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
         <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3 pl-[52px]">
           <div className="flex items-center gap-2.5 min-w-0">
             <Mail className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.email ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <span className={`text-[13px] truncate ${candidate.email ? 'text-slate-800 font-semibold' : 'text-slate-300 italic'}`}>
               {candidate.email || 'Email not listed'}
             </span>
           </div>
           <div className="flex items-center gap-2.5 min-w-0">
             <Phone className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.phone ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <span className={`text-[13px] truncate ${candidate.phone ? 'text-slate-800 font-semibold' : 'text-slate-300 italic'}`}>
               {candidate.phone || 'Phone not listed'}
             </span>
           </div>
           <div className="flex items-center gap-2.5 min-w-0">
             <MapPin className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.location ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <span className={`text-[13px] truncate ${candidate.location ? 'text-slate-800 font-semibold' : 'text-slate-300 italic'}`}>
               {candidate.location || 'Location not listed'}
             </span>
           </div>
           <div className="flex items-center gap-2.5 min-w-0">
             <Calendar className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
-            <span className={`text-[13px] truncate ${candidate.years_experience !== null ? 'text-slate-600 font-semibold' : 'text-slate-300 italic'}`}>
+            <span className={`text-[13px] truncate ${candidate.years_experience !== null ? 'text-slate-800 font-semibold' : 'text-slate-300 italic'}`}>
               {candidate.years_experience !== null ? `${candidate.years_experience} yrs exp.` : 'Exp. not listed'}
             </span>
           </div>
@@ -143,7 +143,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
               {(showAllSkills ? skills : topSkills).map((skill) => (
                 <span
                   key={skill.id}
-                  className="rounded-lg border border-slate-100 bg-white px-3 py-1 text-[11px] font-medium text-slate-600 shadow-sm transition-all hover:border-slate-200"
+                  className="rounded-lg border border-slate-100 bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm transition-all hover:border-slate-200"
                 >
                   {skill.name}
                 </span>

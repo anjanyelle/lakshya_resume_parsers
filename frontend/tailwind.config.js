@@ -15,6 +15,7 @@ export default {
           700: '#6d28d9',
           800: '#5b21b6',
           900: '#4c1d95',
+          navy: '#1a2340',
         },
         teal: {
           50: '#f0fdfa',
@@ -34,11 +35,11 @@ export default {
           200: '#e2e8f0',
           300: '#cbd5e1',
           400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1f2937',
-          900: '#0f172a',
+          500: '#5c6b8c',
+          600: '#415173',
+          700: '#2d3b5c',
+          800: '#1a2340',
+          900: '#0e1324',
         },
       },
       boxShadow: {
@@ -84,7 +85,7 @@ export default {
         'accent-gradient': 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
     },
   },

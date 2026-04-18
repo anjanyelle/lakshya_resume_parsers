@@ -41,7 +41,7 @@ export default function ProfileHeader({
             {candidate.full_name?.charAt(0).toUpperCase() ?? 'C'}
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-slate-600">
+            <h1 className="text-2xl font-semibold text-slate-800">
               {candidate.full_name || 'Unnamed candidate'}
             </h1>
             <p className="text-sm text-slate-600">

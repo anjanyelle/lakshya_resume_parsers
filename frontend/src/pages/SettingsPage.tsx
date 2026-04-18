@@ -5,7 +5,7 @@ export default function SettingsPage() {
     <div className="space-y-6 animate-fade-in">
       {/* General Settings */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-600">General</h3>
+        <h3 className="mb-4 text-sm font-bold text-slate-800">General</h3>
         <div className="space-y-4">
           {[
             { label: 'Application Name', value: 'ATS Analyzer', type: 'text' },
@@ -13,7 +13,7 @@ export default function SettingsPage() {
             { label: 'Max File Size (MB)', value: '10', type: 'number' },
           ].map((field) => (
             <div key={field.label} className="flex items-center gap-4">
-              <label className="w-48 flex-shrink-0 text-sm text-slate-600">{field.label}</label>
+              <label className="w-48 flex-shrink-0 text-sm font-bold text-slate-800">{field.label}</label>
               <input
                 type={field.type}
                 defaultValue={field.value}
@@ -26,11 +26,11 @@ export default function SettingsPage() {
 
       {/* Backend Connection */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-1 text-sm font-semibold text-slate-700">Backend Connection</h3>
+        <h3 className="mb-1 text-sm font-bold text-slate-800">Backend Connection</h3>
         <p className="mb-4 text-xs text-slate-400">Configure the Python backend API endpoint</p>
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <label className="w-48 flex-shrink-0 text-sm text-slate-600">API URL</label>
+            <label className="w-48 flex-shrink-0 text-sm font-bold text-slate-800">API URL</label>
             <input
               type="text"
               defaultValue="http://localhost:8000"

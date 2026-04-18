@@ -153,7 +153,7 @@ export default function ResumeAnalyzerPage() {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-slate-600 tracking-tight">AI Scanning in Progress...</h3>
+                      <h3 className="text-xl font-bold text-slate-800 tracking-tight">AI Scanning in Progress...</h3>
                       <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">Processing {activeQueue.length} {activeQueue.length === 1 ? 'Resume' : 'Resumes'}</p>
                     </div>
                   </div>
@@ -183,7 +183,7 @@ export default function ResumeAnalyzerPage() {
                   <div className="flex h-20 w-20 items-center justify-center rounded-[2.5rem] bg-white text-violet-500 group-hover:scale-110 transition-all duration-500 mb-6 shadow-xl shadow-violet-100 border border-violet-50">
                     <Upload className="h-9 w-9" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-600">Ready to Analyze?</h3>
+                  <h3 className="text-xl font-bold text-slate-800">Ready to Analyze?</h3>
                   <p className="mt-2 text-sm text-slate-500 font-medium max-w-xs mx-auto">
                     Drag & drop your resumes here for deep AI insights and optimization scoring
                   </p>
@@ -280,7 +280,7 @@ export default function ResumeAnalyzerPage() {
             <div className="flex flex-col gap-1 mb-4">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Processing Model</span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-base font-bold text-slate-700">NER v2</span>
+                <span className="text-base font-bold text-slate-800">NER v2</span>
                 <span className="px-2 py-0.5 rounded-lg bg-emerald-50 text-[8px] font-bold text-emerald-600 uppercase tracking-wider">Active</span>
               </div>
             </div>
@@ -291,7 +291,7 @@ export default function ResumeAnalyzerPage() {
                   <div className="h-8 w-8 rounded-xl bg-white flex items-center justify-center border border-slate-100 text-violet-500">
                     <Settings className="h-4 w-4" />
                   </div>
-                  <span className="text-xs font-bold text-slate-600">Model Engine</span>
+                  <span className="text-xs font-bold text-slate-800">Model Engine</span>
                 </div>
                 <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
                   Using our built-in rule-based + BERT NER pipeline for zero-latency extraction.
@@ -302,7 +302,7 @@ export default function ResumeAnalyzerPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                    <span className="text-xs font-bold text-slate-700">Data Privacy</span>
+                    <span className="text-xs font-bold text-slate-800">Data Privacy</span>
                   </div>
                   <span className="text-[9px] font-black text-emerald-600 uppercase">Secure</span>
                 </div>

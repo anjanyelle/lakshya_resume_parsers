@@ -234,8 +234,8 @@ export default function TaxonomyPage() {
                 <Database className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-[15px] font-semibold text-slate-600 tracking-tight">Skills Taxonomy</h3>
-                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{filteredSkills.length} Total Skills</p>
+                <h3 className="text-[15px] font-bold text-slate-800 tracking-tight">Skills Taxonomy</h3>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{filteredSkills.length} Total Skills</p>
               </div>
             </div>
             <input
@@ -264,8 +264,8 @@ export default function TaxonomyPage() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg text-slate-300 mb-4 animate-bounce-slow">
                   <Database className="h-8 w-8" />
                 </div>
-                <h4 className="text-base font-bold text-slate-600">No skills found</h4>
-                <p className="text-xs text-slate-400 mt-1 uppercase tracking-tight">Try refining your search criteria</p>
+                <h4 className="text-base font-bold text-slate-800">No skills found</h4>
+                <p className="text-xs text-slate-500 mt-1 uppercase tracking-tight">Try refining your search criteria</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-4">
@@ -275,7 +275,7 @@ export default function TaxonomyPage() {
                     className="group flex flex-col gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-50/50 hover:-translate-y-1 hover:border-violet-200"
                   >
                     <div className="flex items-start justify-between">
-                      <h4 className="text-[13px] font-bold text-slate-700 tracking-tight group-hover:text-violet-700 transition-colors">
+                      <h4 className="text-[13px] font-black text-slate-800 tracking-tight group-hover:text-violet-700 transition-colors">
                         {skill.name ?? 'Unknown'}
                       </h4>
                       <span className="inline-flex rounded-[8px] bg-indigo-50 px-2 py-0.5 text-[8px] font-bold text-violet-600 uppercase tracking-tight shadow-sm ring-1 ring-violet-100/50">
@@ -299,7 +299,7 @@ export default function TaxonomyPage() {
         <div className="space-y-6 flex flex-col">
           {/* Degrees */}
           <div className="rounded-2xl bg-white p-6 shadow-xl shadow-slate-200/40 border border-slate-100/50 flex flex-col">
-            <h3 className="text-[14px] font-semibold text-slate-600 mb-5 flex items-center justify-between">
+            <h3 className="text-[14px] font-bold text-slate-800 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-violet-600 shadow-sm border border-violet-200/50">
                   <BookOpen className="h-4 w-4" />
@@ -319,7 +319,7 @@ export default function TaxonomyPage() {
 
           {/* Universities */}
           <div className="rounded-2xl bg-white p-6 shadow-xl shadow-slate-200/40 border border-slate-100/50 flex flex-col">
-            <h3 className="text-[14px] font-semibold text-slate-600 mb-5 flex items-center justify-between">
+            <h3 className="text-[14px] font-bold text-slate-800 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-100 text-teal-600 shadow-sm border border-teal-200/50">
                   <GraduationCap className="h-4 w-4" />
@@ -339,7 +339,7 @@ export default function TaxonomyPage() {
 
           {/* Certifications */}
           <div className="rounded-2xl bg-white p-6 shadow-xl shadow-slate-200/40 border border-slate-100/50 flex flex-col">
-            <h3 className="text-[14px] font-semibold text-slate-600 mb-5 flex items-center justify-between">
+            <h3 className="text-[14px] font-bold text-slate-800 mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 shadow-sm border border-amber-200/50">
                   <Award className="h-4 w-4" />

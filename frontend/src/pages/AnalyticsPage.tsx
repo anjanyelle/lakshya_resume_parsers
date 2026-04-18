@@ -131,7 +131,7 @@ export default function AnalyticsPage() {
 
       {/* Weekly Activity Chart */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-700">Weekly Activity</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-800">Weekly Activity</h3>
         {hasAnyData ? (
           <>
             <ResponsiveContainer width="100%" height={200}>
@@ -174,7 +174,7 @@ export default function AnalyticsPage() {
 
       {/* Score Distribution */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-700">Score Distribution</h3>
+        <h3 className="mb-4 text-sm font-semibold text-slate-800">Score Distribution</h3>
         {scores.length > 0 ? (
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={scoreDistData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>

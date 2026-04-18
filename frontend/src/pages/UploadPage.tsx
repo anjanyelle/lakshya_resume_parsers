@@ -73,10 +73,10 @@ export default function UploadPage() {
       {!activeItem && (
         <>
           <div>
-            <h1 className="text-2xl font-semibold text-slate-600">
+            <h1 className="text-2xl font-bold text-slate-800">
               Upload resumes
             </h1>
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-2 text-sm text-slate-700 font-medium">
               Drag, drop, and manage resume uploads in one place.
             </p>
           </div>

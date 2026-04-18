@@ -230,7 +230,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-6 relative z-10">
-                <h3 className="text-3xl font-medium text-slate-600 tracking-tighter transition-colors group-hover:text-slate-700">
+                <h3 className="text-3xl font-medium text-slate-800 tracking-tighter transition-colors group-hover:text-slate-900">
                   {stat.value}
                 </h3>
                 <p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none">
@@ -250,7 +250,7 @@ export default function DashboardPage() {
         {/* Monthly Applications */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Monthly Applications</h3>
+            <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-tight">Monthly Applications</h3>
             <button className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreVertical className="h-4 w-4" />
             </button>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
         {/* Top Skills Detected */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Top Skills Detected</h3>
+            <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-tight">Top Skills Detected</h3>
             <button className="text-slate-400 hover:text-slate-600 transition-colors">
               <MoreVertical className="h-4 w-4" />
             </button>
@@ -381,7 +381,7 @@ export default function DashboardPage() {
         {/* Processing Queue */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600">Processing Queue</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Processing Queue</h3>
             <span className="text-xs text-slate-400">
               {candidates.filter((c) => c.status === 'processing').length} active
             </span>
@@ -433,7 +433,7 @@ export default function DashboardPage() {
         {/* Recent Resumes */}
         <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-slate-600">Recent Resumes</h3>
+            <h3 className="text-sm font-semibold text-slate-800">Recent Resumes</h3>
             <button
               onClick={() => navigate('/candidates')}
               className="text-xs font-medium text-violet-600 hover:text-violet-700 transition-colors"
@@ -522,7 +522,7 @@ export default function DashboardPage() {
       {/* Score Distribution */}
       <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-tight">Score Distribution</h3>
+          <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-tight">Score Distribution</h3>
           <button className="text-slate-400 hover:text-slate-600 transition-colors">
             <MoreVertical className="h-4 w-4" />
           </button>

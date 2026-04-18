@@ -53,10 +53,10 @@ export default function AuthPage() {
   return (
     <section className="mx-auto max-w-lg space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-800">
           {mode === 'login' ? 'Welcome back' : 'Create your account'}
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-slate-700 font-medium">
           {mode === 'login'
             ? 'Log in to manage resumes and candidates.'
             : 'Register to start uploading resumes.'}
@@ -97,7 +97,7 @@ export default function AuthPage() {
             error={errors.password ?? undefined}
           />
           {mode === 'register' && (
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-bold text-slate-800">
               <span className="mb-1.5 block">Role</span>
               <select
                 value={role}

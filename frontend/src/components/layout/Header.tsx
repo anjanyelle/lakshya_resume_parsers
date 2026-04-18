@@ -165,7 +165,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-sm transition-all duration-300 ${pageInfo.color}`}>
             <pageInfo.icon className="h-5.5 w-5.5" />
           </div>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-600 tracking-tight truncate leading-none">
+          <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight truncate leading-none">
             {pageInfo.title}
           </h1>
         </div>

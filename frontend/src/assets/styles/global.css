@@ -1,4 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko70yyygA.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
 
 @tailwind base;
 @tailwind components;
@@ -7,16 +16,23 @@
 @layer base {
   :root {
     color-scheme: light;
+    --bg: linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%);
+    --text: #1a2340;
+    --brand-navy: #1a2340;
+    --brand-navy-rgb: 26, 35, 64;
   }
 
   * {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
   body {
-    @apply text-slate-800 antialiased;
-    background: linear-gradient(160deg, #f5f3ff 0%, #ede9fe 20%, #e0f7fa 60%, #f0fdfa 100%);
+    @apply antialiased;
+    color: var(--text);
+    background: var(--bg);
     min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -25,8 +41,9 @@
   h4,
   h5,
   h6 {
-    @apply text-slate-600 font-bold;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply font-bold;
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
   a {
@@ -38,6 +55,9 @@
   .text-balance {
     text-wrap: balance;
   }
+  .text-number {
+    color: var(--text);
+  }
 }
 
 /* Elegant Resume Preview Styles */
@@ -46,8 +66,8 @@
 }
 
 .elegant-resume-preview {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #334155;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  color: var(--text);
   line-height: 1.5;
 }
 
