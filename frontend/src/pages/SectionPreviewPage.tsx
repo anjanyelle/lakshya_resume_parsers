@@ -116,11 +116,11 @@ export default function SectionPreviewPage() {
 
     try {
       const formData = new FormData();
-      formData.append("file", selectedFile);
+      formData.append("resume", selectedFile);
 
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
       const response = await axios.post<SectionPreviewResponse>(
-        `${apiUrl}/api/upload/preview-sections`,
+        `${baseUrl}/resume/preview-sections`,
         formData,
         {
           headers: {
@@ -288,7 +288,7 @@ export default function SectionPreviewPage() {
                       }`}
                     >
                       <div className="text-center">
-                        <p className="font-medium text-gray-900 capitalize mb-2">
+                        <p className="text-xs uppercase text-gray-700 font-semibold mb-2">
                           {section}
                         </p>
                         <div className="flex items-center justify-center gap-2">
@@ -495,7 +495,7 @@ export default function SectionPreviewPage() {
                         )}
                       </div>
                       <div>
-                        {isDetected ? (
+                        {isDetected && sectionData?.text.trim() ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
                             <div className="w-2 h-2 rounded-full bg-green-500" />
                             Detected
@@ -503,7 +503,7 @@ export default function SectionPreviewPage() {
                         ) : (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
                             <div className="w-2 h-2 rounded-full bg-red-500" />
-                            Missing
+                            Empty
                           </span>
                         )}
                       </div>
@@ -511,12 +511,12 @@ export default function SectionPreviewPage() {
 
                     {/* Card Body */}
                     <div className="p-6">
-                      {isDetected && sectionData ? (
-                        <div className="bg-gray-50 rounded-lg p-4 max-h-[300px] overflow-y-auto">
-                          <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
-                            {sectionData.text}
-                          </pre>
-                        </div>
+                      {isDetected && sectionData?.text.trim() ? (
+                        <textarea
+                          readOnly
+                          value={sectionData.text}
+                          className="w-full h-[250px] p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                       ) : (
                         <p className="text-gray-500 italic">
                           No content detected for this section
@@ -551,8 +551,8 @@ export default function SectionPreviewPage() {
               
               {showRawText && (
                 <div className="px-6 py-4 border-t border-gray-200">
-                  <div className="bg-gray-50 rounded-lg p-4 max-h-[500px] overflow-y-auto">
-                    <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
+                  <div className="bg-gray-50 rounded-lg p-4 max-h-[400px] overflow-y-auto">
+                    <pre className="text-[14px] text-gray-800 whitespace-pre-wrap font-mono">
                       {previewData.raw_text}
                     </pre>
                   </div>

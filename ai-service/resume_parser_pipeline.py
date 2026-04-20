@@ -903,9 +903,9 @@ class ResumeParser:
         print("=" * 60)
         print("RESUME SECTION PREVIEW")
         print("=" * 60)
-        print(f"File processed: {file_path if file_path else 'Direct text input'}")
-        print(f"Extraction method used: {actual_extraction_tool or 'direct_text'}")
-        print(f"Raw text total characters: {len(text)}")
+        print(f"File: {file_path if file_path else 'Direct text input'}")
+        print(f"Extraction method: {actual_extraction_tool or 'direct_text'}")
+        print(f"Raw text characters: {len(text)}")
         print()
         print(f"SECTIONS DETECTED: {len(corrected_sections)}")
         print("-" * 40)
@@ -914,11 +914,14 @@ class ResumeParser:
             print(f"{section_name.upper()}:")
             print(f"Character count: {len(section_text)}")
             
-            # Print preview (first 300 characters)
-            preview_text = section_text[:300]
-            if len(section_text) > 300:
-                preview_text += "..."
-            print(f"Preview: {preview_text}")
+            if not section_text or not section_text.strip():
+                print("[EMPTY]")
+            else:
+                # Print preview (first 300 characters)
+                preview_text = section_text[:300]
+                if len(section_text) > 300:
+                    preview_text += "..."
+                print(f"Preview: {preview_text}")
             print("-" * 40)
         
         print("=" * 60)
