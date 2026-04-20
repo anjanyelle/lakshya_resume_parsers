@@ -66,9 +66,10 @@ SECTION_PATTERNS = {
         r'education|academic background|academic history|'
         r'educational background|educational qualifications|'
         r'academic qualifications|qualifications|'
+        r'educational credentials|academic credentials|'
 
         # Degree-focused
-        r'degrees?|academic degrees?|'
+        r'degrees?|academic degrees?|university degrees?|'
 
         # Training / courses
         r'training|courses?|coursework|continuing education|'
@@ -77,9 +78,11 @@ SECTION_PATTERNS = {
         # Certifications combined with education
         r'certifications? & education|education & certifications?|'
         r'education and training|training and education|'
+        r'education and certifications?|certifications? and education|'
 
         # Schooling (less formal / international)
-        r'schooling|academic record|'
+        r'schooling|academic record|school background|'
+        r'university|universities|college|'
 
         # Spaced variants
         r'academic\s+background|educational\s+qualifications|'
@@ -165,21 +168,19 @@ SECTION_PATTERNS = {
 
         # Certifications / licenses
         r'certifications?|professional certifications?|'
-        r'certificates?|licenses?|licences?|'
-        r'accreditations?|credentials?|'
+        r'certificates?|professional certificates?|'
+        r'licenses?|licences?|professional licenses?|'
+        r'accreditations?|credentials?|qualifications?|'
 
         # Courses / training completions
         r'courses?|online courses?|completed courses?|'
         r'workshops?|bootcamps?|boot camps?|'
+        r'training certifications?|professional training|'
 
         # Awards / recognition
         r'awards?|honors?|honours?|'
         r'accomplishments?|recognition|'
         r'achievements?|notable achievements?|key achievements?|'
-
-        # Projects standalone section
-        r'key projects?|notable projects?|selected projects?|'
-        r'personal projects?|side projects?|open source|'
 
         # Publications / research output
         r'publications?|papers?|research papers?|'
@@ -192,6 +193,34 @@ SECTION_PATTERNS = {
         # Professional memberships
         r'memberships?|affiliations?|professional affiliations?|'
         r'professional memberships?'
+        r')',
+        re.MULTILINE
+    ),
+
+    'projects': re.compile(
+        r'(?i)^\s*('
+
+        # Standard projects
+        r'projects?|key projects?|notable projects?|'
+        r'selected projects?|major projects?|'
+        r'personal projects?|side projects?|'
+
+        # Project experience
+        r'project experience|project work|'
+        r'project highlights?|project portfolio|'
+        r'portfolio|work portfolio|'
+
+        # Academic / research projects
+        r'academic projects?|research projects?|'
+        r'capstone projects?|thesis projects?|'
+
+        # Open source / community
+        r'open source|open source projects?|'
+        r'open source contributions?|github projects?|'
+
+        # Client / consulting work
+        r'client projects?|consulting projects?|'
+        r'freelance projects?|contract projects?'
         r')',
         re.MULTILINE
     ),
@@ -327,12 +356,14 @@ class SectionSplitter:
         
         return text
 
-    def split_sections(self, text: str) -> Dict[str, str]:
+    def split_sections(self, text: str, font_metadata: Dict[str, Dict] = None, baseline_font_size: float = 11.0) -> Dict[str, str]:
         """
         Detect section headers and split text into named sections.
         
         Args:
             text: Resume text to split into sections
+            font_metadata: Optional font metadata dictionary for font-based scoring
+            baseline_font_size: Baseline font size for the document (default 11.0)
             
         Returns:
             Dictionary with section names as keys and section text as values
@@ -356,11 +387,16 @@ class SectionSplitter:
             
             lines = text.split('\n')
             
-            for line in lines:
+            for i, line in enumerate(lines):
                 stripped_line = line.strip()
                 
-                # Check if this line is a section header
-                section_name = self.detect_section_header(stripped_line)
+                # Get prev and next lines for heuristic scoring context
+                prev_line = lines[i - 1] if i > 0 else ''
+                next_line = lines[i + 1] if i < len(lines) - 1 else ''
+                
+                # Check if this line is a section header (with optional font metadata)
+                section_name = self.detect_section_header(stripped_line, prev_line, next_line, 
+                                                         font_metadata, baseline_font_size)
                 
                 if section_name:
                     # Save previous section content
@@ -395,15 +431,238 @@ class SectionSplitter:
             self.logger.error(f"Error splitting sections: {e}")
             return {'other': text}
     
-    def detect_section_header(self, line: str) -> Optional[str]:
+    def calculate_heuristic_score(self, line: str, prev_line: str = '', next_line: str = '') -> int:
+        """
+        Calculate a heuristic score (0-10) for how likely a line is a section header.
+        
+        Args:
+            line: The line to score
+            prev_line: The previous line (for context)
+            next_line: The next line (for context)
+            
+        Returns:
+            Score from 0 to 10
+        """
+        score = 0
+        line_lower = line.lower()
+        
+        # PENALTY: Likely job title or company name indicators
+        # These should NOT be treated as section headers
+        job_title_indicators = [
+            'engineer', 'developer', 'manager', 'analyst', 'consultant',
+            'designer', 'architect', 'specialist', 'coordinator', 'director',
+            'lead', 'senior', 'junior', 'associate', 'principal', 'staff',
+            'intern', 'trainee', 'assistant', 'administrator', 'officer'
+        ]
+        
+        company_indicators = [
+            'inc', 'llc', 'ltd', 'corp', 'corporation', 'company', 'co.',
+            'solutions', 'systems', 'technologies', 'tech', 'services',
+            'group', 'partners', 'consulting', 'labs', 'studio'
+        ]
+        
+        degree_indicators = [
+            'bachelor', 'master', 'doctorate', 'phd', 'mba', 'degree',
+            'science', 'arts', 'engineering', 'technology', 'b.tech',
+            'm.tech', 'b.sc', 'm.sc', 'associate degree'
+        ]
+        
+        university_indicators = [
+            'university', 'college', 'institute', 'school of', 'academy',
+            'mit', 'stanford', 'harvard', 'berkeley', 'oxford', 'cambridge'
+        ]
+        
+        # If line contains job title or company indicators, heavily penalize
+        if any(indicator in line_lower for indicator in job_title_indicators):
+            score -= 5  # Heavy penalty for job titles
+        
+        if any(indicator in line_lower for indicator in company_indicators):
+            score -= 5  # Heavy penalty for company names
+        
+        if any(indicator in line_lower for indicator in degree_indicators):
+            score -= 5  # Heavy penalty for degree names
+        
+        if any(indicator in line_lower for indicator in university_indicators):
+            score -= 5  # Heavy penalty for university names
+        
+        # PENALTY: Lines longer than 50 chars are likely content, not headers
+        if len(line) > 50:
+            score -= 3
+        
+        # Criterion 1: Line length under 40 characters → +2 points
+        if len(line) < 40:
+            score += 2
+        
+        # Criterion 2: Case format
+        # All uppercase → +3 points
+        # Title case → +2 points
+        # Sentence case → +1 point
+        if line.isupper():
+            score += 3
+        elif line.istitle():
+            score += 2
+        elif line and line[0].isupper():
+            # Sentence case: first character uppercase
+            score += 1
+        
+        # Criterion 3: No commas, periods, or semicolons → +2 points
+        # Allow trailing colon
+        line_without_trailing_colon = line.rstrip(':')
+        if not any(char in line_without_trailing_colon for char in [',', '.', ';']):
+            score += 2
+        
+        # Criterion 4: No digits → +1 point
+        if not any(char.isdigit() for char in line):
+            score += 1
+        
+        # Criterion 5: Empty neighbor lines
+        # Both prev and next are empty → +2 points
+        # Only one neighbor is empty → +1 point
+        prev_empty = prev_line.strip() == ''
+        next_empty = next_line.strip() == ''
+        
+        if prev_empty and next_empty:
+            score += 2
+        elif prev_empty or next_empty:
+            score += 1
+        
+        # Ensure score doesn't go below 0
+        return max(0, score)
+    
+    def calculate_font_score(self, line_text: str, font_metadata: Dict[str, Dict], baseline_font_size: float) -> int:
+        """
+        Calculate a font-based score (0-9) for how likely a line is a section header.
+        Uses font metadata to assess visual prominence.
+        
+        Args:
+            line_text: The line text to score
+            font_metadata: Dictionary with line text as keys and font metadata as values
+            baseline_font_size: The baseline (body text) font size for this document
+            
+        Returns:
+            Score from 0 to 9
+        """
+        # If no metadata for this line, return 0
+        if not font_metadata or line_text not in font_metadata:
+            return 0
+        
+        metadata = font_metadata[line_text]
+        score = 0
+        
+        # Criterion 1: Font size compared to baseline
+        font_size = metadata.get('font_size', baseline_font_size)
+        size_diff = font_size - baseline_font_size
+        
+        if size_diff > 3.0:
+            score += 3  # Significantly larger font
+        elif size_diff > 1.5:
+            score += 2  # Moderately larger font
+        
+        # Criterion 2: Bold font → +3 points
+        if metadata.get('is_bold', False):
+            score += 3
+        
+        # Criterion 3: Left alignment (x position within 10 pixels of leftmost)
+        # First, find the leftmost x position in the document
+        x_position = metadata.get('x_position', 0)
+        if font_metadata:
+            leftmost_x = min(m.get('x_position', float('inf')) for m in font_metadata.values())
+            if abs(x_position - leftmost_x) <= 10:
+                score += 1
+        
+        # Criterion 4: Vertical gap above line
+        # Calculate average line spacing in document
+        vertical_gaps = [m.get('vertical_gap', 0) for m in font_metadata.values() if m.get('vertical_gap', 0) > 0]
+        if vertical_gaps:
+            avg_line_spacing = sum(vertical_gaps) / len(vertical_gaps)
+            current_gap = metadata.get('vertical_gap', 0)
+            
+            # If gap is more than 1.5x average, add 2 points
+            if current_gap > avg_line_spacing * 1.5:
+                score += 2
+        
+        return score
+    
+    def _match_unknown_section_partial(self, header_text: str) -> str:
+        """
+        Attempt to match an unknown section header to a known section via partial matching.
+        
+        Args:
+            header_text: The unknown header text
+            
+        Returns:
+            Matched section name or custom section key
+        """
+        # Normalize the header text
+        normalized_header = header_text.lower().strip()
+        header_words = normalized_header.split()
+        
+        # Get the KEYWORD_MAP from _match_section_keywords
+        # We'll reconstruct it here for partial matching
+        KEYWORD_MAP = {
+            'experience': [
+                'experience', 'work', 'employment', 'career', 'job', 'professional',
+                'positions', 'roles', 'history', 'background', 'internship',
+                'freelance', 'contract', 'consulting', 'volunteer'
+            ],
+            'education': [
+                'education', 'academic', 'qualification', 'degree', 'university',
+                'college', 'school', 'training', 'certification', 'studies'
+            ],
+            'skills': [
+                'skills', 'competencies', 'expertise', 'technologies', 'tools',
+                'proficiencies', 'capabilities', 'technical', 'programming'
+            ],
+            'summary': [
+                'summary', 'profile', 'objective', 'about', 'overview',
+                'introduction', 'statement', 'highlights'
+            ],
+            'certifications': [
+                'certifications', 'certificates', 'licenses', 'accreditations',
+                'credentials', 'awards', 'achievements', 'honors'
+            ],
+            'projects': [
+                'projects', 'portfolio', 'work samples', 'publications',
+                'research', 'contributions'
+            ],
+        }
+        
+        # Try partial matching: check if any word in header partially matches any keyword
+        for section_name, keywords in KEYWORD_MAP.items():
+            for header_word in header_words:
+                # Skip very short words (< 3 chars)
+                if len(header_word) < 3:
+                    continue
+                    
+                for keyword in keywords:
+                    # Check if header word is in keyword or keyword is in header word
+                    if header_word in keyword or keyword in header_word:
+                        self.logger.info(f"🔍 Partial match: '{header_text}' → section: {section_name} (matched '{header_word}' with '{keyword}')")
+                        return section_name
+        
+        # No partial match found - create custom section name
+        # Convert to lowercase and replace spaces with underscores
+        custom_section = normalized_header.replace(' ', '_').replace(':', '').replace('-', '_')
+        # Remove any special characters
+        custom_section = re.sub(r'[^a-z0-9_]', '', custom_section)
+        
+        self.logger.info(f"📝 Creating custom section: '{header_text}' → '{custom_section}'")
+        return custom_section
+    
+    def detect_section_header(self, line: str, prev_line: str = '', next_line: str = '', 
+                             font_metadata: Dict[str, Dict] = None, baseline_font_size: float = 11.0) -> Optional[str]:
         """
         Check if a line is a section header and return the section name.
         
         Args:
             line: Line to check for section header
+            prev_line: Previous line for heuristic scoring context
+            next_line: Next line for heuristic scoring context
+            font_metadata: Optional font metadata dictionary for font-based scoring
+            baseline_font_size: Baseline font size for the document (default 11.0)
             
         Returns:
-            Matched section name or None
+            Matched section name, 'unknown_section', 'possible_section', or None
         """
         try:
             if not line or len(line.strip()) < 3:
@@ -426,6 +685,7 @@ class SectionSplitter:
                 if len(after_colon) > 10:
                     return None
             
+            # KEYWORD MATCHING - Try to match against known section keywords
             # Strategy 1: Check normalized version against keywords (handles all case variations)
             # This works for: "EDUCATION", "Education", "education", "EdUcAtIoN"
             if len(clean_line.split()) <= 10:  # Reasonable header length
@@ -452,13 +712,46 @@ class SectionSplitter:
                     self.logger.info(f"✅ Detected title case header: '{clean_line}' → section: {result}")
                     return result
             
-            # No keyword matched — try semantic matching as fallback
-            semantic_result = self.detect_section_header_semantic(clean_line)
-            if semantic_result:
-                self.logger.info(f"✅ Detected via semantic matching: '{clean_line}' → section: {semantic_result}")
-                return semantic_result
-
-            return None
+            # KEYWORD MATCHING FAILED - Use heuristic scoring as fallback
+            heuristic_score = self.calculate_heuristic_score(clean_line, prev_line, next_line)
+            
+            # Score ≥ 7: Confirmed heading with unknown section name
+            # Try partial matching to assign to nearest section or create custom section
+            if heuristic_score >= 7:
+                self.logger.info(f"✅ Detected unknown section header (score={heuristic_score}): '{clean_line}'")
+                matched_section = self._match_unknown_section_partial(clean_line)
+                return matched_section
+            
+            # Score 4-6: Possible heading, needs font layer confirmation
+            elif heuristic_score >= 4:
+                # Check if font metadata is available for this line
+                if font_metadata and clean_line in font_metadata:
+                    font_score = self.calculate_font_score(clean_line, font_metadata, baseline_font_size)
+                    
+                    # Font score ≥ 5: Upgrade to confirmed heading
+                    if font_score >= 5:
+                        self.logger.info(f"✅ Upgraded to confirmed header (heuristic={heuristic_score}, font={font_score}): '{clean_line}'")
+                        matched_section = self._match_unknown_section_partial(clean_line)
+                        return matched_section
+                    
+                    # Font score < 3: Downgrade to content
+                    elif font_score < 3:
+                        self.logger.info(f"❌ Downgraded to content (heuristic={heuristic_score}, font={font_score}): '{clean_line}'")
+                        return None
+                    
+                    # Font score 3-4: Keep as possible section
+                    else:
+                        self.logger.info(f"⚠️ Possible section header (heuristic={heuristic_score}, font={font_score}): '{clean_line}' → 'possible_section'")
+                        return 'possible_section'
+                else:
+                    # No font metadata available - keep heuristic decision
+                    self.logger.info(f"⚠️ Possible section header (score={heuristic_score}, no font data): '{clean_line}' → 'possible_section'")
+                    return 'possible_section'
+            
+            # Score ≤ 3: Treat as content, not a header
+            else:
+                self.logger.debug(f"❌ Not a header (score={heuristic_score}): '{clean_line}'")
+                return None
             
         except Exception as e:
             self.logger.error(f"Error detecting section header: {e}")
@@ -528,47 +821,323 @@ class SectionSplitter:
             return None
     
     def _match_section_keywords(self, text: str) -> Optional[str]:
+        # Strip whitespace first
         clean_text = text.strip()
-        clean_text = re.sub(r'[:\-=_\s]+$', '', clean_text)
+        
+        # Remove special characters from start and end:
+        # - dashes, underscores, equal signs, asterisks, hash symbols
+        # - bullet points (•, -, *, +), square brackets, colons
+        # Pattern: strip these chars from both ends
+        clean_text = re.sub(r'^[\-_=*#•\[\]\:\s]+', '', clean_text)
+        clean_text = re.sub(r'[\-_=*#•\[\]\:\s]+$', '', clean_text)
+        
+        # Normalize multiple spaces into single space
+        clean_text = re.sub(r'\s+', ' ', clean_text)
 
         KEYWORD_MAP = {
             'experience': [
-                'work experience', 'professional experience', 'employment history',
-                'employment', 'career history', 'experience', 'work history',
-                'relevant experience', 'roles & responsibilities',
-                'roles and responsibilities', 'positions held', 'position held',
-                'professional background', 'career summary', 'job history',
-                'internship', 'internships', 'project experience',
-                'projects experience', 'work'
+                # Core
+                'experience', 'work experience', 'professional experience',
+                'employment', 'employment history', 'work history', 'career history',
+                'job history', 'professional history', 'employment record',
+
+                # Background & profile
+                'professional background', 'work background', 'work profile',
+                'career profile', 'career experience', 'job experience',
+
+                # Summary & overview
+                'experience summary', 'career summary', 'professional journey',
+                'career overview', 'professional overview',
+
+                # Roles
+                'roles & responsibilities', 'roles and responsibilities',
+                'positions held', 'position held', 'previous positions',
+                'past positions', 'current position', 'previous roles',
+                'past roles', 'current role', 'job titles', 'titles held',
+                'appointments', 'assignments', 'engagements',
+
+                # Scoped
+                'relevant experience', 'industry experience', 'technical experience',
+                'leadership experience', 'management experience', 'project experience',
+                'projects experience', 'research experience', 'teaching experience',
+                'clinical experience', 'field experience', 'consulting experience',
+                'freelance experience', 'volunteer experience', 'internship experience',
+                'academic experience', 'military experience', 'government experience',
+                'nonprofit experience', 'startup experience', 'agency experience',
+                'corporate experience', 'remote experience', 'international experience',
+                'cross-functional experience', 'administrative experience',
+                'operations experience', 'sales experience', 'training experience',
+
+                # Temporal qualifiers
+                'previous experience', 'prior experience', 'past experience',
+                'previous employment', 'prior employment', 'former employment',
+
+                # Internship / entry-level
+                'internship', 'internships', 'co-op', 'co-op experience',
+                'apprenticeship', 'trainee experience', 'placement',
+                'industrial placement', 'work placement', 'practicum', 'externship',
+
+                # Contract / freelance
+                'freelance work', 'contract work', 'contract experience',
+                'self-employed', 'independent contractor', 'part-time experience',
+                'full-time experience', 'gig experience',
+
+                # Accomplishments-framed
+                'achievements', 'accomplishments', 'key contributions',
+                'contributions', 'career highlights', 'professional achievements',
+                'key achievements', 'major accomplishments', 'impact',
+                'professional impact', 'results', 'key results',
+
+                # Misc
+                'work', 'professional journey', 'career', 'career path',
+                'career progression', 'career development', 'career trajectory',
             ],
+
             'education': [
-                'education', 'academic background', 'qualifications',
-                'academic history', 'degree', 'degrees', 'educational background',
-                'academic qualifications', 'schooling', 'training',
-                'certifications & education', 'academic'
+                # Core
+                'education', 'academic', 'academics', 'qualification', 'qualifications',
+                'education and training', 'education & training',
+
+                # Background & history
+                'educational background', 'academic background', 'educational history',
+                'academic history', 'academic record', 'scholastic background',
+                'scholastic record', 'learning background', 'learning history',
+
+                # Credentials
+                'academic qualification', 'academic qualifications',
+                'educational qualifications', 'academic credentials',
+                'credentials', 'credential', 'degree', 'degrees',
+                'diploma', 'diplomas', 'certificate', 'certificates',
+                'certification', 'certifications', 'licensure', 'accreditation',
+
+                # Institutions
+                'universities attended', 'colleges attended',
+                'institutions attended', 'schools attended',
+                'academic institutions', 'alma mater',
+
+                # Summary / overview
+                'education summary', 'educational summary', 'academic summary', 
+                'educational overview', 'academic overview', 'education profile', 
+                'academic profile', 'academic achievements', 'educational achievements',
+                'scholastic achievements', 'educational details',
+
+                # Training & development
+                'training', 'training and development', 'professional development',
+                'professional training', 'continuing education',
+                'continuing professional development', 'cpd',
+                'further education', 'further training', 'additional training',
+                'online training', 'workshops', 'seminars', 'bootcamp', 'bootcamps',
+                'courses', 'coursework', 'online courses', 'e-learning',
+
+                # Scoped
+                'technical education', 'vocational education', 'vocational training',
+                'vocational qualifications', 'technical training', 'trade education',
+                'trade certification', 'postgraduate education',
+                'undergraduate education', 'graduate education', 'doctoral education',
+                'postdoctoral training', 'medical education', 'legal education',
+                'university education', 'college education', 'studies', 'academic experience',
+
+                # Degree types
+                'bachelor', 'bachelors', "bachelor's degree", 'master', 'masters',
+                "master's degree", 'doctorate', 'doctoral degree', 'phd', 'mba',
+                'associate degree', 'undergraduate degree', 'postgraduate degree',
+                'honors degree', 'advanced degree', 'higher education',
+                'higher national diploma', 'hnd', 'hnc', 'foundation degree',
+                'gnvq', 'nvq',
+
+                # Achievements within education
+                'academic honors', 'academic awards', 'scholarships', 'fellowships',
+                'distinctions', 'honors', "dean's list", 'major', 'minor',
+                'concentration', 'thesis', 'dissertation', 'capstone',
+                'final year project',
+
+                # International / regional
+                'schooling', 'matric', 'matriculation', 'secondary education',
+                'high school', 'secondary school', 'sixth form', 'a levels',
+                'o levels', 'gcses', 'leaving certificate', 'baccalaureate',
+                'international baccalaureate', 'ib diploma',
+                '12th grade', '10th grade', 'ssc', 'hsc', 'cbse', 'icse',
             ],
+
             'skills': [
-                'skills', 'skill', 'technical skills', 'core competencies',
-                'competencies', 'technologies', 'tools & technologies',
-                'tools and technologies', 'expertise', 'key skills',
-                'proficiencies', 'technical expertise',
+                # Core
+                'skills', 'skill', 'key skills', 'core skills', 'main skills',
+                'relevant skills', 'transferable skills', 'soft skills', 'hard skills',
+                'professional skills', 'interpersonal skills', 'communication skills', 
+                'analytical skills', 'organizational skills', 'leadership skills', 
+                'problem-solving skills', 'strengths',
+
+                # Technical
+                'technical skills', 'technical expertise', 'technical proficiencies',
+                'technical knowledge', 'technical abilities', 'technical competencies',
+                'it skills', 'computer skills', 'digital skills', 'programming skills',
+                'software skills', 'hardware skills',
+
+                # Competencies
+                'core competencies', 'competencies', 'competency', 'key competencies',
+                'professional competencies', 'functional competencies',
+                'proficiencies', 'proficiency', 'abilities', 'capability',
+                'capabilities', 'expertise', 'areas of expertise',
+                'subject matter expertise', 'domain expertise',
+
+                # Tools & technologies
+                'technologies', 'tools', 'tools & technologies',
+                'tools and technologies', 'software', 'software proficiency',
+                'software knowledge', 'platforms', 'frameworks',
                 'languages & frameworks', 'languages and frameworks',
-                'stack', 'tech stack', 'technical stack'
+                'programming languages', 'scripting languages',
+                'stack', 'tech stack', 'technical stack', 'technology stack',
+                'infrastructure', 'devops tools', 'cloud platforms',
+
+                # Specializations
+                'specializations', 'specialization', 'specialties', 'specialty',
+                'areas of specialization', 'areas of focus',
+
+                # Other
+                'methodologies', 'practices', 'approaches', 'knowledge',
+                'knowledge base', 'skill set', 'skillset',
             ],
+
             'summary': [
-                'summary', 'professional summary', 'profile', 'about me',
-                'objective', 'career objective', 'overview',
-                'personal statement', 'professional profile',
-                'executive summary', 'about', 'introduction'
+                # Core
+                'summary', 'professional summary', 'career summary',
+                'experience summary', 'skills summary',
+
+                # Profile
+                'profile', 'professional profile', 'career profile',
+                'personal profile', 'candidate profile', 'brief profile',
+
+                # About
+                'about me', 'about', 'who i am', 'bio', 'biography',
+                'personal bio', 'professional bio',
+
+                # Objective
+                'objective', 'career objective', 'professional objective',
+                'job objective', 'work objective', 'goals', 'career goals',
+                'professional goals',
+
+                # Overview & introduction
+                'overview', 'career overview', 'professional overview',
+                'introduction', 'professional introduction',
+                'executive summary', 'personal statement', 'career statement',
+                'mission statement', 'value proposition', 'background summary',
+
+                # Snapshot
+                'snapshot', 'career snapshot', 'professional snapshot',
+                'at a glance', 'highlights', 'career highlights',
+                'key highlights', 'top skills', 'core strengths', 'strengths',
             ],
+
             'certifications': [
+                # Core
                 'certifications', 'certification', 'certificates', 'certificate',
-                'licenses', 'license', 'accreditations', 'courses',
-                'professional development', 'achievements', 'awards'
+                'certified', 'certified in', 'accreditations', 'accreditation',
+                'licenses', 'license', 'licensure', 'professional licenses',
+                'professional certifications', 'certification programs', 'certificate programs',
+                'training certifications', 'online certifications', 'awarded certifications',
+                'completed certifications', 'certification summary', 'license and certifications',
+
+                # Professional development
+                'professional development', 'continuing education',
+                'continuing professional development', 'cpd',
+                'professional training', 'additional training',
+                'online courses', 'courses', 'coursework', 'bootcamp',
+                'workshops', 'seminars', 'conferences attended',
+
+                # Achievements & awards
+                'achievements', 'accomplishments', 'awards', 'honors',
+                'academic awards', 'professional awards', 'industry awards',
+                'recognition', 'accolades', 'distinctions',
+                'scholarships', 'fellowships', 'grants',
+
+                # Badges & credentials
+                'badges', 'digital badges', 'micro-credentials',
+                'credentials', 'professional credentials',
+                'industry certifications', 'technical certifications',
+                'vendor certifications', 'it certifications',
+
+                # Specific well-known certs
+                'aws certified', 'google certified', 'microsoft certified',
+                'pmp', 'cissp', 'cpa', 'cfa', 'six sigma', 'itil',
+                'prince2', 'scrum master', 'agile certified',
             ],
+
             'projects': [
-                'projects', 'project', 'personal projects', 'key projects',
-                'notable projects', 'portfolio'
+                # Core
+                'projects', 'project', 'my projects', 'all projects',
+                'project work', 'project experience', 'project highlights', 'project list',
+
+                # Scoped
+                'personal projects', 'key projects', 'notable projects',
+                'selected projects', 'featured projects', 'recent projects',
+                'relevant projects', 'major projects', 'side projects',
+                'academic projects', 'research projects', 'client projects',
+                'freelance projects', 'open source projects', 'open-source projects',
+                'collaborative projects', 'group projects', 'team projects',
+                'independent projects', 'professional projects',
+
+                # Portfolio & work samples
+                'portfolio', 'work portfolio', 'design portfolio',
+                'creative portfolio', 'project portfolio',
+                'work samples', 'sample work', 'case studies', 'case study',
+                'notable work', 'client work', 'selected work',
+
+                # Technical
+                'builds', 'applications built', 'apps built',
+                'software projects', 'engineering projects',
+                'technical projects', 'development projects',
+                'github projects', 'contributions',
+
+                # Research / academic
+                'publications', 'papers', 'research papers', 'research work',
+                'thesis', 'dissertation', 'capstone', 'capstone project',
+                'final year project', 'independent study',
+            ],
+
+            'languages': [
+                # Core
+                'languages', 'language', 'spoken languages', 'written languages',
+                'language skills', 'language proficiency', 'language abilities',
+                'language competencies', 'linguistic skills', 'linguistics',
+
+                # Scoped
+                'foreign languages', 'second languages', 'additional languages',
+                'native language', 'mother tongue', 'first language',
+                'bilingual', 'multilingual', 'fluency', 'language fluency',
+                'language knowledge', 'known languages',
+
+                # Proficiency levels (standalone headers)
+                'native', 'fluent', 'proficient', 'conversational',
+                'elementary proficiency', 'working proficiency',
+                'professional proficiency', 'full professional proficiency',
+            ],
+
+            'volunteering': [
+                # Core
+                'volunteering', 'volunteer work', 'volunteer experience',
+                'voluntary work', 'voluntary experience', 'volunteerism',
+
+                # Scoped
+                'community service', 'community involvement', 'community work',
+                'community engagement', 'social work', 'charity work',
+                'nonprofit work', 'ngo work', 'civic engagement',
+                'extracurricular activities', 'extracurriculars',
+                'activities', 'social activities', 'club memberships',
+                'memberships', 'affiliations', 'professional affiliations',
+                'professional memberships', 'associations', 'organizations',
+            ],
+
+            'references': [
+                # Core
+                'references', 'reference', 'referees', 'referee',
+
+                # Variants
+                'professional references', 'character references',
+                'personal references', 'academic references',
+                'references available', 'references upon request',
+                'available upon request', 'references available on request',
+                'contact references', 'testimonials', 'recommendations',
+                'linkedin recommendations',
             ],
         }
 

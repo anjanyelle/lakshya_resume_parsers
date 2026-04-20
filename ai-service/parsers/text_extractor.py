@@ -2,7 +2,7 @@ import os
 import re
 import logging
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 import unicodedata
 
 try:
@@ -212,6 +212,79 @@ class TextExtractor:
             logger.error(f"Error during OCR extraction from PDF {file_path}: {str(e)}")
             raise
     
+    def extract_from_docx_with_styles(self, file_path: str) -> Tuple[str, Dict[str, bool]]:
+        """
+        Extract text from DOCX file and identify headings based on paragraph styles.
+        
+        Args:
+            file_path: Path to the DOCX file
+            
+        Returns:
+            Tuple of (text, heading_map) where heading_map has:
+            - key: line text
+            - value: True if paragraph has Heading 1 or Heading 2 style
+        """
+        if not PYTHON_DOCX_AVAILABLE:
+            raise ImportError("python-docx is required for DOCX text extraction")
+        
+        try:
+            doc = Document(file_path)
+            full_text = []
+            heading_map = {}
+            
+            # Extract from paragraphs with style information
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    text = para.text.strip()
+                    full_text.append(text)
+                    
+                    # Check if paragraph style is a heading
+                    style_name = para.style.name if para.style else ''
+                    is_heading = False
+                    
+                    # Check if style contains "Heading" and is level 1 or 2
+                    if 'Heading' in style_name:
+                        if 'Heading 1' in style_name or 'Heading 2' in style_name:
+                            is_heading = True
+                    
+                    heading_map[text] = is_heading
+            
+            # Extract from ALL table cells (no style info for tables)
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for para in cell.paragraphs:
+                            if para.text.strip():
+                                text = para.text.strip()
+                                full_text.append(text)
+                                heading_map[text] = False  # Table cells are not headings
+            
+            # Extract from text boxes inside shapes (no style info)
+            try:
+                from docx.oxml.ns import qn
+                for shape in doc.inline_shapes:
+                    try:
+                        tb = shape._inline.graphic.graphicData.find('.//' + qn('wps:txbx'))
+                        if tb is not None:
+                            for para in tb.findall('.//' + qn('w:p')):
+                                texts = [node.text for node in para.findall('.//' + qn('w:t')) if node.text]
+                                if texts:
+                                    text = ''.join(texts)
+                                    full_text.append(text)
+                                    heading_map[text] = False  # Text boxes are not headings
+                    except:
+                        pass
+            except Exception as e:
+                logger.debug(f"Could not extract text from shapes: {e}")
+            
+            text = self.clean_text('\n'.join(full_text))
+            
+            return text, heading_map
+            
+        except Exception as e:
+            logger.error(f"Error extracting text from DOCX {file_path}: {str(e)}")
+            raise
+    
     def extract_from_docx(self, file_path: str) -> str:
         """
         Extract text from DOCX file including paragraphs, tables, and text boxes.
@@ -359,6 +432,171 @@ class TextExtractor:
         except Exception as e:
             logger.error(f"Failed to extract text from {file_path}: {str(e)}")
             raise
+    
+    def extract_with_font_metadata(self, file_path: str) -> Tuple[str, Dict[str, Dict]]:
+        """
+        Extract text along with font metadata from files.
+        For PDF files, extracts font size, bold status, x position, and vertical gap.
+        For DOCX and TXT files, returns text with empty metadata dictionary.
+        
+        Args:
+            file_path: Path to the file
+            
+        Returns:
+            Tuple of (text, font_metadata_dict) where font_metadata_dict has:
+            - key: line text
+            - value: dict with 'font_size', 'is_bold', 'x_position', 'vertical_gap'
+        """
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+        
+        file_path = Path(file_path)
+        file_extension = file_path.suffix.lower()
+        
+        if file_extension not in self.supported_extensions:
+            raise ValueError(f"Unsupported file type: {file_extension}")
+        
+        # For PDF files, extract with font metadata
+        if file_extension == '.pdf':
+            return self._extract_pdf_with_font_metadata(str(file_path))
+        
+        # For DOCX files, extract text with heading style information
+        elif file_extension == '.docx':
+            text, heading_map = self.extract_from_docx_with_styles(str(file_path))
+            
+            # Convert heading_map to font_metadata format for compatibility
+            # Lines marked as headings get a pseudo-metadata entry
+            font_metadata = {}
+            for line_text, is_heading in heading_map.items():
+                if is_heading:
+                    # Mark as heading with high font size and bold
+                    font_metadata[line_text] = {
+                        'font_size': 14.0,  # Simulated large font
+                        'is_bold': True,     # Headings are typically bold
+                        'x_position': 0.0,   # Not applicable for DOCX
+                        'vertical_gap': 0.0  # Not applicable for DOCX
+                    }
+            
+            return text, font_metadata
+        
+        # For TXT files, extract text only (no font metadata)
+        elif file_extension == '.txt':
+            text = self.extract_from_txt(str(file_path))
+            return text, {}
+        
+        raise ValueError(f"Unsupported file type: {file_extension}")
+    
+    def _extract_pdf_with_font_metadata(self, file_path: str) -> Tuple[str, Dict[str, Dict]]:
+        """
+        Extract text and font metadata from PDF using PyMuPDF.
+        
+        Args:
+            file_path: Path to the PDF file
+            
+        Returns:
+            Tuple of (text, font_metadata_dict)
+        """
+        if not PYMUPDF_AVAILABLE:
+            raise ImportError("pymupdf is required for font metadata extraction")
+        
+        doc = fitz.open(file_path)
+        all_lines = []
+        font_metadata = {}
+        prev_y_position = None
+        
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            
+            # Get text blocks with detailed information
+            blocks = page.get_text("dict")["blocks"]
+            
+            for block in blocks:
+                if block.get("type") == 0:  # Text block
+                    for line in block.get("lines", []):
+                        line_text_parts = []
+                        font_sizes = []
+                        is_bold = False
+                        x_position = None
+                        y_position = None
+                        
+                        for span in line.get("spans", []):
+                            text = span.get("text", "").strip()
+                            if text:
+                                line_text_parts.append(text)
+                                font_sizes.append(span.get("size", 0))
+                                
+                                # Check if font name contains "Bold"
+                                font_name = span.get("font", "")
+                                if "Bold" in font_name or "bold" in font_name:
+                                    is_bold = True
+                                
+                                # Get x position of first word in line
+                                if x_position is None:
+                                    x_position = span.get("bbox", [0, 0, 0, 0])[0]
+                                
+                                # Get y position for vertical gap calculation
+                                if y_position is None:
+                                    y_position = span.get("bbox", [0, 0, 0, 0])[1]
+                        
+                        if line_text_parts:
+                            line_text = " ".join(line_text_parts)
+                            all_lines.append(line_text)
+                            
+                            # Calculate average font size
+                            avg_font_size = sum(font_sizes) / len(font_sizes) if font_sizes else 0
+                            
+                            # Calculate vertical gap from previous line
+                            vertical_gap = 0
+                            if prev_y_position is not None and y_position is not None:
+                                vertical_gap = abs(y_position - prev_y_position)
+                            
+                            # Store metadata for this line
+                            font_metadata[line_text] = {
+                                'font_size': round(avg_font_size, 2),
+                                'is_bold': is_bold,
+                                'x_position': round(x_position, 2) if x_position is not None else 0,
+                                'vertical_gap': round(vertical_gap, 2)
+                            }
+                            
+                            prev_y_position = y_position
+        
+        doc.close()
+        
+        # Combine all lines into text
+        text = '\n'.join(all_lines)
+        text = self.clean_text(text)
+        
+        return text, font_metadata
+    
+    def calculate_baseline_font_size(self, font_metadata: Dict[str, Dict]) -> float:
+        """
+        Calculate the baseline (most common) font size from font metadata.
+        This represents the body text size for the resume.
+        
+        Args:
+            font_metadata: Dictionary with line text as keys and metadata dicts as values
+            
+        Returns:
+            Most common font size, or 11.0 if no metadata exists
+        """
+        if not font_metadata:
+            return 11.0
+        
+        # Collect all font sizes
+        font_sizes = []
+        for metadata in font_metadata.values():
+            if 'font_size' in metadata and metadata['font_size'] > 0:
+                font_sizes.append(metadata['font_size'])
+        
+        if not font_sizes:
+            return 11.0
+        
+        # Find the most common font size (mode)
+        from collections import Counter
+        font_size_counts = Counter(font_sizes)
+        most_common_size = font_size_counts.most_common(1)[0][0]
+        
+        return most_common_size
     
     def clean_text(self, text: str) -> str:
         """

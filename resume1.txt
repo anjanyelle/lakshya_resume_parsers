@@ -13,3 +13,4 @@ B.Tech in Information Technology Savitribai Phule Pune University 2011 – 2
 PROJECT HIGHLIGHTS
 • SaaS Platform Development – Built scalable SaaS product with multi-tenant architecture
 • E-learning System – Developed LMS with real-time tracking features
+

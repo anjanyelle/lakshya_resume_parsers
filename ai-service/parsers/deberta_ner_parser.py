@@ -539,6 +539,9 @@ class DeBERTaNerParser:
                     # Post-processing: remove skills from DEGREE
                     elif current_entity == 'DEGREE' and self._is_skill(clean_text):
                         pass  # Skip skills
+                    # Filter out invalid degrees (parentheses, single words, adjectives)
+                    elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
+                        pass  # Skip invalid degrees
                     # Filter out invalid companies (too short, single words, numbers)
                     elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
                         pass  # Skip invalid companies
@@ -569,6 +572,8 @@ class DeBERTaNerParser:
                         pass
                     elif current_entity == 'DEGREE' and self._is_skill(clean_text):
                         pass
+                    elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
+                        pass
                     elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
                         pass
                     elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
@@ -587,6 +592,8 @@ class DeBERTaNerParser:
             if current_entity == 'COMPANY' and self._is_person_name(clean_text):
                 pass
             elif current_entity == 'DEGREE' and self._is_skill(clean_text):
+                pass
+            elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
                 pass
             elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
                 pass
@@ -758,6 +765,50 @@ class DeBERTaNerParser:
         
         # Accept if it looks like "City, Country" format
         if ',' in text:
+            return True
+        
+        return False
+    
+    def _is_valid_degree(self, text: str) -> bool:
+        """Validate if text is a legitimate degree."""
+        text = text.strip()
+        
+        # Reject if too short (less than 2 characters)
+        if len(text) < 2:
+            return False
+        
+        # Reject single punctuation or special characters
+        if text in ['(', ')', '[', ']', '{', '}', ',', '.', ':', ';', '-', '_']:
+            return False
+        
+        # Reject common non-degree single words
+        invalid_single_words = [
+            'certified', 'project', 'fundamentals', 'operational', 'administrative',
+            'management', 'training', 'professional', 'business', 'technical',
+            'advanced', 'basic', 'intermediate', 'senior', 'junior', 'lead',
+            'the', 'and', 'or', 'in', 'at', 'of', 'for', 'with', 'to', 'from'
+        ]
+        if len(text.split()) == 1 and text.lower() in invalid_single_words:
+            return False
+        
+        # Accept if it contains degree keywords
+        degree_keywords = [
+            'bachelor', 'master', 'phd', 'doctorate', 'diploma', 'associate',
+            'b.tech', 'm.tech', 'b.e', 'm.e', 'b.sc', 'm.sc', 'b.com', 'm.com',
+            'b.a', 'm.a', 'mba', 'bba', 'bca', 'mca', 'llb', 'md', 'mbbs',
+            'engineering', 'science', 'arts', 'commerce', 'technology',
+            'degree', 'certification'
+        ]
+        text_lower = text.lower()
+        if any(keyword in text_lower for keyword in degree_keywords):
+            return True
+        
+        # Accept multi-word degrees (likely legitimate)
+        if len(text.split()) >= 2:
+            # But reject if it's just adjectives + common words
+            common_phrases = ['business process', 'project management', 'risk management']
+            if text_lower in common_phrases:
+                return False
             return True
         
         return False
