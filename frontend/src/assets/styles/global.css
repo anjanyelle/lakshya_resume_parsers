@@ -55,6 +55,7 @@
   .text-balance {
     text-wrap: balance;
   }
+
   .text-number {
     color: var(--text);
   }

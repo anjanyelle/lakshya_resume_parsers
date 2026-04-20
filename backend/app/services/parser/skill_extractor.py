@@ -1294,6 +1294,15 @@ _TECH_KEYWORDS = frozenset({"db", "sql", "cloud", "lake", "spark", "data", "api"
 # Generic/umbrella terms — never store as skills (not atomic technologies).
 REJECT_GENERIC_SKILLS = frozenset({"cloud", "backend", "security", "frontend", "web development"})
 
+# Pattern: "Company Name - City, ST" or "Company - city" — these are work experience noise, not skills.
+# Examples from real data: "goldman sachs - new york", "bank of america - charlotte", "amazon - seattle"
+_SKILL_COMPANY_LOCATION_RE = re.compile(
+    r"^[A-Za-z][A-Za-z0-9 &.,'-]{2,60}\s+[-–—]\s+[A-Za-z][A-Za-z ]{1,30}(?:,\s*[A-Z]{2})?$"
+)
+
+# Pattern: state/country abbreviation alone ("ny", "nc", "wa", "tx", "india", "ca", ...)
+_SKILL_STATE_ABBREV_RE = re.compile(r"^(?:[A-Z]{2}|india|usa|us|uk|canada|australia)$", re.IGNORECASE)
+
 
 def is_sentence_fragment(text: str) -> bool:
     """Reject if looks like a sentence fragment, not an atomic skill."""
@@ -1316,6 +1325,12 @@ def is_sentence_fragment(text: str) -> bool:
     for bad in REJECT_STARTS_WITH:
         if lower.startswith(bad.strip()) or lower.startswith(bad):
             return True
+    # Reject company-location patterns like "Goldman Sachs - New York" or "Amazon - Seattle, WA"
+    if _SKILL_COMPANY_LOCATION_RE.match(s):
+        return True
+    # Reject standalone state/country abbreviations used as skills
+    if _SKILL_STATE_ABBREV_RE.match(s):
+        return True
     return False
 
 

@@ -132,18 +132,18 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const roleConfig: Record<string, { label: string; boxClass: string; iconClass: string }> = {
     admin: {
       label: 'Admin',
-      boxClass: 'bg-violet-600 shadow-xl shadow-violet-200/50',
-      iconClass: 'text-white'
+      boxClass: 'bg-indigo-50 border border-indigo-100',
+      iconClass: 'text-indigo-600'
     },
     reviewer: {
       label: 'Reviewer',
-      boxClass: 'bg-indigo-50 border border-slate-100',
-      iconClass: 'text-violet-600'
+      boxClass: 'bg-slate-50 border border-slate-100',
+      iconClass: 'text-slate-600'
     },
     recruiter: {
       label: 'Recruiter',
-      boxClass: 'bg-indigo-50 border border-slate-100',
-      iconClass: 'text-violet-600'
+      boxClass: 'bg-slate-50 border border-slate-100',
+      iconClass: 'text-slate-600'
     }
   }
 
@@ -231,23 +231,19 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <div className="relative" ref={profileRef}>
             <div
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className={`flex items-center gap-2 md:gap-3 cursor-pointer group p-1.5 rounded-2xl transition-all duration-500 border border-transparent ${isProfileOpen ? 'bg-slate-50 border-slate-100 shadow-inner' : 'hover:bg-slate-50'
-                }`}
+              className="flex items-center gap-3 cursor-pointer p-1.5 rounded-2xl transition-all hover:bg-slate-50 border border-transparent"
             >
-              <div className={`relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3 ${config.boxClass}`}>
+              <div className={`relative flex h-10 w-10 items-center justify-center rounded-xl ${config.boxClass}`}>
                 <User className={`h-5 w-5 ${config.iconClass}`} />
                 {/* Status Indicator */}
-                <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 shadow-sm shadow-emerald-200" />
+                <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
               </div>
-              <div className="hidden sm:flex flex-col min-w-[70px]">
-                <h4 className="text-[13px] font-bold text-slate-700 leading-none uppercase tracking-tight">
+              <div className="hidden sm:block">
+                <h4 className="text-[14px] font-bold text-slate-800 leading-none">
                   {config.label}
                 </h4>
-                <span className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                  Settings
-                </span>
               </div>
-              <ChevronDown className={`h-4 w-4 text-slate-400 transition-all duration-300 ml-1 ${isProfileOpen ? 'rotate-180 text-violet-500' : 'group-hover:translate-y-0.5'}`} />
+              <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
             </div>
 
             {isProfileOpen && (

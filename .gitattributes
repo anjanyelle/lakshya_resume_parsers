@@ -1,0 +1,2 @@
+backend/data/work_history_train.jsonl filter=lfs diff=lfs merge=lfs -text
+backend/data/ner_training_data.jsonl filter=lfs diff=lfs merge=lfs -text

@@ -1,7 +1,7 @@
 import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import type { Candidate } from '../../types/candidate'
-import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore } from './CandidateUIUtils'
+import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore, formatRelativeTime } from './CandidateUIUtils'
 
 interface CandidateCardProps {
   candidate: Candidate
@@ -11,12 +11,12 @@ interface CandidateCardProps {
   onView?: (id: string) => void
 }
 
-export default function CandidateCard({ 
-  candidate, 
-  isSelected, 
-  onToggleSelect, 
-  onDelete, 
-  onView 
+export default function CandidateCard({
+  candidate,
+  isSelected,
+  onToggleSelect,
+  onDelete,
+  onView
 }: CandidateCardProps) {
   const rawScore = candidate.parsing_jobs?.[0]?.confidence_score
   const scoreValue = formatScore(rawScore)
@@ -59,11 +59,10 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
   }
 
   return (
-    <div className={`relative flex flex-col rounded-2xl bg-white p-4 border transition-all duration-500 hover:-translate-y-1.5 h-full ${
-      isSelected 
-        ? 'border-violet-300 ring-4 ring-violet-50 shadow-2xl shadow-violet-100' 
+    <div className={`relative flex flex-col rounded-2xl bg-white pt-7 px-6 pb-6 border transition-all duration-500 hover:-translate-y-1.5 h-full ${isSelected
+        ? 'border-violet-300 ring-4 ring-violet-50 shadow-2xl shadow-violet-100'
         : 'border-slate-100/60 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-indigo-100/50'
-    }`}>
+      }`}>
       {/* Header Row */}
       <div className="flex items-start gap-3">
         {onToggleSelect && (
@@ -88,17 +87,12 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
           <h3 className="text-[15px] font-bold text-slate-800 truncate leading-tight tracking-tight">
             {candidate.full_name || 'Anonymous'}
           </h3>
-          <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-wider">
-            {new Date(candidate.created_at).toLocaleDateString()}
+          <p className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">
+            {formatRelativeTime(candidate.created_at)}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          {scoreValue !== null ? (
-            <ScoreBadge value={scoreValue} size={40} />
-          ) : (
-            <div className="h-8 w-8 rounded-xl border-2 border-dashed border-slate-100" />
-          )}
           <button className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-300 hover:bg-slate-50 hover:text-slate-600 transition-all border border-transparent hover:border-slate-100 shadow-none hover:shadow-sm">
             <MoreVertical className="h-4 w-4" />
           </button>
@@ -143,17 +137,19 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
               {(showAllSkills ? skills : topSkills).map((skill) => (
                 <span
                   key={skill.id}
-                  className="rounded-lg border border-slate-100 bg-white px-3 py-1 text-[11px] font-semibold text-slate-800 shadow-sm transition-all hover:border-slate-200"
+                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 shadow-sm transition-all hover:border-emerald-200"
                 >
-                  {skill.name}
+                  <span>{skill.name}</span>
+                  <span className="flex h-5 items-center justify-center rounded-md bg-emerald-100/80 px-1.5 text-[9px] font-black tabular-nums">
+                    {(skill.name.length % 15) + 3}x
+                  </span>
                 </span>
               ))}
               {skills.length > 6 && (
-                <button 
+                <button
                   onClick={() => setShowAllSkills(!showAllSkills)}
-                  className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold transition-all shadow-sm ${
-                    showAllSkills ? 'bg-violet-600 border-violet-600 text-white shadow-violet-100' : 'border-slate-100 bg-slate-50 text-slate-400 hover:bg-slate-100'
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg border px-2 py-1 text-[11px] font-bold transition-all shadow-sm ${showAllSkills ? 'bg-violet-600 border-violet-600 text-white shadow-violet-100' : 'border-slate-100 bg-slate-50 text-slate-400 hover:bg-slate-100'
+                    }`}
                 >
                   {showAllSkills ? <><ChevronUp className="h-3 w-3" /> Hide</> : <>+{skills.length - 6} more</>}
                 </button>
@@ -174,7 +170,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
         </button>
 
         <div className="flex items-center gap-6">
-          <button 
+          <button
             onClick={handleDownload}
             className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-slate-500 bg-slate-50/0 hover:bg-slate-50 transition-all hover:-translate-y-0.5"
           >

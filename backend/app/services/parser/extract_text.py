@@ -19,6 +19,8 @@ except ImportError:
 
 import pdfplumber
 import pytesseract
+from pytesseract import Output
+import langdetect
 from pdf2image import convert_from_path
 from pypdf import PdfReader
 from docx import Document
@@ -281,6 +283,57 @@ def _extract_image(file_path: Path) -> ExtractedText:
         used_ocr=True,
         method="ocr_image",
     )
+
+
+def _detect_ocr_lang(source: Path | Image.Image) -> str:
+    """Detect dominant language for OCR targeting."""
+    try:
+        if isinstance(source, Path):
+            image = Image.open(str(source))
+        else:
+            image = source
+
+        # Sample a small piece of text to detect language
+        sample_text = pytesseract.image_to_string(image, config="--psm 3")
+        if not sample_text.strip():
+            return "eng"
+
+        lang_code = langdetect.detect(sample_text)
+        return _OCR_LANG_MAP.get(lang_code, "eng")
+    except Exception:  # noqa: BLE001
+        return "eng"
+
+
+def _ocr_with_confidence(source: Path | Image.Image, lang: str) -> tuple[str, float]:
+    """Perform OCR and return extracted text with mean confidence score."""
+    try:
+        data = pytesseract.image_to_data(source, lang=lang, output_type=Output.DICT)
+        confidences = [float(c) for c in data["conf"] if float(c) > 0]
+        text_parts = [str(t) for i, t in enumerate(data["text"]) if str(t).strip()]
+        
+        text = " ".join(text_parts)
+        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+        return text, avg_conf
+    except Exception as e:
+        logger.warning("OCR with confidence failed: %s", e)
+        # Fallback to simple string extraction
+        text = pytesseract.image_to_string(source, lang=lang)
+        return text, 0.0
+
+
+def _increase_dpi(image: Image.Image, target: int = 400) -> Image.Image:
+    """Rescale image to reach target DPI (approximate) to improve OCR accuracy."""
+    try:
+        w, h = image.size
+        # Assuming original is around 72-150 DPI, 
+        # we scale up by 2-3x if needed
+        scale = target / 150.0  # simple heuristic
+        if scale <= 1.0:
+            return image
+        new_size = (int(w * scale), int(h * scale))
+        return image.resize(new_size, Image.Resampling.LANCZOS)
+    except Exception:  # noqa: BLE001
+        return image
 
 
 def _extract_tables_only_pdfplumber(file_path: Path, page_limit: int) -> str:

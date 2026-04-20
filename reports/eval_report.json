@@ -1,0 +1,3252 @@
+{
+  "summary": {
+    "total_resumes": 51,
+    "errors": 0,
+    "total_jobs": 212,
+    "total_issues": 17,
+    "total_bad_skills": 0
+  },
+  "results": [
+    {
+      "file": "AARAV RAGHUNATH IYER_AndroidDevloper.docx",
+      "format": "docx",
+      "name": "## Aarav Raghunath Iyer",
+      "email": "aarav.iyer.architect@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Global Fintech Holdings",
+          "location": null,
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 16,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Health Tech Global Systems",
+          "location": null,
+          "start_date": "2017-06-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 16,
+          "confidence": 0.67
+        },
+        {
+          "company": "Retail & E",
+          "title": "Commerce Labs",
+          "location": null,
+          "start_date": "2014-03-01",
+          "end_date": "2017-05-01",
+          "is_current": false,
+          "bullets_count": 32,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 3,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 105.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "ALEXANDER MORGAN AI_Engineer 5+.docx",
+      "format": "docx",
+      "name": "## Alexander Morgan",
+      "email": "alex.morgan.ai@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Fin Tech Enterprise ()",
+          "title": "Lead Generative Ai Engineer",
+          "location": null,
+          "start_date": "2018-01-01",
+          "end_date": "2019-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Healthcare AI Startup ()",
+          "title": "Senior Nlp Engineer",
+          "location": null,
+          "start_date": "2017-01-01",
+          "end_date": "2018-01-01",
+          "is_current": false,
+          "bullets_count": 16,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 2,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 11.5,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Alistair Caldwell .NET Engineering Resume.pdf",
+      "format": "pdf",
+      "name": "Alistair H. Caldwell",
+      "email": "a.caldwell.dotnet@enterprise-solutions.net",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Global Director of Engineering & Principal .NET Architect | Nexus Fin Tech Systems",
+          "title": null,
+          "location": "Austin, TX",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 8,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Lumina Healthcare Digital",
+          "location": "Austin, TX",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": "R&D budget.",
+          "title": null,
+          "location": "Dallas, TX",
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Senior .NET Developer | Cloud Bridge Solutions",
+          "title": "Technical Strategy Lead | Duration: 12 Months",
+          "location": "San Antonio, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 26.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Alistair Sterling Comprehensive Resume (1).pdf",
+      "format": "pdf",
+      "name": "Alistair V. Sterling, Mba",
+      "email": "alistair.sterling.exec@protonmail.com",
+      "sections": [
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "VP of Global Supply Chain Operations | Apex Aerospace Systems",
+          "title": null,
+          "location": "San Francisco, CA",
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": null,
+          "title": "Promoted 12 Internal Candidates To Director",
+          "location": "Seattle, WA",
+          "start_date": "2016-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": "Senior Logistics Manager | Vertex Industrial Solutions",
+          "title": null,
+          "location": "Chicago, IL",
+          "start_date": "2013-01-01",
+          "end_date": "2016-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Omni-Global Logistics",
+          "location": "Dallas, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2013-01-01",
+          "is_current": false,
+          "bullets_count": 26,
+          "confidence": 0.75
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 24.1,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "ALISTAIR THORNE (2).docx",
+      "format": "docx",
+      "name": "## Alistair Thorne",
+      "email": "alistair.j.thorne@pro-logistics-exec.net",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "certifications",
+        "education",
+        "contact"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Senior Director Of Global Logistics & Network Transformation",
+          "location": null,
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 3,
+          "confidence": 0.67
+        },
+        {
+          "company": "Mile Operations",
+          "title": "Director Of Fulfillment & Last",
+          "location": "NEW JERSEY, NJ",
+          "start_date": "2017-06-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Northeast & Mid",
+          "title": "Regional Operations Manager",
+          "location": "CHARLESTON, SC",
+          "start_date": "2014-03-01",
+          "end_date": "2017-05-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": null,
+          "title": "Logistics Analyst Assistant Operations Manager",
+          "location": null,
+          "start_date": "2012-06-01",
+          "end_date": "2014-02-01",
+          "is_current": false,
+          "bullets_count": 27,
+          "confidence": 0.75
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 36.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "ARAVIND CHOWDARY KOLLI_.QA(8 pages)docx.docx",
+      "format": "docx",
+      "name": "## Aravind Chowdary Kolli",
+      "email": "aravind.kolli.qa@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education",
+        "contact",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Senior Quality Assurance Automation Engineer",
+          "location": "Richmond, VA",
+          "start_date": "2021-03-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 28,
+          "confidence": 0.75
+        },
+        {
+          "company": null,
+          "title": "Quality Assurance Automation Engineer",
+          "location": "DEV, QA",
+          "start_date": "2018-01-01",
+          "end_date": "2021-02-01",
+          "is_current": false,
+          "bullets_count": 27,
+          "confidence": 0.75
+        }
+      ],
+      "work_history_count": 2,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 29.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Arjun_Krishnamurthy_Java_Developer_Resume.pdf",
+      "format": "pdf",
+      "name": "Professional Summary",
+      "email": "arjun.krishnamurthy@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "certifications",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Aetna (CVS Health)",
+          "title": "Senior Java Developer",
+          "location": "Hartford, CT (Remote",
+          "start_date": "2023-09-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 11,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Wells Fargo",
+          "title": null,
+          "location": "Charlotte, NC",
+          "start_date": "2020-07-01",
+          "end_date": "2023-08-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Target Corporation",
+          "title": "Java Developer",
+          "location": "Minneapolis, MN",
+          "start_date": "2018-03-01",
+          "end_date": "2020-06-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Verizon Communications",
+          "title": null,
+          "location": "Basking Ridge, NJ",
+          "start_date": "2016-01-01",
+          "end_date": "2018-02-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Cognizant Technology Solutions (Client",
+          "title": null,
+          "location": "Atlanta, GA",
+          "start_date": "2014-06-01",
+          "end_date": "2015-12-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7800000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 37.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Arjun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx",
+      "format": "docx",
+      "name": "## Arjun Mehta",
+      "email": "arjun.mehta.data@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Accenture (Confidential Client Engagement)",
+          "title": "Lead Data Engineer",
+          "location": null,
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 8,
+          "confidence": 1.0
+        },
+        {
+          "company": "Infosys",
+          "title": "Senior Data Engineer",
+          "location": "Chicago, IL",
+          "start_date": "2017-01-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 1.0
+        },
+        {
+          "company": "Cognizant",
+          "title": "Data Engineer",
+          "location": "Dallas, TX",
+          "start_date": "2014-01-01",
+          "end_date": "2017-12-01",
+          "is_current": false,
+          "bullets_count": 13,
+          "confidence": 1.0
+        }
+      ],
+      "work_history_count": 3,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 18.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "CHANDRA SHYAM7.pdf",
+      "format": "pdf",
+      "name": "Professional Summary:",
+      "email": "1912@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "certifications",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Humana",
+          "title": "Senior Big Data Engineer",
+          "location": "Louisville, KY",
+          "start_date": "2023-08-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Morgan Stanley",
+          "title": "Senior Data Engineer",
+          "location": "New York, NY",
+          "start_date": "2020-10-01",
+          "end_date": "2023-07-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Delta Airlines",
+          "title": "Data Engineer Data Analyst",
+          "location": "Atlanta, GA",
+          "start_date": "2017-12-01",
+          "end_date": "2020-09-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Cisco",
+          "title": "Data Engineer Migration Specialist",
+          "location": "San Jose, CA",
+          "start_date": "2016-02-01",
+          "end_date": "2017-11-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Flipkart",
+          "title": "Etl Developer",
+          "location": "Bangalore, India",
+          "start_date": "2014-08-01",
+          "end_date": "2015-12-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 68.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Chandra_Shyam_Java_Developer_Resume.docx",
+      "format": "docx",
+      "name": "## Chandra Shyam",
+      "email": "1912@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Humana",
+          "title": "Senior Java Developer",
+          "location": "Louisville, KY",
+          "start_date": "2023-08-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 10,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Morgan Stanley",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2020-10-01",
+          "end_date": "2023-07-01",
+          "is_current": false,
+          "bullets_count": 9,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Delta Airlines",
+          "title": "Java Developer Data Engineer",
+          "location": "Atlanta, GA",
+          "start_date": "2017-12-01",
+          "end_date": "2020-09-01",
+          "is_current": false,
+          "bullets_count": 9,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Cisco",
+          "title": "Java Developer Migration Specialist",
+          "location": "San Jose, CA",
+          "start_date": "2016-02-01",
+          "end_date": "2017-11-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Flipkart",
+          "title": "Java Etl Developer",
+          "location": "Bangalore, India",
+          "start_date": "2014-08-01",
+          "end_date": "2015-12-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 49.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Detailed Senior .NET CV.pdf",
+      "format": "pdf",
+      "name": "Professional Summary",
+      "email": "j.sterling.dev@email.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "projects",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Microservices Transformation (",
+          "title": null,
+          "location": null,
+          "start_date": "2021-01-01",
+          "end_date": "2022-01-01",
+          "is_current": false,
+          "bullets_count": 9,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Innovate Tech Corp",
+          "location": "Nashville, TN",
+          "start_date": "2017-06-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.67
+        }
+      ],
+      "work_history_count": 2,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 17.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Devraj_Subramaniam_Selenium_QA_Resume.docx",
+      "format": "docx",
+      "name": "## Devraj Subramaniam",
+      "email": "devraj.subramaniam@techqalab.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "certifications",
+        "education",
+        "awards"
+      ],
+      "work_history": [
+        {
+          "company": "Cigna Health (Client",
+          "title": "Principal Quality Assurance Automation Architect & Test Engineering Lead",
+          "location": "Bloomfield, CT",
+          "start_date": "2022-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 9,
+          "confidence": 1.0
+        },
+        {
+          "company": "Goldman Sachs",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2019-01-01",
+          "end_date": "2022-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.7800000000000001
+        },
+        {
+          "company": "Walmart Global e Commerce",
+          "title": null,
+          "location": "Sunnyvale, CA",
+          "start_date": "2017-01-01",
+          "end_date": "2019-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7800000000000001
+        },
+        {
+          "company": "Bank of America (Client",
+          "title": "Quality Assurance Automation Engineer",
+          "location": "Charlotte, NC",
+          "start_date": "2015-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 1.0
+        },
+        {
+          "company": "Anthem Inc. (Client",
+          "title": "Quality Assurance Automation Engineer Software Development Engineer In Test",
+          "location": "Indianapolis, IN",
+          "start_date": "2013-01-01",
+          "end_date": "2015-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 1.0
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 23.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Dominic Thorne Executive Resume.pdf",
+      "format": "pdf",
+      "name": "Dominic R. Thorne",
+      "email": "d.thorne.revenue@growth-nexus.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Omni Stream Global",
+          "location": "Nashville, TN",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": "VP of Global Marketing & Demand Generation | Nexa Health Tech",
+          "title": null,
+          "location": "Austin, TX",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "during my tenure.",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2013-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Catalyst Agency",
+          "location": "San Francisco, CA",
+          "start_date": "2011-01-01",
+          "end_date": "2013-01-01",
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 0.75
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 24.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "ELARA V.docx",
+      "format": "docx",
+      "name": "## Professional Summary",
+      "email": "e.sterling.esg@vanguard-renewables.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "certifications",
+        "education",
+        "contact"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Vice President Of Global Sustainability & Infrastructure Strategy",
+          "location": null,
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 1,
+          "confidence": 0.62
+        },
+        {
+          "company": "North America",
+          "title": "Director Of Renewable Development",
+          "location": null,
+          "start_date": "2016-06-01",
+          "end_date": "2019-12-01",
+          "is_current": false,
+          "bullets_count": 1,
+          "confidence": 0.9
+        },
+        {
+          "company": null,
+          "title": "Senior Manager, Esg Strategy & Climate Risk",
+          "location": "PORTLAND, OR",
+          "start_date": "2012-03-01",
+          "end_date": "2016-05-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Senior Project Engineer Energy Analyst",
+          "location": null,
+          "start_date": "2008-01-01",
+          "end_date": "2012-02-01",
+          "is_current": false,
+          "bullets_count": 27,
+          "confidence": 0.75
+        },
+        {
+          "company": "Decarbonization Leadership: Authored and implemented the \"Vanguard 2035 Net",
+          "title": "Zero Blueprint,\" Achieving A Verified 22% Reduction In Scope 1 And 2 Emissions Within The First Three Years",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 0.55
+        },
+        {
+          "company": "BESS Deployment: Led the design and deployment of one of the world's largest Battery Energy Storage Systems",
+          "title": "In Texas , Providing Critical Grid Stability During Peak Demand Periods",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 6,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 44.5,
+      "issues": [
+        "No dates for: 'Decarbonization Leadership: Authored and implemented the \"Vanguard 2035 Net' / 'Zero Blueprint,\" Achieving A Verified 22% Reduction In Scope 1 And 2 Emissions Within The First Three Years'",
+        "No dates for: 'BESS Deployment: Led the design and deployment of one of the world's largest Battery Energy Storage Systems' / 'In Texas , Providing Critical Grid Stability During Peak Demand Periods'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Elias Thorne-Vaughan SAP Executive Resume.pdf",
+      "format": "pdf",
+      "name": "Elias Thorne-Vaughan, Pmp, Sap-Prime",
+      "email": "e.thorne.vaughan.sap@architect-nexus.org",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Global Industrial Dynamics",
+          "location": "Chicago, IL",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.62
+        },
+        {
+          "company": "Senior SAP Supply Chain Lead | Precision Pharma Solutions",
+          "title": null,
+          "location": "Dallas, TX",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Silver Steel Manufacturing",
+          "location": "Pittsburgh, PA",
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Quantum Automotive",
+          "location": "Detroit, MI",
+          "start_date": "2011-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.75
+        },
+        {
+          "company": "Committee on the \u201dNexus",
+          "title": "2030\u201d Digital Core Roadmap",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 41.2,
+      "issues": [
+        "No dates for: 'Committee on the \u201dNexus' / '2030\u201d Digital Core Roadmap'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "ELIAS THORNE.docx",
+      "format": "docx",
+      "name": "## Elias Thorne",
+      "email": "elias.thorne.architect@nexus-mail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "certifications",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Principal Cloud Architect (Director Level)",
+          "location": "Chicago, IL",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 9,
+          "confidence": 0.67
+        },
+        {
+          "company": "Senior Solutions Architect",
+          "title": null,
+          "location": "Austin, TX",
+          "start_date": "2018-06-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Developer Ops Technical Lead",
+          "location": "Austin, TX",
+          "start_date": "2016-03-01",
+          "end_date": "2018-05-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.67
+        },
+        {
+          "company": "Systems Engineer",
+          "title": "Technical Lead",
+          "location": null,
+          "start_date": "2014-06-01",
+          "end_date": "2016-02-01",
+          "is_current": false,
+          "bullets_count": 32,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 73.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "ELIAS THORNE.pdf",
+      "format": "pdf",
+      "name": "Elias Thorne",
+      "email": "elias.thorne.architect@nexus-mail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "certifications",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "APEX ZENITH FINANCIAL",
+          "title": null,
+          "location": "Denver, CO",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 31,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Project: \"Titan\"",
+          "title": "Mainframe Offloading Engine",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.75
+        },
+        {
+          "company": "Project: \"Nebula\"",
+          "title": "Multi-Cloud Kubernetes Federation",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.75
+        },
+        {
+          "company": "Project: \"Shield\"",
+          "title": "Automated Compliance Framework",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 13,
+          "confidence": 0.75
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 18.2,
+      "issues": [
+        "No dates for: 'Project: \"Titan\"' / 'Mainframe Offloading Engine'",
+        "No dates for: 'Project: \"Nebula\"' / 'Multi-Cloud Kubernetes Federation'",
+        "No dates for: 'Project: \"Shield\"' / 'Automated Compliance Framework'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Enterprise_AI_Engineer_and_Generative_AI_Specialist_Resume.docx",
+      "format": "docx",
+      "name": "Michael Thompson",
+      "email": "michael.thompson.ai@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Fin Tech Enterprise ()",
+          "title": "Lead Generative Ai Engineer",
+          "location": null,
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 4,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "JP Morgan Chase ()",
+          "title": "Senior Ai Engineer",
+          "location": null,
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 5,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Healthcare AI Startup ()",
+          "title": "Senior Nlp Engineer",
+          "location": null,
+          "start_date": "2018-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "United Health Group ()",
+          "title": "Machine Learning Engineer",
+          "location": null,
+          "start_date": "2016-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Amazon ()",
+          "title": "Ai Engineer",
+          "location": null,
+          "start_date": "2013-01-01",
+          "end_date": "2016-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 12.1,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Everett Montgomery Java Leader Resume.pdf",
+      "format": "pdf",
+      "name": "Everett D. Montgomery",
+      "email": "e.montgomery.architect@enterprise-java.io",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications",
+        "languages"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Annual Revenue: $18 B)",
+          "location": "San Francisco, CA",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Titan Financial Tech",
+          "location": "New York, NY",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.67
+        },
+        {
+          "company": "*Great Lakes Health Network*).",
+          "title": "Silver Path Healthcare",
+          "location": "Chicago, IL",
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 1.0
+        },
+        {
+          "company": null,
+          "title": "Swift-Logistics Analytics",
+          "location": "Dallas, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.75
+        },
+        {
+          "company": "Selected Peer",
+          "title": "Reviewed Publications",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 33.1,
+      "issues": [
+        "No dates for: 'Selected Peer' / 'Reviewed Publications'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Hari_Java_Developer_Resume.docx",
+      "format": "docx",
+      "name": "## Hari",
+      "email": "1912@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Humana",
+          "title": "Senior Java Developer",
+          "location": "Louisville, KY",
+          "start_date": "2023-08-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 10,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Morgan Stanley",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2020-10-01",
+          "end_date": "2023-07-01",
+          "is_current": false,
+          "bullets_count": 9,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Delta Airlines",
+          "title": "Java Developer Data Engineer",
+          "location": "Atlanta, GA",
+          "start_date": "2017-12-01",
+          "end_date": "2020-09-01",
+          "is_current": false,
+          "bullets_count": 9,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Cisco",
+          "title": "Java Developer Migration Specialist",
+          "location": "San Jose, CA",
+          "start_date": "2016-02-01",
+          "end_date": "2017-11-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Flipkart",
+          "title": "Java Etl Developer",
+          "location": "Bangalore, India",
+          "start_date": "2014-08-01",
+          "end_date": "2015-12-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 72.8,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Harsha_JavaFullStack.pdf",
+      "format": "pdf",
+      "name": "Harshavardhan Nimmakanti",
+      "email": "5530@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "additional",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Dignity Health",
+          "title": "Senior Full Stack Java Developer",
+          "location": "San Francisco, CA",
+          "start_date": "2023-07-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Bank of America",
+          "title": "Senior Full Stack Java Developer",
+          "location": "Charlotte, NC",
+          "start_date": "2020-09-01",
+          "end_date": "2023-06-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Workday",
+          "title": "Full Stack Java Developer",
+          "location": "Pleasanton, CA",
+          "start_date": "2017-11-01",
+          "end_date": "2020-08-01",
+          "is_current": false,
+          "bullets_count": 1,
+          "confidence": 0.9
+        },
+        {
+          "company": "Equifax",
+          "title": null,
+          "location": "Atlanta, GA",
+          "start_date": "2016-01-01",
+          "end_date": "2017-10-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": "Inno Minds",
+          "title": null,
+          "location": "Pune, India",
+          "start_date": "2014-05-01",
+          "end_date": "2015-11-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.68
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 105.8,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "hyma_DataResume15.docx",
+      "format": "docx",
+      "name": "## Professional Summary",
+      "email": "8991@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "coursework"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Morgan Stanley",
+          "location": "New York, NY",
+          "start_date": "2022-09-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 30,
+          "confidence": 0.75
+        },
+        {
+          "company": null,
+          "title": "Senior Data Engineer Analyst",
+          "location": "Louisville, KY",
+          "start_date": "2019-11-01",
+          "end_date": "2022-08-01",
+          "is_current": false,
+          "bullets_count": 25,
+          "confidence": 0.75
+        },
+        {
+          "company": "Great American Insurance",
+          "title": "Senior Big Data Engineer",
+          "location": "Cincinnati, OH",
+          "start_date": "2017-01-01",
+          "end_date": "2019-10-01",
+          "is_current": false,
+          "bullets_count": 20,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": null,
+          "title": "Big Data Engineer",
+          "location": "Dallas, TX",
+          "start_date": "2015-12-01",
+          "end_date": "2016-12-01",
+          "is_current": false,
+          "bullets_count": 15,
+          "confidence": 0.75
+        },
+        {
+          "company": "Zoho",
+          "title": "Etl Data Warehouse Developer",
+          "location": "Chennai, India",
+          "start_date": "2014-05-01",
+          "end_date": "2015-10-01",
+          "is_current": false,
+          "bullets_count": 11,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 107.6,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "JONATHAN REED data engineer.docx",
+      "format": "docx",
+      "name": "## Jonathan Reed",
+      "email": "jonathan.reed.data@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "projects",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Enterprise Risk & Market Data Platform",
+          "title": "Senior Data Engineer",
+          "location": "Chicago, IL",
+          "start_date": "2020-03-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 10,
+          "confidence": 1.0
+        },
+        {
+          "company": "Enterprise Data Lake & Real",
+          "title": "Project: Enterprise Data Lake & Real-Time Fraud Detection Platform",
+          "location": null,
+          "start_date": "2017-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Target Corporation",
+          "title": "Data Engineer ()",
+          "location": null,
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Accenture",
+          "title": "Data Engineer Consultant ()",
+          "location": "Minneapolis, MN",
+          "start_date": "2012-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Healthcare Claims & Member Analytics Platform",
+          "title": "Data Engineer",
+          "location": null,
+          "start_date": "2010-01-01",
+          "end_date": "2012-01-01",
+          "is_current": false,
+          "bullets_count": 35,
+          "confidence": 1.0
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 20.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Julian Vance Executive Resume (1).pdf",
+      "format": "pdf",
+      "name": "Julian T. Vance",
+      "email": "j.vance.security@cyberinfrastructure.net",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Senior Director of Infrastructure Cybersecurity | Sentinel Grid Solutions",
+          "title": null,
+          "location": "Houston, TX",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 6,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "120 days.",
+          "title": "Meridian Energy Systems",
+          "location": "Dallas, TX",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Cyber",
+          "title": "Tailored Ac Ls",
+          "location": "Charlotte, NC",
+          "start_date": "2011-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 13,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 3,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 32.8,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "JULIAN VANCE.docx",
+      "format": "docx",
+      "name": "## Julian Vance",
+      "email": "julian.vance.security@obsidian-cyber.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "certifications",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Director Of Global Security Operations",
+          "location": "San Francisco, CA",
+          "start_date": "2021-02-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 11,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Head Of Information Security (Chief Information Security Officer Delegate)",
+          "location": "Portland, OR",
+          "start_date": "2017-08-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Senior Security Engineer (Ics Scada)",
+          "location": null,
+          "start_date": "2015-05-01",
+          "end_date": "2017-07-01",
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 0.67
+        },
+        {
+          "company": "Pacific North Power",
+          "title": "Security Analyst Soc Lead",
+          "location": null,
+          "start_date": "2013-06-01",
+          "end_date": "2015-04-01",
+          "is_current": false,
+          "bullets_count": 35,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 40.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Julianne Sterling Strategic BA Resume.pdf",
+      "format": "pdf",
+      "name": "JULIANNE K. STERLING-ROSS",
+      "email": "j.sterling.ba@strategic-nexus.org",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Principal Strategic Business Architect | Global Omni Retail Systems",
+          "title": null,
+          "location": "Atlanta, GA",
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 7,
+          "confidence": 0.75
+        },
+        {
+          "company": "within 24 months.",
+          "title": null,
+          "location": "Charlotte, NC",
+          "start_date": "2017-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7800000000000001
+        },
+        {
+          "company": "Senior Business Systems Analyst | Fin Edge Solutions",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "for the global trading desk.",
+          "title": "Technical Strategy Lead | Focus: Data Governance & Business Intelligence",
+          "location": "Austin, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 11,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 22.3,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Kiran_Santhosh_Reddy_NodeJS_ReactJS_Resume.pdf",
+      "format": "pdf",
+      "name": "Professional Summary",
+      "email": "kiran.santhosh.reddy@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "certifications",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Microsoft Corporation (Client",
+          "title": "Senior Full Stack Developer",
+          "location": "Seattle, WA",
+          "start_date": "2023-11-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 10,
+          "confidence": 1.0
+        },
+        {
+          "company": "Stripe Inc.",
+          "title": null,
+          "location": "San Francisco, CA (Remote",
+          "start_date": "2021-04-01",
+          "end_date": "2023-10-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Netflix Inc. (Contract)",
+          "title": null,
+          "location": "Los Gatos, CA",
+          "start_date": "2019-01-01",
+          "end_date": "2021-03-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": "Salesforce",
+          "title": "Full Stack Developer",
+          "location": "San Francisco, CA",
+          "start_date": "2017-07-01",
+          "end_date": "2018-12-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Uber Technologies Inc.",
+          "title": null,
+          "location": "San Francisco, CA",
+          "start_date": "2015-02-01",
+          "end_date": "2017-06-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Infosys Limited (Client",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2013-08-01",
+          "end_date": "2015-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7800000000000001
+        },
+        {
+          "company": "Platform",
+          "title": "Enabling Post-Production Teams To Manage 10,000+ Original Content Assets",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 7,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 110.0,
+      "issues": [
+        "No dates for: 'Platform' / 'Enabling Post-Production Teams To Manage 10,000+ Original Content Assets'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Lisa_Thompson_ETL_Engineer 10+.docx",
+      "format": "docx",
+      "name": "## Lisa Thompson",
+      "email": "lisa.thompson@etlpro.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "certifications",
+        "education",
+        "awards",
+        "languages"
+      ],
+      "work_history": [
+        {
+          "company": "Bank of America",
+          "title": null,
+          "location": "Charlotte, NC",
+          "start_date": "2021-03-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 15,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "United Health Group",
+          "title": null,
+          "location": "Eden Prairie, MN",
+          "start_date": "2015-08-01",
+          "end_date": "2018-05-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Cognizant",
+          "title": "Chennai, India",
+          "location": null,
+          "start_date": "2013-07-01",
+          "end_date": "2015-07-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": null,
+          "title": "2",
+          "location": null,
+          "start_date": "2011-01-01",
+          "end_date": "2025-06-21",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Analytics Solutions",
+          "location": null,
+          "start_date": "2009-06-01",
+          "end_date": "2010-02-01",
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 0.67
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 41.5,
+      "issues": [
+        "Title looks like location: 'Chennai, India'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Meredith Sinclair Executive HR Resume.pdf",
+      "format": "pdf",
+      "name": "MEREDITH L. SINCLAIR",
+      "email": "m.sinclair.exec@talent-nexus.org",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Senior Vice President of HR Transformation",
+          "title": "Summit Global Logistics",
+          "location": "Denver, CO",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 7,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": null,
+          "title": "12,000 Employees)",
+          "location": "Dallas, TX",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Vertex Industrial",
+          "location": "Chicago, IL",
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.67
+        },
+        {
+          "company": "paid healthcare and unlimited PTO, resulting in a 30% increase",
+          "title": "Cloud Arc Tech",
+          "location": "Austin, TX",
+          "start_date": "2012-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 29.7,
+      "issues": [
+        "Title looks like location: '12,000 Employees)'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Python_Developer_Resume.pdf",
+      "format": "pdf",
+      "name": "Senior Python Developer",
+      "email": "1912@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Humana",
+          "title": "Senior Python Big Data Engineer",
+          "location": "Louisville, KY",
+          "start_date": "2023-08-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 10,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Morgan Stanley",
+          "title": "Senior Python Data Engineer",
+          "location": "New York, NY",
+          "start_date": "2020-10-01",
+          "end_date": "2023-07-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Delta Airlines",
+          "title": "Python Data Engineer Data Analyst",
+          "location": "Atlanta, GA",
+          "start_date": "2017-12-01",
+          "end_date": "2020-09-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Cisco",
+          "title": "Python Data Engineer Migration Specialist",
+          "location": "San Jose, CA",
+          "start_date": "2016-02-01",
+          "end_date": "2017-11-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Flipkart",
+          "title": "Python Etl Developer",
+          "location": "Bangalore, India",
+          "start_date": "2014-08-01",
+          "end_date": "2015-12-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 64.3,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "RAGHAVENDRA PRASAD VEMURI__(9 pages)_Devops.docx",
+      "format": "docx",
+      "name": "## Raghavendra Prasad Vemuri",
+      "email": "raghav.vemuri.cloud@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [],
+      "work_history_count": 0,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 21.1,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Raghu-skeleton2.pdf",
+      "format": "pdf",
+      "name": "Raghu Aadekay",
+      "email": "9@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Home Depot",
+          "title": null,
+          "location": "Atlanta, GA",
+          "start_date": "2021-10-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Bank of America",
+          "title": "Stack Java Developer",
+          "location": "Charlotte, NC",
+          "start_date": "2018-10-01",
+          "end_date": "2021-09-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Costcoo Issaquah, WA",
+          "title": null,
+          "location": "Costcoo Issaquah, WA",
+          "start_date": "2016-02-01",
+          "end_date": "2018-09-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": "Delta Airlines Atlanta, GA",
+          "title": null,
+          "location": "Delta Airlines Atlanta, GA",
+          "start_date": "2014-06-01",
+          "end_date": "2015-11-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": "Mastek Mumbai, India",
+          "title": null,
+          "location": null,
+          "start_date": "2013-06-01",
+          "end_date": "2014-05-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 38.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Rahul_Sharma_Senior_Python_Engineer.docx",
+      "format": "docx",
+      "name": "Rahul Sharma",
+      "email": "rahulsharma.py@gmail.com",
+      "sections": [
+        "experience",
+        "summary",
+        "skills",
+        "languages",
+        "certifications",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "CVS HEALTH",
+          "title": null,
+          "location": "Hyderabad.",
+          "start_date": "2023-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": null,
+          "title": "Hyderabad, India)",
+          "location": null,
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.62
+        },
+        {
+          "company": null,
+          "title": "Hyderabad, India)",
+          "location": null,
+          "start_date": "0140-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 0.67
+        }
+      ],
+      "work_history_count": 3,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 11.7,
+      "issues": [
+        "Title looks like location: 'Hyderabad, India)'",
+        "Title looks like location: 'Hyderabad, India)'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Rahul_Venkataraman_Data_Engineer_Resume.pdf",
+      "format": "pdf",
+      "name": "Professional Summary:",
+      "email": "rahul.venkataraman@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "education",
+        "experience",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "United Health Group (Client",
+          "title": "Senior Data Engineer",
+          "location": "Eden Prairie, MN",
+          "start_date": "2023-10-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 11,
+          "confidence": 1.0
+        },
+        {
+          "company": "JP Morgan Chase & Co.",
+          "title": null,
+          "location": "Columbus, OH",
+          "start_date": "2021-06-01",
+          "end_date": "2023-09-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Walmart Global Tech",
+          "title": "Data Engineer",
+          "location": "Bentonville, AR",
+          "start_date": "2019-08-01",
+          "end_date": "2021-05-01",
+          "is_current": false,
+          "bullets_count": 9,
+          "confidence": 1.0
+        },
+        {
+          "company": "AT&T Inc.",
+          "title": null,
+          "location": "Dallas, TX",
+          "start_date": "2017-03-01",
+          "end_date": "2019-07-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Exxon Mobil Corporation",
+          "title": "Data Engineer Etl Developer",
+          "location": "Houston, TX",
+          "start_date": "2015-06-01",
+          "end_date": "2017-02-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Infosys Limited (Client",
+          "title": "Etl Data Engineer",
+          "location": "Seattle, WA",
+          "start_date": "2013-08-01",
+          "end_date": "2015-05-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 1.0
+        }
+      ],
+      "work_history_count": 6,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 54.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "RAJIV MALHOTRA_QA_Resume.docx",
+      "format": "docx",
+      "name": "## Rajiv Malhotra",
+      "email": "rajiv.malhotra.qa@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "projects",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "JP Morgan Chase",
+          "title": "Senior Automation Engineer ()",
+          "location": "New York, NY",
+          "start_date": "2025-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 9,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 1,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 15.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "RAJU_AWS DevOps Engineer10+.pdf",
+      "format": "pdf",
+      "name": "Dev Ops",
+      "email": "raju@salesforce.com",
+      "sections": [
+        "summary",
+        "skills",
+        "certifications",
+        "experience",
+        "projects",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Morgan Stanley",
+          "title": "Senior Salesforce Change Manager Aws Developer Ops & Data Engineer",
+          "location": "New York, NY",
+          "start_date": "2022-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 20,
+          "confidence": 1.0
+        },
+        {
+          "company": "Humana",
+          "title": "Salesforce Data Engineer Developer Ops Engineer",
+          "location": "Louisville, KY",
+          "start_date": "2019-01-01",
+          "end_date": "2022-01-01",
+          "is_current": false,
+          "bullets_count": 18,
+          "confidence": 1.0
+        },
+        {
+          "company": "Great American Insurance",
+          "title": "Salesforce Integration Engineer",
+          "location": "Cincinnati, OH",
+          "start_date": "2017-01-01",
+          "end_date": "2019-01-01",
+          "is_current": false,
+          "bullets_count": 15,
+          "confidence": 1.0
+        },
+        {
+          "company": "AT&T",
+          "title": "Salesforce Data Engineer",
+          "location": "Dallas, TX",
+          "start_date": "2015-01-01",
+          "end_date": "2016-01-01",
+          "is_current": false,
+          "bullets_count": 12,
+          "confidence": 1.0
+        },
+        {
+          "company": "Zoho",
+          "title": "Chennai, India",
+          "location": null,
+          "start_date": "2014-01-01",
+          "end_date": "2015-01-01",
+          "is_current": false,
+          "bullets_count": 42,
+          "confidence": 1.0
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 11.5,
+      "issues": [
+        "Title looks like location: 'Chennai, India'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Ramsubhash_1.pdf",
+      "format": "pdf",
+      "name": "Professional Summary:",
+      "email": "0809@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "State Farm",
+          "title": "Senior Big Data Engineer",
+          "location": "Bloomington, IL",
+          "start_date": "2022-10-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Delta Airlines",
+          "title": "Senior Data Engineer",
+          "location": "Atlanta, GA",
+          "start_date": "2019-12-01",
+          "end_date": "2022-09-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "UPS",
+          "title": "Data Engineer Data Analyst",
+          "location": "Atlanta, GA",
+          "start_date": "2017-02-01",
+          "end_date": "2019-11-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "ADP",
+          "title": "Data Engineer Migration Specialist",
+          "location": "Roseland, NJ",
+          "start_date": "2016-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Inno Minds",
+          "title": "Etl Developer",
+          "location": "Pune, India",
+          "start_date": "2014-05-01",
+          "end_date": "2015-11-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 33.0,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Ravi_krishna_DotNET_resume(7 pages).docx",
+      "format": "docx",
+      "name": "## Ravi Krishna Reddy",
+      "email": "ravi.reddy.dev@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "projects",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Net Developer",
+          "location": "Dallas, TX",
+          "start_date": "2021-02-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 17,
+          "confidence": 0.75
+        },
+        {
+          "company": null,
+          "title": "Software Developer ( Net)",
+          "location": "Atlanta, GA",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 22,
+          "confidence": 0.75
+        }
+      ],
+      "work_history_count": 2,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 25.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "REACT DEVELOPER_VENKY 10+.docx",
+      "format": "docx",
+      "name": "## React Developer",
+      "email": "react.architect@techmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Principal React Architect",
+          "location": null,
+          "start_date": "2024-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 14,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Lead React Engineer",
+          "location": null,
+          "start_date": "2021-01-01",
+          "end_date": "2024-01-01",
+          "is_current": false,
+          "bullets_count": 11,
+          "confidence": 0.67
+        },
+        {
+          "company": "JP Morgan Chase",
+          "title": null,
+          "location": null,
+          "start_date": "2018-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 32,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Accenture",
+          "title": null,
+          "location": null,
+          "start_date": "2015-01-01",
+          "end_date": "2018-01-01",
+          "is_current": false,
+          "bullets_count": 18,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Senior Frontend Engineer",
+          "location": null,
+          "start_date": "2012-01-01",
+          "end_date": "2015-01-01",
+          "is_current": false,
+          "bullets_count": 13,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Senior React Developer",
+          "location": null,
+          "start_date": "2010-01-01",
+          "end_date": "2012-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Ui Architect",
+          "location": null,
+          "start_date": "2008-01-01",
+          "end_date": "2010-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": "Verizon",
+          "title": "Senior Ui Engineer",
+          "location": null,
+          "start_date": "2006-01-01",
+          "end_date": "2008-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 1.0
+        },
+        {
+          "company": "Infosys",
+          "title": "Frontend Engineer",
+          "location": null,
+          "start_date": "2004-01-01",
+          "end_date": "2006-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 1.0
+        },
+        {
+          "company": "Tata Consultancy Services",
+          "title": "Software Engineer (Ui)",
+          "location": null,
+          "start_date": "2002-01-01",
+          "end_date": "2004-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 1.0
+        },
+        {
+          "company": null,
+          "title": "Junior Web Developer",
+          "location": null,
+          "start_date": "2000-01-01",
+          "end_date": "2002-01-01",
+          "is_current": false,
+          "bullets_count": 11,
+          "confidence": 0.67
+        }
+      ],
+      "work_history_count": 11,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 28.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Resume-Sreenivasulu-kH_salesForce.docx",
+      "format": "docx",
+      "name": "## Rajeev Varma Kandula",
+      "email": "rajeev.varma.sf@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [],
+      "work_history_count": 0,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 33.6,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Rohan_Shah_Data_Analyst_5_Years_Resume.docx",
+      "format": "docx",
+      "name": "Rohan Shah",
+      "email": "rohan.shah.analytics@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [],
+      "work_history_count": 0,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 11.4,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Rohan_Shah_Data_Analyst_5_Years_Resume.pdf",
+      "format": "pdf",
+      "name": "\u25c6 Executive Summary \u25c6",
+      "email": "rohan.shah.analytics@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Insight Analytics Corp",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.68
+        },
+        {
+          "company": "Data Bridge Solutions",
+          "title": null,
+          "location": "Jersey City, NJ",
+          "start_date": "2019-06-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.68
+        }
+      ],
+      "work_history_count": 2,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 12.5,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "RYAN MATTHEWS 12+.docx",
+      "format": "docx",
+      "name": "## Ryan Matthews",
+      "email": "ryan.matthews.fs@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "certifications",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Senior Python Full Stack Engineer",
+          "location": null,
+          "start_date": "2024-03-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.62
+        },
+        {
+          "company": "flipkart",
+          "title": "Senior Python Engineer ()",
+          "location": null,
+          "start_date": "2023-01-01",
+          "end_date": "2024-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "AT&T",
+          "title": "Senior Python Engineer ( )",
+          "location": null,
+          "start_date": "2020-01-01",
+          "end_date": "2023-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "WALMART GLOBAL TECH",
+          "title": "Python Engineer ( )",
+          "location": null,
+          "start_date": "2017-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": null,
+          "title": "Hyderabad, India)",
+          "location": null,
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 15,
+          "confidence": 0.67
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 233.0,
+      "issues": [
+        "Title looks like location: 'Hyderabad, India)'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "sai sucharitha-skeleton621121121 (1).pdf",
+      "format": "pdf",
+      "name": "Sai Sucharitha Pochepalli",
+      "email": "8@gmail.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "Nike",
+          "title": "Senior Full Stack Developer",
+          "location": "Beaverton, OR",
+          "start_date": "2023-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "BNY Mellon",
+          "title": "Senior Full Stack Developer",
+          "location": "New York, NY",
+          "start_date": "2020-03-01",
+          "end_date": "2022-12-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Cigna Health",
+          "title": "Java Developer",
+          "location": "Charlotte, NC",
+          "start_date": "2017-05-01",
+          "end_date": "2020-02-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "ADP",
+          "title": "Backend Developer",
+          "location": "Roseland, NJ",
+          "start_date": "2015-12-01",
+          "end_date": "2017-04-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Amazon",
+          "title": "Backend Developer",
+          "location": "Bangalore, India",
+          "start_date": "2014-06-01",
+          "end_date": "2015-10-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9500000000000001
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 49.7,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Senior Full Stack Developer Resume.pdf",
+      "format": "pdf",
+      "name": "Alexander J. Sterling",
+      "email": "alex.sterling.dev@example.com",
+      "sections": [
+        "summary",
+        "skills",
+        "projects",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Observability",
+          "title": "Fin Stream Technologies",
+          "location": "New York, NY",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": null,
+          "title": "Global Cart Inc",
+          "location": "Chicago, IL",
+          "start_date": "2017-06-01",
+          "end_date": "2020-12-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.62
+        },
+        {
+          "company": "logic services.",
+          "title": "Cloud Flow Systems",
+          "location": "Austin, TX",
+          "start_date": "2014-03-01",
+          "end_date": "2017-05-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "Georgia Institute of Technology",
+          "title": null,
+          "location": null,
+          "start_date": "2012-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 2,
+          "confidence": 0.7300000000000001
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 74.6,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Senior Java Spring Boot Developer Resume.pdf",
+      "format": "pdf",
+      "name": "Nathanial D. Vance",
+      "email": "nathan.vance.java@example.com",
+      "sections": [
+        "summary",
+        "skills",
+        "projects",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Monitoring",
+          "title": "Senior Software Architect",
+          "location": "San Francisco, CA",
+          "start_date": "2021-02-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": "Innovate Stream (Saa S Startup)",
+          "title": "Lead Java Developer",
+          "location": "Austin, TX",
+          "start_date": "2017-07-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.9
+        },
+        {
+          "company": null,
+          "title": "Oracle Corporation",
+          "location": "Redwood Shores, CA",
+          "start_date": "2014-06-01",
+          "end_date": "2017-06-01",
+          "is_current": false,
+          "bullets_count": 10,
+          "confidence": 0.67
+        }
+      ],
+      "work_history_count": 3,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 37.1,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Silas Blackwood .NET Executive Resume.pdf",
+      "format": "pdf",
+      "name": "Silas V. Blackwood",
+      "email": "s.blackwood.tech@innovation-nexus.com",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": "Chief Technology Officer | Aetheris Financial Solutions",
+          "title": null,
+          "location": "Seattle, WA",
+          "start_date": "2021-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 7,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "VP of Engineering & Principal Architect | Novus Health Systems",
+          "title": null,
+          "location": "San Francisco, CA",
+          "start_date": "2017-01-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Velocity Retail Group",
+          "location": "Charlotte, NC",
+          "start_date": "2014-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.67
+        },
+        {
+          "company": "reduction in production hotfixes.",
+          "title": "Technical Strategy Lead | Duration: 18 Months",
+          "location": "San Antonio, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2014-01-01",
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 1.0
+        }
+      ],
+      "work_history_count": 4,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 24.8,
+      "issues": [],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Silas Thorne Full Stack Architect Resume.pdf",
+      "format": "pdf",
+      "name": "Professional Summary",
+      "email": "s.thorne.dev@nexus-solutions.tech",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "awards",
+        "certifications"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Nexus Global Fin Tech",
+          "location": "Boston, MA",
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 2,
+          "confidence": 0.67
+        },
+        {
+          "company": "Staff Software Engineer (Lead) | Quant Edge Systems",
+          "title": null,
+          "location": "New York, NY",
+          "start_date": "2016-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Cloud Arc Innovations",
+          "location": "San Francisco, CA",
+          "start_date": "2013-01-01",
+          "end_date": "2016-01-01",
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Spark Works Creative",
+          "location": "Austin, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2013-01-01",
+          "is_current": false,
+          "bullets_count": 27,
+          "confidence": 0.75
+        },
+        {
+          "company": "requests per second during the 2023 Black Friday period with zero downtime and sub",
+          "title": "50 Ms",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 5,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 27.9,
+      "issues": [
+        "No dates for: 'requests per second during the 2023 Black Friday period with zero downtime and sub' / '50 Ms'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Thaddeus Vance Executive QA Resume.pdf",
+      "format": "pdf",
+      "name": "Thaddeus J. Vance",
+      "email": "t.vance.qa.exec@quality-architects.tech",
+      "sections": [
+        "summary",
+        "skills",
+        "experience",
+        "education",
+        "certifications",
+        "languages"
+      ],
+      "work_history": [
+        {
+          "company": null,
+          "title": "Titan Commerce Global",
+          "location": "Seattle, WA",
+          "start_date": "2020-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 7,
+          "confidence": 0.67
+        },
+        {
+          "company": null,
+          "title": "Blue Vest Fintech",
+          "location": "New York, NY",
+          "start_date": "2016-01-01",
+          "end_date": "2020-01-01",
+          "is_current": false,
+          "bullets_count": 6,
+          "confidence": 0.67
+        },
+        {
+          "company": "Senior Manager of Quality Engineering | Cloud Stack Systems",
+          "title": null,
+          "location": "San Francisco, CA",
+          "start_date": "2013-01-01",
+          "end_date": "2016-01-01",
+          "is_current": false,
+          "bullets_count": 4,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": null,
+          "title": "Vertex Cybersecurity",
+          "location": "Austin, TX",
+          "start_date": "2011-01-01",
+          "end_date": "2013-01-01",
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 0.75
+        },
+        {
+          "company": "Selected Peer",
+          "title": "Reviewed Publications",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 8,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 5,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 20.2,
+      "issues": [
+        "No dates for: 'Selected Peer' / 'Reviewed Publications'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Venkatesh_SQL_Developer_Resume (1).pdf",
+      "format": "pdf",
+      "name": "Priya Nataraj Venkatesh",
+      "email": "priya.venkatesh.data@dbexcellence.com",
+      "sections": [
+        "summary",
+        "skills",
+        "languages",
+        "experience",
+        "education",
+        "awards"
+      ],
+      "work_history": [
+        {
+          "company": "Humana Inc. (Client",
+          "title": "Principal Sql Developer & Database Architect",
+          "location": "Louisville, KY",
+          "start_date": "2022-01-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 1,
+          "confidence": 0.9500000000000001
+        },
+        {
+          "company": "American Express (Client",
+          "title": "Senior Sql Developer & Data Warehouse Engineer",
+          "location": "Phoenix, AZ",
+          "start_date": "2019-01-01",
+          "end_date": "2022-01-01",
+          "is_current": false,
+          "bullets_count": 3,
+          "confidence": 1.0
+        },
+        {
+          "company": "Target Corporation (Client",
+          "title": null,
+          "location": "Minneapolis, MN",
+          "start_date": "2017-01-01",
+          "end_date": "2019-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Allstate Insurance Company (Client",
+          "title": "Sql Developer Etl Engineer",
+          "location": "Northbrook, IL",
+          "start_date": "2015-01-01",
+          "end_date": "2017-01-01",
+          "is_current": false,
+          "bullets_count": 2,
+          "confidence": 1.0
+        },
+        {
+          "company": "Cognizant Technology Solutions (Client",
+          "title": null,
+          "location": "Boston, MA",
+          "start_date": "2013-01-01",
+          "end_date": "2015-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "indexes, In",
+          "title": "Supporting Pharmacy Adjudication And Prior Authorization Workflows, Implementing Columnstore",
+          "location": null,
+          "start_date": null,
+          "end_date": null,
+          "is_current": false,
+          "bullets_count": 7,
+          "confidence": 0.55
+        }
+      ],
+      "work_history_count": 6,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 48.1,
+      "issues": [
+        "No dates for: 'indexes, In' / 'Supporting Pharmacy Adjudication And Prior Authorization Workflows, Implementing Columnstore'"
+      ],
+      "ner_enhancements": []
+    },
+    {
+      "file": "Yeshwanth_Resume-sk (1)12 (5).pdf",
+      "format": "pdf",
+      "name": "Java",
+      "email": "yeshwanths.yrs@gmail.com",
+      "sections": [
+        "skills",
+        "experience",
+        "summary",
+        "languages",
+        "education"
+      ],
+      "work_history": [
+        {
+          "company": "e World Enterprise Sollutions, Inc",
+          "title": null,
+          "location": null,
+          "start_date": "2022-12-01",
+          "end_date": null,
+          "is_current": true,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Twitter",
+          "title": null,
+          "location": "Francisco, CA",
+          "start_date": "2022-01-01",
+          "end_date": "2025-11-20",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Bank Of the West Omaha",
+          "title": null,
+          "location": null,
+          "start_date": "2021-02-01",
+          "end_date": "2022-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Care Source Dayton",
+          "title": null,
+          "location": null,
+          "start_date": "2019-07-01",
+          "end_date": "2021-01-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Google",
+          "title": null,
+          "location": null,
+          "start_date": "2016-01-01",
+          "end_date": "2019-06-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        },
+        {
+          "company": "Bajaj Allianz Life",
+          "title": null,
+          "location": null,
+          "start_date": "2014-10-01",
+          "end_date": "2015-11-01",
+          "is_current": false,
+          "bullets_count": 0,
+          "confidence": 0.7300000000000001
+        }
+      ],
+      "work_history_count": 6,
+      "skills_count": 0,
+      "bad_skills": [],
+      "parse_ms": 65.3,
+      "issues": [],
+      "ner_enhancements": []
+    }
+  ]
+}

@@ -95,11 +95,6 @@ export default function AnalyticsPage() {
       sub: 'All time',
     },
     {
-      label: 'Avg. ATS Score',
-      value: avgScore != null ? `${avgScore}%` : '—',
-      sub: 'Across all resumes',
-    },
-    {
       label: 'Top Skill',
       value: topSkill ?? '—',
       sub: 'Most detected',
@@ -116,7 +111,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {summaryStats.map((stat) => (
           <div
             key={stat.label}
@@ -172,31 +167,7 @@ export default function AnalyticsPage() {
         )}
       </div>
 
-      {/* Score Distribution */}
-      <div className="rounded-xl bg-white p-5 shadow-card border border-slate-100">
-        <h3 className="mb-4 text-sm font-semibold text-slate-800">Score Distribution</h3>
-        {scores.length > 0 ? (
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={scoreDistData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="range" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e2e8f0' }} />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Candidates">
-                {scoreDistData.map((entry, index) => (
-                  <Cell key={index} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <BarChart2 className="h-10 w-10 text-slate-200 mb-3" />
-            <p className="text-sm text-slate-400">No score data yet</p>
-            <p className="text-xs text-slate-300 mt-1">Scores will appear after resumes are analyzed</p>
-          </div>
-        )}
-      </div>
+
     </div>
   )
 }

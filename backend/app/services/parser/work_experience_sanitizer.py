@@ -28,14 +28,32 @@ _COMPANY_CLIENT_PREFIX_RE = re.compile(
 
 
 def _clean_company_name(value: str) -> str:
-    """Remove client-label suffixes/prefixes from a company name string."""
+    """Remove client-label suffixes/prefixes and markdown artifacts from a company name."""
     if not value:
         return value
+    # Strip markdown headers (## Company -> Company)
+    value = _MARKDOWN_STRIP_RE.sub("", value.strip()).strip()
     cleaned = _COMPANY_CLIENT_SUFFIX_RE.sub("", value).strip().strip("([ ")
     cleaned = _COMPANY_CLIENT_PREFIX_RE.sub("", cleaned).strip()
     return cleaned
 
-_LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z ]+,\s*[A-Z][a-z]?$")
+_LOCATION_AS_TITLE_RE = re.compile(r"^[A-Za-z][A-Za-z .]{1,40},\s*[A-Z]{2}(?:,?\s*[A-Za-z]{2,})?$")
+
+# Matches markdown header prefixes like ## or ###
+_MARKDOWN_STRIP_RE = re.compile(r"^#+\s*")
+
+# Matches "Company Name - City, ST" or "Company - NY" patterns to reject as garbage companies
+_COMPANY_WITH_LOCATION_SUFFIX_RE = re.compile(
+    r"^.{3,60}\s*[-–—|,]\s*[A-Za-z ]{2,30},\s*[A-Z]{2}\s*$"
+)
+
+# Additional placeholder term: 'Duration' is commonly used as a placeholder in .docx resumes
+_EXTENDED_PLACEHOLDER_RE = re.compile(
+    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|"
+    r"title(?:\s*role)?|role(?:\s*title)?|position|description|duration|period|dates?|"
+    r"timeline|responsibilities?|experience)\b",
+    re.IGNORECASE,
+)
 
 
 def _collapse_spaces(value: str) -> str:
@@ -243,7 +261,9 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         company = _clean_company_name(_normalize_text(item.get("company")))
         title_raw = _normalize_text(item.get("title") or item.get("role") or item.get("job_title") or item.get("designation"))
-        # Reject locations mistakenly stored as titles (e.g. "Minneapolis, Mn")
+        # Strip markdown from title too
+        title_raw = _MARKDOWN_STRIP_RE.sub("", title_raw).strip()
+        # Reject locations mistakenly stored as titles (e.g. "Minneapolis, Mn" or "New York, NY")
         if title_raw and _LOCATION_AS_TITLE_RE.match(title_raw.strip()):
             title_raw = ""
         title = title_raw
@@ -256,6 +276,22 @@ def sanitize_work_experience_entries(entries: Any) -> list[dict[str, Any]]:
 
         if _is_placeholder(company) or _is_placeholder(title):
             continue
+
+        # Also check extended placeholder pattern (includes 'Duration', 'Period', etc.)
+        company_low = company.lower().strip() if company else ""
+        title_low = title.lower().strip() if title else ""
+        if _EXTENDED_PLACEHOLDER_RE.match(company_low) or _EXTENDED_PLACEHOLDER_RE.match(title_low):
+            continue
+
+        # Reject company strings that are just "Company - City, ST" noise
+        if company and _COMPANY_WITH_LOCATION_SUFFIX_RE.match(company):
+            # Try to extract just the company part before the dash-location
+            import re as _re
+            loc_match = _re.search(r"^(.{3,60}?)\s*[-–—|,]\s*[A-Za-z ]{2,30},\s*[A-Z]{2}\s*$", company)
+            if loc_match:
+                company = loc_match.group(1).strip()
+            if not company:
+                continue
 
         if _is_skillish(company) or _is_skillish(title):
             continue

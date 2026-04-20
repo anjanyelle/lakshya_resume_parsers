@@ -86,10 +86,6 @@ export default function CompactCandidateRow({
         </div>
 
         <div className="flex items-center gap-6 pr-2">
-           {scoreValue !== null && (
-             <ScoreBadge value={scoreValue} size={34} />
-           )}
-           
            <div className="h-4 w-px bg-slate-100" />
 
            <div className="flex items-center gap-2">

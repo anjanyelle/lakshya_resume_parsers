@@ -103,27 +103,20 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           })}
         </nav>
 
-        {/* Auth Section */}
         <div className="mt-auto border-t border-slate-100 pt-6">
           <button
             onClick={handleAuthClick}
-            className={`group flex w-full items-center gap-4 rounded-2xl p-3 text-sm font-bold transition-all duration-500 border border-transparent active:scale-95 ${accessToken
-              ? 'text-slate-500 hover:bg-rose-50/50 hover:text-rose-600 hover:border-rose-100/50'
-              : 'text-slate-500 hover:bg-violet-50/50 hover:text-violet-600 hover:border-violet-100/50'
-              }`}
+            className="flex w-full items-center gap-4 rounded-xl p-2.5 transition-all hover:bg-slate-50 active:scale-95 group"
           >
-            <div className={`flex h-11 w-11 items-center justify-center rounded-xl shadow-sm transition-all duration-500 group-hover:rotate-12 group-hover:shadow-lg ${accessToken
-              ? 'bg-rose-50 text-rose-500 group-hover:bg-rose-600 group-hover:text-white group-hover:shadow-rose-200'
-              : 'bg-violet-50 text-violet-500 group-hover:bg-violet-600 group-hover:text-white group-hover:shadow-violet-200'
+            <div className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-sm border ${accessToken
+              ? 'bg-rose-50 border-rose-100 text-rose-500'
+              : 'bg-violet-50 border-violet-100 text-violet-500'
               }`}>
               {accessToken ? <LogOut className="h-5 w-5" /> : <Users className="h-5 w-5" />}
             </div>
-            <div className="flex flex-col items-start">
-              <span className="leading-none transition-colors">{accessToken ? 'Logout' : 'Login'}</span>
-              <span className={`text-[10px] font-bold uppercase tracking-widest mt-1.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ${accessToken ? 'text-rose-400' : 'text-violet-400'}`}>
-                {accessToken ? 'End Session' : 'Access Console'}
-              </span>
-            </div>
+            <span className="font-bold text-slate-800 transition-colors">
+              {accessToken ? 'Logout' : 'Login'}
+            </span>
           </button>
         </div>
       </div>

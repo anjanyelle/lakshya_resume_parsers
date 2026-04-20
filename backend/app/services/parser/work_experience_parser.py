@@ -75,8 +75,22 @@ EDU_KEYWORD_RE = re.compile(
 )
 CERT_KEYWORD_RE = re.compile(r"\b(certified|certification|certificate)\b", re.IGNORECASE)
 PLACEHOLDER_ORG_RE = re.compile(
-    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|title(?:\s*role)?|role(?:\s*title)?|position|description|location|duration|period|dates?)\b",
+    r"^(?:company(?:\s*name)?|client(?:\s*name)?|organization|employer|designation|title(?:\s*role)?|role(?:\s*title)?|position|description|location|duration|period|dates?|timeline|exp(?:erience)?|responsibilities?)\b",
     re.IGNORECASE,
+)
+
+# Matches markdown section headers like "## Company Name", "### Title"
+MARKDOWN_HEADER_RE = re.compile(r"^#+\s*")
+
+# Matches a company string that embeds a job title after a dash/separator
+# e.g. "JPMorgan Chase - Senior Automation Engineer" or "## Goldman Sachs New York, NY Senior Engineer"
+COMPANY_EMBEDS_TITLE_RE = re.compile(
+    r"^(?P<company>[A-Za-z][A-Za-z0-9 &.,()/-]{1,60}?)\s*[-–—]\s*(?P<title>[A-Za-z].*)",
+)
+
+# Pattern: "Company Name - City, ST" (location follows company) - location after dash
+COMPANY_LOCATION_SUFFIX_RE = re.compile(
+    r"(?P<company>.+?)\s*[-–—|,]\s*(?P<loc>[A-Za-z ]{2,30},\s*[A-Z]{2})\s*$"
 )
 CLIENT_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"\b(?:end\s+client|client)\s*[:\-–—]\s*(?P<client>.+)$", re.IGNORECASE),
@@ -908,14 +922,57 @@ class WorkExperienceParser:
                 return True
         return False
 
+    @staticmethod
+    def _strip_markdown(text: str | None) -> str | None:
+        """Strip leading markdown header markers (##, ###, etc.) from text."""
+        if not text:
+            return text
+        return MARKDOWN_HEADER_RE.sub("", text.strip()).strip()
+
     def normalize_company_names(self, name: str | None) -> str | None:
         if not name:
             return None
+        # Strip markdown headers first (e.g. "## JPMorgan Chase" -> "JPMorgan Chase")
+        name = self._strip_markdown(name)
+        if not name:
+            return None
+
+        # If the company string embeds a title via dash (e.g. "JPMorgan Chase - Senior Eng (2023)"),
+        # extract just the company portion
+        embed_m = COMPANY_EMBEDS_TITLE_RE.match(name)
+        if embed_m:
+            potential_company = embed_m.group("company").strip()
+            potential_title = embed_m.group("title").strip()
+            # Only split if the potential_company portion looks like a company and potential_title
+            # looks like a job title (not just a location).
+            if (
+                len(potential_company) >= 3
+                and TITLE_HINT_RE.search(potential_title)
+                and not LOCATION_RE.match(potential_title)
+                and COMPANY_HINT_RE.search(potential_company) or self._looks_like_company(potential_company)
+            ):
+                name = potential_company
+
+        # Strip trailing location suffix from company name (e.g. "Acme Corp - New York, NY")
+        loc_suffix_m = COMPANY_LOCATION_SUFFIX_RE.match(name)
+        if loc_suffix_m:
+            name = loc_suffix_m.group("company").strip()
+
         key = name.strip().lower()
         return COMPANY_NORMALIZATION.get(key, name.strip())
 
     def normalize_job_titles(self, title: str | None) -> str | None:
         if not title:
+            return None
+        # Strip markdown headers from titles
+        title = self._strip_markdown(title)
+        if not title:
+            return None
+        # If title starts with placeholder org words, treat as empty
+        if PLACEHOLDER_ORG_RE.match(title.strip()):
+            return None
+        # If title looks like a location (City, ST), reject it
+        if LOCATION_RE.match(title.strip()) and not TITLE_HINT_RE.search(title):
             return None
         normalized = title.strip().lower()
         normalized = re.sub(r"[./]", " ", normalized)
