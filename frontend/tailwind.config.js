@@ -17,7 +17,7 @@ export default {
           900: '#7c2d12',
         },
         orange: {
-          50:  'var(--orange-light)',
+          50: 'var(--orange-light)',
           100: 'var(--orange-mid)',
           200: '#fdba74',
           300: '#fb923c',
