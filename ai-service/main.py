@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator, model_validator
@@ -232,6 +232,17 @@ class ErrorResponse(BaseModel):
     message: str
     details: Optional[str] = None
 
+class SectionPreviewResponse(BaseModel):
+    filename: str
+    extraction_method: str
+    raw_text_length: int
+    raw_text: str
+    total_sections: int
+    sections: Dict[str, Dict[str, Any]]  # {section_name: {text: str, char_count: int}}
+    detected_sections: List[str]  # List of section names with non-empty text
+    missing_sections: List[str]  # List of standard sections not detected
+    validation_metadata: Dict[str, Any]  # Validation information (spacy_available, validation_ran, corrections, warnings)
+
 # Routes
 @app.get("/", response_model=WelcomeResponse)
 async def root():
@@ -244,6 +255,7 @@ async def root():
             "parse": "POST /parse - Parse resume file using MasterParser",
             "parse_text": "POST /parse-text - Parse raw text using MasterParser",
             "parse_batch": "POST /parse-batch - Parse multiple resume files",
+            "preview_sections": "POST /preview-sections - Preview sections without DeBERTa (file upload)",
             "benchmark": "POST /benchmark - Benchmark parsing performance",
             "metrics": "GET /metrics - Get parsing metrics and system health",
             "health": "GET /health - Service health check",
@@ -700,6 +712,149 @@ async def match_candidate_to_job(request: MatchRequest):
             status_code=500,
             detail=f"Matching failed: {str(e)}"
         )
+
+@app.post("/preview-sections", response_model=SectionPreviewResponse)
+async def preview_sections(file: UploadFile = File(...)):
+    """
+    Preview resume sections without running DeBERTa entity extraction.
+    
+    This endpoint runs only:
+    1. Text extraction (from PDF/DOCX/TXT)
+    2. Section splitting (using regex + font metadata)
+    3. Section validation (using spaCy NLP)
+    
+    It does NOT run DeBERTa or entity extraction.
+    
+    Returns detailed section information for debugging and preview purposes.
+    """
+    import tempfile
+    import shutil
+    from parsers.text_extractor import TextExtractor
+    from parsers.section_splitter import SectionSplitter
+    from parsers.section_validator import SectionValidator
+    
+    temp_file_path = None
+    
+    try:
+        # Save uploaded file to temporary location
+        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1]) as temp_file:
+            shutil.copyfileobj(file.file, temp_file)
+            temp_file_path = temp_file.name
+        
+        logger.info(f"Processing file for section preview: {file.filename}")
+        
+        # STEP 1: Text Extraction
+        extractor = TextExtractor()
+        file_ext = file.filename.lower().split('.')[-1]
+        
+        extraction_method = "unknown"
+        text = ""
+        font_metadata = {}
+        baseline_font_size = 11.0
+        
+        if file_ext == 'pdf':
+            result = extractor.extract_from_pdf(temp_file_path)
+            extraction_method = result.get('method_used', 'unknown')
+            text = result['text']
+            
+            # Get font metadata
+            try:
+                text, font_metadata = extractor.extract_with_font_metadata(temp_file_path)
+                baseline_font_size = extractor.calculate_baseline_font_size(font_metadata)
+            except:
+                pass
+                
+        elif file_ext == 'docx':
+            text, font_metadata = extractor.extract_with_font_metadata(temp_file_path)
+            baseline_font_size = extractor.calculate_baseline_font_size(font_metadata)
+            extraction_method = "python-docx"
+            
+        else:
+            text, font_metadata = extractor.extract_with_font_metadata(temp_file_path)
+            baseline_font_size = extractor.calculate_baseline_font_size(font_metadata)
+            extraction_method = "direct"
+        
+        logger.info(f"Text extracted: {len(text)} chars using {extraction_method}")
+        
+        # STEP 2: Section Splitting
+        splitter = SectionSplitter()
+        all_sections = splitter.split_sections(text, font_metadata, baseline_font_size)
+        logger.info(f"Sections detected: {len(all_sections)}")
+        
+        # STEP 3: Section Validation
+        validation_metadata = {
+            'spacy_available': False,
+            'validation_ran': False,
+            'sections_corrected': [],
+            'sections_split': [],
+            'sections_resolved': [],
+            'warnings': [],
+            'summary': {}
+        }
+        
+        try:
+            validator = SectionValidator()
+            corrected_sections, validation_metadata = validator.validate_and_correct(all_sections)
+            logger.info(f"Sections after validation: {len(corrected_sections)}")
+        except ImportError as e:
+            logger.warning(f"spaCy not available: {e}, skipping validation")
+            corrected_sections = all_sections
+            validation_metadata['spacy_available'] = False
+            validation_metadata['warnings'].append('spaCy not available - validation skipped')
+        except Exception as e:
+            logger.warning(f"Section validation failed: {e}, using uncorrected sections")
+            corrected_sections = all_sections
+            validation_metadata['spacy_available'] = True
+            validation_metadata['validation_ran'] = False
+            validation_metadata['warnings'].append(f'Validation failed: {str(e)}')
+        
+        # Build response
+        standard_sections = ['summary', 'experience', 'education', 'skills', 'certifications', 'projects']
+        
+        sections_dict = {}
+        detected_sections = []
+        
+        for section_name, section_text in corrected_sections.items():
+            sections_dict[section_name] = {
+                'text': section_text,
+                'char_count': len(section_text)
+            }
+            
+            if section_text.strip():
+                detected_sections.append(section_name)
+        
+        # Find missing standard sections
+        missing_sections = [s for s in standard_sections if s not in detected_sections]
+        
+        response = SectionPreviewResponse(
+            filename=file.filename,
+            extraction_method=extraction_method,
+            raw_text_length=len(text),
+            raw_text=text,
+            total_sections=len(corrected_sections),
+            sections=sections_dict,
+            detected_sections=detected_sections,
+            missing_sections=missing_sections,
+            validation_metadata=validation_metadata
+        )
+        
+        logger.info(f"Section preview complete for {file.filename}")
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in section preview: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Section preview failed: {str(e)}"
+        )
+    finally:
+        # Clean up temporary file
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.unlink(temp_file_path)
+            except:
+                pass
 
 # Startup and shutdown events
 @app.on_event("startup")

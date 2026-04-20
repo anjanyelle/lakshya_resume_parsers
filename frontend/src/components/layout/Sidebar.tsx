@@ -7,11 +7,13 @@ import {
   GitCompare,
   Settings,
   Sparkles,
+  Eye,
 } from "lucide-react";
 
 const links = [
   { label: "Dashboard", path: "/", icon: LayoutDashboard },
   { label: "Resume Analyzer", path: "/upload", icon: FileSearch },
+  { label: "Section Preview", path: "/section-preview", icon: Eye },
   { label: "Candidates", path: "/candidates", icon: Users },
   { label: "Jobs", path: "/jobs", icon: Briefcase },
   { label: "Matching", path: "/matching", icon: GitCompare },

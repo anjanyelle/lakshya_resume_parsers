@@ -897,6 +897,33 @@ class ResumeParser:
             corrected_sections = all_sections
             sections_corrected = 0
         
+        # ============================================================
+        # CONSOLE PREVIEW: Print detailed section information
+        # ============================================================
+        print("=" * 60)
+        print("RESUME SECTION PREVIEW")
+        print("=" * 60)
+        print(f"File processed: {file_path if file_path else 'Direct text input'}")
+        print(f"Extraction method used: {actual_extraction_tool or 'direct_text'}")
+        print(f"Raw text total characters: {len(text)}")
+        print()
+        print(f"SECTIONS DETECTED: {len(corrected_sections)}")
+        print("-" * 40)
+        
+        for section_name, section_text in corrected_sections.items():
+            print(f"{section_name.upper()}:")
+            print(f"Character count: {len(section_text)}")
+            
+            # Print preview (first 300 characters)
+            preview_text = section_text[:300]
+            if len(section_text) > 300:
+                preview_text += "..."
+            print(f"Preview: {preview_text}")
+            print("-" * 40)
+        
+        print("=" * 60)
+        # ============================================================
+        
         # STEP 4: Extract entities from experience and education ONLY
         logger.info("\n🤖 STEP 4: Entity Extraction (DeBERTa)")
         logger.info("-"*80)

@@ -14,6 +14,7 @@ import CandidatesPage from "./pages/CandidatesPage";
 import CandidateDetailPage from "./pages/CandidateDetailPage";
 import JobsPage from "./pages/JobsPage";
 import MatchingPage from "./pages/MatchingPage";
+import SectionPreviewPage from "./pages/SectionPreviewPage";
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -139,6 +140,17 @@ function App() {
         }
       >
         <Route index element={<LabelingPage />} />
+      </Route>
+
+      <Route
+        path="/section-preview"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SectionPreviewPage />} />
       </Route>
 
       {/* Catch all route - redirect to dashboard if authenticated, login if not */}

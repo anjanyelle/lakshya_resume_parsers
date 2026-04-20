@@ -521,7 +521,7 @@ class SectionValidator:
         
         return best_match
     
-    def validate_and_correct(self, sections: Dict[str, str]) -> Dict[str, str]:
+    def validate_and_correct(self, sections: Dict[str, str]) -> tuple[Dict[str, str], Dict[str, any]]:
         """
         Main validation and correction method for resume sections.
         
@@ -536,13 +536,32 @@ class SectionValidator:
                      e.g., {'experience': '...', 'education': '...'}
         
         Returns:
-            Corrected sections dictionary with validated and properly labeled sections
+            Tuple of (corrected_sections, validation_metadata) where:
+            - corrected_sections: Dictionary with validated and properly labeled sections
+            - validation_metadata: Dictionary with validation information
         """
         if not sections:
             logger.warning("Empty sections dictionary provided")
-            return {}
+            return {}, {
+                'spacy_available': True,
+                'validation_ran': False,
+                'sections_corrected': [],
+                'sections_split': [],
+                'sections_resolved': [],
+                'warnings': ['Empty sections dictionary provided']
+            }
         
         logger.info(f"Starting validation and correction for {len(sections)} sections")
+        
+        # Initialize validation metadata
+        validation_metadata = {
+            'spacy_available': True,
+            'validation_ran': True,
+            'sections_corrected': [],  # List of {from: str, to: str, reason: str}
+            'sections_split': [],      # List of {section: str, split_line: int}
+            'sections_resolved': [],   # List of {from: str, to: str}
+            'warnings': []
+        }
         
         corrected_sections = {}
         
@@ -574,9 +593,19 @@ class SectionValidator:
                 
                 if better_match != 'other' and better_match != section_name:
                     logger.info(f"Reassigning '{section_name}' → '{better_match}'")
+                    validation_metadata['sections_corrected'].append({
+                        'from': section_name,
+                        'to': better_match,
+                        'reason': f'Low confidence ({confidence:.1f}%)',
+                        'violations': violations
+                    })
                     section_name = better_match
                 else:
                     logger.info(f"Keeping original section name '{section_name}' (no better match found)")
+                    if confidence < 50:
+                        validation_metadata['warnings'].append(
+                            f"Section '{section_name}' has low confidence ({confidence:.1f}%) but no better match found"
+                        )
             
             # Store in corrected sections (may be reassigned)
             if section_name in corrected_sections:
@@ -614,6 +643,12 @@ class SectionValidator:
                 
                 logger.info(f"Split second part resolved to '{resolved_section}'")
                 
+                validation_metadata['sections_split'].append({
+                    'section': section_name,
+                    'split_line': split_line,
+                    'resolved_to': resolved_section
+                })
+                
                 if resolved_section in corrected_sections:
                     corrected_sections[resolved_section] += "\n\n" + second_part
                 else:
@@ -636,6 +671,11 @@ class SectionValidator:
             
             logger.info(f"Resolved unknown section '{section_name}' → '{resolved_section}'")
             
+            validation_metadata['sections_resolved'].append({
+                'from': section_name,
+                'to': resolved_section
+            })
+            
             if resolved_section in corrected_sections:
                 corrected_sections[resolved_section] += "\n\n" + content
             else:
@@ -650,4 +690,13 @@ class SectionValidator:
         logger.info(f"Validation complete: {len(sections)} → {len(final_sections)} sections")
         logger.info(f"Final sections: {list(final_sections.keys())}")
         
-        return final_sections
+        # Add summary to metadata
+        validation_metadata['summary'] = {
+            'input_sections': len(sections),
+            'output_sections': len(final_sections),
+            'total_corrections': len(validation_metadata['sections_corrected']),
+            'total_splits': len(validation_metadata['sections_split']),
+            'total_resolutions': len(validation_metadata['sections_resolved'])
+        }
+        
+        return final_sections, validation_metadata

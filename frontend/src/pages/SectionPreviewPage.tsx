@@ -1,0 +1,578 @@
+import { useState } from "react";
+import { Upload, FileText, Loader2, ChevronDown, ChevronUp, Download, AlertCircle, CheckCircle, Info } from "lucide-react";
+import axios from "axios";
+import { useAuthStore } from "../store/useAuthStore";
+
+interface SectionPreviewResponse {
+  filename: string;
+  extraction_method: string;
+  raw_text_length: number;
+  raw_text: string;
+  total_sections: number;
+  sections: {
+    [key: string]: {
+      text: string;
+      char_count: number;
+    };
+  };
+  detected_sections: string[];
+  missing_sections: string[];
+  validation_metadata: {
+    spacy_available: boolean;
+    validation_ran: boolean;
+    sections_corrected: Array<{
+      from: string;
+      to: string;
+      reason: string;
+      violations: number;
+    }>;
+    sections_split: Array<{
+      section: string;
+      split_line: number;
+      resolved_to: string;
+    }>;
+    sections_resolved: Array<{
+      from: string;
+      to: string;
+    }>;
+    warnings: string[];
+    summary?: {
+      input_sections: number;
+      output_sections: number;
+      total_corrections: number;
+      total_splits: number;
+      total_resolutions: number;
+    };
+  };
+}
+
+export default function SectionPreviewPage() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<SectionPreviewResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showRawText, setShowRawText] = useState(false);
+  const { token } = useAuthStore();
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (isValidFile(file)) {
+        setSelectedFile(file);
+        setError(null);
+        setPreviewData(null);
+      } else {
+        setError("Please upload a PDF or DOCX file only");
+      }
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (isValidFile(file)) {
+        setSelectedFile(file);
+        setError(null);
+        setPreviewData(null);
+      } else {
+        setError("Please upload a PDF or DOCX file only");
+      }
+    }
+  };
+
+  const isValidFile = (file: File): boolean => {
+    const validTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    return validTypes.includes(file.type);
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedFile) {
+      setError("Please select a file first");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setPreviewData(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await axios.post<SectionPreviewResponse>(
+        `${apiUrl}/api/upload/preview-sections`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setPreviewData(response.data);
+    } catch (err: any) {
+      console.error("Error analyzing sections:", err);
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.code === "ERR_NETWORK") {
+        setError("Unable to connect to the server. Please check if the backend is running.");
+      } else {
+        setError("Failed to analyze sections. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const downloadJSON = () => {
+    if (!previewData || !selectedFile) return;
+
+    // Create filename by replacing extension with -sections.json
+    const originalName = selectedFile.name;
+    const nameWithoutExt = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+    const filename = `${nameWithoutExt}-sections.json`;
+
+    // Create blob and download
+    const jsonString = JSON.stringify(previewData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Resume Section Extractor — Preview and Verify
+          </h1>
+          <p className="text-gray-600">
+            Upload a resume to preview extracted sections without running entity extraction
+          </p>
+        </div>
+
+        {/* Upload Area */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div
+            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+              isDragging
+                ? "border-blue-500 bg-blue-50"
+                : "border-gray-300 hover:border-gray-400"
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <input
+              type="file"
+              id="file-upload"
+              className="hidden"
+              accept=".pdf,.docx"
+              onChange={handleFileSelect}
+            />
+            <label
+              htmlFor="file-upload"
+              className="cursor-pointer flex flex-col items-center"
+            >
+              <Upload className="w-12 h-12 text-gray-400 mb-4" />
+              <p className="text-lg text-gray-700 mb-2">
+                Click to upload or drag and drop your resume here
+              </p>
+              <p className="text-sm text-gray-500">PDF or DOCX files only</p>
+            </label>
+          </div>
+
+          {/* Selected File Display */}
+          {selectedFile && (
+            <div className="mt-4 flex items-center justify-between bg-gray-50 p-4 rounded-lg">
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-blue-600" />
+                <div>
+                  <p className="font-medium text-gray-900">{selectedFile.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {(selectedFile.size / 1024).toFixed(2)} KB
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedFile(null);
+                  setPreviewData(null);
+                  setError(null);
+                }}
+                className="text-red-600 hover:text-red-700 text-sm font-medium"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          {/* Analyze Button */}
+          {selectedFile && !isLoading && !previewData && (
+            <div className="mt-6">
+              <button
+                onClick={handleAnalyze}
+                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <FileText className="w-5 h-5" />
+                Analyze Sections
+              </button>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-red-800 text-sm">{error}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="bg-white rounded-lg shadow-sm p-12">
+            <div className="flex flex-col items-center justify-center">
+              <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+              <p className="text-lg font-medium text-gray-900 mb-2">
+                Extracting text and organizing sections
+              </p>
+              <p className="text-gray-600">Please wait...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Preview Data */}
+        {previewData && !isLoading && (
+          <div className="space-y-6">
+            {/* Summary Bar - Section Status */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Section Detection Summary</h2>
+              <div className="grid grid-cols-6 gap-4">
+                {["summary", "experience", "education", "skills", "certifications", "projects"].map((section) => {
+                  const isDetected = previewData.detected_sections.includes(section);
+                  return (
+                    <div
+                      key={section}
+                      className={`p-4 rounded-lg border-2 ${
+                        isDetected
+                          ? "border-green-200 bg-green-50"
+                          : "border-red-200 bg-red-50"
+                      }`}
+                    >
+                      <div className="text-center">
+                        <p className="font-medium text-gray-900 capitalize mb-2">
+                          {section}
+                        </p>
+                        <div className="flex items-center justify-center gap-2">
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              isDetected ? "bg-green-500" : "bg-red-500"
+                            }`}
+                          />
+                          <span
+                            className={`text-sm font-medium ${
+                              isDetected ? "text-green-700" : "text-red-700"
+                            }`}
+                          >
+                            {isDetected ? "Detected" : "Missing"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Stats Pills */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <p className="text-sm text-gray-500 mb-1">File name</p>
+                <p className="font-medium text-gray-900 truncate">{previewData.filename}</p>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <p className="text-sm text-gray-500 mb-1">Extraction method used</p>
+                <p className="font-medium text-gray-900">{previewData.extraction_method}</p>
+              </div>
+              <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <p className="text-sm text-gray-500 mb-1">Raw text character count</p>
+                <p className="font-medium text-gray-900">{previewData.raw_text_length.toLocaleString()}</p>
+              </div>
+            </div>
+
+            {/* Validation Status */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Info className="w-5 h-5 text-blue-600" />
+                Section Validation Status
+              </h2>
+              
+              {/* Validation Status Indicators */}
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2">
+                  {previewData.validation_metadata.spacy_available ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-orange-600" />
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    spaCy NLP: {previewData.validation_metadata.spacy_available ? "Available" : "Not Available"}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {previewData.validation_metadata.validation_ran ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-orange-600" />
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    Validation: {previewData.validation_metadata.validation_ran ? "Completed" : "Skipped"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Validation Summary */}
+              {previewData.validation_metadata.summary && (
+                <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                  <p className="text-sm font-medium text-blue-900 mb-2">Validation Summary</p>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-blue-700">Input sections:</span>
+                      <span className="font-medium text-blue-900 ml-2">
+                        {previewData.validation_metadata.summary.input_sections}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">Output sections:</span>
+                      <span className="font-medium text-blue-900 ml-2">
+                        {previewData.validation_metadata.summary.output_sections}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">Corrections:</span>
+                      <span className="font-medium text-blue-900 ml-2">
+                        {previewData.validation_metadata.summary.total_corrections}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">Splits:</span>
+                      <span className="font-medium text-blue-900 ml-2">
+                        {previewData.validation_metadata.summary.total_splits}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-blue-700">Resolutions:</span>
+                      <span className="font-medium text-blue-900 ml-2">
+                        {previewData.validation_metadata.summary.total_resolutions}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Section Corrections */}
+              {previewData.validation_metadata.sections_corrected.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-900 mb-2">Section Corrections</p>
+                  <div className="space-y-2">
+                    {previewData.validation_metadata.sections_corrected.map((correction, idx) => (
+                      <div key={idx} className="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm">
+                        <p className="text-yellow-900">
+                          <span className="font-medium">{correction.from}</span>
+                          {" → "}
+                          <span className="font-medium">{correction.to}</span>
+                        </p>
+                        <p className="text-yellow-700 text-xs mt-1">{correction.reason}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Section Splits */}
+              {previewData.validation_metadata.sections_split.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-900 mb-2">Section Splits Detected</p>
+                  <div className="space-y-2">
+                    {previewData.validation_metadata.sections_split.map((split, idx) => (
+                      <div key={idx} className="bg-purple-50 border border-purple-200 rounded p-3 text-sm">
+                        <p className="text-purple-900">
+                          Section <span className="font-medium">{split.section}</span> split at line {split.split_line}
+                        </p>
+                        <p className="text-purple-700 text-xs mt-1">
+                          Second part resolved to: <span className="font-medium">{split.resolved_to}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Unknown Section Resolutions */}
+              {previewData.validation_metadata.sections_resolved.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-900 mb-2">Unknown Sections Resolved</p>
+                  <div className="space-y-2">
+                    {previewData.validation_metadata.sections_resolved.map((resolution, idx) => (
+                      <div key={idx} className="bg-green-50 border border-green-200 rounded p-3 text-sm">
+                        <p className="text-green-900">
+                          <span className="font-medium">{resolution.from}</span>
+                          {" → "}
+                          <span className="font-medium">{resolution.to}</span>
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Warnings */}
+              {previewData.validation_metadata.warnings.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-900 mb-2">Warnings</p>
+                  <div className="space-y-2">
+                    {previewData.validation_metadata.warnings.map((warning, idx) => (
+                      <div key={idx} className="bg-orange-50 border border-orange-200 rounded p-3 text-sm flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-orange-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-orange-900">{warning}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Section Cards */}
+            <div className="space-y-4">
+              {["summary", "experience", "education", "skills", "certifications", "projects"].map((sectionName) => {
+                const sectionData = previewData.sections[sectionName];
+                const isDetected = previewData.detected_sections.includes(sectionName);
+
+                return (
+                  <div
+                    key={sectionName}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+                  >
+                    {/* Card Header */}
+                    <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-900 uppercase">
+                          {sectionName}
+                        </h3>
+                        {sectionData && (
+                          <span className="text-sm text-gray-500">
+                            {sectionData.char_count.toLocaleString()} characters
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        {isDetected ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                            <div className="w-2 h-2 rounded-full bg-green-500" />
+                            Detected
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                            <div className="w-2 h-2 rounded-full bg-red-500" />
+                            Missing
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-6">
+                      {isDetected && sectionData ? (
+                        <div className="bg-gray-50 rounded-lg p-4 max-h-[300px] overflow-y-auto">
+                          <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
+                            {sectionData.text}
+                          </pre>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 italic">
+                          No content detected for this section
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Raw Extracted Text - Collapsible */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() => setShowRawText(!showRawText)}
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+              >
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Raw Extracted Text — Before Section Splitting
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600">
+                    {showRawText ? "Hide Raw Text" : "Show Raw Text"}
+                  </span>
+                  {showRawText ? (
+                    <ChevronUp className="w-5 h-5 text-gray-600" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-600" />
+                  )}
+                </div>
+              </button>
+              
+              {showRawText && (
+                <div className="px-6 py-4 border-t border-gray-200">
+                  <div className="bg-gray-50 rounded-lg p-4 max-h-[500px] overflow-y-auto">
+                    <pre className="text-sm text-gray-800 whitespace-pre-wrap font-mono">
+                      {previewData.raw_text}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Download JSON Button */}
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={downloadJSON}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                <Download className="w-5 h-5" />
+                Download JSON
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

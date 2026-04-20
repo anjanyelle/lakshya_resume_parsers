@@ -3,6 +3,7 @@ import {
   uploadResume,
   getUploadConfig,
   getUploadStats,
+  previewSections,
 } from "../controllers/upload.controller";
 import {
   uploadResume as multerMiddleware,
@@ -95,6 +96,64 @@ router.post(
   handleUploadError, // Handle multer errors
   addFileInfo, // Add file info to request
   uploadResume, // Process the upload
+);
+
+/**
+ * @swagger
+ * /api/upload/preview-sections:
+ *   post:
+ *     summary: Preview resume sections without DeBERTa entity extraction
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: formData
+ *         name: file
+ *         type: file
+ *         required: true
+ *         description: Resume file (PDF, DOCX, or TXT)
+ *     responses:
+ *       200:
+ *         description: Section preview completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 filename:
+ *                   type: string
+ *                 extraction_method:
+ *                   type: string
+ *                 raw_text_length:
+ *                   type: integer
+ *                 raw_text:
+ *                   type: string
+ *                 total_sections:
+ *                   type: integer
+ *                 sections:
+ *                   type: object
+ *                 detected_sections:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 missing_sections:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       400:
+ *         description: Bad request - no file uploaded
+ *       503:
+ *         description: AI service unavailable
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  "/preview-sections",
+  multerMiddleware, // Handle file upload with multer
+  handleUploadError, // Handle multer errors
+  previewSections, // Forward to Python AI service
 );
 
 /**

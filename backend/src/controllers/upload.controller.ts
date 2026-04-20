@@ -8,6 +8,9 @@ import {
   getFileType,
   deleteUploadedFile,
 } from "../middleware/upload.middleware";
+import FormData from "form-data";
+import fs from "fs";
+import axios from "axios";
 
 export const uploadResume = async (
   req: Request,
@@ -283,6 +286,102 @@ export const getUploadStats = async (
     res.status(500).json({
       error: "Failed to get upload statistics",
       message: "Please try again later",
+    });
+  }
+};
+
+/**
+ * Preview resume sections without running DeBERTa entity extraction
+ * Forwards file to Python AI service's /preview-sections endpoint
+ */
+export const previewSections = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    // 1. Validate file was uploaded
+    if (!req.file) {
+      res.status(400).json({
+        error: "No file uploaded",
+        message: "Please upload a resume file",
+        code: "NO_FILE_UPLOADED",
+      });
+      return;
+    }
+
+    const fileInfo = getFileInfo(req.file);
+    
+    console.log(`🔍 Preview sections endpoint called for file: ${fileInfo.originalname}`);
+
+    // 2. Create FormData to forward to Python service
+    const formData = new FormData();
+    formData.append("file", fs.createReadStream(req.file.path), {
+      filename: fileInfo.originalname,
+      contentType: req.file.mimetype,
+    });
+
+    // 3. Forward to Python AI service
+    const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+    const endpoint = `${aiServiceUrl}/preview-sections`;
+
+    console.log(`📤 Forwarding to Python AI service: ${endpoint}`);
+
+    const response = await axios.post(endpoint, formData, {
+      headers: {
+        ...formData.getHeaders(),
+      },
+      timeout: 30000, // 30 second timeout
+    });
+
+    console.log(`✅ Preview sections completed for: ${fileInfo.originalname}`);
+
+    // 4. Clean up uploaded file
+    try {
+      deleteUploadedFile(req.file.path);
+    } catch (cleanupError) {
+      console.warn(`⚠️ Failed to delete temporary file: ${req.file.path}`);
+    }
+
+    // 5. Return response from Python service
+    res.status(200).json(response.data);
+
+  } catch (error: any) {
+    console.error("❌ Error in preview sections:", error.message);
+
+    // Clean up uploaded file on error
+    if (req.file?.path) {
+      try {
+        deleteUploadedFile(req.file.path);
+      } catch (cleanupError) {
+        console.warn(`⚠️ Failed to delete temporary file: ${req.file.path}`);
+      }
+    }
+
+    // Handle specific error cases
+    if (error.code === "ECONNREFUSED" || error.code === "ETIMEDOUT") {
+      res.status(503).json({
+        error: "AI service unavailable",
+        message: "The Python AI service is currently unreachable. Please try again later.",
+        code: "AI_SERVICE_UNAVAILABLE",
+      });
+      return;
+    }
+
+    if (error.response) {
+      // Python service returned an error
+      res.status(error.response.status).json({
+        error: "Preview sections failed",
+        message: error.response.data?.detail || error.response.data?.message || "Failed to preview sections",
+        code: "PREVIEW_FAILED",
+      });
+      return;
+    }
+
+    // Generic error
+    res.status(500).json({
+      error: "Preview sections failed",
+      message: "An unexpected error occurred while previewing sections",
+      code: "INTERNAL_ERROR",
     });
   }
 };
