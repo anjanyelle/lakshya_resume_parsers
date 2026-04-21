@@ -1445,7 +1445,7 @@ class SectionSplitter:
         Returns:
             List of job blocks
         """
-        # Common patterns that indicate new job entries
+        # Common patterns that indicate new job entries....
         job_separators = [
             r'\n\s*[A-Z][a-z]+\s+\d{4}\s*[-–—]\s*(?:Present|Current|\d{4})',  # Date ranges
             r'\n\s*[A-Z][A-Za-z\s&.,\-]{3,}\s*\n',  # Company names
