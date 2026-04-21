@@ -125,6 +125,11 @@ SECTION_PATTERNS = {
         # Proficiency tables
         r'proficiencies|proficiency|expertise|capabilities|'
 
+        # Skill category headers (Backend Development, Frontend Development, etc.)
+        r'backend development|frontend development|front.?end development|'
+        r'full.?stack development|cloud & devops|cloud and devops|devops|'
+        r'tools? & practices|tools? and practices|development tools?|'
+
         # Spaced variants
         r'technical\s+skills?|core\s+competencies|key\s+skills?'
         r')',
@@ -159,7 +164,7 @@ SECTION_PATTERNS = {
 
         # Value proposition (modern LinkedIn style)
         r'value proposition|mission statement'
-        r')',
+        r')(?:\s*\([^)]*\))?',  # Allow optional parenthetical suffix like (JD-Matched)
         re.MULTILINE
     ),
 
@@ -373,7 +378,12 @@ class SectionSplitter:
             
             # Normalize section headers that are on the same line as content
             # e.g. "...some text. Skills" becomes "...some text.\nSkills"
-            text = re.sub(r'(?<=[a-z.!?])\s{2,}([A-Z][a-zA-Z\s]{3,20})\s*\n', r'\n\1\n', text)
+            # Handle both single and multiple spaces
+            text = re.sub(r'(?<=[a-z.!?])\s+([A-Z][a-zA-Z\s]{3,20})\s*\n', r'\n\1\n', text)
+            
+            # Pre-process: Split Title Case headers (e.g., "Work Experience", "Technical Skills")
+            # that appear after sentence endings
+            text = re.sub(r'([a-z.!?])\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*\n', r'\1\n\2\n', text)
             
             # Pre-process: Split ALL CAPS headers that are merged with content
             # e.g., "some text. PROFESSIONAL EXPERIENCE" -> "some text.\nPROFESSIONAL EXPERIENCE"
@@ -640,14 +650,11 @@ class SectionSplitter:
                         self.logger.info(f"🔍 Partial match: '{header_text}' → section: {section_name} (matched '{header_word}' with '{keyword}')")
                         return section_name
         
-        # No partial match found - create custom section name
-        # Convert to lowercase and replace spaces with underscores
-        custom_section = normalized_header.replace(' ', '_').replace(':', '').replace('-', '_')
-        # Remove any special characters
-        custom_section = re.sub(r'[^a-z0-9_]', '', custom_section)
-        
-        self.logger.info(f"📝 Creating custom section: '{header_text}' → '{custom_section}'")
-        return custom_section
+        # No partial match found - DO NOT create custom section
+        # Return None to keep content in current section and prevent data fragmentation
+        # This ensures dates, company names, and job titles stay within Experience section
+        self.logger.debug(f"⚠️ No section match for: '{header_text}' - treating as content, not header")
+        return None
     
     def detect_section_header(self, line: str, prev_line: str = '', next_line: str = '', 
                              font_metadata: Dict[str, Dict] = None, baseline_font_size: float = 11.0) -> Optional[str]:
@@ -712,43 +719,63 @@ class SectionSplitter:
                     self.logger.info(f"✅ Detected title case header: '{clean_line}' → section: {result}")
                     return result
             
+            # STRICT FILTERING - Prevent job titles, companies, and dates from being headers
+            # Check for date patterns (e.g., "Jan 2020 - Present", "2019-2023")
+            date_pattern = re.compile(r'\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|january|february|march|april|may|june|july|august|september|october|november|december|\d{4})\b', re.IGNORECASE)
+            if date_pattern.search(clean_line):
+                self.logger.debug(f"❌ Contains date - not a section header: '{clean_line}'")
+                return None
+            
+            # Check for common job title indicators
+            job_indicators = ['engineer', 'developer', 'manager', 'analyst', 'consultant', 'designer', 
+                            'architect', 'specialist', 'director', 'lead', 'senior', 'junior', 'intern']
+            if any(indicator in normalized for indicator in job_indicators):
+                self.logger.debug(f"❌ Contains job title indicator - not a section header: '{clean_line}'")
+                return None
+            
+            # Check for company indicators
+            company_indicators = ['inc', 'llc', 'ltd', 'corp', 'pvt', 'limited', 'company', 'technologies', 'solutions', 'systems']
+            if any(indicator in normalized for indicator in company_indicators):
+                self.logger.debug(f"❌ Contains company indicator - not a section header: '{clean_line}'")
+                return None
+            
             # KEYWORD MATCHING FAILED - Use heuristic scoring as fallback
             heuristic_score = self.calculate_heuristic_score(clean_line, prev_line, next_line)
             
-            # Score ≥ 7: Confirmed heading with unknown section name
-            # Try partial matching to assign to nearest section or create custom section
-            if heuristic_score >= 7:
+            # Score ≥ 5: Confirmed heading with unknown section name
+            # Try partial matching to assign to nearest section
+            if heuristic_score >= 5:
                 self.logger.info(f"✅ Detected unknown section header (score={heuristic_score}): '{clean_line}'")
                 matched_section = self._match_unknown_section_partial(clean_line)
                 return matched_section
             
-            # Score 4-6: Possible heading, needs font layer confirmation
-            elif heuristic_score >= 4:
+            # Score 3-4: Possible heading, needs font layer confirmation
+            elif heuristic_score >= 3:
                 # Check if font metadata is available for this line
                 if font_metadata and clean_line in font_metadata:
                     font_score = self.calculate_font_score(clean_line, font_metadata, baseline_font_size)
                     
-                    # Font score ≥ 5: Upgrade to confirmed heading
-                    if font_score >= 5:
+                    # Font score ≥ 3: Upgrade to confirmed heading
+                    if font_score >= 3:
                         self.logger.info(f"✅ Upgraded to confirmed header (heuristic={heuristic_score}, font={font_score}): '{clean_line}'")
                         matched_section = self._match_unknown_section_partial(clean_line)
                         return matched_section
                     
-                    # Font score < 3: Downgrade to content
-                    elif font_score < 3:
+                    # Font score < 2: Downgrade to content
+                    elif font_score < 2:
                         self.logger.info(f"❌ Downgraded to content (heuristic={heuristic_score}, font={font_score}): '{clean_line}'")
                         return None
                     
-                    # Font score 3-4: Keep as possible section
+                    # Font score 2: Treat as content, not header
                     else:
-                        self.logger.info(f"⚠️ Possible section header (heuristic={heuristic_score}, font={font_score}): '{clean_line}' → 'possible_section'")
-                        return 'possible_section'
+                        self.logger.debug(f"⚠️ Low font score (heuristic={heuristic_score}, font={font_score}): '{clean_line}' - treating as content")
+                        return None
                 else:
-                    # No font metadata available - keep heuristic decision
-                    self.logger.info(f"⚠️ Possible section header (score={heuristic_score}, no font data): '{clean_line}' → 'possible_section'")
-                    return 'possible_section'
+                    # No font metadata available - treat as content to prevent fragmentation
+                    self.logger.debug(f"⚠️ Ambiguous header (score={heuristic_score}, no font data): '{clean_line}' - treating as content")
+                    return None
             
-            # Score ≤ 3: Treat as content, not a header
+            # Score < 3: Treat as content, not a header
             else:
                 self.logger.debug(f"❌ Not a header (score={heuristic_score}): '{clean_line}'")
                 return None
