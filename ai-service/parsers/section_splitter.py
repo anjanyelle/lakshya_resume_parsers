@@ -361,6 +361,102 @@ class SectionSplitter:
         
         return text
 
+    def _preprocess_inline_headers(self, text: str) -> str:
+        """
+        Preprocess text to split inline section headers that are merged with content.
+        Handles cases like "SUMMARY: content... SKILLS: content..." by properly separating them.
+        
+        Args:
+            text: Raw resume text with potential inline headers
+            
+        Returns:
+            Text with properly separated section headers
+        """
+        if not text:
+            return text
+        
+        # Common section headers to look for - comprehensive list
+        section_headers = [
+            'PROFESSIONAL SUMMARY', 'SUMMARY', 'PROFILE', 'OBJECTIVE',
+            'TECHNICAL SKILLS', 'SKILLS', 'EXPERTISE', 'COMPETENCIES',
+            'PROFESSIONAL EXPERIENCE', 'EXPERIENCE', 'WORK EXPERIENCE', 'EMPLOYMENT',
+            'EDUCATION', 'ACADEMIC', 'QUALIFICATIONS',
+            'CERTIFICATIONS', 'CERTIFICATION', 'CREDENTIALS',
+            'PROJECTS', 'KEY PROJECTS',
+            'CONTACT', 'CONTACT INFORMATION'
+        ]
+        
+        # Create regex pattern for inline headers
+        escaped_headers = [re.escape(header) for header in section_headers]
+        inline_pattern = re.compile(
+            r'(' + '|'.join(escaped_headers) + r')\s*:\s*',
+            re.IGNORECASE
+        )
+        
+        # Process each line to split inline headers
+        lines = text.split('\n')
+        processed_lines = []
+        
+        for line in lines:
+            # Find all inline headers in this line
+            headers_found = list(inline_pattern.finditer(line))
+            
+            if len(headers_found) > 1:
+                # Multiple headers in one line - split them properly
+                last_end = 0
+                
+                for match in headers_found:
+                    # Add content before the header
+                    if match.start() > last_end:
+                        before_content = line[last_end:match.start()].strip()
+                        if before_content:
+                            processed_lines.append(before_content)
+                    
+                    # Add the header as a separate line
+                    header = match.group(1)
+                    processed_lines.append(f"{header}:")
+                    
+                    last_end = match.end()
+                
+                # Add remaining content after last header
+                if last_end < len(line):
+                    remaining_content = line[last_end:].strip()
+                    if remaining_content:
+                        processed_lines.append(remaining_content)
+            
+            elif len(headers_found) == 1:
+                # Single header in line
+                match = headers_found[0]
+                if match.start() == 0:
+                    # Header at start - make it standalone
+                    header = match.group(1)
+                    processed_lines.append(f"{header}:")
+                    
+                    # Add remaining content
+                    remaining_content = line[match.end():].strip()
+                    if remaining_content:
+                        processed_lines.append(remaining_content)
+                else:
+                    # Header in middle - split at the header
+                    before_content = line[:match.start()].strip()
+                    header = match.group(1)
+                    remaining_content = line[match.end():].strip()
+                    
+                    if before_content:
+                        processed_lines.append(before_content)
+                    processed_lines.append(f"{header}:")
+                    if remaining_content:
+                        processed_lines.append(remaining_content)
+            else:
+                # No headers - regular line
+                processed_lines.append(line)
+        
+        # Join back and clean up multiple newlines
+        result = '\n'.join(processed_lines)
+        result = re.sub(r'\n{3,}', '\n\n', result)
+        
+        return result.strip()
+
     def split_sections(self, text: str, font_metadata: Dict[str, Dict] = None, baseline_font_size: float = 11.0) -> Dict[str, str]:
         """
         Detect section headers and split text into named sections.
@@ -376,6 +472,9 @@ class SectionSplitter:
         try:
             text = self._clean_pdf_artifacts(text)
             
+            # Enhanced preprocessing for malformed raw text with inline headers
+            text = self._preprocess_inline_headers(text)
+            
             # Normalize section headers that are on the same line as content
             # e.g. "...some text. Skills" becomes "...some text.\nSkills"
             # Handle both single and multiple spaces
@@ -386,7 +485,7 @@ class SectionSplitter:
             text = re.sub(r'([a-z.!?])\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*\n', r'\1\n\2\n', text)
             
             # Pre-process: Split ALL CAPS headers that are merged with content
-            # e.g., "some text. PROFESSIONAL EXPERIENCE" -> "some text.\nPROFESSIONAL EXPERIENCE"
+            # e.g. "some text. PROFESSIONAL EXPERIENCE" -> "some text.\nPROFESSIONAL EXPERIENCE"
             # Match: lowercase/punctuation + space + 2+ ALL CAPS words
             text = re.sub(r'([a-z.!?])\s+([A-Z]{2,}(?:\s+[A-Z]{2,})+)\s*$', r'\1\n\2', text, flags=re.MULTILINE)
             text = re.sub(r'([a-z.!?])\s+([A-Z]{2,}(?:\s+[A-Z]{2,})+)(?=\s)', r'\1\n\2', text)
@@ -794,8 +893,27 @@ class SectionSplitter:
                 if len(after_colon) > 10:
                     return None
             
-            # KEYWORD MATCHING - Try to match against known section keywords
-            # Strategy 1: Check normalized version against keywords (handles all case variations)
+            # ENHANCED KEYWORD MATCHING - Try exact matches first for better accuracy
+            # Strategy 1: Exact header matching for common resume headers
+            exact_headers = {
+                'PROFESSIONAL SUMMARY': 'summary',
+                'SUMMARY': 'summary', 
+                'TECHNICAL SKILLS': 'skills',
+                'SKILLS': 'skills',
+                'PROFESSIONAL EXPERIENCE': 'experience',
+                'EXPERIENCE': 'experience',
+                'EDUCATION': 'education',
+                'CERTIFICATIONS': 'certifications',
+                'KEY PROJECTS': 'projects',
+                'PROJECTS': 'projects'
+            }
+            
+            clean_upper = clean_line.upper().strip(':')
+            if clean_upper in exact_headers:
+                self.logger.info(f"Exact header match: '{clean_line}' -> section: {exact_headers[clean_upper]}")
+                return exact_headers[clean_upper]
+            
+            # Strategy 2: Check normalized version against keywords (handles all case variations)
             # This works for: "EDUCATION", "Education", "education", "EdUcAtIoN"
             if len(clean_line.split()) <= 10:  # Reasonable header length
                 result = self._match_section_keywords(normalized)
@@ -804,15 +922,8 @@ class SectionSplitter:
                     # Headers are typically short and don't have common sentence words
                     sentence_indicators = ['the', 'a', 'an', 'is', 'are', 'was', 'were', 'have', 'has', 'had']
                     if not any(word in normalized.split() for word in sentence_indicators):
-                        self.logger.info(f"✅ Detected header: '{clean_line}' → section: {result}")
+                        self.logger.info(f"Detected header: '{clean_line}' -> section: {result}")
                         return result
-            
-            # Strategy 2: ALL CAPS headers (backward compatibility)
-            if clean_line.isupper() and len(clean_line) > 2 and len(clean_line.split()) <= 10:
-                result = self._match_section_keywords(normalized)
-                if result:
-                    self.logger.info(f"✅ Detected ALL CAPS header: '{clean_line}' → section: {result}")
-                    return result
             
             # Strategy 3: Title Case headers (short only)
             if clean_line.istitle() and len(clean_line.split()) <= 5:

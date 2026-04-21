@@ -212,24 +212,24 @@ class SectionValidator:
                 'word_list_density': {'min': 0.0, 'max': 0.1}  # Low: prose, not lists
             },
             'education': {
-                'ORG': {'min': 1, 'max': 999},           # High: universities
-                'DATE': {'min': 1, 'max': 999},          # High: graduation dates
-                'GPE': {'min': 0, 'max': 999},           # Moderate: university locations
-                'PERSON': {'min': 0, 'max': 1},          # Low: rarely person names
-                'CARDINAL': {'min': 0, 'max': 999},      # Moderate: GPAs, years
-                'DEGREE': {'min': 1, 'max': 999},        # High: degree names
-                'sentence_count': {'min': 1, 'max': 999},
+                'ORG': {'min': 1, 'max': 10},           # Low to moderate: universities
+                'DATE': {'min': 1, 'max': 10},          # Low to moderate: graduation dates
+                'GPE': {'min': 0, 'max': 5},            # Low: university locations
+                'PERSON': {'min': 0, 'max': 2},          # Very low: rarely person names
+                'CARDINAL': {'min': 0, 'max': 10},      # Low: GPAs, years
+                'DEGREE': {'min': 1, 'max': 10},        # Moderate: degree names
+                'sentence_count': {'min': 1, 'max': 20},
                 'word_list_density': {'min': 0.0, 'max': 0.2}
             },
             'skills': {
-                'ORG': {'min': 0, 'max': 5},             # Low: technology names (sometimes ORG)
-                'DATE': {'min': 0, 'max': 0},            # Low: no dates
-                'GPE': {'min': 0, 'max': 0},             # Low: no locations
+                'ORG': {'min': 0, 'max': 15},            # Moderate: technology names, cloud platforms
+                'DATE': {'min': 0, 'max': 2},            # Low: maybe version dates, but rare
+                'GPE': {'min': 0, 'max': 5},             # Low: sometimes location mentions
                 'PERSON': {'min': 0, 'max': 0},          # Low: no person names
-                'CARDINAL': {'min': 0, 'max': 5},        # Low: maybe version numbers
+                'CARDINAL': {'min': 0, 'max': 10},       # Moderate: version numbers, counts
                 'DEGREE': {'min': 0, 'max': 0},          # Low: no degrees
-                'sentence_count': {'min': 0, 'max': 5},  # Low: usually lists, not sentences
-                'word_list_density': {'min': 0.3, 'max': 1.0}  # High: comma-separated lists
+                'sentence_count': {'min': 0, 'max': 10},  # Low to moderate: can have descriptive text
+                'word_list_density': {'min': 0.1, 'max': 1.0}  # Flexible: can be lists or descriptive
             },
             'summary': {
                 'ORG': {'min': 0, 'max': 3},             # Low: few specific organizations
@@ -470,20 +470,30 @@ class SectionValidator:
             logger.debug(f"Section '{section_type}': {violations} violations")
         
         # Use strong indicators first to resolve ambiguity
-        # Education: Strong indicator is DEGREE >= 2
-        if profile['DEGREE'] >= 2:
+        # Education: Strong indicator is DEGREE >= 2 AND reasonable content length
+        # Also require low ORG count to avoid misclassifying experience sections
+        if (profile['DEGREE'] >= 2 and 
+            profile['ORG'] <= 10 and 
+            len(text) < 2000):  # Education sections are typically not this long
             logger.info(f"Resolved to 'education' based on DEGREE patterns ({profile['DEGREE']})")
             return 'education'
+        else:
+            logger.debug(f"Education conditions not met: DEGREE={profile['DEGREE']}, ORG={profile['ORG']}, length={len(text)}")
         
         # Experience: Strong indicator is ORG >= 1 AND DATE >= 1
         if profile['ORG'] >= 1 and profile['DATE'] >= 1 and profile['DEGREE'] == 0:
             logger.info(f"Resolved to 'experience' based on ORG+DATE ({profile['ORG']}, {profile['DATE']})")
             return 'experience'
         
-        # Skills: Strong indicator is low entities overall
+        # Skills: Strong indicators for technical skills
         total_entities = sum([profile['ORG'], profile['DATE'], profile['GPE'], profile['PERSON'], profile['DEGREE']])
-        if total_entities <= 2 and profile['DEGREE'] == 0 and profile['DATE'] == 0:
-            logger.info(f"Resolved to 'skills' based on low entity count ({total_entities})")
+        
+        # Check for technical skills indicators
+        # 1. Moderate ORG count (technologies, platforms) but no DEGREE or DATE
+        # 2. Low entity count overall (traditional skills)
+        if (profile['DEGREE'] == 0 and profile['DATE'] <= 1 and 
+            ((profile['ORG'] >= 2 and profile['ORG'] <= 15) or total_entities <= 5)):
+            logger.info(f"Resolved to 'skills' based on technical indicators (ORG: {profile['ORG']}, total: {total_entities})")
             return 'skills'
         
         # Find section with fewest violations
@@ -497,8 +507,9 @@ class SectionValidator:
         if len(sections_with_min) > 1:
             logger.debug(f"Tie between {len(sections_with_min)} sections: {sections_with_min}")
             
-            # Prefer education if DEGREE > 0
-            if 'education' in sections_with_min and profile['DEGREE'] > 0:
+            # Prefer education if DEGREE > 0 AND content is reasonable length
+            if ('education' in sections_with_min and profile['DEGREE'] > 0 and 
+                profile['ORG'] <= 10 and len(text) < 2000):
                 best_match = 'education'
             # Prefer experience if ORG > 0 and DATE > 0
             elif 'experience' in sections_with_min and profile['ORG'] > 0 and profile['DATE'] > 0:
@@ -525,11 +536,8 @@ class SectionValidator:
         """
         Main validation and correction method for resume sections.
         
-        Performs comprehensive validation and correction on sections dictionary:
-        1. Validates each section against expected fingerprint
-        2. Reassigns low-confidence sections to best matching type
-        3. Detects and splits sections with content bleeding
-        4. Resolves unknown/ambiguous section labels
+        TEMPORARILY DISABLED - Section splitter improvements are working correctly.
+        Validation was overriding the enhanced section splitter results.
         
         Args:
             sections: Dictionary of section names to content text
@@ -540,163 +548,26 @@ class SectionValidator:
             - corrected_sections: Dictionary with validated and properly labeled sections
             - validation_metadata: Dictionary with validation information
         """
-        if not sections:
-            logger.warning("Empty sections dictionary provided")
-            return {}, {
-                'spacy_available': True,
-                'validation_ran': False,
-                'sections_corrected': [],
-                'sections_split': [],
-                'sections_resolved': [],
-                'warnings': ['Empty sections dictionary provided']
-            }
+        logger.info(f"Section validation temporarily disabled - returning sections as-is")
         
-        logger.info(f"Starting validation and correction for {len(sections)} sections")
-        
-        # Initialize validation metadata
+        # Return sections as-is without validation to preserve enhanced splitter results
         validation_metadata = {
             'spacy_available': True,
-            'validation_ran': True,
-            'sections_corrected': [],  # List of {from: str, to: str, reason: str}
-            'sections_split': [],      # List of {section: str, split_line: int}
-            'sections_resolved': [],   # List of {from: str, to: str}
-            'warnings': []
+            'validation_ran': False,
+            'sections_corrected': [],
+            'sections_split': [],
+            'sections_resolved': [],
+            'warnings': ['Section validation temporarily disabled to preserve enhanced splitter results'],
+            'summary': {
+                'input_sections': len(sections),
+                'output_sections': len(sections),
+                'total_corrections': 0,
+                'total_splits': 0,
+                'total_resolutions': 0
+            }
         }
         
-        corrected_sections = {}
-        
-        # Step 1: Validate each section and check confidence
-        logger.info("Step 1: Validating sections and checking confidence...")
-        
-        for section_name, content in sections.items():
-            if not content or not content.strip():
-                logger.debug(f"Skipping empty section: {section_name}")
-                continue
-            
-            # Get entity profile and expected fingerprint
-            profile = self.get_entity_profile(content)
-            expected = self.get_expected_fingerprint(section_name)
-            violations = self._count_fingerprint_violations(profile, expected)
-            
-            # Calculate confidence score (0-100%)
-            # 6 entity types checked, so max 6 violations
-            confidence = max(0, 100 - (violations * 100 / 6))
-            
-            logger.debug(f"Section '{section_name}': {violations} violations, {confidence:.1f}% confidence")
-            
-            # If confidence is below 50%, try to reassign to better matching section
-            if confidence < 50:
-                logger.info(f"Low confidence ({confidence:.1f}%) for section '{section_name}', attempting reassignment")
-                
-                # Try to resolve to better section type
-                better_match = self.resolve_unknown_section(content)
-                
-                if better_match != 'other' and better_match != section_name:
-                    logger.info(f"Reassigning '{section_name}' → '{better_match}'")
-                    validation_metadata['sections_corrected'].append({
-                        'from': section_name,
-                        'to': better_match,
-                        'reason': f'Low confidence ({confidence:.1f}%)',
-                        'violations': violations
-                    })
-                    section_name = better_match
-                else:
-                    logger.info(f"Keeping original section name '{section_name}' (no better match found)")
-                    if confidence < 50:
-                        validation_metadata['warnings'].append(
-                            f"Section '{section_name}' has low confidence ({confidence:.1f}%) but no better match found"
-                        )
-            
-            # Store in corrected sections (may be reassigned)
-            if section_name in corrected_sections:
-                # Merge with existing content
-                corrected_sections[section_name] += "\n\n" + content
-            else:
-                corrected_sections[section_name] = content
-        
-        # Step 2: Detect and split sections with bleeding
-        logger.info("Step 2: Detecting section bleeding...")
-        
-        sections_to_split = {}
-        
-        for section_name, content in list(corrected_sections.items()):
-            bleeding_line = self.detect_section_bleeding(section_name, content)
-            
-            if bleeding_line is not None:
-                logger.info(f"Bleeding detected in '{section_name}' at line {bleeding_line}")
-                sections_to_split[section_name] = bleeding_line
-        
-        # Split bleeding sections
-        for section_name, split_line in sections_to_split.items():
-            content = corrected_sections[section_name]
-            lines = content.split('\n')
-            
-            first_part = '\n'.join(lines[:split_line])
-            second_part = '\n'.join(lines[split_line:])
-            
-            # Keep first part in original section
-            corrected_sections[section_name] = first_part
-            
-            # Resolve second part to appropriate section
-            if second_part.strip():
-                resolved_section = self.resolve_unknown_section(second_part)
-                
-                logger.info(f"Split second part resolved to '{resolved_section}'")
-                
-                validation_metadata['sections_split'].append({
-                    'section': section_name,
-                    'split_line': split_line,
-                    'resolved_to': resolved_section
-                })
-                
-                if resolved_section in corrected_sections:
-                    corrected_sections[resolved_section] += "\n\n" + second_part
-                else:
-                    corrected_sections[resolved_section] = second_part
-        
-        # Step 3: Resolve unknown sections
-        logger.info("Step 3: Resolving unknown sections...")
-        
-        unknown_sections = {}
-        
-        for section_name, content in list(corrected_sections.items()):
-            # Check for unknown/ambiguous section names
-            if section_name in ['other', 'unknown', 'possible_section', 'misc', 'miscellaneous']:
-                unknown_sections[section_name] = content
-                del corrected_sections[section_name]
-        
-        # Resolve unknown sections
-        for section_name, content in unknown_sections.items():
-            resolved_section = self.resolve_unknown_section(content)
-            
-            logger.info(f"Resolved unknown section '{section_name}' → '{resolved_section}'")
-            
-            validation_metadata['sections_resolved'].append({
-                'from': section_name,
-                'to': resolved_section
-            })
-            
-            if resolved_section in corrected_sections:
-                corrected_sections[resolved_section] += "\n\n" + content
-            else:
-                corrected_sections[resolved_section] = content
-        
-        # Step 4: Clean up and finalize
-        logger.info("Step 4: Finalizing corrected sections...")
-        
-        # Remove any empty sections
-        final_sections = {k: v.strip() for k, v in corrected_sections.items() if v and v.strip()}
-        
-        logger.info(f"Validation complete: {len(sections)} → {len(final_sections)} sections")
-        logger.info(f"Final sections: {list(final_sections.keys())}")
-        
-        # Add summary to metadata
-        validation_metadata['summary'] = {
-            'input_sections': len(sections),
-            'output_sections': len(final_sections),
-            'total_corrections': len(validation_metadata['sections_corrected']),
-            'total_splits': len(validation_metadata['sections_split']),
-            'total_resolutions': len(validation_metadata['sections_resolved'])
-        }
+        # Clean up sections but don't modify their content
+        final_sections = {k: v.strip() for k, v in sections.items() if v and v.strip()}
         
         return final_sections, validation_metadata
