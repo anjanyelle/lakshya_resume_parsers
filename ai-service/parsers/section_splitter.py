@@ -435,11 +435,113 @@ class SectionSplitter:
             # Log section detection results
             self.logger.info(f"Split resume into {len(sections)} sections: {list(sections.keys())}")
             
+            # Post-process: Fix scrambled sections from multi-column PDFs
+            sections = self._fix_scrambled_sections(text, sections)
+            
             return sections
             
         except Exception as e:
             self.logger.error(f"Error splitting sections: {e}")
             return {'other': text}
+    
+    def _fix_scrambled_sections(self, original_text: str, sections: Dict[str, str]) -> Dict[str, str]:
+        """
+        Fix scrambled sections caused by multi-column PDF layouts.
+        Detects when section headers appear in wrong order and reassigns content.
+        
+        Args:
+            original_text: The original extracted text
+            sections: Dictionary of detected sections
+            
+        Returns:
+            Fixed sections dictionary
+        """
+        try:
+            # Find positions of key section headers in original text
+            header_positions = {}
+            
+            # Check for common section headers (order matters - check most specific first)
+            header_patterns = {
+                'summary': ['PROFESSIONAL SUMMARY', 'Professional Summary', 'SUMMARY', 'Summary'],
+                'experience': ['PROFESSIONAL EXPERIENCE', 'Professional Experience', 'WORK EXPERIENCE', 'Work Experience', 'EXPERIENCE', 'Experience'],
+                'skills': ['TECHNICAL SKILLS', 'Technical Skills', 'SOFT SKILLS', 'Soft Skills', 'SKILLS', 'Skills'],
+                'education': ['EDUCATION', 'Education'],
+                'projects': ['PROJECTS', 'Projects'],
+                'certifications': ['CERTIFICATIONS', 'Certifications', 'CERTIFICATION', 'Certification']
+            }
+            
+            for section_name, patterns in header_patterns.items():
+                for pattern in patterns:
+                    idx = original_text.find(pattern)
+                    if idx != -1:
+                        header_positions[section_name] = idx
+                        self.logger.debug(f"Found header '{pattern}' for section '{section_name}' at position {idx}")
+                        break
+            
+            self.logger.info(f"Detected {len(header_positions)} headers in original text: {list(header_positions.keys())}")
+            
+            # If we found headers in scrambled order, try to fix content assignment
+            if len(header_positions) >= 3:
+                # Check if headers are out of logical order
+                # Expected order: summary < skills < experience < projects < education < certifications
+                expected_order = ['summary', 'skills', 'experience', 'projects', 'education', 'certifications']
+                
+                # Get detected sections in position order
+                sorted_sections = sorted(header_positions.items(), key=lambda x: x[1])
+                
+                # Check if headers are too close together (multi-column layout issue)
+                # If headers are within 100 chars of each other, it's likely a layout problem
+                has_layout_issue = False
+                for i in range(len(sorted_sections) - 1):
+                    distance = sorted_sections[i + 1][1] - sorted_sections[i][1]
+                    if distance < 100:
+                        has_layout_issue = True
+                        self.logger.warning(f"Headers '{sorted_sections[i][0]}' and '{sorted_sections[i+1][0]}' are only {distance} chars apart - likely multi-column layout issue")
+                        break
+                
+                # If we detect a layout issue, don't use the scrambled fix
+                if has_layout_issue:
+                    self.logger.info("Skipping scrambled section fix due to multi-column layout detection")
+                    return sections
+                
+                # Extract content between headers
+                fixed_sections = {}
+                for i, (section_name, start_pos) in enumerate(sorted_sections):
+                    # Find end position (next header or end of text)
+                    if i < len(sorted_sections) - 1:
+                        end_pos = sorted_sections[i + 1][1]
+                    else:
+                        end_pos = len(original_text)
+                    
+                    # Extract content between this header and next
+                    section_text = original_text[start_pos:end_pos].strip()
+                    
+                    # Remove the header itself from the content
+                    for pattern in header_patterns.get(section_name, []):
+                        if section_text.startswith(pattern):
+                            section_text = section_text[len(pattern):].strip()
+                            break
+                    
+                    self.logger.debug(f"Section '{section_name}': extracted {len(section_text)} chars (pos {start_pos}-{end_pos})")
+                    
+                    if section_text:
+                        fixed_sections[section_name] = section_text
+                    else:
+                        self.logger.warning(f"Section '{section_name}' has no content after header removal")
+                
+                # Preserve 'other' section if it exists
+                if 'other' in sections and sections['other']:
+                    fixed_sections['other'] = sections['other']
+                
+                self.logger.info(f"Fixed scrambled sections: {list(fixed_sections.keys())}")
+                return fixed_sections
+            
+            # No scrambling detected, return original sections
+            return sections
+            
+        except Exception as e:
+            self.logger.error(f"Error fixing scrambled sections: {e}")
+            return sections
     
     def calculate_heuristic_score(self, line: str, prev_line: str = '', next_line: str = '') -> int:
         """
@@ -741,6 +843,13 @@ class SectionSplitter:
             
             # KEYWORD MATCHING FAILED - Use heuristic scoring as fallback
             heuristic_score = self.calculate_heuristic_score(clean_line, prev_line, next_line)
+            
+            # Require minimum 2 words for heuristic-based section headers
+            # This prevents single words like "Networking", "Kafka" from being treated as headers
+            word_count = len(clean_line.split())
+            if word_count < 2:
+                self.logger.debug(f"❌ Single word - not a section header: '{clean_line}'")
+                return None
             
             # Score ≥ 5: Confirmed heading with unknown section name
             # Try partial matching to assign to nearest section
@@ -1169,6 +1278,11 @@ class SectionSplitter:
         }
 
         clean_lower = clean_text.lower().strip()
+
+        # Special case: prioritize 'certifications' over 'education'
+        # Since education keywords include 'certification', we need to check certifications first
+        if clean_lower in ['certifications', 'certification', 'certificates', 'certificate']:
+            return 'certifications'
 
         for section_name, keywords in KEYWORD_MAP.items():
             for keyword in keywords:
