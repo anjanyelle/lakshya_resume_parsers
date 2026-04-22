@@ -226,6 +226,17 @@ class WelcomeResponse(BaseModel):
     version: str
     endpoints: dict
 
+class ParseSectionsRequest(BaseModel):
+    experience_text: Optional[str] = None
+    education_text: Optional[str] = None
+
+class ParseSectionsResponse(BaseModel):
+    status: str
+    work_experience: List[Dict[str, Any]] = []
+    education: List[Dict[str, Any]] = []
+    processing_time_ms: float
+    message: str
+
 # Error Response Model
 class ErrorResponse(BaseModel):
     error: str
@@ -711,6 +722,96 @@ async def match_candidate_to_job(request: MatchRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Matching failed: {str(e)}"
+        )
+
+@app.post("/parse-sections", response_model=ParseSectionsResponse)
+async def parse_sections(request: ParseSectionsRequest):
+    """
+    Parse extracted sections (experience and education) into structured data.
+    
+    Takes raw text from experience and education sections and returns:
+    - Structured work experience entries (job title, company, dates, responsibilities)
+    - Structured education entries (degree, institution, dates)
+    
+    This is the second step after /preview-sections.
+    """
+    import time
+    from parsers.experience_extractor import ExperienceExtractor
+    from parsers.education_extractor import EducationExtractor
+    
+    start_time = time.time()
+    
+    try:
+        work_experience = []
+        education = []
+        
+        # Parse experience section if provided
+        if request.experience_text and request.experience_text.strip():
+            logger.info(f"Parsing experience section: {len(request.experience_text)} chars")
+            
+            # For very long experience text, split into job-wise chunks
+            exp_text = request.experience_text.strip()
+            
+            # Check if text is very long (>5000 chars) and needs chunking
+            if len(exp_text) > 5000:
+                logger.info("Long experience text detected, splitting into job chunks")
+                # Split by 'Client:' or 'Role:' patterns to separate jobs
+                import re
+                # Split on Client: or standalone Role: lines
+                chunks = re.split(r'\n(?=Client:\s*|(?:^|\n)Role:\s*[A-Z])', exp_text)
+                chunks = [c.strip() for c in chunks if c.strip() and len(c.strip()) > 50]
+                
+                logger.info(f"Split into {len(chunks)} job chunks")
+                
+                # Process each chunk separately
+                all_experiences = []
+                exp_extractor = ExperienceExtractor()
+                
+                for idx, chunk in enumerate(chunks):
+                    logger.info(f"Processing chunk {idx+1}/{len(chunks)}: {len(chunk)} chars")
+                    try:
+                        chunk_result = exp_extractor.extract_work_experience(chunk)
+                        chunk_experiences = chunk_result.get('work_experience', []) if isinstance(chunk_result, dict) else []
+                        all_experiences.extend(chunk_experiences)
+                        logger.info(f"Chunk {idx+1} extracted {len(chunk_experiences)} experiences")
+                    except Exception as e:
+                        logger.error(f"Error processing chunk {idx+1}: {e}")
+                        continue
+                
+                work_experience = all_experiences
+                logger.info(f"Total extracted {len(work_experience)} work experience entries from all chunks")
+            else:
+                # Normal processing for shorter text
+                exp_extractor = ExperienceExtractor()
+                exp_result = exp_extractor.extract_work_experience(exp_text)
+                # ExperienceExtractor returns a dict with 'work_experience' key
+                work_experience = exp_result.get('work_experience', []) if isinstance(exp_result, dict) else []
+                logger.info(f"Extracted {len(work_experience)} work experience entries")
+        
+        # Parse education section if provided
+        if request.education_text and request.education_text.strip():
+            logger.info(f"Parsing education section: {len(request.education_text)} chars")
+            edu_extractor = EducationExtractor()
+            edu_result = edu_extractor.extract_education(request.education_text)
+            # EducationExtractor returns a list directly, not a dict
+            education = edu_result if isinstance(edu_result, list) else []
+            logger.info(f"Extracted {len(education)} education entries")
+        
+        processing_time_ms = (time.time() - start_time) * 1000
+        
+        return ParseSectionsResponse(
+            status="success",
+            work_experience=work_experience,
+            education=education,
+            processing_time_ms=processing_time_ms,
+            message=f"Successfully parsed {len(work_experience)} experience entries and {len(education)} education entries"
+        )
+        
+    except Exception as e:
+        logger.error(f"Error parsing sections: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to parse sections: {str(e)}"
         )
 
 @app.post("/preview-sections", response_model=SectionPreviewResponse)

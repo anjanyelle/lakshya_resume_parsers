@@ -46,11 +46,38 @@ interface SectionPreviewResponse {
   };
 }
 
+interface ParsedSectionsResponse {
+  status: string;
+  work_experience: Array<{
+    job_title?: string;
+    company_name?: string;
+    location?: string;
+    start_date?: string;
+    end_date?: string;
+    duration?: string;
+    responsibilities?: string[];
+    technologies?: string[];
+    [key: string]: any;
+  }>;
+  education: Array<{
+    degree?: string;
+    institution?: string;
+    location?: string;
+    graduation_date?: string;
+    field_of_study?: string;
+    [key: string]: any;
+  }>;
+  processing_time_ms: number;
+  message: string;
+}
+
 export default function SectionPreviewPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [previewData, setPreviewData] = useState<SectionPreviewResponse | null>(null);
+  const [parsedData, setParsedData] = useState<ParsedSectionsResponse | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showRawText, setShowRawText] = useState(false);
   const { token } = useAuthStore();
@@ -164,6 +191,41 @@ export default function SectionPreviewPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handleParseSections = async () => {
+    if (!previewData) {
+      setError("Please analyze sections first");
+      return;
+    }
+
+    setIsParsing(true);
+    setError(null);
+    setParsedData(null);
+
+    try {
+      const aiServiceUrl = "http://localhost:8000";
+      const response = await axios.post<ParsedSectionsResponse>(
+        `${aiServiceUrl}/parse-sections`,
+        {
+          experience_text: previewData.sections.experience?.text || null,
+          education_text: previewData.sections.education?.text || null,
+        }
+      );
+
+      setParsedData(response.data);
+    } catch (err: any) {
+      console.error("Error parsing sections:", err);
+      if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
+      } else if (err.code === "ERR_NETWORK") {
+        setError("Unable to connect to AI service. Please check if it's running on port 8000.");
+      } else {
+        setError("Failed to parse sections. Please try again.");
+      }
+    } finally {
+      setIsParsing(false);
+    }
   };
 
   return (
@@ -470,6 +532,158 @@ export default function SectionPreviewPage() {
                 </div>
               )}
             </div>
+
+            {/* Parse Sections Button */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">AI Model Parsing</h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Send extracted sections to AI model for structured parsing
+                  </p>
+                </div>
+                <button
+                  onClick={handleParseSections}
+                  disabled={isParsing || !previewData.sections.experience && !previewData.sections.education}
+                  className="bg-purple-600 text-white py-2 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isParsing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Parsing...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-5 h-5" />
+                      Parse Sections
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Parsed Results */}
+            {parsedData && (
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-green-200">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  Parsed Structured Data
+                </h2>
+                
+                <div className="mb-4 bg-green-50 rounded-lg p-4">
+                  <p className="text-sm text-green-900">
+                    {parsedData.message} (Processing time: {parsedData.processing_time_ms.toFixed(2)}ms)
+                  </p>
+                </div>
+
+                {/* Work Experience */}
+                {parsedData.work_experience.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">
+                      Work Experience ({parsedData.work_experience.length} entries)
+                    </h3>
+                    <div className="space-y-4">
+                      {parsedData.work_experience.map((exp, idx) => (
+                        <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            {exp.job_title && (
+                              <div>
+                                <span className="text-gray-600">Job Title:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.job_title}</span>
+                              </div>
+                            )}
+                            {exp.company_name && (
+                              <div>
+                                <span className="text-gray-600">Company:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.company_name}</span>
+                              </div>
+                            )}
+                            {exp.location && (
+                              <div>
+                                <span className="text-gray-600">Location:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.location}</span>
+                              </div>
+                            )}
+                            {exp.duration && (
+                              <div>
+                                <span className="text-gray-600">Duration:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.duration}</span>
+                              </div>
+                            )}
+                          </div>
+                          {exp.responsibilities && exp.responsibilities.length > 0 && (
+                            <div className="mt-3">
+                              <span className="text-gray-600 text-sm">Responsibilities:</span>
+                              <ul className="list-disc list-inside mt-1 text-sm text-gray-700 space-y-1">
+                                {exp.responsibilities.slice(0, 3).map((resp: string, i: number) => (
+                                  <li key={i}>{resp}</li>
+                                ))}
+                                {exp.responsibilities.length > 3 && (
+                                  <li className="text-gray-500">...and {exp.responsibilities.length - 3} more</li>
+                                )}
+                              </ul>
+                            </div>
+                          )}
+                          {exp.technologies && exp.technologies.length > 0 && (
+                            <div className="mt-2">
+                              <span className="text-gray-600 text-sm">Technologies:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {exp.technologies.slice(0, 10).map((tech: string, i: number) => (
+                                  <span key={i} className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+                                    {tech}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Education */}
+                {parsedData.education.length > 0 && (
+                  <div>
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">
+                      Education ({parsedData.education.length} entries)
+                    </h3>
+                    <div className="space-y-3">
+                      {parsedData.education.map((edu, idx) => (
+                        <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            {edu.degree && (
+                              <div>
+                                <span className="text-gray-600">Degree:</span>
+                                <span className="font-medium text-gray-900 ml-2">{edu.degree}</span>
+                              </div>
+                            )}
+                            {edu.institution && (
+                              <div>
+                                <span className="text-gray-600">Institution:</span>
+                                <span className="font-medium text-gray-900 ml-2">{edu.institution}</span>
+                              </div>
+                            )}
+                            {edu.field_of_study && (
+                              <div>
+                                <span className="text-gray-600">Field:</span>
+                                <span className="font-medium text-gray-900 ml-2">{edu.field_of_study}</span>
+                              </div>
+                            )}
+                            {edu.graduation_date && (
+                              <div>
+                                <span className="text-gray-600">Graduation:</span>
+                                <span className="font-medium text-gray-900 ml-2">{edu.graduation_date}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Section Cards */}
             <div className="space-y-4">
