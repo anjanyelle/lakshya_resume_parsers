@@ -488,7 +488,7 @@ class DeBERTaNerParser:
             text,
             return_tensors="pt",
             truncation=True,
-            max_length=512,
+            max_length=1024,  # Increased from 512 to handle longer resumes
             return_offsets_mapping=True
         )
         offset_mapping = inputs.pop("offset_mapping")[0]
@@ -567,20 +567,20 @@ class DeBERTaNerParser:
                 # End entity
                 if current_entity and current_text:
                     clean_text = current_text.strip()
-                    # Post-processing
-                    if current_entity == 'COMPANY' and self._is_person_name(clean_text):
-                        pass
-                    elif current_entity == 'DEGREE' and self._is_skill(clean_text):
-                        pass
-                    elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
-                        pass
-                    elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
-                        pass
-                    elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
-                        pass
-                    elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
-                        pass
-                    elif clean_text and current_entity in entities:
+                    # Post-processing - TEMPORARILY DISABLED FOR TESTING
+                    # if current_entity == 'COMPANY' and self._is_person_name(clean_text):
+                    #     pass
+                    # elif current_entity == 'DEGREE' and self._is_skill(clean_text):
+                    #     pass
+                    # elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
+                    #     pass
+                    # elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
+                    #     pass
+                    # elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
+                    #     pass
+                    # elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
+                    #     pass
+                    if clean_text and current_entity in entities:
                         entities[current_entity].append(clean_text)
                     current_entity = None
                     current_text = ""
@@ -589,19 +589,20 @@ class DeBERTaNerParser:
         # Save final entity
         if current_entity and current_text:
             clean_text = current_text.strip()
-            if current_entity == 'COMPANY' and self._is_person_name(clean_text):
-                pass
-            elif current_entity == 'DEGREE' and self._is_skill(clean_text):
-                pass
-            elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
-                pass
-            elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
-                pass
-            elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
-                pass
-            elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
-                pass
-            elif clean_text and current_entity in entities:
+            # Post-processing - TEMPORARILY DISABLED FOR TESTING
+            # if current_entity == 'COMPANY' and self._is_person_name(clean_text):
+            #     pass
+            # elif current_entity == 'DEGREE' and self._is_skill(clean_text):
+            #     pass
+            # elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
+            #     pass
+            # elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
+            #     pass
+            # elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
+            #     pass
+            # elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
+            #     pass
+            if clean_text and current_entity in entities:
                 entities[current_entity].append(clean_text)
         
         # Log extracted entities (after validation filters)
