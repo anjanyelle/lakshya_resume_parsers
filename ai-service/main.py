@@ -727,15 +727,17 @@ async def match_candidate_to_job(request: MatchRequest):
 @app.post("/parse-sections", response_model=ParseSectionsResponse)
 async def parse_sections(request: ParseSectionsRequest):
     """
-    Parse extracted sections (experience and education) into structured data.
+    Parse extracted sections (experience and education) into structured data using DeBERTa NER model.
     
     Takes raw text from experience and education sections and returns:
     - Structured work experience entries (job title, company, dates, responsibilities)
     - Structured education entries (degree, institution, dates)
     
+    This endpoint uses the trained DeBERTa model (31 labels, 97.34% F1 score) for accurate entity extraction.
     This is the second step after /preview-sections.
     """
     import time
+    from parsers.deberta_ner_parser import DeBERTaNerParser
     from parsers.experience_extractor import ExperienceExtractor
     from parsers.education_extractor import EducationExtractor
     
@@ -745,30 +747,134 @@ async def parse_sections(request: ParseSectionsRequest):
         work_experience = []
         education = []
         
+        # Try to use DeBERTa model first
+        try:
+            deberta_parser = DeBERTaNerParser()
+            if deberta_parser.is_loaded and deberta_parser.deberta_available:
+                logger.info("Using DeBERTa NER model for parsing sections")
+                
+                # Combine sections for DeBERTa parsing
+                combined_text = ""
+                if request.experience_text and request.experience_text.strip():
+                    combined_text += "WORK EXPERIENCE\n" + request.experience_text.strip() + "\n\n"
+                if request.education_text and request.education_text.strip():
+                    combined_text += "EDUCATION\n" + request.education_text.strip()
+                
+                if combined_text:
+                    # Parse with DeBERTa
+                    parsed_result = deberta_parser.parse_text(combined_text)
+                    
+                    # Extract work experience and education from DeBERTa results
+                    if 'work_experience' in parsed_result:
+                        work_experience = parsed_result['work_experience']
+                    if 'education' in parsed_result:
+                        education = parsed_result['education']
+                    
+                    logger.info(f"DeBERTa extracted {len(work_experience)} experiences, {len(education)} education entries")
+                    
+                    processing_time_ms = (time.time() - start_time) * 1000
+                    
+                    return ParseSectionsResponse(
+                        status="success",
+                        work_experience=work_experience,
+                        education=education,
+                        processing_time_ms=processing_time_ms,
+                        message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries and {len(education)} education entries"
+                    )
+            else:
+                logger.info("DeBERTa model not available, falling back to regex extractors")
+        except Exception as e:
+            logger.warning(f"DeBERTa parsing failed: {e}, falling back to regex extractors")
+        
+        # Fallback to regex-based extractors
+        logger.info("Using regex-based extractors")
+        
         # Parse experience section if provided
         if request.experience_text and request.experience_text.strip():
             logger.info(f"Parsing experience section: {len(request.experience_text)} chars")
             
-            # For very long experience text, split into job-wise chunks
             exp_text = request.experience_text.strip()
             
-            # Check if text is very long (>5000 chars) and needs chunking
-            if len(exp_text) > 5000:
-                logger.info("Long experience text detected, splitting into job chunks")
-                # Split by 'Client:' or 'Role:' patterns to separate jobs
+            # Helper function to split by job boundaries (company names + locations)
+            def chunk_by_jobs(text: str, max_words: int = 400) -> list:
+                """
+                Split text by job entries (company name + location patterns).
+                Each chunk contains 1-2 complete job entries to stay under token limit.
+                """
                 import re
-                # Split on Client: or standalone Role: lines
-                chunks = re.split(r'\n(?=Client:\s*|(?:^|\n)Role:\s*[A-Z])', exp_text)
-                chunks = [c.strip() for c in chunks if c.strip() and len(c.strip()) > 50]
                 
-                logger.info(f"Split into {len(chunks)} job chunks")
+                # Pattern to detect job boundaries: Company Name City, STATE or just company lines
+                # Examples: "Visa Foster City,CA", "Dignity Health San Francisco, CA"
+                job_boundary_pattern = r'\n(?=[A-Z][A-Za-z\s&]+(?:,\s*[A-Z]{2}|[A-Z][a-z]+,\s*[A-Z]{2})\s*\n)'
                 
-                # Process each chunk separately
+                # Split by job boundaries
+                job_blocks = re.split(job_boundary_pattern, text)
+                job_blocks = [block.strip() for block in job_blocks if block.strip()]
+                
+                logger.info(f"Detected {len(job_blocks)} job blocks")
+                
+                # Group jobs into chunks of max_words
+                chunks = []
+                current_chunk = []
+                current_word_count = 0
+                
+                for job_block in job_blocks:
+                    job_words = job_block.split()
+                    job_word_count = len(job_words)
+                    
+                    # If this single job exceeds max_words, split it by paragraphs
+                    if job_word_count > max_words:
+                        # Save current chunk if any
+                        if current_chunk:
+                            chunks.append('\n\n'.join(current_chunk))
+                            current_chunk = []
+                            current_word_count = 0
+                        
+                        # Split large job by paragraphs
+                        paragraphs = job_block.split('\n\n')
+                        temp_chunk = []
+                        temp_count = 0
+                        
+                        for para in paragraphs:
+                            para_count = len(para.split())
+                            if temp_count + para_count > max_words and temp_chunk:
+                                chunks.append('\n\n'.join(temp_chunk))
+                                temp_chunk = [para]
+                                temp_count = para_count
+                            else:
+                                temp_chunk.append(para)
+                                temp_count += para_count
+                        
+                        if temp_chunk:
+                            chunks.append('\n\n'.join(temp_chunk))
+                    
+                    # If adding this job exceeds limit, save current chunk
+                    elif current_word_count + job_word_count > max_words and current_chunk:
+                        chunks.append('\n\n'.join(current_chunk))
+                        current_chunk = [job_block]
+                        current_word_count = job_word_count
+                    else:
+                        current_chunk.append(job_block)
+                        current_word_count += job_word_count
+                
+                # Add remaining jobs
+                if current_chunk:
+                    chunks.append('\n\n'.join(current_chunk))
+                
+                return chunks
+            
+            # Check if text needs chunking (>2000 chars)
+            if len(exp_text) > 2000:
+                logger.info("Long experience text detected, using job-boundary chunking")
+                chunks = chunk_by_jobs(exp_text, max_words=400)
+                logger.info(f"Split into {len(chunks)} chunks by job boundaries")
+                
+                # Process each chunk sequentially
                 all_experiences = []
                 exp_extractor = ExperienceExtractor()
                 
                 for idx, chunk in enumerate(chunks):
-                    logger.info(f"Processing chunk {idx+1}/{len(chunks)}: {len(chunk)} chars")
+                    logger.info(f"Processing chunk {idx+1}/{len(chunks)}: {len(chunk)} chars, ~{len(chunk.split())} words")
                     try:
                         chunk_result = exp_extractor.extract_work_experience(chunk)
                         chunk_experiences = chunk_result.get('work_experience', []) if isinstance(chunk_result, dict) else []
@@ -779,12 +885,11 @@ async def parse_sections(request: ParseSectionsRequest):
                         continue
                 
                 work_experience = all_experiences
-                logger.info(f"Total extracted {len(work_experience)} work experience entries from all chunks")
+                logger.info(f"Total extracted {len(work_experience)} work experience entries from {len(chunks)} chunks")
             else:
                 # Normal processing for shorter text
                 exp_extractor = ExperienceExtractor()
                 exp_result = exp_extractor.extract_work_experience(exp_text)
-                # ExperienceExtractor returns a dict with 'work_experience' key
                 work_experience = exp_result.get('work_experience', []) if isinstance(exp_result, dict) else []
                 logger.info(f"Extracted {len(work_experience)} work experience entries")
         

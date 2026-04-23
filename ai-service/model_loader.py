@@ -14,8 +14,7 @@ from typing import Dict, Optional
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 import torch
 
-# Custom labels for resume NER
-# Note: PERSON removed - handled separately with regex pattern matching
+# Custom labels for resume NER - matches training data (31 labels)
 LABELS = [
     'O',
     'B-COMPANY', 'I-COMPANY',
@@ -25,7 +24,14 @@ LABELS = [
     'B-START_DATE', 'I-START_DATE',
     'B-END_DATE', 'I-END_DATE',
     'B-EDUCATION', 'I-EDUCATION',
-    'B-DEGREE', 'I-DEGREE'
+    'B-DEGREE', 'I-DEGREE',
+    'B-FIELD', 'I-FIELD',
+    'B-INSTITUTION', 'I-INSTITUTION',
+    'B-GRADE', 'I-GRADE',
+    'B-EDU_START_YEAR', 'I-EDU_START_YEAR',
+    'B-EDU_END_YEAR', 'I-EDU_END_YEAR',
+    'B-PERSON_NAME', 'I-PERSON_NAME',
+    'B-FEILD', 'I-FEILD'
 ]
 
 # Create label mappings
