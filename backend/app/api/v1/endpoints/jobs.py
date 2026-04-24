@@ -78,6 +78,16 @@ def job_extraction_debug(
         raise HTTPException(status_code=404, detail="Job not found")
     raw = job.raw_text or ""
     parsed = job.parsed_data or {}
+    
+    # Fallback for older jobs or cases where raw_text was not saved
+    if not raw and parsed:
+        debug_data = parsed.get("debug", {})
+        html_preview = debug_data.get("html_preview")
+        if html_preview:
+            # Simple tag stripping for fallback
+            import re
+            raw = re.sub(r'<[^>]+>', '\n', html_preview)
+            raw = "\n".join([ln.strip() for ln in raw.split("\n") if ln.strip()])
     work = parsed.get("work_experience") or []
     education = parsed.get("education") or []
     certs = parsed.get("certifications") or []
@@ -93,6 +103,7 @@ def job_extraction_debug(
     return {
         "job_id": str(job.id),
         "stage": "extraction_debug",
+        "raw_text": raw,
         "raw_text_length": len(raw),
         "raw_text_sample_first_200": raw[:200] if raw else "",
         "raw_text_sample_last_100": raw[-100:] if len(raw) > 100 else raw,

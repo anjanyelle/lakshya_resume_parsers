@@ -100,7 +100,7 @@ export default function TaxonomyPage() {
     setAddSynonyms('')
     toast.success('Entry added to local state')
   }
-  
+
   const handleImportCsv = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -112,7 +112,7 @@ export default function TaxonomyPage() {
 
       const lines = text.split('\n')
       const newSkills: TaxonomySkill[] = []
-      
+
       lines.forEach((line, index) => {
         if (index === 0 && (line.toLowerCase().includes('name') || line.toLowerCase().includes('category'))) return
         const [name, category, synonyms] = line.split(',').map(s => s.trim())
@@ -132,7 +132,7 @@ export default function TaxonomyPage() {
       } else {
         toast.error('No valid skills found in CSV')
       }
-      
+
       // Reset input
       event.target.value = ''
     }
@@ -154,7 +154,8 @@ export default function TaxonomyPage() {
         </div>
         <button
           onClick={handleAddEntry}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all hover:opacity-90 hover:-translate-y-0.5 active:scale-95 uppercase tracking-wider"
+          style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' }}
         >
           <Plus className="h-4 w-4" />
           Add New Entry
@@ -216,7 +217,8 @@ export default function TaxonomyPage() {
             </button>
             <button
               onClick={handleSubmitAdd}
-              className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-violet-700"
+              className="flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' }}
             >
               <Save className="h-4 w-4" />
               Save Entry
@@ -245,7 +247,7 @@ export default function TaxonomyPage() {
               onChange={handleImportCsv}
               ref={(el) => setFileInputRef(el)}
             />
-            <button 
+            <button
               onClick={() => fileInputRef?.click()}
               className="flex items-center gap-2 text-[10px] font-bold text-violet-600 bg-violet-50 px-4 py-2 rounded-xl uppercase tracking-widest hover:bg-violet-600 hover:text-white transition-all shadow-sm"
             >

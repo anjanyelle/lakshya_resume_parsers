@@ -16,6 +16,10 @@ import { useFilterStore } from '../store/filterStore'
 import Skeleton from '../components/common/Skeleton'
 import CandidateCard from '../components/candidates/CandidateCard'
 import CustomDropdown from '../components/common/CustomDropdown'
+import Modal from '../components/common/Modal'
+import SectionalRawView from '../components/candidate-detail/SectionalRawView'
+import { fetchJobExtractionDebug } from '../services/api/uploads'
+import { toast } from 'react-hot-toast'
 
 export default function CandidatesPage() {
   const navigate = useNavigate()
@@ -35,6 +39,8 @@ export default function CandidatesPage() {
   const [sortBy, setSortBy] = useState('Sort by Date')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [localSearch, setLocalSearch] = useState('')
+  const [rawViewCandidate, setRawViewCandidate] = useState<{ id: string, name: string, sections: any, rawText: string | null } | null>(null)
+  const [rawViewLoading, setRawViewLoading] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -64,7 +70,7 @@ export default function CandidatesPage() {
             .toLowerCase()
           if (!values.includes(search)) return false
         }
-        
+
         // Match Score Filter Logic
         const score = (candidate.parsing_jobs?.[0]?.confidence_score || 0) * 100
         if (scoreFilter === '80%+ ' && score < 80) return false
@@ -89,7 +95,7 @@ export default function CandidatesPage() {
       })
       .sort((a, b) => {
         const dir = sortDir === 'asc' ? 1 : -1
-        
+
         if (sortBy === 'Sort by Score') {
           const scoreA = a.parsing_jobs?.[0]?.confidence_score || 0
           const scoreB = b.parsing_jobs?.[0]?.confidence_score || 0
@@ -151,8 +157,34 @@ export default function CandidatesPage() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    
+
     toast.success(`Exported ${filtered.length} candidates`)
+  }
+
+  const handleRawView = async (candidateId: string) => {
+    const candidate = candidates.find(c => c.id === candidateId)
+    if (!candidate) return
+
+    const jobId = candidate.parsing_jobs?.[0]?.id
+    if (!jobId) {
+      toast.error('No parsing job found for this candidate')
+      return
+    }
+
+    try {
+      setRawViewLoading(true)
+      const debug = await fetchJobExtractionDebug(jobId)
+      setRawViewCandidate({
+        id: candidateId,
+        name: candidate.full_name || 'Anonymous',
+        sections: candidate.parsing_jobs?.[0]?.parsed_data?.sections || {},
+        rawText: debug.raw_text
+      })
+    } catch (error) {
+      toast.error('Failed to fetch raw extraction data')
+    } finally {
+      setRawViewLoading(false)
+    }
   }
 
   return (
@@ -164,14 +196,13 @@ export default function CandidatesPage() {
         </p>
         <button
           onClick={handleExportData}
-          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all hover:bg-violet-700 active:scale-95 uppercase tracking-wider"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)' }}
+          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition-all hover:opacity-90 active:scale-95 uppercase tracking-wider"
+          style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' }}
         >
           <Download className="h-4 w-4" />
           EXPORT DATA
         </button>
       </div>
-
       {/* Search & Filter Bar */}
       <div className="flex flex-col lg:flex-row flex-wrap items-center gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-slate-200/40 border border-slate-100">
         {/* Search */}
@@ -269,10 +300,31 @@ export default function CandidatesPage() {
               onToggleSelect={() => toggleSelected(candidate.id)}
               onDelete={(id) => removeCandidates([id])}
               onView={(id) => navigate(`/candidates/${id}`)}
+              onRawView={handleRawView}
             />
           ))}
         </div>
       )}
+
+      <Modal
+        open={!!rawViewCandidate || rawViewLoading}
+        onClose={() => setRawViewCandidate(null)}
+        title={rawViewCandidate ? `Raw Extraction: ${rawViewCandidate.name}` : 'Loading Raw Extraction...'}
+        maxWidth="4xl"
+      >
+        {rawViewLoading ? (
+          <div className="p-8">
+            <Skeleton lines={10} />
+          </div>
+        ) : rawViewCandidate ? (
+          <div className="max-h-[80vh] overflow-auto p-1">
+            <SectionalRawView
+              sections={rawViewCandidate.sections}
+              rawText={rawViewCandidate.rawText}
+            />
+          </div>
+        ) : null}
+      </Modal>
     </div>
   )
 }

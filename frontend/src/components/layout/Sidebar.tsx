@@ -53,14 +53,18 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         <div className="mb-10 flex items-center justify-between px-2">
           <div className="flex items-center gap-4">
             <div
-              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-2xl shadow-blue-500/20 flex-shrink-0 ring-1 ring-white/10"
-              style={{ background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)' }}
+              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-2xl shadow-violet-500/20 flex-shrink-0 ring-1 ring-white/10"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' }}
             >
               <div className="absolute inset-0 rounded-xl bg-white/5 backdrop-blur-[1px]"></div>
               <FileText className="relative h-6 w-6" />
             </div>
             <div className="flex flex-col">
-              <p className="text-[15px] font-extrabold text-slate-800 tracking-tight leading-[1.2]">Resume Parser</p>
+              <p
+                className="text-[15px] font-extrabold tracking-tight leading-[1.2] text-[#1a2340]"
+              >
+                Resume Parser
+              </p>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.12em] leading-none mt-1">ADMIN CONSOLE</p>
             </div>
           </div>

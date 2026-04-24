@@ -115,7 +115,10 @@ export default function ResumeAnalyzerPage() {
         <div className="lg:col-span-8 space-y-6">
           {/* Header */}
           <div className="mb-2">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-teal-500 tracking-tight drop-shadow-sm">
+            <h1 
+              className="text-3xl font-semibold tracking-tight drop-shadow-sm"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+            >
               Upload & Analyze Resumes
             </h1>
             <p className="mt-1.5 text-[13px] font-semibold text-slate-400 uppercase tracking-widest leading-none">
@@ -188,7 +191,8 @@ export default function ResumeAnalyzerPage() {
                     Drag & drop your resumes here for deep AI insights and optimization scoring
                   </p>
                   <button
-                    className="mt-8 rounded-2xl px-10 py-3 text-sm font-bold text-white shadow-lg shadow-violet-200 transition-all bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-700 hover:to-violet-600 active:scale-95 uppercase tracking-wider"
+                    className="mt-8 rounded-2xl px-10 py-3 text-sm font-bold text-white shadow-lg shadow-violet-500/20 transition-all hover:opacity-90 active:scale-95 uppercase tracking-wider"
+                    style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' }}
                     onClick={(e) => {
                       e.stopPropagation()
                       document.getElementById('file-input')?.click()
@@ -255,22 +259,26 @@ export default function ResumeAnalyzerPage() {
               <button
                 onClick={() => setActiveTab('single')}
                 className={`flex items-center justify-between w-full px-5 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeTab === 'single'
-                  ? 'bg-violet-50 text-violet-700 shadow-sm border-violet-200 scale-[1.01]'
+                  ? 'bg-violet-50 shadow-sm border-violet-200 scale-[1.01]'
                   : 'bg-slate-50/50 text-slate-500 border-slate-100 hover:border-violet-100'
                   }`}
               >
-                Single Upload
-                {activeTab === 'single' && <CheckCircle2 className="h-4 w-4" />}
+                <span style={activeTab === 'single' ? { background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : {}}>
+                  Single Upload
+                </span>
+                {activeTab === 'single' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
               </button>
               <button
                 onClick={() => setActiveTab('bulk')}
                 className={`flex items-center justify-between w-full px-5 py-3.5 rounded-2xl text-sm font-bold transition-all border ${activeTab === 'bulk'
-                  ? 'bg-violet-50 text-violet-700 shadow-sm border-violet-200 scale-[1.01]'
+                  ? 'bg-violet-50 shadow-sm border-violet-200 scale-[1.01]'
                   : 'bg-slate-50/50 text-slate-500 border-slate-100 hover:border-violet-100'
                   }`}
               >
-                Bulk Upload
-                {activeTab === 'bulk' && <CheckCircle2 className="h-4 w-4" />}
+                <span style={activeTab === 'bulk' ? { background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } : {}}>
+                  Bulk Upload
+                </span>
+                {activeTab === 'bulk' && <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
               </button>
             </div>
           </div>

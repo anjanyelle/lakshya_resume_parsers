@@ -73,7 +73,7 @@ export default function UploadPage() {
       {!activeItem && (
         <>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">
+            <h1 className="text-2xl font-semibold tracking-tight text-[#1a2340]">
               Upload resumes
             </h1>
             <p className="mt-2 text-sm text-slate-700 font-medium">

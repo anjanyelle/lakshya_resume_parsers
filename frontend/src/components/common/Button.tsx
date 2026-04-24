@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-brand-600 text-white hover:bg-brand-700 focus-visible:ring-brand-500',
+    'text-white hover:opacity-90 hover:scale-[1.02] shadow-lg shadow-violet-500/25 active:scale-[0.98] transition-all duration-300',
   secondary:
     'bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:text-slate-900 focus-visible:ring-slate-300',
   ghost:
@@ -40,11 +40,14 @@ export default function Button({
 }: ButtonProps) {
   const isDisabled = disabled || isLoading
 
+  const isPrimary = variant === 'primary'
+
   return (
     <button
       className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       disabled={isDisabled}
       type={type}
+      style={isPrimary ? { background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' } : undefined}
       {...rest}
     >
       {isLoading ? (

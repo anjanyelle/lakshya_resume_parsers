@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import Sidebar from './Sidebar'
 import Header from './Header'
 
@@ -21,7 +21,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     >
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity lg:hidden"
           onClick={closeSidebar}
         />

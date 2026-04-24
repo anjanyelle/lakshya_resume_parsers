@@ -81,6 +81,7 @@ export default {
       backgroundImage: {
         'sidebar-gradient': 'linear-gradient(135deg, #f5f3ff 0%, #e0f2fe 50%, #f0fdfa 100%)',
         'header-gradient': 'linear-gradient(90deg, #7c3aed 0%, #14b8a6 100%)',
+        'brand-gradient': 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)',
         'card-gradient': 'linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%)',
         'accent-gradient': 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
       },

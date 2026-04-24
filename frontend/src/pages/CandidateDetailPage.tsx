@@ -8,6 +8,8 @@ import ResumeViewerWithHighlights, { type FieldMapping } from '../components/can
 import StructuredDataPanel from '../components/candidate-detail/StructuredDataPanel'
 import Modal from '../components/common/Modal'
 import Skeleton from '../components/common/Skeleton'
+import SectionalRawView from '../components/candidate-detail/SectionalRawView'
+import { Database, FileText } from 'lucide-react'
 import type { Candidate, ParsingJob, Skill } from '../types'
 import {
   approveCandidate,
@@ -52,6 +54,8 @@ export default function CandidateDetailPage() {
   const [scrollToFieldId, setScrollToFieldId] = useState<string | null>(null)
   const [panelScrollToFieldId, setPanelScrollToFieldId] = useState<string | null>(null)
   const [autoEditFieldId, setAutoEditFieldId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'structured' | 'raw'>('structured')
+  const [rawText, setRawText] = useState<string | null>(null)
   const { collapseSidebar } = useLayout()
 
   useEffect(() => {
@@ -87,13 +91,15 @@ export default function CandidateDetailPage() {
             parsed_work_experience_count: Array.isArray(work) ? work.length : 0,
             parsed_education_count: Array.isArray(edu) ? edu.length : 0,
             parsed_certifications_count: Array.isArray(certs) ? certs.length : 0,
-            parsed_summary_length: summaryContent.length,
-            summary_sample: summaryContent.slice(0, 120) + (summaryContent.length > 120 ? '...' : ''),
           })
-          const jobId = reviewData.latest_job?.id
-          if (jobId) {
-            fetchJobExtractionDebug(jobId)
-              .then((debug) => {
+        }
+
+        const jobId = reviewData.latest_job?.id
+        if (jobId) {
+          fetchJobExtractionDebug(jobId)
+            .then((debug) => {
+              setRawText(debug.raw_text)
+              if (import.meta.env.DEV) {
                 console.log('[DATA-LOSS CHECK] Backend extraction debug (compare with rendering):', {
                   raw_text_length: debug.raw_text_length,
                   raw_sample_first_200: debug.raw_text_sample_first_200?.slice(0, 100) + '...',
@@ -105,9 +111,9 @@ export default function CandidateDetailPage() {
                   method: debug.text_extraction_method,
                   used_ocr: debug.used_ocr,
                 })
-              })
-              .catch(() => { })
-          }
+              }
+            })
+            .catch(() => { })
         }
       } catch (error) {
         toast.error(
@@ -598,45 +604,75 @@ export default function CandidateDetailPage() {
         {/* Right: Structured Candidate Data Panel */}
         <div className="flex min-h-[400px] flex-col lg:min-h-[calc(100vh-14rem)]">
           <div className="mb-2 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-sm">
-            <span className="text-sm font-medium text-slate-700">
-              Structured Data
-            </span>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setViewMode('structured')}
+                className={`flex items-center gap-2 px-1 py-1 text-sm font-medium transition-colors ${
+                  viewMode === 'structured'
+                    ? 'text-violet-600 border-b-2 border-violet-600'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Database className="h-4 w-4" />
+                Structured Data
+              </button>
+              <button
+                onClick={() => setViewMode('raw')}
+                className={`flex items-center gap-2 px-1 py-1 text-sm font-medium transition-colors ${
+                  viewMode === 'raw'
+                    ? 'text-violet-600 border-b-2 border-violet-600'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <FileText className="h-4 w-4" />
+                Raw Extraction
+              </button>
+            </div>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-              Editable Fields
+              {viewMode === 'structured' ? 'Editable Fields' : 'Read Only'}
             </span>
           </div>
           <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
-            <StructuredDataPanel
-              candidate={displayCandidate}
-              displayWorkHistory={displayWorkHistory}
-              displayEducation={displayEducation}
-              displayCertifications={displayCertifications} displaySkills={displaySkills}
-              displayCandidateSkills={displayCandidateSkills}
-              displaySummary={displaySummary}
-              activeFieldId={activeField ?? activeFieldId}
-              onFieldSelect={handleFieldSelectFromPanel}
-              panelScrollToFieldId={panelScrollToFieldId}
-              onPanelScrollComplete={handlePanelScrollComplete}
-              autoEditFieldId={autoEditFieldId}
-              onAutoEditConsumed={handleAutoEditConsumed}
-              onCandidateUpdate={(updated) => {
-                setCandidate(updated)
-                setOriginalCandidate(updated)
-              }}
-              onWorkHistoryUpdate={(updated) => {
-                setCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
-                setOriginalCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
-              }}
-              onEducationUpdate={(updated) => {
-                setCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
-                setOriginalCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
-              }}
-              onSkillsUpdate={handleSkillsUpdate}
-              onSummarySave={handleSummarySave}
-              readOnly={useParsedDataFallback}
-              candidateId={id!}
-              showMismatchBanner={showMismatchBanner}
-            />
+            {viewMode === 'structured' ? (
+              <StructuredDataPanel
+                candidate={displayCandidate}
+                displayWorkHistory={displayWorkHistory}
+                displayEducation={displayEducation}
+                displayCertifications={displayCertifications} displaySkills={displaySkills}
+                displayCandidateSkills={displayCandidateSkills}
+                displaySummary={displaySummary}
+                activeFieldId={activeFieldId}
+                onFieldSelect={handleFieldSelectFromPanel}
+                panelScrollToFieldId={panelScrollToFieldId}
+                onPanelScrollComplete={handlePanelScrollComplete}
+                autoEditFieldId={autoEditFieldId}
+                onAutoEditConsumed={handleAutoEditConsumed}
+                onCandidateUpdate={(updated) => {
+                  setCandidate(updated)
+                  setOriginalCandidate(updated)
+                }}
+                onWorkHistoryUpdate={(updated) => {
+                  setCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
+                  setOriginalCandidate((prev) => (prev ? { ...prev, work_history: updated } : prev))
+                }}
+                onEducationUpdate={(updated) => {
+                  setCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
+                  setOriginalCandidate((prev) => (prev ? { ...prev, education: updated } : prev))
+                }}
+                onSkillsUpdate={handleSkillsUpdate}
+                onSummarySave={handleSummarySave}
+                readOnly={useParsedDataFallback}
+                candidateId={id!}
+                showMismatchBanner={showMismatchBanner}
+              />
+            ) : (
+              <div className="h-full overflow-auto">
+                <SectionalRawView 
+                  sections={parsedData.sections as any} 
+                  rawText={rawText} 
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

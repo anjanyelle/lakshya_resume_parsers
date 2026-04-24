@@ -1,4 +1,4 @@
-import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { Eye, Download, Trash2, MoreVertical, Mail, Phone, MapPin, Calendar, ChevronDown, ChevronUp, FileText } from 'lucide-react'
 import { useState } from 'react'
 import type { Candidate } from '../../types/candidate'
 import { getInitials, Gauge, ScoreBadge, getAvatarColor, formatScore, formatRelativeTime } from './CandidateUIUtils'
@@ -9,6 +9,7 @@ interface CandidateCardProps {
   onToggleSelect?: (id: string) => void
   onDelete?: (id: string) => void
   onView?: (id: string) => void
+  onRawView?: (id: string) => void
 }
 
 export default function CandidateCard({
@@ -16,7 +17,8 @@ export default function CandidateCard({
   isSelected,
   onToggleSelect,
   onDelete,
-  onView
+  onView,
+  onRawView
 }: CandidateCardProps) {
   const rawScore = candidate.parsing_jobs?.[0]?.confidence_score
   const scoreValue = formatScore(rawScore)
@@ -59,7 +61,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
   }
 
   return (
-    <div className={`relative flex flex-col rounded-2xl bg-white pt-7 px-6 pb-6 border transition-all duration-500 hover:-translate-y-1.5 h-full ${isSelected
+    <div className={`relative flex flex-col rounded-2xl bg-white pt-5 px-4 pb-5 border transition-all duration-500 hover:-translate-y-1.5 h-full ${isSelected
         ? 'border-violet-300 ring-4 ring-violet-50 shadow-2xl shadow-violet-100'
         : 'border-slate-100/60 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:shadow-indigo-100/50'
       }`}>
@@ -71,7 +73,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
               type="checkbox"
               checked={isSelected}
               onChange={() => onToggleSelect(candidate.id)}
-              className="h-4 w-4 rounded border-slate-200 accent-violet-600 cursor-pointer shadow-sm"
+              className="h-3 w-3 rounded border-slate-200 accent-violet-600 cursor-pointer shadow-sm"
             />
           </div>
         )}
@@ -102,7 +104,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
       {/* Content Wrapper to push footer down */}
       <div className="flex flex-1 flex-col">
         {/* Metadata Grid (2x2) */}
-        <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-3 pl-[52px]">
+        <div className="mt-3 grid grid-cols-2 gap-x-8 gap-y-2 pl-[40px]">
           <div className="flex items-center gap-2.5 min-w-0">
             <Mail className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
             <span className={`text-[13px] truncate ${candidate.email ? 'text-slate-800 font-semibold' : 'text-slate-300 italic'}`}>
@@ -130,14 +132,14 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
         </div>
 
         {/* Skills Section */}
-        <div className="mt-4 pl-[52px]">
+        <div className="mt-3 pl-[40px]">
           <div className="min-h-[44px]">
             <p className="text-[10px] font-bold tracking-widest text-slate-300 uppercase mb-2">Top Skills</p>
             <div className="flex flex-wrap gap-1.5">
               {(showAllSkills ? skills : topSkills).map((skill) => (
                 <span
                   key={skill.id}
-                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 shadow-sm transition-all hover:border-emerald-200"
+                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 shadow-sm transition-all hover:border-emerald-200"
                 >
                   <span>{skill.name}</span>
                   <span className="flex h-5 items-center justify-center rounded-md bg-emerald-100/80 px-1.5 text-[9px] font-black tabular-nums">
@@ -160,7 +162,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
       </div>
 
       {/* Footer Actions */}
-      <div className="mt-auto border-t border-slate-50 px-2 pt-4 flex items-center justify-between gap-6">
+      <div className="mt-auto border-t border-slate-50 px-2 pt-3 flex items-center justify-between gap-4">
         <button
           onClick={() => onView?.(candidate.id)}
           className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-violet-600 bg-violet-50/0 hover:bg-violet-50 transition-all hover:-translate-y-0.5"
@@ -169,7 +171,7 @@ ${(candidate.certifications ?? []).map(c => `- ${c.name}`).join('\n') || 'None l
           <span>View Details</span>
         </button>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <button
             onClick={handleDownload}
             className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[14px] font-semibold text-slate-500 bg-slate-50/0 hover:bg-slate-50 transition-all hover:-translate-y-0.5"

@@ -84,7 +84,7 @@ export default function AccuracyPage() {
             <div className="h-2 w-2 rounded-full bg-violet-500" />
             <h3 className="text-sm font-semibold text-slate-800">Section Accuracy</h3>
           </div>
-          
+
           <div className="space-y-5">
             {loading ? (
               <Skeleton lines={5} />
@@ -109,7 +109,7 @@ export default function AccuracyPage() {
                   <div className="h-2 rounded-full bg-slate-50 overflow-hidden border border-slate-100 flex p-[1px]">
                     <div
                       className="h-full rounded-full transition-all duration-1000 ease-out"
-                      style={{ 
+                      style={{
                         width: `${metric.score * 100}%`,
                         background: 'linear-gradient(90deg, #7c3aed, #14b8a6)'
                       }}
@@ -127,7 +127,7 @@ export default function AccuracyPage() {
             <div className="h-2 w-2 rounded-full bg-teal-500" />
             <h3 className="text-sm font-semibold text-slate-800">Recent Parsing Runs</h3>
           </div>
-          
+
           <div className="space-y-3">
             {loading ? (
               <Skeleton lines={5} />
@@ -148,9 +148,8 @@ export default function AccuracyPage() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-slate-800">{run.job_id.slice(0, 12)}...</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      run.confidence > 0.8 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                    }`}>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${run.confidence > 0.8 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
                       {(run.confidence * 100).toFixed(0)}% Confidence
                     </span>
                   </div>

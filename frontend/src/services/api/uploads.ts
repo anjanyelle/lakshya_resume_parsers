@@ -29,6 +29,7 @@ export const fetchJobStatus = async (jobId: string) => {
 export const fetchJobExtractionDebug = async (jobId: string) => {
   const response = await apiClient.get<{
     job_id: string
+    raw_text: string
     raw_text_length: number
     raw_text_sample_first_200: string
     raw_text_sample_last_100: string

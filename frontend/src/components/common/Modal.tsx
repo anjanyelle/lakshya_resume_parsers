@@ -7,9 +7,24 @@ type ModalProps = {
   title?: string
   onClose: () => void
   children: ReactNode
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full'
 }
 
-export default function Modal({ open, title, onClose, children }: ModalProps) {
+const MAX_WIDTH_CLASSES = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
+  '5xl': 'max-w-5xl',
+  '6xl': 'max-w-6xl',
+  '7xl': 'max-w-7xl',
+  full: 'max-w-full',
+}
+
+export default function Modal({ open, title, onClose, children, maxWidth = '5xl' }: ModalProps) {
   useEffect(() => {
     if (!open) return
 
@@ -34,7 +49,7 @@ export default function Modal({ open, title, onClose, children }: ModalProps) {
       />
       <div className="relative flex h-full items-center justify-center p-4">
         <div
-          className="w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl"
+          className={`w-full ${MAX_WIDTH_CLASSES[maxWidth]} overflow-hidden rounded-2xl bg-white shadow-xl`}
           onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"

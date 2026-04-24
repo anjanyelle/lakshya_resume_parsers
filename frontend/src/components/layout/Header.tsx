@@ -132,8 +132,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const roleConfig: Record<string, { label: string; boxClass: string; iconClass: string }> = {
     admin: {
       label: 'Admin',
-      boxClass: 'bg-indigo-50 border border-indigo-100',
-      iconClass: 'text-indigo-600'
+      boxClass: 'text-white shadow-lg shadow-violet-500/20',
+      iconClass: ''
     },
     reviewer: {
       label: 'Reviewer',
@@ -162,10 +162,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
         </button>
 
         <div className="flex items-center gap-4 min-w-0">
-          <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-sm transition-all duration-300 ${pageInfo.color}`}>
+          <div
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 shadow-lg shadow-violet-500/10 transition-all duration-300 text-white"
+            style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' }}
+          >
             <pageInfo.icon className="h-5.5 w-5.5" />
           </div>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight truncate leading-none">
+          <h1
+            className="text-xl md:text-2xl font-semibold tracking-tight truncate leading-none py-1 text-[#1a2340]"
+          >
             {pageInfo.title}
           </h1>
         </div>
@@ -176,7 +181,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Search Intelligence Dropdown */}
         <div className="relative hidden xl:block" ref={searchRef}>
           <div
-            className={`flex items-center gap-4 pl-6 pr-2 py-3 rounded-2xl transition-all duration-700 border backdrop-blur-xl ${isSearchOpen ? 'bg-white/90 border-violet-300 shadow-2xl shadow-violet-200/30 w-[480px]' : 'bg-slate-50/50 border-slate-100 w-80 hover:border-slate-200 hover:bg-white hover:shadow-lg hover:shadow-slate-200/40'
+            className={`flex items-center gap-3 pl-4 pr-2 py-2 rounded-2xl transition-all duration-700 border backdrop-blur-xl ${isSearchOpen ? 'bg-white/90 border-violet-300 shadow-2xl shadow-violet-200/30 w-[380px]' : 'bg-slate-50/50 border-slate-100 w-64 hover:border-slate-200 hover:bg-white hover:shadow-lg hover:shadow-slate-200/40'
               } group cursor-pointer`}
           >
             <Search className={`h-5 w-5 transition-colors duration-500 ${isSearchOpen ? 'text-violet-500' : 'text-slate-400 group-hover:text-slate-600'}`} />
@@ -233,13 +238,16 @@ export default function Header({ onMenuClick }: HeaderProps) {
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="flex items-center gap-3 cursor-pointer p-1.5 rounded-2xl transition-all hover:bg-slate-50 border border-transparent"
             >
-              <div className={`relative flex h-10 w-10 items-center justify-center rounded-xl ${config.boxClass}`}>
+              <div 
+                className={`relative flex h-10 w-10 items-center justify-center rounded-xl ${config.boxClass}`}
+                style={currentRole === 'admin' ? { background: 'linear-gradient(135deg, #7c3aed 0%, #14b8a6 100%)' } : {}}
+              >
                 <User className={`h-5 w-5 ${config.iconClass}`} />
                 {/* Status Indicator */}
                 <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
               </div>
               <div className="hidden sm:block">
-                <h4 className="text-[14px] font-bold text-slate-800 leading-none">
+                <h4 className="text-[14px] font-bold text-[#1a2340] leading-none">
                   {config.label}
                 </h4>
               </div>
