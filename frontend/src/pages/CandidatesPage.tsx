@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import toast from "react-hot-toast";
+import { Users, Search, RefreshCw, User } from "lucide-react";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
 type SortType = "date-added" | "name" | "confidence-score";
@@ -66,20 +67,12 @@ export default function CandidatesPage() {
   console.log("🔍 Candidates count:", candidates.length);
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return "bg-green-100 text-green-800";
-    if (confidence >= 0.6) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
+    if (confidence >= 0.8) return "bg-purple-100 text-purple-800";
+    if (confidence >= 0.6) return "bg-purple-50 text-purple-700";
+    return "bg-gray-100 text-gray-600";
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return "?";
-    return name
-      .split(" ")
-      .map((part) => part.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join("");
-  };
-
+  
   const getExperienceSummary = (workExperience: any[]) => {
     if (!workExperience || workExperience.length === 0) return "No experience";
 
@@ -101,15 +94,21 @@ export default function CandidatesPage() {
   };
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
-        <p className="text-gray-600">Manage and review candidate profiles</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex items-center gap-3 mb-2">
+            <Users className="w-6 h-6 text-purple-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
+          </div>
+          <p className="text-gray-600">
+            Manage and review candidate profiles with AI-powered resume parsing insights
+          </p>
+        </div>
 
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        {/* Search and Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search Bar */}
           <div className="flex-1">
@@ -122,21 +121,9 @@ export default function CandidatesPage() {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
               />
-              <svg
-                className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             </div>
           </div>
 
@@ -144,9 +131,9 @@ export default function CandidatesPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
                 filter === "all"
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-purple-600 text-white hover:bg-purple-700"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -154,9 +141,9 @@ export default function CandidatesPage() {
             </button>
             <button
               onClick={() => setFilter("high-confidence")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
                 filter === "high-confidence"
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-purple-600 text-white hover:bg-purple-700"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -164,9 +151,9 @@ export default function CandidatesPage() {
             </button>
             <button
               onClick={() => setFilter("needs-review")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
                 filter === "needs-review"
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-purple-600 text-white hover:bg-purple-700"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -181,7 +168,7 @@ export default function CandidatesPage() {
               setSort(e.target.value as SortType);
               setCurrentPage(1);
             }}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="date-added">Date Added</option>
             <option value="name">Name</option>
@@ -190,64 +177,48 @@ export default function CandidatesPage() {
         </div>
       </div>
 
-      {/* Debug Info - TEMPORARY */}
-      {pagination && (
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-xs font-mono">
-            <strong>DEBUG:</strong> Pagination = {JSON.stringify(pagination)}
-          </p>
-        </div>
-      )}
-      {!pagination && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-xs font-mono">
-            <strong>DEBUG:</strong> Pagination is NULL or undefined
-          </p>
-        </div>
-      )}
 
-      {/* Results Count */}
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-gray-600">
-          Showing {paginatedCandidates.length} of {pagination?.total_items || filteredCandidates.length}{" "}
-          candidates
-          {pagination && ` (Page ${pagination.current_page} of ${pagination.total_pages})`}
-        </p>
-        <button
-          onClick={loadCandidates}
-          disabled={isLoading}
-          className="text-sm text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
-        >
-          {isLoading ? "Refreshing..." : "Refresh"}
-        </button>
-      </div>
-
-      {/* Candidates Grid */}
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-        </div>
-      ) : paginatedCandidates.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {paginatedCandidates.map((candidate) => (
-            <div
-              key={candidate.id}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6"
+          {/* Results Count */}
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Showing {paginatedCandidates.length} of {pagination?.total_items || filteredCandidates.length}{" "}
+              candidates
+              {pagination && ` (Page ${pagination.current_page} of ${pagination.total_pages})`}
+            </p>
+            <button
+              onClick={loadCandidates}
+              disabled={isLoading}
+              className="text-sm text-purple-600 hover:text-purple-700 disabled:opacity-50 flex items-center gap-2"
             >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
+
+          {/* Candidates Grid */}
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+            </div>
+          ) : paginatedCandidates.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          {paginatedCandidates.map((candidate) => (
+              <div
+                key={candidate.id}
+                className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 p-6 border border-gray-100 hover:border-purple-200"
+              >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                    <span className="text-indigo-600 font-semibold">
-                      {getInitials(candidate.full_name)}
-                    </span>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="font-semibold text-gray-900">
-                      {candidate.full_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{candidate.email}</p>
-                  </div>
+                  <div className="flex items-center">
+                    <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="font-semibold text-gray-900 text-lg">
+                        {candidate.full_name}
+                      </h3>
+                      <p className="text-sm text-gray-600">{candidate.email}</p>
+                    </div>
                 </div>
 
                 {/* Confidence Badge */}
@@ -264,19 +235,19 @@ export default function CandidatesPage() {
               {/* Skills */}
               {candidate.skills && candidate.skills.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-2">Top Skills</p>
-                  <div className="flex flex-wrap gap-1">
-                    {candidate.skills.slice(0, 3).map((skill, index) => (
+                  <p className="text-sm font-medium text-gray-700 mb-2">Top Skills</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {candidate.skills.slice(0, 4).map((skill, index) => (
                       <span
                         key={index}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded"
+                        className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200"
                       >
                         {skill.skill_name}
                       </span>
                     ))}
-                    {candidate.skills.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                        +{candidate.skills.length - 3} more
+                    {candidate.skills.length > 4 && (
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg border border-gray-200">
+                        +{candidate.skills.length - 4} more
                       </span>
                     )}
                   </div>
@@ -295,7 +266,7 @@ export default function CandidatesPage() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => navigate(`/candidates/${candidate.id}`)}
-                  className="flex-1 mr-2 px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="flex-1 mr-2 px-4 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
                 >
                   View Profile
                 </button>
@@ -308,19 +279,7 @@ export default function CandidatesPage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
+          <Users className="mx-auto h-12 w-12 text-purple-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">
             No candidates found
           </h3>
@@ -342,53 +301,52 @@ export default function CandidatesPage() {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={!pagination.has_prev_page}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border border-purple-200 text-purple-700 rounded-md hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
 
             {/* Page Numbers */}
-            <div className="flex items-center space-x-1">
-              {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-                let pageNum;
-                if (pagination.total_pages <= 5) {
-                  pageNum = i + 1;
-                } else if (pagination.current_page <= 3) {
-                  pageNum = i + 1;
-                } else if (pagination.current_page >= pagination.total_pages - 2) {
-                  pageNum = pagination.total_pages - 4 + i;
-                } else {
-                  pageNum = pagination.current_page - 2 + i;
-                }
+            {Array.from({ length: Math.min(5, pagination.total_pages) }).map((_, idx) => {
+              let pageNum;
+              if (pagination.total_pages <= 5) {
+                pageNum = idx + 1;
+              } else if (pagination.current_page <= 3) {
+                pageNum = idx + 1;
+              } else if (pagination.current_page >= pagination.total_pages - 2) {
+                pageNum = pagination.total_pages - 4 + idx;
+              } else {
+                pageNum = pagination.current_page - 2 + idx;
+              }
 
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`px-3 py-1 text-sm border rounded-md ${
-                      pagination.current_page === pageNum
-                        ? "bg-indigo-600 text-white border-indigo-600"
-                        : "border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-            </div>
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                    pageNum === pagination.current_page
+                      ? "bg-purple-600 text-white hover:bg-purple-700"
+                      : "border border-purple-200 text-purple-700 hover:bg-purple-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
 
             <button
               onClick={() =>
                 setCurrentPage((prev) => Math.min(pagination.total_pages, prev + 1))
               }
               disabled={!pagination.has_next_page}
-              className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border border-purple-200 text-purple-700 rounded-md hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

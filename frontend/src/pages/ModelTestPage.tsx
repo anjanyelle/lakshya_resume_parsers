@@ -82,7 +82,7 @@ export default function ModelTestPage() {
             <button
               onClick={handleTest}
               disabled={isLoading || !inputText.trim()}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+              className="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isLoading ? (
                 <>
