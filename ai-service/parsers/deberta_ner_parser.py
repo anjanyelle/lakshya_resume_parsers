@@ -91,6 +91,39 @@ class DeBERTaNerParser:
         
         return True
     
+    def _extract_years_from_text(self, text: str) -> tuple:
+        """
+        Extract start and end years from text containing date ranges.
+        
+        Handles patterns like:
+        - "2011–2013", "2011-2013", "2011 - 2013"
+        - "(2010-2014)", "2010 to 2014"
+        - "2013" (single year)
+        
+        Returns:
+            (start_year, end_year) as integers, or (None, None) if not found
+        """
+        if not text:
+            return None, None
+        
+        import re
+        
+        # Remove parentheses and common separators
+        cleaned = text.replace('(', '').replace(')', '')
+        
+        # Pattern 1: Year range with dash/en-dash/to (2011–2013, 2011-2013, 2011 - 2013, 2011 to 2013)
+        match = re.search(r'(\d{4})\s*(?:[–\-—]|to)\s*(\d{4})', cleaned)
+        if match:
+            return int(match.group(1)), int(match.group(2))
+        
+        # Pattern 2: Single year (2013)
+        match = re.search(r'(\d{4})', cleaned)
+        if match:
+            year = int(match.group(1))
+            return year, year
+        
+        return None, None
+    
     @staticmethod
     def _preprocess_text(text: str) -> str:
         """
@@ -460,11 +493,198 @@ class DeBERTaNerParser:
         
         return merged
     
+    def _detect_format(self, text: str) -> str:
+        """
+        Detect if text is in structured format (CSV, pipe-separated, etc.) or natural language.
+        
+        Returns:
+            'csv' - Comma-separated format
+            'double_colon' - Double colon separated (::)
+            'pipe' - Pipe separated (|) but without @ symbol
+            'double_angle' - Double angle bracket separated (>>)
+            'natural' - Natural language format (has @ or natural phrasing)
+        """
+        lines = text.strip().split('\n')
+        if not lines:
+            return 'natural'
+        
+        # Sample first few lines
+        sample_lines = lines[:3]
+        
+        # Check for natural language indicators
+        natural_indicators = ['@', ' at ', ' in ', ' from ', ' to ']
+        has_natural = any(indicator in text.lower() for indicator in natural_indicators)
+        
+        # Count delimiter occurrences per line
+        comma_count = sum(line.count(',') for line in sample_lines) / len(sample_lines)
+        double_colon_count = sum(line.count('::') for line in sample_lines) / len(sample_lines)
+        pipe_count = sum(line.count('|') for line in sample_lines) / len(sample_lines)
+        double_angle_count = sum(line.count('>>') for line in sample_lines) / len(sample_lines)
+        
+        # Detect format based on delimiter density
+        if double_colon_count >= 2:
+            return 'double_colon'
+        elif double_angle_count >= 2:
+            return 'double_angle'
+        elif pipe_count >= 2 and not has_natural:
+            return 'pipe'
+        elif comma_count >= 3 and not has_natural:
+            return 'csv'
+        else:
+            return 'natural'
+    
+    def _convert_to_natural_language(self, text: str) -> str:
+        """
+        Convert structured formats (CSV, pipe-separated, etc.) to natural language format
+        that the DeBERTa model was trained on.
+        
+        Model expects: "Job Title @ Company | Location | Start Date - End Date"
+        """
+        format_type = self._detect_format(text)
+        
+        if format_type == 'natural':
+            return text  # Already in correct format
+        
+        logger.info(f"📝 Detected {format_type} format, converting to natural language...")
+        
+        lines = text.strip().split('\n')
+        converted_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            
+            converted = self._convert_line_to_natural(line, format_type)
+            if converted:
+                converted_lines.append(converted)
+        
+        result = '\n'.join(converted_lines)
+        logger.info(f"✅ Converted {len(lines)} lines from {format_type} to natural language")
+        logger.info(f"   Preview: {result[:200]}...")
+        
+        return result
+    
+    def _convert_line_to_natural(self, line: str, format_type: str) -> str:
+        """
+        Convert a single line from structured format to natural language.
+        
+        Common patterns:
+        CSV: "Company,Location,Role,StartDate,EndDate"
+        Double colon: "Company :: Location :: Role :: StartDate :: EndDate"
+        Pipe: "Company | Location | Role | StartDate | EndDate"
+        
+        Target: "Role @ Company | Location | StartDate - EndDate"
+        """
+        # Split by delimiter
+        if format_type == 'csv':
+            parts = [p.strip() for p in line.split(',')]
+        elif format_type == 'double_colon':
+            parts = [p.strip() for p in line.split('::')]
+        elif format_type == 'pipe':
+            parts = [p.strip() for p in line.split('|')]
+        elif format_type == 'double_angle':
+            parts = [p.strip() for p in line.split('>>')]
+        else:
+            return line
+        
+        if len(parts) < 3:
+            return line  # Not enough parts, return as-is
+        
+        # Heuristic to identify which part is which
+        # Common patterns:
+        # 1. Company, Location, Role, StartDate, EndDate
+        # 2. Role, Company, Location, StartDate, EndDate
+        
+        company = None
+        role = None
+        location = None
+        start_date = None
+        end_date = None
+        
+        # Identify parts by keywords and patterns
+        for i, part in enumerate(parts):
+            part_lower = part.lower()
+            
+            # Role indicators (contains job keywords)
+            role_keywords = ['engineer', 'developer', 'analyst', 'manager', 'architect', 
+                           'consultant', 'designer', 'scientist', 'specialist', 'lead',
+                           'senior', 'junior', 'principal', 'staff', 'director', 'vp']
+            if any(keyword in part_lower for keyword in role_keywords) and not role:
+                role = part
+                continue
+            
+            # Date indicators (contains year or month)
+            date_keywords = ['january', 'february', 'march', 'april', 'may', 'june',
+                           'july', 'august', 'september', 'october', 'november', 'december',
+                           'present', 'current', '20', '19']
+            if any(keyword in part_lower for keyword in date_keywords):
+                if not start_date:
+                    start_date = part
+                elif not end_date:
+                    end_date = part
+                continue
+            
+            # Location indicators (contains state/country or city patterns)
+            location_keywords = ['india', 'usa', 'ca', 'ny', 'tx', 'wa', 'bangalore', 
+                               'hyderabad', 'chennai', 'mumbai', 'delhi', 'pune',
+                               'seattle', 'francisco', 'york', 'austin', 'boston']
+            if any(keyword in part_lower for keyword in location_keywords) and not location:
+                location = part
+                continue
+            
+            # Company (usually first non-role, non-date, non-location part)
+            if not company and not role:
+                company = part
+        
+        # If we still don't have company, use first part
+        if not company and len(parts) > 0:
+            company = parts[0]
+        
+        # If we still don't have role, try to find it
+        if not role and len(parts) > 2:
+            # Check if second or third part looks like a role
+            for part in parts[1:3]:
+                if part and part != company and part != location:
+                    role = part
+                    break
+        
+        # Build natural language format: "Role @ Company | Location | StartDate - EndDate"
+        result_parts = []
+        
+        if role:
+            result_parts.append(role)
+        
+        if company:
+            if result_parts:
+                result_parts.append('@')
+            result_parts.append(company)
+        
+        if location:
+            if result_parts:
+                result_parts.append('|')
+            result_parts.append(location)
+        
+        if start_date or end_date:
+            if result_parts:
+                result_parts.append('|')
+            if start_date:
+                result_parts.append(start_date)
+            if end_date:
+                if start_date:
+                    result_parts.append('-')
+                result_parts.append(end_date)
+        
+        return ' '.join(result_parts)
+    
     def _parse_single_section(self, text: str, section_type: str) -> Dict[str, List[str]]:
         """Parse a single section with DeBERTa using production-ready pipeline."""
         if not text or not text.strip():
             logger.warning(f"Empty {section_type} section, skipping DeBERTa parsing")
             return {}
+        
+        # Detect and convert structured formats to natural language
+        text = self._convert_to_natural_language(text)
         
         # Pre-process text to normalize format
         text = self._preprocess_text(text)
@@ -476,6 +696,8 @@ class DeBERTaNerParser:
         
         # Initialize entities with label names from trained model
         # CRITICAL: Include both EDUCATION and INSTITUTION to handle model variations
+        # Store entities with positions for proximity-based grouping
+        entities_with_positions = []  # List of {type, text, start, end}
         entities = {
             'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
             'START_DATE': [], 'END_DATE': [], 'DATE_START': [], 'DATE_END': [],
@@ -488,7 +710,7 @@ class DeBERTaNerParser:
             text,
             return_tensors="pt",
             truncation=True,
-            max_length=1024,  # Increased from 512 to handle longer resumes
+            max_length=2048,  # Increased from 1024 to handle resumes with 5+ jobs
             return_offsets_mapping=True
         )
         offset_mapping = inputs.pop("offset_mapping")[0]
@@ -496,19 +718,37 @@ class DeBERTaNerParser:
         with torch.no_grad():
             outputs = self.model(**inputs)
         
-        predictions = torch.argmax(outputs.logits, dim=2)[0]
+        # Get predictions and confidence scores
+        logits = outputs.logits[0]
+        probabilities = torch.softmax(logits, dim=1)
+        predictions = torch.argmax(logits, dim=1)
+        confidences = torch.max(probabilities, dim=1)[0]
+        
         tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
         
-        # Log raw predictions for debugging
+        # Log raw predictions with confidence scores for debugging
         raw_entities_found = []
-        for idx, (token, pred_id) in enumerate(zip(tokens, predictions)):
+        role_predictions = []
+        company_predictions = []
+        
+        for idx, (token, pred_id, confidence) in enumerate(zip(tokens, predictions, confidences)):
             if token not in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
                 label = self.id_to_label[pred_id.item()]
                 if label != 'O':  # Not "Outside" label
-                    raw_entities_found.append(f"{token}:{label}")
+                    raw_entities_found.append(f"{token}:{label}({confidence:.2f})")
+                    
+                    # Track ROLE predictions specifically
+                    if 'ROLE' in label:
+                        role_predictions.append(f"{token}:{label}({confidence:.2f})")
+                    elif 'COMPANY' in label:
+                        company_predictions.append(f"{token}:{label}({confidence:.2f})")
         
         if raw_entities_found:
-            logger.info(f"   🎯 Raw model predictions: {', '.join(raw_entities_found[:20])}")
+            logger.info(f"   🎯 Raw model predictions: {', '.join(raw_entities_found[:30])}")
+            if role_predictions:
+                logger.info(f"   👔 ROLE predictions: {', '.join(role_predictions)}")
+            if company_predictions:
+                logger.info(f"   🏢 COMPANY predictions: {', '.join(company_predictions)}")
         else:
             logger.warning(f"   ⚠️ Model predicted NO entities (all 'O' labels)")
         
@@ -516,6 +756,7 @@ class DeBERTaNerParser:
         current_entity = None
         current_text = ""
         current_label = None
+        current_start = None  # Track start position
         
         for idx, (token, pred_id, offset) in enumerate(zip(tokens, predictions, offset_mapping)):
             if token in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
@@ -530,34 +771,25 @@ class DeBERTaNerParser:
             actual_text = text[start:end]
             
             if label.startswith('B-'):
-                # Save previous entity
-                if current_entity and current_text:
+                # Save previous entity with position
+                if current_entity and current_text and current_start is not None:
                     clean_text = current_text.strip()
-                    # Post-processing: remove person names from COMPANY
-                    if current_entity == 'COMPANY' and self._is_person_name(clean_text):
-                        pass  # Skip person names
-                    # Post-processing: remove skills from DEGREE
-                    elif current_entity == 'DEGREE' and self._is_skill(clean_text):
-                        pass  # Skip skills
-                    # Filter out invalid degrees (parentheses, single words, adjectives)
-                    elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
-                        pass  # Skip invalid degrees
-                    # Filter out invalid companies (too short, single words, numbers)
-                    elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
-                        pass  # Skip invalid companies
-                    # Filter out invalid job titles (single words, tech names)
-                    elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
-                        pass  # Skip invalid job titles
-                    # Filter out invalid locations (tech names, numbers)
-                    elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
-                        pass  # Skip invalid locations
-                    elif clean_text and current_entity in entities:
+                    # Validation filters disabled for testing - add entity with position
+                    if clean_text and current_entity in entities:
                         entities[current_entity].append(clean_text)
+                        # Store entity with position for proximity grouping
+                        entities_with_positions.append({
+                            'type': current_entity,
+                            'text': clean_text,
+                            'start': current_start,
+                            'end': start  # End is start of current token
+                        })
                 
                 # Start new entity
                 current_label = label[2:]
                 current_text = actual_text
                 current_entity = current_label
+                current_start = start  # Track start position
                 
             elif label.startswith('I-') and current_entity and label[2:] == current_label:
                 # Continue entity
@@ -565,45 +797,36 @@ class DeBERTaNerParser:
                 
             else:
                 # End entity
-                if current_entity and current_text:
+                if current_entity and current_text and current_start is not None:
                     clean_text = current_text.strip()
-                    # Post-processing - TEMPORARILY DISABLED FOR TESTING
-                    # if current_entity == 'COMPANY' and self._is_person_name(clean_text):
-                    #     pass
-                    # elif current_entity == 'DEGREE' and self._is_skill(clean_text):
-                    #     pass
-                    # elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
-                    #     pass
-                    # elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
-                    #     pass
-                    # elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
-                    #     pass
-                    # elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
-                    #     pass
+                    # Validation filters disabled for testing - add entity with position
                     if clean_text and current_entity in entities:
                         entities[current_entity].append(clean_text)
+                        # Store entity with position for proximity grouping
+                        entities_with_positions.append({
+                            'type': current_entity,
+                            'text': clean_text,
+                            'start': current_start,
+                            'end': start
+                        })
                     current_entity = None
                     current_text = ""
                     current_label = None
+                    current_start = None
         
-        # Save final entity
-        if current_entity and current_text:
+        # Save final entity with position
+        if current_entity and current_text and current_start is not None:
             clean_text = current_text.strip()
-            # Post-processing - TEMPORARILY DISABLED FOR TESTING
-            # if current_entity == 'COMPANY' and self._is_person_name(clean_text):
-            #     pass
-            # elif current_entity == 'DEGREE' and self._is_skill(clean_text):
-            #     pass
-            # elif current_entity == 'DEGREE' and not self._is_valid_degree(clean_text):
-            #     pass
-            # elif current_entity == 'COMPANY' and not self._is_valid_company(clean_text):
-            #     pass
-            # elif current_entity == 'ROLE' and not self._is_valid_job_title(clean_text):
-            #     pass
-            # elif current_entity == 'LOCATION' and not self._is_valid_location(clean_text):
-            #     pass
+            # Validation filters disabled for testing - add entity with position
             if clean_text and current_entity in entities:
                 entities[current_entity].append(clean_text)
+                # Store entity with position for proximity grouping
+                entities_with_positions.append({
+                    'type': current_entity,
+                    'text': clean_text,
+                    'start': current_start,
+                    'end': len(text)  # End at text length
+                })
         
         # Log extracted entities (after validation filters)
         entity_summary = {k: len(v) for k, v in entities.items() if v}
@@ -616,7 +839,10 @@ class DeBERTaNerParser:
                 logger.info(f"   Roles extracted: {entities['ROLE']}")
             if entities.get('COMPANY'):
                 logger.info(f"   Companies extracted: {entities['COMPANY'][:5]}")  # First 5
+            logger.info(f"   Total entities with positions: {len(entities_with_positions)}")
         
+        # Store positions for proximity-based grouping
+        entities['_positions'] = entities_with_positions
         return entities
     
     def _is_person_name(self, text: str) -> bool:
@@ -1091,12 +1317,31 @@ class DeBERTaNerParser:
         
         if max_edu > 0:
             for i in range(max_edu):
+                # Get years from model if available
+                start_year = edu_start[i] if i < len(edu_start) else None
+                end_year = edu_end[i] if i < len(edu_end) else None
+                
+                # If years not extracted by model, try to parse from degree/institution text
+                if not start_year and not end_year:
+                    # Check degree text for year ranges like "Bachelor of Science (2010-2014)"
+                    degree_text = degrees[i] if i < len(degrees) else ''
+                    institution_text = institutions[i] if i < len(institutions) else ''
+                    
+                    # Try to extract years from degree or institution text
+                    combined_text = f"{degree_text} {institution_text}"
+                    extracted_start, extracted_end = self._extract_years_from_text(combined_text)
+                    
+                    if extracted_start:
+                        start_year = extracted_start
+                    if extracted_end:
+                        end_year = extracted_end
+                
                 edu = {
                     'institution': institutions[i] if i < len(institutions) else '',
                     'degree': degrees[i] if i < len(degrees) else '',
                     'field_of_study': fields[i] if i < len(fields) else None,
-                    'start_year': edu_start[i] if i < len(edu_start) else None,
-                    'end_year': edu_end[i] if i < len(edu_end) else None,
+                    'start_year': start_year,
+                    'end_year': end_year,
                     'grade': entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None,
                     'source': 'deberta_ner'
                 }

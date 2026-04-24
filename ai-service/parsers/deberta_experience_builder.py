@@ -37,37 +37,157 @@ class DeBERTaExperienceBuilder:
         Build structured work experiences from DeBERTa extracted entities.
         
         Strategy: Use COMPANY names as anchors. Each company = one experience.
-        Match roles, dates, and locations to the nearest company.
+        Match roles, dates, and locations to the nearest company using position-based clustering.
         
         Args:
             entities: Dictionary of entity types to lists of extracted values
                      e.g., {'COMPANY': ['Google', 'Amazon'], 'ROLE': ['Engineer', 'Developer']}
+                     Also includes '_positions': list of {type, text, start, end} for proximity grouping
             text: Original text for context and ordering
             
         Returns:
             List of structured work experience dictionaries
         """
-        companies = entities.get('COMPANY', []) or entities.get('companies', [])
-        roles = entities.get('ROLE', []) or entities.get('job_titles', [])
-        start_dates = entities.get('DATE_START', []) or []
-        end_dates = entities.get('DATE_END', []) or []
-        locations = entities.get('LOCATION', []) or entities.get('locations', [])
-        clients = entities.get('CLIENT', []) or entities.get('clients', [])
+        # Check if we have position data from the new extraction method
+        positions_data = entities.get('_positions', [])
         
-        self.logger.info(f"📊 DeBERTa entities: {len(companies)} companies, {len(roles)} roles, {len(start_dates)} start dates, {len(end_dates)} end dates")
-        
-        # If no companies or roles found, return empty
-        if not companies and not roles:
-            self.logger.warning("No companies or roles found in DeBERTa entities")
-            return []
-        
-        # Strategy: Use companies as anchors - each company is a separate experience
-        experiences = self._build_experiences_by_company(
-            text, companies, roles, start_dates, end_dates, locations, clients
-        )
+        if positions_data:
+            # Use position-based clustering (NEW METHOD)
+            self.logger.info(f"🎯 Using position-based entity clustering with {len(positions_data)} entities")
+            experiences = self._build_experiences_by_position(positions_data, text)
+        else:
+            # Fallback to old method using text.find()
+            self.logger.info("⚠️ No position data, using fallback text.find() method")
+            companies = entities.get('COMPANY', []) or entities.get('companies', [])
+            roles = entities.get('ROLE', []) or entities.get('job_titles', [])
+            start_dates = entities.get('DATE_START', []) or entities.get('START_DATE', []) or []
+            end_dates = entities.get('DATE_END', []) or entities.get('END_DATE', []) or []
+            locations = entities.get('LOCATION', []) or entities.get('locations', [])
+            clients = entities.get('CLIENT', []) or entities.get('clients', [])
+            
+            self.logger.info(f"📊 DeBERTa entities: {len(companies)} companies, {len(roles)} roles, {len(start_dates)} start dates, {len(end_dates)} end dates")
+            
+            # If no companies or roles found, return empty
+            if not companies and not roles:
+                self.logger.warning("No companies or roles found in DeBERTa entities")
+                return []
+            
+            # Strategy: Use companies as anchors - each company is a separate experience
+            experiences = self._build_experiences_by_company(
+                text, companies, roles, start_dates, end_dates, locations, clients
+            )
         
         self.logger.info(f"✅ Built {len(experiences)} work experiences from DeBERTa entities")
         return experiences
+    
+    def _build_experiences_by_position(self, positions_data: List[Dict], text: str) -> List[Dict[str, Any]]:
+        """
+        Build experiences using position-based clustering (NEW METHOD).
+        
+        Groups entities by proximity - entities within ~150 characters of each other
+        are considered part of the same job entry.
+        
+        Args:
+            positions_data: List of {type, text, start, end} dictionaries
+            text: Original text for context
+            
+        Returns:
+            List of structured work experience dictionaries
+        """
+        # Separate entities by type with positions
+        companies = [e for e in positions_data if e['type'] == 'COMPANY']
+        roles = [e for e in positions_data if e['type'] == 'ROLE']
+        locations = [e for e in positions_data if e['type'] == 'LOCATION']
+        start_dates = [e for e in positions_data if e['type'] in ['START_DATE', 'DATE_START']]
+        end_dates = [e for e in positions_data if e['type'] in ['END_DATE', 'DATE_END']]
+        
+        self.logger.info(f"📊 Position-based entities: {len(companies)} companies, {len(roles)} roles, {len(locations)} locations")
+        
+        if not companies:
+            self.logger.warning("No companies found - cannot build experiences")
+            return []
+        
+        # Sort companies by position
+        companies.sort(key=lambda x: x['start'])
+        
+        experiences = []
+        proximity_window = 150  # Characters - entities within this range are grouped together
+        
+        for i, company in enumerate(companies):
+            company_pos = company['start']
+            
+            # Define search window around this company
+            # Look backward and forward within proximity_window
+            window_start = max(0, company_pos - proximity_window)
+            window_end = company_pos + proximity_window
+            
+            # Find entities within proximity window
+            nearby_role = self._find_entity_in_window(roles, window_start, window_end, company_pos)
+            nearby_location = self._find_entity_in_window(locations, window_start, window_end, company_pos)
+            nearby_start_date = self._find_entity_in_window(start_dates, window_start, window_end, company_pos)
+            nearby_end_date = self._find_entity_in_window(end_dates, window_start, window_end, company_pos)
+            
+            # Check if end date indicates current position
+            is_current = False
+            end_date_text = nearby_end_date['text'] if nearby_end_date else None
+            if end_date_text:
+                end_date_lower = end_date_text.lower()
+                if 'present' in end_date_lower or 'current' in end_date_lower:
+                    is_current = True
+                    end_date_text = None
+            
+            # Create experience
+            exp = {
+                'job_title': nearby_role['text'] if nearby_role else '',
+                'company_name': company['text'],
+                'location': nearby_location['text'] if nearby_location else '',
+                'start_date': self._parse_date(nearby_start_date['text']) if nearby_start_date else None,
+                'end_date': self._parse_date(end_date_text) if end_date_text and not is_current else None,
+                'is_current': is_current,
+                'clients': [],
+                'description': ''
+            }
+            
+            experiences.append(exp)
+            
+            # Log for debugging
+            role_text = nearby_role['text'] if nearby_role else 'No role'
+            start_text = nearby_start_date['text'] if nearby_start_date else 'No start'
+            end_text = end_date_text or ('Present' if is_current else 'No end')
+            self.logger.info(f"  ✓ Job {i+1}: {role_text} at {company['text']} ({start_text} - {end_text})")
+        
+        return experiences
+    
+    def _find_entity_in_window(self, entities: List[Dict], window_start: int, window_end: int, 
+                                anchor_pos: int) -> Dict:
+        """
+        Find the entity closest to anchor_pos within the given window.
+        
+        Args:
+            entities: List of entity dictionaries with 'start', 'end', 'text', 'type'
+            window_start: Start of search window (character position)
+            window_end: End of search window (character position)
+            anchor_pos: Anchor position (e.g., company position) to measure distance from
+            
+        Returns:
+            Entity dictionary if found, None otherwise
+        """
+        candidates = []
+        
+        for entity in entities:
+            entity_pos = entity['start']
+            # Check if entity is within window
+            if window_start <= entity_pos <= window_end:
+                # Calculate distance from anchor
+                distance = abs(entity_pos - anchor_pos)
+                candidates.append((distance, entity))
+        
+        if not candidates:
+            return None
+        
+        # Return the closest entity
+        candidates.sort(key=lambda x: x[0])
+        return candidates[0][1]
     
     def _build_experiences_by_company(self, text: str, companies: List[str], roles: List[str],
                                       start_dates: List[str], end_dates: List[str],
@@ -259,3 +379,34 @@ class DeBERTaExperienceBuilder:
             return result.date().isoformat() if result else None
         except:
             return None
+    
+    def _extract_years_from_date_range(self, date_text: str) -> tuple:
+        """
+        Extract start and end years from date range strings.
+        
+        Handles patterns like:
+        - "2011–2013", "2011-2013", "2011 - 2013"
+        - "(2010-2014)", "2010 to 2014"
+        - "2013" (single year)
+        
+        Returns:
+            (start_year, end_year) as integers, or (None, None) if not found
+        """
+        if not date_text:
+            return None, None
+        
+        # Remove parentheses and common separators
+        cleaned = date_text.replace('(', '').replace(')', '')
+        
+        # Pattern 1: Year range with dash/en-dash (2011–2013, 2011-2013, 2011 - 2013)
+        match = re.search(r'(\d{4})\s*[–\-—to]\s*(\d{4})', cleaned)
+        if match:
+            return int(match.group(1)), int(match.group(2))
+        
+        # Pattern 2: Single year (2013)
+        match = re.search(r'(\d{4})', cleaned)
+        if match:
+            year = int(match.group(1))
+            return year, year
+        
+        return None, None
