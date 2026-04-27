@@ -14,6 +14,7 @@ class ParsingJobStatus(str, enum.Enum):
     PROCESSING = "processing"
     SUCCESS = "success"
     FAILED = "failed"
+    COMPLETED = "completed"
 
 
 def _enum_values(enum_cls: type[enum.Enum]) -> list[str]:

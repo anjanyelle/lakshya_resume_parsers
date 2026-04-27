@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useCandidateStore } from "../store/useCandidateStore";
+import { useAuthStore } from "../store/useAuthStore";
 import {
   connectSocket,
   subscribeToParsingProgress,
@@ -9,6 +10,7 @@ import {
   subscribeToParsingFailed,
 } from "../services/socket";
 import toast from "react-hot-toast";
+import axios from "axios";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
@@ -31,6 +33,26 @@ interface UploadFile {
   candidateId?: string;
   result?: any;
   error?: string;
+  sections?: SectionData;
+}
+
+interface SectionData {
+  experience?: {
+    text: string;
+    char_count: number;
+  };
+  education?: {
+    text: string;
+    char_count: number;
+  };
+}
+
+interface ParsedSectionsResponse {
+  status: string;
+  work_experience: Array<any>;
+  education: Array<any>;
+  processing_time_ms: number;
+  message: string;
 }
 
 const LLM_MODELS: LLMModel[] = [
@@ -77,8 +99,13 @@ export default function UploadPage() {
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
   const [selectedLLM, setSelectedLLM] = useState<string>("own-model");
   const [showLLMDropdown, setShowLLMDropdown] = useState(false);
+  const [extractedSections, setExtractedSections] = useState<SectionData | null>(null);
+  const [isExtractingSections, setIsExtractingSections] = useState(false);
+  const [parsedSections, setParsedSections] = useState<ParsedSectionsResponse | null>(null);
+  const [isParsingModel, setIsParsingModel] = useState(false);
 
   const { uploadResume } = useCandidateStore();
+  const { token } = useAuthStore();
   const navigate = useNavigate();
 
   // Socket.io connection
@@ -220,6 +247,39 @@ export default function UploadPage() {
     multiple: isBulkMode,
   });
 
+  const extractSections = async (file: File): Promise<SectionData | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await axios.post(
+        `${baseUrl}/api/v1/upload`,
+        formData,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Python backend returns different structure
+      const sections: SectionData = {};
+      if (response.data.jobs?.[0]?.parsed_data?.work_experience) {
+        sections.experience = JSON.stringify(response.data.jobs[0].parsed_data.work_experience, null, 2);
+      }
+      if (response.data.jobs?.[0]?.parsed_data?.education) {
+        sections.education = JSON.stringify(response.data.jobs[0].parsed_data.education, null, 2);
+      }
+
+      return sections;
+    } catch (error) {
+      console.error("Error extracting sections:", error);
+      return null;
+    }
+  };
+
   const handleUpload = async (uploadFile: UploadFile) => {
     try {
       // Update status to uploading
@@ -245,43 +305,16 @@ export default function UploadPage() {
         });
       }
 
-      // Start upload with selected LLM (send empty string for own-model)
-      const llmProvider = selectedLLM === "own-model" ? "" : selectedLLM;
-      const candidate = await uploadResume(uploadFile.file, llmProvider);
+      // Extract sections first - STOP HERE, don't upload yet
+      setIsExtractingSections(true);
+      const sections = await extractSections(uploadFile.file);
+      setExtractedSections(sections);
+      setIsExtractingSections(false);
 
-      // Check if candidate was returned successfully
-      if (!candidate || !candidate.id) {
-        throw new Error("Invalid response from server");
-      }
+      // Clear currentUpload to show extracted sections UI
+      setCurrentUpload(null);
 
-      // Update with candidate ID
-      setUploadFiles((prev) =>
-        prev.map((f) =>
-          f.id === uploadFile.id
-            ? {
-                ...f,
-                candidateId: candidate.id,
-                status: "parsing",
-                message: "Extracting text...",
-                progress: 25,
-              }
-            : f,
-        ),
-      );
-
-      if (!isBulkMode) {
-        setCurrentUpload((prev) =>
-          prev
-            ? {
-                ...prev,
-                candidateId: candidate.id,
-                status: "parsing",
-                message: "Extracting text...",
-                progress: 25,
-              }
-            : null,
-        );
-      }
+      toast.success("Sections extracted! Review and parse with AI model.");
     } catch (error: any) {
       const errorMessage = error.message || "Upload failed";
 
@@ -320,9 +353,46 @@ export default function UploadPage() {
     }
   };
 
+  const parseExtractedSections = async () => {
+    if (!extractedSections) {
+      toast.error("No sections extracted yet");
+      return;
+    }
+
+    setIsParsingModel(true);
+    setParsedSections(null);
+
+    try {
+      const aiServiceUrl = "http://localhost:8000";
+      const response = await axios.post<ParsedSectionsResponse>(
+        `${aiServiceUrl}/parse-sections`,
+        {
+          experience_text: extractedSections.experience?.text || "",
+          education_text: extractedSections.education?.text || "",
+        }
+      );
+
+      setParsedSections(response.data);
+      toast.success("Sections parsed successfully!");
+    } catch (error: any) {
+      console.error("Error parsing sections:", error);
+      if (error.response?.data?.detail) {
+        toast.error(error.response.data.detail);
+      } else if (error.code === "ERR_NETWORK") {
+        toast.error("Unable to connect to AI service on port 8000");
+      } else {
+        toast.error("Failed to parse sections");
+      }
+    } finally {
+      setIsParsingModel(false);
+    }
+  };
+
   const resetUpload = () => {
     setUploadFiles([]);
     setCurrentUpload(null);
+    setExtractedSections(null);
+    setParsedSections(null);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -552,7 +622,7 @@ export default function UploadPage() {
         )}
 
         {/* Single File Pending State */}
-        {!isBulkMode && uploadFiles.length > 0 && !currentUpload && (
+        {!isBulkMode && uploadFiles.length > 0 && !currentUpload && !extractedSections && (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -567,9 +637,10 @@ export default function UploadPage() {
             <div className="space-x-3">
               <button
                 onClick={() => handleUpload(uploadFiles[0])}
-                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200 font-medium"
+                disabled={isExtractingSections}
+                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Upload Resume
+                {isExtractingSections ? "Extracting..." : "Upload & Extract Sections"}
               </button>
               <button
                 onClick={resetUpload}
@@ -579,6 +650,201 @@ export default function UploadPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Extracted Sections Preview */}
+      {extractedSections && !isBulkMode && (
+        <div className="space-y-6">
+          {/* Section Preview Header */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Extracted Sections</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Review the extracted Experience and Education sections before parsing with AI model
+            </p>
+          </div>
+
+          {/* Experience Section */}
+          {extractedSections.experience && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-blue-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">EXPERIENCE</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.experience.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  readOnly
+                  value={extractedSections.experience.text}
+                  className="w-full h-64 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Education Section */}
+          {extractedSections.education && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-cyan-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">EDUCATION</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.education.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  readOnly
+                  value={extractedSections.education.text}
+                  className="w-full h-48 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Parse Button */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">AI Model Parsing</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Send extracted sections to DeBERTa model for structured entity extraction
+                </p>
+              </div>
+              <div className="space-x-3">
+                <button
+                  onClick={parseExtractedSections}
+                  disabled={isParsingModel}
+                  className="px-6 py-2.5 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isParsingModel ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Parsing...
+                    </>
+                  ) : (
+                    "Parse with AI Model"
+                  )}
+                </button>
+                <button
+                  onClick={resetUpload}
+                  className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
+                >
+                  Upload Another
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Parsed Results */}
+          {parsedSections && (
+            <div className="bg-white rounded-2xl shadow-sm border border-green-200 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Parsed Structured Data
+              </h2>
+              
+              <div className="mb-4 bg-green-50 rounded-lg p-4">
+                <p className="text-sm text-green-900">
+                  {parsedSections.message} (Processing time: {parsedSections.processing_time_ms.toFixed(2)}ms)
+                </p>
+              </div>
+
+              {/* Work Experience Results */}
+              {parsedSections.work_experience.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Work Experience ({parsedSections.work_experience.length} entries)
+                  </h3>
+                  <div className="space-y-4">
+                    {parsedSections.work_experience.map((exp, idx) => (
+                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          {exp.job_title && (
+                            <div>
+                              <span className="text-gray-600">Job Title:</span>
+                              <span className="font-medium text-gray-900 ml-2">{exp.job_title}</span>
+                            </div>
+                          )}
+                          {exp.company_name && (
+                            <div>
+                              <span className="text-gray-600">Company:</span>
+                              <span className="font-medium text-gray-900 ml-2">{exp.company_name}</span>
+                            </div>
+                          )}
+                          {exp.location && (
+                            <div>
+                              <span className="text-gray-600">Location:</span>
+                              <span className="font-medium text-gray-900 ml-2">{exp.location}</span>
+                            </div>
+                          )}
+                          {exp.start_date && (
+                            <div>
+                              <span className="text-gray-600">Start:</span>
+                              <span className="font-medium text-gray-900 ml-2">{exp.start_date}</span>
+                            </div>
+                          )}
+                          {exp.end_date && (
+                            <div>
+                              <span className="text-gray-600">End:</span>
+                              <span className="font-medium text-gray-900 ml-2">{exp.end_date}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Education Results */}
+              {parsedSections.education.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Education ({parsedSections.education.length} entries)
+                  </h3>
+                  <div className="space-y-3">
+                    {parsedSections.education.map((edu, idx) => (
+                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          {edu.degree && (
+                            <div>
+                              <span className="text-gray-600">Degree:</span>
+                              <span className="font-medium text-gray-900 ml-2">{edu.degree}</span>
+                            </div>
+                          )}
+                          {edu.institution && (
+                            <div>
+                              <span className="text-gray-600">Institution:</span>
+                              <span className="font-medium text-gray-900 ml-2">{edu.institution}</span>
+                            </div>
+                          )}
+                          {edu.field_of_study && (
+                            <div>
+                              <span className="text-gray-600">Field:</span>
+                              <span className="font-medium text-gray-900 ml-2">{edu.field_of_study}</span>
+                            </div>
+                          )}
+                          {edu.graduation_date && (
+                            <div>
+                              <span className="text-gray-600">Graduation:</span>
+                              <span className="font-medium text-gray-900 ml-2">{edu.graduation_date}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

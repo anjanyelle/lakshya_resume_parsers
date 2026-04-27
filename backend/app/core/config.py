@@ -87,6 +87,8 @@ class Settings(BaseSettings):
     ADMIN_API_KEY: str | None = None
 
     ENCRYPTION_KEY: str | None = None
+    
+    AI_SERVICE_URL: str | None = None
     ENCRYPTION_KEYS_JSON: str | None = None
     DEFAULT_TENANT_ID: str = "default"
 
