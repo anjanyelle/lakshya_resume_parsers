@@ -10,6 +10,7 @@ interface NavItem {
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
@@ -180,15 +181,19 @@ export default function DashboardLayout() {
       {/* Sidebar */}
       <div
         className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-16" : "w-56"} bg-white border-r border-gray-200 shadow-sm transform transition-all duration-300 ease-in-out
         lg:translate-x-0 lg:relative lg:inset-0 lg:flex-shrink-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <div className="flex items-center">
+          <div 
+            className="flex items-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+              <div className="h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center">
                 <svg
                   className="h-5 w-5 text-white"
                   fill="none"
@@ -204,10 +209,14 @@ export default function DashboardLayout() {
                 </svg>
               </div>
             </div>
-            <span className="ml-2 text-xl font-semibold text-gray-900">
-              Resume Parser
-            </span>
+            {!isCollapsed && (
+              <span className="ml-2 text-xl font-semibold text-gray-900 truncate">
+                Resume Parser
+              </span>
+            )}
           </div>
+
+          {/* Mobile Close Button */}
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-gray-400 hover:text-gray-500"
@@ -239,23 +248,24 @@ export default function DashboardLayout() {
                   setSidebarOpen(false);
                 }}
                 className={`
-                  group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-colors
+                  group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-all duration-200
                   ${
                     isActive(item.href)
-                      ? "bg-indigo-100 text-indigo-700"
+                      ? "bg-purple-600 text-white shadow-sm"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }
+                  ${isCollapsed ? "justify-center" : ""}
                 `}
               >
                 <div
                   className={`
-                  mr-3 h-5 w-5 flex-shrink-0
-                  ${isActive(item.href) ? "text-indigo-500" : "text-gray-400 group-hover:text-gray-500"}
+                  ${isCollapsed ? "mr-0" : "mr-3"} h-5 w-5 flex-shrink-0 transition-all duration-200
+                  ${isActive(item.href) ? "text-white" : "text-gray-400 group-hover:text-gray-500"}
                 `}
                 >
                   {item.icon}
                 </div>
-                {item.name}
+                {!isCollapsed && <span>{item.name}</span>}
               </button>
             ))}
           </div>
@@ -297,7 +307,7 @@ export default function DashboardLayout() {
                   </p>
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
-                <div className="h-8 w-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                <div className="h-8 w-8 bg-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-sm font-medium text-white">
                     {user?.name?.charAt(0).toUpperCase() || "U"}
                   </span>

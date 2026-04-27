@@ -140,8 +140,8 @@ export default function DashboardPage() {
         {stats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 bg-indigo-100 rounded-lg">
-                <div className="text-indigo-600">{stat.icon}</div>
+              <div className="flex-shrink-0 p-3 bg-purple-100 rounded-lg">
+                <div className="text-purple-600">{stat.icon}</div>
               </div>
               <div className="ml-4 flex-1">
                 <p className="text-sm font-medium text-gray-600">
@@ -203,8 +203,8 @@ export default function DashboardPage() {
                     <tr key={candidate.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-medium text-indigo-600">
+                          <div className="flex-shrink-0 h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-purple-600">
                               {candidate.full_name?.charAt(0)?.toUpperCase() ||
                                 "?"}
                             </span>
@@ -282,8 +282,8 @@ export default function DashboardPage() {
                   <div key={match.id} className="px-6 py-4 hover:bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-medium text-indigo-600">
+                        <div className="flex-shrink-0 h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-medium text-purple-600">
                             {index + 1}
                           </span>
                         </div>

@@ -46,8 +46,8 @@ export default function CorrectionsPage() {
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Corrections</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <h1 className="text-2xl font-semibold text-gray-900">Corrections</h1>
+          <p className="mt-2 text-sm text-gray-600">
             Review human feedback applied to parsed resumes.
           </p>
         </div>
@@ -57,8 +57,8 @@ export default function CorrectionsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+          <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
             <ClipboardCheck className="h-4 w-4 text-brand-600" />
             Recent corrections
           </div>
@@ -69,42 +69,42 @@ export default function CorrectionsPage() {
               onChange={(event) => setSearch(event.target.value)}
             />
           </div>
-          <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
-            <div className="grid grid-cols-[1.2fr_0.9fr_1fr_1fr_0.8fr] gap-3 border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-600">
+          <div className="mt-4 overflow-hidden rounded-xl border border-gray-200">
+            <div className="grid grid-cols-[1.2fr_0.9fr_1fr_1fr_0.8fr] gap-3 border-b border-gray-200 bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-600">
               <span>Candidate</span>
               <span>Field</span>
               <span>Original</span>
               <span>Corrected</span>
               <span>Date</span>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-gray-100">
               {loading ? (
-                <div className="px-4 py-6 text-sm text-slate-500">
+                <div className="px-4 py-6 text-sm text-gray-500">
                   Loading...
                 </div>
               ) : error ? (
                 <div className="px-4 py-6 text-sm text-red-500">{error}</div>
               ) : filtered.length === 0 ? (
-                <div className="px-4 py-6 text-sm text-slate-500">
+                <div className="px-4 py-6 text-sm text-gray-500">
                   No corrections found.
                 </div>
               ) : (
                 filtered.map((row) => (
                   <div
                     key={`${row.corrected_at}-${row.field}`}
-                    className="grid grid-cols-[1.2fr_0.9fr_1fr_1fr_0.8fr] gap-3 px-4 py-3 text-sm text-slate-700"
+                    className="grid grid-cols-[1.2fr_0.9fr_1fr_1fr_0.8fr] gap-3 px-4 py-3 text-sm text-gray-700"
                   >
-                    <span className="font-medium text-slate-900">
+                    <span className="font-medium text-gray-900">
                       {row.candidate_name ?? row.candidate_email ?? "Unknown"}
                     </span>
-                    <span className="text-slate-500">{row.field}</span>
-                    <span className="text-slate-500">
+                    <span className="text-gray-500">{row.field}</span>
+                    <span className="text-gray-500">
                       {row.original ?? "—"}
                     </span>
                     <span className="font-medium text-brand-700">
                       {row.corrected ?? "—"}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-gray-400">
                       {new Date(row.corrected_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -115,21 +115,21 @@ export default function CorrectionsPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-            <h3 className="text-sm font-semibold text-slate-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+            <h3 className="text-sm font-semibold text-gray-900">
               Reviewer activity
             </h3>
-            <div className="mt-4 space-y-3 text-sm text-slate-600">
+            <div className="mt-4 space-y-3 text-sm text-gray-600">
               {["Admin", "Reviewer", "Recruiter"].map((name) => (
                 <div
                   key={name}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                  className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-3 py-2"
                 >
                   <div className="flex items-center gap-2">
-                    <UserRound className="h-4 w-4 text-slate-500" />
+                    <UserRound className="h-4 w-4 text-gray-500" />
                     <span>{name}</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-500">
+                  <span className="text-xs font-semibold text-gray-500">
                     {loading
                       ? "—"
                       : `${
@@ -145,11 +145,11 @@ export default function CorrectionsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-            <h3 className="text-sm font-semibold text-slate-900">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+            <h3 className="text-sm font-semibold text-gray-900">
               Most corrected fields
             </h3>
-            <div className="mt-4 space-y-2 text-sm text-slate-600">
+            <div className="mt-4 space-y-2 text-sm text-gray-600">
               {[
                 "contact.name.name",
                 "education.degree",
@@ -157,10 +157,10 @@ export default function CorrectionsPage() {
               ].map((field) => (
                 <div
                   key={field}
-                  className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 px-3 py-2"
+                  className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
                 >
                   <span>{field}</span>
-                  <span className="text-xs text-slate-400">Needs training</span>
+                  <span className="text-xs text-gray-400">Needs training</span>
                 </div>
               ))}
             </div>

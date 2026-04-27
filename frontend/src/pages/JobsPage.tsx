@@ -232,7 +232,7 @@ export default function JobsPage() {
         </div>
         <button
           onClick={openCreateModal}
-          className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+          className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center"
         >
           <svg
             className="h-5 w-5 mr-2"
@@ -254,7 +254,7 @@ export default function JobsPage() {
       {/* Jobs List */}
       {storeLoading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
         </div>
       ) : jobs && jobs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -366,7 +366,7 @@ export default function JobsPage() {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => openEditModal(job)}
-                    className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                    className="text-purple-600 hover:text-purple-700 text-sm font-medium"
                   >
                     Edit
                   </button>
@@ -440,7 +440,7 @@ export default function JobsPage() {
                             title: e.target.value,
                           }))
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                         placeholder="e.g. Senior Software Engineer"
                         required
                       />
@@ -460,7 +460,7 @@ export default function JobsPage() {
                               department: e.target.value,
                             }))
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                           required
                         >
                           <option value="">Select Department</option>
@@ -483,7 +483,7 @@ export default function JobsPage() {
                               employment_type: e.target.value,
                             }))
                           }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                           required
                         >
                           <option value="">Select Type</option>
@@ -510,7 +510,7 @@ export default function JobsPage() {
                             location: e.target.value,
                           }))
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                         placeholder="e.g. New York, NY or Remote"
                       />
                     </div>
@@ -529,7 +529,7 @@ export default function JobsPage() {
                           }))
                         }
                         rows={4}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                         placeholder="Job description, responsibilities, requirements..."
                       />
                     </div>
@@ -548,13 +548,13 @@ export default function JobsPage() {
                             e.key === "Enter" &&
                             (e.preventDefault(), addSkill())
                           }
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                           placeholder="Type skill and press Enter"
                         />
                         <button
                           type="button"
                           onClick={addSkill}
-                          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                          className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                         >
                           Add
                         </button>
@@ -639,7 +639,7 @@ export default function JobsPage() {
                             education_requirement: e.target.value,
                           }))
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                       >
                         <option value="">Select Education Level</option>
                         {educationRequirements.map((level) => (
@@ -655,14 +655,14 @@ export default function JobsPage() {
                 <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                   <button
                     type="submit"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm"
                   >
                     {editingJob ? "Update Job" : "Create Job"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsCreateModalOpen(false)}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   >
                     Cancel
                   </button>

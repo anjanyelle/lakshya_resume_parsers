@@ -234,7 +234,7 @@ export default function LabelingPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
       </div>
     );
   }
@@ -267,7 +267,7 @@ export default function LabelingPage() {
               <h3 className="text-sm font-medium text-gray-900 mb-2">
                 Final Progress
               </h3>
-              <div className="text-2xl font-bold text-indigo-600">
+              <div className="text-2xl font-bold text-purple-600">
                 {progress.labeled} / {progress.total}
               </div>
               <p className="text-sm text-gray-600">candidates labeled</p>
@@ -278,7 +278,7 @@ export default function LabelingPage() {
             </div>
             <button
               onClick={() => navigate("/dashboard")}
-              className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              className="mt-6 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               Back to Dashboard
             </button>
@@ -305,14 +305,14 @@ export default function LabelingPage() {
           {/* Progress Indicator */}
           <div className="bg-white rounded-lg shadow-sm px-6 py-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-indigo-600">
+              <div className="text-2xl font-bold text-purple-600">
                 {progress.labeled} / {progress.total}
               </div>
               <p className="text-sm text-gray-600">labeled</p>
               <div className="mt-2">
                 <div className="w-32 bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                     style={{
                       width: `${progress.total > 0 ? (progress.labeled / progress.total) * 100 : 0}%`,
                     }}
@@ -377,7 +377,7 @@ export default function LabelingPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
 
@@ -392,7 +392,7 @@ export default function LabelingPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, email: e.target.value }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
 
@@ -407,7 +407,7 @@ export default function LabelingPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, phone: e.target.value }))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                 />
               </div>
 
@@ -427,7 +427,7 @@ export default function LabelingPage() {
                       addTag("skills", currentSkill),
                       setCurrentSkill(""))
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Type skill and press Enter"
                   />
                   <button
@@ -436,7 +436,7 @@ export default function LabelingPage() {
                       addTag("skills", currentSkill);
                       setCurrentSkill("");
                     }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                   >
                     Add
                   </button>
@@ -445,13 +445,13 @@ export default function LabelingPage() {
                   {formData.skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full flex items-center"
+                      className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full flex items-center"
                     >
                       {skill}
                       <button
                         type="button"
                         onClick={() => removeTag("skills", skill)}
-                        className="ml-2 text-blue-600 hover:text-blue-800"
+                        className="ml-2 text-purple-600 hover:text-purple-800"
                       >
                         ×
                       </button>
@@ -476,7 +476,7 @@ export default function LabelingPage() {
                       addTag("companies", currentCompany),
                       setCurrentCompany(""))
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Type company and press Enter"
                   />
                   <button
@@ -485,7 +485,7 @@ export default function LabelingPage() {
                       addTag("companies", currentCompany);
                       setCurrentCompany("");
                     }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                   >
                     Add
                   </button>
@@ -525,7 +525,7 @@ export default function LabelingPage() {
                       addTag("job_titles", currentJobTitle),
                       setCurrentJobTitle(""))
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Type job title and press Enter"
                   />
                   <button
@@ -534,7 +534,7 @@ export default function LabelingPage() {
                       addTag("job_titles", currentJobTitle);
                       setCurrentJobTitle("");
                     }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                   >
                     Add
                   </button>
@@ -574,7 +574,7 @@ export default function LabelingPage() {
                       addTag("education_degrees", currentDegree),
                       setCurrentDegree(""))
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Type degree and press Enter"
                   />
                   <button
@@ -583,7 +583,7 @@ export default function LabelingPage() {
                       addTag("education_degrees", currentDegree);
                       setCurrentDegree("");
                     }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                   >
                     Add
                   </button>
@@ -623,7 +623,7 @@ export default function LabelingPage() {
                       addTag("universities", currentUniversity),
                       setCurrentUniversity(""))
                     }
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     placeholder="Type university and press Enter"
                   />
                   <button
@@ -632,7 +632,7 @@ export default function LabelingPage() {
                       addTag("universities", currentUniversity);
                       setCurrentUniversity("");
                     }}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
                   >
                     Add
                   </button>
@@ -674,7 +674,7 @@ export default function LabelingPage() {
             </button>
             <button
               onClick={handleApprove}
-              className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
             >
               Approve
             </button>

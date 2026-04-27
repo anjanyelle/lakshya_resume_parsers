@@ -27,14 +27,14 @@ type SidebarProps = {
 export default function Sidebar({ open = true }: SidebarProps) {
   return (
     <aside
-      className={`hidden flex-shrink-0 overflow-hidden border-r border-slate-200 bg-white transition-all duration-200 ease-in-out lg:flex lg:flex-col ${
+      className={`hidden flex-shrink-0 overflow-hidden border-r border-gray-200 bg-white transition-all duration-200 ease-in-out lg:flex lg:flex-col ${
         open ? "w-64" : "w-0"
       }`}
     >
       <div className="flex flex-col h-full w-64 px-4 py-6">
         {/* Logo */}
         <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 shadow-sm shadow-purple-500/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 shadow-sm shadow-purple-500/20">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -56,8 +56,8 @@ export default function Sidebar({ open = true }: SidebarProps) {
                 className={({ isActive }) =>
                   `group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
                     isActive
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm shadow-purple-500/20"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      ? "bg-purple-600 text-white shadow-sm shadow-purple-500/20"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`
                 }
               >
@@ -69,14 +69,14 @@ export default function Sidebar({ open = true }: SidebarProps) {
         </nav>
 
         {/* Demo Mode Badge */}
-        <div className="mt-auto pt-4 border-t border-slate-200">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50/50 border border-blue-100/50">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500">
+        <div className="mt-auto pt-4 border-t border-gray-200">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-50/50 border border-purple-100/50">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500">
               <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
             </div>
-            <span className="text-xs font-semibold text-blue-700">Demo Mode</span>
+            <span className="text-xs font-semibold text-purple-700">Demo Mode</span>
           </div>
         </div>
       </div>

@@ -33,10 +33,10 @@ export default function AccuracyPage() {
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold text-gray-900">
           Accuracy dashboard
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-gray-600">
           Track extraction performance and identify weak sections.
         </p>
       </div>
@@ -66,13 +66,13 @@ export default function AccuracyPage() {
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle"
+              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle"
             >
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-500">{card.label}</p>
+                <p className="text-sm text-gray-500">{card.label}</p>
                 <Icon className={`h-5 w-5 ${card.tone}`} />
               </div>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">
+              <p className="mt-2 text-2xl font-semibold text-gray-900">
                 {card.value}
               </p>
             </div>
@@ -81,27 +81,27 @@ export default function AccuracyPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-          <h3 className="text-sm font-semibold text-slate-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+          <h3 className="text-sm font-semibold text-gray-900">
             Section accuracy
           </h3>
           <div className="mt-4 space-y-3">
             {loading ? (
-              <div className="text-sm text-slate-500">Loading...</div>
+              <div className="text-sm text-gray-500">Loading...</div>
             ) : error ? (
               <div className="text-sm text-red-500">{error}</div>
             ) : sectionMetrics.length === 0 ? (
-              <div className="text-sm text-slate-500">No section data yet.</div>
+              <div className="text-sm text-gray-500">No section data yet.</div>
             ) : (
               sectionMetrics.map((metric) => (
                 <div key={metric.label}>
-                  <div className="flex items-center justify-between text-sm text-slate-600">
+                  <div className="flex items-center justify-between text-sm text-gray-600">
                     <span>{metric.label}</span>
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-gray-900">
                       {(metric.score * 100).toFixed(0)}%
                     </span>
                   </div>
-                  <div className="mt-2 h-2 rounded-full bg-slate-100">
+                  <div className="mt-2 h-2 rounded-full bg-gray-100">
                     <div
                       className="h-2 rounded-full bg-brand-500"
                       style={{ width: `${metric.score * 100}%` }}
@@ -113,32 +113,32 @@ export default function AccuracyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
-          <h3 className="text-sm font-semibold text-slate-900">
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+          <h3 className="text-sm font-semibold text-gray-900">
             Recent parsing runs
           </h3>
           <div className="mt-4 space-y-3">
             {loading ? (
-              <div className="text-sm text-slate-500">Loading...</div>
+              <div className="text-sm text-gray-500">Loading...</div>
             ) : error ? (
               <div className="text-sm text-red-500">{error}</div>
             ) : recentRuns.length === 0 ? (
-              <div className="text-sm text-slate-500">No runs yet.</div>
+              <div className="text-sm text-gray-500">No runs yet.</div>
             ) : (
               recentRuns.map((run) => (
                 <div
                   key={run.job_id}
-                  className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-sm text-slate-600"
+                  className="rounded-xl border border-gray-100 bg-gray-50 p-3 text-sm text-gray-600"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-gray-900">
                       {run.job_id}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-gray-400">
                       {(run.confidence * 100).toFixed(0)}%
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">{run.notes}</p>
+                  <p className="mt-1 text-xs text-gray-500">{run.notes}</p>
                 </div>
               ))
             )}

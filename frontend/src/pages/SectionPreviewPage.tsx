@@ -244,11 +244,10 @@ export default function SectionPreviewPage() {
         {/* Upload Area */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div
-            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-              isDragging
-                ? "border-blue-500 bg-blue-50"
+            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${isDragging
+                ? "border-purple-500 bg-purple-50"
                 : "border-gray-300 hover:border-gray-400"
-            }`}
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -276,7 +275,7 @@ export default function SectionPreviewPage() {
           {selectedFile && (
             <div className="mt-4 flex items-center justify-between bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-blue-600" />
+                <FileText className="w-5 h-5 text-purple-600" />
                 <div>
                   <p className="font-medium text-gray-900">{selectedFile.name}</p>
                   <p className="text-sm text-gray-500">
@@ -302,7 +301,7 @@ export default function SectionPreviewPage() {
             <div className="mt-6">
               <button
                 onClick={handleAnalyze}
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
               >
                 <FileText className="w-5 h-5" />
                 Analyze Sections
@@ -322,7 +321,7 @@ export default function SectionPreviewPage() {
         {isLoading && (
           <div className="bg-white rounded-lg shadow-sm p-12">
             <div className="flex flex-col items-center justify-center">
-              <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+              <Loader2 className="w-12 h-12 text-purple-600 animate-spin mb-4" />
               <p className="text-lg font-medium text-gray-900 mb-2">
                 Extracting text and organizing sections
               </p>
@@ -343,11 +342,10 @@ export default function SectionPreviewPage() {
                   return (
                     <div
                       key={section}
-                      className={`p-4 rounded-lg border-2 ${
-                        isDetected
+                      className={`p-4 rounded-lg border-2 ${isDetected
                           ? "border-green-200 bg-green-50"
                           : "border-red-200 bg-red-50"
-                      }`}
+                        }`}
                     >
                       <div className="text-center">
                         <p className="text-xs uppercase text-gray-700 font-semibold mb-2">
@@ -355,14 +353,12 @@ export default function SectionPreviewPage() {
                         </p>
                         <div className="flex items-center justify-center gap-2">
                           <div
-                            className={`w-3 h-3 rounded-full ${
-                              isDetected ? "bg-green-500" : "bg-red-500"
-                            }`}
+                            className={`w-3 h-3 rounded-full ${isDetected ? "bg-green-500" : "bg-red-500"
+                              }`}
                           />
                           <span
-                            className={`text-sm font-medium ${
-                              isDetected ? "text-green-700" : "text-red-700"
-                            }`}
+                            className={`text-sm font-medium ${isDetected ? "text-green-700" : "text-red-700"
+                              }`}
                           >
                             {isDetected ? "Detected" : "Missing"}
                           </span>
@@ -393,10 +389,10 @@ export default function SectionPreviewPage() {
             {/* Validation Status */}
             <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Info className="w-5 h-5 text-blue-600" />
+                <Info className="w-5 h-5 text-purple-600" />
                 Section Validation Status
               </h2>
-              
+
               {/* Validation Status Indicators */}
               <div className="space-y-3 mb-4">
                 <div className="flex items-center gap-2">
@@ -409,7 +405,7 @@ export default function SectionPreviewPage() {
                     spaCy NLP: {previewData.validation_metadata.spacy_available ? "Available" : "Not Available"}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   {previewData.validation_metadata.validation_ran ? (
                     <CheckCircle className="w-5 h-5 text-green-600" />
@@ -424,36 +420,36 @@ export default function SectionPreviewPage() {
 
               {/* Validation Summary */}
               {previewData.validation_metadata.summary && (
-                <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-medium text-blue-900 mb-2">Validation Summary</p>
+                <div className="bg-purple-50 rounded-lg p-4 mb-4">
+                  <p className="text-sm font-medium text-purple-900 mb-2">Validation Summary</p>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <span className="text-blue-700">Input sections:</span>
-                      <span className="font-medium text-blue-900 ml-2">
+                      <span className="text-purple-700">Input sections:</span>
+                      <span className="font-medium text-purple-900 ml-2">
                         {previewData.validation_metadata.summary.input_sections}
                       </span>
                     </div>
                     <div>
-                      <span className="text-blue-700">Output sections:</span>
-                      <span className="font-medium text-blue-900 ml-2">
+                      <span className="text-purple-700">Output sections:</span>
+                      <span className="font-medium text-purple-900 ml-2">
                         {previewData.validation_metadata.summary.output_sections}
                       </span>
                     </div>
                     <div>
-                      <span className="text-blue-700">Corrections:</span>
-                      <span className="font-medium text-blue-900 ml-2">
+                      <span className="text-purple-700">Corrections:</span>
+                      <span className="font-medium text-purple-900 ml-2">
                         {previewData.validation_metadata.summary.total_corrections}
                       </span>
                     </div>
                     <div>
-                      <span className="text-blue-700">Splits:</span>
-                      <span className="font-medium text-blue-900 ml-2">
+                      <span className="text-purple-700">Splits:</span>
+                      <span className="font-medium text-purple-900 ml-2">
                         {previewData.validation_metadata.summary.total_splits}
                       </span>
                     </div>
                     <div>
-                      <span className="text-blue-700">Resolutions:</span>
-                      <span className="font-medium text-blue-900 ml-2">
+                      <span className="text-purple-700">Resolutions:</span>
+                      <span className="font-medium text-purple-900 ml-2">
                         {previewData.validation_metadata.summary.total_resolutions}
                       </span>
                     </div>
@@ -569,7 +565,7 @@ export default function SectionPreviewPage() {
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   Parsed Structured Data
                 </h2>
-                
+
                 <div className="mb-4 bg-green-50 rounded-lg p-4">
                   <p className="text-sm text-green-900">
                     {parsedData.message} (Processing time: {parsedData.processing_time_ms.toFixed(2)}ms)
@@ -629,7 +625,7 @@ export default function SectionPreviewPage() {
                               <span className="text-gray-600 text-sm">Technologies:</span>
                               <div className="flex flex-wrap gap-1 mt-1">
                                 {exp.technologies.slice(0, 10).map((tech: string, i: number) => (
-                                  <span key={i} className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">
+                                  <span key={i} className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">
                                     {tech}
                                   </span>
                                 ))}
@@ -729,7 +725,7 @@ export default function SectionPreviewPage() {
                         <textarea
                           readOnly
                           value={sectionData.text}
-                          className="w-full h-[250px] p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full h-[250px] p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                       ) : (
                         <p className="text-gray-500 italic">
@@ -762,7 +758,7 @@ export default function SectionPreviewPage() {
                   )}
                 </div>
               </button>
-              
+
               {showRawText && (
                 <div className="px-6 py-4 border-t border-gray-200">
                   <div className="bg-gray-50 rounded-lg p-4 max-h-[400px] overflow-y-auto">
@@ -778,7 +774,7 @@ export default function SectionPreviewPage() {
             <div className="flex justify-center pt-4">
               <button
                 onClick={downloadJSON}
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors shadow-sm"
               >
                 <Download className="w-5 h-5" />
                 Download JSON

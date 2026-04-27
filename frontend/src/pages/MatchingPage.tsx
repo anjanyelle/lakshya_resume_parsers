@@ -28,10 +28,10 @@ interface MatchResult {
   matching_skills: string[];
   missing_skills: string[];
   recommendation:
-    | "Strong Match"
-    | "Good Match"
-    | "Partial Match"
-    | "Not Recommended";
+  | "Strong Match"
+  | "Good Match"
+  | "Partial Match"
+  | "Not Recommended";
   reason: string;
   created_at: string;
 }
@@ -171,7 +171,7 @@ export default function MatchingPage() {
       case "Strong Match":
         return "bg-green-100 text-green-800";
       case "Good Match":
-        return "bg-blue-100 text-blue-800";
+        return "bg-purple-100 text-purple-800";
       case "Partial Match":
         return "bg-yellow-100 text-yellow-800";
       case "Not Recommended":
@@ -236,7 +236,7 @@ export default function MatchingPage() {
       name: "Good Match",
       value: matchResults.filter((r) => r.recommendation === "Good Match")
         .length,
-      color: "#3b82f6",
+      color: "#9333ea",
     },
     {
       name: "Partial Match",
@@ -276,7 +276,7 @@ export default function MatchingPage() {
             <select
               value={selectedJob}
               onChange={(e) => setSelectedJob(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
             >
               <option value="">All Jobs</option>
               {jobs.map((job) => (
@@ -291,7 +291,7 @@ export default function MatchingPage() {
             <button
               onClick={handleRunMatching}
               disabled={isMatching || !selectedJob}
-              className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
             >
               {isMatching ? (
                 <>
@@ -366,7 +366,7 @@ export default function MatchingPage() {
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             {isMatching ? (
               <div className="p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">Running matching algorithm...</p>
               </div>
             ) : filteredResults.length > 0 ? (
@@ -408,8 +408,8 @@ export default function MatchingPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <span className="text-xs font-medium text-indigo-600">
+                              <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                <span className="text-xs font-medium text-purple-600">
                                   {getInitials(result.candidate_name)}
                                 </span>
                               </div>
@@ -467,7 +467,7 @@ export default function MatchingPage() {
                                   </h4>
                                   <div className="grid grid-cols-3 gap-4">
                                     <div className="text-center">
-                                      <p className="text-2xl font-bold text-indigo-600">
+                                      <p className="text-2xl font-bold text-purple-600">
                                         {result.skill_score}%
                                       </p>
                                       <p className="text-xs text-gray-600">
@@ -591,7 +591,7 @@ export default function MatchingPage() {
                   <XAxis dataKey="range" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#6366f1" />
+                  <Bar dataKey="count" fill="#9333ea" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -657,11 +657,11 @@ export default function MatchingPage() {
                   <span className="text-sm font-medium text-gray-900">
                     {filteredResults.length > 0
                       ? Math.round(
-                          filteredResults.reduce(
-                            (acc, r) => acc + r.overall_score,
-                            0,
-                          ) / filteredResults.length,
-                        )
+                        filteredResults.reduce(
+                          (acc, r) => acc + r.overall_score,
+                          0,
+                        ) / filteredResults.length,
+                      )
                       : 0}
                     %
                   </span>

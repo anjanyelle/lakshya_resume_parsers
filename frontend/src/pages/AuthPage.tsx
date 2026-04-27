@@ -53,18 +53,18 @@ export default function AuthPage() {
   return (
     <section className="mx-auto max-w-lg space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-2xl font-semibold text-gray-900">
           {mode === "login" ? "Welcome back" : "Create your account"}
         </h1>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 text-sm text-gray-600">
           {mode === "login"
             ? "Log in to manage resumes and candidates."
             : "Register to start uploading resumes."}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-subtle">
-        <div className="flex rounded-xl bg-slate-100 p-1 text-sm font-medium text-slate-600">
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-subtle">
+        <div className="flex rounded-xl bg-gray-100 p-1 text-sm font-medium text-gray-600">
           {(["login", "register"] as Mode[]).map((item) => (
             <button
               key={item}
@@ -72,7 +72,7 @@ export default function AuthPage() {
               className={`flex-1 rounded-lg px-3 py-2 transition-all duration-200 ${
                 mode === item
                   ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:shadow-lg hover:shadow-purple-500/40"
-                  : "text-slate-600 hover:text-slate-900"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               {item === "login" ? "Login" : "Register"}
@@ -97,12 +97,12 @@ export default function AuthPage() {
             error={errors.password ?? undefined}
           />
           {mode === "register" && (
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="block text-sm font-medium text-gray-700">
               <span className="mb-1.5 block">Role</span>
               <select
                 value={role}
                 onChange={(event) => setRole(event.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
+                className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
               >
                 <option value="admin">Admin</option>
                 <option value="recruiter">Recruiter</option>

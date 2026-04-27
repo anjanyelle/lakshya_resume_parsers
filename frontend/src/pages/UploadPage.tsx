@@ -347,23 +347,9 @@ export default function UploadPage() {
       <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl pointer-events-none"></div>
       
       <div className="relative p-8 max-w-5xl mx-auto">
-        {/* Header */}
         <div className="mb-10">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-slate-800">Resume Analyzer</h1>
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
-                Demo Mode
-              </span>
-            </div>
-            <div className="relative">
-              <select className="px-4 py-2 pr-10 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm hover:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all">
-                <option>Full Stack Developer</option>
-                <option>Frontend Developer</option>
-                <option>Backend Developer</option>
-                <option>Data Scientist</option>
-              </select>
-            </div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-2xl font-semibold text-slate-800">Resume Analyzer</h1>
           </div>
           <p className="text-sm text-slate-600">
             Upload and analyze resumes with AI-powered insights

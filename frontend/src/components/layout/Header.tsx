@@ -36,14 +36,14 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           {!sidebarOpen && (
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50"
               aria-label="Show sidebar"
             >
               <Menu className="h-5 w-5" />
@@ -53,14 +53,14 @@ export default function Header() {
             <FileText className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-base font-semibold text-slate-900">
+            <p className="text-base font-semibold text-gray-900">
               Resume Parser
             </p>
-            <p className="text-xs text-slate-500">Talent Intelligence Suite</p>
+            <p className="text-xs text-gray-500">Talent Intelligence Suite</p>
           </div>
         </div>
 
-        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
+        <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
           {NAV_ITEMS.map((item) => {
             const Icon = icons[item.path as keyof typeof icons];
             return (
@@ -69,7 +69,7 @@ export default function Header() {
                 to={item.path}
                 className={({ isActive }) =>
                   `flex items-center gap-2 transition ${
-                    isActive ? "text-brand-600" : "hover:text-slate-900"
+                    isActive ? "text-brand-600" : "hover:text-gray-900"
                   }`
                 }
               >

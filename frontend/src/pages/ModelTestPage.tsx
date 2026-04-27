@@ -20,7 +20,7 @@ export default function ModelTestPage() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      
+
       // Call the parse-sections endpoint with the input text
       const response = await axios.post(
         `${baseUrl}/parse-sections`,
