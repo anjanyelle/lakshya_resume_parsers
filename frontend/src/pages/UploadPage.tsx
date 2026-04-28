@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useCandidateStore } from "../store/useCandidateStore";
+import { useAuthStore } from "../store/useAuthStore";
 import {
   connectSocket,
   subscribeToParsingProgress,
@@ -10,6 +11,7 @@ import {
 } from "../services/socket";
 import { FileUp, Search, Layers, Zap, Info, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
+import axios from "axios";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
@@ -32,6 +34,26 @@ interface UploadFile {
   candidateId?: string;
   result?: any;
   error?: string;
+  sections?: SectionData;
+}
+
+interface SectionData {
+  experience?: {
+    text: string;
+    char_count: number;
+  };
+  education?: {
+    text: string;
+    char_count: number;
+  };
+}
+
+interface ParsedSectionsResponse {
+  status: string;
+  work_experience: Array<any>;
+  education: Array<any>;
+  processing_time_ms: number;
+  message: string;
 }
 
 const LLM_MODELS: LLMModel[] = [
@@ -78,8 +100,13 @@ export default function UploadPage() {
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
   const [selectedLLM, setSelectedLLM] = useState<string>("own-model");
   const [showLLMDropdown, setShowLLMDropdown] = useState(false);
+  const [extractedSections, setExtractedSections] = useState<SectionData | null>(null);
+  const [isExtractingSections, setIsExtractingSections] = useState(false);
+  const [parsedSections, setParsedSections] = useState<ParsedSectionsResponse | null>(null);
+  const [isParsingModel, setIsParsingModel] = useState(false);
 
   const { uploadResume } = useCandidateStore();
+  const { token } = useAuthStore();
   const navigate = useNavigate();
 
   // Socket.io connection
@@ -221,6 +248,39 @@ export default function UploadPage() {
     multiple: isBulkMode,
   });
 
+  const extractSections = async (file: File): Promise<SectionData | null> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await axios.post(
+        `${baseUrl}/api/v1/upload`,
+        formData,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      // Python backend returns different structure
+      const sections: SectionData = {};
+      if (response.data.jobs?.[0]?.parsed_data?.work_experience) {
+        sections.experience = JSON.stringify(response.data.jobs[0].parsed_data.work_experience, null, 2);
+      }
+      if (response.data.jobs?.[0]?.parsed_data?.education) {
+        sections.education = JSON.stringify(response.data.jobs[0].parsed_data.education, null, 2);
+      }
+
+      return sections;
+    } catch (error) {
+      console.error("Error extracting sections:", error);
+      return null;
+    }
+  };
+
   const handleUpload = async (uploadFile: UploadFile) => {
     try {
       // Update status to uploading
@@ -246,9 +306,11 @@ export default function UploadPage() {
         });
       }
 
-      // Start upload with selected LLM (send empty string for own-model)
-      const llmProvider = selectedLLM === "own-model" ? "" : selectedLLM;
-      const candidate = await uploadResume(uploadFile.file, llmProvider);
+      // Extract sections first - STOP HERE, don't upload yet
+      setIsExtractingSections(true);
+      const sections = await extractSections(uploadFile.file);
+      setExtractedSections(sections);
+      setIsExtractingSections(false);
 
       // Check if candidate was returned successfully
       if (!candidate || !candidate.id) {
@@ -321,9 +383,46 @@ export default function UploadPage() {
     }
   };
 
+  const parseExtractedSections = async () => {
+    if (!extractedSections) {
+      toast.error("No sections extracted yet");
+      return;
+    }
+
+    setIsParsingModel(true);
+    setParsedSections(null);
+
+    try {
+      const aiServiceUrl = "http://localhost:8000";
+      const response = await axios.post<ParsedSectionsResponse>(
+        `${aiServiceUrl}/parse-sections`,
+        {
+          experience_text: extractedSections.experience?.text || "",
+          education_text: extractedSections.education?.text || "",
+        }
+      );
+
+      setParsedSections(response.data);
+      toast.success("Sections parsed successfully!");
+    } catch (error: any) {
+      console.error("Error parsing sections:", error);
+      if (error.response?.data?.detail) {
+        toast.error(error.response.data.detail);
+      } else if (error.code === "ERR_NETWORK") {
+        toast.error("Unable to connect to AI service on port 8000");
+      } else {
+        toast.error("Failed to parse sections");
+      }
+    } finally {
+      setIsParsingModel(false);
+    }
+  };
+
   const resetUpload = () => {
     setUploadFiles([]);
     setCurrentUpload(null);
+    setExtractedSections(null);
+    setParsedSections(null);
   };
 
   const formatFileSize = (bytes: number) => {

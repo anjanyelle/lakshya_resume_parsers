@@ -99,7 +99,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
           params.append("search", search);
         }
         
-        const response = await api.get(`/candidates?${params.toString()}`);
+        const response = await api.get(`/api/v1/candidates?${params.toString()}`);
         console.log("📊 API Response:", response.data);
         console.log("📄 Pagination data:", response.data.pagination);
         console.log("👥 Candidates count:", response.data.candidates?.length);
@@ -121,7 +121,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
     fetchCandidate: async (id: string) => {
       set({ isLoading: true, error: null });
       try {
-        const response = await api.get(`/candidates/${id}`);
+        const response = await api.get(`/api/v1/candidates/${id}`);
         set({ currentCandidate: response.data.candidate, isLoading: false });
       } catch (error: any) {
         const errorMessage =
