@@ -74,7 +74,7 @@ export default function InlineScanningView({
             <h3 className="text-xl font-bold text-slate-900 leading-tight">
               {filename}
             </h3>
-            <span className="text-[10px] font-bold tracking-widest text-brand-600 uppercase mt-0.5">
+            <span className="text-[10px] font-bold tracking-wider text-brand-600 uppercase mt-0.5">
               AI Extraction Active
             </span>
           </div>
@@ -84,7 +84,7 @@ export default function InlineScanningView({
           {/* Processing Badge */}
           <div className="flex items-center bg-[#334155] text-white px-4 py-1.5 rounded-full shadow-inner">
             <div className="w-2 h-2 rounded-full bg-brand-400 mr-2.5 animate-pulse" />
-            <span className="text-[11px] font-bold tracking-widest uppercase">
+            <span className="text-[11px] font-bold tracking-wider uppercase">
               Processing
             </span>
           </div>

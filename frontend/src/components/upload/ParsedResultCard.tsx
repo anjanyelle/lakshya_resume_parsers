@@ -100,10 +100,10 @@ export default function ParsedResultCard({
     <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
           
           {/* Contact Information */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 mb-6 border border-indigo-100">
+          <div className="bg-gradient-to-br from-brand-50 to-purple-50 rounded-2xl p-6 mb-6 border border-brand-100">
             <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <User className="w-4 h-4 text-indigo-600" />
+              <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                <User className="w-4 h-4 text-purple-600" />
               </div>
               <h2 className="text-[15px] font-semibold text-gray-800">Contact Information</h2>
             </div>
@@ -111,7 +111,7 @@ export default function ParsedResultCard({
             <div className="flex items-start gap-4">
               <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
                 <img 
-                  src={"https://ui-avatars.com/api/?name=" + encodeURIComponent(result.name || 'User') + "&background=6366f1&color=fff&size=128&bold=true"}
+                  src={"https://ui-avatars.com/api/?name=" + encodeURIComponent(result.name || 'User') + "&background=7C3AED&color=fff&size=128&bold=true"}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
@@ -151,7 +151,7 @@ export default function ParsedResultCard({
                       Work Experience ({result.work_experience?.length || 5})
                     </h2>
                   </div>
-                  <button className="text-indigo-600 text-sm font-medium hover:text-indigo-700 flex items-center gap-1 transition-colors">
+                  <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center gap-1 transition-colors">
                     View All
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -166,8 +166,8 @@ export default function ParsedResultCard({
                     { job_title: "Backend Developer Intern", company_name: "StartupX", location: "Hyderabad, India", start_date: "May 2016", end_date: "Dec 2016" }
                   ]).map((exp: any, index: number) => (
                     <div key={index} className="relative pl-5 pb-1">
-                      <div className="absolute left-0 top-1 w-2 h-2 bg-indigo-400 rounded-full"></div>
-                      <div className="absolute left-[3px] top-3 w-0.5 h-full bg-gradient-to-b from-indigo-200 to-transparent"></div>
+                      <div className="absolute left-0 top-1 w-2 h-2 bg-purple-400 rounded-full"></div>
+                      <div className="absolute left-[3px] top-3 w-0.5 h-full bg-gradient-to-b from-purple-200 to-transparent"></div>
                       
                       <div className="flex items-start justify-between mb-1.5">
                         <div className="flex-1">
@@ -176,7 +176,7 @@ export default function ParsedResultCard({
                           </h3>
                         </div>
                         {index === 0 && (exp.is_current || exp.end_date?.toLowerCase().includes('present')) && (
-                          <span className="px-2.5 py-0.5 bg-indigo-500 text-white text-[11px] font-semibold rounded-full ml-2">
+                          <span className="px-2.5 py-0.5 bg-purple-500 text-white text-[11px] font-semibold rounded-full ml-2">
                             Current
                           </span>
                         )}
@@ -196,7 +196,7 @@ export default function ParsedResultCard({
               <div className="bg-white rounded-2xl shadow-sm p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-[15px] font-semibold text-gray-800">Education</h2>
-                  <button className="text-indigo-600 text-sm font-medium hover:text-indigo-700 flex items-center gap-1 transition-colors">
+                  <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center gap-1 transition-colors">
                     View All
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -208,8 +208,8 @@ export default function ParsedResultCard({
                     "Oracle Certified Java Programmer"
                   ]).map((cert: string, index: number) => (
                     <div key={index} className="flex items-center gap-3">
-                      <div className="w-5 h-5 bg-blue-500/10 rounded flex items-center justify-center flex-shrink-0">
-                        <CheckSquare className="w-3.5 h-3.5 text-blue-600" />
+                      <div className="w-5 h-5 bg-purple-500/10 rounded flex items-center justify-center flex-shrink-0">
+                        <CheckSquare className="w-3.5 h-3.5 text-purple-600" />
                       </div>
                       <span className="text-[13px] text-gray-700">{cert}</span>
                     </div>
@@ -222,7 +222,7 @@ export default function ParsedResultCard({
             <div className="space-y-6">
               
               {/* Confidence Score */}
-              <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100">
+              <div className="bg-gradient-to-br from-brand-50 to-purple-50 rounded-2xl p-6 border border-brand-100">
                 <div className="flex flex-col items-center py-2">
                   <div className="relative w-48 h-48 mb-3">
                     <svg className="w-full h-full transform -rotate-90">
@@ -248,13 +248,13 @@ export default function ParsedResultCard({
                       />
                       <defs>
                         <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#818CF8" />
-                          <stop offset="100%" stopColor="#6366F1" />
+                          <stop offset="0%" stopColor="#A855F7" />
+                          <stop offset="100%" stopColor="#7C3AED" />
                         </linearGradient>
                       </defs>
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-6xl font-bold text-indigo-600 tracking-tight">
+                      <span className="text-6xl font-bold text-purple-600 tracking-tight">
                         {confidenceScore}%
                       </span>
                     </div>
@@ -271,7 +271,7 @@ export default function ParsedResultCard({
                   <h2 className="text-[15px] font-semibold text-gray-800">
                     Skills ({result.skills?.length || 100}+)
                   </h2>
-                  <button className="text-indigo-600 text-sm font-medium hover:text-indigo-700 flex items-center gap-1 transition-colors">
+                  <button className="text-purple-600 text-sm font-medium hover:text-purple-700 flex items-center gap-1 transition-colors">
                     View All
                     <ChevronRight className="w-4 h-4" />
                   </button>
@@ -292,14 +292,14 @@ export default function ParsedResultCard({
                     return (
                       <div key={String(category)} className="flex items-center justify-between group hover:bg-gray-50/80 px-3 py-2.5 rounded-lg transition-all cursor-pointer">
                         <div className="flex items-center gap-2.5">
-                          <div className="text-indigo-500">
+                          <div className="text-purple-500">
                             {getCategoryIcon(String(category))}
                           </div>
                           <span className="text-[13px] text-gray-700 font-medium">{category}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-indigo-600">{Array.isArray(skills) ? skills.length : 0}</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                          <span className="text-sm font-bold text-purple-600">{Array.isArray(skills) ? skills.length : 0}</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-600 transition-colors" />
                         </div>
                       </div>
                     );
@@ -312,7 +312,7 @@ export default function ParsedResultCard({
           <div className="mt-6 flex flex-wrap gap-3">
             <button
               onClick={() => candidateId && navigate(`/candidates/${candidateId}`)}
-              className="flex-1 min-w-[160px] px-6 py-3 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md"
+              className="flex-1 min-w-[160px] px-6 py-3 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 transition-all shadow-sm hover:shadow-md"
             >
               View Full Profile
             </button>

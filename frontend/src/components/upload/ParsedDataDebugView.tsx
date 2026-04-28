@@ -27,8 +27,8 @@ export default function ParsedDataDebugView({ data, candidateId }: ParsedDataDeb
     if (typeof obj !== 'object') {
       const className = 
         typeof obj === 'string' ? 'text-green-600' :
-        typeof obj === 'number' ? 'text-blue-600' :
-        typeof obj === 'boolean' ? 'text-purple-600' :
+        typeof obj === 'number' ? 'text-purple-600' :
+        typeof obj === 'boolean' ? 'text-brand-600' :
         'text-gray-600';
       
       return [
@@ -142,9 +142,9 @@ export default function ParsedDataDebugView({ data, candidateId }: ParsedDataDeb
         <div className="p-4 bg-white">
           {/* Quick Stats */}
           <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-3 pb-4 border-b border-gray-200">
-            <div className="bg-blue-50 p-3 rounded">
-              <p className="text-xs text-blue-600 font-medium">Skills</p>
-              <p className="text-lg font-bold text-blue-900">
+            <div className="bg-brand-50 p-3 rounded">
+              <p className="text-xs text-brand-600 font-medium">Skills</p>
+              <p className="text-lg font-bold text-brand-900">
                 {data?.skills?.length || 0}
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function ParsedDataDebugView({ data, candidateId }: ParsedDataDeb
                   {data.skills.slice(0, 20).map((skill: string, index: number) => (
                     <span
                       key={index}
-                      className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded"
+                      className="px-2 py-1 bg-brand-100 text-brand-800 text-xs font-medium rounded"
                     >
                       {skill}
                     </span>

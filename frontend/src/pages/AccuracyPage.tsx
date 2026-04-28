@@ -32,13 +32,14 @@ export default function AccuracyPage() {
 
   return (
     <section className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Accuracy dashboard
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Track extraction performance and identify weak sections.
-        </p>
+      <div className="flex items-center gap-4 mb-2">
+        <div className="p-2.5 rounded-xl shadow-sm text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #9333EA 100%)' }}>
+          <ShieldCheck className="w-5 h-5" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Accuracy Dashboard</h1>
+          <p className="text-slate-500 text-sm font-medium">Track extraction performance and identify weak sections</p>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -66,7 +67,7 @@ export default function AccuracyPage() {
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle"
+              className="bg-white rounded-2xl border border-slate-100 shadow-sm interactive-box p-5"
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-500">{card.label}</p>
@@ -81,7 +82,7 @@ export default function AccuracyPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
           <h3 className="text-sm font-semibold text-gray-900">
             Section accuracy
           </h3>
@@ -113,7 +114,7 @@ export default function AccuracyPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
           <h3 className="text-sm font-semibold text-gray-900">
             Recent parsing runs
           </h3>

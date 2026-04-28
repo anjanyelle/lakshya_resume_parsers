@@ -8,6 +8,7 @@ import {
   subscribeToParsingComplete,
   subscribeToParsingFailed,
 } from "../services/socket";
+import { FileUp, Search, Layers, Zap, Info, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
@@ -227,11 +228,11 @@ export default function UploadPage() {
         prev.map((f) =>
           f.id === uploadFile.id
             ? {
-                ...f,
-                status: "uploading",
-                message: "Uploading...",
-                progress: 0,
-              }
+              ...f,
+              status: "uploading",
+              message: "Uploading...",
+              progress: 0,
+            }
             : f,
         ),
       );
@@ -259,12 +260,12 @@ export default function UploadPage() {
         prev.map((f) =>
           f.id === uploadFile.id
             ? {
-                ...f,
-                candidateId: candidate.id,
-                status: "parsing",
-                message: "Extracting text...",
-                progress: 25,
-              }
+              ...f,
+              candidateId: candidate.id,
+              status: "parsing",
+              message: "Extracting text...",
+              progress: 25,
+            }
             : f,
         ),
       );
@@ -273,12 +274,12 @@ export default function UploadPage() {
         setCurrentUpload((prev) =>
           prev
             ? {
-                ...prev,
-                candidateId: candidate.id,
-                status: "parsing",
-                message: "Extracting text...",
-                progress: 25,
-              }
+              ...prev,
+              candidateId: candidate.id,
+              status: "parsing",
+              message: "Extracting text...",
+              progress: 25,
+            }
             : null,
         );
       }
@@ -297,11 +298,11 @@ export default function UploadPage() {
         setCurrentUpload((prev) =>
           prev
             ? {
-                ...prev,
-                status: "error",
-                message: "Failed",
-                error: errorMessage,
-              }
+              ...prev,
+              status: "error",
+              message: "Failed",
+              error: errorMessage,
+            }
             : null,
         );
       }
@@ -340,465 +341,300 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-cyan-50 relative overflow-hidden">
-      {/* Decorative blur circles */}
-      <div className="absolute top-10 right-10 w-[600px] h-[600px] bg-gradient-to-br from-teal-300/30 to-cyan-300/30 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-10 left-10 w-[500px] h-[500px] bg-gradient-to-br from-purple-300/25 to-teal-300/25 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-3xl pointer-events-none"></div>
-      
-      <div className="relative p-8 max-w-5xl mx-auto">
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-semibold text-slate-800">Resume Analyzer</h1>
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="p-8 max-w-[1400px] mx-auto">
+        {/* Page Header */}
+        <div className="flex items-center gap-4 mb-10">
+          <div className="p-2.5 rounded-xl shadow-sm text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #9333EA 100%)' }}>
+            <FileUp className="w-5 h-5" />
           </div>
-          <p className="text-sm text-slate-600">
-            Upload and analyze resumes with AI-powered insights
-          </p>
-        </div>
-
-        {/* Mode Toggle */}
-        <div className="mb-6">
-          <div className="inline-flex items-center bg-white rounded-xl p-1 shadow-sm border border-slate-200">
-            <button
-              onClick={() => setIsBulkMode(false)}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                !isBulkMode
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm shadow-purple-500/20"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Single Upload
-            </button>
-            <button
-              onClick={() => setIsBulkMode(true)}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                isBulkMode
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm shadow-purple-500/20"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              Bulk Upload
-            </button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Resume Intelligence</h1>
+            <p className="text-slate-500 text-sm font-medium">Configure and process resumes with precision</p>
           </div>
         </div>
 
-        {/* LLM Model Selector */}
-        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select AI Model for Experience Extraction
-        </label>
-        <div className="relative">
-          <button
-            onClick={() => setShowLLMDropdown(!showLLMDropdown)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="flex-1 text-left">
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium text-gray-900">
-                    {LLM_MODELS.find((m) => m.id === selectedLLM)?.name}
-                  </span>
-                  <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    selectedLLM === "own-model" ? "bg-gray-100 text-gray-800" : "bg-indigo-100 text-indigo-800"
-                  }`}>
-                    {LLM_MODELS.find((m) => m.id === selectedLLM)?.badge}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {LLM_MODELS.find((m) => m.id === selectedLLM)?.inputPrice} input / {LLM_MODELS.find((m) => m.id === selectedLLM)?.outputPrice} output per 1M tokens
+        {/* Main Grid: Left (Upload) | Right (Settings Stack) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          {/* Left Column: Resume Upload Area */}
+          <div className="lg:col-span-8">
+            {!currentUpload && uploadFiles.length === 0 ? (
+              <div className="bg-white rounded-[32px] border-2 border-dashed border-slate-200 p-16 transition-all duration-300 shadow-sm group interactive-box">
+                <div
+                  {...getRootProps()}
+                  className={`text-center cursor-pointer transition-all duration-300 ${isDragActive ? "scale-[1.02]" : "hover:scale-[1.01]"}`}
+                >
+                  <input {...getInputProps()} />
+                  <div className="mx-auto w-20 h-20 shadow-xl shadow-purple-50 flex items-center justify-center rounded-[24px] text-white mb-8 transition-transform group-hover:rotate-6" style={{ background: 'linear-gradient(135deg, #7C3AED, #9333EA)' }}>
+                    <FileUp className="h-10 w-10" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">
+                    Upload Resume Files
+                  </h3>
+                  <p className="text-slate-500 text-sm mb-8 max-w-xs mx-auto">
+                    Drag & drop your resumes here, or click to browse. Supports PDF, DOCX, and TXT.
+                  </p>
+                  <button className="px-8 py-3.5 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-50 transition-all duration-200 uppercase tracking-wider" style={{ background: 'linear-gradient(135deg, #7C3AED, #9333EA)' }}>
+                    Choose Files
+                  </button>
                 </div>
               </div>
-            </div>
-            <svg
-              className={`w-5 h-5 text-gray-400 transition-transform ${
-                showLLMDropdown ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {showLLMDropdown && (
-            <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-              {LLM_MODELS.map((model) => (
-                <button
-                  key={model.id}
-                  onClick={() => {
-                    setSelectedLLM(model.id);
-                    setShowLLMDropdown(false);
-                  }}
-                  className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                    selectedLLM === model.id ? "bg-indigo-50" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-gray-900">
-                          {model.name}
-                        </span>
-                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                          model.id === "own-model" ? "bg-gray-100 text-gray-800" : "bg-indigo-100 text-indigo-800"
-                        }`}>
-                          {model.badge}
-                        </span>
+            ) : (
+              <div className="space-y-6">
+                {/* Single File Actions */}
+                {!isBulkMode && uploadFiles.length > 0 && !currentUpload && (
+                  <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex flex-col md:flex-row items-center justify-between gap-6 hover:border-purple-600 transition-colors">
+                    <div className="flex items-center gap-6">
+                      <div className="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100">
+                        <FileUp className="w-6 h-6 text-purple-600" />
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {model.inputPrice} input / {model.outputPrice} output per 1M tokens
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-800 tracking-tight">{uploadFiles[0].file.name}</h3>
+                        <p className="text-slate-400 font-medium text-xs uppercase tracking-wider">{formatFileSize(uploadFiles[0].file.size)}</p>
                       </div>
                     </div>
-                    {selectedLLM === model.id && (
-                      <svg
-                        className="w-5 h-5 text-indigo-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => handleUpload(uploadFiles[0])}
+                        className="px-8 py-3.5 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-50 transition-all uppercase tracking-wider"
+                        style={{ background: 'linear-gradient(135deg, #7C3AED, #9333EA)' }}
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                        Analyze
+                      </button>
+                      <button
+                        onClick={resetUpload}
+                        className="px-8 py-3.5 bg-slate-100 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all uppercase tracking-wider"
+                      >
+                        Discard
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Processing State */}
+                {currentUpload && !isBulkMode && (
+                  <div className="space-y-6">
+                    {(currentUpload.status === "uploading" || currentUpload.status === "parsing" || currentUpload.status === "error") && (
+                      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 transition-colors interactive-box">
+                        <div className="flex items-center gap-5 mb-8">
+                          <div className="h-14 w-14 bg-purple-50 rounded-2xl flex items-center justify-center border border-purple-100">
+                            <Layers className="w-6 h-6 text-purple-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Processing Pipeline</h3>
+                            <p className="text-slate-400 font-medium text-xs uppercase tracking-wider">{currentUpload.file.name}</p>
+                          </div>
+                        </div>
+
+                        <div className="mb-8">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">{currentUpload.message}</span>
+                            <span className="text-sm font-bold text-purple-600">{currentUpload.progress}%</span>
+                          </div>
+                          <div className="w-full bg-slate-100 rounded-full h-3 p-1">
+                            <div
+                              className="h-1 rounded-full transition-all duration-500"
+                              style={{ width: `${currentUpload.progress}%`, background: 'linear-gradient(90deg, #7C3AED, #9333EA)' }}
+                            />
+                          </div>
+                        </div>
+
+                        {currentUpload.status === "error" && (
+                          <div className="p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3">
+                            <X className="w-5 h-5 text-red-600" />
+                            <p className="text-red-900 font-medium text-xs">{currentUpload.error}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {currentUpload.status === "completed" && currentUpload.result && (
+                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <ParsedResultCard result={currentUpload.result} candidateId={currentUpload.candidateId} onUploadAnother={resetUpload} />
+                        {currentUpload.result.model_results && <ModelResultsView modelResults={currentUpload.result.model_results} />}
+                        <ParsedDataDebugView data={currentUpload.result} candidateId={currentUpload.candidateId} />
+                      </div>
                     )}
                   </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        {selectedLLM === "own-model" && (
-          <p className="mt-2 text-sm text-gray-600">
-            Using built-in rule-based + BERT NER pipeline — no API call made
-          </p>
-        )}
-      </div>
+                )}
 
-        {/* Upload Area */}
-        {!currentUpload && uploadFiles.length === 0 && (
-          <div className="bg-white/60 backdrop-blur-md rounded-3xl border-2 border-dashed border-purple-200 p-20 hover:border-purple-400 hover:bg-white/70 transition-all duration-300 shadow-xl shadow-purple-100/50">
-            <div
-              {...getRootProps()}
-              className={`text-center cursor-pointer transition-all duration-300 ${
-                isDragActive
-                  ? "scale-105"
-                  : "hover:scale-[1.02]"
-              }`}
-            >
-              <input {...getInputProps()} />
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 mb-8">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-3">
-                Upload Resume Files
-              </h3>
-              <p className="text-sm text-slate-600 mb-6">
-                Drag & drop your resume files here, or click to browse
-              </p>
-              <p className="text-xs text-slate-500 mb-6">
-                Supports PDF, DOC, and DOCX files • Max 10MB per file
-              </p>
-              <button className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-200">
-                Choose Files
-              </button>
-            </div>
-          </div>
-        )}
+                {/* Bulk List */}
+                {isBulkMode && uploadFiles.length > 0 && (
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 flex items-center justify-between hover:border-purple-600 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                          <Layers className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-800 tracking-tight">Bulk Operations</h3>
+                          <p className="text-slate-400 font-medium text-xs uppercase tracking-wider">{uploadFiles.length} items in queue</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={handleBulkUpload}
+                          disabled={uploadFiles.some((f) => f.status === "uploading" || f.status === "parsing")}
+                          className="px-8 py-3.5 text-white text-xs font-bold rounded-xl shadow-lg shadow-purple-50 disabled:opacity-50 transition-all uppercase tracking-wider"
+                          style={{ background: 'linear-gradient(135deg, #7C3AED, #9333EA)' }}
+                        >
+                          Start Bulk
+                        </button>
+                        <button onClick={resetUpload} className="px-8 py-3.5 bg-slate-100 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all uppercase tracking-wider">
+                          Clear
+                        </button>
+                      </div>
+                    </div>
 
-        {/* Empty State */}
-        {!currentUpload && uploadFiles.length === 0 && (
-          <div className="mt-16 text-center">
-            <div className="mx-auto w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-base font-medium text-slate-800 mb-1">No Resumes Uploaded</h3>
-            <p className="text-sm text-slate-500">Upload your first resume to get started with AI-powered analysis.</p>
-          </div>
-        )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {uploadFiles.map((uploadFile) => (
+                        <div key={uploadFile.id} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:border-purple-500 transition-colors">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100">
+                                <FileUp className="w-5 h-5 text-purple-600" />
+                              </div>
+                              <div className="max-w-[150px] md:max-w-[200px]">
+                                <h4 className="font-bold text-slate-800 text-sm truncate">{uploadFile.file.name}</h4>
+                                <p className="text-[10px] font-medium text-slate-400 uppercase">{formatFileSize(uploadFile.file.size)}</p>
+                              </div>
+                            </div>
+                            <span className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-lg ${uploadFile.status === "completed" ? "bg-emerald-100 text-emerald-700" :
+                              uploadFile.status === "error" ? "bg-red-100 text-red-700" :
+                                uploadFile.status === "parsing" ? "bg-purple-100 text-purple-700" :
+                                  "bg-slate-100 text-slate-500"
+                              }`}>
+                              {uploadFile.status}
+                            </span>
+                          </div>
 
-        {/* Single File Pending State */}
-        {!isBulkMode && uploadFiles.length > 0 && !currentUpload && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">
-                Ready to upload
-              </h3>
-              <p className="text-sm text-gray-500">
-                {uploadFiles[0].file.name} (
-                {formatFileSize(uploadFiles[0].file.size)})
-              </p>
-            </div>
-            <div className="space-x-3">
-              <button
-                onClick={() => handleUpload(uploadFiles[0])}
-                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200 font-medium"
-              >
-                Upload Resume
-              </button>
-              <button
-                onClick={resetUpload}
-                className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Single Upload Progress */}
-      {currentUpload && !isBulkMode && (
-        <>
-          {/* Show progress UI only during upload/parsing */}
-          {(currentUpload.status === "uploading" || currentUpload.status === "parsing" || currentUpload.status === "error") && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <div className="mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Uploading: {currentUpload.file.name}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Size: {formatFileSize(currentUpload.file.size)}
-                </p>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    {currentUpload.message}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    {currentUpload.progress}%
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${currentUpload.progress}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Speed Gauge - Show during parsing */}
-              {currentUpload.status === "parsing" && (
-                <div className="mb-4 bg-gray-50 rounded-lg p-4">
-                  <SpeedGauge value={currentUpload.progress} label="Parsing Progress" />
-                </div>
-              )}
-
-              {/* Error State */}
-              {currentUpload.status === "error" && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-800 text-sm">{currentUpload.error}</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Completed State - No wrapper */}
-          {currentUpload.status === "completed" && currentUpload.result && (
-            <>
-              {console.log("📊 Upload result:", currentUpload.result)}
-              {console.log("🔍 model_results field:", currentUpload.result.model_results)}
-              
-              <ParsedResultCard
-                result={currentUpload.result}
-                candidateId={currentUpload.candidateId}
-                onUploadAnother={resetUpload}
-              />
-              
-              {/* Model Results View - Raw DeBERTa Extraction */}
-              {currentUpload.result.model_results ? (
-                <div className="mt-6">
-                  <ModelResultsView modelResults={currentUpload.result.model_results} />
-                </div>
-              ) : (
-                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-yellow-800 text-sm">
-                    ⚠️ No model_results found in API response. Check backend logs.
-                  </p>
-                </div>
-              )}
-              
-              {/* Debug View - Full Parsed JSON */}
-              <div className="mt-6">
-                <ParsedDataDebugView 
-                  data={currentUpload.result} 
-                  candidateId={currentUpload.candidateId}
-                />
-              </div>
-            </>
-          )}
-        </>
-      )}
-
-        {/* Bulk Upload */}
-        {isBulkMode && uploadFiles.length > 0 && (
-          <div className="space-y-4">
-            {/* Upload Controls */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">
-                {uploadFiles.length} file{uploadFiles.length !== 1 ? "s" : ""}{" "}
-                selected
-              </h3>
-              <div className="space-x-3">
-                <button
-                  onClick={handleBulkUpload}
-                  disabled={uploadFiles.some(
-                    (f) => f.status === "uploading" || f.status === "parsing",
-                  )}
-                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
-                >
-                  Upload All
-                </button>
-                <button
-                  onClick={resetUpload}
-                  className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
-                >
-                  Clear All
-                </button>
-              </div>
-            </div>
-          </div>
-
-            {/* File List */}
-            {uploadFiles.map((uploadFile) => (
-              <div
-                key={uploadFile.id}
-                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
-              >
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <h4 className="font-medium text-gray-900">
-                    {uploadFile.file.name}
-                  </h4>
-                  <p className="text-sm text-gray-500">
-                    {formatFileSize(uploadFile.file.size)}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {uploadFile.status === "pending" && (
-                    <button
-                      onClick={() => handleUpload(uploadFile)}
-                      className="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm rounded-lg hover:shadow-md transition-all font-medium"
-                    >
-                      Upload
-                    </button>
-                  )}
-                  <span
-                    className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      uploadFile.status === "completed"
-                        ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white"
-                        : uploadFile.status === "error"
-                          ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
-                          : uploadFile.status === "parsing"
-                            ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
-                            : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {uploadFile.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress */}
-              {uploadFile.status !== "pending" && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-600">
-                      {uploadFile.message}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {uploadFile.progress}%
-                    </span>
+                          {uploadFile.status !== "pending" && (
+                            <div className="mt-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{uploadFile.message}</span>
+                                <span className="text-[10px] font-bold text-purple-600">{uploadFile.progress}%</span>
+                              </div>
+                              <div className="w-full bg-slate-50 rounded-full h-2 overflow-hidden border border-slate-100">
+                                <div
+                                  className="h-full transition-all duration-300"
+                                  style={{
+                                    width: `${uploadFile.progress}%`,
+                                    background: uploadFile.status === "error" ? '#ef4444' : 'linear-gradient(90deg, #7C3AED, #9333EA)'
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        uploadFile.status === "error"
-                          ? "bg-gradient-to-r from-red-500 to-pink-500"
-                          : "bg-gradient-to-r from-purple-600 to-blue-600"
-                      }`}
-                      style={{ width: `${uploadFile.progress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Error */}
-              {uploadFile.error && (
-                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
-                  {uploadFile.error}
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Summary */}
-          {uploadFiles.length > 0 &&
-            uploadFiles.every(
-              (f) => f.status === "completed" || f.status === "error",
-            ) && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Upload Summary
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-green-600">
-                      {
-                        uploadFiles.filter((f) => f.status === "completed")
-                          .length
-                      }
-                    </p>
-                    <p className="text-sm text-gray-600">Successful</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-red-600">
-                      {uploadFiles.filter((f) => f.status === "error").length}
-                    </p>
-                    <p className="text-sm text-gray-600">Failed</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-gray-600">
-                      {uploadFiles.length}
-                    </p>
-                    <p className="text-sm text-gray-600">Total</p>
-                  </div>
-                </div>
-                <button
-                  onClick={resetUpload}
-                  className="mt-4 w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-200 font-medium"
-                >
-                  Upload More Files
-                </button>
+                )}
               </div>
             )}
+          </div>
+
+          {/* Right Column: Settings Stack */}
+          <div className="lg:col-span-4 space-y-6">
+
+            {/* Box 1: Mode Selection */}
+            <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm transition-all interactive-box">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                  <Layers className="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Processing Mode</h3>
+              </div>
+              <div className="flex bg-slate-50 rounded-2xl p-1.5 border border-slate-100">
+                <button
+                  onClick={() => setIsBulkMode(false)}
+                  className={`flex-1 px-4 py-2 rounded-xl font-bold text-[10px] transition-all duration-200 ${!isBulkMode ? "bg-white text-purple-600 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                >
+                  SINGLE
+                </button>
+                <button
+                  onClick={() => setIsBulkMode(true)}
+                  className={`flex-1 px-4 py-2 rounded-xl font-bold text-[10px] transition-all duration-200 ${isBulkMode ? "bg-white text-purple-600 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                >
+                  BULK
+                </button>
+              </div>
+            </div>
+
+            {/* Box 2: AI Engine Selection */}
+            <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm transition-all interactive-box">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">AI Intelligence</h3>
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => setShowLLMDropdown(!showLLMDropdown)}
+                  className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl hover:border-purple-200 transition-all"
+                >
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-slate-800 leading-tight">
+                      {LLM_MODELS.find((m) => m.id === selectedLLM)?.name}
+                    </p>
+                    <p className="text-[10px] font-medium text-purple-500 uppercase mt-0.5">
+                      {LLM_MODELS.find((m) => m.id === selectedLLM)?.badge}
+                    </p>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showLLMDropdown ? "rotate-180" : ""}`} />
+                </button>
+
+                {showLLMDropdown && (
+                  <div className="absolute z-20 w-full mt-3 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden py-1">
+                    {LLM_MODELS.map((model) => (
+                      <button
+                        key={model.id}
+                        onClick={() => {
+                          setSelectedLLM(model.id);
+                          setShowLLMDropdown(false);
+                        }}
+                        className={`w-full px-5 py-3.5 text-left hover:bg-slate-50 transition-colors ${selectedLLM === model.id ? "bg-purple-50" : ""
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className={`text-xs font-bold ${selectedLLM === model.id ? "text-purple-600" : "text-slate-700"}`}>
+                              {model.name}
+                            </p>
+                            <p className="text-[9px] font-medium text-slate-400 uppercase">{model.badge}</p>
+                          </div>
+                          {selectedLLM === model.id && <Zap className="w-3.5 h-3.5 text-purple-600" fill="currentColor" />}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Box 3: Status / Selection Info */}
+            <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-sm transition-all interactive-box">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                  <Info className="w-5 h-5 text-purple-600" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Queue Info</h3>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Items</p>
+                  <p className="text-lg font-bold text-slate-800">{uploadFiles.length}</p>
+                </div>
+                <div className="h-10 w-10 rounded-full border-4 border-purple-100 border-t-purple-600 animate-spin opacity-20" />
+              </div>
+            </div>
+
+          </div>
         </div>
-      )}
       </div>
     </div>
   );

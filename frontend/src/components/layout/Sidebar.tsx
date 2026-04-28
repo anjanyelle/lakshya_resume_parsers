@@ -27,26 +27,25 @@ type SidebarProps = {
 export default function Sidebar({ open = true }: SidebarProps) {
   return (
     <aside
-      className={`hidden flex-shrink-0 overflow-hidden border-r border-gray-200 bg-white transition-all duration-200 ease-in-out lg:flex lg:flex-col ${
-        open ? "w-64" : "w-0"
-      }`}
+      className={`hidden flex-shrink-0 overflow-hidden border-r border-gray-100 bg-white transition-all duration-200 ease-in-out lg:flex lg:flex-col ${open ? "w-64" : "w-0"
+        }`}
     >
-      <div className="flex flex-col h-full w-64 px-4 py-6">
+      <div className="flex flex-col h-full w-64 px-5 py-8">
         {/* Logo */}
-        <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 shadow-sm shadow-purple-500/20">
-            <Sparkles className="h-5 w-5 text-white" />
+        <div className="mb-10 flex items-center gap-4 px-2">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl shadow-lg shadow-purple-200 text-white" style={{ background: 'linear-gradient(135deg, #7C3AED, #9333EA)' }}>
+            <Sparkles className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-900">
-              ATS Analyzer
+            <p className="text-base font-black text-navy-900 tracking-tight leading-tight">
+              Lakshya AI
             </p>
-            <p className="text-xs text-gray-500">AI-Powered Recruitment</p>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">ATS Analyzer</p>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 text-sm font-medium">
+        <nav className="flex-1 space-y-2 text-[15px] font-semibold">
           {links.map((item) => {
             const Icon = item.icon;
             return (
@@ -54,29 +53,27 @@ export default function Sidebar({ open = true }: SidebarProps) {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
-                    isActive
-                      ? "bg-purple-600 text-white shadow-sm shadow-purple-500/20"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  `group flex items-center gap-3.5 rounded-xl px-4 py-3 transition-all duration-200 ${isActive
+                    ? "text-white shadow-md shadow-purple-200"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                   }`
                 }
+                style={({ isActive }) => isActive ? { background: 'linear-gradient(135deg, #7C3AED, #9333EA)' } : {}}
               >
-                <Icon className="h-4.5 w-4.5" />
+                <Icon className={`h-5 w-5 transition-colors ${item.path === "/" ? "" : ""}`} />
                 {item.label}
               </NavLink>
             );
           })}
         </nav>
 
-        {/* Demo Mode Badge */}
-        <div className="mt-auto pt-4 border-t border-gray-200">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-50/50 border border-purple-100/50">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500">
-              <svg className="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
+        {/* Status Badge */}
+        <div className="mt-auto pt-6 border-t border-slate-50">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-purple-100/50" style={{ background: '#f3e8ff' }}>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg text-white shadow-sm" style={{ background: '#7C3AED' }}>
+              <Zap className="h-4 w-4" />
             </div>
-            <span className="text-xs font-semibold text-purple-700">Demo Mode</span>
+            <span className="text-xs font-bold" style={{ color: '#7C3AED' }}>PRO Version</span>
           </div>
         </div>
       </div>

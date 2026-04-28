@@ -167,179 +167,122 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
+    <div className="h-screen bg-[#F8FAFC] flex overflow-hidden">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75"
+            className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm"
             onClick={() => setSidebarOpen(false)}
           />
         </div>
       )}
 
       {/* Sidebar */}
-      <div
+      <aside
         className={`
-        fixed inset-y-0 left-0 z-50 ${isCollapsed ? "w-16" : "w-56"} bg-white border-r border-gray-200 shadow-sm transform transition-all duration-300 ease-in-out
-        lg:translate-x-0 lg:relative lg:inset-0 lg:flex-shrink-0
+        fixed inset-y-0 left-0 z-[60] ${isCollapsed ? "w-20" : "w-56"} bg-white border-r border-slate-100 shadow-sm transform transition-all duration-300 ease-in-out
+        lg:translate-x-0 lg:static lg:inset-0 lg:flex-shrink-0 flex flex-col
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-          <div 
-            className="flex items-center overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+        <div className="flex items-center justify-between h-16 px-5 border-b border-slate-50 flex-shrink-0">
+          <div
+            className="flex items-center overflow-hidden cursor-pointer hover:opacity-80 transition-all"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
-            <div className="flex-shrink-0">
-              <div className="h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center">
-                <svg
-                  className="h-5 w-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
+            <div className="flex-shrink-0 flex items-center justify-center">
+              <div className="h-10 w-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
             </div>
             {!isCollapsed && (
-              <span className="ml-2 text-xl font-semibold text-gray-900 truncate">
+              <span className="ml-2 text-lg font-bold text-navy-900 whitespace-nowrap tracking-tight">
                 Resume Parser
               </span>
             )}
           </div>
 
-          {/* Mobile Close Button */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-gray-400 hover:text-gray-500"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-500">
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="mt-5 px-2">
-          <div className="space-y-1">
-            {navigation.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => {
-                  navigate(item.href);
-                  setSidebarOpen(false);
-                }}
-                className={`
-                  group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-all duration-200
-                  ${
-                    isActive(item.href)
-                      ? "bg-purple-600 text-white shadow-sm"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  }
-                  ${isCollapsed ? "justify-center" : ""}
-                `}
-              >
-                <div
-                  className={`
-                  ${isCollapsed ? "mr-0" : "mr-3"} h-5 w-5 flex-shrink-0 transition-all duration-200
-                  ${isActive(item.href) ? "text-white" : "text-gray-400 group-hover:text-gray-500"}
-                `}
-                >
-                  {item.icon}
-                </div>
-                {!isCollapsed && <span>{item.name}</span>}
-              </button>
-            ))}
-          </div>
-        </nav>
-      </div>
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
-        {/* Top header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 lg:order-1 order-2">
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-gray-400 hover:text-gray-500"
-              >
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {/* User info */}
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">
-                    {user?.name || "User"}
-                  </p>
-                  <p className="text-xs text-gray-500">{user?.email}</p>
-                </div>
-                <div className="h-8 w-8 bg-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-white">
-                    {user?.name?.charAt(0).toUpperCase() || "U"}
-                  </span>
-                </div>
+        {/* Navigation Section */}
+        <nav className="flex-1 mt-4 px-2 overflow-y-auto space-y-2">
+          {navigation.map((item) => (
+            <button
+              key={item.name}
+              onClick={() => {
+                navigate(item.href);
+                setSidebarOpen(false);
+              }}
+              className={`
+                group flex items-center px-4 py-2.5 text-[11px] font-bold rounded-xl w-full text-left transition-all duration-200 uppercase tracking-wider
+                ${isActive(item.href)
+                  ? "bg-purple-600 text-white shadow-lg shadow-purple-50"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-navy-900"
+                }
+                ${isCollapsed ? "justify-center" : ""}
+              `}
+            >
+              <div className={`
+                  ${isCollapsed ? "mr-0" : "mr-3"} h-5 w-5 flex items-center justify-center flex-shrink-0 transition-all duration-200
+                  ${isActive(item.href) ? "text-white" : "text-slate-400 group-hover:text-purple-600"}
+                `}>
+                {item.icon}
               </div>
+              {!isCollapsed && <span className="leading-none">{item.name}</span>}
+            </button>
+          ))}
+        </nav>
+      </aside>
 
-              {/* Logout button */}
-              <button
-                onClick={handleLogout}
-                className="text-gray-400 hover:text-gray-500 transition-colors"
-                title="Logout"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </svg>
-              </button>
+      {/* Main content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Fixed Navbar */}
+        <header className="h-16 bg-white shadow-sm border-b border-slate-100 flex-shrink-0 z-50 px-5 flex items-center justify-between">
+          <div className="flex items-center">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div className="hidden lg:block">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {navigation.find(n => isActive(n.href))?.name || "Dashboard"}
+              </span>
             </div>
+          </div>
+
+          <div className="flex items-center space-x-5">
+            <div className="flex items-center space-x-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-bold text-navy-900 tracking-tight">{user?.name || "Admin"}</p>
+                <p className="text-[9px] font-bold text-emerald-500 uppercase tracking-wider flex items-center justify-end gap-1">
+                  <span className="h-1 w-1 bg-emerald-500 rounded-full animate-pulse" />
+                  Online
+                </p>
+              </div>
+              <div className="h-9 w-9 bg-slate-100 rounded-lg border-2 border-white shadow-sm flex items-center justify-center overflow-hidden">
+                <img src={`https://ui-avatars.com/api/?name=${user?.name || "Admin"}&background=7C3AED&color=fff`} alt="Avatar" />
+              </div>
+            </div>
+
+            <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Logout">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto lg:order-2 order-3">
+        {/* Scrollable Page Content */}
+        <main className="flex-1 overflow-y-auto bg-[#F8FAFC]">
           <Outlet />
         </main>
       </div>

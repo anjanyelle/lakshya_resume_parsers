@@ -245,8 +245,8 @@ export default function SectionPreviewPage() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div
             className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${isDragging
-                ? "border-purple-500 bg-purple-50"
-                : "border-gray-300 hover:border-gray-400"
+              ? "border-purple-500 bg-purple-50"
+              : "border-gray-300 hover:border-gray-400"
               }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -343,8 +343,8 @@ export default function SectionPreviewPage() {
                     <div
                       key={section}
                       className={`p-4 rounded-lg border-2 ${isDetected
-                          ? "border-green-200 bg-green-50"
-                          : "border-red-200 bg-red-50"
+                        ? "border-green-200 bg-green-50"
+                        : "border-red-200 bg-red-50"
                         }`}
                     >
                       <div className="text-center">

@@ -28,6 +28,9 @@ export default {
           800: "#1f2937",
           900: "#0f172a",
         },
+        navy: {
+          900: "#1A2340",
+        },
       },
       boxShadow: {
         subtle: "0 10px 30px -20px rgba(15, 23, 42, 0.35)",

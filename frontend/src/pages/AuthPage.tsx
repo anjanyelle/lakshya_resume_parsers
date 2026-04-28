@@ -69,11 +69,10 @@ export default function AuthPage() {
             <button
               key={item}
               onClick={() => setMode(item)}
-              className={`flex-1 rounded-lg px-3 py-2 transition-all duration-200 ${
-                mode === item
+              className={`flex-1 rounded-lg px-3 py-2 transition-all duration-200 ${mode === item
                   ? "bg-gradient-to-r from-purple-600 to-purple-700 text-white hover:shadow-lg hover:shadow-purple-500/40"
                   : "text-gray-600 hover:text-gray-900"
-              }`}
+                }`}
             >
               {item === "login" ? "Login" : "Register"}
             </button>

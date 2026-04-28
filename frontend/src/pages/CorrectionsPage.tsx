@@ -44,20 +44,23 @@ export default function CorrectionsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Corrections</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Review human feedback applied to parsed resumes.
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 rounded-xl shadow-sm text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #9333EA 100%)' }}>
+            <ClipboardCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">Corrections</h1>
+            <p className="text-slate-500 text-sm font-medium">Review human feedback applied to parsed resumes</p>
+          </div>
         </div>
         <Button variant="secondary" icon={<Filter className="h-4 w-4" />}>
           Filter
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+      <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
           <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
             <ClipboardCheck className="h-4 w-4 text-brand-600" />
             Recent corrections
@@ -114,8 +117,8 @@ export default function CorrectionsPage() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
             <h3 className="text-sm font-semibold text-gray-900">
               Reviewer activity
             </h3>
@@ -132,20 +135,19 @@ export default function CorrectionsPage() {
                   <span className="text-xs font-semibold text-gray-500">
                     {loading
                       ? "—"
-                      : `${
-                          rows.filter((row) =>
-                            (row.reviewer || "")
-                              .toLowerCase()
-                              .includes(name.toLowerCase()),
-                          ).length
-                        } edits`}
+                      : `${rows.filter((row) =>
+                        (row.reviewer || "")
+                          .toLowerCase()
+                          .includes(name.toLowerCase()),
+                      ).length
+                      } edits`}
                   </span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
             <h3 className="text-sm font-semibold text-gray-900">
               Most corrected fields
             </h3>

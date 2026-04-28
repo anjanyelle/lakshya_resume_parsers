@@ -125,7 +125,7 @@ export default function SkillsSection({
           onFieldSelect("skills");
       }}
       className={`rounded-lg border p-6 shadow-sm font-sans transition-all duration-200 ${
-        isActive ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-white"
+        isActive ? "border-brand-400 bg-brand-50" : "border-slate-200 bg-white"
       }`}
     >
       {/* Header Description */}

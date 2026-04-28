@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +10,7 @@
   }
 
   body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     @apply bg-gray-50 text-gray-800 antialiased;
   }
 
@@ -17,11 +20,28 @@
   h4,
   h5,
   h6 {
-    @apply text-gray-900;
+    color: #1A2340;
+    @apply tracking-tight;
   }
 
   a {
     @apply text-brand-600 hover:text-brand-700;
+  }
+
+  /* Global Brand Focus States */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none ring-2 ring-purple-500/20 border-purple-600 !important;
+  }
+
+  input[type="range"] {
+    @apply accent-purple-600;
+  }
+
+  /* Interactive Boxes/Cards Global Hover */
+  .interactive-box {
+    @apply transition-all duration-300 hover:border-purple-600 hover:shadow-lg hover:shadow-purple-500/10 !important;
   }
 }
 
@@ -76,6 +96,10 @@
 
 .elegant-resume-preview li {
   @apply mb-1;
+}
+
+.elegant-resume-preview a {
+  @apply font-medium text-orange-700 underline decoration-orange-300 transition-colors hover:text-orange-800;
 }
 
 .elegant-resume-preview a {

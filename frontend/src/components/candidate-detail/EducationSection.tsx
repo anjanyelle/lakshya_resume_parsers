@@ -149,7 +149,7 @@ export default function EducationSection({
         if (e.key === "Enter") onFieldSelect?.("education");
       }}
       className={`rounded-lg border p-6 transition-all duration-200 ${
-        isActive ? "border-blue-400 bg-blue-50" : "border-slate-200 bg-white"
+        isActive ? "border-brand-400 bg-brand-50" : "border-slate-200 bg-white"
       }`}
     >
       <div className="flex items-center justify-between">

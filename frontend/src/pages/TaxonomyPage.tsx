@@ -105,17 +105,18 @@ export default function TaxonomyPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Taxonomy manager
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Manage canonical skills, degrees, certifications, and universities.
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 rounded-xl shadow-sm text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #9333EA 100%)' }}>
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">Taxonomy Manager</h1>
+            <p className="text-slate-500 text-sm font-medium">Manage canonical skills, degrees, certifications, and universities</p>
+          </div>
         </div>
-        <Button icon={<Plus className="h-4 w-4" />} onClick={handleAddEntry}>
-          Add entry
+        <Button icon={<Plus className="h-4 w-4" />} onClick={handleAddEntry} style={{ background: '#7C3AED' }}>
+          Add Entry
         </Button>
       </div>
 
@@ -178,8 +179,8 @@ export default function TaxonomyPage() {
         </div>
       </Modal>
 
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+      <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
               <Database className="h-4 w-4 text-brand-600" /> Skills taxonomy
@@ -236,8 +237,8 @@ export default function TaxonomyPage() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
             <h3 className="text-sm font-semibold text-gray-900">Degrees</h3>
             <div className="mt-3 space-y-3 text-sm text-gray-700">
               {(degrees.length ? degrees : [{ name: "Loading..." }]).map(
@@ -253,7 +254,7 @@ export default function TaxonomyPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
             <h3 className="text-sm font-semibold text-gray-900">
               Universities
             </h3>
@@ -272,7 +273,7 @@ export default function TaxonomyPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-subtle">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 interactive-box">
             <h3 className="text-sm font-semibold text-gray-900">
               Certifications
             </h3>

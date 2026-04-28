@@ -1,48 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useJobStore } from "../store/useJobStore";
+import CustomSelect from "../components/common/CustomSelect";
 import toast from "react-hot-toast";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
+import { Target, Download, Play, ChevronDown, ChevronUp, CheckCircle, AlertCircle, MinusCircle, XCircle } from "lucide-react";
 
 interface MatchResult {
-  id: string;
-  job_id: string;
-  job_title?: string;
-  candidate_id: string;
-  candidate_name: string;
-  candidate_email: string;
-  overall_score: number;
-  skill_score: number;
-  experience_score: number;
-  education_score: number;
-  matching_skills: string[];
-  missing_skills: string[];
-  recommendation:
-  | "Strong Match"
-  | "Good Match"
-  | "Partial Match"
-  | "Not Recommended";
-  reason: string;
-  created_at: string;
+  id: string; job_id: string; job_title?: string; candidate_id: string;
+  candidate_name: string; candidate_email: string; overall_score: number;
+  skill_score: number; experience_score: number; education_score: number;
+  matching_skills: string[]; missing_skills: string[];
+  recommendation: "Strong Match" | "Good Match" | "Partial Match" | "Not Recommended";
+  reason: string; created_at: string;
 }
 
 interface Job {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  employment_type: string;
-  status: "active" | "inactive" | "closed";
+  id: string; title: string; department: string; location: string;
+  employment_type: string; status: "active" | "inactive" | "closed";
 }
 
 export default function MatchingPage() {
@@ -54,628 +30,320 @@ export default function MatchingPage() {
 
   const { runMatching, fetchMatchResults, fetchJobs } = useJobStore();
 
-  useEffect(() => {
-    loadJobs();
-    loadMatchResults();
-  }, []);
+  useEffect(() => { loadJobs(); loadMatchResults(); }, []);
 
   const loadJobs = async () => {
     try {
-      const fetchedJobs = fetchJobs();
+      const fetchedJobs = await fetchJobs();
       if (fetchedJobs && Array.isArray(fetchedJobs)) {
         setJobs(fetchedJobs.filter((job: Job) => job.status === "active"));
       }
-    } catch (error) {
-      toast.error("Failed to load jobs");
-    }
+    } catch { toast.error("Failed to load jobs"); }
   };
 
   const loadMatchResults = async () => {
     try {
-      const results = fetchMatchResults("all");
+      const results = await fetchMatchResults("all");
       if (results && Array.isArray(results)) {
         setMatchResults(results);
       }
-    } catch (error) {
-      console.error("Failed to load match results");
-    }
+    } catch { console.error("Failed to load match results"); }
   };
 
   const handleRunMatching = async () => {
-    if (!selectedJob) {
-      toast.error("Please select a job first");
-      return;
-    }
-
+    if (!selectedJob) { toast.error("Please select a job first"); return; }
     setIsMatching(true);
-    try {
-      await runMatching(selectedJob);
-      toast.success("Matching completed successfully!");
-      loadMatchResults();
-    } catch (error: any) {
-      toast.error(error.message || "Matching failed");
-    } finally {
-      setIsMatching(false);
-    }
+    try { await runMatching(selectedJob); toast.success("Matching completed!"); loadMatchResults(); }
+    catch (error: any) { toast.error(error.message || "Matching failed"); }
+    finally { setIsMatching(false); }
   };
 
   const toggleRowExpansion = (resultId: string) => {
-    setExpandedRows((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(resultId)) {
-        newSet.delete(resultId);
-      } else {
-        newSet.add(resultId);
-      }
-      return newSet;
-    });
+    setExpandedRows((prev) => { const s = new Set(prev); s.has(resultId) ? s.delete(resultId) : s.add(resultId); return s; });
   };
 
   const exportToCSV = () => {
-    if (matchResults.length === 0) {
-      toast.error("No data to export");
-      return;
-    }
-
-    const headers = [
-      "Rank",
-      "Candidate Name",
-      "Email",
-      "Overall Score",
-      "Skill Score",
-      "Experience Score",
-      "Education Score",
-      "Recommendation",
-      "Matching Skills",
-      "Missing Skills",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...matchResults.map((result, index) =>
-        [
-          index + 1,
-          result.candidate_name,
-          result.candidate_email,
-          result.overall_score,
-          result.skill_score,
-          result.experience_score,
-          result.education_score,
-          result.recommendation,
-          `"${result.matching_skills.join("; ")}"`,
-          `"${result.missing_skills.join("; ")}"`,
-        ].join(","),
-      ),
-    ].join("\n");
-
+    if (matchResults.length === 0) { toast.error("No data to export"); return; }
+    const headers = ["Rank", "Candidate Name", "Email", "Overall Score", "Skill Score", "Experience Score", "Education Score", "Recommendation", "Matching Skills", "Missing Skills"];
+    const csvContent = [headers.join(","), ...matchResults.map((r, i) =>
+      [i + 1, r.candidate_name, r.candidate_email, r.overall_score, r.skill_score, r.experience_score, r.education_score, r.recommendation, `"${r.matching_skills.join("; ")}"`, `"${r.missing_skills.join("; ")}"`].join(",")
+    )].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `matching_results_${new Date().toISOString().split("T")[0]}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    toast.success("Results exported successfully!");
+    const a = document.createElement("a"); a.href = url; a.download = `matching_results_${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(url);
+    toast.success("Results exported!");
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "bg-green-500";
-    if (score >= 60) return "bg-yellow-500";
-    return "bg-red-500";
+  const getScoreBar = (score: number) => {
+    if (score >= 80) return "bg-gradient-to-r from-brand-500 to-brand-600";
+    if (score >= 60) return "bg-gradient-to-r from-amber-400 to-amber-500";
+    return "bg-gradient-to-r from-slate-300 to-slate-400";
   };
 
-  const getRecommendationColor = (recommendation: string) => {
-    switch (recommendation) {
-      case "Strong Match":
-        return "bg-green-100 text-green-800";
-      case "Good Match":
-        return "bg-purple-100 text-purple-800";
-      case "Partial Match":
-        return "bg-yellow-100 text-yellow-800";
-      case "Not Recommended":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const getRecommendationConfig = (r: string) => {
+    switch (r) {
+      case "Strong Match": return { bg: "bg-emerald-50 text-emerald-700 border-emerald-200", icon: <CheckCircle className="w-3.5 h-3.5" /> };
+      case "Good Match": return { bg: "bg-brand-50 text-brand-700 border-brand-200", icon: <CheckCircle className="w-3.5 h-3.5" /> };
+      case "Partial Match": return { bg: "bg-amber-50 text-amber-700 border-amber-200", icon: <MinusCircle className="w-3.5 h-3.5" /> };
+      case "Not Recommended": return { bg: "bg-red-50 text-red-700 border-red-200", icon: <XCircle className="w-3.5 h-3.5" /> };
+      default: return { bg: "bg-slate-100 text-slate-600 border-slate-200", icon: <AlertCircle className="w-3.5 h-3.5" /> };
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join("");
-  };
+  const getInitials = (name: string) => name.split(" ").map((p) => p.charAt(0).toUpperCase()).slice(0, 2).join("");
 
-  // Chart data
+  const filteredResults = selectedJob ? matchResults.filter((r) => r.job_id === selectedJob) : matchResults;
+
   const scoreDistribution = [
-    {
-      range: "90-100%",
-      count: matchResults.filter((r) => r.overall_score >= 90).length,
-    },
-    {
-      range: "80-89%",
-      count: matchResults.filter(
-        (r) => r.overall_score >= 80 && r.overall_score < 90,
-      ).length,
-    },
-    {
-      range: "70-79%",
-      count: matchResults.filter(
-        (r) => r.overall_score >= 70 && r.overall_score < 80,
-      ).length,
-    },
-    {
-      range: "60-69%",
-      count: matchResults.filter(
-        (r) => r.overall_score >= 60 && r.overall_score < 70,
-      ).length,
-    },
-    {
-      range: "50-59%",
-      count: matchResults.filter(
-        (r) => r.overall_score >= 50 && r.overall_score < 60,
-      ).length,
-    },
-    {
-      range: "<50%",
-      count: matchResults.filter((r) => r.overall_score < 50).length,
-    },
+    { range: "90-100", count: matchResults.filter((r) => r.overall_score >= 90).length },
+    { range: "80-89", count: matchResults.filter((r) => r.overall_score >= 80 && r.overall_score < 90).length },
+    { range: "70-79", count: matchResults.filter((r) => r.overall_score >= 70 && r.overall_score < 80).length },
+    { range: "60-69", count: matchResults.filter((r) => r.overall_score >= 60 && r.overall_score < 70).length },
+    { range: "<60", count: matchResults.filter((r) => r.overall_score < 60).length },
   ];
 
   const recommendationData = [
-    {
-      name: "Strong Match",
-      value: matchResults.filter((r) => r.recommendation === "Strong Match")
-        .length,
-      color: "#10b981",
-    },
-    {
-      name: "Good Match",
-      value: matchResults.filter((r) => r.recommendation === "Good Match")
-        .length,
-      color: "#9333ea",
-    },
-    {
-      name: "Partial Match",
-      value: matchResults.filter((r) => r.recommendation === "Partial Match")
-        .length,
-      color: "#f59e0b",
-    },
-    {
-      name: "Not Recommended",
-      value: matchResults.filter((r) => r.recommendation === "Not Recommended")
-        .length,
-      color: "#ef4444",
-    },
+    { name: "Strong Match", value: matchResults.filter((r) => r.recommendation === "Strong Match").length, color: "#10b981" },
+    { name: "Good Match", value: matchResults.filter((r) => r.recommendation === "Good Match").length, color: "#9333ea" },
+    { name: "Partial Match", value: matchResults.filter((r) => ["Partial Match", "Fair Match"].includes(r.recommendation)).length, color: "#f59e0b" },
+    { name: "Not Recommended", value: matchResults.filter((r) => r.recommendation === "Not Recommended").length, color: "#ef4444" },
   ];
 
-  const filteredResults = selectedJob
-    ? matchResults.filter((result) => result.job_id === selectedJob)
-    : matchResults;
-
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Candidate Matching</h1>
-        <p className="text-gray-600">
-          Match candidates against job requirements
-        </p>
-      </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0F172A] transition-colors duration-500">
+      <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-6">
 
-      {/* Controls */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-          <div className="flex-1 max-w-md">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Job
-            </label>
-            <select
-              value={selectedJob}
-              onChange={(e) => setSelectedJob(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500"
-            >
-              <option value="">All Jobs</option>
-              {jobs.map((job) => (
-                <option key={job.id} value={job.id}>
-                  {job.title} - {job.department}
-                </option>
-              ))}
-            </select>
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-2">
+          <div className="p-2.5 rounded-xl shadow-sm text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #9333EA 100%)' }}>
+            <Target className="w-5 h-5" />
           </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleRunMatching}
-              disabled={isMatching || !selectedJob}
-              className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
-            >
-              {isMatching ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Running Matching...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="h-4 w-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                    />
-                  </svg>
-                  Run Matching
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={exportToCSV}
-              disabled={filteredResults.length === 0}
-              className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
-            >
-              <svg
-                className="h-4 w-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Export CSV
-            </button>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Candidate Matching</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Match candidates against job requirements using AI scoring</p>
           </div>
         </div>
-      </div>
 
-      <div className="flex gap-6">
-        {/* Results Table */}
-        <div className="flex-1">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Controls Bar */}
+        <div className="bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-5 transition-all">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <CustomSelect
+              label="Select Job"
+              placeholder="All Jobs"
+              options={[
+                { value: "", label: "All Jobs" },
+                ...jobs.map(job => ({ 
+                  value: job.id, 
+                  label: `${job.title} — ${job.department}` 
+                }))
+              ]}
+              value={selectedJob}
+              onChange={setSelectedJob}
+              searchable
+              className="flex-1 max-w-sm"
+            />
+            <div className="flex gap-3 sm:ml-auto">
+              <button onClick={handleRunMatching} disabled={isMatching || !selectedJob}
+                className="flex items-center gap-2 px-5 py-2.5 text-white text-sm font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
+                style={{ background: '#7C3AED' }}>
+                {isMatching ? (
+                  <><div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" /> Running...</>
+                ) : (
+                  <><Play className="w-4 h-4" /> Run Matching</>
+                )}
+              </button>
+              <button onClick={exportToCSV} disabled={filteredResults.length === 0}
+                className="flex items-center gap-2 px-5 py-2.5 border border-slate-200 text-slate-700 hover:bg-slate-50 text-sm font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <Download className="w-4 h-4" /> Export CSV
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Results Table */}
+          <div className="xl:col-span-2 bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden transition-all">
+            <div className="px-6 py-4 border-b border-slate-50 dark:border-slate-700/50 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white">Match Results</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{filteredResults.length} candidates evaluated</p>
+              </div>
+              {filteredResults.length > 0 && (
+                <span className="text-xs font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-3 py-1 rounded-full">
+                  Avg: {Math.round(filteredResults.reduce((a, r) => a + r.overall_score, 0) / filteredResults.length)}%
+                </span>
+              )}
+            </div>
+
             {isMatching ? (
-              <div className="p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Running matching algorithm...</p>
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-[3px] border-brand-100 border-t-brand-600 mb-4" />
+                <p className="text-sm font-medium text-slate-500">Running matching algorithm...</p>
               </div>
             ) : filteredResults.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Rank
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Candidate
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Overall Score
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Skill Match
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Experience
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Recommendation
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredResults.map((result, index) => (
-                      <React.Fragment key={result.id}>
-                        <tr
-                          className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() => toggleRowExpansion(result.id)}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm font-medium text-gray-900">
-                              #{index + 1}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                <span className="text-xs font-medium text-purple-600">
-                                  {getInitials(result.candidate_name)}
-                                </span>
+              <div className="divide-y divide-slate-50">
+                {filteredResults.map((result, index) => {
+                  const recConfig = getRecommendationConfig(result.recommendation);
+                  const isExpanded = expandedRows.has(result.id);
+                  return (
+                    <React.Fragment key={result.id}>
+                      <div className="px-6 py-4 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors" onClick={() => toggleRowExpansion(result.id)}>
+                        <div className="flex items-center gap-4">
+                          {/* Rank */}
+                          <div className="h-8 w-8 bg-purple-50 dark:bg-purple-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-black text-purple-600 dark:text-purple-400">#{index + 1}</span>
+                          </div>
+
+                          {/* Candidate */}
+                          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                            <div className="h-9 w-9 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs font-bold text-purple-700 dark:text-purple-200">{getInitials(result.candidate_name)}</span>
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{result.candidate_name}</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{result.candidate_email}</p>
+                            </div>
+                          </div>
+
+                          {/* Score bar */}
+                          <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
+                            <div className="w-24 bg-slate-100 dark:bg-slate-700 rounded-full h-1.5">
+                              <div className={`h-1.5 rounded-full ${getScoreBar(result.overall_score)}`} style={{ width: `${result.overall_score}%` }} />
+                            </div>
+                            <span className="text-sm font-black text-slate-800 dark:text-white w-10 text-right">{result.overall_score}%</span>
+                          </div>
+
+                          {/* Recommendation */}
+                          <span className={`hidden md:flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full border flex-shrink-0 ${recConfig.bg}`}>
+                            {recConfig.icon} {result.recommendation}
+                          </span>
+
+                          <div className="flex-shrink-0 text-slate-300">
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Expanded Row */}
+                      {isExpanded && (
+                        <div className="px-6 py-5 bg-slate-50/60 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-700/50">
+                          {/* Score Breakdown */}
+                          <div className="grid grid-cols-3 gap-4 mb-4">
+                            {[
+                              { label: "Skills", value: result.skill_score },
+                              { label: "Experience", value: result.experience_score },
+                              { label: "Education", value: result.education_score },
+                            ].map(({ label, value }) => (
+                              <div key={label} className="bg-white dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700/50 text-center transition-all">
+                                <div className="text-xl font-black text-purple-600 dark:text-purple-400">{value}%</div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{label}</div>
+                                <div className="mt-2 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1">
+                                  <div className={`h-1 rounded-full ${getScoreBar(value)}`} style={{ width: `${value}%` }} />
+                                </div>
                               </div>
-                              <div className="ml-3">
-                                <p className="text-sm font-medium text-gray-900">
-                                  {result.candidate_name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {result.candidate_email}
-                                </p>
+                            ))}
+                          </div>
+
+                          {/* Skills */}
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Matching Skills</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {result.matching_skills.map((s, i) => (
+                                  <span key={i} className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 text-xs font-semibold rounded-lg">{s}</span>
+                                ))}
                               </div>
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                <div
-                                  className={`h-2 rounded-full ${getScoreColor(result.overall_score)}`}
-                                  style={{ width: `${result.overall_score}%` }}
-                                />
+                            <div>
+                              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Missing Skills</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {result.missing_skills.map((s, i) => (
+                                  <span key={i} className="px-2 py-0.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 text-xs font-semibold rounded-lg">{s}</span>
+                                ))}
                               </div>
-                              <span className="text-sm font-medium text-gray-900">
-                                {result.overall_score}%
-                              </span>
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900">
-                              {result.skill_score}%
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900">
-                              {result.experience_score}%
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span
-                              className={`px-2 py-1 text-xs font-medium rounded-full ${getRecommendationColor(result.recommendation)}`}
-                            >
-                              {result.recommendation}
-                            </span>
-                          </td>
-                        </tr>
+                          </div>
 
-                        {/* Expanded Row */}
-                        {expandedRows.has(result.id) && (
-                          <tr>
-                            <td colSpan={6} className="px-6 py-4 bg-gray-50">
-                              <div className="space-y-4">
-                                {/* Score Breakdown */}
-                                <div>
-                                  <h4 className="text-sm font-medium text-gray-900 mb-2">
-                                    Score Breakdown
-                                  </h4>
-                                  <div className="grid grid-cols-3 gap-4">
-                                    <div className="text-center">
-                                      <p className="text-2xl font-bold text-purple-600">
-                                        {result.skill_score}%
-                                      </p>
-                                      <p className="text-xs text-gray-600">
-                                        Skills
-                                      </p>
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-2xl font-bold text-green-600">
-                                        {result.experience_score}%
-                                      </p>
-                                      <p className="text-xs text-gray-600">
-                                        Experience
-                                      </p>
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-2xl font-bold text-purple-600">
-                                        {result.education_score}%
-                                      </p>
-                                      <p className="text-xs text-gray-600">
-                                        Education
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Skills */}
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <h4 className="text-sm font-medium text-gray-900 mb-2">
-                                      Matching Skills
-                                    </h4>
-                                    <div className="flex flex-wrap gap-1">
-                                      {result.matching_skills.map(
-                                        (skill, idx) => (
-                                          <span
-                                            key={idx}
-                                            className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded"
-                                          >
-                                            {skill}
-                                          </span>
-                                        ),
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div>
-                                    <h4 className="text-sm font-medium text-gray-900 mb-2">
-                                      Missing Skills
-                                    </h4>
-                                    <div className="flex flex-wrap gap-1">
-                                      {result.missing_skills.map(
-                                        (skill, idx) => (
-                                          <span
-                                            key={idx}
-                                            className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded"
-                                          >
-                                            {skill}
-                                          </span>
-                                        ),
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Reason */}
-                                <div>
-                                  <h4 className="text-sm font-medium text-gray-900 mb-2">
-                                    Analysis
-                                  </h4>
-                                  <p className="text-sm text-gray-600">
-                                    {result.reason}
-                                  </p>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
+                          {result.reason && (
+                            <div className="bg-white dark:bg-slate-800/60 rounded-xl p-3 border border-slate-100 dark:border-slate-700/50">
+                              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Analysis</p>
+                              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{result.reason}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </div>
             ) : (
-              <div className="p-12 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  No matching results
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  {selectedJob
-                    ? "Run matching to see results"
-                    : "Select a job and run matching"}
-                </p>
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="h-16 w-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-4">
+                  <Target className="w-8 h-8 text-brand-300" />
+                </div>
+                <p className="text-sm font-bold text-slate-600 mb-1">No results yet</p>
+                <p className="text-xs text-slate-400">{selectedJob ? "Run matching to see results" : "Select a job and run matching"}</p>
               </div>
             )}
           </div>
-        </div>
 
-        {/* Side Panel - Charts */}
-        <div className="w-80">
-          <div className="space-y-6">
-            {/* Score Distribution */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Score Distribution
-              </h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={scoreDistribution}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="range" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#9333ea" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Recommendation Breakdown */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Recommendations
-              </h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={recommendationData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {recommendationData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="mt-4 space-y-2">
-                {recommendationData.map((item) => (
-                  <div
-                    key={item.name}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <div className="flex items-center">
-                      <div
-                        className="w-3 h-3 rounded-full mr-2"
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="text-gray-600">{item.name}</span>
-                    </div>
-                    <span className="font-medium text-gray-900">
-                      {item.value}
-                    </span>
+          {/* Side Charts */}
+          <div className="space-y-5">
+            {/* Stats summary */}
+            <div className="bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-5 interactive-box transition-all">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Summary</h3>
+              <div className="space-y-3">
+                {[
+                  { label: "Total Evaluated", value: filteredResults.length, color: "text-slate-800 dark:text-white" },
+                  { label: "Avg Score", value: filteredResults.length > 0 ? `${Math.round(filteredResults.reduce((a, r) => a + r.overall_score, 0) / filteredResults.length)}%` : "—", color: "text-purple-600 dark:text-purple-400" },
+                  { label: "Strong Matches", value: filteredResults.filter((r) => r.recommendation === "Strong Match").length, color: "text-emerald-600 dark:text-emerald-400" },
+                  { label: "Good Matches", value: filteredResults.filter((r) => r.recommendation === "Good Match").length, color: "text-purple-600 dark:text-purple-400" },
+                ].map(({ label, value, color }) => (
+                  <div key={label} className="flex justify-between items-center py-2 border-b border-slate-50 dark:border-slate-700/50 last:border-0">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
+                    <span className={`text-sm font-bold ${color}`}>{value}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Summary Stats */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Summary
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Total Matches</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {filteredResults.length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Average Score</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {filteredResults.length > 0
-                      ? Math.round(
-                        filteredResults.reduce(
-                          (acc, r) => acc + r.overall_score,
-                          0,
-                        ) / filteredResults.length,
-                      )
-                      : 0}
-                    %
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Strong Matches</span>
-                  <span className="text-sm font-medium text-green-600">
-                    {
-                      filteredResults.filter(
-                        (r) => r.recommendation === "Strong Match",
-                      ).length
-                    }
-                  </span>
-                </div>
+            {/* Score Distribution */}
+            <div className="bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-5 interactive-box transition-all">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Score Distribution</h3>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={scoreDistribution} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 10 }} />
+                  <Tooltip contentStyle={{ borderRadius: "10px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", fontSize: "11px" }} />
+                  <Bar dataKey="count" fill="#9333ea" radius={[4, 4, 0, 0]} maxBarSize={28} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Recommendation Pie */}
+            <div className="bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-5 interactive-box transition-all">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Recommendations</h3>
+              <ResponsiveContainer width="100%" height={140}>
+                <PieChart>
+                  <Pie data={recommendationData} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={4} dataKey="value">
+                    {recommendationData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: '#1e293b', borderRadius: "10px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", fontSize: "11px", color: '#fff' }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="mt-2 space-y-1.5">
+                {recommendationData.map((item) => (
+                  <div key={item.name} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                      <span className="text-slate-500 dark:text-slate-400 truncate">{item.name}</span>
+                    </div>
+                    <span className="font-bold text-slate-800 dark:text-white">{item.value}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -56,7 +56,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="bg-white shadow-sm rounded-lg p-6 space-y-4">
+          <div className="bg-white shadow-sm rounded-lg p-6 space-y-4 interactive-box">
             {/* Email Field */}
             <div>
               <label
