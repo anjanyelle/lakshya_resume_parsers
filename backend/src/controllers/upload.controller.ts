@@ -53,8 +53,8 @@ export const uploadResume = async (
       const candidateId = uuidv4();
       const tenantId = (req as any).user?.tenant_id || 'default';
       const candidateQuery = `
-        INSERT INTO candidates (id, status, tenant_id, created_at, updated_at)
-        VALUES ($1, 'pending', $2, NOW(), NOW())
+        INSERT INTO candidates (id, status, tenant_id, created_at, updated_at, consent_given, review_status)
+        VALUES ($1, 'pending', $2, NOW(), NOW(), true, 'pending')
         RETURNING *
       `;
 

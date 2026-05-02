@@ -2,13 +2,13 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useCandidateStore } from "../store/useCandidateStore";
-import {
+import socketService, {
   connectSocket,
   subscribeToParsingProgress,
   subscribeToParsingComplete,
   subscribeToParsingFailed,
 } from "../services/socket";
-import { FileUp, Search, Layers, Zap, Info, ChevronDown } from "lucide-react";
+import { FileUp, Search, Layers, Zap, Info, ChevronDown, X } from "lucide-react";
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
@@ -187,6 +187,9 @@ export default function UploadPage() {
 
     return () => {
       // Cleanup subscriptions
+      socketService.unsubscribe("parsing:progress", handleProgress);
+      socketService.unsubscribe("parsing:complete", handleComplete);
+      socketService.unsubscribe("parsing:failed", handleFailed);
     };
   }, []);
 

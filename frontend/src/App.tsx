@@ -22,6 +22,7 @@ import SettingsPage from "./pages/SettingsPage";
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, token } = useAuthStore();
 
+  // Check for both to be safe against inconsistent state
   if (!isAuthenticated || !token) {
     return <Navigate to="/login" replace />;
   }
@@ -31,14 +32,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Public Route Component (redirect to dashboard if authenticated)
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
 
-  if (isAuthenticated) {
+  // Check for both to be safe against inconsistent state
+  if (isAuthenticated && token) {
     return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
 }
+
 
 function App() {
   const { token, isAuthenticated } = useAuthStore();
@@ -181,7 +184,7 @@ function App() {
       <Route
         path="*"
         element={
-          isAuthenticated ? (
+          isAuthenticated && token ? (
             <Navigate to="/dashboard" replace />
           ) : (
             <Navigate to="/login" replace />
