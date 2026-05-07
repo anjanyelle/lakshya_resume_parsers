@@ -98,7 +98,10 @@ class ModelLoader:
             
             if is_finetuned and self.model_path != BASE_MODEL:
                 # Load fine-tuned model
-                self.model = AutoModelForTokenClassification.from_pretrained(self.model_path)
+                 self.model = AutoModelForTokenClassification.from_pretrained(
+                    self.model_path,
+                    low_cpu_mem_usage=True
+                )
                 print(f"✅ Fine-tuned model loaded from {self.model_path}")
             else:
                 # Load base model with custom labels
@@ -107,7 +110,8 @@ class ModelLoader:
                     num_labels=len(LABELS),
                     id2label=ID_TO_LABEL,
                     label2id=LABEL_TO_ID,
-                    ignore_mismatched_sizes=True
+                    ignore_mismatched_sizes=True,
+                    low_cpu_mem_usage=True
                 )
                 print(f"✅ Base model loaded: {BASE_MODEL}")
             
