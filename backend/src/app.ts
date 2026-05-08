@@ -11,16 +11,23 @@ import labelingRoutes from "./routes/labeling.routes";
 const app: Application = express();
 
 // CORS configuration
+const origins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim().startsWith('http') ? origin.trim() : `https://${origin.trim()}`)
+  : [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://lakshya-llm-resume-parser-ated.vercel.app",
+    ];
+
+console.log("🔒 Allowed CORS Origins:", origins);
+
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://lakshya-llm-resume-parser-ated.vercel.app",
-  ],
+  origin: origins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+
 
 // Middleware
 app.use(cors(corsOptions));
