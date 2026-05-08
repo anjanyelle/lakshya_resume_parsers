@@ -8,13 +8,19 @@ import type {
 import { useAuthStore } from "../store/useAuthStore";
 
 // Create axios instance
+const getBaseURL = () => {
+  const url = import.meta.env.VITE_API_URL || "http://localhost:3001";
+  return url.endsWith("/api") ? url : `${url.replace(/\/$/, "")}/api`;
+};
+
 export const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3001",
-  timeout: 10000,
+  baseURL: getBaseURL(),
+  timeout: 30000, // Increased timeout for AI processing
   headers: {
     "Content-Type": "application/json",
   },
 });
+
 
 // Request interceptor - Attach JWT token
 api.interceptors.request.use(
