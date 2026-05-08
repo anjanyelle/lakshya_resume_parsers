@@ -5,26 +5,6 @@ import { useJobStore } from "../store/useJobStore";
 import toast from "react-hot-toast";
 import SkillsTreeChart from "../components/candidate/SkillsTreeChart";
 
-interface MatchResult {
-  id: string;
-  job_id: string;
-  job_title?: string;
-  candidate_id: string;
-  candidate_name: string;
-  overall_score: number;
-  skill_score: number;
-  experience_score: number;
-  education_score: number;
-  matching_skills: string[];
-  missing_skills: string[];
-  recommendation:
-    | "Strong Match"
-    | "Good Match"
-    | "Partial Match"
-    | "Not Recommended";
-  reason: string;
-  created_at: string;
-}
 
 type TabType = "overview" | "skills" | "experience" | "education";
 

@@ -8,6 +8,7 @@ import {
   Settings,
   Sparkles,
   Eye,
+  Zap,
 } from "lucide-react";
 
 const links = [

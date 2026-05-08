@@ -4,23 +4,7 @@ import CustomSelect from "../components/common/CustomSelect";
 import toast from "react-hot-toast";
 import { Briefcase, Plus, MapPin, Clock, BookOpen, Edit2, Trash2, X, Tag } from "lucide-react";
 
-interface Job {
-  id: string;
-  title: string;
-  description: string;
-  min_experience_years?: number;
-  max_experience_years?: number;
-  education_requirement?: string;
-  employment_type?: string;
-  seniority_level?: string;
-  location?: string;
-  salary_range?: string;
-  department?: string;
-  created_at: string;
-  updated_at: string;
-  required_skills?: Array<{ id: string; skill_name: string; skill_type: "required" | "preferred" }>;
-  preferred_skills?: Array<{ id: string; skill_name: string; skill_type: "required" | "preferred" }>;
-}
+import type { Job } from "../types";
 
 interface JobFormData {
   title: string;
@@ -68,8 +52,15 @@ export default function JobsPage() {
       toast.error("Please fill in all required fields"); return;
     }
     try {
-      if (editingJob) { await updateJob(editingJob.id, formData); toast.success("Job updated successfully!"); }
-      else { await createJob(formData); toast.success("Job created successfully!"); }
+      const payload = {
+        ...formData,
+        required_skills: formData.required_skills.map(skill => ({
+          skill_name: skill,
+          skill_type: "required" as "required" | "preferred"
+        }))
+      };
+      if (editingJob) { await updateJob(editingJob.id, payload); toast.success("Job updated successfully!"); }
+      else { await createJob(payload); toast.success("Job created successfully!"); }
       setIsCreateModalOpen(false); setEditingJob(null); resetForm(); loadJobs();
     } catch (error: any) { toast.error(error.message || "Failed to save job"); }
   };
@@ -83,10 +74,11 @@ export default function JobsPage() {
 
   const openEditModal = (job: Job) => {
     setFormData({
-      title: job.title, department: job.department, location: job.location,
-      employment_type: job.employment_type, description: job.description,
-      required_skills: job.required_skills, min_experience: job.min_experience,
-      max_experience: job.max_experience, education_requirement: job.education_requirement,
+      title: job.title, department: job.department || "", location: job.location || "",
+      employment_type: job.employment_type || "", description: job.description,
+      required_skills: job.required_skills?.map(s => typeof s === "string" ? s : s.skill_name) || [],
+      min_experience: job.min_experience_years || 0,
+      max_experience: job.max_experience_years || 10, education_requirement: job.education_requirement || "",
     });
     setEditingJob(job); setIsCreateModalOpen(true);
   };
@@ -314,7 +306,7 @@ export default function JobsPage() {
                   )}
                   <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
                     <BookOpen className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
-                    <span>{job.min_experience_years || job.min_experience || 0}–{job.max_experience_years || job.max_experience || 10} years exp.</span>
+                    <span>{job.min_experience_years || 0}–{job.max_experience_years || 10} years exp.</span>
                   </div>
                 </div>
 

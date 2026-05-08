@@ -1,10 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { 
   Briefcase, 
-  Award, 
   ChevronRight, 
-  Mail, 
-  Phone,
   Cloud,
   Code,
   Layers,

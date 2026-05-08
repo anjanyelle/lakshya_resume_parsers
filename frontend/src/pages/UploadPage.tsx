@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useCandidateStore } from "../store/useCandidateStore";
 import socketService, {
@@ -8,10 +7,9 @@ import socketService, {
   subscribeToParsingComplete,
   subscribeToParsingFailed,
 } from "../services/socket";
-import { FileUp, Search, Layers, Zap, Info, ChevronDown, X } from "lucide-react";
+import { FileUp, Layers, Zap, Info, ChevronDown, X } from "lucide-react";
 import toast from "react-hot-toast";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
-import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
 import ModelResultsView from "../components/upload/ModelResultsView";
 
@@ -80,7 +78,6 @@ export default function UploadPage() {
   const [showLLMDropdown, setShowLLMDropdown] = useState(false);
 
   const { uploadResume } = useCandidateStore();
-  const navigate = useNavigate();
 
   // Socket.io connection
   useEffect(() => {
@@ -337,11 +334,6 @@ export default function UploadPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const getConfidenceColor = (score: number) => {
-    if (score >= 0.8) return "text-green-600 bg-green-100";
-    if (score >= 0.6) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
-  };
 
   return (
     <div className="min-h-screen bg-slate-50/50">

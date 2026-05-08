@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import CustomSelect from "../components/common/CustomSelect";
-import toast from "react-hot-toast";
-import { Users, Search, RefreshCw, User, ChevronLeft, ChevronRight, Filter, SortAsc } from "lucide-react";
+import { Users, Search, RefreshCw, User, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
 type SortType = "date-added" | "name" | "confidence-score";

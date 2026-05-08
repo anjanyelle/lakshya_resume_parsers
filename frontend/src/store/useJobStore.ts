@@ -1,56 +1,8 @@
 import { create } from "zustand";
 import { api } from "../services/api";
 import toast from "react-hot-toast";
+import type { Job, MatchResult } from "../types";
 
-interface Job {
-  id: string;
-  title: string;
-  description: string;
-  min_experience_years?: number;
-  max_experience_years?: number;
-  education_requirement?: string;
-  employment_type?: string;
-  seniority_level?: string;
-  location?: string;
-  salary_range?: string;
-  department?: string;
-  created_at: string;
-  updated_at: string;
-  required_skills?: Array<{
-    id: string;
-    skill_name: string;
-    skill_type: "required" | "preferred";
-  }>;
-  preferred_skills?: Array<{
-    id: string;
-    skill_name: string;
-    skill_type: "required" | "preferred";
-  }>;
-}
-
-interface MatchResult {
-  id: string;
-  job_id: string;
-  candidate_id: string;
-  candidate_name: string;
-  candidate_email: string;
-  candidate_location: string;
-  overall_score: number;
-  skill_score: number;
-  experience_score: number;
-  education_score: number;
-  matching_skills: string[];
-  missing_skills: string[];
-  extra_skills: string[];
-  experience_gap_years: number;
-  recommendation:
-    | "Strong Match"
-    | "Good Match"
-    | "Partial Match"
-    | "Not Recommended";
-  reason: string;
-  created_at: string;
-}
 
 interface JobState {
   jobs: Job[];
@@ -63,20 +15,20 @@ interface JobState {
 }
 
 interface JobActions {
-  fetchJobs: () => Promise<void>;
+  fetchJobs: () => Promise<Job[]>;
   fetchJob: (id: string) => Promise<void>;
   createJob: (jobData: Partial<Job>) => Promise<Job>;
   updateJob: (id: string, jobData: Partial<Job>) => Promise<Job>;
   deleteJob: (id: string) => Promise<void>;
   runMatching: (jobId: string, limit?: number) => Promise<void>;
-  fetchMatchResults: (jobId: string) => Promise<void>;
+  fetchMatchResults: (jobId: string) => Promise<MatchResult[]>;
   setCurrentJob: (job: Job | null) => void;
   setMatchingProgress: (progress: number) => void;
   clearError: () => void;
   clearMatchResults: () => void;
 }
 
-export const useJobStore = create<JobState & JobActions>((set, get) => ({
+export const useJobStore = create<JobState & JobActions>((set) => ({
   // Initial state
   jobs: [],
   currentJob: null,
@@ -91,7 +43,9 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await api.get("/jobs");
-      set({ jobs: response.data.jobs || [], isLoading: false });
+      const jobs = response.data.jobs || [];
+      set({ jobs, isLoading: false });
+      return jobs;
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to fetch jobs";
@@ -209,7 +163,9 @@ export const useJobStore = create<JobState & JobActions>((set, get) => ({
           ? "/matching/results"
           : `/matching/job/${jobId}/results`;
       const response = await api.get(endpoint);
-      set({ matchResults: response.data.matches || [], isLoading: false });
+      const matches = response.data.matches || [];
+      set({ matchResults: matches, isLoading: false });
+      return matches;
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to fetch match results";

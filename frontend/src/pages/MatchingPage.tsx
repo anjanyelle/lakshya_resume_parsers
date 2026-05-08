@@ -7,19 +7,7 @@ import {
 } from "recharts";
 import { Target, Download, Play, ChevronDown, ChevronUp, CheckCircle, AlertCircle, MinusCircle, XCircle } from "lucide-react";
 
-interface MatchResult {
-  id: string; job_id: string; job_title?: string; candidate_id: string;
-  candidate_name: string; candidate_email: string; overall_score: number;
-  skill_score: number; experience_score: number; education_score: number;
-  matching_skills: string[]; missing_skills: string[];
-  recommendation: "Strong Match" | "Good Match" | "Partial Match" | "Not Recommended";
-  reason: string; created_at: string;
-}
-
-interface Job {
-  id: string; title: string; department: string; location: string;
-  employment_type: string; status: "active" | "inactive" | "closed";
-}
+import type { Job, MatchResult } from "../types";
 
 export default function MatchingPage() {
   const [selectedJob, setSelectedJob] = useState<string>("");
