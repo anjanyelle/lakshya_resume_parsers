@@ -1,7 +1,7 @@
 import multer from "multer";
 import * as path from "path";
 import * as fs from "fs";
-import { v4 as uuidv4 } from "uuid";
+const { v4: uuidv4 } = require("uuid");
 import { Request, Response, NextFunction } from "express";
 
 // Ensure upload directory exists

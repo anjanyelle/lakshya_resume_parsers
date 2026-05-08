@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
     "lib": ["ES2020"],
     "outDir": "./dist",
     "rootDir": "./",
@@ -19,9 +18,8 @@
     "strictFunctionTypes": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
-    "module": "commonjs",
-    "ignoreDeprecations": "5.0",
+    "moduleResolution": "node16",
+    "module": "node16",
     "paths": {
       "@/*": ["./*"]
     },
