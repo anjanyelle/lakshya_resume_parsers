@@ -11,29 +11,28 @@ import labelingRoutes from "./routes/labeling.routes";
 const app: Application = express();
 
 // CORS configuration
-const rawOrigins = process.env.CORS_ORIGINS || "";
-const envOrigins = rawOrigins.split(',').map(o => o.trim()).filter(o => o);
-
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "https://lakshya-llm-resume-parser-ated.vercel.app",
-  ...envOrigins.map(o => o.startsWith('http') ? o : `https://${o}`),
-  ...envOrigins.map(o => o.startsWith('http') ? `${o}/` : `https://${o}/`) // Allow with trailing slash
-];
-
-console.log("🔒 Allowed CORS Origins:", allowedOrigins);
+  "https://frontend-one-nu-47.vercel.app", // Added your current Vercel URL directly
+  process.env.FRONTEND_URL,
+  process.env.CORS_ORIGINS,
+].filter(Boolean) as string[];
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+    // Allow any origin for now to solve the connection issue
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*") || process.env.ALLOW_ALL_ORIGINS === "true") {
       callback(null, true);
     } else {
-      console.log("🚫 CORS blocked for origin:", origin);
-      callback(new Error("Not allowed by CORS"));
+      // For safety, let's also allow anything ending in .vercel.app
+      if (origin.endsWith(".vercel.app")) {
+        callback(null, true);
+      } else {
+        console.log("🚫 CORS blocked for origin:", origin);
+        callback(null, false);
+      }
     }
   },
   credentials: true,
@@ -43,7 +42,6 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
