@@ -21,8 +21,7 @@
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "node",
     "module": "commonjs",
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["node", "express", "multer", "pg", "jsonwebtoken", "bcryptjs"],
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@/*": ["./*"]
     },

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { body, validationResult } from "express-validator";
+const { body, validationResult } = require("express-validator");
 import { getClient } from "../database/db";
 import { JobModel, JobDescription, JobFilter } from "../models/job.model";
 
