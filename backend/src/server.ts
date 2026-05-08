@@ -1,4 +1,7 @@
 import dotenv from "dotenv";
+// Load environment variables immediately
+dotenv.config();
+
 import { createServer } from "http";
 import app from "./app";
 import pool from "./database/db";
@@ -6,8 +9,6 @@ import parseWorker from "./workers/parseWorker";
 import { closeQueue } from "./queues/parseQueue";
 import createSocketServer, { setSocketInstance } from "./socket";
 
-// Load environment variables
-dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 

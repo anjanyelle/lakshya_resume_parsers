@@ -1,22 +1,14 @@
 import { Queue, QueueOptions } from "bullmq";
 import IORedis from "ioredis";
-
-// Redis connection configuration
-const redisConfig = {
-  host: process.env.REDIS_HOST || "localhost",
-  port: parseInt(process.env.REDIS_PORT || "6379"),
-  password: process.env.REDIS_PASSWORD || undefined,
-  maxRetriesPerRequest: null, // BullMQ requires null
-  retryDelayOnFailover: 100,
-  lazyConnect: true,
-};
+import { redisConfig, createRedisConnection } from "../config/redisConfig";
 
 // Create Redis connection
-const connection = new IORedis(redisConfig);
+const connection = createRedisConnection();
 
 // Queue options with retry and timeout configuration
 const queueOptions: QueueOptions = {
-  connection: redisConfig,
+  connection,
+
   defaultJobOptions: {
     removeOnComplete: 50, // Keep last 50 completed jobs
     removeOnFail: 100, // Keep last 100 failed jobs

@@ -194,18 +194,12 @@ interface AIServiceResponse {
   error?: string;
 }
 
-// Redis connection configuration
-const redisConfig = {
-  host: process.env.REDIS_HOST || "localhost",
-  port: parseInt(process.env.REDIS_PORT || "6379"),
-  password: process.env.REDIS_PASSWORD || undefined,
-  maxRetriesPerRequest: null,
-  retryDelayOnFailover: 100,
-  lazyConnect: true,
-};
+import { redisConfig, createRedisConnection } from "../config/redisConfig";
 
 // Create Redis connection
-const connection = new IORedis(redisConfig);
+const connection = createRedisConnection();
+
+
 
 // AI Service URL
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
@@ -670,7 +664,7 @@ export const parseWorker = new Worker<ParseJobData>(
   "resume-parsing",
   processor,
   {
-    connection: redisConfig,
+    connection,
     concurrency: parseInt(process.env.PARSE_WORKER_CONCURRENCY || "2"), // Process 2 jobs concurrently
     limiter: {
       max: 10,
@@ -678,6 +672,7 @@ export const parseWorker = new Worker<ParseJobData>(
     },
   },
 );
+
 
 // Worker event handlers
 parseWorker.on("completed", (job: Job, result: any) => {
