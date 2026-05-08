@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 
-interface AuthRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     email: string;
@@ -10,7 +10,7 @@ interface AuthRequest extends Request {
 }
 
 export const authenticateToken = (
-  req: AuthRequest,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ): void => {
@@ -25,7 +25,7 @@ export const authenticateToken = (
   jwt.verify(
     token,
     process.env.JWT_SECRET || "fallback-secret",
-    (err, decoded) => {
+    (err: any, decoded: any) => {
       if (err) {
         res.status(403).json({ error: "Invalid or expired token" });
         return;
@@ -42,7 +42,7 @@ export const authenticateToken = (
 };
 
 export const requireRole = (roles: string[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: "Authentication required" });
       return;

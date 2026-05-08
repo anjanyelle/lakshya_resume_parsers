@@ -35,7 +35,6 @@ export class CandidateModel {
 
   static async findByIdWithDetails(client: any, id: string): Promise<CandidateWithDetails | null> {
     try {
-      // Get candidate
       const candidateResult = await client.query(
         "SELECT * FROM candidates WHERE id = $1",
         [id]
@@ -47,25 +46,21 @@ export class CandidateModel {
       
       const candidate = candidateResult.rows[0];
       
-      // Get work history
       const workHistoryResult = await client.query(
         "SELECT * FROM work_history WHERE candidate_id = $1 ORDER BY start_date DESC",
         [id]
       );
       
-      // Get education
       const educationResult = await client.query(
         "SELECT * FROM education WHERE candidate_id = $1 ORDER BY end_date DESC",
         [id]
       );
       
-      // Get certifications
       const certificationsResult = await client.query(
         "SELECT * FROM certifications WHERE candidate_id = $1 ORDER BY issue_date DESC",
         [id]
       );
       
-      // Get skills
       const skillsResult = await client.query(
         `SELECT s.*, cs.proficiency_level, cs.years_experience 
          FROM skills s 
@@ -87,30 +82,56 @@ export class CandidateModel {
     }
   }
 
-  static async create(data: Partial<Candidate>): Promise<Candidate> {
-    const client = await getClient();
-    try {
-      const result = await client.query(
-        "INSERT INTO candidates (email, phone, name, status) VALUES ($1, $2, $3, $4) RETURNING *",
-        [data.email, data.phone, data.name, data.status || "pending"]
-      );
-      return result.rows[0];
-    } finally {
-      client.release();
-    }
+  static async create(client: any, data: any): Promise<any> {
+    const {
+      full_name, email, phone, location, linkedin_url, github_url, summary,
+      file_path, file_type
+    } = data;
+    
+    const result = await client.query(
+      `INSERT INTO candidates (
+        full_name, email, phone, location, linkedin_url, github_url, 
+        summary, file_path, file_type, status, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pending', NOW(), NOW())
+      RETURNING *`,
+      [full_name, email, phone, location, linkedin_url, github_url, summary, file_path, file_type]
+    );
+    return result.rows[0];
   }
 
-  static async update(id: string, data: Partial<Candidate>): Promise<Candidate | null> {
-    const client = await getClient();
-    try {
-      const result = await client.query(
-        "UPDATE candidates SET email = COALESCE($1, email), phone = COALESCE($2, phone), name = COALESCE($3, name), status = COALESCE($4, status), updated_at = NOW() WHERE id = $5 RETURNING *",
-        [data.email, data.phone, data.name, data.status, id]
-      );
-      return result.rows[0] || null;
-    } finally {
-      client.release();
-    }
+  static async update(client: any, id: string, data: any): Promise<any> {
+    const { full_name, email, phone, location, linkedin_url, github_url, summary } = data;
+    
+    const result = await client.query(
+      `UPDATE candidates SET 
+        full_name = COALESCE($1, full_name),
+        email = COALESCE($2, email),
+        phone = COALESCE($3, phone),
+        location = COALESCE($4, location),
+        linkedin_url = COALESCE($5, linkedin_url),
+        github_url = COALESCE($6, github_url),
+        summary = COALESCE($7, summary),
+        updated_at = NOW()
+      WHERE id = $8 RETURNING *`,
+      [full_name, email, phone, location, linkedin_url, github_url, summary, id]
+    );
+    return result.rows[0] || null;
+  }
+
+  static async softDelete(client: any, id: string): Promise<boolean> {
+    const result = await client.query(
+      "UPDATE candidates SET status = 'deleted', updated_at = NOW() WHERE id = $1",
+      [id]
+    );
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  static async getParsingStatus(client: any, id: string): Promise<any> {
+    const result = await client.query(
+      "SELECT * FROM parsing_jobs WHERE candidate_id = $1 ORDER BY created_at DESC LIMIT 1",
+      [id]
+    );
+    return result.rows[0] || null;
   }
 
   static async findAll(
@@ -118,12 +139,10 @@ export class CandidateModel {
     page: number = 1,
     limit: number = 20,
     search?: string
-  ): Promise<{ candidates: CandidateWithDetails[]; total: number }> {
+  ): Promise<{ candidates: any[]; total: number }> {
     try {
       const offset = (page - 1) * limit;
-      
-      // Build WHERE clause for search
-      let whereClause = "WHERE status = 'success'";
+      let whereClause = "WHERE status != 'deleted'";
       const queryParams: any[] = [];
       
       if (search) {
@@ -131,12 +150,10 @@ export class CandidateModel {
         whereClause += ` AND (full_name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
       }
       
-      // Get total count
       const countQuery = `SELECT COUNT(*) FROM candidates ${whereClause}`;
       const countResult = await client.query(countQuery, queryParams);
       const total = parseInt(countResult.rows[0].count);
       
-      // Get paginated candidates
       queryParams.push(limit, offset);
       const candidatesQuery = `
         SELECT * FROM candidates 

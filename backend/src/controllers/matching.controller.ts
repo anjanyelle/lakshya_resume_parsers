@@ -68,7 +68,7 @@ export const matchCandidatesToJob = async (
       }
 
       // 3. For each candidate, call Python AI service POST /match
-      const matchPromises = candidates.map(async (candidate) => {
+      const matchPromises = candidates.map(async (candidate: any) => {
         try {
           const matchData = {
             candidate_data: {
@@ -132,7 +132,7 @@ export const matchCandidatesToJob = async (
 
       // 4. Sort candidates by overall_score descending
       const sortedMatches = matches.sort(
-        (a, b) => b.overall_score - a.overall_score,
+        (a: any, b: any) => b.overall_score - a.overall_score,
       );
 
       // 5. Save scores to match_scores table
@@ -173,7 +173,7 @@ export const matchCandidatesToJob = async (
         jobId,
         job_title: job.title,
         total_candidates: candidates.length,
-        successful_matches: sortedMatches.filter((m) => !m.error).length,
+        successful_matches: sortedMatches.filter((m: any) => !m.error).length,
         matches: sortedMatches,
       });
     } finally {

@@ -1,11 +1,11 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { query } from "../database/db";
-import { AuthenticatedRequest } from "../middleware/auth";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // GET /api/labeling/next - Get next unlabeled candidate
-router.get("/next", async (req: AuthenticatedRequest, res) => {
+router.get("/next", async (req: AuthenticatedRequest, res: Response) => {
   try {
     // Get next candidate with confidence < 0.90 that hasn't been labeled yet
     const sql = `
@@ -70,15 +70,15 @@ router.get("/next", async (req: AuthenticatedRequest, res) => {
       }
     }
 
-    res.json(candidate);
+    return res.json(candidate);
   } catch (error) {
     console.error("Error fetching next candidate:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
 // POST /api/labeling/save - Save corrected labels
-router.post("/save", async (req: AuthenticatedRequest, res) => {
+router.post("/save", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { candidate_id, corrected_fields, action } = req.body;
 
@@ -147,10 +147,10 @@ router.post("/save", async (req: AuthenticatedRequest, res) => {
       ]);
     }
 
-    res.json({ message: "Label data saved successfully" });
+    return res.json({ message: "Label data saved successfully" });
   } catch (error) {
     console.error("Error saving label data:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
@@ -199,19 +199,19 @@ router.get("/progress", async (req: AuthenticatedRequest, res) => {
       accuracy_estimate = parseInt(approved) / totalProcessed;
     }
 
-    res.json({
+    return res.json({
       labeled,
       total,
       accuracy_estimate,
     });
   } catch (error) {
     console.error("Error fetching progress:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
 // GET /api/labeling/queue - Get unlabeled candidates queue
-router.get("/queue", async (req: AuthenticatedRequest, res) => {
+router.get("/queue", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { page = 1, limit = 20 } = req.query;
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -246,7 +246,7 @@ router.get("/queue", async (req: AuthenticatedRequest, res) => {
 
     const total = parseInt(countResult.rows[0].total);
 
-    res.json({
+    return res.json({
       candidates: candidatesResult.rows,
       pagination: {
         page: parseInt(page as string),
@@ -257,7 +257,7 @@ router.get("/queue", async (req: AuthenticatedRequest, res) => {
     });
   } catch (error) {
     console.error("Error fetching queue:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
