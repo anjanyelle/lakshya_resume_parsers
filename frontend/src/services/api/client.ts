@@ -1,5 +1,5 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const rawBaseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 const baseURL = rawBaseURL.endsWith("/api") ? rawBaseURL : `${rawBaseURL.replace(/\/$/, "")}/api`;
@@ -24,9 +24,9 @@ let refreshingPromise: Promise<string> | null = null;
 
 const refreshToken = async () => {
   const {
-    refreshToken: token,
-    setTokens,
-    clearTokens,
+    token,
+    setToken,
+    clearAuth: clearTokens,
   } = useAuthStore.getState();
   if (!token) {
     clearTokens();
@@ -35,17 +35,17 @@ const refreshToken = async () => {
   const response = await authClient.post("/auth/refresh", {
     refresh_token: token,
   });
-  const { access_token, refresh_token } = response.data;
-  setTokens(access_token, refresh_token);
+  const { token: access_token } = response.data;
+  setToken(access_token);
   return access_token as string;
 };
 
 apiClient.interceptors.request.use((config) => {
-  const { accessToken } = useAuthStore.getState();
-  if (accessToken) {
+  const { token } = useAuthStore.getState();
+  if (token) {
     config.headers = {
       ...config.headers,
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token}`,
     } as any;
   }
   return config;
@@ -73,7 +73,7 @@ apiClient.interceptors.response.use(
         return apiClient(original);
       } catch {
         refreshingPromise = null;
-        useAuthStore.getState().clearTokens();
+        useAuthStore.getState().clearAuth();
       }
     }
 
