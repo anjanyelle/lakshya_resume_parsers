@@ -7,8 +7,9 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [mode, setMode] = useState<"login" | "register">("login");
 
-  const { login, isLoading } = useAuthStore();
+  const { login, register, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,11 +21,16 @@ export default function LoginPage() {
     }
 
     try {
-      await login(email, password);
-      toast.success("Login successful!");
+      if (mode === "login") {
+        await login(email, password);
+        toast.success("Login successful!");
+      } else {
+        await register(email, password);
+        toast.success("Account created successfully!");
+      }
       navigate("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || "Login failed");
+      toast.error(error.message || (mode === "login" ? "Login failed" : "Registration failed"));
     }
   };
 
@@ -51,7 +57,29 @@ export default function LoginPage() {
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
             Resume Parser
           </h2>
-          <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
+          <p className="mt-2 text-sm text-gray-600">
+            {mode === "login" ? "Sign in to your account" : "Create a new account"}
+          </p>
+        </div>
+
+        {/* Mode Toggle */}
+        <div className="flex rounded-xl bg-gray-200 p-1 text-sm font-medium text-gray-600">
+          <button
+            onClick={() => setMode("login")}
+            className={`flex-1 rounded-lg px-3 py-2 transition-all ${
+              mode === "login" ? "bg-white text-purple-600 shadow-sm" : "hover:text-gray-900"
+            }`}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => setMode("register")}
+            className={`flex-1 rounded-lg px-3 py-2 transition-all ${
+              mode === "register" ? "bg-white text-purple-600 shadow-sm" : "hover:text-gray-900"
+            }`}
+          >
+            Register
+          </button>
         </div>
 
         {/* Login Form */}
@@ -170,10 +198,10 @@ export default function LoginPage() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Signing in...
+                    {mode === "login" ? "Signing in..." : "Creating account..."}
                   </div>
                 ) : (
-                  "Sign in"
+                  mode === "login" ? "Sign in" : "Register"
                 )}
               </button>
             </div>

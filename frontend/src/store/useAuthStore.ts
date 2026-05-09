@@ -17,6 +17,7 @@ interface AuthState {
 
 interface AuthActions {
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, role?: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User) => void;
   setToken: (token: string) => void;
@@ -26,7 +27,7 @@ interface AuthActions {
 
 export const useAuthStore = create<AuthState & AuthActions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Initial state
       user: null,
       token: null,
@@ -65,6 +66,36 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             isAuthenticated: !!token,
             isLoading: false,
           });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      register: async (email: string, password: string, role = "admin") => {
+        set({ isLoading: true });
+        try {
+          const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+          const apiUrl = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl.replace(/\/$/, "")}/api`;
+          
+          const response = await fetch(
+            `${apiUrl}/auth/register`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ email, password, role }),
+            },
+          );
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Registration failed");
+          }
+
+          // After registration, log them in
+          await get().login(email, password);
         } catch (error) {
           set({ isLoading: false });
           throw error;

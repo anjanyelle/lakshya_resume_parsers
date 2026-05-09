@@ -1,7 +1,8 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 import { useAuthStore } from "../../store/authStore";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const rawBaseURL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const baseURL = rawBaseURL.endsWith("/api") ? rawBaseURL : `${rawBaseURL.replace(/\/$/, "")}/api`;
 
 export const apiClient = axios.create({
   baseURL,
@@ -31,7 +32,7 @@ const refreshToken = async () => {
     clearTokens();
     throw new Error("Missing refresh token");
   }
-  const response = await authClient.post("/api/v1/auth/refresh", {
+  const response = await authClient.post("/auth/refresh", {
     refresh_token: token,
   });
   const { access_token, refresh_token } = response.data;
