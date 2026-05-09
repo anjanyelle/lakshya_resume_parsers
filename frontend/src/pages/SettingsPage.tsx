@@ -55,7 +55,7 @@ export default function SettingsPage() {
   // API config
   const [apiConfig, setApiConfig] = useState({
     apiKey: "sk-••••••••••••••••••••••••••••",
-    endpoint: import.meta.env.VITE_API_URL || "http://localhost:3001",
+    endpoint: (import.meta.env.VITE_API_URL || "http://localhost:3001").replace(/\/$/, "") + "/api",
     timeout: "30",
     maxRetries: "3",
   });

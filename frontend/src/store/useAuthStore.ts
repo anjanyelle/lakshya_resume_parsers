@@ -37,8 +37,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true });
         try {
+          const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+          const apiUrl = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl.replace(/\/$/, "")}/api`;
+          
           const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/auth/login`,
+            `${apiUrl}/auth/login`,
             {
               method: "POST",
               headers: {

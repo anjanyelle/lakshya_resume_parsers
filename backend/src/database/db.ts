@@ -10,9 +10,9 @@ const connectionString = process.env.DATABASE_URL;
 const poolConfig = connectionString 
   ? { 
       connectionString,
-      ssl: {
-        rejectUnauthorized: false
-      }
+      ssl: connectionString.includes("localhost") || connectionString.includes("127.0.0.1")
+        ? false
+        : { rejectUnauthorized: false }
     }
   : {
       host: process.env.DB_HOST || "localhost",

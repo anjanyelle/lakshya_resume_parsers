@@ -145,9 +145,11 @@ export default function SectionPreviewPage() {
       const formData = new FormData();
       formData.append("resume", selectedFile);
 
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const apiUrl = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl.replace(/\/$/, "")}/api`;
+      
       const response = await axios.post<SectionPreviewResponse>(
-        `${baseUrl}/resume/preview-sections`,
+        `${apiUrl}/resume/preview-sections`,
         formData,
         {
           headers: {
