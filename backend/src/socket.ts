@@ -1,6 +1,10 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HTTPServer } from "http";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+// Ensure environment variables are loaded for this file
+dotenv.config();
 
 // Extended socket interface with user properties
 interface AuthenticatedSocket extends Socket {
@@ -32,17 +36,28 @@ const authenticateSocket = async (
   next: (err?: Error) => void,
 ) => {
   try {
-    const token =
+    let token =
       socket.handshake.auth.token ||
-      socket.handshake.headers.authorization?.replace("Bearer ", "");
+      socket.handshake.headers.authorization;
 
     if (!token) {
+      console.error("❌ Socket Auth: No token provided");
       return next(new Error("Authentication token required"));
     }
 
+    // Clean token (remove "Bearer " if present)
+    if (token.startsWith("Bearer ")) {
+      token = token.replace("Bearer ", "");
+    }
+
+    const secret = process.env.JWT_SECRET || "fallback-secret";
+    
+    // Debug: Log token info (masking most of it)
+    console.log(`🔍 Socket Auth: Token starts with "${token.substring(0, 5)}...", Secret starts with "${secret.substring(0, 3)}..."`);
+
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "fallback-secret",
+      secret,
     ) as any;
 
     // Attach user info to socket
@@ -50,6 +65,7 @@ const authenticateSocket = async (
     socket.email = decoded.email;
     socket.role = decoded.role;
 
+    console.log(`✅ Socket Auth: Valid token for user ${decoded.id}`);
     next();
   } catch (err: any) {
     console.error("❌ Socket Auth Error:", err.message);
