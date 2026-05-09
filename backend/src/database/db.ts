@@ -66,4 +66,57 @@ export const transaction = async <T>(
   }
 };
 
+// Auto-migration function to ensure production DB has correct schema
+const ensureSchema = async () => {
+  try {
+    const client = await pool.connect();
+    try {
+      console.log("🚀 Running auto-migrations...");
+      
+      // Add status column if missing
+      await client.query(`
+        ALTER TABLE candidates 
+        ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending';
+      `);
+      
+      // Fix work_history / work_experience mismatch
+      const tableCheck = await client.query(`
+        SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'work_experience');
+      `);
+      if (tableCheck.rows[0].exists) {
+        const historyCheck = await client.query(`
+          SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'work_history');
+        `);
+        if (!historyCheck.rows[0].exists) {
+          await client.query("ALTER TABLE work_experience RENAME TO work_history;");
+          console.log("✅ Renamed work_experience to work_history");
+        }
+      }
+      
+      // Ensure parsing_jobs exists
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS parsing_jobs (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          candidate_id UUID NOT NULL REFERENCES candidates (id) ON DELETE CASCADE,
+          status VARCHAR(50) NOT NULL DEFAULT 'pending',
+          confidence_score DECIMAL(5,4),
+          parsed_data JSONB,
+          error_message TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          completed_at TIMESTAMP WITH TIME ZONE
+        );
+      `);
+
+      console.log("✅ Auto-migrations completed");
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error("❌ Auto-migration failed:", err);
+  }
+};
+
+// Run migrations on startup
+ensureSchema();
+
 export default pool;

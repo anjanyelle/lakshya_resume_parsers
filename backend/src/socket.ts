@@ -51,7 +51,8 @@ const authenticateSocket = async (
     socket.role = decoded.role;
 
     next();
-  } catch (err) {
+  } catch (err: any) {
+    console.error("❌ Socket Auth Error:", err.message);
     next(new Error("Invalid or expired token"));
   }
 };
