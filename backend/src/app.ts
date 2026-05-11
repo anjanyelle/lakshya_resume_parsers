@@ -18,6 +18,7 @@ const getOrigins = () => {
     "http://localhost:4173",
     "https://lakshya-llm-resume-parser-ated.vercel.app",
     "https://frontend-one-nu-47.vercel.app",
+    "https://lakshya-llm-resume-parser-1-5a2z.onrender.com",
   ];
   
   const envOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",") : [];

@@ -220,11 +220,11 @@ const updateParsingJobStatus = async (
 
     const updateQuery = `
       UPDATE parsing_jobs 
-      SET status = $1::parsing_job_status,
+      SET status = $1,
           confidence_score = COALESCE($2, confidence_score),
           parsed_data = COALESCE($3, parsed_data),
           error_message = COALESCE($4, error_message),
-          completed_at = CASE WHEN $1::parsing_job_status IN ('completed', 'failed') THEN NOW() ELSE completed_at END
+          completed_at = CASE WHEN $1 IN ('completed', 'failed') THEN NOW() ELSE completed_at END
       WHERE candidate_id = $5
       RETURNING *
     `;
@@ -252,17 +252,6 @@ const updateCandidateWithParsedData = async (
   parsedData: AIServiceResponse,
 ): Promise<any> => {
   try {
-    // First check if raw_resume_text column exists
-    const columnCheckQuery = `
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'candidates' 
-      AND column_name = 'raw_resume_text'
-    `;
-
-    const columnCheck = await client.query(columnCheckQuery);
-    const hasRawResumeText = columnCheck.rows.length > 0;
-
     const updateQuery = `
       UPDATE candidates 
       SET full_name = COALESCE($1, full_name),
@@ -271,14 +260,9 @@ const updateCandidateWithParsedData = async (
           location = COALESCE($4, location),
           linkedin_url = COALESCE($5, linkedin_url),
           github_url = COALESCE($6, github_url),
-          summary = COALESCE($7, summary)${
-            hasRawResumeText
-              ? `,
-          raw_resume_text = COALESCE($8, raw_resume_text)`
-              : ""
-          },
+          summary = COALESCE($7, summary),
           updated_at = NOW()
-      WHERE id = $${hasRawResumeText ? "9" : "8"}
+      WHERE id = $8
       RETURNING *
     `;
 
@@ -295,143 +279,72 @@ const updateCandidateWithParsedData = async (
       truncateString(location || null, 255),
       truncateString(parsedData.linkedin || null, 500),
       truncateString(parsedData.github || null, 500),
-      truncateString(parsedData.summary || null, 2000), // Summary might be TEXT
+      truncateString(parsedData.summary || null, 2000),
+      candidateId,
     ];
-
-    // Add raw_resume_text if column exists
-    if (hasRawResumeText) {
-      values.push(null); // raw_resume_text - not stored as a separate field
-    }
-
-    values.push(candidateId);
 
     const result = await client.query(updateQuery, values);
 
-    // Insert skills if provided
+    // Insert skills if provided (using skills table from setup.sql)
     if (parsedData.skills && Array.isArray(parsedData.skills)) {
-      // Check if skills table has candidate_id column
-      const skillsColumnCheck = await client.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'skills' 
-        AND column_name = 'candidate_id'
-      `);
+      // First, delete existing skills for this candidate
+      await client.query("DELETE FROM skills WHERE candidate_id = $1", [candidateId]);
 
-      if (skillsColumnCheck.rows.length > 0) {
-        // First, delete existing skill associations for this candidate
+      // Insert new skills
+      for (const skill of parsedData.skills) {
+        const skillName = typeof skill === "string" ? skill : (skill as any).name || (skill as any).skill_name;
+        
         await client.query(
-          "DELETE FROM candidate_skills WHERE candidate_id = $1",
-          [candidateId],
+          "INSERT INTO skills (candidate_id, skill_name, category, proficiency_level) VALUES ($1, $2, $3, $4)",
+          [candidateId, truncateString(skillName, 255), "technical", "intermediate"]
         );
-
-        // Insert new skill associations
-        for (const skill of parsedData.skills) {
-          const skillName =
-            typeof skill === "string"
-              ? skill
-              : (skill as any).name || (skill as any).skill_name;
-
-          // Check if skill already exists in global skills table
-          const existingSkill = await client.query(
-            "SELECT id FROM skills WHERE name = $1",
-            [skillName],
-          );
-
-          let skillId: string;
-          if (existingSkill.rows.length > 0) {
-            // Use existing skill
-            skillId = existingSkill.rows[0].id;
-          } else {
-            // Create new skill
-            const newSkill = await client.query(
-              "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
-              [crypto.randomUUID(), skillName, "technical"],
-            );
-            skillId = newSkill.rows[0].id;
-          }
-
-          // Associate skill with candidate
-          await client.query(
-            "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3)",
-            [candidateId, skillId, "intermediate"],
-          );
-        }
       }
     }
 
     // Insert work experience if provided
-    if (
-      parsedData.work_experience &&
-      Array.isArray(parsedData.work_experience)
-    ) {
-      // Check if work_experience table has candidate_id column
-      const workColumnCheck = await client.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'work_experience' 
-        AND column_name = 'candidate_id'
-      `);
+    if (parsedData.work_experience && Array.isArray(parsedData.work_experience)) {
+      // First, delete existing work experience
+      await client.query("DELETE FROM work_experience WHERE candidate_id = $1", [candidateId]);
 
-      if (workColumnCheck.rows.length > 0) {
-        // First, delete existing work experience
-        await client.query(
-          "DELETE FROM work_experience WHERE candidate_id = $1",
-          [candidateId],
-        );
-
-        // Insert new work experience
-        for (const work of parsedData.work_experience) {
-          const workQuery = `
+      // Insert new work experience
+      for (const work of parsedData.work_experience) {
+        const workQuery = `
           INSERT INTO work_experience (candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `;
-          await client.query(workQuery, [
-            candidateId,
-            truncateString(work.job_title || work.title, 255),
-            truncateString(work.company_name || work.company, 255),
-            validateDateFormat(parseDateString(work.start_date || null)),
-            validateDateFormat(parseDateString(work.end_date || null)),
-            work.is_current || false,
-            truncateString(work.description || null, 1000), // Assuming description might be TEXT type
-            truncateString(work.location || null, 255),
-          ]);
-        }
+        await client.query(workQuery, [
+          candidateId,
+          truncateString(work.job_title || work.title, 255),
+          truncateString(work.company_name || work.company, 255),
+          validateDateFormat(parseDateString(work.start_date || null)),
+          validateDateFormat(parseDateString(work.end_date || null)),
+          work.is_current || false,
+          truncateString(work.description || null, 2000),
+          truncateString(work.location || null, 255),
+        ]);
       }
     }
 
     // Insert education if provided
     if (parsedData.education && Array.isArray(parsedData.education)) {
-      // Check if education table has candidate_id column
-      const eduColumnCheck = await client.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'education' 
-        AND column_name = 'candidate_id'
-      `);
+      // First, delete existing education
+      await client.query("DELETE FROM education WHERE candidate_id = $1", [candidateId]);
 
-      if (eduColumnCheck.rows.length > 0) {
-        // First, delete existing education
-        await client.query("DELETE FROM education WHERE candidate_id = $1", [
+      // Insert new education
+      for (const edu of parsedData.education) {
+        const eduQuery = `
+          INSERT INTO education (candidate_id, degree, institution, field_of_study, start_date, end_date, gpa)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `;
+        await client.query(eduQuery, [
           candidateId,
+          truncateString(edu.degree || edu.degree_name, 255),
+          truncateString(edu.institution || edu.institution_name, 255),
+          truncateString(edu.field_of_study || null, 255),
+          validateDateFormat(parseDateString(edu.start_year || edu.start_date || null)),
+          validateDateFormat(parseDateString(edu.end_year || edu.end_date || null)),
+          edu.gpa || null,
         ]);
-
-        // Insert new education
-        for (const edu of parsedData.education) {
-          const eduQuery = `
-            INSERT INTO education (id, candidate_id, degree, institution, field_of_study, start_date, end_date, gpa)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-          `;
-          await client.query(eduQuery, [
-            crypto.randomUUID(), // Generate UUID for education id
-            candidateId,
-            truncateString(edu.degree || edu.degree_name, 255),
-            truncateString(edu.institution || edu.institution_name, 255),
-            truncateString(edu.field_of_study || null, 255),
-            validateDateFormat(parseDateString(edu.start_year || edu.start_date || null)),
-            validateDateFormat(parseDateString(edu.end_year || edu.end_date || null)),
-            edu.gpa || null,
-          ]);
-        }
       }
     }
 

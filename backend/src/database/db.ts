@@ -76,24 +76,29 @@ const ensureSchema = async () => {
       // Add status column if missing
       await client.query(`
         ALTER TABLE candidates 
-        ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending';
+        ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending',
+        ADD COLUMN IF NOT EXISTS tenant_id VARCHAR(255) DEFAULT 'default',
+        ADD COLUMN IF NOT EXISTS consent_given BOOLEAN DEFAULT TRUE,
+        ADD COLUMN IF NOT EXISTS review_status VARCHAR(50) DEFAULT 'pending';
       `);
       
       // Fix work_history / work_experience mismatch
-      const tableCheck = await client.query(`
+      // First check if work_experience exists
+      const expTableCheck = await client.query(`
         SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'work_experience');
       `);
-      if (tableCheck.rows[0].exists) {
-        const historyCheck = await client.query(`
-          SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'work_history');
-        `);
-        if (!historyCheck.rows[0].exists) {
-          await client.query("ALTER TABLE work_experience RENAME TO work_history;");
-          console.log("✅ Renamed work_experience to work_history");
-        }
+      
+      // Then check if work_history exists
+      const histTableCheck = await client.query(`
+        SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'work_history');
+      `);
+
+      if (expTableCheck.rows[0].exists && !histTableCheck.rows[0].exists) {
+        await client.query("ALTER TABLE work_experience RENAME TO work_history;");
+        console.log("✅ Renamed work_experience to work_history");
       }
       
-      // Ensure parsing_jobs exists
+      // Ensure parsing_jobs exists and has all columns
       await client.query(`
         CREATE TABLE IF NOT EXISTS parsing_jobs (
           id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -102,9 +107,20 @@ const ensureSchema = async () => {
           confidence_score DECIMAL(5,4),
           parsed_data JSONB,
           error_message TEXT,
+          filename TEXT,
+          file_path TEXT,
+          started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           completed_at TIMESTAMP WITH TIME ZONE
         );
+      `);
+
+      // Add missing columns to parsing_jobs if it already existed
+      await client.query(`
+        ALTER TABLE parsing_jobs 
+        ADD COLUMN IF NOT EXISTS filename TEXT,
+        ADD COLUMN IF NOT EXISTS file_path TEXT,
+        ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
       `);
 
       console.log("✅ Auto-migrations completed");

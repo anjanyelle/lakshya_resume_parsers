@@ -16,9 +16,28 @@ class SocketService {
     }
 
     const token = useAuthStore.getState().token;
-    const serverUrl =
-      import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+    
+    // Dynamically determine the socket URL
+    let serverUrl = import.meta.env.VITE_SOCKET_URL;
+    const apiUrl = import.meta.env.VITE_API_URL;
 
+    // If VITE_SOCKET_URL is not provided or points to localhost while API is remote, 
+    // derive it from VITE_API_URL.
+    if (!serverUrl || (serverUrl.includes("localhost") && apiUrl && !apiUrl.includes("localhost"))) {
+      if (apiUrl) {
+        // Derive from API URL (strip /api)
+        serverUrl = apiUrl.replace(/\/api\/?$/, "");
+      } else {
+        // Fallback to current origin
+        serverUrl = window.location.origin;
+      }
+    }
+
+    // Ensure we don't have a trailing slash
+    serverUrl = serverUrl.replace(/\/$/, "");
+
+    console.log(`🔌 Connecting to socket at: ${serverUrl}`);
+    
     this.socket = io(serverUrl, {
       auth: {
         token,
