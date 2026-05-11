@@ -171,7 +171,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={220}>
                 <AreaChart data={uploadTrendData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
@@ -205,7 +205,7 @@ export default function DashboardPage() {
             </div>
             <div className="h-[220px] w-full">
               {matchChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minHeight={220}>
                   <BarChart data={matchChartData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} dy={8} />

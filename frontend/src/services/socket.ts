@@ -58,7 +58,14 @@ class SocketService {
     });
 
     this.socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
+      console.error("Socket connection error:", error.message);
+      console.error("Full error object:", error);
+      
+      // Check if it's a transport error
+      if (error.message === "websocket error") {
+        console.warn("WebSocket upgrade failed. Falling back to polling...");
+      }
+      
       this.handleReconnect();
     });
 

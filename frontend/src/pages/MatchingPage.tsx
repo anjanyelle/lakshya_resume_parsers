@@ -300,7 +300,7 @@ export default function MatchingPage() {
             {/* Score Distribution */}
             <div className="bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-5 interactive-box transition-all">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Score Distribution</h3>
-              <ResponsiveContainer width="100%" height={160}>
+              <ResponsiveContainer width="100%" height={160} minHeight={160}>
                 <BarChart data={scoreDistribution} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{ fill: "#94a3b8", fontSize: 10 }} />
@@ -314,7 +314,7 @@ export default function MatchingPage() {
             {/* Recommendation Pie */}
             <div className="bg-white dark:bg-slate-800/40 dark:backdrop-blur-xl rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm p-5 interactive-box transition-all">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-4">Recommendations</h3>
-              <ResponsiveContainer width="100%" height={140}>
+              <ResponsiveContainer width="100%" height={140} minHeight={140}>
                 <PieChart>
                   <Pie data={recommendationData} cx="50%" cy="50%" innerRadius={35} outerRadius={60} paddingAngle={4} dataKey="value">
                     {recommendationData.map((entry, index) => <Cell key={index} fill={entry.color} />)}

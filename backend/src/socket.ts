@@ -77,24 +77,45 @@ const authenticateSocket = async (
 export const createSocketServer = (httpServer: HTTPServer): SocketIOServer => {
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: process.env.CORS_ORIGINS
-        ? process.env.CORS_ORIGINS.split(",")
-        : [
-            "http://localhost:3000",
-            "http://localhost:5173",
-          ],
+      origin: (origin, callback) => {
+        // In development, allow all. In production, be specific.
+        if (!origin || process.env.NODE_ENV === "development" || process.env.ALLOW_ALL_ORIGINS === "true") {
+          callback(null, true);
+        } else {
+          const allowedOrigins = process.env.CORS_ORIGINS
+            ? process.env.CORS_ORIGINS.split(",")
+            : [
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://localhost:4173",
+              ];
+          
+          if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            console.warn(`⚠️ Socket.io: Origin ${origin} not allowed by CORS`);
+            callback(new Error("Not allowed by CORS"));
+          }
+        }
+      },
       methods: ["GET", "POST"],
       credentials: true,
     },
     transports: ["websocket", "polling"],
+    allowEIO3: true,
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   // Use authentication middleware
-  io.use(authenticateSocket as any);
+  io.use((socket, next) => {
+    console.log(`🔌 Incoming socket connection attempt: ${socket.id}`);
+    authenticateSocket(socket as any, next);
+  });
 
   // Handle connections
   io.on("connection", (socket: any) => {
-    console.log(`🔌 User ${socket.userId} connected via Socket.io`);
+    console.log(`✅ User ${socket.userId} (${socket.email}) connected via Socket.io [id: ${socket.id}]`);
 
     // Join user to their personal room (based on userId)
     socket.join(`user:${socket.userId}`);

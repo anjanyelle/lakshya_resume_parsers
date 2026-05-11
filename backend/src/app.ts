@@ -11,33 +11,41 @@ import labelingRoutes from "./routes/labeling.routes";
 const app: Application = express();
 
 // CORS configuration
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5173",
-  "https://lakshya-llm-resume-parser-ated.vercel.app",
-  "https://frontend-one-nu-47.vercel.app", // Added your current Vercel URL directly
-  process.env.FRONTEND_URL,
-  process.env.CORS_ORIGINS,
-].filter(Boolean) as string[];
+const getOrigins = () => {
+  const staticOrigins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "https://lakshya-llm-resume-parser-ated.vercel.app",
+    "https://frontend-one-nu-47.vercel.app",
+  ];
+  
+  const envOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",") : [];
+  const frontendUrl = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [];
+  
+  return [...new Set([...staticOrigins, ...envOrigins, ...frontendUrl])].filter(Boolean);
+};
+
+const allowedOrigins = getOrigins();
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow any origin for now to solve the connection issue
-    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*") || process.env.ALLOW_ALL_ORIGINS === "true") {
+    // In development or if ALLOW_ALL_ORIGINS is set, allow everything
+    if (!origin || process.env.NODE_ENV === "development" || process.env.ALLOW_ALL_ORIGINS === "true") {
+      callback(null, true);
+      return;
+    }
+
+    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
       callback(null, true);
     } else {
-      // For safety, let's also allow anything ending in .vercel.app
-      if (origin.endsWith(".vercel.app")) {
-        callback(null, true);
-      } else {
-        console.log("🚫 CORS blocked for origin:", origin);
-        callback(null, false);
-      }
+      console.warn("🚫 CORS blocked for origin:", origin);
+      callback(null, false);
     }
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 };
 
 // Middleware
