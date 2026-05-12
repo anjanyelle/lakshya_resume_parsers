@@ -19,11 +19,9 @@ export default function ModelTestPage() {
     setResult(null);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      
-      // Call the parse-sections endpoint with the input text
+      // Use relative URL - Vite proxy will forward to AI service on port 8000
       const response = await axios.post(
-        `${baseUrl}/parse-sections`,
+        `/parse-sections`,
         {
           experience_text: inputText,
           education_text: "" // Can be extended to have separate fields

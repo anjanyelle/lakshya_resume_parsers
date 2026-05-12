@@ -1,0 +1,123 @@
+============================================================================
+SIMPLE 2-STEP TESTING IN GOOGLE COLAB
+Fix for the import error you encountered
+============================================================================
+
+🐛 THE PROBLEM:
+The transformers library version conflict caused an import error.
+
+✅ THE SOLUTION:
+Use 2 separate cells with a runtime restart in between.
+
+============================================================================
+📋 STEP-BY-STEP INSTRUCTIONS
+============================================================================
+
+STEP 1: Open Google Colab
+   → Go to: https://colab.research.google.com
+   → Click: New Notebook
+   → Make sure GPU is enabled:
+     Runtime > Change runtime type > GPU > Save
+
+STEP 2: First Cell - Setup
+   → Copy ALL code from: COLAB_TEST_MODEL_FIXED.py
+   → Paste into first cell
+   → Click ▶ Run
+   → Approve Google Drive access
+   → Wait for it to finish
+
+STEP 3: Restart Runtime
+   → Go to: Runtime > Restart runtime
+   → Click "Yes" to confirm
+   → DO NOT run the first cell again!
+
+STEP 4: Second Cell - Run Tests
+   → Create a NEW cell below
+   → Copy ALL code from: COLAB_TEST_CELL_2.py
+   → Paste into the new cell
+   → Click ▶ Run
+   → Wait 2-3 minutes for results
+
+============================================================================
+📊 WHAT YOU'LL SEE
+============================================================================
+
+The script will run 3 tests and show:
+
+TEST 1: Work Experience
+   Expected: 8 entities
+   Extracted: X entities
+   ✅ Correct: X
+   ❌ Wrong: X
+   ⚠️  Missed: X
+   📊 F1: XX%
+
+TEST 2: Education Background
+   (similar output)
+
+TEST 3: Multiple Roles
+   (similar output)
+
+OVERALL PERFORMANCE:
+   📈 Average F1 Score: XX%
+
+PRODUCTION-READINESS DECISION:
+   ✅ READY FOR PRODUCTION (if F1 ≥ 75%)
+   OR
+   ⚠️  NOT RECOMMENDED (if F1 < 75%)
+
+============================================================================
+🎯 MAKING THE DECISION
+============================================================================
+
+IF F1 ≥ 75%:
+   ✅ USE THE MODEL
+   ✅ Integrate into your pipeline
+   ✅ Model is good enough for production
+
+IF F1 < 75%:
+   ❌ SKIP THIS MODEL
+   ❌ Don't use in production
+   💡 Retrain with more/better data
+
+============================================================================
+🔧 IF MODEL PATH IS DIFFERENT
+============================================================================
+
+In COLAB_TEST_CELL_2.py, line 18, change:
+
+MODEL_PATH = '/content/drive/MyDrive/Resume-NER-Models-New/resume-ner-deberta'
+
+To your actual path. To find it:
+1. Open Google Drive in browser
+2. Navigate to your model folder
+3. Right-click > Get link
+4. The path is: MyDrive/[folder]/[subfolder]/resume-ner-deberta
+
+============================================================================
+💡 TIPS
+============================================================================
+
+1. The runtime restart is REQUIRED - don't skip it
+2. Don't run the first cell after restart
+3. The test takes 2-3 minutes - be patient
+4. You'll see extracted entities with confidence scores
+5. The script tells you exactly what to do
+
+============================================================================
+🐛 TROUBLESHOOTING
+============================================================================
+
+ERROR: Model not found
+   → Check MODEL_PATH in COLAB_TEST_CELL_2.py line 18
+   → Make sure model was saved to Google Drive
+
+ERROR: Still getting import errors
+   → Make sure you restarted the runtime
+   → Make sure you're running CELL 2, not CELL 1 again
+
+Slow performance
+   → Normal for 370MB model
+   → Use GPU runtime for faster testing
+
+============================================================================

@@ -1,0 +1,51 @@
+═══════════════════════════════════════════════════════════════
+  LAKSHYA RESUME NER - GOOGLE COLAB QUICK START
+═══════════════════════════════════════════════════════════════
+
+📤 STEP 1: UPLOAD TO COLAB
+──────────────────────────────────────────────────────────────
+In a new Colab notebook cell:
+
+    from google.colab import files
+    uploaded = files.upload()
+
+Then select: Lakshya-Colab-Training.zip
+
+
+📦 STEP 2: EXTRACT & NAVIGATE
+──────────────────────────────────────────────────────────────
+    !unzip -q Lakshya-Colab-Training.zip
+    %cd Lakshya-Colab-Training/ai-service
+    !pwd
+
+
+🔧 STEP 3: INSTALL DEPENDENCIES
+──────────────────────────────────────────────────────────────
+    !pip install -q transformers==4.44.0 datasets==2.19.0 \
+                    accelerate==0.33.0 evaluate==0.4.1 \
+                    seqeval scikit-learn torch==2.4.0
+
+
+🏋️ STEP 4: START TRAINING
+──────────────────────────────────────────────────────────────
+    !python training/train_colab_standalone.py
+
+⏱️  Training takes ~60-70 minutes on T4 GPU
+
+
+💾 STEP 5: DOWNLOAD MODEL
+──────────────────────────────────────────────────────────────
+    !zip -r resume-ner-deberta.zip models/resume-ner-deberta
+    files.download('resume-ner-deberta.zip')
+
+
+✅ DONE!
+──────────────────────────────────────────────────────────────
+Your trained model is now downloaded!
+
+Expected Results:
+  • Precision: ~97%
+  • Recall: ~96%
+  • F1 Score: ~96%
+
+═══════════════════════════════════════════════════════════════

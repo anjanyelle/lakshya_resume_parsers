@@ -12,7 +12,7 @@ export type CorrectionRecord = {
 
 export const fetchRecentCorrections = async (limit = 50) => {
   const response = await apiClient.get<CorrectionRecord[]>(
-    `/api/v1/corrections/recent?limit=${limit}`,
+    `/api/corrections/recent?limit=${limit}`,
   );
   return response.data;
 };

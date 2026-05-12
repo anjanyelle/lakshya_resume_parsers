@@ -1,7 +1,7 @@
 # 🎯 Model Improvement Plan - Target F1 > 0.80
 
 ## 📊 Current Performance
-- **F1 Score:** 0.47 ❌ (needs improvement)
+- **F1 Score:** 67.55%  
 - **Precision:** 0.38 ❌ (low)
 - **Recall:** 0.62 ⚠️ (okay-ish)
 - **Target:** F1 > 0.80 ✅

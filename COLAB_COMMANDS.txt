@@ -1,0 +1,47 @@
+═══════════════════════════════════════════════════════════════════════════
+  GOOGLE COLAB TRAINING - COPY & PASTE COMMANDS
+═══════════════════════════════════════════════════════════════════════════
+
+📤 STEP 1: UPLOAD ZIP FILE
+──────────────────────────────────────────────────────────────────────────
+from google.colab import files
+uploaded = files.upload()
+
+
+📦 STEP 2: EXTRACT & NAVIGATE
+──────────────────────────────────────────────────────────────────────────
+import os
+os.chdir('/content')
+!unzip -q Lakshya-Colab-Training.zip
+%cd Lakshya-Colab-Training/ai-service
+!ls -lh training/data/
+
+
+🔧 STEP 3: INSTALL DEPENDENCIES
+──────────────────────────────────────────────────────────────────────────
+!pip install -q transformers==4.44.0 datasets==2.19.0 accelerate==0.33.0 evaluate==0.4.1 seqeval scikit-learn torch==2.4.0
+
+
+🏋️ STEP 4: START TRAINING (~60-70 minutes)
+──────────────────────────────────────────────────────────────────────────
+!python training/train_colab_standalone.py
+
+
+💾 STEP 5: SAVE TO GOOGLE DRIVE
+──────────────────────────────────────────────────────────────────────────
+from google.colab import drive
+drive.mount('/content/drive')
+!mkdir -p "/content/drive/MyDrive/Resume-NER-Models"
+!cp -r models/resume-ner-deberta "/content/drive/MyDrive/Resume-NER-Models/"
+
+
+📥 STEP 6: DOWNLOAD MODEL
+──────────────────────────────────────────────────────────────────────────
+!cd models && zip -r resume-ner-deberta.zip resume-ner-deberta
+from google.colab import files
+files.download('models/resume-ner-deberta.zip')
+
+
+═══════════════════════════════════════════════════════════════════════════
+✅ DONE! Your model is trained and downloaded.
+═══════════════════════════════════════════════════════════════════════════

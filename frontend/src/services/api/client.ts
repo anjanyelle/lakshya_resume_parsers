@@ -31,7 +31,7 @@ const refreshToken = async () => {
     clearTokens();
     throw new Error("Missing refresh token");
   }
-  const response = await authClient.post("/api/v1/auth/refresh", {
+  const response = await authClient.post("/api/auth/refresh", {
     refresh_token: token,
   });
   const { access_token, refresh_token } = response.data;

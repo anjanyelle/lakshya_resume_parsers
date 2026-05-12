@@ -278,6 +278,9 @@ class DeBERTaNerParser:
             
             logger.info(f"✅ DeBERTa extracted {entity_count} entities from focused sections")
             
+            # Store original text for position-based grouping
+            all_entities['_original_text'] = sections.get('work_experience_text', text)
+            
             # Convert to expected format
             return self._format_results(all_entities)
             
@@ -338,7 +341,8 @@ class DeBERTaNerParser:
         
         # Extract work experience text
         if work_start != -1 and work_end != -1:
-            work_lines = lines[work_start:work_end]
+            # Skip the header line (work_start) and extract content only
+            work_lines = lines[work_start + 1:work_end]
             sections['work_experience_text'] = '\n'.join(work_lines).strip()
         else:
             # If no section headers found, assume entire text is work experience
@@ -367,7 +371,8 @@ class DeBERTaNerParser:
         
         # Extract education text
         if edu_start != -1 and edu_end != -1:
-            edu_lines = lines[edu_start:edu_end]
+            # Skip the header line (edu_start) and extract content only
+            edu_lines = lines[edu_start + 1:edu_end]
             sections['education_text'] = '\n'.join(edu_lines).strip()
         
         # Limit to reasonable length (prevent too much text)
@@ -678,7 +683,7 @@ class DeBERTaNerParser:
         return ' '.join(result_parts)
     
     def _parse_single_section(self, text: str, section_type: str) -> Dict[str, List[str]]:
-        """Parse a single section with DeBERTa using production-ready pipeline."""
+        """Parse a single section with DeBERTa using Hugging Face pipeline with aggregation."""
         if not text or not text.strip():
             logger.warning(f"Empty {section_type} section, skipping DeBERTa parsing")
             return {}
@@ -695,8 +700,6 @@ class DeBERTaNerParser:
         logger.info(f"   Text preview: {text[:300]}...")
         
         # Initialize entities with label names from trained model
-        # CRITICAL: Include both EDUCATION and INSTITUTION to handle model variations
-        # Store entities with positions for proximity-based grouping
         entities_with_positions = []  # List of {type, text, start, end}
         entities = {
             'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
@@ -705,124 +708,171 @@ class DeBERTaNerParser:
             'EDU_YEAR_START': [], 'EDU_YEAR_END': []
         }
         
-        # Tokenize and predict with offset mapping for accurate text extraction
-        inputs = self.tokenizer(
-            text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=2048,  # Increased from 1024 to handle resumes with 5+ jobs
-            return_offsets_mapping=True
-        )
-        offset_mapping = inputs.pop("offset_mapping")[0]
-        
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-        
-        # Get predictions and confidence scores
-        logits = outputs.logits[0]
-        probabilities = torch.softmax(logits, dim=1)
-        predictions = torch.argmax(logits, dim=1)
-        confidences = torch.max(probabilities, dim=1)[0]
-        
-        tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
-        
-        # Log raw predictions with confidence scores for debugging
-        raw_entities_found = []
-        role_predictions = []
-        company_predictions = []
-        
-        for idx, (token, pred_id, confidence) in enumerate(zip(tokens, predictions, confidences)):
-            if token not in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
+        # Use Hugging Face pipeline with aggregation to properly combine multi-token entities
+        try:
+            from transformers import pipeline
+            
+            # Create NER pipeline with aggregation strategy
+            ner_pipeline = pipeline(
+                "ner",
+                model=self.model,
+                tokenizer=self.tokenizer,
+                aggregation_strategy="simple",  # Better for combining full entity text
+                device=-1  # CPU
+            )
+            
+            # Run prediction
+            predictions = ner_pipeline(text)
+            
+            # Manually aggregate consecutive entities of the same type
+            # (pipeline aggregation doesn't always work perfectly with DeBERTa tokenizer)
+            aggregated = []
+            current_entity = None
+            
+            for pred in predictions:
+                entity_type = pred['entity_group']
+                entity_start = pred['start']
+                entity_end = pred['end']
+                
+                # Increase proximity window to 5 chars to catch space-separated tokens
+                if current_entity and current_entity['type'] == entity_type and entity_start <= current_entity['end'] + 5:
+                    # Extend current entity
+                    current_entity['end'] = entity_end
+                else:
+                    # Save previous and start new
+                    if current_entity:
+                        aggregated.append(current_entity)
+                    current_entity = {
+                        'type': entity_type,
+                        'start': entity_start,
+                        'end': entity_end
+                    }
+            
+            # Save last entity
+            if current_entity:
+                aggregated.append(current_entity)
+            
+            # Convert aggregated predictions to our format
+            for agg in aggregated:
+                entity_type = agg['type']
+                entity_start = agg['start']
+                entity_end = agg['end']
+                
+                # Extract full text from original string using positions
+                entity_text = text[entity_start:entity_end].strip()
+                
+                # CRITICAL FIX: Clean up entities that span multiple lines
+                # If entity contains newline, split and take the longest meaningful part
+                if '\n' in entity_text:
+                    lines = [line.strip() for line in entity_text.split('\n') if line.strip()]
+                    if lines:
+                        # Take the first non-empty line (usually the actual entity)
+                        # For ROLE: "Full Stack Developer\nGatnix" -> "Full Stack Developer"
+                        # For COMPANY: "Gatnix\nTechnologies" -> keep both if short
+                        if len(lines) == 1:
+                            entity_text = lines[0]
+                        elif entity_type in ['COMPANY', 'INSTITUTION']:
+                            # For companies/institutions, join short lines (e.g., "Tech\nSolutions" -> "Tech Solutions")
+                            if all(len(line) < 20 for line in lines):
+                                entity_text = ' '.join(lines)
+                            else:
+                                entity_text = lines[0]
+                        else:
+                            # For other types (ROLE, LOCATION), take first line only
+                            entity_text = lines[0]
+                
+                # Map entity types to our schema
+                if entity_type in entities and entity_text:
+                    entities[entity_type].append(entity_text)
+                    entities_with_positions.append({
+                        'type': entity_type,
+                        'text': entity_text,
+                        'start': entity_start,
+                        'end': entity_end
+                    })
+            
+            logger.info(f"✅ Pipeline extracted {len(predictions)} aggregated entities")
+            
+        except Exception as e:
+            logger.warning(f"Pipeline aggregation failed: {e}, falling back to manual extraction")
+            
+            # Fallback to manual token-by-token extraction
+            inputs = self.tokenizer(
+                text,
+                return_tensors="pt",
+                truncation=True,
+                max_length=2048,
+                return_offsets_mapping=True
+            )
+            offset_mapping = inputs.pop("offset_mapping")[0]
+            
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+            
+            predictions = torch.argmax(outputs.logits[0], dim=1)
+            tokens = self.tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
+            
+            # Extract entities using offset mapping for accurate text (fallback only)
+            current_entity = None
+            current_text = ""
+            current_label = None
+            current_start = None
+            
+            for idx, (token, pred_id, offset) in enumerate(zip(tokens, predictions, offset_mapping)):
+                if token in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
+                    continue
+                
                 label = self.id_to_label[pred_id.item()]
-                if label != 'O':  # Not "Outside" label
-                    raw_entities_found.append(f"{token}:{label}({confidence:.2f})")
+                start, end = offset
+                
+                if start == end:
+                    continue
+                
+                actual_text = text[start:end]
+                
+                if label.startswith('B-'):
+                    if current_entity and current_text and current_start is not None:
+                        clean_text = current_text.strip()
+                        if clean_text and current_entity in entities:
+                            entities[current_entity].append(clean_text)
+                            entities_with_positions.append({
+                                'type': current_entity,
+                                'text': clean_text,
+                                'start': current_start,
+                                'end': start
+                            })
                     
-                    # Track ROLE predictions specifically
-                    if 'ROLE' in label:
-                        role_predictions.append(f"{token}:{label}({confidence:.2f})")
-                    elif 'COMPANY' in label:
-                        company_predictions.append(f"{token}:{label}({confidence:.2f})")
-        
-        if raw_entities_found:
-            logger.info(f"   🎯 Raw model predictions: {', '.join(raw_entities_found[:30])}")
-            if role_predictions:
-                logger.info(f"   👔 ROLE predictions: {', '.join(role_predictions)}")
-            if company_predictions:
-                logger.info(f"   🏢 COMPANY predictions: {', '.join(company_predictions)}")
-        else:
-            logger.warning(f"   ⚠️ Model predicted NO entities (all 'O' labels)")
-        
-        # Extract entities using offset mapping for accurate text
-        current_entity = None
-        current_text = ""
-        current_label = None
-        current_start = None  # Track start position
-        
-        for idx, (token, pred_id, offset) in enumerate(zip(tokens, predictions, offset_mapping)):
-            if token in ['<s>', '</s>', '<pad>', '[CLS]', '[SEP]', '[PAD]']:
-                continue
+                    current_label = label[2:]
+                    current_text = actual_text
+                    current_entity = current_label
+                    current_start = start
+                    
+                elif label.startswith('I-') and current_entity and label[2:] == current_label:
+                    current_text += actual_text
+                    
+                else:
+                    if current_entity and current_text and current_start is not None:
+                        clean_text = current_text.strip()
+                        if clean_text and current_entity in entities:
+                            entities[current_entity].append(clean_text)
+                            entities_with_positions.append({
+                                'type': current_entity,
+                                'text': clean_text,
+                                'start': current_start,
+                                'end': start
+                            })
+                        current_entity = None
+                        current_text = ""
+                        current_label = None
+                        current_start = None
             
-            label = self.id_to_label[pred_id.item()]
-            start, end = offset
-            
-            if start == end:  # Special token
-                continue
-            
-            actual_text = text[start:end]
-            
-            if label.startswith('B-'):
-                # Save previous entity with position
-                if current_entity and current_text and current_start is not None:
-                    clean_text = current_text.strip()
-                    # Validation filters disabled for testing - add entity with position
-                    if clean_text and current_entity in entities:
-                        entities[current_entity].append(clean_text)
-                        # Store entity with position for proximity grouping
-                        entities_with_positions.append({
-                            'type': current_entity,
-                            'text': clean_text,
-                            'start': current_start,
-                            'end': start  # End is start of current token
-                        })
-                
-                # Start new entity
-                current_label = label[2:]
-                current_text = actual_text
-                current_entity = current_label
-                current_start = start  # Track start position
-                
-            elif label.startswith('I-') and current_entity and label[2:] == current_label:
-                # Continue entity
-                current_text += actual_text
-                
-            else:
-                # End entity
-                if current_entity and current_text and current_start is not None:
-                    clean_text = current_text.strip()
-                    # Validation filters disabled for testing - add entity with position
-                    if clean_text and current_entity in entities:
-                        entities[current_entity].append(clean_text)
-                        # Store entity with position for proximity grouping
-                        entities_with_positions.append({
-                            'type': current_entity,
-                            'text': clean_text,
-                            'start': current_start,
-                            'end': start
-                        })
-                    current_entity = None
-                    current_text = ""
-                    current_label = None
-                    current_start = None
-        
-        # Save final entity with position
-        if current_entity and current_text and current_start is not None:
-            clean_text = current_text.strip()
-            # Validation filters disabled for testing - add entity with position
-            if clean_text and current_entity in entities:
-                entities[current_entity].append(clean_text)
-                # Store entity with position for proximity grouping
-                entities_with_positions.append({
-                    'type': current_entity,
+            # Save final entity
+            if current_entity and current_text and current_start is not None:
+                clean_text = current_text.strip()
+                if clean_text and current_entity in entities:
+                    entities[current_entity].append(clean_text)
+                    entities_with_positions.append({
+                        'type': current_entity,
                     'text': clean_text,
                     'start': current_start,
                     'end': len(text)  # End at text length
@@ -834,15 +884,30 @@ class DeBERTaNerParser:
             logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type} after validation filters")
             logger.warning(f"   This could mean: (1) Model didn't detect entities, or (2) Validation filters rejected them")
         else:
-            logger.info(f"✅ DeBERTa extracted from {section_type} (after filters): {entity_summary}")
+            logger.info(f"✅ DeBERTa extracted from {section_type} (before hybrid post-processing): {entity_summary}")
             if entities.get('ROLE'):
                 logger.info(f"   Roles extracted: {entities['ROLE']}")
             if entities.get('COMPANY'):
                 logger.info(f"   Companies extracted: {entities['COMPANY'][:5]}")  # First 5
             logger.info(f"   Total entities with positions: {len(entities_with_positions)}")
         
-        # Store positions for proximity-based grouping
+        # Store positions for proximity-based grouping (before hybrid processing)
         entities['_positions'] = entities_with_positions
+        
+        # Apply hybrid post-processing (filters + rule-based person name extraction)
+        # This will update _positions if needed
+        try:
+            from parsers.hybrid_ner_postprocessor import apply_hybrid_postprocessing
+            entities = apply_hybrid_postprocessing(entities, text)
+            
+            # Log after hybrid processing
+            entity_summary_after = {k: len(v) for k, v in entities.items() if v and k != '_positions'}
+            logger.info(f"✅ After hybrid post-processing: {entity_summary_after}")
+            if entities.get('PERSON_NAME'):
+                logger.info(f"   Person names added: {entities['PERSON_NAME']}")
+        except Exception as e:
+            logger.warning(f"⚠️ Hybrid post-processing failed: {e}, using original entities")
+        
         return entities
     
     def _is_person_name(self, text: str) -> bool:
@@ -1276,33 +1341,36 @@ class DeBERTaNerParser:
             end_dates = []
         else:
             # Extract from DeBERTa NER (uppercase keys)
-            companies = entities.get('COMPANY', [])
-            roles = entities.get('ROLE', [])
-            locations = entities.get('LOCATION', [])
-            start_dates = entities.get('START_DATE', entities.get('DATE_START', []))
-            end_dates = entities.get('END_DATE', entities.get('DATE_END', []))
+            # Use DeBERTaExperienceBuilder for proper entity grouping by proximity
+            from .deberta_experience_builder import DeBERTaExperienceBuilder
             
-            # Build structured work experience
+            experience_builder = DeBERTaExperienceBuilder()
+            
+            # Get the original text from entities if available
+            text = entities.get('_original_text', '')
+            
+            # Build experiences using position-based grouping
+            structured_experiences = experience_builder.build_experiences_from_entities(entities, text)
+            
+            # Convert to API format
             work_experience = []
-            max_entries = max(len(companies), len(roles))
-            
-            for i in range(max_entries):
-                exp = {
-                    'company': companies[i] if i < len(companies) else '',
-                    'role': roles[i] if i < len(roles) else '',
-                    'location': locations[i] if i < len(locations) else '',
-                    'start_date': start_dates[i] if i < len(start_dates) else None,
-                    'end_date': end_dates[i] if i < len(end_dates) else None,
-                    'description': '',
+            for exp in structured_experiences:
+                work_experience.append({
+                    'company': exp.get('company_name', ''),
+                    'role': exp.get('job_title', ''),
+                    'location': exp.get('location', ''),
+                    'start_date': exp.get('start_date'),
+                    'end_date': exp.get('end_date'),
+                    'description': exp.get('description', ''),
                     'source': 'deberta_ner'
-                }
-                # Only add if has company or role
-                if exp['company'] or exp['role']:
-                    work_experience.append(exp)
+                })
             
-            companies_list = companies
-            job_titles = roles
-            locations_list = locations
+            # Extract lists for compatibility
+            companies_list = [exp.get('company_name', '') for exp in structured_experiences]
+            job_titles = [exp.get('job_title', '') for exp in structured_experiences]
+            locations_list = [exp.get('location', '') for exp in structured_experiences]
+            start_dates = [exp.get('start_date') for exp in structured_experiences]
+            end_dates = [exp.get('end_date') for exp in structured_experiences]
         
         # Extract education - FIXED to handle DEGREE-only cases
         education = []

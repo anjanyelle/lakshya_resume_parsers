@@ -1,0 +1,16 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-docx
+transformers
+torch
+sentence-transformers
+dateparser
+phonenumbers
+scikit-learn
+thefuzz
+python-Levenshtein
+python-multipart
+datasets
+evaluate
+accelerate

@@ -5,8 +5,8 @@ export const uploadResume = async (
   onProgress?: (progress: number) => void,
 ) => {
   const formData = new FormData();
-  formData.append("file", file);
-  const response = await apiClient.post("/api/v1/upload", formData, {
+  formData.append("resume", file);
+  const response = await apiClient.post("/api/upload/resume", formData, {
     headers: { "Content-Type": "multipart/form-data" },
     onUploadProgress: (event) => {
       if (!event.total) return;
@@ -14,13 +14,12 @@ export const uploadResume = async (
       onProgress?.(progress);
     },
   });
-  const job = response.data.jobs?.[0];
-  return job?.job_id as string;
+  return response.data;
 };
 
 export const fetchJobStatus = async (jobId: string) => {
   const response = await apiClient.get<{ status: string }>(
-    `/api/v1/jobs/${jobId}/status`,
+    `/api/jobs/${jobId}/status`,
   );
   return response.data.status;
 };
@@ -39,6 +38,6 @@ export const fetchJobExtractionDebug = async (jobId: string) => {
     parsed_summary_length: number;
     text_extraction_method?: string;
     used_ocr?: boolean;
-  }>(`/api/v1/jobs/${jobId}/extraction-debug`);
+  }>(`/api/jobs/${jobId}/extraction-debug`);
   return response.data;
 };

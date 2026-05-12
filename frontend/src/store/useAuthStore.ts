@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({ isLoading: true });
         try {
           const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/v1/auth/login`,
+            `${import.meta.env.VITE_API_URL}/api/auth/login`,
             {
               method: "POST",
               headers: {
@@ -54,18 +54,19 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           }
 
           const data = await response.json();
-          const { access_token } = data;
+          const { token, user: userData } = data;
 
-          // Create a basic user object from the email
+          // Use the user data from backend response
           const user = {
-            id: email, // We'll use email as ID for now
-            email: email,
-            role: "admin",
+            id: userData?.id || email,
+            email: userData?.email || email,
+            name: userData?.name,
+            role: userData?.role || "admin",
           };
 
           set({
             user,
-            token: access_token,
+            token: token,
             isAuthenticated: true,
             isLoading: false,
           });

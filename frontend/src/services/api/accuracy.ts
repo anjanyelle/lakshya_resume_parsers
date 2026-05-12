@@ -19,7 +19,7 @@ export type AccuracyOverview = {
 
 export const fetchAccuracyOverview = async () => {
   const response = await apiClient.get<AccuracyOverview>(
-    "/api/v1/accuracy/overview",
+    "/api/accuracy/overview",
   );
   return response.data;
 };

@@ -250,11 +250,11 @@ export default function UploadPage() {
   const extractSections = async (file: File): Promise<SectionData | null> => {
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("resume", file);
 
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
       const response = await axios.post(
-        `${baseUrl}/api/v1/upload`,
+        `${baseUrl}/api/upload/resume`,
         formData,
         {
           headers: {
@@ -264,16 +264,10 @@ export default function UploadPage() {
         }
       );
 
-      // Python backend returns different structure
-      const sections: SectionData = {};
-      if (response.data.jobs?.[0]?.parsed_data?.work_experience) {
-        sections.experience = JSON.stringify(response.data.jobs[0].parsed_data.work_experience, null, 2);
-      }
-      if (response.data.jobs?.[0]?.parsed_data?.education) {
-        sections.education = JSON.stringify(response.data.jobs[0].parsed_data.education, null, 2);
-      }
-
-      return sections;
+      // Backend returns { success, message, data: { candidateId, jobId, ... } }
+      // For now, return empty sections since parsing happens asynchronously
+      // The actual parsed data will be available later via the job status endpoint
+      return {};
     } catch (error) {
       console.error("Error extracting sections:", error);
       return null;
@@ -363,9 +357,9 @@ export default function UploadPage() {
     setParsedSections(null);
 
     try {
-      const aiServiceUrl = "http://localhost:8000";
+      // Use relative URL - Vite proxy will forward to AI service on port 8000
       const response = await axios.post<ParsedSectionsResponse>(
-        `${aiServiceUrl}/parse-sections`,
+        `/parse-sections`,
         {
           experience_text: extractedSections.experience?.text || "",
           education_text: extractedSections.education?.text || "",

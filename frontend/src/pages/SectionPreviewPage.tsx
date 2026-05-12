@@ -204,9 +204,9 @@ export default function SectionPreviewPage() {
     setParsedData(null);
 
     try {
-      const aiServiceUrl = "http://localhost:8000";
+      // Use relative URL - Vite proxy will forward to AI service on port 8000
       const response = await axios.post<ParsedSectionsResponse>(
-        `${aiServiceUrl}/parse-sections`,
+        `/parse-sections`,
         {
           experience_text: previewData.sections.experience?.text || null,
           education_text: previewData.sections.education?.text || null,
