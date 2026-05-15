@@ -31,6 +31,28 @@ class DeBERTaExperienceBuilder:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        
+        # Common technology names that should NOT be treated as companies
+        self.tech_keywords = {
+            # Cloud & Infrastructure
+            'aws', 'azure', 'gcp', 'google cloud', 'cloud', 'docker', 'kubernetes', 'k8s',
+            # Databases
+            'sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'cassandra', 'dynamodb', 'snowflake',
+            # Programming Languages
+            'python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'ruby', 'go', 'rust', 'scala',
+            # Frameworks & Libraries
+            'react', 'angular', 'vue', 'node', 'nodejs', 'express', 'django', 'flask', 'spring',
+            'tensorflow', 'pytorch', 'keras', 'pandas', 'numpy', 'spark', 'hadoop',
+            # Data Tools
+            'tableau', 'power bi', 'looker', 'dbt', 'airflow', 'kafka', 'etl', 'elt',
+            'apache', 'databricks', 'redshift', 'bigquery',
+            # DevOps & Tools
+            'jenkins', 'gitlab', 'github', 'jira', 'confluence', 'terraform', 'ansible',
+            'git', 'ci/cd', 'cicd',
+            # Other
+            'api', 'rest', 'graphql', 'microservices', 'agile', 'scrum', 'ml', 'ai',
+            'data', 'analytics', 'bi', 'etl', 'pipeline', 'workflow', 'automation'
+        }
     
     def build_experiences_from_entities(self, entities: Dict[str, List[str]], text: str) -> List[Dict[str, Any]]:
         """
@@ -95,13 +117,47 @@ class DeBERTaExperienceBuilder:
             List of structured work experience dictionaries
         """
         # Separate entities by type with positions
-        companies = [e for e in positions_data if e['type'] == 'COMPANY']
+        companies_raw = [e for e in positions_data if e['type'] == 'COMPANY']
         roles = [e for e in positions_data if e['type'] == 'ROLE']
         locations = [e for e in positions_data if e['type'] == 'LOCATION']
         start_dates = [e for e in positions_data if e['type'] in ['START_DATE', 'DATE_START']]
         end_dates = [e for e in positions_data if e['type'] in ['END_DATE', 'DATE_END']]
         
-        self.logger.info(f"📊 Position-based entities: {len(companies)} companies, {len(roles)} roles, {len(locations)} locations")
+        # Filter out technology keywords from companies
+        companies = []
+        filtered_count = 0
+        for company in companies_raw:
+            company_text = company['text'].lower().strip()
+            
+            # Check if it's an exact match with tech keywords
+            if company_text in self.tech_keywords:
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered tech keyword: '{company['text']}'")
+                continue
+            
+            # Check if any tech keyword is part of the company name
+            is_tech = False
+            for tech in self.tech_keywords:
+                if tech in company_text or company_text in tech:
+                    filtered_count += 1
+                    self.logger.debug(f"🔧 Filtered tech keyword (partial match): '{company['text']}' (matched '{tech}')")
+                    is_tech = True
+                    break
+            if is_tech:
+                continue
+            
+            # Check if it's a very short name (likely an acronym for a tech)
+            if len(company_text) <= 2 and company_text not in ['ge', 'hp', 'at&t']:
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered short name: '{company['text']}'")
+                continue
+            
+            companies.append(company)
+        
+        if filtered_count > 0:
+            self.logger.info(f"🔧 Filtered {filtered_count} technology keywords from {len(companies_raw)} companies")
+        
+        self.logger.info(f"� Position-based entities: {len(companies)} companies (after filtering), {len(roles)} roles, {len(locations)} locations")
         
         if not companies:
             self.logger.warning("No companies found - cannot build experiences")

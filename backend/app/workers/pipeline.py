@@ -2787,6 +2787,15 @@ def task_parse_work_experience(self, job_id: str) -> str:  # noqa: ANN001
                 ambiguous_headers += 1
                 continue
 
+        # Helper function to parse work experience deterministically
+        def _parse_deterministic(text: str) -> list:
+            """Parse work experience using rule-based extraction"""
+            try:
+                from app.parsers.experience_parser import parse_work_experience_section
+                return parse_work_experience_section(text)
+            except:
+                return []
+        
         excerpt_score: float | None = None
         if excerpt.strip():
             excerpt_jobs = _parse_deterministic(excerpt)

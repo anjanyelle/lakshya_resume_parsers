@@ -254,7 +254,7 @@ export default function UploadPage() {
 
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
       const response = await axios.post(
-        `${baseUrl}/api/upload/resume`,
+        `${baseUrl}/api/upload/preview-sections`,
         formData,
         {
           headers: {
@@ -264,12 +264,12 @@ export default function UploadPage() {
         }
       );
 
-      // Backend returns { success, message, data: { candidateId, jobId, ... } }
-      // For now, return empty sections since parsing happens asynchronously
-      // The actual parsed data will be available later via the job status endpoint
-      return {};
-    } catch (error) {
+      // Backend returns extracted sections
+      return response.data.sections || {};
+    } catch (error: any) {
       console.error("Error extracting sections:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
       return null;
     }
   };

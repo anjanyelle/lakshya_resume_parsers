@@ -1380,6 +1380,22 @@ class DeBERTaNerParser:
         edu_start = entities.get('EDU_YEAR_START', [])
         edu_end = entities.get('EDU_YEAR_END', [])
         
+        # Fallback: If institutions not extracted but degrees exist, try regex extraction
+        if not institutions and degrees and combined_text:
+            import re
+            # Common institution patterns
+            inst_patterns = [
+                r'\b(JNTU|IIT|NIT|IIIT|BITS|MIT|Stanford|Harvard|Berkeley|CMU)\s*(?:Hyderabad|Delhi|Mumbai|Bangalore|Chennai|Pune)?\b',
+                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:University|College|Institute)\b',
+                r'\b([A-Z]{2,5})\s+(?:University|College|Institute)\b'
+            ]
+            for pattern in inst_patterns:
+                matches = re.findall(pattern, combined_text, re.IGNORECASE)
+                if matches:
+                    institutions = [m if isinstance(m, str) else m[0] for m in matches[:len(degrees)]]
+                    logger.info(f"🔧 Fallback extracted {len(institutions)} institutions: {institutions}")
+                    break
+        
         # Build education entries
         max_edu = max(len(institutions), len(degrees)) if (institutions or degrees) else 0
         
