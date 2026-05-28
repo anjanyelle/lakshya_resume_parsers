@@ -1381,7 +1381,8 @@ class DeBERTaNerParser:
         edu_end = entities.get('EDU_YEAR_END', [])
         
         # Fallback: If institutions not extracted but degrees exist, try regex extraction
-        if not institutions and degrees and combined_text:
+        original_text = entities.get('_original_text', '')
+        if not institutions and degrees and original_text:
             import re
             # Common institution patterns
             inst_patterns = [
@@ -1390,7 +1391,7 @@ class DeBERTaNerParser:
                 r'\b([A-Z]{2,5})\s+(?:University|College|Institute)\b'
             ]
             for pattern in inst_patterns:
-                matches = re.findall(pattern, combined_text, re.IGNORECASE)
+                matches = re.findall(pattern, original_text, re.IGNORECASE)
                 if matches:
                     institutions = [m if isinstance(m, str) else m[0] for m in matches[:len(degrees)]]
                     logger.info(f"🔧 Fallback extracted {len(institutions)} institutions: {institutions}")
