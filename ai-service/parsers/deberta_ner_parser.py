@@ -1408,9 +1408,19 @@ class DeBERTaNerParser:
         institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
         degrees = entities.get('DEGREE', [])
         
-        # FIX: Filter out single-letter FIELD fragments (e.g., "S" from "M.S.")
+        # FIX: Filter out single-letter FIELD fragments AND clean parentheses corruption
         raw_fields = entities.get('FIELD', [])
-        fields = [f for f in raw_fields if len(f) > 1 or not f.isupper()]
+        fields = []
+        for f in raw_fields:
+            # Skip single uppercase letters
+            if len(f) == 1 and f.isupper():
+                continue
+            # Skip fields that are just punctuation like "("
+            if f in ['(', ')', '.', ',']:
+                logger.info(f"🔧 Skipping punctuation FIELD: '{f}'")
+                continue
+            fields.append(f)
+        
         if len(fields) != len(raw_fields):
             logger.info(f"🔧 Filtered FIELD fragments: {raw_fields} -> {fields}")
         
@@ -1440,13 +1450,27 @@ class DeBERTaNerParser:
         processed_degrees = []
         original_text = entities.get('_original_text', '')
         
-        # First, filter out low-confidence single-letter fragments
+        # First, filter out low-confidence single-letter fragments AND deduplicate abbreviations
         filtered_degrees = []
+        seen_abbrevs = set()
+        
         for degree in degrees:
             # Skip single letters with low confidence (e.g., "B", "E", "M", "S")
             if len(degree) == 1 and degree.isupper():
                 logger.info(f"🔧 Skipping single-letter degree fragment: '{degree}'")
                 continue
+            
+            # Skip standalone abbreviations if we already have the full degree
+            # e.g., if we have "Bachelor of Technology", skip "B.Tech"
+            if '.' in degree and len(degree) <= 10:
+                # This looks like an abbreviation (B.Tech, M.Tech, M.S., etc.)
+                # Check if we already have a full degree that matches
+                abbrev_prefix = degree.split('.')[0].upper()
+                if any(abbrev_prefix in d for d in filtered_degrees):
+                    logger.info(f"🔧 Skipping duplicate abbreviation: '{degree}' (already have full degree)")
+                    continue
+                seen_abbrevs.add(degree)
+            
             filtered_degrees.append(degree)
         
         for degree in filtered_degrees:
@@ -1490,11 +1514,11 @@ class DeBERTaNerParser:
             import re
             # Enhanced institution patterns with better multi-line support
             inst_patterns = [
-                # Pattern 1: Known universities with optional city
-                r'\b(JNTU|IIT|NIT|IIIT|BITS|MIT|Stanford|Harvard|Berkeley|CMU|Osmania|SRM|VIT)\s+(?:Hyderabad|Delhi|Mumbai|Bangalore|Chennai|Pune|University)?\b',
-                # Pattern 2: Full university names (multi-word)
-                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\s+(?:University|College|Institute|School)\b',
-                # Pattern 3: Abbreviations
+                # Pattern 1: Known universities WITH city (e.g., "JNTU Hyderabad", "VIT Vellore")
+                r'\b((?:JNTU|IIT|NIT|IIIT|BITS|MIT|Stanford|Harvard|Berkeley|CMU|Osmania|SRM|VIT)(?:\s+(?:Hyderabad|Delhi|Mumbai|Bangalore|Chennai|Pune|Vellore|Patna|Trichy|Warangal))?)\b',
+                # Pattern 2: Full university names (multi-word) with optional location
+                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,5})\s+(?:University|College|Institute|School)(?:\s+(?:of|at)\s+[A-Z][a-z]+)?\b',
+                # Pattern 3: Abbreviations with location
                 r'\b([A-Z]{2,5})\s+(?:University|College|Institute)\b'
             ]
             for pattern in inst_patterns:
