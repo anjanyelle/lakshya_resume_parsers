@@ -764,6 +764,23 @@ class DeBERTaNerParser:
                 # Clean common noise characters (pipes, extra spaces)
                 entity_text = entity_text.replace('|', '').strip()
                 
+                # FIX: Clean incomplete parentheses from degree extraction
+                # "Bachelor of Engineering (B.E" -> "Bachelor of Engineering"
+                if entity_type == 'DEGREE':
+                    # If has opening ( but no closing ), remove the incomplete part
+                    if '(' in entity_text and ')' not in entity_text:
+                        entity_text = entity_text[:entity_text.find('(')].strip()
+                    # If has closing ) but no opening (, remove it
+                    elif ')' in entity_text and '(' not in entity_text:
+                        entity_text = entity_text.replace(')', '').strip()
+                
+                # FIX: Clean field corruption like "S.) in Data Science"
+                if entity_type == 'FIELD':
+                    # Remove leading single letters with periods/parentheses
+                    import re
+                    entity_text = re.sub(r'^[A-Z]\.\)\s+in\s+', '', entity_text)
+                    entity_text = re.sub(r'^in\s+', '', entity_text)
+                
                 # CRITICAL FIX: Clean up entities that span multiple lines
                 # If entity contains newline, split and take the longest meaningful part
                 if '\n' in entity_text:
@@ -777,16 +794,19 @@ class DeBERTaNerParser:
                         elif entity_type in ['COMPANY', 'INSTITUTION']:
                             # For companies/institutions, join lines to preserve full names
                             # e.g., "NIT\nPatna" -> "NIT Patna", "Carnegie Mellon\nUniversity" -> "Carnegie Mellon University"
-                            # Join up to 3 lines or 100 chars total to avoid noise
-                            if len(lines) <= 3:
-                                combined = ' '.join(lines)
+                            # But filter out lines that start with "in" (field corruption)
+                            clean_lines = [l for l in lines if not l.lower().startswith('in ')]
+                            if clean_lines and len(clean_lines) <= 3:
+                                combined = ' '.join(clean_lines)
                                 if len(combined) <= 100:
                                     entity_text = combined
                                 else:
                                     # Too long, take first 2 lines
-                                    entity_text = ' '.join(lines[:2])
-                            else:
+                                    entity_text = ' '.join(clean_lines[:2])
+                            elif clean_lines:
                                 # More than 3 lines, likely noise - take first line
+                                entity_text = clean_lines[0]
+                            else:
                                 entity_text = lines[0]
                         else:
                             # For other types (ROLE, LOCATION), take first line only
@@ -1387,24 +1407,115 @@ class DeBERTaNerParser:
         education = []
         institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
         degrees = entities.get('DEGREE', [])
-        fields = entities.get('FIELD', [])
+        
+        # FIX: Filter out single-letter FIELD fragments (e.g., "S" from "M.S.")
+        raw_fields = entities.get('FIELD', [])
+        fields = [f for f in raw_fields if len(f) > 1 or not f.isupper()]
+        if len(fields) != len(raw_fields):
+            logger.info(f"🔧 Filtered FIELD fragments: {raw_fields} -> {fields}")
+        
         edu_start = entities.get('EDU_YEAR_START', [])
         edu_end = entities.get('EDU_YEAR_END', [])
         
-        # Fallback: If institutions not extracted but degrees exist, try regex extraction
+        # FIX: Merge GRADE components (e.g., ['8', '.', '5'] -> '8.5')
+        grades = entities.get('GRADE', [])
+        if grades and len(grades) > 1:
+            # Check if grades are split components (number, dot, number)
+            merged_grades = []
+            i = 0
+            while i < len(grades):
+                if i + 2 < len(grades) and grades[i+1] == '.' and grades[i].isdigit() and grades[i+2].isdigit():
+                    # Merge: '8' + '.' + '5' -> '8.5'
+                    merged_grades.append(grades[i] + grades[i+1] + grades[i+2])
+                    i += 3
+                else:
+                    merged_grades.append(grades[i])
+                    i += 1
+            grades = merged_grades
+            logger.info(f"🔧 Merged GRADE components: {entities.get('GRADE', [])} -> {grades}")
+        
+        # FIX: Extract degree abbreviation from parentheses or original text
+        # "Master of Computer Applications (MCA)" -> "MCA"
+        # "Bachelor of Engineering (B.E.)" -> "B.E."
+        processed_degrees = []
+        original_text = entities.get('_original_text', '')
+        
+        # First, filter out low-confidence single-letter fragments
+        filtered_degrees = []
+        for degree in degrees:
+            # Skip single letters with low confidence (e.g., "B", "E", "M", "S")
+            if len(degree) == 1 and degree.isupper():
+                logger.info(f"🔧 Skipping single-letter degree fragment: '{degree}'")
+                continue
+            filtered_degrees.append(degree)
+        
+        for degree in filtered_degrees:
+            if '(' in degree and ')' in degree:
+                # Extract abbreviation from parentheses
+                abbrev = degree[degree.find('(')+1:degree.find(')')].strip()
+                if abbrev and len(abbrev) <= 10:  # Reasonable abbreviation length
+                    processed_degrees.append(abbrev)
+                    logger.info(f"🔧 Extracted degree abbreviation: '{degree}' -> '{abbrev}'")
+                else:
+                    processed_degrees.append(degree)
+            elif degree in ['Master', 'Bachelor', 'Doctor', 'Associate'] and original_text:
+                # Model extracted only partial degree (e.g., "Master")
+                # Search for full degree with abbreviation in original text
+                import re
+                # Pattern: "Master of ... (MCA)" or "Bachelor of ... (B.E.)"
+                # Updated to handle periods in abbreviations
+                pattern = rf'{degree}\s+of\s+[^(]+\(([A-Z][A-Za-z.\s]+)\)'
+                match = re.search(pattern, original_text, re.IGNORECASE)
+                if match:
+                    abbrev = match.group(1).strip()
+                    processed_degrees.append(abbrev)
+                    logger.info(f"🔧 Found degree abbreviation in text: '{degree}' -> '{abbrev}'")
+                else:
+                    processed_degrees.append(degree)
+            else:
+                processed_degrees.append(degree)
+        degrees = processed_degrees
+        
+        # DEBUG: Log raw extracted entities
+        logger.info(f"🔍 RAW Education Entities:")
+        logger.info(f"   Institutions: {institutions}")
+        logger.info(f"   Degrees: {degrees}")
+        logger.info(f"   Fields: {fields}")
+        logger.info(f"   Years: {edu_start} - {edu_end}")
+        logger.info(f"   Grades: {grades}")
+        
+        # FIX: Better institution extraction with multi-line support
         original_text = entities.get('_original_text', '')
         if not institutions and degrees and original_text:
             import re
-            # Common institution patterns
+            # Enhanced institution patterns with better multi-line support
             inst_patterns = [
-                r'\b(JNTU|IIT|NIT|IIIT|BITS|MIT|Stanford|Harvard|Berkeley|CMU)\s*(?:Hyderabad|Delhi|Mumbai|Bangalore|Chennai|Pune)?\b',
-                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:University|College|Institute)\b',
+                # Pattern 1: Known universities with optional city
+                r'\b(JNTU|IIT|NIT|IIIT|BITS|MIT|Stanford|Harvard|Berkeley|CMU|Osmania|SRM|VIT)\s+(?:Hyderabad|Delhi|Mumbai|Bangalore|Chennai|Pune|University)?\b',
+                # Pattern 2: Full university names (multi-word)
+                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\s+(?:University|College|Institute|School)\b',
+                # Pattern 3: Abbreviations
                 r'\b([A-Z]{2,5})\s+(?:University|College|Institute)\b'
             ]
             for pattern in inst_patterns:
                 matches = re.findall(pattern, original_text, re.IGNORECASE)
                 if matches:
-                    institutions = [m if isinstance(m, str) else m[0] for m in matches[:len(degrees)]]
+                    # Clean and deduplicate matches
+                    institutions = []
+                    for m in matches[:len(degrees)]:
+                        inst = m if isinstance(m, str) else m[0]
+                        inst = inst.strip()
+                        # Add "University" if it's just the name
+                        if inst and 'University' not in inst and 'College' not in inst and 'Institute' not in inst:
+                            # Check if next word in text is University/College
+                            idx = original_text.find(inst)
+                            if idx != -1:
+                                next_text = original_text[idx+len(inst):idx+len(inst)+20]
+                                if 'University' in next_text:
+                                    inst = inst + ' University'
+                                elif 'College' in next_text:
+                                    inst = inst + ' College'
+                        institutions.append(inst)
                     logger.info(f"🔧 Fallback extracted {len(institutions)} institutions: {institutions}")
                     break
         
@@ -1438,7 +1549,7 @@ class DeBERTaNerParser:
                     'field_of_study': fields[i] if i < len(fields) else None,
                     'start_year': start_year,
                     'end_year': end_year,
-                    'grade': entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None,
+                    'grade': grades[i] if i < len(grades) else None,
                     'source': 'deberta_ner'
                 }
                 # Add if has institution OR degree (not both required)

@@ -724,6 +724,85 @@ async def match_candidate_to_job(request: MatchRequest):
             detail=f"Matching failed: {str(e)}"
         )
 
+@app.post("/parse-sections-raw")
+async def parse_sections_raw(request: ParseSectionsRequest):
+    """
+    DEBUG ENDPOINT: Return raw DeBERTa predictions without post-processing.
+    Useful for comparing with Google Colab results and debugging entity extraction.
+    """
+    import time
+    from parsers.deberta_ner_parser import DeBERTaNerParser
+    from transformers import pipeline
+    
+    start_time = time.time()
+    
+    try:
+        deberta_parser = DeBERTaNerParser()
+        
+        if not deberta_parser.is_loaded or not deberta_parser.deberta_available:
+            raise HTTPException(
+                status_code=503,
+                detail="DeBERTa model not available"
+            )
+        
+        # Create pipeline exactly like Google Colab
+        ner_pipeline = pipeline(
+            "ner",
+            model=deberta_parser.model,
+            tokenizer=deberta_parser.tokenizer,
+            aggregation_strategy="simple"
+        )
+        
+        # Parse experience text
+        exp_predictions = []
+        if request.experience_text and request.experience_text.strip():
+            raw_exp = ner_pipeline(request.experience_text)
+            # Convert to JSON-serializable format
+            exp_predictions = [
+                {
+                    "entity_group": pred["entity_group"],
+                    "word": pred["word"],
+                    "score": float(pred["score"]),
+                    "start": int(pred["start"]),
+                    "end": int(pred["end"])
+                }
+                for pred in raw_exp
+            ]
+        
+        # Parse education text
+        edu_predictions = []
+        if request.education_text and request.education_text.strip():
+            raw_edu = ner_pipeline(request.education_text)
+            # Convert to JSON-serializable format
+            edu_predictions = [
+                {
+                    "entity_group": pred["entity_group"],
+                    "word": pred["word"],
+                    "score": float(pred["score"]),
+                    "start": int(pred["start"]),
+                    "end": int(pred["end"])
+                }
+                for pred in raw_edu
+            ]
+        
+        processing_time_ms = (time.time() - start_time) * 1000
+        
+        return {
+            "status": "success",
+            "experience_predictions": exp_predictions,
+            "education_predictions": edu_predictions,
+            "total_entities": len(exp_predictions) + len(edu_predictions),
+            "processing_time_ms": processing_time_ms,
+            "message": "Raw predictions from DeBERTa model (no post-processing)"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in raw parsing: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Raw parsing failed: {str(e)}"
+        )
+
 @app.post("/parse-sections", response_model=ParseSectionsResponse)
 async def parse_sections(request: ParseSectionsRequest):
     """
@@ -751,36 +830,43 @@ async def parse_sections(request: ParseSectionsRequest):
         try:
             deberta_parser = DeBERTaNerParser()
             if deberta_parser.is_loaded and deberta_parser.deberta_available:
-                logger.info("Using DeBERTa NER model for parsing sections")
+                logger.info("🎯 Using DeBERTa NER model - parsing sections SEPARATELY to prevent cross-section leakage")
                 
-                # Combine sections for DeBERTa parsing
-                combined_text = ""
+                # FIX 1: Parse experience and education SEPARATELY (never combine)
+                # This prevents education entities from being extracted from experience text
+                
+                # Parse experience section separately
                 if request.experience_text and request.experience_text.strip():
-                    combined_text += "WORK EXPERIENCE\n" + request.experience_text.strip() + "\n\n"
-                if request.education_text and request.education_text.strip():
-                    combined_text += "EDUCATION\n" + request.education_text.strip()
+                    logger.info(f"📊 Parsing EXPERIENCE section: {len(request.experience_text)} chars")
+                    exp_result = deberta_parser.parse_text(request.experience_text)
+                    
+                    if 'work_experience' in exp_result:
+                        work_experience = exp_result['work_experience']
+                        logger.info(f"✅ Experience extracted: {len(work_experience)} entries")
                 
-                if combined_text:
-                    # Parse with DeBERTa
-                    parsed_result = deberta_parser.parse_text(combined_text)
+                # Parse education section separately (ONLY if provided)
+                if request.education_text and request.education_text.strip():
+                    logger.info(f"🎓 Parsing EDUCATION section: {len(request.education_text)} chars")
+                    edu_result = deberta_parser.parse_text(request.education_text)
                     
-                    # Extract work experience and education from DeBERTa results
-                    if 'work_experience' in parsed_result:
-                        work_experience = parsed_result['work_experience']
-                    if 'education' in parsed_result:
-                        education = parsed_result['education']
-                    
-                    logger.info(f"DeBERTa extracted {len(work_experience)} experiences, {len(education)} education entries")
-                    
-                    processing_time_ms = (time.time() - start_time) * 1000
-                    
-                    return ParseSectionsResponse(
-                        status="success",
-                        work_experience=work_experience,
-                        education=education,
-                        processing_time_ms=processing_time_ms,
-                        message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries and {len(education)} education entries"
-                    )
+                    if 'education' in edu_result:
+                        education = edu_result['education']
+                        logger.info(f"✅ Education extracted: {len(education)} entries")
+                else:
+                    logger.info("⚠️ Education section is empty - skipping education parsing")
+                
+                # Log final results
+                logger.info(f"📊 Final DeBERTa results: {len(work_experience)} experiences, {len(education)} education entries")
+                
+                processing_time_ms = (time.time() - start_time) * 1000
+                
+                return ParseSectionsResponse(
+                    status="success",
+                    work_experience=work_experience,
+                    education=education,
+                    processing_time_ms=processing_time_ms,
+                    message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries and {len(education)} education entries"
+                )
             else:
                 logger.info("DeBERTa model not available, falling back to regex extractors")
         except Exception as e:
