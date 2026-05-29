@@ -122,6 +122,7 @@ class DeBERTaExperienceBuilder:
         locations = [e for e in positions_data if e['type'] == 'LOCATION']
         start_dates = [e for e in positions_data if e['type'] in ['START_DATE', 'DATE_START']]
         end_dates = [e for e in positions_data if e['type'] in ['END_DATE', 'DATE_END']]
+        clients_raw = [e for e in positions_data if e['type'] == 'CLIENT']
         
         # Filter out technology keywords from companies
         companies = []
@@ -156,8 +157,64 @@ class DeBERTaExperienceBuilder:
         
         if filtered_count > 0:
             self.logger.info(f"🔧 Filtered {filtered_count} technology keywords from {len(companies_raw)} companies")
+            
+        # Treat standalone CLIENT entities as fallback COMPANY anchors if they are:
+        # 1. Far from any company (min_company_dist > 150 chars) or no companies exist, AND
+        # 2. Closer to a nearby role/date than any company is.
+        client_fallback_added = 0
+        for client in clients_raw:
+            client_pos = client['start']
+            
+            # Compute distance to closest company
+            min_company_dist = float('inf')
+            for company in companies:
+                min_company_dist = min(min_company_dist, abs(company['start'] - client_pos))
+            
+            # If there is a company close to this client, it is not a standalone anchor
+            if min_company_dist <= 150:
+                continue
+                
+            is_anchor = False
+            
+            # Look at nearby roles and dates
+            nearby_entities = [e for e in positions_data if e['type'] in ['ROLE', 'START_DATE', 'DATE_START', 'END_DATE', 'DATE_END']]
+            
+            for entity in nearby_entities:
+                ent_pos = entity['start']
+                dist_to_client = abs(ent_pos - client_pos)
+                
+                if dist_to_client <= 150:  # Reasonably close
+                    # Check if any company is closer to this entity
+                    company_closer = False
+                    for company in companies:
+                        dist_to_company = abs(ent_pos - company['start'])
+                        if dist_to_company < dist_to_client:
+                            company_closer = True
+                            break
+                    
+                    if not company_closer:
+                        is_anchor = True
+                        break
+            
+            if not companies:
+                is_anchor = True
+                
+            if is_anchor:
+                # Check if this client text is already added to companies to prevent duplicates
+                if not any(c['text'] == client['text'] and abs(c['start'] - client['start']) < 10 for c in companies):
+                    companies.append({
+                        'type': 'COMPANY',
+                        'text': client['text'],
+                        'start': client['start'],
+                        'end': client['end'],
+                        'is_fallback_client': True
+                    })
+                    client_fallback_added += 1
+                
+        if client_fallback_added > 0:
+            self.logger.info(f"💼 Treated {client_fallback_added} standalone CLIENT entities as company anchors")
         
-        self.logger.info(f"� Position-based entities: {len(companies)} companies (after filtering), {len(roles)} roles, {len(locations)} locations")
+        self.logger.info(f" Position-based entities: {len(companies)} companies (after filtering), {len(roles)} roles, {len(locations)} locations")
         
         # Fallback: If no companies but we have roles, try to extract companies from text using regex
         if not companies and roles:
@@ -188,6 +245,7 @@ class DeBERTaExperienceBuilder:
             nearby_location = self._find_entity_in_window(locations, window_start, window_end, company_pos)
             nearby_start_date = self._find_entity_in_window(start_dates, window_start, window_end, company_pos)
             nearby_end_date = self._find_entity_in_window(end_dates, window_start, window_end, company_pos)
+            nearby_client = self._find_entity_in_window(clients_raw, window_start, window_end, company_pos)
             
             # Check if end date indicates current position
             is_current = False
@@ -207,6 +265,9 @@ class DeBERTaExperienceBuilder:
                 # Swap them
                 self.logger.info(f"  🔄 Swapped: '{company_text}' (was company) ↔ '{role_text}' (was role)")
                 company_text, role_text = role_text, company_text
+                
+            # Determine nearby client name if different from company name
+            client_name = nearby_client['text'] if nearby_client and nearby_client['text'] != company_text else ''
             
             # Create experience
             exp = {
@@ -216,7 +277,8 @@ class DeBERTaExperienceBuilder:
                 'start_date': self._parse_date(nearby_start_date['text']) if nearby_start_date else None,
                 'end_date': self._parse_date(end_date_text) if end_date_text and not is_current else None,
                 'is_current': is_current,
-                'clients': [],
+                'client': client_name,
+                'clients': [client_name] if client_name else [],
                 'description': ''
             }
             
@@ -227,7 +289,6 @@ class DeBERTaExperienceBuilder:
             start_text = nearby_start_date['text'] if nearby_start_date else 'No start'
             end_text = end_date_text or ('Present' if is_current else 'No end')
             self.logger.info(f"  ✓ Job {i+1}: {role_text} at {company['text']} ({start_text} - {end_text})")
-        
         return experiences
     
     def _find_entity_in_window(self, entities: List[Dict], window_start: int, window_end: int, 
@@ -314,6 +375,10 @@ class DeBERTaExperienceBuilder:
             end_date = self._find_nearest_entity(end_date_positions, company_pos, next_company_pos)
             location = self._find_nearest_entity(location_positions, company_pos, next_company_pos)
             
+            # Find the nearest client after the company
+            client_positions = [(text.find(c), c) for c in clients if text.find(c) != -1]
+            nearby_client = self._find_nearest_entity(client_positions, company_pos, next_company_pos)
+            
             # Check if end date indicates current position
             is_current = False
             if end_date:
@@ -321,6 +386,9 @@ class DeBERTaExperienceBuilder:
                 if 'present' in end_date_lower or 'current' in end_date_lower:
                     is_current = True
                     end_date = None
+            
+            # Determine nearby client name if different from company name
+            client_name = nearby_client if nearby_client and nearby_client != company_name else ''
             
             # Create experience
             exp = {
@@ -330,7 +398,8 @@ class DeBERTaExperienceBuilder:
                 'start_date': self._parse_date(start_date) if start_date else None,
                 'end_date': self._parse_date(end_date) if end_date and not is_current else None,
                 'is_current': is_current,
-                'clients': [],
+                'client': client_name,
+                'clients': [client_name] if client_name else [],
                 'description': ''
             }
             

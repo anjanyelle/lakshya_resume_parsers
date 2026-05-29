@@ -1343,11 +1343,30 @@ class DeBERTaNerParser:
         
         # Structured parser uses lowercase keys and provides fully structured data
         if 'work_experience' in entities and isinstance(entities['work_experience'], list):
-            # Use structured parser results directly (already in correct format)
-            work_experience = entities['work_experience']
-            companies_list = entities.get('companies', [])
-            job_titles = entities.get('job_titles', [])
-            locations_list = entities.get('locations', [])
+            # Use structured parser results directly and map both key sets for compatibility
+            work_experience = []
+            for exp in entities['work_experience']:
+                company_val = exp.get('company_name', '') or exp.get('company', '')
+                role_val = exp.get('job_title', '') or exp.get('role', '')
+                client_val = exp.get('client', '') or (exp.get('clients')[0] if exp.get('clients') else '')
+                clients_list = exp.get('clients', []) or ([client_val] if client_val else [])
+                work_experience.append({
+                    'company': company_val,
+                    'company_name': company_val,
+                    'role': role_val,
+                    'job_title': role_val,
+                    'location': exp.get('location', ''),
+                    'start_date': exp.get('start_date'),
+                    'end_date': exp.get('end_date'),
+                    'is_current': exp.get('is_current', False),
+                    'client': client_val,
+                    'clients': clients_list,
+                    'description': exp.get('description', ''),
+                    'source': exp.get('source', 'deberta_ner')
+                })
+            companies_list = entities.get('companies', []) or [e.get('company') for e in work_experience if e.get('company')]
+            job_titles = entities.get('job_titles', []) or [e.get('role') for e in work_experience if e.get('role')]
+            locations_list = entities.get('locations', []) or [e.get('location') for e in work_experience if e.get('location')]
             start_dates = entities.get('dates', [])
             end_dates = []
         else:
@@ -1363,15 +1382,24 @@ class DeBERTaNerParser:
             # Build experiences using position-based grouping
             structured_experiences = experience_builder.build_experiences_from_entities(entities, text)
             
-            # Convert to API format
+            # Convert to API format (providing both old and new keys for backend/frontend compatibility)
             work_experience = []
             for exp in structured_experiences:
+                company_val = exp.get('company_name', '') or exp.get('company', '')
+                role_val = exp.get('job_title', '') or exp.get('role', '')
+                client_val = exp.get('client', '') or (exp.get('clients')[0] if exp.get('clients') else '')
+                clients_list = exp.get('clients', []) or ([client_val] if client_val else [])
                 work_experience.append({
-                    'company': exp.get('company_name', ''),
-                    'role': exp.get('job_title', ''),
+                    'company': company_val,
+                    'company_name': company_val,
+                    'role': role_val,
+                    'job_title': role_val,
                     'location': exp.get('location', ''),
                     'start_date': exp.get('start_date'),
                     'end_date': exp.get('end_date'),
+                    'is_current': exp.get('is_current', False),
+                    'client': client_val,
+                    'clients': clients_list,
                     'description': exp.get('description', ''),
                     'source': 'deberta_ner'
                 })

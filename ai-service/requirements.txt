@@ -24,3 +24,4 @@ openai==1.54.5
 datasets==2.14.0
 evaluate==0.4.0
 accelerate==0.24.0
+sentencepiece

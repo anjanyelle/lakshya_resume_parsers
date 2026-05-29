@@ -239,6 +239,11 @@ class HybridNERPostProcessor:
         validated = {}
         
         for entity_type, entity_list in entities.items():
+            # Skip positions metadata list from validation/cleaning
+            if entity_type == '_positions':
+                validated[entity_type] = entity_list
+                continue
+                
             if not entity_list:
                 continue
             
