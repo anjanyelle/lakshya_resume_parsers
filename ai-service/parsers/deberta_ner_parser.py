@@ -761,6 +761,9 @@ class DeBERTaNerParser:
                 # Extract full text from original string using positions
                 entity_text = text[entity_start:entity_end].strip()
                 
+                # Clean common noise characters (pipes, extra spaces)
+                entity_text = entity_text.replace('|', '').strip()
+                
                 # CRITICAL FIX: Clean up entities that span multiple lines
                 # If entity contains newline, split and take the longest meaningful part
                 if '\n' in entity_text:
@@ -772,10 +775,18 @@ class DeBERTaNerParser:
                         if len(lines) == 1:
                             entity_text = lines[0]
                         elif entity_type in ['COMPANY', 'INSTITUTION']:
-                            # For companies/institutions, join short lines (e.g., "Tech\nSolutions" -> "Tech Solutions")
-                            if all(len(line) < 20 for line in lines):
-                                entity_text = ' '.join(lines)
+                            # For companies/institutions, join lines to preserve full names
+                            # e.g., "NIT\nPatna" -> "NIT Patna", "Carnegie Mellon\nUniversity" -> "Carnegie Mellon University"
+                            # Join up to 3 lines or 100 chars total to avoid noise
+                            if len(lines) <= 3:
+                                combined = ' '.join(lines)
+                                if len(combined) <= 100:
+                                    entity_text = combined
+                                else:
+                                    # Too long, take first 2 lines
+                                    entity_text = ' '.join(lines[:2])
                             else:
+                                # More than 3 lines, likely noise - take first line
                                 entity_text = lines[0]
                         else:
                             # For other types (ROLE, LOCATION), take first line only

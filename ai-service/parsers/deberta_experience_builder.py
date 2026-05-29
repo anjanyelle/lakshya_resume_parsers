@@ -159,6 +159,12 @@ class DeBERTaExperienceBuilder:
         
         self.logger.info(f"� Position-based entities: {len(companies)} companies (after filtering), {len(roles)} roles, {len(locations)} locations")
         
+        # Fallback: If no companies but we have roles, try to extract companies from text using regex
+        if not companies and roles:
+            self.logger.warning("⚠️ No companies extracted by DeBERTa, attempting regex fallback...")
+            companies = self._extract_companies_regex(text, positions_data)
+            self.logger.info(f"📝 Regex fallback found {len(companies)} companies")
+        
         if not companies:
             self.logger.warning("No companies found - cannot build experiences")
             return []
@@ -167,7 +173,7 @@ class DeBERTaExperienceBuilder:
         companies.sort(key=lambda x: x['start'])
         
         experiences = []
-        proximity_window = 150  # Characters - entities within this range are grouped together
+        proximity_window = 400  # Characters - entities within this range are grouped together (increased from 150 to catch all entries)
         
         for i, company in enumerate(companies):
             company_pos = company['start']
@@ -192,10 +198,20 @@ class DeBERTaExperienceBuilder:
                     is_current = True
                     end_date_text = None
             
+            # Detect and fix swapped company/role
+            company_text = company['text']
+            role_text = nearby_role['text'] if nearby_role else ''
+            
+            # Check if they're swapped (company looks like role, role looks like company)
+            if role_text and self._looks_like_company(role_text) and self._looks_like_role(company_text):
+                # Swap them
+                self.logger.info(f"  🔄 Swapped: '{company_text}' (was company) ↔ '{role_text}' (was role)")
+                company_text, role_text = role_text, company_text
+            
             # Create experience
             exp = {
-                'job_title': nearby_role['text'] if nearby_role else '',
-                'company_name': company['text'],
+                'job_title': role_text,
+                'company_name': company_text,
                 'location': nearby_location['text'] if nearby_location else '',
                 'start_date': self._parse_date(nearby_start_date['text']) if nearby_start_date else None,
                 'end_date': self._parse_date(end_date_text) if end_date_text and not is_current else None,
@@ -424,17 +440,125 @@ class DeBERTaExperienceBuilder:
             return role_before if dist_before == dist_after else role_after
     
     
+    def _extract_companies_regex(self, text: str, positions_data: List[Dict]) -> List[Dict]:
+        """
+        Regex fallback to extract company names when DeBERTa misses them.
+        Looks for capitalized multi-word phrases near roles.
+        """
+        import re
+        
+        companies = []
+        
+        # Pattern: Capitalized words (2-5 words) that look like company names
+        # e.g., "VMware", "Capgemini Technologies", "LLT Overseas"
+        pattern = r'\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,4})\b'
+        
+        for match in re.finditer(pattern, text):
+            company_text = match.group(1).strip()
+            
+            # Skip if it's a tech keyword
+            if company_text.lower() in self.tech_keywords:
+                continue
+            
+            # Skip single words unless they look like companies
+            words = company_text.split()
+            if len(words) == 1 and not self._looks_like_company(company_text):
+                continue
+            
+            # Skip if it looks like a role
+            if self._looks_like_role(company_text):
+                continue
+            
+            # Add as company
+            companies.append({
+                'type': 'COMPANY',
+                'text': company_text,
+                'start': match.start(),
+                'end': match.end()
+            })
+        
+        return companies
+    
+    def _looks_like_company(self, text: str) -> bool:
+        """Check if text looks like a company name."""
+        if not text:
+            return False
+        
+        text_lower = text.lower()
+        
+        # Company indicators
+        company_keywords = ['inc', 'llc', 'ltd', 'pvt', 'corp', 'corporation', 'limited',
+                           'technologies', 'solutions', 'systems', 'services', 'consulting',
+                           'group', 'labs', 'software', 'enterprises']
+        
+        return any(keyword in text_lower for keyword in company_keywords)
+    
+    def _looks_like_role(self, text: str) -> bool:
+        """Check if text looks like a job title."""
+        if not text:
+            return False
+        
+        text_lower = text.lower()
+        
+        # Job title keywords
+        role_keywords = ['developer', 'engineer', 'manager', 'architect', 'analyst',
+                        'designer', 'consultant', 'specialist', 'lead', 'senior',
+                        'junior', 'director', 'coordinator', 'programmer', 'administrator',
+                        'technician', 'principal', 'associate', 'assistant', 'intern',
+                        'trainee', 'head', 'chief', 'vp', 'president', 'officer']
+        
+        return any(keyword in text_lower for keyword in role_keywords)
+    
     def _parse_date(self, date_str: str) -> str:
-        """Parse date string to ISO format."""
+        """Parse date string to year or year-month format (NO fake precision)."""
         if not date_str:
             return None
         
-        try:
-            import dateparser
-            result = dateparser.parse(date_str, settings={'PREFER_DAY_OF_MONTH': 'first'})
-            return result.date().isoformat() if result else None
-        except:
-            return None
+        import re
+        
+        # Remove common noise
+        cleaned = date_str.strip().replace('|', '').replace('–', '-').replace('—', '-')
+        
+        # Pattern 1: Full date with month name (e.g., "April 2022", "Apr 2022", "Apr '22")
+        month_patterns = [
+            (r'(Jan|January)\s*[\'"]?(\d{2,4})', 1),
+            (r'(Feb|February)\s*[\'"]?(\d{2,4})', 2),
+            (r'(Mar|March)\s*[\'"]?(\d{2,4})', 3),
+            (r'(Apr|April)\s*[\'"]?(\d{2,4})', 4),
+            (r'(May)\s*[\'"]?(\d{2,4})', 5),
+            (r'(Jun|June)\s*[\'"]?(\d{2,4})', 6),
+            (r'(Jul|July)\s*[\'"]?(\d{2,4})', 7),
+            (r'(Aug|August)\s*[\'"]?(\d{2,4})', 8),
+            (r'(Sep|Sept|September)\s*[\'"]?(\d{2,4})', 9),
+            (r'(Oct|October)\s*[\'"]?(\d{2,4})', 10),
+            (r'(Nov|November)\s*[\'"]?(\d{2,4})', 11),
+            (r'(Dec|December)\s*[\'"]?(\d{2,4})', 12)
+        ]
+        
+        for pattern, month_num in month_patterns:
+            match = re.search(pattern, cleaned, re.IGNORECASE)
+            if match:
+                year_str = match.group(2)
+                # Handle 2-digit years (e.g., '22 -> 2022)
+                if len(year_str) == 2:
+                    year = 2000 + int(year_str) if int(year_str) < 50 else 1900 + int(year_str)
+                else:
+                    year = int(year_str)
+                # Return year-month format (no fake day)
+                return f"{year}-{month_num:02d}"
+        
+        # Pattern 2: Year only (e.g., "2022", "'22")
+        year_match = re.search(r'[\'"]?(\d{2,4})', cleaned)
+        if year_match:
+            year_str = year_match.group(1)
+            if len(year_str) == 2:
+                year = 2000 + int(year_str) if int(year_str) < 50 else 1900 + int(year_str)
+            else:
+                year = int(year_str)
+            # Return year only (no fake month/day)
+            return str(year)
+        
+        return None
     
     def _extract_years_from_date_range(self, date_text: str) -> tuple:
         """
