@@ -235,8 +235,8 @@ class TextExtractor:
             # Extract from paragraphs with style information
             for para in doc.paragraphs:
                 if para.text.strip():
-                    text = para.text.strip()
-                    full_text.append(text)
+                    raw_text = para.text.strip()
+                    full_text.append(raw_text)
                     
                     # Check if paragraph style is a heading
                     style_name = para.style.name if para.style else ''
@@ -247,7 +247,7 @@ class TextExtractor:
                         if 'Heading 1' in style_name or 'Heading 2' in style_name:
                             is_heading = True
                     
-                    heading_map[text] = is_heading
+                    heading_map[raw_text] = is_heading
             
             # Extract from ALL table cells (no style info for tables)
             for table in doc.tables:
@@ -277,9 +277,16 @@ class TextExtractor:
             except Exception as e:
                 logger.debug(f"Could not extract text from shapes: {e}")
             
-            text = self.clean_text('\n'.join(full_text))
+            # Join and clean the text
+            raw_joined_text = '\n'.join(full_text)
+            cleaned_text = self.clean_text(raw_joined_text)
             
-            return text, heading_map
+            # Note: heading_map is based on raw text, but section splitter primarily uses
+            # regex patterns to detect sections, so we return empty dict since the mapping
+            # would be incorrect after line merging in clean_text()
+            # Section splitter will rely on regex patterns like "PROFESSIONAL EXPERIENCE"
+            
+            return cleaned_text, {}
             
         except Exception as e:
             logger.error(f"Error extracting text from DOCX {file_path}: {str(e)}")
@@ -621,6 +628,87 @@ class TextExtractor:
         lines = text.split('\n')
         lines = [re.sub(r'[ \t]+', ' ', line) for line in lines]
         text = '\n'.join(lines)
+        
+        # FIX 1: Merge lines that end with abbreviations (SR., JR., DR., etc.)
+        # This prevents "SR.\nPOWER BI DEVELOPER" from being split (regardless of next line length)
+        abbreviation_pattern = r'\b(SR|JR|DR|MR|MS|MRS|PROF|REV|HON|ESQ|PHD|MD|DDS|DVM)\.\s*\n\s*'
+        text = re.sub(abbreviation_pattern, r'\1. ', text, flags=re.IGNORECASE)
+        
+        # FIX 2: Also merge if a line is ONLY an abbreviation (e.g., "SR.\n" on its own line)
+        # Pattern: line with only abbreviation followed by newline
+        standalone_abbrev_pattern = r'^(SR|JR|DR|MR|MS|MRS|PROF|REV|HON|ESQ|PHD|MD|DDS|DVM)\.\s*$'
+        lines = text.split('\n')
+        merged_abbrev_lines = []
+        i = 0
+        while i < len(lines):
+            current_line = lines[i].strip()
+            
+            # Check if current line is ONLY an abbreviation
+            if re.match(standalone_abbrev_pattern, current_line, re.IGNORECASE):
+                # Merge with next line if it exists
+                if i + 1 < len(lines):
+                    next_line = lines[i + 1].strip()
+                    if next_line:
+                        merged_abbrev_lines.append(f"{current_line} {next_line}")
+                        i += 2
+                        continue
+            
+            merged_abbrev_lines.append(lines[i])
+            i += 1
+        
+        text = '\n'.join(merged_abbrev_lines)
+        
+        # FIX 3: Merge short continuation lines (e.g., "Senior\nManager", "Computer\nScience")
+        # Split into lines and intelligently merge short lines with previous line
+        lines = text.split('\n')
+        merged_lines = []
+        i = 0
+        while i < len(lines):
+            current_line = lines[i].strip()
+            
+            # If current line is empty, keep it as paragraph break
+            if not current_line:
+                merged_lines.append('')
+                i += 1
+                continue
+            
+            # Check if next line should be merged with current line
+            if i + 1 < len(lines):
+                next_line = lines[i + 1].strip()
+                
+                # Special case: Both lines are short (likely name split like "Padmavathi\nSubramaniam")
+                both_short = len(current_line) < 20 and len(next_line) < 20
+                
+                # Merge if:
+                # 1. Next line is very short (< 30 chars) AND doesn't start with special markers
+                # 2. Current line doesn't end with sentence-ending punctuation
+                # 3. Next line is not a section header (all caps or starts with keywords)
+                # 4. OR both lines are very short (< 20 chars each, likely name split)
+                should_merge = (
+                    next_line and
+                    (
+                        (both_short and not next_line.isupper()) or  # Name split
+                        (
+                            len(next_line) < 30 and
+                            not next_line[0].isdigit() and  # Not a date/number
+                            not next_line.isupper() and  # Not a section header
+                            not next_line.startswith(('Company:', 'Location:', 'Duration:', 'Institution:', 'Responsibilities:', 'Client:')) and
+                            not current_line.endswith(('.', '!', '?', ':')) and
+                            not re.match(r'^[A-Z][a-z]+\s+\d{4}', next_line)  # Not "May 2014"
+                        )
+                    )
+                )
+                
+                if should_merge:
+                    # Merge next line with current line
+                    merged_lines.append(f"{current_line} {next_line}")
+                    i += 2  # Skip next line since we merged it
+                    continue
+            
+            merged_lines.append(current_line)
+            i += 1
+        
+        text = '\n'.join(merged_lines)
         
         # Remove non-printable characters except newlines and tabs
         text = ''.join(char for char in text if char.isprintable() or char in '\n\t')

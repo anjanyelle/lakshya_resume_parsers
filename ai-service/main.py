@@ -770,7 +770,38 @@ async def parse_sections(request: ParseSectionsRequest):
                     if 'education' in parsed_result:
                         education = parsed_result['education']
                     
-                    logger.info(f"DeBERTa extracted {len(work_experience)} experiences, {len(education)} education entries")
+                    logger.info(f"DeBERTa extracted {len(work_experience)} experiences (before validation), {len(education)} education entries")
+                    
+                    # VALIDATION: Filter out invalid companies, roles, and clients
+                    try:
+                        from parsers.entity_validator import get_validator
+                        validator = get_validator()
+                        
+                        # Validate and filter work experiences
+                        valid_experiences, rejected_experiences = validator.filter_work_experiences(
+                            work_experience, 
+                            min_confidence=0.6
+                        )
+                        
+                        work_experience = valid_experiences
+                        
+                        if rejected_experiences:
+                            logger.warning(f"🚫 Rejected {len(rejected_experiences)} invalid experiences:")
+                            for rej in rejected_experiences:
+                                logger.warning(f"   - {rej['experience'].get('job_title')} at {rej['experience'].get('company_name')}: {rej['validation'].get('issues', [])}")
+                        
+                        logger.info(f"✅ After validation: {len(work_experience)} valid experiences")
+                        
+                        # Validate and clean education entries
+                        valid_education, rejected_education = validator.filter_education_entries(education)
+                        education = valid_education
+                        
+                        if rejected_education:
+                            logger.warning(f"🚫 Rejected {len(rejected_education)} invalid education entries")
+                        
+                        logger.info(f"✅ After validation: {len(education)} valid education entries")
+                    except Exception as e:
+                        logger.warning(f"Validation failed: {e}, using unvalidated results")
                     
                     processing_time_ms = (time.time() - start_time) * 1000
                     
