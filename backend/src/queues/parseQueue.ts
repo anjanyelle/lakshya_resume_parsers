@@ -39,6 +39,7 @@ export interface ParseJobData {
   fileType: string;
   userId?: string;
   llmProvider?: string;
+  forceOcr?: boolean;
 }
 
 // Add a new parsing job to the queue
@@ -48,6 +49,7 @@ export const addParsingJob = async (
   fileType: string,
   userId?: string,
   llmProvider?: string,
+  forceOcr?: boolean,
 ): Promise<string> => {
   const jobData: ParseJobData = {
     candidateId,
@@ -55,6 +57,7 @@ export const addParsingJob = async (
     fileType,
     userId,
     llmProvider,
+    forceOcr,
   };
 
   const job = await parseQueue.add("parse-resume", jobData, {

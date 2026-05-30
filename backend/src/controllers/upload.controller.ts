@@ -35,9 +35,10 @@ export const uploadResume = async (
     const fileInfo = getFileInfo(req.file);
     const userId = (req as any).user?.id;
     const llmProvider = req.body.llm_provider || '';
+    const forceOcr = req.body.force_ocr === 'true' || req.body.force_ocr === true || req.body.forceOcr === 'true' || req.body.forceOcr === true;
 
     console.log(
-      `📄 Processing resume upload: ${fileInfo.originalname} (${fileInfo.type})`,
+      `📄 Processing resume upload: ${fileInfo.originalname} (${fileInfo.type}) (forceOcr: ${forceOcr})`,
     );
     if (llmProvider) {
       console.log(`🤖 Using LLM provider: ${llmProvider}`);
@@ -88,6 +89,7 @@ export const uploadResume = async (
         fileInfo.type,
         userId,
         llmProvider,
+        forceOcr,
       );
 
       console.log(`✅ Added job to Redis queue: ${jobId}`);
@@ -310,16 +312,18 @@ export const previewSections = async (
     }
 
     const fileInfo = getFileInfo(req.file);
+    const forceOcr = req.body.force_ocr === 'true' || req.body.force_ocr === true || req.body.forceOcr === 'true' || req.body.forceOcr === true;
     
-    console.log(`🔍 Preview sections endpoint called for file: ${fileInfo.originalname}`);
-
+    console.log(`🔍 Preview sections endpoint called for file: ${fileInfo.originalname} (forceOcr: ${forceOcr})`);
+ 
     // 2. Create FormData to forward to Python service
     const formData = new FormData();
     formData.append("file", fs.createReadStream(req.file.path), {
       filename: fileInfo.originalname,
       contentType: req.file.mimetype,
     });
-
+    formData.append("force_ocr", forceOcr ? "true" : "false");
+ 
     // 3. Forward to Python AI service
     const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
     const endpoint = `${aiServiceUrl}/preview-sections`;

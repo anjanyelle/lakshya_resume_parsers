@@ -315,15 +315,14 @@ const updateCandidateWithParsedData = async (
 
     // Insert skills if provided
     if (parsedData.skills && Array.isArray(parsedData.skills)) {
-      // Check if skills table has candidate_id column
-      const skillsColumnCheck = await client.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'skills' 
-        AND column_name = 'candidate_id'
+      // Check if candidate_skills table exists
+      const tableCheck = await client.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_name = 'candidate_skills'
       `);
 
-      if (skillsColumnCheck.rows.length > 0) {
+      if (tableCheck.rows.length > 0) {
         // First, delete existing skill associations for this candidate
         await client.query(
           "DELETE FROM candidate_skills WHERE candidate_id = $1",
@@ -454,6 +453,7 @@ const callAIService = async (
   fileType: string,
   candidateId: string,
   llmProvider?: string,
+  forceOcr?: boolean,
 ): Promise<AIServiceResponse> => {
   try {
     const requestBody: any = {
@@ -463,6 +463,10 @@ const callAIService = async (
     
     if (llmProvider) {
       requestBody.llm_provider = llmProvider;
+    }
+    
+    if (forceOcr !== undefined) {
+      requestBody.force_ocr = forceOcr;
     }
     
     console.log("=" + "=".repeat(79));
@@ -500,7 +504,7 @@ const callAIService = async (
 
 // The processor function for the worker
 const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
-  const { candidateId, filePath, fileType, userId, llmProvider } = job.data;
+  const { candidateId, filePath, fileType, userId, llmProvider, forceOcr } = job.data;
 
   console.log(`🔄 Starting resume parsing for candidate ${candidateId}`);
   if (llmProvider) {
@@ -550,7 +554,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     }
 
     console.log(`🤖 Calling AI service for ${filePath}`);
-    const aiResult = await callAIService(filePath, fileType, candidateId, llmProvider);
+    const aiResult = await callAIService(filePath, fileType, candidateId, llmProvider, forceOcr);
 
     // Log parse trace to verify which fields came from which source
     console.log('[PARSE TRACE]', 

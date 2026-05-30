@@ -47,8 +47,9 @@ export const previewSections = async (
     }
 
     const fileInfo = getFileInfo(req.file);
+    const forceOcr = req.body.force_ocr === 'true' || req.body.force_ocr === true || req.body.forceOcr === 'true' || req.body.forceOcr === true;
     
-    console.log(`📄 /api/resume/preview-sections called`);
+    console.log(`📄 /api/resume/preview-sections called (forceOcr: ${forceOcr})`);
     console.log(`📎 Filename received: ${fileInfo.originalname}`);
 
     // 2. Create FormData to forward to Python service
@@ -57,6 +58,7 @@ export const previewSections = async (
       filename: fileInfo.originalname,
       contentType: req.file.mimetype,
     });
+    formData.append("force_ocr", forceOcr ? "true" : "false");
 
     // 3. Forward to Python AI service
     const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";

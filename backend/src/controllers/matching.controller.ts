@@ -67,68 +67,91 @@ export const matchCandidatesToJob = async (
         return;
       }
 
-      // 3. For each candidate, call Python AI service POST /match
-      const matchPromises = candidates.map(async (candidate) => {
-        try {
-          const matchData = {
-            candidate_data: {
-              id: candidate.id,
-              name: candidate.full_name,
-              email: candidate.email,
-              phone: candidate.phone,
-              location: candidate.location,
-              linkedin: candidate.linkedin_url,
-              github: candidate.github_url,
-              skills: candidate.skills || [],
-              years_of_experience: candidate.years_of_experience,
-              education: [], // Will be populated if needed
-            },
-            job_data: {
-              id: job.id,
-              title: job.title,
-              description: job.description,
-              required_skills: job.required_skills || [],
-              preferred_skills: job.preferred_skills || [],
-              min_experience_years: job.min_experience_years,
-              max_experience_years: job.max_experience_years,
-              education_requirement: job.education_requirement,
-              employment_type: job.employment_type,
-              seniority_level: job.seniority_level,
-            },
-          };
+      // 3. Prepare batch match request
+      const candidatesData = candidates.map((candidate) => ({
+        id: candidate.id,
+        name: candidate.full_name,
+        email: candidate.email,
+        phone: candidate.phone,
+        location: candidate.location,
+        linkedin: candidate.linkedin_url,
+        github: candidate.github_url,
+        skills: candidate.skills || [],
+        years_of_experience: candidate.years_of_experience,
+        education: [], // Will be populated if needed
+      }));
 
-          const matchResult = await callAIService("/match", matchData);
+      const jobData = {
+        id: job.id,
+        title: job.title,
+        description: job.description,
+        required_skills: job.required_skills || [],
+        preferred_skills: job.preferred_skills || [],
+        min_experience_years: job.min_experience_years,
+        max_experience_years: job.max_experience_years,
+        education_requirement: job.education_requirement,
+        employment_type: job.employment_type,
+        seniority_level: job.seniority_level,
+      };
 
+      let matches: any[] = [];
+      try {
+        console.log(`🤖 Requesting batch match for ${candidates.length} candidates from AI service`);
+        const batchResponse = await callAIService("/match-batch", {
+          candidates_data: candidatesData,
+          job_data: jobData,
+        });
+
+        // Map the results back to the expected structure
+        matches = batchResponse.results.map((matchResult: any) => {
+          const candidate = candidates.find((c) => c.id === matchResult.candidate_id);
           return {
-            candidate_id: candidate.id,
-            candidate_name: candidate.full_name,
-            candidate_email: candidate.email,
-            candidate_location: candidate.location,
+            candidate_id: matchResult.candidate_id,
+            candidate_name: candidate?.full_name || "",
+            candidate_email: candidate?.email || "",
+            candidate_location: candidate?.location || "",
             ...matchResult,
           };
-        } catch (error) {
-          console.error(`Error matching candidate ${candidate.id}:`, error);
-          return {
-            candidate_id: candidate.id,
-            candidate_name: candidate.full_name,
-            candidate_email: candidate.email,
-            candidate_location: candidate.location,
-            overall_score: 0,
-            skill_score: 0,
-            experience_score: 0,
-            education_score: 0,
-            matching_skills: [],
-            missing_skills: [],
-            extra_skills: [],
-            experience_gap_years: 0,
-            recommendation: "Not Recommended",
-            reason: "Matching service unavailable",
-            error: true,
-          };
-        }
-      });
-
-      const matches = await Promise.all(matchPromises);
+        });
+      } catch (batchError) {
+        console.error("Error calling batch matching API, falling back to individual calls:", batchError);
+        // Fallback to individual calls if batch fails
+        const matchPromises = candidates.map(async (candidate) => {
+          try {
+            const matchResult = await callAIService("/match", {
+              candidate_data: candidatesData.find((c) => c.id === candidate.id),
+              job_data: jobData,
+            });
+            return {
+              candidate_id: candidate.id,
+              candidate_name: candidate.full_name,
+              candidate_email: candidate.email,
+              candidate_location: candidate.location,
+              ...matchResult,
+            };
+          } catch (individualError) {
+            console.error(`Error matching candidate ${candidate.id}:`, individualError);
+            return {
+              candidate_id: candidate.id,
+              candidate_name: candidate.full_name,
+              candidate_email: candidate.email,
+              candidate_location: candidate.location,
+              overall_score: 0,
+              skill_score: 0,
+              experience_score: 0,
+              education_score: 0,
+              matching_skills: [],
+              missing_skills: [],
+              extra_skills: [],
+              experience_gap_years: 0,
+              recommendation: "Not Recommended",
+              reason: "Matching service unavailable",
+              error: true,
+            };
+          }
+        });
+        matches = await Promise.all(matchPromises);
+      }
 
       // 4. Sort candidates by overall_score descending
       const sortedMatches = matches.sort(
@@ -157,9 +180,9 @@ export const matchCandidatesToJob = async (
             match.skill_score,
             match.experience_score,
             match.education_score,
-            JSON.stringify(match.matching_skills),
-            JSON.stringify(match.missing_skills),
-            JSON.stringify(match.extra_skills),
+            match.matching_skills || [],
+            match.missing_skills || [],
+            match.extra_skills || [],
             match.experience_gap_years,
             match.recommendation,
             match.reason,
@@ -433,9 +456,9 @@ export const matchSingleCandidate = async (
         matchResult.skill_score,
         matchResult.experience_score,
         matchResult.education_score,
-        JSON.stringify(matchResult.matching_skills),
-        JSON.stringify(matchResult.missing_skills),
-        JSON.stringify(matchResult.extra_skills),
+        matchResult.matching_skills || [],
+        matchResult.missing_skills || [],
+        matchResult.extra_skills || [],
         matchResult.experience_gap_years,
         matchResult.recommendation,
         matchResult.reason,
