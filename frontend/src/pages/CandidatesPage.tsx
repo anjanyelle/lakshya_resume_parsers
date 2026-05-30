@@ -1,30 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
+import { useFilterStore } from "../store/filterStore";
 import toast from "react-hot-toast";
-import { Users, Search, RefreshCw, User } from "lucide-react";
+import { Users, Search, RefreshCw, User, Award, DollarSign } from "lucide-react";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
 type SortType = "date-added" | "name" | "confidence-score";
 
 export default function CandidatesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("date-added");
   const [currentPage, setCurrentPage] = useState(1);
 
   const { candidates, pagination, isLoading, fetchCandidates } = useCandidateStore();
+  const { searchTerm, company, jobTitle, certification, salaryMin, salaryMax, setSearchTerm, setCompany, setJobTitle, setCertification, setSalaryRange } = useFilterStore();
   const navigate = useNavigate();
 
   const itemsPerPage = 20;
 
   useEffect(() => {
     loadCandidates();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, company, jobTitle, certification, salaryMin, salaryMax]);
 
   const loadCandidates = async () => {
     try {
-      await fetchCandidates(currentPage, itemsPerPage, searchTerm);
+      await fetchCandidates(currentPage, itemsPerPage, searchTerm, company, jobTitle, certification, salaryMin, salaryMax);
     } catch (error) {
       toast.error("Failed to load candidates");
     }
@@ -109,9 +110,10 @@ export default function CandidatesPage() {
 
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search Bar */}
-          <div className="flex-1">
+        <div className="flex flex-col gap-4">
+          {/* Search Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Name Search */}
             <div className="relative">
               <input
                 type="text"
@@ -125,55 +127,133 @@ export default function CandidatesPage() {
               />
               <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
             </div>
+
+            {/* Company Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by company..."
+                value={company}
+                onChange={(e) => {
+                  setCompany(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <Users className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            </div>
+
+            {/* Job Title Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by job title..."
+                value={jobTitle}
+                onChange={(e) => {
+                  setJobTitle(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            </div>
+
+            {/* Certification Search */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by certification..."
+                value={certification}
+                onChange={(e) => {
+                  setCertification(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <Award className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            </div>
+
+            {/* Salary Min */}
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="Min salary..."
+                value={salaryMin || ""}
+                onChange={(e) => {
+                  setSalaryRange(e.target.value ? parseFloat(e.target.value) : null, salaryMax);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            </div>
+
+            {/* Salary Max */}
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="Max salary..."
+                value={salaryMax || ""}
+                onChange={(e) => {
+                  setSalaryRange(salaryMin, e.target.value ? parseFloat(e.target.value) : null);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+              />
+              <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+            </div>
           </div>
 
-          {/* Filter Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-purple-600 text-white hover:bg-purple-700"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              All ({pagination?.total_items || candidates.length})
-            </button>
-            <button
-              onClick={() => setFilter("high-confidence")}
-              className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
-                filter === "high-confidence"
-                  ? "bg-purple-600 text-white hover:bg-purple-700"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              High Confidence
-            </button>
-            <button
-              onClick={() => setFilter("needs-review")}
-              className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
-                filter === "needs-review"
-                  ? "bg-purple-600 text-white hover:bg-purple-700"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Needs Review
-            </button>
-          </div>
+          {/* Filter Buttons and Sort */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Filter Buttons */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilter("all")}
+                className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
+                  filter === "all"
+                    ? "bg-purple-600 text-white hover:bg-purple-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                All ({pagination?.total_items || candidates.length})
+              </button>
+              <button
+                onClick={() => setFilter("high-confidence")}
+                className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
+                  filter === "high-confidence"
+                    ? "bg-purple-600 text-white hover:bg-purple-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                High Confidence
+              </button>
+              <button
+                onClick={() => setFilter("needs-review")}
+                className={`px-6 py-2.5 rounded-xl font-medium transition-colors ${
+                  filter === "needs-review"
+                    ? "bg-purple-600 text-white hover:bg-purple-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Needs Review
+              </button>
+            </div>
 
-          {/* Sort Options */}
-          <select
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as SortType);
-              setCurrentPage(1);
-            }}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="date-added">Date Added</option>
-            <option value="name">Name</option>
-            <option value="confidence-score">Confidence Score</option>
-          </select>
+            {/* Sort Options */}
+            <select
+              value={sort}
+              onChange={(e) => {
+                setSort(e.target.value as SortType);
+                setCurrentPage(1);
+              }}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="date-added">Date Added</option>
+              <option value="name">Name</option>
+              <option value="confidence-score">Confidence Score</option>
+            </select>
+          </div>
         </div>
       </div>
 

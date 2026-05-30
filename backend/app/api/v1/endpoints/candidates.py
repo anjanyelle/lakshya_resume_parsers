@@ -69,6 +69,11 @@ def _parse_optional_bool(value: str | None):
 def list_candidates(
     q: Optional[str] = Query(default=None),
     status: Optional[str] = Query(default=None),
+    company: Optional[str] = Query(default=None, description="Search by company name in work history"),
+    job_title: Optional[str] = Query(default=None, description="Search by job title in work history"),
+    certification: Optional[str] = Query(default=None, description="Search by certification name"),
+    salary_min: Optional[float] = Query(default=None, description="Minimum expected salary"),
+    salary_max: Optional[float] = Query(default=None, description="Maximum expected salary"),
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=200),
     current_user=Depends(get_current_user),
@@ -78,6 +83,31 @@ def list_candidates(
     query = db.query(Candidate).filter(Candidate.tenant_id == current_user.tenant_id)
     if status:
         query = query.filter(Candidate.status == status)
+    
+    # New: Search by company in work_history
+    if company and company.strip():
+        query = query.join(WorkHistory).filter(
+            WorkHistory.company_name.ilike(f"%{company.strip()}%")
+        )
+    
+    # New: Search by job_title in work_history
+    if job_title and job_title.strip():
+        query = query.join(WorkHistory).filter(
+            WorkHistory.job_title.ilike(f"%{job_title.strip()}%")
+        )
+    
+    # New: Search by certification name
+    if certification and certification.strip():
+        query = query.join(Certification).filter(
+            Certification.name.ilike(f"%{certification.strip()}%")
+        )
+    
+    # New: Filter by salary range
+    if salary_min is not None:
+        query = query.filter(Candidate.expected_salary_min >= salary_min)
+    if salary_max is not None:
+        query = query.filter(Candidate.expected_salary_max <= salary_max)
+    
     if q:
         like = f"%{q}%"
         filters = [

@@ -67,7 +67,7 @@ interface CandidateState {
 }
 
 interface CandidateActions {
-  fetchCandidates: (page?: number, limit?: number, search?: string) => Promise<void>;
+  fetchCandidates: (page?: number, limit?: number, search?: string, company?: string, jobTitle?: string, certification?: string, salaryMin?: number | null, salaryMax?: number | null) => Promise<void>;
   fetchCandidate: (id: string) => Promise<void>;
   uploadResume: (file: File, llmProvider?: string, candidateId?: string) => Promise<Candidate>;
   deleteCandidate: (id: string) => Promise<void>;
@@ -89,7 +89,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
     pagination: null,
 
     // Actions
-    fetchCandidates: async (page = 1, limit = 20, search = "") => {
+    fetchCandidates: async (page = 1, limit = 20, search = "", company = "", jobTitle = "", certification = "", salaryMin = null, salaryMax = null) => {
       set({ isLoading: true, error: null });
       try {
         const params = new URLSearchParams();
@@ -98,11 +98,26 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
         if (search) {
           params.append("search", search);
         }
+        if (company) {
+          params.append("company", company);
+        }
+        if (jobTitle) {
+          params.append("job_title", jobTitle);
+        }
+        if (certification) {
+          params.append("certification", certification);
+        }
+        if (salaryMin !== null) {
+          params.append("salary_min", salaryMin.toString());
+        }
+        if (salaryMax !== null) {
+          params.append("salary_max", salaryMax.toString());
+        }
         
         const response = await api.get(`/api/candidates?${params.toString()}`);
         console.log("📊 API Response:", response.data);
         console.log("📄 Pagination data:", response.data.pagination);
-        console.log("👥 Candidates count:", response.data.candidates?.length);
+        console.log("👥 Candidates count:", response.data.candidates?.length || 0);
         
         set({ 
           candidates: response.data.candidates || [], 

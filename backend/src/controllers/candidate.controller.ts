@@ -103,6 +103,11 @@ export const getAllCandidates = async (
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const search = (req.query.search as string) || undefined;
+    const company = (req.query.company as string) || undefined;
+    const jobTitle = (req.query.job_title as string) || undefined;
+    const certification = (req.query.certification as string) || undefined;
+    const salaryMin = req.query.salary_min ? parseFloat(req.query.salary_min as string) : undefined;
+    const salaryMax = req.query.salary_max ? parseFloat(req.query.salary_max as string) : undefined;
 
     // Validate pagination
     if (page < 1 || limit < 1 || limit > 100) {
@@ -120,6 +125,11 @@ export const getAllCandidates = async (
         page,
         limit,
         search,
+        company,
+        jobTitle,
+        certification,
+        salaryMin,
+        salaryMax,
       );
 
       const totalPages = Math.ceil(total / limit);

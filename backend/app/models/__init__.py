@@ -15,6 +15,8 @@ from app.models.correction import Correction
 from app.models.correction_stat import CorrectionStat
 from app.models.correction_pattern import CorrectionPattern
 from app.models.skill_suggestion import SkillSuggestion
+from app.models.permission import Permission
+from app.models.role_permission import RolePermission
 
 __all__ = [
     "Base",
@@ -38,4 +40,6 @@ __all__ = [
     "CorrectionStat",
     "CorrectionPattern",
     "SkillSuggestion",
+    "Permission",
+    "RolePermission",
 ]
