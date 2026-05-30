@@ -11,11 +11,13 @@ from app.api.v1.endpoints import (
     health,
     jobs,
     parsing,
-    taxonomy,
+    permissions,
     review,
     search,
     skills,
+    taxonomy,
     upload,
+    users,
 )
 
 api_router = APIRouter()
@@ -34,3 +36,5 @@ api_router.include_router(taxonomy.router, tags=["taxonomy"])
 api_router.include_router(corrections.router, tags=["corrections"])
 api_router.include_router(accuracy.router, tags=["accuracy"])
 api_router.include_router(admin.router, tags=["admin"])
+api_router.include_router(users.router, tags=["users"])
+api_router.include_router(permissions.router, tags=["permissions"])

@@ -356,6 +356,10 @@ class EntityValidator:
         if len(company.split()) >= 2 and company[0].isupper():
             return True, company, 0.6, "multi_word_capitalized"
         
+        # Accept single-word capitalized names (likely companies, e.g., Gatnix)
+        if len(company.split()) == 1 and company[0].isupper() and len(company) >= 2:
+            return True, company, 0.6, "single_word_capitalized"
+        
         # Reject
         self.logger.debug(f"❌ Rejected company (no match): '{company}'")
         return False, "", 0.0, "no_match"
@@ -400,9 +404,16 @@ class EntityValidator:
         # Accept if it contains job title keywords
         job_keywords = ['developer', 'engineer', 'manager', 'architect', 'analyst',
                        'designer', 'consultant', 'specialist', 'lead', 'senior',
-                       'junior', 'director', 'coordinator', 'administrator']
+                       'junior', 'director', 'coordinator', 'administrator',
+                       'intern', 'trainee', 'programmer', 'technician', 'principal',
+                       'vp', 'president', 'ceo', 'cto', 'founder', 'head', 'chief',
+                       'officer', 'leader', 'executive', 'associate', 'assistant', 'expert']
         if any(keyword in role.lower() for keyword in job_keywords):
             return True, role, 0.7, "heuristic_match"
+        
+        # Accept multi-word capitalized titles (likely legitimate)
+        if len(role.split()) >= 2 and role[0].isupper():
+            return True, role, 0.6, "multi_word_capitalized"
         
         # Reject
         self.logger.debug(f"❌ Rejected role (no match): '{role}'")

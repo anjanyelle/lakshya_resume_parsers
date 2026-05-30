@@ -100,6 +100,9 @@ class ConfidenceScorer:
             # Determine quality level
             quality_level = self._get_quality_level(overall_score)
             
+            # Calculate completeness quality score
+            quality_score = self._calculate_quality_score(parsed_data)
+            
             # Identify missing critical fields
             missing_critical = self._identify_missing_critical_fields(parsed_data, field_scores)
             
@@ -115,16 +118,67 @@ class ConfidenceScorer:
                 'needs_review': needs_review,
                 'missing_critical': missing_critical,
                 'quality_level': quality_level,
+                'quality_score': quality_score,
                 'recommendations': recommendations,
                 'field_weights': self.FIELD_WEIGHTS.copy()
             }
             
-            self.logger.info(f"Confidence scoring completed: overall={overall_score:.3f}, quality={quality_level}")
+            self.logger.info(f"Confidence scoring completed: overall={overall_score:.3f}, quality={quality_level}, quality_score={quality_score}")
             return result
             
         except Exception as e:
             self.logger.error(f"Error calculating confidence scores: {e}")
             return self._get_default_result()
+
+    def _calculate_quality_score(self, parsed_data: Dict[str, Any]) -> float:
+        """
+        Calculate an overall completeness and quality score (0.0 to 1.0).
+        Evaluates presence and richness of candidate data fields.
+        """
+        score = 0.0
+        
+        # 1. Contact info (Name, Email, Phone) - 30%
+        if parsed_data.get("name"):
+            score += 0.10
+        if parsed_data.get("email"):
+            score += 0.10
+        if parsed_data.get("phone"):
+            score += 0.10
+            
+        # 2. Summary - 10%
+        summary = parsed_data.get("summary")
+        if summary and len(str(summary).strip()) > 30:
+            score += 0.10
+            
+        # 3. Skills count - 20%
+        skills = parsed_data.get("skills", [])
+        if isinstance(skills, list) and len(skills) >= 5:
+            score += 0.20
+        elif isinstance(skills, list) and len(skills) >= 1:
+            score += 0.10
+            
+        # 4. Work Experience - 20%
+        work_exp = parsed_data.get("work_experience") or parsed_data.get("experience") or []
+        if isinstance(work_exp, list) and len(work_exp) >= 2:
+            score += 0.20
+        elif isinstance(work_exp, list) and len(work_exp) >= 1:
+            score += 0.10
+            
+        # 5. Education - 10%
+        edu = parsed_data.get("education") or []
+        if isinstance(edu, list) and len(edu) >= 1:
+            score += 0.10
+            
+        # 6. Certifications / Achievements / Projects - 10%
+        certs = parsed_data.get("certifications") or []
+        achievements = parsed_data.get("achievements") or []
+        projects = parsed_data.get("projects") or []
+        if (isinstance(certs, list) and len(certs) > 0) or \
+           (isinstance(achievements, list) and len(achievements) > 0) or \
+           (isinstance(projects, list) and len(projects) > 0):
+            score += 0.10
+            
+        return round(min(1.0, score), 2)
     
     def _score_email(self, email: Any) -> float:
         """

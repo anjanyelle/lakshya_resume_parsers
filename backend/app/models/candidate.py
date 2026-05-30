@@ -59,6 +59,8 @@ class Candidate(Base):
     )
     current_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
     current_company: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    expected_salary_min: Mapped[float | None] = mapped_column(nullable=True)
+    expected_salary_max: Mapped[float | None] = mapped_column(nullable=True)
     status: Mapped[CandidateStatus] = mapped_column(
         Enum(
             CandidateStatus,

@@ -141,6 +141,7 @@ class Settings(BaseSettings):
         env_file=".env",
         case_sensitive=True,
         env_ignore_empty=True,
+        extra="ignore",
     )
 
     @field_validator("ALLOWED_UPLOAD_EXTENSIONS", mode="before")

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, UploadFile, File
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator, model_validator
@@ -107,6 +107,7 @@ class ParseRequest(BaseModel):
     file_path: str
     candidate_id: str
     llm_provider: Optional[str] = None
+    force_ocr: Optional[bool] = False
 
 class ParseTextRequest(BaseModel):
     text: str
@@ -202,6 +203,13 @@ class MatchRequest(BaseModel):
     candidate_data: Dict[str, Any]
     job_data: Dict[str, Any]
 
+class MatchBatchRequest(BaseModel):
+    candidates_data: List[Dict[str, Any]]
+    job_data: Dict[str, Any]
+
+class MatchBatchResponse(BaseModel):
+    results: List[Dict[str, Any]]
+
 class MatchResponse(BaseModel):
     overall_score: float
     skill_score: float
@@ -229,11 +237,21 @@ class WelcomeResponse(BaseModel):
 class ParseSectionsRequest(BaseModel):
     experience_text: Optional[str] = None
     education_text: Optional[str] = None
+    skills_text: Optional[str] = None
+    summary_text: Optional[str] = None
+    certifications_text: Optional[str] = None
+    projects_text: Optional[str] = None
+    contact_text: Optional[str] = None
 
 class ParseSectionsResponse(BaseModel):
     status: str
     work_experience: List[Dict[str, Any]] = []
     education: List[Dict[str, Any]] = []
+    skills: List[str] = []
+    summary: Optional[str] = None
+    certifications: List[str] = []
+    projects: List[str] = []
+    contact: Optional[Dict[str, Any]] = None
     processing_time_ms: float
     message: str
 
@@ -353,7 +371,12 @@ async def parse_resume(request: ParseRequest):
         logger.info("=" * 80)
         
         # Parse using MasterParser
-        result = master_parser.parse_file(request.file_path, request.candidate_id, request.llm_provider)
+        result = master_parser.parse_file(
+            request.file_path, 
+            request.candidate_id, 
+            request.llm_provider, 
+            force_ocr=request.force_ocr or False
+        )
         
         # Update metrics
         parse_time = (time.time() - start_time) * 1000
@@ -724,6 +747,30 @@ async def match_candidate_to_job(request: MatchRequest):
             detail=f"Matching failed: {str(e)}"
         )
 
+@app.post("/match-batch", response_model=MatchBatchResponse)
+async def match_candidates_batch(request: MatchBatchRequest):
+    """
+    Match a batch of candidates to a job description.
+    """
+    if not MATCHING_ENGINE_AVAILABLE or not matching_engine:
+        raise HTTPException(
+            status_code=503,
+            detail="Matching engine not available"
+        )
+    
+    try:
+        logger.info(f"Matching batch of {len(request.candidates_data)} candidates to job")
+        results = matching_engine.calculate_match_score_batch(
+            request.candidates_data, request.job_data
+        )
+        return MatchBatchResponse(results=results)
+    except Exception as e:
+        logger.error(f"Error in batch matching: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Batch matching failed: {str(e)}"
+        )
+
 @app.post("/parse-sections", response_model=ParseSectionsResponse)
 async def parse_sections(request: ParseSectionsRequest):
     """
@@ -746,6 +793,64 @@ async def parse_sections(request: ParseSectionsRequest):
     try:
         work_experience = []
         education = []
+        skills = []
+        summary = None
+        certifications = []
+        projects = []
+        contact = {
+            'name': None,
+            'email': None,
+            'phone': None,
+            'linkedin': None,
+            'github': None
+        }
+        
+        # 0. Parse contact details
+        if request.contact_text and request.contact_text.strip():
+            try:
+                from parsers.rule_parser import RuleBasedParser
+                rule_parser = RuleBasedParser()
+                contact['email'] = rule_parser.extract_email(request.contact_text)
+                contact['phone'] = rule_parser.extract_phone(request.contact_text)
+                contact['linkedin'] = rule_parser.extract_linkedin(request.contact_text)
+                try:
+                    contact['github'] = rule_parser.extract_github(request.contact_text)
+                except:
+                    pass
+                
+                # Guess candidate name from first few lines of contact text
+                lines = [l.strip() for l in request.contact_text.split('\n') if l.strip()]
+                for line in lines[:3]:
+                    line_lower = line.lower()
+                    if (len(line) < 40 and 
+                        '@' not in line and 
+                        not any(char.isdigit() for char in line) and 
+                        not any(label in line_lower for label in ['linkedin', 'github', 'http', 'www', 'address', 'email', 'phone', 'contact'])):
+                        contact['name'] = line
+                        break
+            except Exception as e:
+                logger.warning(f"Failed to extract contact details: {e}")
+        
+        # 1. Parse skills
+        if request.skills_text and request.skills_text.strip():
+            try:
+                from parsers.rule_parser import RuleBasedParser
+                rule_parser = RuleBasedParser()
+                skills = rule_parser.extract_skills(request.skills_text)
+            except Exception as e:
+                logger.warning(f"Failed to extract skills: {e}")
+
+        # 2. Parse summary
+        if request.summary_text and request.summary_text.strip():
+            summary = request.summary_text.strip()
+
+        # 3. Parse certifications
+        if request.certifications_text and request.certifications_text.strip():
+            certifications = [line.strip().lstrip('-*•').strip() for line in request.certifications_text.split('\n') if line.strip()]
+
+        # 4. Parse projects
+        if request.projects_text and request.projects_text.strip():
+            projects = [p.strip() for p in request.projects_text.split('\n\n') if p.strip()]
         
         # Try to use DeBERTa model first
         try:
@@ -809,8 +914,13 @@ async def parse_sections(request: ParseSectionsRequest):
                         status="success",
                         work_experience=work_experience,
                         education=education,
+                        skills=skills,
+                        summary=summary,
+                        certifications=certifications,
+                        projects=projects,
+                        contact=contact,
                         processing_time_ms=processing_time_ms,
-                        message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries and {len(education)} education entries"
+                        message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
                     )
             else:
                 logger.info("DeBERTa model not available, falling back to regex extractors")
@@ -939,8 +1049,13 @@ async def parse_sections(request: ParseSectionsRequest):
             status="success",
             work_experience=work_experience,
             education=education,
+            skills=skills,
+            summary=summary,
+            certifications=certifications,
+            projects=projects,
+            contact=contact,
             processing_time_ms=processing_time_ms,
-            message=f"Successfully parsed {len(work_experience)} experience entries and {len(education)} education entries"
+            message=f"Successfully parsed {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
         )
         
     except Exception as e:
@@ -951,7 +1066,7 @@ async def parse_sections(request: ParseSectionsRequest):
         )
 
 @app.post("/preview-sections", response_model=SectionPreviewResponse)
-async def preview_sections(file: UploadFile = File(...)):
+async def preview_sections(file: UploadFile = File(...), force_ocr: bool = Form(False)):
     """
     Preview resume sections without running DeBERTa entity extraction.
     
@@ -978,7 +1093,7 @@ async def preview_sections(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, temp_file)
             temp_file_path = temp_file.name
         
-        logger.info(f"Processing file for section preview: {file.filename}")
+        logger.info(f"Processing file for section preview: {file.filename} (force_ocr={force_ocr})")
         
         # STEP 1: Text Extraction
         extractor = TextExtractor()
@@ -990,16 +1105,20 @@ async def preview_sections(file: UploadFile = File(...)):
         baseline_font_size = 11.0
         
         if file_ext == 'pdf':
-            result = extractor.extract_from_pdf(temp_file_path)
+            result = extractor.extract_from_pdf(temp_file_path, force_ocr=force_ocr)
             extraction_method = result.get('method_used', 'unknown')
             text = result['text']
             
             # Get font metadata
-            try:
-                text, font_metadata = extractor.extract_with_font_metadata(temp_file_path)
-                baseline_font_size = extractor.calculate_baseline_font_size(font_metadata)
-            except:
-                pass
+            if not force_ocr:
+                try:
+                    text, font_metadata = extractor.extract_with_font_metadata(temp_file_path)
+                    baseline_font_size = extractor.calculate_baseline_font_size(font_metadata)
+                except:
+                    pass
+            else:
+                font_metadata = {}
+                baseline_font_size = 11.0
                 
         elif file_ext == 'docx':
             text, font_metadata = extractor.extract_with_font_metadata(temp_file_path)
@@ -1046,7 +1165,7 @@ async def preview_sections(file: UploadFile = File(...)):
             validation_metadata['warnings'].append(f'Validation failed: {str(e)}')
         
         # Build response
-        standard_sections = ['summary', 'experience', 'education', 'skills', 'certifications', 'projects']
+        standard_sections = ['summary', 'experience', 'education', 'skills', 'certifications', 'projects', 'contact']
         
         sections_dict = {}
         detected_sections = []

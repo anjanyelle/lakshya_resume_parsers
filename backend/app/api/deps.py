@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.encryption import set_current_tenant
 from app.core.security import decode_token
-from app.models import ApiKey, RevokedToken, User
+from app.models import ApiKey, Permission, RevokedToken, RolePermission, User
 from app.core.database import get_db
 
 __all__ = [
@@ -25,6 +25,7 @@ __all__ = [
     "get_current_user",
     "enforce_rate_limit",
     "require_role",
+    "require_permission",
 ]
 
 _auth_scheme = HTTPBearer(auto_error=False)
@@ -161,6 +162,29 @@ def require_role(*roles: str):
     def _checker(user: User = Depends(get_current_user)) -> User:
         if user.role not in roles:
             raise HTTPException(status_code=403, detail="Insufficient permissions")
+        return user
+
+    return _checker
+
+
+def require_permission(permission: str):
+    def _checker(user: User = Depends(get_current_user), db: Session = Depends(get_db)) -> User:
+        # Admin always has all permissions
+        if user.role == "admin":
+            return user
+        
+        # Check if user's role has the required permission
+        role_permission = (
+            db.query(RolePermission)
+            .join(Permission)
+            .filter(RolePermission.role == user.role)
+            .filter(Permission.name == permission)
+            .first()
+        )
+        
+        if not role_permission:
+            raise HTTPException(status_code=403, detail="Insufficient permissions")
+        
         return user
 
     return _checker

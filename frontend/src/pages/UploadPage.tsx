@@ -43,12 +43,43 @@ interface SectionData {
     text: string;
     char_count: number;
   };
+  skills?: {
+    text: string;
+    char_count: number;
+  };
+  summary?: {
+    text: string;
+    char_count: number;
+  };
+  certifications?: {
+    text: string;
+    char_count: number;
+  };
+  projects?: {
+    text: string;
+    char_count: number;
+  };
+  contact?: {
+    text: string;
+    char_count: number;
+  };
 }
 
 interface ParsedSectionsResponse {
   status: string;
   work_experience: Array<any>;
   education: Array<any>;
+  skills: Array<string>;
+  summary: string | null;
+  certifications: Array<string>;
+  projects: Array<string>;
+  contact?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    linkedin?: string;
+    github?: string;
+  };
   processing_time_ms: number;
   message: string;
 }
@@ -97,10 +128,23 @@ export default function UploadPage() {
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
   const [selectedLLM, setSelectedLLM] = useState<string>("own-model");
   const [showLLMDropdown, setShowLLMDropdown] = useState(false);
+  const [forceOcr, setForceOcr] = useState(false);
   const [extractedSections, setExtractedSections] = useState<SectionData | null>(null);
   const [isExtractingSections, setIsExtractingSections] = useState(false);
   const [parsedSections, setParsedSections] = useState<ParsedSectionsResponse | null>(null);
   const [isParsingModel, setIsParsingModel] = useState(false);
+  const [isSavingCandidate, setIsSavingCandidate] = useState(false);
+  const [parsedName, setParsedName] = useState("");
+  const [parsedEmail, setParsedEmail] = useState("");
+  const [parsedPhone, setParsedPhone] = useState("");
+
+  useEffect(() => {
+    if (parsedSections) {
+      setParsedName(parsedSections.contact?.name || "");
+      setParsedEmail(parsedSections.contact?.email || "");
+      setParsedPhone(parsedSections.contact?.phone || "");
+    }
+  }, [parsedSections]);
 
   const { token } = useAuthStore();
 
@@ -247,6 +291,7 @@ export default function UploadPage() {
     try {
       const formData = new FormData();
       formData.append("resume", file);
+      formData.append("force_ocr", forceOcr ? "true" : "false");
 
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
       const response = await axios.post(
@@ -261,7 +306,16 @@ export default function UploadPage() {
       );
 
       // Backend returns extracted sections
-      return response.data.sections || {};
+      const rawSections = response.data.sections || {};
+      return {
+        experience: rawSections.experience || { text: "", char_count: 0 },
+        education: rawSections.education || { text: "", char_count: 0 },
+        skills: rawSections.skills || { text: "", char_count: 0 },
+        summary: rawSections.summary || { text: "", char_count: 0 },
+        certifications: rawSections.certifications || { text: "", char_count: 0 },
+        projects: rawSections.projects || { text: "", char_count: 0 },
+        contact: rawSections.contact || { text: "", char_count: 0 },
+      };
     } catch (error: any) {
       console.error("Error extracting sections:", error);
       console.error("Error response:", error.response?.data);
@@ -359,6 +413,11 @@ export default function UploadPage() {
         {
           experience_text: extractedSections.experience?.text || "",
           education_text: extractedSections.education?.text || "",
+          skills_text: extractedSections.skills?.text || "",
+          summary_text: extractedSections.summary?.text || "",
+          certifications_text: extractedSections.certifications?.text || "",
+          projects_text: extractedSections.projects?.text || "",
+          contact_text: extractedSections.contact?.text || "",
         }
       );
 
@@ -378,11 +437,61 @@ export default function UploadPage() {
     }
   };
 
+  const saveCandidateProfile = async () => {
+    if (!parsedSections) {
+      toast.error("No parsed data to save");
+      return;
+    }
+
+    setIsSavingCandidate(true);
+
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+      const payload = {
+        name: parsedName || "Parsed Candidate",
+        email: parsedEmail || undefined,
+        phone: parsedPhone || undefined,
+        summary: parsedSections.summary || undefined,
+        skills: parsedSections.skills,
+        work_experience: parsedSections.work_experience,
+        education: parsedSections.education,
+        certifications: parsedSections.certifications,
+        projects: parsedSections.projects,
+      };
+
+      const response = await axios.post(
+        `${baseUrl}/api/candidates`,
+        payload,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Candidate Profile saved successfully!");
+      if (response.data?.candidate?.id) {
+        navigate(`/candidates/${response.data.candidate.id}`);
+      } else {
+        navigate("/candidates");
+      }
+    } catch (error: any) {
+      console.error("Error saving candidate:", error);
+      toast.error(error.response?.data?.error || "Failed to save candidate profile");
+    } finally {
+      setIsSavingCandidate(false);
+    }
+  };
+
   const resetUpload = () => {
     setUploadFiles([]);
     setCurrentUpload(null);
     setExtractedSections(null);
     setParsedSections(null);
+    setParsedName("");
+    setParsedEmail("");
+    setParsedPhone("");
   };
 
   const formatFileSize = (bytes: number) => {
@@ -392,6 +501,8 @@ export default function UploadPage() {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-teal-50 to-cyan-50 relative overflow-hidden">
@@ -547,6 +658,22 @@ export default function UploadPage() {
             Using built-in rule-based + BERT NER pipeline — no API call made
           </p>
         )}
+        
+        {/* Force OCR Toggle */}
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <label className="flex items-center space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={forceOcr}
+              onChange={(e) => setForceOcr(e.target.checked)}
+              className="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500 cursor-pointer"
+            />
+            <div>
+              <span className="text-sm font-medium text-slate-800">Force OCR (for scanned resumes)</span>
+              <p className="text-xs text-slate-500">Enable this to bypass normal text extraction and force image-to-text conversion</p>
+            </div>
+          </label>
+        </div>
       </div>
 
         {/* Upload Area */}
@@ -644,9 +771,69 @@ export default function UploadPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Extracted Sections</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Review the extracted Experience and Education sections before parsing with AI model
+              Review and edit the extracted sections below before parsing with the AI model.
             </p>
           </div>
+
+          {/* Contact Information Section */}
+          {extractedSections.contact && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-blue-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">CONTACT INFORMATION</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.contact.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  value={extractedSections.contact.text}
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      contact: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter contact details (Name, Email, Phone, Address, Links...)"
+                  className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Summary Section */}
+          {extractedSections.summary && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">SUMMARY / OBJECTIVE</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.summary.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  value={extractedSections.summary.text}
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      summary: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter professional summary or objective..."
+                  className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Experience Section */}
           {extractedSections.experience && (
@@ -661,9 +848,18 @@ export default function UploadPage() {
               </div>
               <div className="p-6">
                 <textarea
-                  readOnly
                   value={extractedSections.experience.text}
-                  className="w-full h-64 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      experience: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter work experience history..."
+                  className="w-full h-64 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
@@ -682,13 +878,114 @@ export default function UploadPage() {
               </div>
               <div className="p-6">
                 <textarea
-                  readOnly
                   value={extractedSections.education.text}
-                  className="w-full h-48 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      education: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter educational history..."
+                  className="w-full h-48 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
           )}
+
+          {/* Skills Section */}
+          {extractedSections.skills && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-pink-50 to-rose-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">SKILLS</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.skills.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  value={extractedSections.skills.text}
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      skills: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter technical and soft skills (comma separated or listed)..."
+                  className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Projects Section */}
+          {extractedSections.projects && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-emerald-50 to-green-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">PROJECTS</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.projects.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  value={extractedSections.projects.text}
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      projects: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter project descriptions (double return for new project)..."
+                  className="w-full h-48 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Certifications Section */}
+          {extractedSections.certifications && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-violet-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">CERTIFICATIONS</h3>
+                  <span className="text-sm text-gray-600">
+                    {extractedSections.certifications.char_count.toLocaleString()} characters
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <textarea
+                  value={extractedSections.certifications.text}
+                  onChange={(e) => {
+                    setExtractedSections(prev => prev ? {
+                      ...prev,
+                      certifications: {
+                        text: e.target.value,
+                        char_count: e.target.value.length
+                      }
+                    } : null);
+                  }}
+                  placeholder="Enter certifications list..."
+                  className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+            </div>
+          )}
+
+
 
           {/* Parse Button */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
@@ -734,17 +1031,66 @@ export default function UploadPage() {
                 Parsed Structured Data
               </h2>
               
-              <div className="mb-4 bg-green-50 rounded-lg p-4">
+              <div className="mb-6 bg-green-50 rounded-lg p-4">
                 <p className="text-sm text-green-900">
                   {parsedSections.message} (Processing time: {parsedSections.processing_time_ms.toFixed(2)}ms)
                 </p>
               </div>
 
+              {/* Contact Details (Editable) */}
+              <div className="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Contact Details (Rule-wise / Regex Extracted)</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Candidate Name</label>
+                    <input
+                      type="text"
+                      value={parsedName}
+                      onChange={(e) => setParsedName(e.target.value)}
+                      placeholder="Candidate name..."
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Email Address</label>
+                    <input
+                      type="email"
+                      value={parsedEmail}
+                      onChange={(e) => setParsedEmail(e.target.value)}
+                      placeholder="Email address..."
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Phone Number</label>
+                    <input
+                      type="text"
+                      value={parsedPhone}
+                      onChange={(e) => setParsedPhone(e.target.value)}
+                      placeholder="Phone number..."
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Professional Summary */}
+              {parsedSections.summary && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Professional Summary (Rule-wise)
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                    {parsedSections.summary}
+                  </div>
+                </div>
+              )}
+
               {/* Work Experience Results */}
               {parsedSections.work_experience.length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Work Experience ({parsedSections.work_experience.length} entries)
+                    Work Experience ({parsedSections.work_experience.length} entries - Model-wise)
                   </h3>
                   <div className="space-y-4">
                     {parsedSections.work_experience.map((exp, idx) => (
@@ -789,9 +1135,9 @@ export default function UploadPage() {
 
               {/* Education Results */}
               {parsedSections.education.length > 0 && (
-                <div>
+                <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Education ({parsedSections.education.length} entries)
+                    Education ({parsedSections.education.length} entries - Model-wise)
                   </h3>
                   <div className="space-y-3">
                     {parsedSections.education.map((edu, idx) => (
@@ -827,6 +1173,81 @@ export default function UploadPage() {
                   </div>
                 </div>
               )}
+
+              {/* Skills Results */}
+              {parsedSections.skills.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Extracted Skills ({parsedSections.skills.length} - Rule-wise)
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {parsedSections.skills.map((skill, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full hover:bg-purple-100 transition-colors shadow-sm">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Projects Results */}
+              {parsedSections.projects.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Projects ({parsedSections.projects.length} - Rule-wise)
+                  </h3>
+                  <div className="space-y-3">
+                    {parsedSections.projects.map((proj, idx) => (
+                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                        {proj}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Certifications Results */}
+              {parsedSections.certifications.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Certifications ({parsedSections.certifications.length} - Rule-wise)
+                  </h3>
+                  <ul className="space-y-2">
+                    {parsedSections.certifications.map((cert, idx) => (
+                      <li key={idx} className="flex items-center gap-2.5 bg-gray-50 rounded-lg p-3 border border-gray-200 text-sm text-gray-700">
+                        <svg className="w-5 h-5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
+                        </svg>
+                        {cert}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-6">
+                <button
+                  onClick={saveCandidateProfile}
+                  disabled={isSavingCandidate}
+                  className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/20 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSavingCandidate ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Saving Profile...
+                    </>
+                  ) : (
+                    "Save Candidate Profile"
+                  )}
+                </button>
+                <button
+                  onClick={resetUpload}
+                  className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-colors font-medium"
+                >
+                  Upload Another
+                </button>
+              </div>
             </div>
           )}
         </div>
