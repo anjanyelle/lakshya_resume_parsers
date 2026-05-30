@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import React from 'react';
 import { ChevronDown, ChevronRight, Copy, Check } from 'lucide-react';
 
 interface ParsedDataDebugViewProps {
@@ -16,8 +17,8 @@ export default function ParsedDataDebugView({ data, candidateId }: ParsedDataDeb
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const formatJson = (obj: any, indent = 0): JSX.Element[] => {
-    const elements: JSX.Element[] = [];
+  const formatJson = (obj: any, indent = 0): React.ReactElement[] => {
+    const elements: React.ReactElement[] = [];
   
 
     if (obj === null || obj === undefined) {

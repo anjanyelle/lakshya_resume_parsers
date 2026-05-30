@@ -210,7 +210,7 @@ class SocketService {
   }
 
   // Unsubscribe from events
-  unsubscribe(event: string, callback?: Function) {
+  unsubscribe(event: string, callback?: (...args: any[]) => void) {
     if (this.socket) {
       this.socket.off(event, callback);
     }

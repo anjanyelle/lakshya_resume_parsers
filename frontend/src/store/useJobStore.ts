@@ -14,6 +14,7 @@ interface Job {
   location?: string;
   salary_range?: string;
   department?: string;
+  status?: string;
   created_at: string;
   updated_at: string;
   required_skills?: Array<{
@@ -76,7 +77,7 @@ interface JobActions {
   clearMatchResults: () => void;
 }
 
-export const useJobStore = create<JobState & JobActions>((set, get) => ({
+export const useJobStore = create<JobState & JobActions>((set) => ({
   // Initial state
   jobs: [],
   currentJob: null,

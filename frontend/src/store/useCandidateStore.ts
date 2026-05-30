@@ -14,6 +14,7 @@ interface Candidate {
   raw_resume_text?: string;
   created_at: string;
   updated_at: string;
+  match_score?: number;
   skills?: Array<{
     id: string;
     skill_name: string;

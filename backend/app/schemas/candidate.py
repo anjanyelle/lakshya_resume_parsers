@@ -2,12 +2,21 @@ from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 from app.models.candidate import CandidateStatus
 from app.models.candidate import ReviewStatus
 from app.models.candidate_skill import ProficiencyLevel
 from app.models.parsing_job import ParsingJobStatus
+from app.utils.validators import (
+    PhoneNumberValidator,
+    ExperienceValidator,
+    EducationValidator,
+    URLValidator,
+    ConfidenceValidator,
+    DateRangeValidator,
+    SkillsValidator,
+)
 
 
 class WorkHistoryBase(BaseModel):
@@ -20,6 +29,16 @@ class WorkHistoryBase(BaseModel):
     location: Optional[str] = None
     description: Optional[str] = None
     display_order: Optional[int] = None
+    
+    @model_validator(mode='after')
+    def validate_date_range(self) -> 'WorkHistoryBase':
+        """Validate that start_date is before end_date."""
+        DateRangeValidator.validate_date_range(
+            self.start_date,
+            self.end_date,
+            "employment period"
+        )
+        return self
 
 
 class WorkHistoryCreate(WorkHistoryBase):
@@ -36,6 +55,16 @@ class WorkHistoryUpdate(BaseModel):
     location: Optional[str] = None
     description: Optional[str] = None
     display_order: Optional[int] = None
+    
+    @model_validator(mode='after')
+    def validate_date_range(self) -> 'WorkHistoryUpdate':
+        """Validate that start_date is before end_date."""
+        DateRangeValidator.validate_date_range(
+            self.start_date,
+            self.end_date,
+            "employment period"
+        )
+        return self
 
 
 class WorkHistoryRead(WorkHistoryBase):
@@ -52,6 +81,28 @@ class EducationBase(BaseModel):
     end_date: Optional[date] = None
     gpa: Optional[float] = None
     description: Optional[str] = None
+    
+    @field_validator('gpa')
+    @classmethod
+    def validate_gpa(cls, v: Optional[float]) -> Optional[float]:
+        """Validate GPA score."""
+        return EducationValidator.validate_gpa(v)
+    
+    @field_validator('degree')
+    @classmethod
+    def validate_degree(cls, v: Optional[str]) -> Optional[str]:
+        """Validate degree type."""
+        return EducationValidator.validate_degree(v)
+    
+    @model_validator(mode='after')
+    def validate_date_range(self) -> 'EducationBase':
+        """Validate that start_date is before end_date."""
+        DateRangeValidator.validate_date_range(
+            self.start_date,
+            self.end_date,
+            "education period"
+        )
+        return self
 
 
 class EducationCreate(EducationBase):
@@ -66,6 +117,28 @@ class EducationUpdate(BaseModel):
     end_date: Optional[date] = None
     gpa: Optional[float] = None
     description: Optional[str] = None
+    
+    @field_validator('gpa')
+    @classmethod
+    def validate_gpa(cls, v: Optional[float]) -> Optional[float]:
+        """Validate GPA score."""
+        return EducationValidator.validate_gpa(v)
+    
+    @field_validator('degree')
+    @classmethod
+    def validate_degree(cls, v: Optional[str]) -> Optional[str]:
+        """Validate degree type."""
+        return EducationValidator.validate_degree(v)
+    
+    @model_validator(mode='after')
+    def validate_date_range(self) -> 'EducationUpdate':
+        """Validate that start_date is before end_date."""
+        DateRangeValidator.validate_date_range(
+            self.start_date,
+            self.end_date,
+            "education period"
+        )
+        return self
 
 
 class EducationRead(EducationBase):
@@ -79,6 +152,12 @@ class SkillBase(BaseModel):
     category: Optional[str] = Field(default=None, max_length=100)
     normalized_name: Optional[str] = Field(default=None, max_length=150)
     source: Optional[str] = Field(default=None, max_length=50)
+    
+    @field_validator('name')
+    @classmethod
+    def validate_skill_name(cls, v: str) -> str:
+        """Validate skill name."""
+        return SkillsValidator.validate_skill_name(v)
 
 
 class SkillCreate(SkillBase):
@@ -89,6 +168,14 @@ class SkillUpdate(BaseModel):
     name: Optional[str] = Field(default=None, max_length=150)
     category: Optional[str] = Field(default=None, max_length=100)
     normalized_name: Optional[str] = Field(default=None, max_length=150)
+    
+    @field_validator('name')
+    @classmethod
+    def validate_skill_name(cls, v: Optional[str]) -> Optional[str]:
+        """Validate skill name."""
+        if v is None:
+            return None
+        return SkillsValidator.validate_skill_name(v)
 
 
 class SkillRead(SkillBase):
@@ -134,6 +221,12 @@ class ParsingJobBase(BaseModel):
     error_message: Optional[str] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    
+    @field_validator('confidence_score', 'ocr_confidence')
+    @classmethod
+    def validate_confidence_scores(cls, v: Optional[float]) -> Optional[float]:
+        """Validate confidence scores."""
+        return ConfidenceValidator.validate_confidence(v)
 
 
 class ParsingJobRead(ParsingJobBase):
@@ -149,6 +242,16 @@ class CertificationBase(BaseModel):
     issue_date: Optional[date] = None
     expiry_date: Optional[date] = None
     credential_id: Optional[str] = Field(default=None, max_length=100)
+    
+    @model_validator(mode='after')
+    def validate_date_range(self) -> 'CertificationBase':
+        """Validate that issue_date is before expiry_date."""
+        DateRangeValidator.validate_date_range(
+            self.issue_date,
+            self.expiry_date,
+            "certification validity period"
+        )
+        return self
 
 
 class CertificationCreate(CertificationBase):
@@ -161,6 +264,16 @@ class CertificationUpdate(BaseModel):
     issue_date: Optional[date] = None
     expiry_date: Optional[date] = None
     credential_id: Optional[str] = Field(default=None, max_length=100)
+    
+    @model_validator(mode='after')
+    def validate_date_range(self) -> 'CertificationUpdate':
+        """Validate that issue_date is before expiry_date."""
+        DateRangeValidator.validate_date_range(
+            self.issue_date,
+            self.expiry_date,
+            "certification validity period"
+        )
+        return self
 
 
 class CertificationRead(CertificationBase):
@@ -174,6 +287,12 @@ class CandidateAchievementBase(BaseModel):
     title: str
     year: Optional[int] = None
     confidence: Optional[float] = None
+    
+    @field_validator('confidence')
+    @classmethod
+    def validate_confidence(cls, v: Optional[float]) -> Optional[float]:
+        """Validate confidence score."""
+        return ConfidenceValidator.validate_confidence(v)
 
 
 class CandidateAchievementRead(CandidateAchievementBase):
@@ -199,6 +318,30 @@ class CandidateBase(BaseModel):
     status: CandidateStatus = CandidateStatus.PENDING
     consent_given: Optional[bool] = None
     consent_date: Optional[datetime] = None
+    
+    @field_validator('phone')
+    @classmethod
+    def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
+        """Validate phone number format."""
+        return PhoneNumberValidator.validate(v)
+    
+    @field_validator('years_experience')
+    @classmethod
+    def validate_years_of_experience(cls, v: Optional[float]) -> Optional[float]:
+        """Validate years of experience."""
+        return ExperienceValidator.validate_years(v)
+    
+    @field_validator('years_experience_confidence')
+    @classmethod
+    def validate_confidence(cls, v: Optional[float]) -> Optional[float]:
+        """Validate confidence score."""
+        return ConfidenceValidator.validate_confidence(v)
+    
+    @field_validator('linkedin_url', 'github_url')
+    @classmethod
+    def validate_urls(cls, v: Optional[str]) -> Optional[str]:
+        """Validate URL formats."""
+        return URLValidator.validate_url(v)
 
 
 class CandidateCreate(CandidateBase):
@@ -221,6 +364,30 @@ class CandidateUpdate(BaseModel):
     status: Optional[CandidateStatus] = None
     consent_given: Optional[bool] = None
     consent_date: Optional[datetime] = None
+    
+    @field_validator('phone')
+    @classmethod
+    def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
+        """Validate phone number format."""
+        return PhoneNumberValidator.validate(v)
+    
+    @field_validator('years_experience')
+    @classmethod
+    def validate_years_of_experience(cls, v: Optional[float]) -> Optional[float]:
+        """Validate years of experience."""
+        return ExperienceValidator.validate_years(v)
+    
+    @field_validator('years_experience_confidence')
+    @classmethod
+    def validate_confidence(cls, v: Optional[float]) -> Optional[float]:
+        """Validate confidence score."""
+        return ConfidenceValidator.validate_confidence(v)
+    
+    @field_validator('linkedin_url', 'github_url')
+    @classmethod
+    def validate_urls(cls, v: Optional[str]) -> Optional[str]:
+        """Validate URL formats."""
+        return URLValidator.validate_url(v)
 
 
 class CandidateRead(CandidateBase):

@@ -1,7 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
-import { useCandidateStore } from "../store/useCandidateStore";
 import { useAuthStore } from "../store/useAuthStore";
 import {
   connectSocket,
@@ -104,9 +102,7 @@ export default function UploadPage() {
   const [parsedSections, setParsedSections] = useState<ParsedSectionsResponse | null>(null);
   const [isParsingModel, setIsParsingModel] = useState(false);
 
-  const { uploadResume } = useCandidateStore();
   const { token } = useAuthStore();
-  const navigate = useNavigate();
 
   // Socket.io connection
   useEffect(() => {
@@ -395,12 +391,6 @@ export default function UploadPage() {
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
-
-  const getConfidenceColor = (score: number) => {
-    if (score >= 0.8) return "text-green-600 bg-green-100";
-    if (score >= 0.6) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
   };
 
   return (
