@@ -105,7 +105,6 @@ def upgrade() -> None:
         )
     """)
 
-
 def downgrade() -> None:
     op.drop_table('role_permissions')
     op.drop_table('permissions')
