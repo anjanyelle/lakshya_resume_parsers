@@ -16,6 +16,7 @@ import JobsPage from "./pages/JobsPage";
 import MatchingPage from "./pages/MatchingPage";
 import SectionPreviewPage from "./pages/SectionPreviewPage";
 import ModelTestPage from "./pages/ModelTestPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -163,6 +164,17 @@ function App() {
         }
       >
         <Route index element={<ModelTestPage />} />
+      </Route>
+
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AnalyticsPage />} />
       </Route>
 
       {/* Catch all route - redirect to dashboard if authenticated, login if not */}

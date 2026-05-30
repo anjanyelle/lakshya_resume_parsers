@@ -14,6 +14,7 @@ interface Job {
   location?: string;
   salary_range?: string;
   department?: string;
+  status?: string;
   created_at: string;
   updated_at: string;
   required_skills?: Array<{
@@ -113,11 +114,27 @@ export default function JobsPage() {
     }
 
     try {
+      const jobData: Partial<Job> = {
+        title: formData.title,
+        department: formData.department,
+        location: formData.location,
+        employment_type: formData.employment_type,
+        description: formData.description,
+        required_skills: formData.required_skills.map(skill => ({
+          id: crypto.randomUUID(),
+          skill_name: skill,
+          skill_type: "required" as const
+        })),
+        min_experience_years: formData.min_experience,
+        max_experience_years: formData.max_experience,
+        education_requirement: formData.education_requirement,
+      };
+
       if (editingJob) {
-        await updateJob(editingJob.id, formData);
+        await updateJob(editingJob.id, jobData);
         toast.success("Job updated successfully!");
       } else {
-        await createJob(formData);
+        await createJob(jobData);
         toast.success("Job created successfully!");
       }
 
@@ -154,14 +171,14 @@ export default function JobsPage() {
   const openEditModal = (job: Job) => {
     setFormData({
       title: job.title,
-      department: job.department,
-      location: job.location,
-      employment_type: job.employment_type,
+      department: job.department || "",
+      location: job.location || "",
+      employment_type: job.employment_type || "",
       description: job.description,
-      required_skills: job.required_skills,
-      min_experience: job.min_experience,
-      max_experience: job.max_experience,
-      education_requirement: job.education_requirement,
+      required_skills: job.required_skills?.map(s => s.skill_name) || [],
+      min_experience: job.min_experience_years || 0,
+      max_experience: job.max_experience_years || 0,
+      education_requirement: job.education_requirement || "",
     });
     setEditingJob(job);
     setIsCreateModalOpen(true);
@@ -201,7 +218,7 @@ export default function JobsPage() {
     }));
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status?: string) => {
     switch (status) {
       case "active":
         return "bg-green-100 text-green-800";
@@ -332,12 +349,12 @@ export default function JobsPage() {
                       d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
                     />
                   </svg>
-                  {job.min_experience}-{job.max_experience} years
+                  {job.min_experience_years}-{job.max_experience_years} years
                 </div>
               </div>
 
               {/* Skills */}
-              {job.required_skills.length > 0 && (
+              {job.required_skills && job.required_skills.length > 0 && (
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">Required Skills</p>
                   <div className="flex flex-wrap gap-1">
@@ -346,7 +363,7 @@ export default function JobsPage() {
                         key={index}
                         className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded"
                       >
-                        {skill}
+                        {skill.skill_name}
                       </span>
                     ))}
                     {job.required_skills.length > 3 && (

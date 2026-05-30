@@ -5,27 +5,6 @@ import { useJobStore } from "../store/useJobStore";
 import toast from "react-hot-toast";
 import SkillsTreeChart from "../components/candidate/SkillsTreeChart";
 
-interface MatchResult {
-  id: string;
-  job_id: string;
-  job_title?: string;
-  candidate_id: string;
-  candidate_name: string;
-  overall_score: number;
-  skill_score: number;
-  experience_score: number;
-  education_score: number;
-  matching_skills: string[];
-  missing_skills: string[];
-  recommendation:
-    | "Strong Match"
-    | "Good Match"
-    | "Partial Match"
-    | "Not Recommended";
-  reason: string;
-  created_at: string;
-}
-
 type TabType = "overview" | "skills" | "experience" | "education";
 
 export default function CandidateDetailPage() {
@@ -502,7 +481,7 @@ export default function CandidateDetailPage() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-gray-900 text-sm">
-                        {match.job_title || "Job Title"}
+                        Job ID: {match.job_id}
                       </h4>
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded ${getMatchColor(match.overall_score)}`}

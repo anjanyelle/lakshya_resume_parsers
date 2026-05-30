@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDropzone } from "react-dropzone";
 import { useAuthStore } from "../store/useAuthStore";
 import {
@@ -148,7 +147,6 @@ export default function UploadPage() {
   }, [parsedSections]);
 
   const { token } = useAuthStore();
-  const navigate = useNavigate();
 
   // Socket.io connection
   useEffect(() => {
