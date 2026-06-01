@@ -86,15 +86,14 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.*, s.name AS skill_name, cs.proficiency_level, cs.years_experience 
-           FROM skills s 
-           JOIN candidate_skills cs ON s.id = cs.skill_id 
-           WHERE cs.candidate_id = $1`,
+          `SELECT id, skill_name, category, proficiency_level, years_experience, confidence_score 
+           FROM skills 
+           WHERE candidate_id = $1`,
           [id]
         );
         skillRows = skillsResult.rows;
       } catch (skillErr: any) {
-        console.warn("candidate_skills/skills query failed:", skillErr.message);
+        console.warn("skills query failed:", skillErr.message);
       }
 
       // Get projects from candidates.projects JSONB column (graceful fallback)
@@ -109,7 +108,7 @@ export class CandidateModel {
 
       // Get latest parsing job
       const parsingJobResult = await client.query(
-        "SELECT status, confidence_score, error_message, completed_at FROM parsing_jobs WHERE candidate_id = $1 ORDER BY created_at DESC LIMIT 1",
+        "SELECT status, confidence_score, error_message, completed_at FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
         [id]
       );
       const parsingJob = parsingJobResult.rows[0] || null;
@@ -198,7 +197,7 @@ export class CandidateModel {
 
   static async getParsingStatus(client: any, candidateId: string): Promise<any | null> {
     const result = await client.query(
-      "SELECT * FROM parsing_jobs WHERE candidate_id = $1 ORDER BY created_at DESC LIMIT 1",
+      "SELECT * FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
       [candidateId]
     );
     return result.rows[0] || null;
@@ -276,9 +275,9 @@ export class CandidateModel {
                pj.completed_at as pj_completed_at
         FROM candidates 
         LEFT JOIN (
-            SELECT DISTINCT ON (candidate_id) candidate_id, status, confidence_score, error_message, completed_at
+            SELECT DISTINCT ON (candidate_id) candidate_id, status, confidence_score, error_message, completed_at, updated_at
             FROM parsing_jobs
-            ORDER BY candidate_id, created_at DESC
+            ORDER BY candidate_id, updated_at DESC
         ) pj ON candidates.id = pj.candidate_id
         ${joinClause}
         ${whereClause}

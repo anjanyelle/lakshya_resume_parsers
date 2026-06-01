@@ -445,6 +445,34 @@ const updateCandidateWithParsedData = async (
             [candidateId, skillId, "intermediate"],
           );
         }
+      } else {
+        // Flat skills table design: delete and insert directly
+        await client.query(
+          "DELETE FROM skills WHERE candidate_id = $1",
+          [candidateId]
+        );
+
+        for (const skill of parsedData.skills) {
+          const skillName =
+            typeof skill === "string"
+              ? skill
+              : (skill as any).name || (skill as any).skill_name;
+
+          if (!skillName) continue;
+
+          await client.query(
+            `INSERT INTO skills (id, candidate_id, name, category, proficiency_level, confidence_score) 
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+              crypto.randomUUID(),
+              candidateId,
+              truncateString(skillName.trim(), 255),
+              "technical",
+              "intermediate",
+              1.0
+            ]
+          );
+        }
       }
     }
 

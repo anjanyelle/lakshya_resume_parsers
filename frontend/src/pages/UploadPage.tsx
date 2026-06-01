@@ -141,6 +141,274 @@ export default function UploadPage() {
   const [parsedPhone, setParsedPhone] = useState("");
   const [rawResumeText, setRawResumeText] = useState(""); // Full raw text from preview-sections
 
+  // Skills editing states
+  const [newSkillText, setNewSkillText] = useState("");
+
+  // Projects editing states
+  const [editingProjectIdx, setEditingProjectIdx] = useState<number | null>(null);
+  const [editProjectText, setEditProjectText] = useState("");
+  const [newProjectText, setNewProjectText] = useState("");
+  const [isAddingProject, setIsAddingProject] = useState(false);
+
+  // Certifications editing states
+  const [editingCertIdx, setEditingCertIdx] = useState<number | null>(null);
+  const [editCertText, setEditCertText] = useState("");
+  const [newCertText, setNewCertText] = useState("");
+  const [isAddingCert, setIsAddingCert] = useState(false);
+
+  // Work Experience editing states
+  const [editingWorkIdx, setEditingWorkIdx] = useState<number | null>(null);
+  const [editWorkData, setEditWorkData] = useState<any>(null);
+  const [isAddingWork, setIsAddingWork] = useState(false);
+  const [newWorkData, setNewWorkData] = useState<any>({
+    job_title: "",
+    company_name: "",
+    location: "",
+    start_date: "",
+    end_date: "",
+    is_current: false,
+    description: ""
+  });
+
+  // Education editing states
+  const [editingEduIdx, setEditingEduIdx] = useState<number | null>(null);
+  const [editEduData, setEditEduData] = useState<any>(null);
+  const [isAddingEdu, setIsAddingEdu] = useState(false);
+  const [newEduData, setNewEduData] = useState<any>({
+    degree: "",
+    institution: "",
+    field_of_study: "",
+    graduation_date: ""
+  });
+
+  // Summary editing states
+  const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [editSummaryText, setEditSummaryText] = useState("");
+
+  // Summary Handlers
+  const handleStartEditSummary = () => {
+    if (parsedSections) {
+      setEditSummaryText(parsedSections.summary || "");
+      setIsEditingSummary(true);
+    }
+  };
+
+  const handleSaveSummary = () => {
+    if (parsedSections) {
+      setParsedSections({
+        ...parsedSections,
+        summary: editSummaryText
+      });
+      setIsEditingSummary(false);
+    }
+  };
+
+  const handleDeleteSummary = () => {
+    if (parsedSections) {
+      setParsedSections({
+        ...parsedSections,
+        summary: ""
+      });
+      setIsEditingSummary(false);
+    }
+  };
+
+  // Work Experience Handlers
+  const handleStartEditWork = (idx: number, data: any) => {
+    setEditingWorkIdx(idx);
+    setEditWorkData({ ...data });
+  };
+
+  const handleSaveWork = (idx: number) => {
+    if (parsedSections) {
+      const updated = [...parsedSections.work_experience];
+      updated[idx] = editWorkData;
+      setParsedSections({
+        ...parsedSections,
+        work_experience: updated
+      });
+      setEditingWorkIdx(null);
+      setEditWorkData(null);
+    }
+  };
+
+  const handleDeleteWork = (idx: number) => {
+    if (parsedSections) {
+      const updated = parsedSections.work_experience.filter((_, i) => i !== idx);
+      setParsedSections({
+        ...parsedSections,
+        work_experience: updated
+      });
+    }
+  };
+
+  const handleAddWork = () => {
+    if (parsedSections) {
+      setParsedSections({
+        ...parsedSections,
+        work_experience: [...parsedSections.work_experience, newWorkData]
+      });
+      setIsAddingWork(false);
+      setNewWorkData({
+        job_title: "",
+        company_name: "",
+        location: "",
+        start_date: "",
+        end_date: "",
+        is_current: false,
+        description: ""
+      });
+    }
+  };
+
+  // Education Handlers
+  const handleStartEditEdu = (idx: number, data: any) => {
+    setEditingEduIdx(idx);
+    setEditEduData({ ...data });
+  };
+
+  const handleSaveEdu = (idx: number) => {
+    if (parsedSections) {
+      const updated = [...parsedSections.education];
+      updated[idx] = editEduData;
+      setParsedSections({
+        ...parsedSections,
+        education: updated
+      });
+      setEditingEduIdx(null);
+      setEditEduData(null);
+    }
+  };
+
+  const handleDeleteEdu = (idx: number) => {
+    if (parsedSections) {
+      const updated = parsedSections.education.filter((_, i) => i !== idx);
+      setParsedSections({
+        ...parsedSections,
+        education: updated
+      });
+    }
+  };
+
+  const handleAddEdu = () => {
+    if (parsedSections) {
+      setParsedSections({
+        ...parsedSections,
+        education: [...parsedSections.education, newEduData]
+      });
+      setIsAddingEdu(false);
+      setNewEduData({
+        degree: "",
+        institution: "",
+        field_of_study: "",
+        graduation_date: ""
+      });
+    }
+  };
+
+  // Skills Handlers
+  const handleDeleteSkill = (idx: number) => {
+    if (parsedSections) {
+      const updated = parsedSections.skills.filter((_, i) => i !== idx);
+      setParsedSections({
+        ...parsedSections,
+        skills: updated
+      });
+    }
+  };
+
+  const handleAddSkill = () => {
+    if (newSkillText.trim() && parsedSections) {
+      if (!parsedSections.skills.includes(newSkillText.trim())) {
+        setParsedSections({
+          ...parsedSections,
+          skills: [...parsedSections.skills, newSkillText.trim()]
+        });
+      }
+      setNewSkillText("");
+    }
+  };
+
+  // Projects Handlers
+  const handleStartEditProject = (idx: number, text: string) => {
+    setEditingProjectIdx(idx);
+    setEditProjectText(text);
+  };
+
+  const handleSaveProject = (idx: number) => {
+    if (parsedSections) {
+      const updated = [...parsedSections.projects];
+      updated[idx] = editProjectText;
+      setParsedSections({
+        ...parsedSections,
+        projects: updated
+      });
+      setEditingProjectIdx(null);
+      setEditProjectText("");
+    }
+  };
+
+  const handleDeleteProject = (idx: number) => {
+    if (parsedSections) {
+      const updated = parsedSections.projects.filter((_, i) => i !== idx);
+      setParsedSections({
+        ...parsedSections,
+        projects: updated
+      });
+    }
+  };
+
+  const handleAddProject = () => {
+    if (newProjectText.trim() && parsedSections) {
+      setParsedSections({
+        ...parsedSections,
+        projects: [...parsedSections.projects, newProjectText.trim()]
+      });
+      setIsAddingProject(false);
+      setNewProjectText("");
+    }
+  };
+
+  // Certifications Handlers
+  const handleStartEditCert = (idx: number, text: string) => {
+    setEditingCertIdx(idx);
+    setEditCertText(text);
+  };
+
+  const handleSaveCert = (idx: number) => {
+    if (parsedSections) {
+      const updated = [...parsedSections.certifications];
+      updated[idx] = editCertText;
+      setParsedSections({
+        ...parsedSections,
+        certifications: updated
+      });
+      setEditingCertIdx(null);
+      setEditCertText("");
+    }
+  };
+
+  const handleDeleteCert = (idx: number) => {
+    if (parsedSections) {
+      const updated = parsedSections.certifications.filter((_, i) => i !== idx);
+      setParsedSections({
+        ...parsedSections,
+        certifications: updated
+      });
+    }
+  };
+
+  const handleAddCert = () => {
+    if (newCertText.trim() && parsedSections) {
+      setParsedSections({
+        ...parsedSections,
+        certifications: [...parsedSections.certifications, newCertText.trim()]
+      });
+      setIsAddingCert(false);
+      setNewCertText("");
+    }
+  };
+
   useEffect(() => {
     if (parsedSections) {
       setParsedName(parsedSections.contact?.name || "");
@@ -1162,27 +1430,256 @@ export default function UploadPage() {
               </div>
 
               {/* Professional Summary */}
-              {parsedSections.summary && (
+              {(parsedSections.summary !== null && parsedSections.summary !== undefined) && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    Professional Summary (Rule-wise)
-                  </h3>
-                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                    {parsedSections.summary}
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Professional Summary (Rule-wise)
+                    </h3>
+                    <div className="flex gap-2">
+                      {!isEditingSummary ? (
+                        <>
+                          <button
+                            onClick={handleStartEditSummary}
+                            className="px-2.5 py-1 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={handleDeleteSummary}
+                            className="px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={handleSaveSummary}
+                            className="px-2.5 py-1 text-xs font-semibold text-green-600 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setIsEditingSummary(false)}
+                            className="px-2.5 py-1 text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
+                  {isEditingSummary ? (
+                    <textarea
+                      value={editSummaryText}
+                      onChange={(e) => setEditSummaryText(e.target.value)}
+                      className="w-full h-32 p-3 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                      {parsedSections.summary || <span className="text-gray-400 italic">No summary details.</span>}
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Work Experience Results */}
-              {parsedSections.work_experience.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     Work Experience ({parsedSections.work_experience.length} entries - Model-wise)
                   </h3>
-                  <div className="space-y-4">
-                    {parsedSections.work_experience.map((exp, idx) => (
-                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="grid grid-cols-2 gap-3 text-sm">
+                  {!isAddingWork && (
+                    <button
+                      onClick={() => setIsAddingWork(true)}
+                      className="px-2.5 py-1 text-xs font-semibold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      + Add Work Experience
+                    </button>
+                  )}
+                </div>
+
+                {isAddingWork && (
+                  <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
+                    <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Work Experience</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                      <input
+                        type="text"
+                        placeholder="Job Title"
+                        value={newWorkData.job_title}
+                        onChange={(e) => setNewWorkData({ ...newWorkData, job_title: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Company Name"
+                        value={newWorkData.company_name}
+                        onChange={(e) => setNewWorkData({ ...newWorkData, company_name: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Location"
+                        value={newWorkData.location}
+                        onChange={(e) => setNewWorkData({ ...newWorkData, location: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Start Date (e.g. 2023-01-01)"
+                        value={newWorkData.start_date}
+                        onChange={(e) => setNewWorkData({ ...newWorkData, start_date: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="End Date (or Present)"
+                        value={newWorkData.end_date}
+                        onChange={(e) => setNewWorkData({ ...newWorkData, end_date: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="is_current"
+                          checked={newWorkData.is_current}
+                          onChange={(e) => setNewWorkData({ ...newWorkData, is_current: e.target.checked })}
+                          className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                        />
+                        <label htmlFor="is_current" className="text-xs font-semibold text-gray-700">Currently Working Here</label>
+                      </div>
+                    </div>
+                    <textarea
+                      placeholder="Job Description..."
+                      value={newWorkData.description}
+                      onChange={(e) => setNewWorkData({ ...newWorkData, description: e.target.value })}
+                      className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-20"
+                    />
+                    <div className="flex justify-end gap-2 text-xs">
+                      <button
+                        onClick={handleAddWork}
+                        className="px-3 py-1.5 font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={() => setIsAddingWork(false)}
+                        className="px-3 py-1.5 font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  {parsedSections.work_experience.map((exp, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
+                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {editingWorkIdx !== idx ? (
+                          <>
+                            <button
+                              onClick={() => handleStartEditWork(idx, exp)}
+                              className="px-2 py-0.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors shadow-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteWork(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleSaveWork(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-green-600 bg-white border border-green-200 rounded-md hover:bg-green-50 transition-colors shadow-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingWorkIdx(null); setEditWorkData(null); }}
+                              className="px-2 py-0.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {editingWorkIdx === idx ? (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Job Title</label>
+                              <input
+                                type="text"
+                                value={editWorkData.job_title || ""}
+                                onChange={(e) => setEditWorkData({ ...editWorkData, job_title: e.target.value })}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Company Name</label>
+                              <input
+                                type="text"
+                                value={editWorkData.company_name || ""}
+                                onChange={(e) => setEditWorkData({ ...editWorkData, company_name: e.target.value })}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Location</label>
+                              <input
+                                type="text"
+                                value={editWorkData.location || ""}
+                                onChange={(e) => setEditWorkData({ ...editWorkData, location: e.target.value })}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Start Date</label>
+                              <input
+                                type="text"
+                                value={editWorkData.start_date || ""}
+                                onChange={(e) => setEditWorkData({ ...editWorkData, start_date: e.target.value })}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">End Date</label>
+                              <input
+                                type="text"
+                                value={editWorkData.end_date || ""}
+                                onChange={(e) => setEditWorkData({ ...editWorkData, end_date: e.target.value })}
+                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2 pt-5">
+                              <input
+                                type="checkbox"
+                                id={`edit_is_current_${idx}`}
+                                checked={editWorkData.is_current || false}
+                                onChange={(e) => setEditWorkData({ ...editWorkData, is_current: e.target.checked })}
+                                className="h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                              />
+                              <label htmlFor={`edit_is_current_${idx}`} className="text-xs font-semibold text-gray-700">Currently Working Here</label>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Job Description</label>
+                            <textarea
+                              value={editWorkData.description || ""}
+                              onChange={(e) => setEditWorkData({ ...editWorkData, description: e.target.value })}
+                              className="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-sm h-20 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3 text-sm pr-20">
                           {exp.job_title && (
                             <div>
                               <span className="text-gray-600">Job Title:</span>
@@ -1213,23 +1710,166 @@ export default function UploadPage() {
                               <span className="font-medium text-gray-900 ml-2">{exp.end_date}</span>
                             </div>
                           )}
+                          {exp.description && (
+                            <div className="col-span-2 mt-1">
+                              <span className="text-gray-600 block mb-0.5">Description:</span>
+                              <span className="text-gray-700 text-xs whitespace-pre-line leading-normal">{exp.description}</span>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </div>
+                  ))}
+                  {parsedSections.work_experience.length === 0 && (
+                    <p className="text-sm text-gray-500 italic">No work experience entries.</p>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Education Results */}
-              {parsedSections.education.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     Education ({parsedSections.education.length} entries - Model-wise)
                   </h3>
-                  <div className="space-y-3">
-                    {parsedSections.education.map((edu, idx) => (
-                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="grid grid-cols-2 gap-3 text-sm">
+                  {!isAddingEdu && (
+                    <button
+                      onClick={() => setIsAddingEdu(true)}
+                      className="px-2.5 py-1 text-xs font-semibold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      + Add Education
+                    </button>
+                  )}
+                </div>
+
+                {isAddingEdu && (
+                  <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
+                    <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Education</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <input
+                        type="text"
+                        placeholder="Degree / Qualification"
+                        value={newEduData.degree}
+                        onChange={(e) => setNewEduData({ ...newEduData, degree: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Institution / University"
+                        value={newEduData.institution}
+                        onChange={(e) => setNewEduData({ ...newEduData, institution: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Field of Study"
+                        value={newEduData.field_of_study}
+                        onChange={(e) => setNewEduData({ ...newEduData, field_of_study: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Graduation Date / Year"
+                        value={newEduData.graduation_date}
+                        onChange={(e) => setNewEduData({ ...newEduData, graduation_date: e.target.value })}
+                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2 text-xs">
+                      <button
+                        onClick={handleAddEdu}
+                        className="px-3 py-1.5 font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={() => setIsAddingEdu(false)}
+                        className="px-3 py-1.5 font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {parsedSections.education.map((edu, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
+                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {editingEduIdx !== idx ? (
+                          <>
+                            <button
+                              onClick={() => handleStartEditEdu(idx, edu)}
+                              className="px-2 py-0.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors shadow-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteEdu(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleSaveEdu(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-green-600 bg-white border border-green-200 rounded-md hover:bg-green-50 transition-colors shadow-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingEduIdx(null); setEditEduData(null); }}
+                              className="px-2 py-0.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {editingEduIdx === idx ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Degree</label>
+                            <input
+                              type="text"
+                              value={editEduData.degree || ""}
+                              onChange={(e) => setEditEduData({ ...editEduData, degree: e.target.value })}
+                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Institution</label>
+                            <input
+                              type="text"
+                              value={editEduData.institution || ""}
+                              onChange={(e) => setEditEduData({ ...editEduData, institution: e.target.value })}
+                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Field of Study</label>
+                            <input
+                              type="text"
+                              value={editEduData.field_of_study || ""}
+                              onChange={(e) => setEditEduData({ ...editEduData, field_of_study: e.target.value })}
+                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Graduation Date</label>
+                            <input
+                              type="text"
+                              value={editEduData.graduation_date || ""}
+                              onChange={(e) => setEditEduData({ ...editEduData, graduation_date: e.target.value })}
+                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3 text-sm pr-20">
                           {edu.degree && (
                             <div>
                               <span className="text-gray-600">Degree:</span>
@@ -1255,62 +1895,267 @@ export default function UploadPage() {
                             </div>
                           )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </div>
+                  ))}
+                  {parsedSections.education.length === 0 && (
+                    <p className="text-sm text-gray-500 italic">No education entries.</p>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Skills Results */}
-              {parsedSections.skills.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              <div className="mb-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     Extracted Skills ({parsedSections.skills.length} - Rule-wise)
                   </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {parsedSections.skills.map((skill, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full hover:bg-purple-100 transition-colors shadow-sm">
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add a skill..."
+                      value={newSkillText}
+                      onChange={(e) => setNewSkillText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddSkill();
+                        }
+                      }}
+                      className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 w-36"
+                    />
+                    <button
+                      onClick={handleAddSkill}
+                      className="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs hover:bg-purple-700 font-medium"
+                    >
+                      Add
+                    </button>
                   </div>
                 </div>
-              )}
+                <div className="flex flex-wrap gap-2">
+                  {parsedSections.skills.map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full flex items-center gap-1.5 shadow-sm group hover:bg-purple-100 transition-colors"
+                    >
+                      {skill}
+                      <button
+                        onClick={() => handleDeleteSkill(idx)}
+                        className="text-purple-400 hover:text-purple-700 transition-colors font-bold text-xs"
+                        aria-label="Remove skill"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  {parsedSections.skills.length === 0 && (
+                    <p className="text-sm text-gray-500 italic">No skills added yet.</p>
+                  )}
+                </div>
+              </div>
 
               {/* Projects Results */}
-              {parsedSections.projects.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     Projects ({parsedSections.projects.length} - Rule-wise)
                   </h3>
-                  <div className="space-y-3">
-                    {parsedSections.projects.map((proj, idx) => (
-                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                        {proj}
-                      </div>
-                    ))}
-                  </div>
+                  {!isAddingProject && (
+                    <button
+                      onClick={() => setIsAddingProject(true)}
+                      className="px-2.5 py-1 text-xs font-semibold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      + Add Project
+                    </button>
+                  )}
                 </div>
-              )}
+
+                {isAddingProject && (
+                  <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
+                    <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Project Description</h4>
+                    <textarea
+                      placeholder="Enter project details..."
+                      value={newProjectText}
+                      onChange={(e) => setNewProjectText(e.target.value)}
+                      className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-24"
+                    />
+                    <div className="flex justify-end gap-2 text-xs">
+                      <button
+                        onClick={handleAddProject}
+                        className="px-3 py-1.5 font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={() => setIsAddingProject(false)}
+                        className="px-3 py-1.5 font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {parsedSections.projects.map((proj, idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
+                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {editingProjectIdx !== idx ? (
+                          <>
+                            <button
+                              onClick={() => handleStartEditProject(idx, proj)}
+                              className="px-2 py-0.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors shadow-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProject(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleSaveProject(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-green-600 bg-white border border-green-200 rounded-md hover:bg-green-50 transition-colors shadow-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingProjectIdx(null); setEditProjectText(""); }}
+                              className="px-2 py-0.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+
+                      {editingProjectIdx === idx ? (
+                        <textarea
+                          value={editProjectText}
+                          onChange={(e) => setEditProjectText(e.target.value)}
+                          className="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-sm h-24 focus:outline-none"
+                        />
+                      ) : (
+                        <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed pr-20">
+                          {proj}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {parsedSections.projects.length === 0 && (
+                    <p className="text-sm text-gray-500 italic">No projects entries.</p>
+                  )}
+                </div>
+              </div>
 
               {/* Certifications Results */}
-              {parsedSections.certifications.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     Certifications ({parsedSections.certifications.length} - Rule-wise)
                   </h3>
-                  <ul className="space-y-2">
-                    {parsedSections.certifications.map((cert, idx) => (
-                      <li key={idx} className="flex items-center gap-2.5 bg-gray-50 rounded-lg p-3 border border-gray-200 text-sm text-gray-700">
-                        <svg className="w-5 h-5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
-                        </svg>
-                        {cert}
-                      </li>
-                    ))}
-                  </ul>
+                  {!isAddingCert && (
+                    <button
+                      onClick={() => setIsAddingCert(true)}
+                      className="px-2.5 py-1 text-xs font-semibold text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      + Add Certification
+                    </button>
+                  )}
                 </div>
-              )}
+
+                {isAddingCert && (
+                  <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
+                    <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Certification Name</h4>
+                    <input
+                      type="text"
+                      placeholder="e.g. AWS Certified Solutions Architect"
+                      value={newCertText}
+                      onChange={(e) => setNewCertText(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <div className="flex justify-end gap-2 text-xs">
+                      <button
+                        onClick={handleAddCert}
+                        className="px-3 py-1.5 font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={() => setIsAddingCert(false)}
+                        className="px-3 py-1.5 font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <ul className="space-y-2">
+                  {parsedSections.certifications.map((cert, idx) => (
+                    <li key={idx} className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200 text-sm text-gray-700 relative group">
+                      {editingCertIdx === idx ? (
+                        <div className="flex items-center gap-2 w-full pr-20">
+                          <input
+                            type="text"
+                            value={editCertText}
+                            onChange={(e) => setEditCertText(e.target.value)}
+                            className="flex-grow px-2 py-1 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2.5 pr-20">
+                          <svg className="w-5 h-5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138z" />
+                          </svg>
+                          {cert}
+                        </div>
+                      )}
+
+                      <div className="absolute right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {editingCertIdx !== idx ? (
+                          <>
+                            <button
+                              onClick={() => handleStartEditCert(idx, cert)}
+                              className="px-2 py-0.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors shadow-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCert(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleSaveCert(idx)}
+                              className="px-2 py-0.5 text-xs font-semibold text-green-600 bg-white border border-green-200 rounded-md hover:bg-green-50 transition-colors shadow-sm"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => { setEditingCertIdx(null); setEditCertText(""); }}
+                              className="px-2 py-0.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                  {parsedSections.certifications.length === 0 && (
+                    <p className="text-sm text-gray-500 italic">No certifications entries.</p>
+                  )}
+                </ul>
+              </div>
 
               {/* Action Buttons */}
               <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-6">

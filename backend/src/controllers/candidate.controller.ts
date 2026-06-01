@@ -196,34 +196,64 @@ export const createCandidate = async (
 
       // Save nested skills if provided
       if (candidateData.skills && Array.isArray(candidateData.skills)) {
-        for (const skillName of candidateData.skills) {
-          if (!skillName || typeof skillName !== "string") continue;
-          
-          const existingSkill = await client.query(
-            "SELECT id FROM skills WHERE name = $1",
-            [skillName],
-          );
+        const tableCheck = await client.query(`
+          SELECT table_name 
+          FROM information_schema.tables 
+          WHERE table_name = 'candidate_skills'
+        `);
 
-          let skillId: string;
-          if (existingSkill.rows.length > 0) {
-            skillId = existingSkill.rows[0].id;
-          } else {
-            const newSkill = await client.query(
-              "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
-              [crypto.randomUUID(), skillName, "technical"],
+        if (tableCheck.rows.length > 0) {
+          for (const skillName of candidateData.skills) {
+            if (!skillName || typeof skillName !== "string") continue;
+            
+            const existingSkill = await client.query(
+              "SELECT id FROM skills WHERE name = $1",
+              [skillName],
             );
-            skillId = newSkill.rows[0].id;
-          }
 
-          // Check if association already exists
-          const linkCheck = await client.query(
-            "SELECT 1 FROM candidate_skills WHERE candidate_id = $1 AND skill_id = $2",
-            [candidate.id, skillId]
+            let skillId: string;
+            if (existingSkill.rows.length > 0) {
+              skillId = existingSkill.rows[0].id;
+            } else {
+              const newSkill = await client.query(
+                "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
+                [crypto.randomUUID(), skillName, "technical"],
+              );
+              skillId = newSkill.rows[0].id;
+            }
+
+            // Check if association already exists
+            const linkCheck = await client.query(
+              "SELECT 1 FROM candidate_skills WHERE candidate_id = $1 AND skill_id = $2",
+              [candidate.id, skillId]
+            );
+            if (linkCheck.rows.length === 0) {
+              await client.query(
+                "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3)",
+                [candidate.id, skillId, "intermediate"],
+              );
+            }
+          }
+        } else {
+          // Flat skills table design: delete and insert directly
+          await client.query(
+            "DELETE FROM skills WHERE candidate_id = $1",
+            [candidate.id]
           );
-          if (linkCheck.rows.length === 0) {
+
+          for (const skillName of candidateData.skills) {
+            if (!skillName || typeof skillName !== "string") continue;
             await client.query(
-              "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3)",
-              [candidate.id, skillId, "intermediate"],
+              `INSERT INTO skills (id, candidate_id, name, category, proficiency_level, confidence_score) 
+               VALUES ($1, $2, $3, $4, $5, $6)`,
+              [
+                crypto.randomUUID(),
+                candidate.id,
+                skillName.trim().substring(0, 255),
+                "technical",
+                "intermediate",
+                1.0
+              ]
             );
           }
         }
@@ -696,27 +726,57 @@ export const importCandidatesFromCSV = async (
           const skillsStr = row.skills || row.skills_list || "";
           if (skillsStr) {
             const skillNames = skillsStr.split(";").map((s: string) => s.trim()).filter(Boolean);
-            for (const skillName of skillNames) {
-              const existingSkill = await client.query(
-                "SELECT id FROM skills WHERE name = $1",
-                [skillName],
-              );
+            const tableCheck = await client.query(`
+              SELECT table_name 
+              FROM information_schema.tables 
+              WHERE table_name = 'candidate_skills'
+            `);
 
-              let skillId: string;
-              if (existingSkill.rows.length > 0) {
-                skillId = existingSkill.rows[0].id;
-              } else {
-                const newSkill = await client.query(
-                  "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
-                  [crypto.randomUUID(), skillName, "technical"],
+            if (tableCheck.rows.length > 0) {
+              for (const skillName of skillNames) {
+                const existingSkill = await client.query(
+                  "SELECT id FROM skills WHERE name = $1",
+                  [skillName],
                 );
-                skillId = newSkill.rows[0].id;
-              }
 
+                let skillId: string;
+                if (existingSkill.rows.length > 0) {
+                  skillId = existingSkill.rows[0].id;
+                } else {
+                  const newSkill = await client.query(
+                    "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
+                    [crypto.randomUUID(), skillName, "technical"],
+                  );
+                  skillId = newSkill.rows[0].id;
+                }
+
+                await client.query(
+                  "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+                  [candidate.id, skillId, "intermediate"],
+                );
+              }
+            } else {
+              // Delete existing flat skills
               await client.query(
-                "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
-                [candidate.id, skillId, "intermediate"],
+                "DELETE FROM skills WHERE candidate_id = $1",
+                [candidate.id]
               );
+
+              for (const skillName of skillNames) {
+                await client.query(
+                  `INSERT INTO skills (id, candidate_id, name, category, proficiency_level, confidence_score) 
+                   VALUES ($1, $2, $3, $4, $5, $6)`,
+                  [
+                    crypto.randomUUID(),
+                    candidate.id,
+                    skillName.substring(0, 255),
+                    "technical",
+                    "intermediate",
+                    1.0
+                  ]
+                );
+              }
+            }
             }
           }
 
@@ -915,18 +975,39 @@ export const mergeCandidates = async (
       );
 
       // Merge skills
-      const primarySkills = await client.query("SELECT skill_id FROM candidate_skills WHERE candidate_id = $1", [primaryId]);
-      const primarySkillIds = primarySkills.rows.map((s: any) => s.skill_id);
-      if (primarySkillIds.length > 0) {
+      const tableCheck = await client.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_name = 'candidate_skills'
+      `);
+
+      if (tableCheck.rows.length > 0) {
+        const primarySkills = await client.query("SELECT skill_id FROM candidate_skills WHERE candidate_id = $1", [primaryId]);
+        const primarySkillIds = primarySkills.rows.map((s: any) => s.skill_id);
+        if (primarySkillIds.length > 0) {
+          await client.query(
+            "DELETE FROM candidate_skills WHERE candidate_id = $1 AND skill_id = ANY($2)",
+            [duplicateId, primarySkillIds]
+          );
+        }
         await client.query(
-          "DELETE FROM candidate_skills WHERE candidate_id = $1 AND skill_id = ANY($2)",
-          [duplicateId, primarySkillIds]
+          "UPDATE candidate_skills SET candidate_id = $1 WHERE candidate_id = $2",
+          [primaryId, duplicateId]
+        );
+      } else {
+        const primarySkills = await client.query("SELECT LOWER(TRIM(skill_name)) as name FROM skills WHERE candidate_id = $1", [primaryId]);
+        const primarySkillNames = primarySkills.rows.map((s: any) => s.name);
+        if (primarySkillNames.length > 0) {
+          await client.query(
+            "DELETE FROM skills WHERE candidate_id = $1 AND LOWER(TRIM(skill_name)) = ANY($2)",
+            [duplicateId, primarySkillNames]
+          );
+        }
+        await client.query(
+          "UPDATE skills SET candidate_id = $1 WHERE candidate_id = $2",
+          [primaryId, duplicateId]
         );
       }
-      await client.query(
-        "UPDATE candidate_skills SET candidate_id = $1 WHERE candidate_id = $2",
-        [primaryId, duplicateId]
-      );
 
       // Merge projects: Merge unique projects lists if candidates have them
       let mergedProjects = [];

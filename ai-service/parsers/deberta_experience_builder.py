@@ -32,26 +32,42 @@ class DeBERTaExperienceBuilder:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         
-        # Common technology names that should NOT be treated as companies
+        # Common technology names that should NOT be treated as companies or roles
         self.tech_keywords = {
+            # Mobile
+            'android', 'ios', 'swift', 'kotlin', 'flutter', 'react native', 'react-native', 'xamarin',
             # Cloud & Infrastructure
-            'aws', 'azure', 'gcp', 'google cloud', 'cloud', 'docker', 'kubernetes', 'k8s',
+            'aws', 'azure', 'gcp', 'google cloud', 'cloud', 'docker', 'kubernetes', 'k8s', 'ecs', 'eks',
+            's3', 'ec2', 'lambda', 'amplify', 'firebase', 'firestore', 'supabase', 'heroku', 'netlify', 'vercel',
             # Databases
-            'sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'cassandra', 'dynamodb', 'snowflake',
+            'sql', 'mysql', 'postgresql', 'postgres', 'mongodb', 'redis', 'cassandra', 'dynamodb', 'snowflake',
+            'sqlite', 'oracle', 'mssql', 'sql server', 'sqlserver', 'db2', 'neo4j',
             # Programming Languages
             'python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'ruby', 'go', 'rust', 'scala',
+            'php', 'perl', 'bash', 'powershell', 'html', 'css', 'sass', 'less',
             # Frameworks & Libraries
             'react', 'angular', 'vue', 'node', 'nodejs', 'express', 'django', 'flask', 'spring',
-            'tensorflow', 'pytorch', 'keras', 'pandas', 'numpy', 'spark', 'hadoop',
+            'spring boot', 'springboot', 'hibernate', 'fastapi', 'nextjs', 'next.js', 'gatsby', 'nuxt',
+            'svelte', 'laravel', 'symfony', 'rails', 'asp.net', 'dotnet', '.net', 'jquery', 'bootstrap',
+            'tailwind', 'tailwindcss', 'material ui', 'mui',
+            # ML/AI
+            'tensorflow', 'pytorch', 'keras', 'pandas', 'numpy', 'spark', 'hadoop', 'nlp', 'llm',
+            'langchain', 'huggingface', 'openai', 'scikit-learn',
             # Data Tools
             'tableau', 'power bi', 'looker', 'dbt', 'airflow', 'kafka', 'etl', 'elt',
-            'apache', 'databricks', 'redshift', 'bigquery',
+            'apache', 'databricks', 'redshift', 'bigquery', 'olap',
             # DevOps & Tools
-            'jenkins', 'gitlab', 'github', 'jira', 'confluence', 'terraform', 'ansible',
-            'git', 'ci/cd', 'cicd',
-            # Other
+            'jenkins', 'gitlab', 'github', 'github actions', 'gitlab ci', 'jira', 'confluence', 'terraform', 'ansible',
+            'git', 'ci/cd', 'cicd', 'maven', 'gradle', 'npm', 'yarn', 'pnpm', 'webpack', 'vite',
+            # Testing
+            'selenium', 'cypress', 'playwright', 'jest', 'mocha', 'junit', 'testng', 'nunit', 'pytest',
+            # Other / Concepts
             'api', 'rest', 'graphql', 'microservices', 'agile', 'scrum', 'ml', 'ai',
-            'data', 'analytics', 'bi', 'etl', 'pipeline', 'workflow', 'automation'
+            'data', 'analytics', 'bi', 'pipeline', 'workflow', 'automation',
+            'pwa', 'progressive web app', 'spa', 'single page application',
+            'jwt', 'oauth', 'oauth2', 'saml', 'sso', 'soap', 'restful', 'grpc',
+            # Generic/Noise keywords that get misidentified
+            'platform', 'system', 'framework', 'library', 'integration', 'authentication', 'authorization'
         }
     
     def build_experiences_from_entities(self, entities: Dict[str, List[str]], text: str) -> List[Dict[str, Any]]:
@@ -118,11 +134,44 @@ class DeBERTaExperienceBuilder:
         """
         # Separate entities by type with positions
         companies_raw = [e for e in positions_data if e['type'] == 'COMPANY']
-        roles = [e for e in positions_data if e['type'] == 'ROLE']
+        roles_raw = [e for e in positions_data if e['type'] == 'ROLE']
         locations = [e for e in positions_data if e['type'] == 'LOCATION']
         start_dates = [e for e in positions_data if e['type'] in ['START_DATE', 'DATE_START']]
         end_dates = [e for e in positions_data if e['type'] in ['END_DATE', 'DATE_END']]
         clients_raw = [e for e in positions_data if e['type'] == 'CLIENT']
+        
+        # Filter out technology keywords and generic descriptors from roles
+        roles = []
+        filtered_roles_count = 0
+        for role in roles_raw:
+            role_text = role['text'].lower().strip()
+            
+            # Check if it's an exact match with tech keywords
+            if role_text in self.tech_keywords:
+                filtered_roles_count += 1
+                self.logger.debug(f"🔧 Filtered tech keyword from roles: '{role['text']}'")
+                continue
+                
+            # Check if all words are tech keywords
+            words = re.split(r'[\s/,\-\&]+', role_text)
+            words = [w.strip() for w in words if w.strip()]
+            if words:
+                ignore_words = {'and', 'or', 'with', 'in', 'on', 'at', 'using', 'from', 'to'}
+                all_tech = True
+                for word in words:
+                    word_clean = re.sub(r'\.js$', '', word)
+                    if word_clean not in self.tech_keywords and word not in self.tech_keywords and word not in ignore_words:
+                        all_tech = False
+                        break
+                if all_tech:
+                    filtered_roles_count += 1
+                    self.logger.debug(f"🔧 Filtered technology list from roles: '{role['text']}'")
+                    continue
+            
+            roles.append(role)
+            
+        if filtered_roles_count > 0:
+            self.logger.info(f"🔧 Filtered {filtered_roles_count} technology keywords from {len(roles_raw)} roles")
         
         # Filter out technology keywords from companies
         companies = []
