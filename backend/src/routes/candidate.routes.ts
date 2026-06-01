@@ -6,10 +6,19 @@ import {
   updateCandidate,
   deleteCandidate,
   getCandidateParsingStatus,
+  importCandidatesFromCSV,
+  getDuplicates,
+  mergeCandidates,
+  ignoreDuplicate,
 } from "../controllers/candidate.controller";
 import { authenticateToken, requireRole } from "../middleware/auth.middleware";
+import multer from "multer";
 
 const router = Router();
+const uploadCSV = multer({
+  dest: process.env.FILE_UPLOAD_PATH || "./uploads",
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
 
 // All candidate routes require authentication
 router.use(authenticateToken);
@@ -62,6 +71,15 @@ router.use(authenticateToken);
  *         description: Unauthorized
  */
 router.post("/", createCandidate);
+
+// POST /api/candidates/import-csv
+// Import candidates in bulk using CSV file
+router.post("/import-csv", uploadCSV.single("file"), importCandidatesFromCSV);
+
+// Duplicate resume management routes
+router.get("/duplicates", getDuplicates);
+router.post("/merge", mergeCandidates);
+router.post("/ignore-duplicate", ignoreDuplicate);
 
 /**
  * @swagger

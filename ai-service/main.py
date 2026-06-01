@@ -242,6 +242,7 @@ class ParseSectionsRequest(BaseModel):
     certifications_text: Optional[str] = None
     projects_text: Optional[str] = None
     contact_text: Optional[str] = None
+    raw_text: Optional[str] = None  # Full resume text for fallback name extraction
 
 class ParseSectionsResponse(BaseModel):
     status: str
@@ -478,10 +479,10 @@ async def parse_batch(request: BatchParseRequest):
         )
     
     # Validate batch size
-    if len(request.files) > 10:
+    if len(request.files) > 100:
         raise HTTPException(
             status_code=400,
-            detail="Batch size too large. Maximum 10 files allowed per batch."
+            detail="Batch size too large. Maximum 100 files allowed per batch."
         )
     
     if len(request.files) == 0:
@@ -830,6 +831,53 @@ async def parse_sections(request: ParseSectionsRequest):
                         break
             except Exception as e:
                 logger.warning(f"Failed to extract contact details: {e}")
+
+        # Fallback/enhancement: If name, email, or phone is missing, try to extract them from all available section texts
+        # Combine all non-empty sections
+        all_texts = []
+        for text_field in [request.contact_text, request.summary_text, request.experience_text, 
+                           request.education_text, request.skills_text, request.certifications_text, request.projects_text]:
+            if text_field and text_field.strip():
+                all_texts.append(text_field.strip())
+        
+        combined_all_text = "\n\n".join(all_texts)
+        
+        # Also include raw_text for better name extraction (catches header text that may not be in any section)
+        raw_text_for_name = request.raw_text or combined_all_text
+        
+        if combined_all_text:
+            try:
+                from parsers.rule_parser import RuleBasedParser
+                rule_parser = RuleBasedParser()
+                if not contact.get('email'):
+                    contact['email'] = rule_parser.extract_email(combined_all_text)
+                if not contact.get('phone'):
+                    contact['phone'] = rule_parser.extract_phone(combined_all_text)
+                if not contact.get('linkedin'):
+                    contact['linkedin'] = rule_parser.extract_linkedin(combined_all_text)
+                if not contact.get('github'):
+                    try:
+                        contact['github'] = rule_parser.extract_github(combined_all_text)
+                    except:
+                        pass
+                if not contact.get('name'):
+                    # Try raw_text first (full document) then combined sections
+                    contact['name'] = rule_parser.extract_name(raw_text_for_name) or rule_parser.extract_name(combined_all_text)
+            except Exception as e:
+                logger.warning(f"Failed to extract contact details from combined text fallback: {e}")
+        elif raw_text_for_name:
+            # Edge case: no section texts but raw_text is available
+            try:
+                from parsers.rule_parser import RuleBasedParser
+                rule_parser = RuleBasedParser()
+                if not contact.get('name'):
+                    contact['name'] = rule_parser.extract_name(raw_text_for_name)
+                if not contact.get('email'):
+                    contact['email'] = rule_parser.extract_email(raw_text_for_name)
+                if not contact.get('phone'):
+                    contact['phone'] = rule_parser.extract_phone(raw_text_for_name)
+            except Exception as e:
+                logger.warning(f"Failed to extract contact from raw_text: {e}")
         
         # 1. Parse skills
         if request.skills_text and request.skills_text.strip():
@@ -908,6 +956,43 @@ async def parse_sections(request: ParseSectionsRequest):
                     except Exception as e:
                         logger.warning(f"Validation failed: {e}, using unvalidated results")
                     
+                    # Post-process skills: extract extra skills from job titles/descriptions and raw text
+                    try:
+                        from parsers.rule_parser import RuleBasedParser
+                        rule_parser = RuleBasedParser()
+                        extra_skills = []
+                        for exp in work_experience:
+                            title = exp.get('job_title') or exp.get('title')
+                            if title:
+                                title_skills = rule_parser.extract_skills(title)
+                                if title_skills:
+                                    extra_skills.extend(title_skills)
+                            desc = exp.get('description')
+                            if desc:
+                                desc_skills = rule_parser.extract_skills(desc[:500])
+                                if desc_skills:
+                                    extra_skills.extend(desc_skills)
+                        
+                        if request.experience_text and request.experience_text.strip():
+                            raw_exp_skills = rule_parser.extract_skills(request.experience_text)
+                            if raw_exp_skills:
+                                extra_skills.extend(raw_exp_skills)
+                                
+                        if request.projects_text and request.projects_text.strip():
+                            raw_proj_skills = rule_parser.extract_skills(request.projects_text)
+                            if raw_proj_skills:
+                                extra_skills.extend(raw_proj_skills)
+                                
+                        if request.summary_text and request.summary_text.strip():
+                            raw_sum_skills = rule_parser.extract_skills(request.summary_text)
+                            if raw_sum_skills:
+                                extra_skills.extend(raw_sum_skills)
+                                
+                        if extra_skills:
+                            skills = list(dict.fromkeys(skills + extra_skills))
+                    except Exception as skill_err:
+                        logger.warning(f"Failed to post-process skills from experience in parse-sections: {skill_err}")
+
                     processing_time_ms = (time.time() - start_time) * 1000
                     
                     return ParseSectionsResponse(
@@ -1006,9 +1091,38 @@ async def parse_sections(request: ParseSectionsRequest):
             
             # Check if text needs chunking (>2000 chars)
             if len(exp_text) > 2000:
-                logger.info("Long experience text detected, using job-boundary chunking")
-                chunks = chunk_by_jobs(exp_text, max_words=400)
-                logger.info(f"Split into {len(chunks)} chunks by job boundaries")
+                logger.info("Long experience text detected, using date-boundary chunking")
+                
+                # Use split_job_blocks from experience_extractor.py (uses DATE_LINE_PATTERN)
+                # This is more reliable than company-location pattern matching
+                from parsers.experience_extractor import split_job_blocks as date_split_blocks
+                date_blocks = date_split_blocks(exp_text)
+                logger.info(f"Detected {len(date_blocks)} job blocks via date boundaries")
+                
+                if len(date_blocks) <= 1:
+                    # Date-based splitting failed - try company-location pattern as fallback
+                    fallback_chunks = chunk_by_jobs(exp_text, max_words=400)
+                    logger.info(f"Date splitting found {len(date_blocks)} blocks, trying company-location fallback: {len(fallback_chunks)} chunks")
+                    chunks = fallback_chunks if len(fallback_chunks) > 1 else [exp_text]
+                else:
+                    # Group date blocks into word-limit chunks
+                    max_words = 400
+                    chunks = []
+                    current_chunk = []
+                    current_count = 0
+                    for block in date_blocks:
+                        block_words = len(block.split())
+                        if current_count + block_words > max_words and current_chunk:
+                            chunks.append('\n\n'.join(current_chunk))
+                            current_chunk = [block]
+                            current_count = block_words
+                        else:
+                            current_chunk.append(block)
+                            current_count += block_words
+                    if current_chunk:
+                        chunks.append('\n\n'.join(current_chunk))
+                
+                logger.info(f"Final chunk count: {len(chunks)}")
                 
                 # Process each chunk sequentially
                 all_experiences = []
@@ -1027,6 +1141,17 @@ async def parse_sections(request: ParseSectionsRequest):
                 
                 work_experience = all_experiences
                 logger.info(f"Total extracted {len(work_experience)} work experience entries from {len(chunks)} chunks")
+                
+                # Fallback: if chunking returned 0 experiences, try parsing full text directly
+                if len(work_experience) == 0:
+                    logger.warning("Chunked extraction returned 0 experiences - attempting full-text parse as fallback")
+                    try:
+                        exp_extractor = ExperienceExtractor()
+                        full_result = exp_extractor.extract_work_experience(exp_text)
+                        work_experience = full_result.get('work_experience', []) if isinstance(full_result, dict) else []
+                        logger.info(f"Full-text fallback extracted {len(work_experience)} experiences")
+                    except Exception as e:
+                        logger.error(f"Full-text fallback also failed: {e}")
             else:
                 # Normal processing for shorter text
                 exp_extractor = ExperienceExtractor()
@@ -1043,6 +1168,43 @@ async def parse_sections(request: ParseSectionsRequest):
             education = edu_result if isinstance(edu_result, list) else []
             logger.info(f"Extracted {len(education)} education entries")
         
+        # Post-process skills: extract extra skills from job titles/descriptions and raw text
+        try:
+            from parsers.rule_parser import RuleBasedParser
+            rule_parser = RuleBasedParser()
+            extra_skills = []
+            for exp in work_experience:
+                title = exp.get('job_title') or exp.get('title')
+                if title:
+                    title_skills = rule_parser.extract_skills(title)
+                    if title_skills:
+                        extra_skills.extend(title_skills)
+                desc = exp.get('description')
+                if desc:
+                    desc_skills = rule_parser.extract_skills(desc[:500])
+                    if desc_skills:
+                        extra_skills.extend(desc_skills)
+            
+            if request.experience_text and request.experience_text.strip():
+                raw_exp_skills = rule_parser.extract_skills(request.experience_text)
+                if raw_exp_skills:
+                    extra_skills.extend(raw_exp_skills)
+                    
+            if request.projects_text and request.projects_text.strip():
+                raw_proj_skills = rule_parser.extract_skills(request.projects_text)
+                if raw_proj_skills:
+                    extra_skills.extend(raw_proj_skills)
+                    
+            if request.summary_text and request.summary_text.strip():
+                raw_sum_skills = rule_parser.extract_skills(request.summary_text)
+                if raw_sum_skills:
+                    extra_skills.extend(raw_sum_skills)
+                    
+            if extra_skills:
+                skills = list(dict.fromkeys(skills + extra_skills))
+        except Exception as skill_err:
+            logger.warning(f"Failed to post-process skills from experience in parse-sections: {skill_err}")
+
         processing_time_ms = (time.time() - start_time) * 1000
         
         return ParseSectionsResponse(

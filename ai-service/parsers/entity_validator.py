@@ -584,7 +584,7 @@ class EntityValidator:
         }
         
         # Validate and clean institution
-        institution = education.get('institution', '').strip()
+        institution = (education.get('institution') or '').strip()
         if institution:
             # Check if it's a valid university
             normalized_inst = self._normalize_text(institution)
@@ -614,7 +614,7 @@ class EntityValidator:
                     metadata['corrections'].append(f"Institution: '{institution}' → '{matched}'")
         
         # Validate and clean degree
-        degree = education.get('degree', '').strip()
+        degree = (education.get('degree') or '').strip()
         if degree:
             # Clean corrupted parentheses: "Bachelor of Technology (B.Tech" → "Bachelor of Technology"
             if '(' in degree and ')' not in degree:
@@ -648,7 +648,7 @@ class EntityValidator:
                     metadata['corrections'].append(f"Degree: '{degree}' → '{matched}'")
         
         # Clean field of study
-        field = education.get('field_of_study', '').strip()
+        field = (education.get('field_of_study') or '').strip()
         if field:
             # Remove single punctuation
             if field in ['(', ')', '[', ']', ',', '.']:
@@ -660,7 +660,7 @@ class EntityValidator:
                 metadata['corrections'].append(f"Field: expanded '{field}' → 'Computer Science'")
         
         # Clean grade
-        grade = education.get('grade', '').strip()
+        grade = (education.get('grade') or '').strip()
         if grade:
             # Fix corrupted GPA: "3.854.0" → "3.85/4.0"
             if grade.count('.') > 1:

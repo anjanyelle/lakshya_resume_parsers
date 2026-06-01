@@ -1165,6 +1165,12 @@ class RuleBasedParser:
                     escaped_without_dots = re.escape(skill_without_dots)
                     pattern += r'|\b' + escaped_without_dots + r'\b'
                 
+                # For compound skills with spaces, also match without spaces (e.g. 'Spring Boot' -> 'SpringBoot')
+                if ' ' in skill_lower:
+                    skill_without_spaces = skill_lower.replace(' ', '')
+                    escaped_without_spaces = re.escape(skill_without_spaces)
+                    pattern += r'|\b' + escaped_without_spaces + r'\b'
+                
                 if re.search(pattern, text_lower):
                     found_skills.add(skill.strip())
             

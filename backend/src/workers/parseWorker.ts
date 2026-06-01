@@ -1,6 +1,8 @@
 import { Worker, Job, Processor } from "bullmq";
+import crypto from "crypto";
 import IORedis from "ioredis";
 import path from "path";
+import fs from "fs";
 import { getClient } from "../database/db";
 import { ParseJobData } from "../queues/parseQueue";
 import {
@@ -176,6 +178,8 @@ interface AIServiceResponse {
     gpa?: number;
   }>;
   locations?: string[];
+  certifications?: string[];
+  projects?: string[];
   confidence?: {
     overall: number;
     [key: string]: any;
@@ -192,6 +196,9 @@ interface AIServiceResponse {
     };
   };
   error?: string;
+  extraction_quality?: {
+    extraction_quality_percentage?: number;
+  };
 }
 
 // Redis connection configuration
@@ -256,6 +263,7 @@ const updateCandidateWithParsedData = async (
   client: any,
   candidateId: string,
   parsedData: AIServiceResponse,
+  filePath?: string,
 ): Promise<any> => {
   try {
     // First check if raw_resume_text column exists
@@ -269,6 +277,65 @@ const updateCandidateWithParsedData = async (
     const columnCheck = await client.query(columnCheckQuery);
     const hasRawResumeText = columnCheck.rows.length > 0;
 
+    // Calculate email hash
+    const emailHash = parsedData.email
+      ? crypto.createHash("md5").update(parsedData.email.trim().toLowerCase()).digest("hex")
+      : null;
+
+    // Calculate resume file hash (resume_hash)
+    let resumeHash: string | null = null;
+    if (filePath && fs.existsSync(filePath)) {
+      try {
+        const fileContent = fs.readFileSync(filePath);
+        resumeHash = crypto.createHash("sha256").update(fileContent).digest("hex");
+      } catch (err: any) {
+        console.error("Failed to calculate file hash:", err.message);
+      }
+    }
+
+    // Duplicate Detection logic: check if another parsed candidate has the same email hash or resume hash
+    let reviewStatus = "pending";
+    let duplicateCandidateId: string | null = null;
+
+    if (emailHash) {
+      const emailDupCheck = await client.query(
+        "SELECT id FROM candidates WHERE email_hash = $1 AND id != $2 AND status = 'success'",
+        [emailHash, candidateId]
+      );
+      if (emailDupCheck.rows.length > 0) {
+        reviewStatus = "duplicate";
+        duplicateCandidateId = emailDupCheck.rows[0].id;
+        console.log(`[DUPLICATE] Candidate ${candidateId} has matching email hash with candidate ${duplicateCandidateId}`);
+      }
+    }
+
+    if (!duplicateCandidateId && resumeHash) {
+      const hashDupCheck = await client.query(
+        "SELECT id FROM candidates WHERE resume_hash = $1 AND id != $2 AND status = 'success'",
+        [resumeHash, candidateId]
+      );
+      if (hashDupCheck.rows.length > 0) {
+        reviewStatus = "duplicate";
+        duplicateCandidateId = hashDupCheck.rows[0].id;
+        console.log(`[DUPLICATE] Candidate ${candidateId} has matching resume hash with candidate ${duplicateCandidateId}`);
+      }
+    }
+
+    // Record relationship in duplicate_candidates table if duplicate is found
+    if (duplicateCandidateId) {
+      try {
+        const [c1, c2] = [duplicateCandidateId, candidateId].sort();
+        await client.query(
+          `INSERT INTO duplicate_candidates (candidate_id_1, candidate_id_2, similarity_score, status)
+           VALUES ($1, $2, $3, 'pending')
+           ON CONFLICT (candidate_id_1, candidate_id_2) DO NOTHING`,
+          [c1, c2, 1.0]
+        );
+      } catch (dupErr: any) {
+        console.error("Failed to insert duplicate candidate relationship:", dupErr.message);
+      }
+    }
+
     const updateQuery = `
       UPDATE candidates 
       SET full_name = COALESCE($1, full_name),
@@ -277,14 +344,20 @@ const updateCandidateWithParsedData = async (
           location = COALESCE($4, location),
           linkedin_url = COALESCE($5, linkedin_url),
           github_url = COALESCE($6, github_url),
-          summary = COALESCE($7, summary)${
+          summary = COALESCE($7, summary),
+          status = 'success',
+          review_status = $8,
+          email_hash = COALESCE($9, email_hash),
+          resume_hash = COALESCE($10, resume_hash),
+          resume_quality_score = COALESCE($11, resume_quality_score),
+          confidence_score = COALESCE($12, confidence_score)${
             hasRawResumeText
               ? `,
-          raw_resume_text = COALESCE($8, raw_resume_text)`
+          raw_resume_text = COALESCE($13, raw_resume_text)`
               : ""
           },
           updated_at = NOW()
-      WHERE id = $${hasRawResumeText ? "9" : "8"}
+      WHERE id = $${hasRawResumeText ? "14" : "13"}
       RETURNING *
     `;
 
@@ -294,6 +367,12 @@ const updateCandidateWithParsedData = async (
         ? parsedData.locations[0]
         : null;
 
+    // Quality and confidence calculations
+    const qualityScore = parsedData.extraction_quality?.extraction_quality_percentage
+      ? Math.round(parsedData.extraction_quality.extraction_quality_percentage)
+      : null;
+    const confidenceScore = parsedData.confidence?.overall || null;
+
     const values = [
       truncateString(parsedData.name || null, 255),
       truncateString(parsedData.email || null, 255),
@@ -302,6 +381,11 @@ const updateCandidateWithParsedData = async (
       truncateString(parsedData.linkedin || null, 500),
       truncateString(parsedData.github || null, 500),
       truncateString(parsedData.summary || null, 2000), // Summary might be TEXT
+      reviewStatus,
+      emailHash,
+      resumeHash,
+      qualityScore,
+      confidenceScore,
     ];
 
     // Add raw_resume_text if column exists
@@ -437,6 +521,41 @@ const updateCandidateWithParsedData = async (
             edu.gpa || null,
           ]);
         }
+      }
+    }
+
+    // Insert certifications if provided
+    if (parsedData.certifications && Array.isArray(parsedData.certifications)) {
+      try {
+        // First delete existing certifications
+        await client.query(
+          "DELETE FROM certifications WHERE candidate_id = $1",
+          [candidateId],
+        );
+
+        // Insert new certifications
+        for (const certName of parsedData.certifications) {
+          if (!certName || typeof certName !== "string") continue;
+          await client.query(
+            `INSERT INTO certifications (id, candidate_id, name) VALUES ($1, $2, $3)
+             ON CONFLICT DO NOTHING`,
+            [crypto.randomUUID(), candidateId, certName.trim()]
+          );
+        }
+      } catch (certInsertErr: any) {
+        console.warn("Could not save certifications:", certInsertErr.message);
+      }
+    }
+
+    // Insert projects if provided
+    if (parsedData.projects && Array.isArray(parsedData.projects) && parsedData.projects.length > 0) {
+      try {
+        await client.query(
+          "UPDATE candidates SET projects = $1 WHERE id = $2",
+          [JSON.stringify(parsedData.projects), candidateId]
+        );
+      } catch (projUpdateErr: any) {
+        console.warn("Could not save projects:", projUpdateErr.message);
       }
     }
 
@@ -598,7 +717,7 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
     const confidenceScore: number = aiResult.confidence?.overall || 0.8;
 
     // Update candidate with parsed information
-    await updateCandidateWithParsedData(client, candidateId, aiResult);
+    await updateCandidateWithParsedData(client, candidateId, aiResult, filePath);
 
     await updateParsingJobStatus(client, candidateId, "processing");
     await job.updateProgress(90);

@@ -136,16 +136,24 @@ class DeBERTaExperienceBuilder:
                 self.logger.debug(f"🔧 Filtered tech keyword: '{company['text']}'")
                 continue
             
-            # Check if any tech keyword is part of the company name
-            is_tech = False
-            for tech in self.tech_keywords:
-                if tech in company_text or company_text in tech:
+            # Check if all words are tech keywords (representing a tech list rather than a company)
+            # Split by spaces, slashes, commas, ampersands, and hyphens
+            words = re.split(r'[\s/,\-\&]+', company_text)
+            words = [w.strip() for w in words if w.strip()]
+            
+            if words:
+                ignore_words = {'and', 'or', 'with', 'in', 'on', 'at', 'using', 'from', 'to'}
+                all_tech = True
+                for word in words:
+                    # Clean the word from version/JS extensions (e.g. node.js -> node)
+                    word_clean = re.sub(r'\.js$', '', word)
+                    if word_clean not in self.tech_keywords and word not in self.tech_keywords and word not in ignore_words:
+                        all_tech = False
+                        break
+                if all_tech:
                     filtered_count += 1
-                    self.logger.debug(f"🔧 Filtered tech keyword (partial match): '{company['text']}' (matched '{tech}')")
-                    is_tech = True
-                    break
-            if is_tech:
-                continue
+                    self.logger.debug(f"🔧 Filtered technology list: '{company['text']}'")
+                    continue
             
             # Check if it's a very short name (likely an acronym for a tech)
             if len(company_text) <= 2 and company_text not in ['ge', 'hp', 'at&t']:

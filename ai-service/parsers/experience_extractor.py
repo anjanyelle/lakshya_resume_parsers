@@ -25,6 +25,7 @@ def is_valid_job_title(text: str) -> bool:
     - Is a common garbage value like "Present", "Current", dates
     - Starts with bullet characters
     - Contains education/certification keywords
+    - Is a standalone skill or tech name (e.g., Python, React, Docker) without a role indicator
     """
     if not text or not isinstance(text, str):
         return False
@@ -96,10 +97,51 @@ def is_valid_job_title(text: str) -> bool:
             return False
     
     # Must contain at least one alphabetic word (not just numbers/symbols)
-    words = re.findall(r'\b[a-zA-Z]{2,}\b', text)
+    words = re.findall(r'\b[a-zA-Z0-9#\+\.\-]{2,}\b', text)
     if not words:
         return False
+        
+    # Check if the title is actually just a skill name or technology
+    known_skills = {
+        'python', 'java', 'c++', 'javascript', 'typescript', 'react', 'angular', 
+        'vue', 'node.js', 'nodejs', 'docker', 'kubernetes', 'k8s', 'aws', 'azure', 
+        'gcp', 'sql', 'nosql', 'mongodb', 'postgresql', 'git', 'html', 'css', 
+        'redux', 'graphql', 'rest api', 'microservices', 'ci/cd', 'jenkins', 
+        'linux', 'windows', 'agile', 'scrum', 'jira', 'maven', 'gradle', 'hadoop', 
+        'spark', 'scala', 'kotlin', 'swift', 'flutter', 'react native', 'php', 
+        'laravel', 'django', 'flask', 'spring', 'springboot', 'spring boot', 
+        'hibernate', 'oracle', 'mysql', 'redis', 'elasticsearch', 'kafka', 
+        'rabbitmq', 'terraform', 'ansible', 's3', 'ec2', 'lambda', 'dynamodb'
+    }
     
+    role_indicators = {
+        'developer', 'engineer', 'architect', 'consultant', 'analyst', 'specialist', 
+        'scientist', 'researcher', 'designer', 'manager', 'lead', 'administrator', 
+        'admin', 'officer', 'intern', 'trainee', 'coordinator', 'representative', 
+        'associate', 'programmer', 'tester', 'expert', 'head', 'director', 'vp', 
+        'founder', 'co-founder', 'executive', 'leader', 'instructor', 'teacher',
+        'master', 'owner', 'writer', 'recruiter', 'accountant', 'bookkeeper', 
+        'helper', 'assistant', 'agent', 'officer'
+    }
+    
+    clean_text = re.sub(r'[\s,/\\|\-_#]+', ' ', text_lower).strip()
+    
+    # If the clean text is exactly one of the known skills, reject it
+    if clean_text in known_skills or text_lower in known_skills:
+        return False
+        
+    # Check if it consists of multiple skill-like words and has no role indicator
+    words_list = clean_text.split()
+    if len(words_list) <= 3:
+        # Check if any word is a role indicator
+        has_role_indicator = any(word in role_indicators for word in words_list)
+        if not has_role_indicator:
+            # If it's short and has no role indicator, and consists of known skills/buzzwords, reject
+            # e.g., "python django", "react redux node.js"
+            all_skills = all(word in known_skills or re.match(r'^(?:v\d+|\d+\.?\d*)$', word) for word in words_list)
+            if all_skills or len(words_list) == 1:
+                return False
+                
     return True
 
 
@@ -394,22 +436,45 @@ def extract_date_range(text: str) -> dict:
     end_date = None
     
     if dates:
-        # Handle "Month YYYY to Month YYYY" or "Month YYYY to Present" format
-        if ' to ' in text.lower():
-            parts = re.split(r'\s+to\s+', text, flags=re.IGNORECASE)
+        # Check if the first match itself is a range that contains both start and end dates
+        first_date_str = dates[0]
+        # Common range separators
+        separators = [' - ', ' – ', ' — ', ' to ', '-', '–', '—']
+        found_sep = None
+        for sep in separators:
+            if sep in first_date_str.lower():
+                found_sep = sep
+                break
+                
+        if found_sep:
+            parts = first_date_str.split(found_sep)
             if len(parts) >= 2:
-                start_date = parse_date_safe(parts[0].strip())
-                if not is_current:
-                    end_date = parse_date_safe(parts[1].strip())
+                start_str = parts[0].strip()
+                end_str = parts[1].strip()
+                is_end_current = any(p in end_str.lower() for p in ['present', 'current', 'now', 'till date', 'to date'])
+                start_date = parse_date_safe(start_str)
+                if is_end_current:
+                    end_date = None
+                    is_current = True
+                else:
+                    end_date = parse_date_safe(end_str)
+        
+        # If we couldn't parse it as a range-in-one-string, fallback to standard logic
+        if not start_date:
+            if ' to ' in text.lower():
+                parts = re.split(r'\s+to\s+', text, flags=re.IGNORECASE)
+                if len(parts) >= 2:
+                    start_date = parse_date_safe(parts[0].strip())
+                    if not is_current:
+                        end_date = parse_date_safe(parts[1].strip())
+                else:
+                    start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
             else:
                 start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
-        else:
-            # Original logic for dash-separated dates
-            start_date = parse_date_safe(dates[0]) if len(dates) >= 1 else None
-            if is_current:
-                end_date = None
-            else:
-                end_date = parse_date_safe(dates[1]) if len(dates) >= 2 else None
+                if is_current:
+                    end_date = None
+                else:
+                    end_date = parse_date_safe(dates[1]) if len(dates) >= 2 else None
     
     return {
         'start_date': start_date.isoformat() if start_date else None,
@@ -525,7 +590,6 @@ def extract_experience(experience_text: str) -> list:
             # consume Role and Duration lines that follow
             title, start_date, end_date, is_current = '', None, None, False
             j = i + 1
-            lines_consumed = 0
             
             while j < len(lines) and j < i + 10:
                 nxt = lines[j].strip()
@@ -551,14 +615,12 @@ def extract_experience(experience_text: str) -> list:
                         is_current = date_info['is_current']
                     else:
                         title = re.sub(r'\s*[-–—]\s*$', '', role_text).strip()
-                    lines_consumed = j - i
-                    break  # Found role, stop looking
                 elif dur_m:
                     date_info = extract_date_range(dur_m.group(1))
-                    start_date = date_info['start_date']
-                    end_date   = date_info['end_date']
-                    is_current = date_info['is_current']
-                    lines_consumed = j - i
+                    if date_info['start_date']:
+                        start_date = date_info['start_date']
+                        end_date   = date_info['end_date']
+                        is_current = date_info['is_current']
                 elif nxt and not NOISE_LINE.match(nxt):
                     # Could be inline "Role: X" without keyword or dates on separate line
                     if not title and DATE_LINE_PATTERN.search(nxt):
@@ -570,8 +632,6 @@ def extract_experience(experience_text: str) -> list:
                             start_date = date_info['start_date']
                             end_date = date_info['end_date']
                             is_current = date_info['is_current']
-                            lines_consumed = j - i
-                            break  # Found title with dates, stop looking
                 j += 1
 
             # Validate job title before adding
@@ -584,9 +644,9 @@ def extract_experience(experience_text: str) -> list:
                     'end_date':   end_date,
                     'is_current': is_current,
                 })
-            
-            # Advance past the consumed lines
-            i = i + max(1, lines_consumed)
+                i = j
+            else:
+                i += 1
             continue
 
         # ── FORMAT 2: Title, Company, Dates (Standard format) ───────────

@@ -9,11 +9,6 @@ interface Permission {
   created_at: string;
 }
 
-interface RolePermission {
-  role: string;
-  permissions: Permission[];
-}
-
 interface PermissionState {
   permissions: Permission[];
   roles: string[];

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import {
   connectSocket,
@@ -123,6 +124,7 @@ const LLM_MODELS: LLMModel[] = [
 ];
 
 export default function UploadPage() {
+  const navigate = useNavigate();
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
@@ -137,6 +139,7 @@ export default function UploadPage() {
   const [parsedName, setParsedName] = useState("");
   const [parsedEmail, setParsedEmail] = useState("");
   const [parsedPhone, setParsedPhone] = useState("");
+  const [rawResumeText, setRawResumeText] = useState(""); // Full raw text from preview-sections
 
   useEffect(() => {
     if (parsedSections) {
@@ -305,6 +308,10 @@ export default function UploadPage() {
         }
       );
 
+      // Capture the full raw text for contact extraction
+      const rawText = response.data.raw_text || "";
+      setRawResumeText(rawText);
+
       // Backend returns extracted sections
       const rawSections = response.data.sections || {};
       return {
@@ -387,11 +394,89 @@ export default function UploadPage() {
     }
   };
 
+  const handleDirectUpload = async (uploadFile: UploadFile) => {
+    try {
+      setUploadFiles((prev) =>
+        prev.map((f) =>
+          f.id === uploadFile.id
+            ? {
+                ...f,
+                status: "uploading",
+                message: "Uploading...",
+                progress: 0,
+              }
+            : f,
+        ),
+      );
+
+      const formData = new FormData();
+      formData.append("resume", uploadFile.file);
+      formData.append("llm_provider", selectedLLM);
+      formData.append("force_ocr", forceOcr ? "true" : "false");
+
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await axios.post(
+        `${baseUrl}/api/upload/resume`,
+        formData,
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 1)
+            );
+            setUploadFiles((prev) =>
+              prev.map((f) =>
+                f.id === uploadFile.id
+                  ? {
+                      ...f,
+                      progress: Math.min(percentCompleted, 99),
+                      message: "Uploading...",
+                    }
+                  : f
+              )
+            );
+          },
+        }
+      );
+
+      const { candidateId } = response.data.data;
+
+      setUploadFiles((prev) =>
+        prev.map((f) =>
+          f.id === uploadFile.id
+            ? {
+                ...f,
+                status: "parsing",
+                message: "Queued for parsing...",
+                progress: 0,
+                candidateId,
+              }
+            : f
+        )
+      );
+
+      toast.success(`${uploadFile.file.name} uploaded successfully!`);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || "Upload failed";
+      setUploadFiles((prev) =>
+        prev.map((f) =>
+          f.id === uploadFile.id
+            ? { ...f, status: "error", message: "Failed", error: errorMessage }
+            : f
+        )
+      );
+      toast.error(`Failed to upload ${uploadFile.file.name}: ${errorMessage}`);
+    }
+  };
+
   const handleBulkUpload = async () => {
     const pendingFiles = uploadFiles.filter((f) => f.status === "pending");
 
     for (const file of pendingFiles) {
-      await handleUpload(file);
+      await handleDirectUpload(file);
       // Add small delay between uploads to avoid overwhelming the server
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
@@ -418,6 +503,7 @@ export default function UploadPage() {
           certifications_text: extractedSections.certifications?.text || "",
           projects_text: extractedSections.projects?.text || "",
           contact_text: extractedSections.contact?.text || "",
+          raw_text: rawResumeText || "",  // Full resume text for accurate name/contact extraction
         }
       );
 
@@ -492,6 +578,7 @@ export default function UploadPage() {
     setParsedName("");
     setParsedEmail("");
     setParsedPhone("");
+    setRawResumeText("");
   };
 
   const formatFileSize = (bytes: number) => {

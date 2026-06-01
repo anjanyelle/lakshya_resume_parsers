@@ -187,6 +187,12 @@ export const matchCandidatesToJob = async (
             match.recommendation,
             match.reason,
           ]);
+
+          // Update candidate record's match_score column (scaled to 0-1)
+          await client.query(
+            "UPDATE candidates SET match_score = $1, updated_at = NOW() WHERE id = $2",
+            [match.overall_score / 100.0, match.candidate_id]
+          );
         }
       }
 
@@ -463,6 +469,12 @@ export const matchSingleCandidate = async (
         matchResult.recommendation,
         matchResult.reason,
       ]);
+
+      // Update candidate record's match_score column (scaled to 0-1)
+      await client.query(
+        "UPDATE candidates SET match_score = $1, updated_at = NOW() WHERE id = $2",
+        [matchResult.overall_score / 100.0, candidateId]
+      );
 
       res.json({
         success: true,

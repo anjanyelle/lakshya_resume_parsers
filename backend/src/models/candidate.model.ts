@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { getClient } from "../database/db";
+import crypto from "crypto";
 
 export interface Candidate {
   id: string;
@@ -9,6 +10,12 @@ export interface Candidate {
   full_name?: string;
   status?: string;
   resume_path?: string;
+  resume_file_path?: string;
+  consent_given?: boolean;
+  tenant_id?: string;
+  review_status?: string;
+  email_hash?: string;
+  match_score?: number;
   created_at?: Date;
   updated_at?: Date;
   summary?: string;
@@ -79,7 +86,7 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.*, cs.proficiency_level, cs.years_experience 
+          `SELECT s.*, s.name AS skill_name, cs.proficiency_level, cs.years_experience 
            FROM skills s 
            JOIN candidate_skills cs ON s.id = cs.skill_id 
            WHERE cs.candidate_id = $1`,
@@ -100,8 +107,18 @@ export class CandidateModel {
         projectRows = [];
       }
 
+      // Get latest parsing job
+      const parsingJobResult = await client.query(
+        "SELECT status, confidence_score, error_message, completed_at FROM parsing_jobs WHERE candidate_id = $1 ORDER BY created_at DESC LIMIT 1",
+        [id]
+      );
+      const parsingJob = parsingJobResult.rows[0] || null;
+
       return {
         ...candidate,
+        pj_status: parsingJob?.status || null,
+        pj_confidence_score: parsingJob?.confidence_score || null,
+        pj_error_message: parsingJob?.error_message || null,
         work_experience: workExperienceResult.rows,
         education: educationResult.rows,
         certifications: certificationRows,
@@ -115,29 +132,56 @@ export class CandidateModel {
   }
 
   static async create(client: any, data: Partial<Candidate>): Promise<Candidate> {
+    const id = data.id || crypto.randomUUID();
+    const emailHash = data.email
+      ? crypto.createHash("md5").update(data.email.trim().toLowerCase()).digest("hex")
+      : null;
+      
     const result = await client.query(
-      "INSERT INTO candidates (email, phone, full_name, status, summary, resume_path) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      `INSERT INTO candidates (
+        id, email, phone, full_name, status, summary, resume_file_path,
+        consent_given, tenant_id, review_status, email_hash, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING *`,
       [
-        data.email,
-        data.phone,
-        data.full_name || data.name,
+        id,
+        data.email || null,
+        data.phone || null,
+        data.full_name || data.name || null,
         data.status || "pending",
-        data.summary,
-        data.resume_path
+        data.summary || null,
+        data.resume_path || data.resume_file_path || null,
+        data.consent_given !== undefined ? data.consent_given : false,
+        data.tenant_id || "default",
+        data.review_status || "pending",
+        emailHash
       ]
     );
     return result.rows[0];
   }
 
   static async update(client: any, id: string, data: Partial<Candidate>): Promise<Candidate | null> {
+    const emailHash = data.email
+      ? crypto.createHash("md5").update(data.email.trim().toLowerCase()).digest("hex")
+      : null;
+      
     const result = await client.query(
-      "UPDATE candidates SET email = COALESCE($1, email), phone = COALESCE($2, phone), full_name = COALESCE($3, full_name), status = COALESCE($4, status), summary = COALESCE($5, summary), updated_at = NOW() WHERE id = $6 RETURNING *",
+      `UPDATE candidates 
+       SET email = COALESCE($1, email), 
+           phone = COALESCE($2, phone), 
+           full_name = COALESCE($3, full_name), 
+           status = COALESCE($4, status), 
+           summary = COALESCE($5, summary), 
+           email_hash = COALESCE($6, email_hash),
+           updated_at = NOW() 
+       WHERE id = $7 
+       RETURNING *`,
       [
         data.email,
         data.phone,
         data.full_name || data.name,
         data.status,
         data.summary,
+        emailHash,
         id
       ]
     );
@@ -184,20 +228,20 @@ export class CandidateModel {
         whereClause += ` AND (name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
       }
       
-      // Add company filter (join with work_history)
+      // Add company filter (join with work_experience)
       if (company) {
         queryParams.push(`%${company}%`);
-        joinClause += " JOIN work_history wh ON candidates.id = wh.candidate_id";
-        whereClause += ` AND wh.company_name ILIKE $${queryParams.length}`;
+        joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
+        whereClause += ` AND we.company_name ILIKE $${queryParams.length}`;
       }
       
-      // Add job_title filter (join with work_history)
+      // Add job_title filter (join with work_experience)
       if (jobTitle) {
         queryParams.push(`%${jobTitle}%`);
         if (!joinClause) {
-          joinClause += " JOIN work_history wh ON candidates.id = wh.candidate_id";
+          joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
         }
-        whereClause += ` AND wh.job_title ILIKE $${queryParams.length}`;
+        whereClause += ` AND we.job_title ILIKE $${queryParams.length}`;
       }
       
       // Add certification filter (join with certifications)
@@ -222,11 +266,20 @@ export class CandidateModel {
       const countResult = await client.query(countQuery, queryParams);
       const total = parseInt(countResult.rows[0].count);
       
-      // Get paginated candidates
+      // Get paginated candidates with latest parsing job status
       queryParams.push(limit, offset);
       const candidatesQuery = `
-        SELECT DISTINCT candidates.* 
+        SELECT DISTINCT candidates.*,
+               pj.status as pj_status,
+               pj.confidence_score as pj_confidence_score,
+               pj.error_message as pj_error_message,
+               pj.completed_at as pj_completed_at
         FROM candidates 
+        LEFT JOIN (
+            SELECT DISTINCT ON (candidate_id) candidate_id, status, confidence_score, error_message, completed_at
+            FROM parsing_jobs
+            ORDER BY candidate_id, created_at DESC
+        ) pj ON candidates.id = pj.candidate_id
         ${joinClause}
         ${whereClause}
         ORDER BY candidates.created_at DESC

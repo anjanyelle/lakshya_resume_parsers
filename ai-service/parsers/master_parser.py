@@ -1576,6 +1576,29 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                               confidence_scores: Dict[str, Any], metrics: Dict[str, float],
                               file_info: Dict[str, Any] = None, quality_report: Dict[str, Any] = None) -> Dict[str, Any]:
         """Assemble final result with all components."""
+        # Post-process skills: extract extra skills from job titles/descriptions
+        try:
+            from parsers.rule_parser import RuleBasedParser
+            rule_parser = RuleBasedParser()
+            extra_skills = []
+            for exp in merged_results.get('work_experience', []):
+                title = exp.get('job_title') or exp.get('title')
+                if title:
+                    title_skills = rule_parser.extract_skills(title)
+                    if title_skills:
+                        extra_skills.extend(title_skills)
+                desc = exp.get('description')
+                if desc:
+                    desc_skills = rule_parser.extract_skills(desc[:500])
+                    if desc_skills:
+                        extra_skills.extend(desc_skills)
+            
+            if extra_skills:
+                skills_list = merged_results.get('skills', []) or []
+                merged_results['skills'] = list(dict.fromkeys(skills_list + extra_skills))
+        except Exception as skill_err:
+            self.logger.warning(f"Failed to post-process skills from experience in master parser: {skill_err}")
+
         result = {
             'candidate_id': candidate_id,
             'status': 'success',

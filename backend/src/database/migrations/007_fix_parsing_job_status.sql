@@ -29,6 +29,11 @@ BEGIN
 END $$;
 
 -- If the table is using VARCHAR with CHECK constraint, ensure it's properly set up
+-- First, update any existing invalid status values to valid ones
+UPDATE parsing_jobs 
+SET status = 'pending' 
+WHERE status NOT IN ('pending', 'processing', 'completed', 'failed');
+
 -- Drop and recreate the constraint to be sure
 ALTER TABLE parsing_jobs DROP CONSTRAINT IF EXISTS parsing_jobs_status_check;
 ALTER TABLE parsing_jobs 

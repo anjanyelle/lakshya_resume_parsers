@@ -2936,11 +2936,16 @@ class EducationExtractor:
             re.IGNORECASE
         )
         
-        # Institution patterns
+        # Institution patterns - handles both "X University" and "University of X" forms
         self.institution_patterns = [
-            r'\b([A-Za-z\s&]+(?:University|College|Institute|School|Academy))\b',
-            r'\b([A-Za-z\s&]+(?:Polytechnic|Campus|Center|Centre))\b',
-            r'\b([A-Z][a-zA-Z\s&]+(?:University|College|Institute))\b'
+            # Standard ending: "Delhi University", "MIT College"
+            r'\b([A-Za-z][A-Za-z\s&,\']+?(?:University|College|Institute of Technology|Institute|School|Academy|Polytechnic|Campus|Center|Centre))(?:\s*,?\s*(?:19|20)\d{2}|\s*[-–]|\s*$|\s*,\s*[A-Z])',
+            # "University of X", "Institute of X", "College of X"
+            r'\b((?:University|Institute|College|School|Academy)\s+of\s+[A-Za-z\s&,\']+?)(?:\s*,?\s*(?:19|20)\d{2}|\s*[-–]|\s*$)',
+            # IIT/NIT/BITS and similar short prefixes: "IIT Bombay", "NIT Trichy", "BITS Pilani"
+            r'\b((?:IIT|NIT|BITS|IIIT|IISER|AIIMS|ISB|IIM|XLRI|TISS|IGNOU|IISc|NIFT|SRM|VIT|DTU|NSIT|BIT|MIT|RVCE|PES|DSCE|MSRIT)[\s,]+[A-Za-z\s]+?)(?:\s*,?\s*(?:19|20)\d{2}|\s*[-–]|\s*$)',
+            # Broad fallback: Capitalized multi-word name that isn't a degree
+            r'^([A-Z][a-zA-Z\s&,\']{5,60}?)(?:\s*,?\s*(?:19|20)\d{2}|\s*[-–])'
         ]
         
         # Year patterns - only match full 4-digit years
@@ -3957,27 +3962,56 @@ class EducationExtractor:
     
     def _extract_institution(self, block: str) -> str:
         """Extract institution name from block."""
-        # Remove the degree line first to avoid false matches
+        # Remove the degree line(s) first to avoid false matches
         lines = block.split('\n')
         institution_lines = []
         
-        # Skip the first line if it contains degree keywords
+        DEGREE_LINE_RE = re.compile(
+            r'\b(?:Bachelor|Master|PhD|Ph\.D|Associate|Diploma|Certificate|Degree|'
+            r'B\.Tech|M\.Tech|BTech|MTech|B\.E\b|M\.E\b|B\.Sc|M\.Sc|BCA|MCA|'
+            r'BBA|MBA|B\.B\.A|M\.B\.A|B\.Com|M\.Com|B\.A\b|M\.A\b|BS\b|MS\b)',
+            re.IGNORECASE
+        )
+        
         for line in lines:
-            if not re.search(r'\b(?:Bachelor|Master|PhD|Associate|Diploma|Certificate|Degree|B\.|M\.|B\.E|M\.E|B\.Tech|M\.Tech|B\.Sc|M\.Sc|BBA|MBA|BCA|MCA)', line, re.IGNORECASE):
-                institution_lines.append(line)
+            stripped = line.strip()
+            if stripped and not DEGREE_LINE_RE.search(stripped):
+                institution_lines.append(stripped)
         
         institution_text = '\n'.join(institution_lines)
         
+        # Try each pattern
         for pattern in self.institution_patterns:
-            matches = re.findall(pattern, institution_text, re.IGNORECASE)
-            if matches:
-                institution = matches[0].strip()
-                # Clean up institution name
-                institution = re.sub(r'[\|\-•].*$', '', institution).strip()
-                # Remove field of study words
-                institution = re.sub(r'\b(?:Computer Science|Information Technology|Engineering|Science|Arts|Commerce|Business Administration|Computer Applications)\b', '', institution, re.IGNORECASE).strip()
-                if len(institution) > 3:
-                    return institution
+            try:
+                matches = re.findall(pattern, institution_text, re.IGNORECASE | re.MULTILINE)
+                if matches:
+                    institution = matches[0].strip() if isinstance(matches[0], str) else matches[0][0].strip()
+                    # Strip trailing comma/year/dash artifacts
+                    institution = re.sub(r'[,;]?\s*(?:19|20)\d{2}.*$', '', institution).strip()
+                    institution = re.sub(r'\s*[-–—]\s*$', '', institution).strip()
+                    institution = re.sub(r'^[-–—,;\s]+', '', institution).strip()
+                    institution = re.sub(r'[\|•].*$', '', institution).strip()
+                    if len(institution) > 3 and not re.match(r'^\d+$', institution):
+                        return institution
+            except Exception:
+                continue
+        
+        # Final fallback: look for any line with institution keywords anywhere in the text
+        institution_keywords = re.compile(
+            r'\b((?:[A-Z][A-Za-z&\s,\']{2,60}?)?'
+            r'(?:University|College|Institute(?:\s+of\s+Technology)?|School|Academy|Polytechnic)'
+            r'(?:\s+of\s+[A-Za-z\s]+)?)',
+            re.IGNORECASE
+        )
+        for line in lines:
+            stripped = line.strip()
+            if stripped and not DEGREE_LINE_RE.search(stripped):
+                m = institution_keywords.search(stripped)
+                if m:
+                    inst = m.group(1).strip()
+                    inst = re.sub(r'[,;]?\s*(?:19|20)\d{2}.*$', '', inst).strip()
+                    if len(inst) > 3:
+                        return inst
         
         return ''
     

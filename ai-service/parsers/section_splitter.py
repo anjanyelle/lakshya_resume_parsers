@@ -491,7 +491,7 @@ class SectionSplitter:
             text = re.sub(r'([a-z.!?])\s+([A-Z]{2,}(?:\s+[A-Z]{2,})+)(?=\s)', r'\1\n\2', text)
             
             sections = {}
-            current_section = 'other'
+            current_section = 'contact'
             current_content = []
             
             lines = text.split('\n')
@@ -530,6 +530,10 @@ class SectionSplitter:
             # Save the last section
             if current_content:
                 sections[current_section] = '\n'.join(current_content).strip()
+            
+            # If we only have the default contact section, rename it to 'other' to ensure compatibility
+            if len(sections) == 1 and 'contact' in sections:
+                sections['other'] = sections.pop('contact')
             
             # Log section detection results
             self.logger.info(f"Split resume into {len(sections)} sections: {list(sections.keys())}")
@@ -836,6 +840,10 @@ class SectionSplitter:
                 'projects', 'portfolio', 'work samples', 'publications',
                 'research', 'contributions'
             ],
+            'contact': [
+                'contact', 'personal', 'information', 'details', 'address',
+                'phone', 'email'
+            ],
         }
         
         # Try partial matching: check if any word in header partially matches any keyword
@@ -905,7 +913,12 @@ class SectionSplitter:
                 'EDUCATION': 'education',
                 'CERTIFICATIONS': 'certifications',
                 'KEY PROJECTS': 'projects',
-                'PROJECTS': 'projects'
+                'PROJECTS': 'projects',
+                'CONTACT': 'contact',
+                'CONTACT INFORMATION': 'contact',
+                'CONTACT DETAILS': 'contact',
+                'PERSONAL INFORMATION': 'contact',
+                'PERSONAL DETAILS': 'contact'
             }
             
             clean_upper = clean_line.upper().strip(':')
@@ -1385,6 +1398,13 @@ class SectionSplitter:
                 'available upon request', 'references available on request',
                 'contact references', 'testimonials', 'recommendations',
                 'linkedin recommendations',
+            ],
+
+            'contact': [
+                'contact', 'contact information', 'contact details',
+                'personal information', 'personal details', 'personal data',
+                'contact me', 'get in touch', 'address', 'address details',
+                'personal profile details', 'applicant details', 'candidate details'
             ],
         }
 
