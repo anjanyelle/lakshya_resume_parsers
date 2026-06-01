@@ -90,6 +90,31 @@ router.post("/", createCandidate);
  *         schema:
  *           type: string
  *         description: Search in full_name, email, or location
+ *       - in: query
+ *         name: company
+ *         schema:
+ *           type: string
+ *         description: Search by company name in work history
+ *       - in: query
+ *         name: job_title
+ *         schema:
+ *           type: string
+ *         description: Search by job title in work history
+ *       - in: query
+ *         name: certification
+ *         schema:
+ *           type: string
+ *         description: Search by certification name
+ *       - in: query
+ *         name: salary_min
+ *         schema:
+ *           type: number
+ *         description: Minimum expected salary
+ *       - in: query
+ *         name: salary_max
+ *         schema:
+ *           type: number
+ *         description: Maximum expected salary
  *     responses:
  *       200:
  *         description: Candidates retrieved successfully

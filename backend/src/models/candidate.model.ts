@@ -164,7 +164,12 @@ export class CandidateModel {
     client: any,
     page: number = 1,
     limit: number = 20,
-    search?: string
+    search?: string,
+    company?: string,
+    jobTitle?: string,
+    certification?: string,
+    salaryMin?: number,
+    salaryMax?: number
   ): Promise<{ candidates: CandidateWithDetails[]; total: number }> {
     try {
       const offset = (page - 1) * limit;
@@ -172,23 +177,59 @@ export class CandidateModel {
       // Build WHERE clause for search
       let whereClause = "WHERE status = 'success'";
       const queryParams: any[] = [];
+      let joinClause = "";
       
       if (search) {
         queryParams.push(`%${search}%`);
-        whereClause += ` AND (full_name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
+        whereClause += ` AND (name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
+      }
+      
+      // Add company filter (join with work_history)
+      if (company) {
+        queryParams.push(`%${company}%`);
+        joinClause += " JOIN work_history wh ON candidates.id = wh.candidate_id";
+        whereClause += ` AND wh.company_name ILIKE $${queryParams.length}`;
+      }
+      
+      // Add job_title filter (join with work_history)
+      if (jobTitle) {
+        queryParams.push(`%${jobTitle}%`);
+        if (!joinClause) {
+          joinClause += " JOIN work_history wh ON candidates.id = wh.candidate_id";
+        }
+        whereClause += ` AND wh.job_title ILIKE $${queryParams.length}`;
+      }
+      
+      // Add certification filter (join with certifications)
+      if (certification) {
+        queryParams.push(`%${certification}%`);
+        joinClause += " JOIN certifications cert ON candidates.id = cert.candidate_id";
+        whereClause += ` AND cert.name ILIKE $${queryParams.length}`;
+      }
+      
+      // Add salary range filter
+      if (salaryMin !== undefined) {
+        queryParams.push(salaryMin);
+        whereClause += ` AND expected_salary_min >= $${queryParams.length}`;
+      }
+      if (salaryMax !== undefined) {
+        queryParams.push(salaryMax);
+        whereClause += ` AND expected_salary_max <= $${queryParams.length}`;
       }
       
       // Get total count
-      const countQuery = `SELECT COUNT(*) FROM candidates ${whereClause}`;
+      const countQuery = `SELECT COUNT(DISTINCT candidates.id) FROM candidates ${joinClause} ${whereClause}`;
       const countResult = await client.query(countQuery, queryParams);
       const total = parseInt(countResult.rows[0].count);
       
       // Get paginated candidates
       queryParams.push(limit, offset);
       const candidatesQuery = `
-        SELECT * FROM candidates 
+        SELECT DISTINCT candidates.* 
+        FROM candidates 
+        ${joinClause}
         ${whereClause}
-        ORDER BY created_at DESC
+        ORDER BY candidates.created_at DESC
         LIMIT $${queryParams.length - 1} OFFSET $${queryParams.length}
       `;
       
