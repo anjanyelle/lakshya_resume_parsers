@@ -777,7 +777,6 @@ export const importCandidatesFromCSV = async (
                 );
               }
             }
-            }
           }
 
           // Create parsing job record
