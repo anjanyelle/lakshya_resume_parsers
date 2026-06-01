@@ -515,6 +515,7 @@ class TestRegression:
             "/api/v1/search",
             headers=headers,
         )
+        
         assert response.status_code == 200
         results = response.json()
         assert isinstance(results, list)
