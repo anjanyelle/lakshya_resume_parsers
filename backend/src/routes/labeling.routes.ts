@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { query } from "../database/db";
-import { AuthenticatedRequest } from "../middleware/auth";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 const router = Router();
 
@@ -21,7 +21,8 @@ router.get("/next", async (req: AuthenticatedRequest, res) => {
     const result = await query(sql);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No more candidates to label" });
+      res.status(404).json({ message: "No more candidates to label" });
+      return;
     }
 
     const candidate = result.rows[0];
@@ -83,7 +84,8 @@ router.post("/save", async (req: AuthenticatedRequest, res) => {
     const { candidate_id, corrected_fields, action } = req.body;
 
     if (!candidate_id || !action) {
-      return res.status(400).json({ message: "Missing required fields" });
+      res.status(400).json({ message: "Missing required fields" });
+      return;
     }
 
     const userId = req.user!.id;
@@ -95,7 +97,8 @@ router.post("/save", async (req: AuthenticatedRequest, res) => {
     );
 
     if (candidateCheck.rows.length === 0) {
-      return res.status(404).json({ message: "Candidate not found" });
+      res.status(404).json({ message: "Candidate not found" });
+      return;
     }
 
     // Insert or update labeled data

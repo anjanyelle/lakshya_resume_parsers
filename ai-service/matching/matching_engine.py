@@ -270,13 +270,14 @@ class MatchingEngine:
         else:
             self.logger.warning("Semantic skill matching disabled - sentence_transformers not available")
     
-    def calculate_match_score(self, candidate: Dict[str, Any], job: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_match_score(self, candidate: Dict[str, Any], job: Dict[str, Any], embeddings_map: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Calculate comprehensive match score between candidate and job.
         
         Args:
             candidate: Candidate data from resume parsing
             job: Job description data from JD parsing
+            embeddings_map: Optional pre-computed embeddings dictionary
             
         Returns:
             Dictionary with detailed scoring and recommendations
@@ -298,7 +299,7 @@ class MatchingEngine:
             
             # Calculate individual scores
             skill_score = self.calculate_skill_score(
-                candidate_skills, required_skills, preferred_skills
+                candidate_skills, required_skills, preferred_skills, embeddings_map=embeddings_map
             )
             
             experience_score = self.calculate_experience_score(
@@ -353,13 +354,46 @@ class MatchingEngine:
             self.logger.error(f"Error calculating match score: {e}")
             return self._create_empty_result()
     
-    def semantic_skill_match(self, candidate_skills: List[str], required_skills: List[str]) -> Dict[str, Any]:
+    def calculate_match_score_batch(self, candidates: List[Dict[str, Any]], job: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Calculate compatibility scores for a batch of candidates against a single job description.
+        Optimized by sharing and pre-computing skill embeddings in a shared embeddings map.
+        """
+        self.logger.info(f"Calculating batch match score for {len(candidates)} candidates")
+        embeddings_map = {}
+        
+        # Pre-populate required and preferred job skills to map in one go for optimization
+        required_skills = self._normalize_skills(job.get('required_skills', []))
+        preferred_skills = self._normalize_skills(job.get('preferred_skills', []))
+        normalized_required = self._normalize_skills_with_synonyms(required_skills)
+        normalized_preferred = self._normalize_skills_with_synonyms(preferred_skills)
+        
+        all_job_skills = list(set(normalized_required + normalized_preferred))
+        if all_job_skills and self.semantic_model:
+            try:
+                computed_embeddings = self.semantic_model.encode(all_job_skills)
+                for i, skill in enumerate(all_job_skills):
+                    embeddings_map[skill] = computed_embeddings[i]
+            except Exception as e:
+                self.logger.error(f"Failed to pre-compute job skill embeddings: {e}")
+                
+        results = []
+        for cand in candidates:
+            res = self.calculate_match_score(cand, job, embeddings_map=embeddings_map)
+            # Ensure candidate_id is included
+            res['candidate_id'] = cand.get('id')
+            results.append(res)
+            
+        return results
+    
+    def semantic_skill_match(self, candidate_skills: List[str], required_skills: List[str], embeddings_map: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Perform semantic skill matching using sentence transformers.
         
         Args:
             candidate_skills: List of candidate's skills
             required_skills: List of required job skills
+            embeddings_map: Optional pre-computed embeddings dictionary
             
         Returns:
             Dictionary with matched pairs and unmatched skills
@@ -368,9 +402,32 @@ class MatchingEngine:
             return {'matched_pairs': [], 'unmatched': required_skills}
         
         try:
-            # Encode both skill lists
-            candidate_embeddings = self.semantic_model.encode(candidate_skills)
-            required_embeddings = self.semantic_model.encode(required_skills)
+            # Helper to get embeddings from map or compute them
+            def get_embeddings(skills_list):
+                embeddings = []
+                missing_skills = []
+                missing_indices = []
+                
+                for idx, skill in enumerate(skills_list):
+                    if embeddings_map and skill in embeddings_map:
+                        embeddings.append(embeddings_map[skill])
+                    else:
+                        embeddings.append(None)
+                        missing_skills.append(skill)
+                        missing_indices.append(idx)
+                
+                if missing_skills:
+                    computed_embeddings = self.semantic_model.encode(missing_skills)
+                    for i, idx in enumerate(missing_indices):
+                        embeddings[idx] = computed_embeddings[i]
+                        if embeddings_map is not None:
+                            embeddings_map[skills_list[idx]] = computed_embeddings[i]
+                
+                return np.array(embeddings)
+
+            # Encode both skill lists using helper
+            candidate_embeddings = get_embeddings(candidate_skills)
+            required_embeddings = get_embeddings(required_skills)
             
             # Compute cosine similarity matrix
             similarity_matrix = cosine_similarity(required_embeddings, candidate_embeddings)
@@ -413,7 +470,7 @@ class MatchingEngine:
             return {'matched_pairs': [], 'unmatched': required_skills}
     
     def calculate_skill_score(self, candidate_skills: List[str], required_skills: List[str], 
-                            preferred_skills: List[str]) -> float:
+                            preferred_skills: List[str], embeddings_map: Optional[Dict[str, Any]] = None) -> float:
         """
         Calculate skill compatibility score with semantic matching.
         
@@ -421,6 +478,7 @@ class MatchingEngine:
             candidate_skills: List of candidate's skills
             required_skills: List of required job skills
             preferred_skills: List of preferred job skills
+            embeddings_map: Optional pre-computed embeddings dictionary
             
         Returns:
             Skill score (0-100)
@@ -440,7 +498,7 @@ class MatchingEngine:
             exact_score = len(exact_matches) / len(normalized_required)
             
             # Semantic matches (weight 0.85)
-            semantic_result = self.semantic_skill_match(normalized_candidate, normalized_required)
+            semantic_result = self.semantic_skill_match(normalized_candidate, normalized_required, embeddings_map=embeddings_map)
             semantic_matches_count = len(semantic_result['matched_pairs'])
             semantic_score = semantic_matches_count / len(normalized_required)
             
@@ -458,7 +516,7 @@ class MatchingEngine:
             exact_preferred_score = len(exact_preferred_matches) / len(normalized_preferred)
             
             # Semantic matches
-            semantic_preferred_result = self.semantic_skill_match(normalized_candidate, normalized_preferred)
+            semantic_preferred_result = self.semantic_skill_match(normalized_candidate, normalized_preferred, embeddings_map=embeddings_map)
             semantic_preferred_matches_count = len(semantic_preferred_result['matched_pairs'])
             semantic_preferred_score = semantic_preferred_matches_count / len(normalized_preferred)
             

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { Users, Search, RefreshCw, User, Award, DollarSign } from "lucide-react";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
-type SortType = "date-added" | "name" | "confidence-score";
+type SortType = "date-added" | "name" | "confidence-score" | "match-score";
 
 export default function CandidatesPage() {
   const [filter, setFilter] = useState<FilterType>("all");
@@ -52,6 +52,10 @@ export default function CandidatesPage() {
           const aConfidence = a.parsing_status?.confidence_score || 0;
           const bConfidence = b.parsing_status?.confidence_score || 0;
           return bConfidence - aConfidence;
+        case "match-score":
+          const aMatchScore = a.match_score || 0;
+          const bMatchScore = b.match_score || 0;
+          return bMatchScore - aMatchScore;
         case "date-added":
         default:
           return (
@@ -71,6 +75,13 @@ export default function CandidatesPage() {
     if (confidence >= 0.8) return "bg-purple-100 text-purple-800";
     if (confidence >= 0.6) return "bg-purple-50 text-purple-700";
     return "bg-gray-100 text-gray-600";
+  };
+
+  const getMatchScoreColor = (score: number) => {
+    if (score >= 0.8) return "bg-green-100 text-green-800";
+    if (score >= 0.6) return "bg-blue-100 text-blue-800";
+    if (score >= 0.4) return "bg-yellow-100 text-yellow-800";
+    return "bg-red-100 text-red-800";
   };
 
   
@@ -302,14 +313,23 @@ export default function CandidatesPage() {
                 </div>
 
                 {/* Confidence Badge */}
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(candidate.parsing_status?.confidence_score || 0)}`}
-                >
-                  {Math.round(
-                    (candidate.parsing_status?.confidence_score || 0) * 100,
+                <div className="flex flex-col gap-1 items-end">
+                  <span
+                    className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(candidate.parsing_status?.confidence_score || 0)}`}
+                  >
+                    {Math.round(
+                      (candidate.parsing_status?.confidence_score || 0) * 100,
+                    )}
+                    %
+                  </span>
+                  {candidate.match_score !== undefined && candidate.match_score !== null && (
+                    <span
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${getMatchScoreColor(candidate.match_score)}`}
+                    >
+                      Match: {Math.round(candidate.match_score * 100)}%
+                    </span>
                   )}
-                  %
-                </span>
+                </div>
               </div>
 
               {/* Skills */}

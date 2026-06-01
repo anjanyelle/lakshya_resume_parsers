@@ -48,7 +48,7 @@ class TextExtractor:
     def __init__(self):
         self.supported_extensions = {'.pdf', '.docx', '.txt'}
         
-    def extract_from_pdf(self, file_path: str) -> Dict[str, any]:
+    def extract_from_pdf(self, file_path: str, force_ocr: bool = False) -> Dict[str, any]:
         """
         Extract text from PDF using multi-tier strategy:
         1. pdfplumber (primary) - best for text-based PDFs
@@ -57,11 +57,33 @@ class TextExtractor:
         
         Args:
             file_path: Path to the PDF file
+            force_ocr: Whether to skip standard extraction and force OCR
             
         Returns:
             Dictionary with text, method_used, char_count, quality_score
         """
         MIN_CHAR_THRESHOLD = 200
+        
+        if force_ocr:
+            if TESSERACT_AVAILABLE:
+                try:
+                    logger.info(f"[OCR] Manual OCR trigger enabled. Attempting PDF extraction with OCR: {file_path}")
+                    text, avg_conf, quality_ok = self._extract_from_pdf_ocr(file_path)
+                    char_count = len(text.strip())
+                    logger.info(f"✅ OCR extraction completed: {char_count} chars, conf: {avg_conf:.1f}%, quality: {quality_ok}")
+                    return {
+                        'text': text,
+                        'method_used': 'ocr',
+                        'char_count': char_count,
+                        'quality_score': self._calculate_quality_score(text, len(text.split())),
+                        'ocr_confidence': avg_conf,
+                        'ocr_quality_ok': quality_ok
+                    }
+                except Exception as e:
+                    logger.error(f"OCR extraction failed: {e}")
+                    raise
+            else:
+                raise ImportError("Tesseract OCR is required for manual OCR trigger but is not available.")
         
         # Tier 1: Try pdfplumber first (best for text-based PDFs)
         if PDFPLUMBER_AVAILABLE:
@@ -107,14 +129,16 @@ class TextExtractor:
         if TESSERACT_AVAILABLE:
             try:
                 logger.info(f"Attempting PDF extraction with OCR: {file_path}")
-                text = self._extract_from_pdf_ocr(file_path)
+                text, avg_conf, quality_ok = self._extract_from_pdf_ocr(file_path)
                 char_count = len(text.strip())
-                logger.info(f"✅ OCR extraction completed: {char_count} chars")
+                logger.info(f"✅ OCR extraction completed: {char_count} chars, conf: {avg_conf:.1f}%, quality: {quality_ok}")
                 return {
                     'text': text,
                     'method_used': 'ocr',
                     'char_count': char_count,
-                    'quality_score': self._calculate_quality_score(text, len(text.split()))
+                    'quality_score': self._calculate_quality_score(text, len(text.split())),
+                    'ocr_confidence': avg_conf,
+                    'ocr_quality_ok': quality_ok
                 }
             except Exception as e:
                 logger.error(f"OCR extraction failed: {e}")
@@ -173,7 +197,83 @@ class TextExtractor:
         text = '\n'.join(text_parts)
         return self.clean_text(text)
     
-    def _extract_from_pdf_ocr(self, file_path: str) -> str:
+    def _preprocess_image_for_ocr(self, image: Image.Image) -> Image.Image:
+        """
+        Preprocess image using OpenCV and NumPy:
+        1. Grayscale
+        2. Denoising using Bilateral Filter
+        3. Deskewing (find text angle and rotate back)
+        4. Otsu Threshold Binarization
+        """
+        try:
+            import numpy as np
+            import cv2
+            
+            img_np = np.array(image)
+            # Convert RGB to BGR first if color image
+            if len(img_np.shape) == 3:
+                gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+            else:
+                gray = img_np.copy()
+
+            # Denoise
+            denoised = cv2.bilateralFilter(gray, 9, 75, 75)
+
+            # Find skew angle
+            _, thresh = cv2.threshold(denoised, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+            pts = cv2.findNonZero(thresh)
+            angle = 0.0
+            if pts is not None:
+                rect = cv2.minAreaRect(pts)
+                (cx, cy), (w, h), angle = rect
+                if angle < -45:
+                    angle = 90 + angle
+                elif angle > 45:
+                    angle = angle - 90
+                
+                if w < h:
+                    angle = angle + 90 if angle < 0 else angle - 90
+
+            # Rotate if skew is significant (0.5 to 20 degrees)
+            if 0.5 < abs(angle) < 20:
+                (h_img, w_img) = gray.shape[:2]
+                center = (w_img // 2, h_img // 2)
+                M = cv2.getRotationMatrix2D(center, angle, 1.0)
+                rotated = cv2.warpAffine(denoised, M, (w_img, h_img), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT, borderValue=255)
+                logger.info("Deskewed image by %.2f degrees", angle)
+                denoised = rotated
+
+            # Binarization
+            _, binarized = cv2.threshold(denoised, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            return Image.fromarray(binarized)
+        except Exception as exc:
+            logger.warning("Image preprocessing failed in AI service: %s. Using original image.", exc)
+            return image
+
+    def _is_text_quality_good(self, text: str) -> bool:
+        if not text or len(text) < 200:
+            return False
+
+        # Too many merged long tokens
+        long_tokens = [w for w in text.split() if len(w) > 30]
+        if len(long_tokens) > 5:
+            return False
+
+        # Too many weird uppercase/lowercase merges
+        if len(re.findall(r"[a-z][A-Z]", text)) > 20:
+            return False
+
+        # Too many artificial separators
+        if text.count("|") > 10:
+            return False
+
+        # Too many abnormal long alpha runs
+        if len(re.findall(r"[A-Za-z]{25,}", text)) > 5:
+            return False
+
+        return True
+
+    def _extract_from_pdf_ocr(self, file_path: str) -> Tuple[str, float, bool]:
         """
         Extract text from PDF using OCR as fallback.
         
@@ -181,7 +281,7 @@ class TextExtractor:
             file_path: Path to the PDF file
             
         Returns:
-            OCR extracted text as string
+            Tuple of (text, average_confidence, quality_ok)
         """
         if not TESSERACT_AVAILABLE:
             raise ImportError("Tesseract OCR is required for PDF OCR")
@@ -192,6 +292,7 @@ class TextExtractor:
         try:
             text = ""
             doc = fitz.open(file_path)
+            confidences = []
             
             for page_num in range(len(doc)):
                 page = doc[page_num]
@@ -201,12 +302,29 @@ class TextExtractor:
                 img_data = pix.tobytes("png")
                 img = Image.open(io.BytesIO(img_data))
                 
+                # Preprocess image
+                img = self._preprocess_image_for_ocr(img)
+                
                 # Perform OCR
                 page_text = pytesseract.image_to_string(img)
                 text += page_text + "\n"
+                
+                # Get word confidence scores
+                try:
+                    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+                    conf_list = [float(c) for c in data.get("conf", []) if c is not None and float(c) != -1]
+                    if conf_list:
+                        confidences.extend(conf_list)
+                except Exception as exc:
+                    logger.debug("Failed to calculate confidence for page: %s", exc)
             
             doc.close()
-            return self.clean_text(text)
+            cleaned_text = self.clean_text(text)
+            
+            avg_conf = sum(confidences) / len(confidences) if confidences else 85.0
+            quality_ok = self._is_text_quality_good(cleaned_text)
+            
+            return cleaned_text, avg_conf, quality_ok
             
         except Exception as e:
             logger.error(f"Error during OCR extraction from PDF {file_path}: {str(e)}")
@@ -371,12 +489,13 @@ class TextExtractor:
         
         return self.clean_text(text)
     
-    def extract(self, file_path: str) -> Dict:
+    def extract(self, file_path: str, force_ocr: bool = False) -> Dict:
         """
         Extract text from file with automatic type detection and quality assessment.
         
         Args:
             file_path: Path to the file
+            force_ocr: Whether to force OCR for PDF files
             
         Returns:
             Dictionary containing extracted text, method, word count, and quality score
@@ -396,7 +515,7 @@ class TextExtractor:
         try:
             if file_extension == '.pdf':
                 # PDF extraction returns dict with metadata
-                result = self.extract_from_pdf(str(file_path))
+                result = self.extract_from_pdf(str(file_path), force_ocr=force_ocr)
                 text = result['text']
                 method = result['method_used']
                 word_count = len(text.split())
@@ -410,7 +529,9 @@ class TextExtractor:
                     'method': method,
                     'word_count': word_count,
                     'quality_score': quality_score,
-                    'char_count': result['char_count']
+                    'char_count': result['char_count'],
+                    'ocr_confidence': result.get('ocr_confidence'),
+                    'ocr_quality_ok': result.get('ocr_quality_ok')
                 }
             
             elif file_extension == '.docx':

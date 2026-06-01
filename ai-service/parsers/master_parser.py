@@ -204,7 +204,7 @@ class MasterParser:
         optional_count = sum(optional_status)
         self.logger.info(f"📊 Optional parsers: {optional_count}/{len(optional_parsers)} available")
     
-    def parse_file(self, file_path: str, candidate_id: str, llm_provider: Optional[str] = None) -> Dict[str, Any]:
+    def parse_file(self, file_path: str, candidate_id: str, llm_provider: Optional[str] = None, force_ocr: bool = False) -> Dict[str, Any]:
         """
         Parse resume file through the complete pipeline.
         
@@ -212,6 +212,7 @@ class MasterParser:
             file_path: Path to resume file
             candidate_id: Unique candidate identifier
             llm_provider: Optional LLM provider for experience extraction
+            force_ocr: Whether to skip standard extraction and force OCR
             
         Returns:
             Complete parsed resume data with confidence scores and metrics
@@ -230,7 +231,7 @@ class MasterParser:
             
             # Step 1: Extract text from file
             step_start = time.time()
-            text_result = self._extract_text_from_file(file_path)
+            text_result = self._extract_text_from_file(file_path, force_ocr=force_ocr)
             metrics['text_extraction_ms'] = (time.time() - step_start) * 1000
             
             if not text_result or not text_result.get('text'):
@@ -1036,12 +1037,12 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         
         return result
     
-    def _extract_text_from_file(self, file_path: str) -> Dict[str, Any]:
+    def _extract_text_from_file(self, file_path: str, force_ocr: bool = False) -> Dict[str, Any]:
         """Extract text from file using TextExtractor."""
         if not self.text_extractor:
             raise RuntimeError("TextExtractor not available")
         
-        return self.text_extractor.extract(file_path)
+        return self.text_extractor.extract(file_path, force_ocr=force_ocr)
     
     def _split_sections(self, text: str) -> Dict[str, str]:
         """Split text into sections using SectionSplitter."""
