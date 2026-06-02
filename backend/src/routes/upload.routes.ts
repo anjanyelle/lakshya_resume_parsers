@@ -4,6 +4,7 @@ import {
   getUploadConfig,
   getUploadStats,
   previewSections,
+  parseSections,
 } from "../controllers/upload.controller";
 import {
   uploadResume as multerMiddleware,
@@ -154,6 +155,11 @@ router.post(
   multerMiddleware, // Handle file upload with multer
   handleUploadError, // Handle multer errors
   previewSections, // Forward to Python AI service
+);
+
+router.post(
+  "/parse-sections",
+  parseSections,
 );
 
 /**

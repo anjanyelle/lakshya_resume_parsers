@@ -91,7 +91,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
   fetchJobs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/api/jobs");
+      const response = await api.get("/jobs");
       set({ jobs: response.data.jobs || [], isLoading: false });
     } catch (error: any) {
       const errorMessage =
@@ -104,7 +104,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
   fetchJob: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/api/jobs/${id}`);
+      const response = await api.get(`/jobs/${id}`);
       set({ currentJob: response.data.job, isLoading: false });
     } catch (error: any) {
       const errorMessage =

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Upload, FileText, Loader2, ChevronDown, ChevronUp, Download, AlertCircle, CheckCircle, Info } from "lucide-react";
-import axios from "axios";
+import { api } from "../services/api";
 import { useAuthStore } from "../store/useAuthStore";
 
 interface SectionPreviewResponse {
@@ -171,13 +171,11 @@ export default function SectionPreviewPage() {
       const formData = new FormData();
       formData.append("resume", selectedFile);
 
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-      const response = await axios.post<SectionPreviewResponse>(
-        `${baseUrl}/resume/preview-sections`,
+      const response = await api.post<SectionPreviewResponse>(
+        `/upload/preview-sections`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -231,8 +229,8 @@ export default function SectionPreviewPage() {
 
     try {
       // Use relative URL - Vite proxy will forward to AI service on port 8000
-      const response = await axios.post<ParsedSectionsResponse>(
-        `/parse-sections`,
+      const response = await api.post<ParsedSectionsResponse>(
+        `/upload/parse-sections`,
         {
           experience_text: previewData.sections.experience?.text || null,
           education_text: previewData.sections.education?.text || null,

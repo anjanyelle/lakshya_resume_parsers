@@ -18,7 +18,6 @@ except ImportError:
     HAS_FITZ = False
 
 import pdfplumber
-import pytesseract
 from pdf2image import convert_from_path
 from pypdf import PdfReader
 from docx import Document
@@ -195,7 +194,11 @@ def _sample_text(text: str, head: int = 200, tail: int = 100) -> str:
 def extract_text(file_path: Path) -> ExtractedText:
     settings = get_settings()
     if settings.TESSERACT_CMD:
-        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+        try:
+            import pytesseract
+            pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+        except ImportError:
+            pass
 
     extension = file_path.suffix.lower().lstrip(".")
     logger.info(
@@ -255,7 +258,11 @@ def _is_text_quality_good(text: str) -> bool:
 def _extract_image(file_path: Path) -> ExtractedText:
     settings = get_settings()
     if settings.TESSERACT_CMD:
-        pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+        try:
+            import pytesseract
+            pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
+        except ImportError:
+            pass
     image = Image.open(str(file_path))
     lang = _detect_ocr_lang(file_path)
     text, conf = _ocr_with_confidence(file_path, lang)

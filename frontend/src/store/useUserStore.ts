@@ -53,7 +53,7 @@ export const useUserStore = create<UserState>((set) => ({
   createUser: async (userData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.post("/api/v1/users", userData);
+      const response = await api.post("/users", userData);
       set({ isLoading: false });
       return response.data;
     } catch (error: any) {
@@ -66,7 +66,7 @@ export const useUserStore = create<UserState>((set) => ({
   updateUser: async (userId, userData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put(`/api/v1/users/${userId}`, userData);
+      const response = await api.put(`/users/${userId}`, userData);
       set({ isLoading: false });
       return response.data;
     } catch (error: any) {
@@ -79,7 +79,7 @@ export const useUserStore = create<UserState>((set) => ({
   deleteUser: async (userId) => {
     set({ isLoading: true, error: null });
     try {
-      await api.delete(`/api/v1/users/${userId}`);
+      await api.delete(`/users/${userId}`);
       set({ isLoading: false });
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || "Failed to delete user";

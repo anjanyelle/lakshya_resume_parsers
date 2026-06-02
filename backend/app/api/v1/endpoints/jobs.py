@@ -9,9 +9,155 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import enforce_rate_limit, get_current_user, get_db
 from app.models.parsing_job import ParsingJob
+from app.models.job_description import JobDescription
+from app.schemas.job import JobCreate, JobUpdate, JobResponse
 
 router = APIRouter()
 
+@router.get("/jobs", response_model=dict)
+def get_jobs(
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    enforce_rate_limit(current_user.email, limit=100, per_seconds=60)
+    jobs = db.execute(select(JobDescription)).scalars().all()
+    # Manual serialization since frontend expects { "jobs": [...] }
+    return {"jobs": [
+        {
+            "id": str(j.id),
+            "title": j.title,
+            "department": j.department,
+            "location": j.location,
+            "employment_type": j.employment_type,
+            "status": j.status,
+            "created_at": j.created_at.isoformat() if j.created_at else None,
+            "updated_at": j.updated_at.isoformat() if j.updated_at else None,
+        } for j in jobs
+    ]}
+
+@router.post("/jobs", response_model=dict)
+def create_job(
+    job_in: JobCreate,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    db_job = JobDescription(
+        title=job_in.title,
+        description=job_in.description,
+        department=job_in.department,
+        min_experience_years=job_in.min_experience_years,
+        max_experience_years=job_in.max_experience_years,
+        education_requirement=job_in.education_requirement,
+        employment_type=job_in.employment_type,
+        seniority_level=job_in.seniority_level,
+        location=job_in.location,
+        salary_range=job_in.salary_range,
+        status=job_in.status or "active",
+        required_skills=job_in.required_skills or [],
+        preferred_skills=job_in.preferred_skills or []
+    )
+    db.add(db_job)
+    db.commit()
+    db.refresh(db_job)
+    
+    return {"job": {
+        "id": str(db_job.id),
+        "title": db_job.title,
+        "description": db_job.description,
+        "department": db_job.department,
+        "min_experience_years": db_job.min_experience_years,
+        "max_experience_years": db_job.max_experience_years,
+        "education_requirement": db_job.education_requirement,
+        "employment_type": db_job.employment_type,
+        "seniority_level": db_job.seniority_level,
+        "location": db_job.location,
+        "salary_range": db_job.salary_range,
+        "status": db_job.status,
+        "required_skills": db_job.required_skills,
+        "preferred_skills": db_job.preferred_skills,
+        "created_at": db_job.created_at.isoformat() if db_job.created_at else None,
+        "updated_at": db_job.updated_at.isoformat() if db_job.updated_at else None,
+    }}
+
+@router.get("/jobs/{job_id}", response_model=dict)
+def get_job(
+    job_id: UUID,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    job = db.execute(select(JobDescription).where(JobDescription.id == job_id)).scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    return {"job": {
+        "id": str(job.id),
+        "title": job.title,
+        "description": job.description,
+        "department": job.department,
+        "min_experience_years": job.min_experience_years,
+        "max_experience_years": job.max_experience_years,
+        "education_requirement": job.education_requirement,
+        "employment_type": job.employment_type,
+        "seniority_level": job.seniority_level,
+        "location": job.location,
+        "salary_range": job.salary_range,
+        "status": job.status,
+        "required_skills": job.required_skills,
+        "preferred_skills": job.preferred_skills,
+        "created_at": job.created_at.isoformat() if job.created_at else None,
+        "updated_at": job.updated_at.isoformat() if job.updated_at else None,
+    }}
+
+@router.put("/jobs/{job_id}", response_model=dict)
+def update_job(
+    job_id: UUID,
+    job_in: JobUpdate,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    job = db.execute(select(JobDescription).where(JobDescription.id == job_id)).scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    update_data = job_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(job, field, value)
+        
+    db.commit()
+    db.refresh(job)
+    
+    return {"job": {
+        "id": str(job.id),
+        "title": job.title,
+        "description": job.description,
+        "department": job.department,
+        "min_experience_years": job.min_experience_years,
+        "max_experience_years": job.max_experience_years,
+        "education_requirement": job.education_requirement,
+        "employment_type": job.employment_type,
+        "seniority_level": job.seniority_level,
+        "location": job.location,
+        "salary_range": job.salary_range,
+        "status": job.status,
+        "required_skills": job.required_skills,
+        "preferred_skills": job.preferred_skills,
+        "created_at": job.created_at.isoformat() if job.created_at else None,
+        "updated_at": job.updated_at.isoformat() if job.updated_at else None,
+    }}
+
+@router.delete("/jobs/{job_id}")
+def delete_job(
+    job_id: UUID,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    job = db.execute(select(JobDescription).where(JobDescription.id == job_id)).scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    db.delete(job)
+    db.commit()
+    return {"success": True, "message": "Job deleted successfully"}
 
 @router.get("/jobs/{job_id}/status")
 def job_status(

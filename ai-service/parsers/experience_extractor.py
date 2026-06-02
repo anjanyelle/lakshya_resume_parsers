@@ -111,7 +111,11 @@ def is_valid_job_title(text: str) -> bool:
         'spark', 'scala', 'kotlin', 'swift', 'flutter', 'react native', 'php', 
         'laravel', 'django', 'flask', 'spring', 'springboot', 'spring boot', 
         'hibernate', 'oracle', 'mysql', 'redis', 'elasticsearch', 'kafka', 
-        'rabbitmq', 'terraform', 'ansible', 's3', 'ec2', 'lambda', 'dynamodb'
+        'rabbitmq', 'terraform', 'ansible', 's3', 'ec2', 'lambda', 'dynamodb',
+        'cloudwatch', 'events', 'api', 'rest', 'soap', 'server', 'database',
+        'system', 'cloud', 'machine learning', 'ml', 'ai', 'artificial intelligence',
+        'deep learning', 'dl', 'nlp', 'cv', 'computer vision', 'data analytics',
+        'data science', 'big data', 'data warehousing', 'etl', 'pipeline', 'pipelines'
     }
     
     role_indicators = {
@@ -385,10 +389,10 @@ DATE_LINE_PATTERN = re.compile(
     r'\.?\s*(?:19|20)\d{2}'
     # Year-Month format: "2022-09", "2022/09"
     r'|(?:19|20)\d{2}[\-\/](0[1-9]|1[0-2])'
-    # Year ranges: "2020-2023", "2020 - 2023"
-    r'|(?:19|20)\d{2}\s*[-–—]\s*(?:19|20)\d{2}'
-    # Year to Present: "2020-Present", "2020 - Current"
-    r'|(?:19|20)\d{2}\s*[-–—]\s*(?:present|current|now|till date|to date)'
+    # Year ranges: "2020-2023", "2020 - 2023", "2020 to 2023", "2020 2023"
+    r'|(?:19|20)\d{2}\s*(?:[-–—]|to)?\s*(?:19|20)\d{2}'
+    # Year to Present: "2020-Present", "2020 - Current", "2020 Present"
+    r'|(?:19|20)\d{2}\s*(?:[-–—]|to)?\s*(?:present|current|now|till date|to date)'
     # Month/Year format: "01/2022", "12-2022"
     r'|\d{1,2}[\/\-](?:19|20)\d{2}'
     # Quarter format: "Q1 2022"
@@ -446,7 +450,19 @@ def extract_date_range(text: str) -> dict:
                 found_sep = sep
                 break
                 
-        if found_sep:
+        # If no standard separator, check if it's space-separated like "2019 Present"
+        if not found_sep and any(p in first_date_str.lower() for p in ['present', 'current', 'now', 'till date', 'to date']):
+            # Look for a space before the 'present' word
+            parts = re.split(r'(?i)\s+(present|current|now|till\s+date|to\s+date)', first_date_str)
+            if len(parts) >= 2:
+                start_str = parts[0].strip()
+                is_end_current = True
+                start_date = parse_date_safe(start_str)
+                end_date = None
+                is_current = True
+                found_sep = 'space_fallback'
+                
+        if found_sep and found_sep != 'space_fallback':
             parts = first_date_str.split(found_sep)
             if len(parts) >= 2:
                 start_str = parts[0].strip()
@@ -801,20 +817,34 @@ def extract_experience(experience_text: str) -> list:
 
             raw_title = clines[0]
             title = re.sub(r'\s*[-–—]\s*$', '', raw_title).strip()
+            
+            company = ''
+            
+            # Extract Company from Title if it uses @ or ' at '
+            if '@' in title:
+                parts = title.split('@', 1)
+                title = parts[0].strip()
+                company = parts[1].strip()
+            elif ' at ' in title.lower():
+                # Case insensitive split on ' at '
+                parts = re.split(r'(?i)\s+at\s+', title, 1)
+                if len(parts) > 1:
+                    title = parts[0].strip()
+                    company = parts[1].strip()
 
             # Skip noise titles
-            if NOISE_LINE.match(title) or len(title) > 100 or '@' in title:
+            if NOISE_LINE.match(title) or len(title) > 100:
                 continue
 
-            # company = next non-noise line after title
-            company = ''
-            for cl in clines[1:3]:
-                if not NOISE_LINE.match(cl) and not DATE_LINE_PATTERN.search(cl) \
-                   and not BULLET_RE.match(cl) and len(cl) < 80:
-                    company = re.sub(r'\s*[-–—]\s*$', '', cl).strip()
-                    break
+            # company = next non-noise line after title, if we didn't extract it already
+            if not company:
+                for cl in clines[1:3]:
+                    if not NOISE_LINE.match(cl) and not DATE_LINE_PATTERN.search(cl) \
+                       and not BULLET_RE.match(cl) and len(cl) < 80:
+                        company = re.sub(r'\s*[-–—]\s*$', '', cl).strip()
+                        break
 
-            desc_lines = clines[2:] if company else clines[1:]
+            desc_lines = clines[2:] if not company or company in clines[1:3] else clines[1:]
             description = '\n'.join(desc_lines)
 
             # Validate job title before adding

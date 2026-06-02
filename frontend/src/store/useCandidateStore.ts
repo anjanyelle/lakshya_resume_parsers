@@ -115,7 +115,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
           params.append("salary_max", salaryMax.toString());
         }
         
-        const response = await api.get(`/api/candidates?${params.toString()}`);
+        const response = await api.get(`/candidates?${params.toString()}`);
         console.log("📊 API Response:", response.data);
         console.log("📄 Pagination data:", response.data.pagination);
         console.log("👥 Candidates count:", response.data.candidates?.length || 0);
@@ -137,7 +137,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
     fetchCandidate: async (id: string) => {
       set({ isLoading: true, error: null });
       try {
-        const response = await api.get(`/api/candidates/${id}`);
+        const response = await api.get(`/candidates/${id}`);
         set({ currentCandidate: response.data.candidate, isLoading: false });
       } catch (error: any) {
         const errorMessage =
@@ -152,7 +152,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
 
       try {
         const formData = new FormData();
-        formData.append("resume", file);
+        formData.append("file", file);
         if (candidateId) {
           formData.append("candidate_id", candidateId);
         }
@@ -160,7 +160,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
           formData.append("llm_provider", llmProvider);
         }
 
-        const response = await api.post("/upload/resume", formData, {
+        const response = await api.post("/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

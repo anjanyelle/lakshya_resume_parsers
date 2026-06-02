@@ -9,7 +9,7 @@ import {
   subscribeToParsingFailed,
 } from "../services/socket";
 import toast from "react-hot-toast";
-import axios from "axios";
+import { api } from "../services/api";
 import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
@@ -564,13 +564,11 @@ export default function UploadPage() {
       formData.append("resume", file);
       formData.append("force_ocr", forceOcr ? "true" : "false");
 
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const response = await axios.post(
-        `${baseUrl}/api/upload/preview-sections`,
+      const response = await api.post(
+        `/upload/preview-sections`,
         formData,
         {
           headers: {
-            "Authorization": `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -682,13 +680,11 @@ export default function UploadPage() {
       formData.append("llm_provider", selectedLLM);
       formData.append("force_ocr", forceOcr ? "true" : "false");
 
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const response = await axios.post(
-        `${baseUrl}/api/upload/resume`,
+      const response = await api.post(
+        `/upload`,
         formData,
         {
           headers: {
-            "Authorization": `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
           onUploadProgress: (progressEvent) => {
@@ -761,8 +757,8 @@ export default function UploadPage() {
 
     try {
       // Use relative URL - Vite proxy will forward to AI service on port 8000
-      const response = await axios.post<ParsedSectionsResponse>(
-        `/parse-sections`,
+      const response = await api.post<ParsedSectionsResponse>(
+        `/upload/parse-sections`,
         {
           experience_text: extractedSections.experience?.text || "",
           education_text: extractedSections.education?.text || "",
@@ -800,8 +796,6 @@ export default function UploadPage() {
     setIsSavingCandidate(true);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-
       const payload = {
         name: parsedName || "Parsed Candidate",
         email: parsedEmail || undefined,
@@ -814,14 +808,9 @@ export default function UploadPage() {
         projects: parsedSections.projects,
       };
 
-      const response = await axios.post(
-        `${baseUrl}/api/candidates`,
-        payload,
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        }
+      const response = await api.post(
+        `/candidates`,
+        payload
       );
 
       toast.success("Candidate Profile saved successfully!");

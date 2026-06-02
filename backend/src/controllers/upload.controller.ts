@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { getClient } from "../database/db";
-import { addParsingJob } from "../queues/parseQueue";
 import {
   validateUploadedFile,
   getFileInfo,
@@ -244,9 +243,8 @@ export const uploadResume = async (
     const userId      = (req as any).user?.id;
     const llmProvider = req.body.llm_provider || "";
     const forceOcr    = req.body.force_ocr === "true" || req.body.force_ocr === true;
-    const useRedis    = process.env.USE_REDIS !== "false";
 
-    console.log(`📄 Resume upload: ${fileInfo.originalname} (${fileInfo.type}) | Redis=${useRedis}`);
+    console.log(`📄 Resume upload: ${fileInfo.originalname} (${fileInfo.type})`);
 
     // 2. DB transaction: create candidate + parsing_job
     client = await getClient();
@@ -271,36 +269,16 @@ export const uploadResume = async (
     const parsingJob = pjRes.rows[0];
     console.log(`  ✅ Parsing job created: ${parsingJob.id}`);
 
-    if (useRedis) {
-      // ── ASYNC PATH: hand off to BullMQ worker ──────────────────────────────
-      const jobId = await addParsingJob(
-        candidate.id, fileInfo.path, fileInfo.type, userId, llmProvider, forceOcr
+    // ── DIRECT PARSE PATH: call AI service inline ──────────────────────────
+    await client.query("COMMIT"); // commit DB records before slow AI call
+
+    const directClient = await getClient();
+    try {
+      // Mark as processing
+      await directClient.query(
+        `UPDATE parsing_jobs SET status = 'processing' WHERE id = $1`,
+        [parsingJobId]
       );
-      await client.query("COMMIT");
-      console.log(`  ✅ Job queued via Redis: ${jobId}`);
-      res.status(201).json({
-        success: true,
-        message: "Resume uploaded and queued for parsing",
-        data: {
-          candidateId: candidate.id,
-          jobId,
-          parsingJobId: parsingJob.id,
-          status: "queued",
-          fileInfo: { originalName: fileInfo.originalname, size: fileInfo.size, type: fileInfo.type },
-        },
-      });
-
-    } else {
-      // ── DIRECT PARSE PATH: call AI service inline ──────────────────────────
-      await client.query("COMMIT"); // commit DB records before slow AI call
-
-      const directClient = await getClient();
-      try {
-        // Mark as processing
-        await directClient.query(
-          `UPDATE parsing_jobs SET status = 'processing' WHERE id = $1`,
-          [parsingJobId]
-        );
 
         // Call the Python AI service
         const AI_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
@@ -389,7 +367,6 @@ export const uploadResume = async (
       } finally {
         directClient.release();
       }
-    }
   } catch (error) {
     if (req.file) deleteUploadedFile(req.file.path);
     console.error("❌ Upload error:", error);
@@ -573,7 +550,7 @@ export const previewSections = async (
       headers: {
         ...formData.getHeaders(),
       },
-      timeout: 30000, // 30 second timeout
+      timeout: 60000, // 60 second timeout
     });
 
     console.log(`✅ Preview sections completed for: ${fileInfo.originalname}`);
@@ -628,3 +605,58 @@ export const previewSections = async (
     });
   }
 };
+
+/**
+ * Parse resume sections using DeBERTa NER extraction
+ * Forwards request to Python AI service's /parse-sections endpoint
+ */
+export const parseSections = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+    const endpoint = `${aiServiceUrl}/parse-sections`;
+
+    console.log(`📤 Forwarding parse-sections request to Python AI service: ${endpoint}`);
+
+    const response = await axios.post(endpoint, req.body, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      timeout: 60000, // 60 second timeout
+    });
+
+    console.log(`✅ Parse sections completed successfully`);
+    res.status(200).json(response.data);
+
+  } catch (error: any) {
+    console.error("❌ Error in parse sections:", error.message);
+
+    // Handle specific error cases
+    if (error.code === "ECONNREFUSED" || error.code === "ETIMEDOUT") {
+      res.status(503).json({
+        error: "AI service unavailable",
+        message: "The Python AI service is currently unreachable. Please try again later.",
+        code: "AI_SERVICE_UNAVAILABLE",
+      });
+      return;
+    }
+
+    if (error.response) {
+      res.status(error.response.status).json({
+        error: "Parse sections failed",
+        message: error.response.data?.detail || error.response.data?.message || "Failed to parse sections",
+        code: "PARSE_FAILED",
+      });
+      return;
+    }
+
+    res.status(500).json({
+      error: "Parse sections failed",
+      message: "An unexpected error occurred while parsing sections",
+      code: "INTERNAL_ERROR",
+    });
+  }
+};
+

@@ -6,7 +6,6 @@ import {
   Candidate,
   CandidateWithDetails,
 } from "../models/candidate.model";
-import { addParsingJob } from "../queues/parseQueue";
 
 interface CreateCandidateRequest {
   full_name?: string;
@@ -360,10 +359,14 @@ export const createCandidate = async (
           projects: candidateData.projects || [],
         };
 
+        const filename = candidateData.file_path 
+          ? candidateData.file_path.split(/[/\\]/).pop() 
+          : `${candidate.full_name || "candidate"}_resume.pdf`;
+
         await client.query(
-          `INSERT INTO parsing_jobs (id, candidate_id, status, confidence_score, parsed_data, created_at, completed_at) 
-           VALUES ($1, $2, 'completed', 1.0, $3, NOW(), NOW())`,
-          [crypto.randomUUID(), candidate.id, JSON.stringify(parsedDataJson)],
+          `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, confidence_score, parsed_data, started_at, completed_at) 
+           VALUES ($1, $2, $3, $4, 'completed', 1.0, $5, NOW(), NOW())`,
+          [crypto.randomUUID(), candidate.id, filename, candidateData.file_path || `uploads/${filename}`, JSON.stringify(parsedDataJson)],
         );
 
         // Update candidate status to success since parsing is complete
@@ -380,40 +383,22 @@ export const createCandidate = async (
           candidate,
         });
       } else if (candidateData.file_path && candidateData.file_type) {
-        // Fallback: if no nested data but file path is provided, queue a parsing job.
-        try {
-          const jobId = await addParsingJob(
-            candidate.id,
-            candidateData.file_path,
-            candidateData.file_type,
-            userId,
-          );
+        // Fallback: if no nested data but file path is provided, we just save the candidate.
+        // Synchronous parsing happens in upload.controller.ts now.
+        const filename = candidateData.file_path 
+          ? candidateData.file_path.split(/[/\\]/).pop() 
+          : `${candidate.full_name || "candidate"}_resume.pdf`;
 
-          await client.query(
-            `INSERT INTO parsing_jobs (candidate_id, status, created_at) 
-             VALUES ($1, 'pending', NOW())`,
-            [candidate.id],
-          );
-
-          await client.query("COMMIT");
-
-          console.log(`📋 Added parsing job ${jobId} for candidate ${candidate.id}`);
-
-          res.status(201).json({
-            message: "Candidate created successfully and resume parsing initiated",
-            candidate,
-            parsing_job_id: jobId,
-          });
-        } catch (queueError) {
-          console.error("Failed to add parsing job:", queueError);
-          // Commit candidate anyway but warning
-          await client.query("COMMIT");
-          res.status(201).json({
-            message: "Candidate created successfully but resume parsing failed to start",
-            candidate,
-            warning: "Resume parsing could not be initiated",
-          });
-        }
+        await client.query(
+          `INSERT INTO parsing_jobs (candidate_id, filename, file_path, status, started_at) 
+           VALUES ($1, $2, $3, 'pending', NOW())`,
+          [candidate.id, filename, candidateData.file_path],
+        );
+        await client.query("COMMIT");
+        res.status(201).json({
+          message: "Candidate created successfully. Resume parsing must be done via the upload endpoint.",
+          candidate,
+        });
       } else {
         await client.query("COMMIT");
         res.status(201).json({
@@ -794,9 +779,9 @@ export const importCandidatesFromCSV = async (
           };
 
           await client.query(
-            `INSERT INTO parsing_jobs (id, candidate_id, status, confidence_score, parsed_data, created_at, completed_at) 
-             VALUES ($1, $2, 'completed', 1.0, $3, NOW(), NOW())`,
-            [crypto.randomUUID(), candidate.id, JSON.stringify(parsedDataJson)],
+            `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, confidence_score, parsed_data, started_at, completed_at) 
+             VALUES ($1, $2, $3, $4, 'completed', 1.0, $5, NOW(), NOW())`,
+            [crypto.randomUUID(), candidate.id, "imported_from_csv.pdf", "uploads/imported_from_csv.pdf", JSON.stringify(parsedDataJson)],
           );
 
           await client.query("COMMIT");

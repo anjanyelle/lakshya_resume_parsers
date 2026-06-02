@@ -323,19 +323,19 @@ class ConfidenceValidator:
 class ValidatedCandidateBase(BaseModel):
     """Base model for candidate-related schemas with built-in validators."""
     
-    @field_validator('phone')
+    @field_validator('phone', check_fields=False)
     @classmethod
     def validate_phone_number(cls, v: Optional[str]) -> Optional[str]:
         """Validate phone number format."""
         return PhoneNumberValidator.validate(v)
     
-    @field_validator('years_experience')
+    @field_validator('years_experience', check_fields=False)
     @classmethod
     def validate_years_of_experience(cls, v: Optional[float]) -> Optional[float]:
         """Validate years of experience."""
         return ExperienceValidator.validate_years(v)
     
-    @field_validator('linkedin_url', 'github_url')
+    @field_validator('linkedin_url', 'github_url', check_fields=False)
     @classmethod
     def validate_urls(cls, v: Optional[str]) -> Optional[str]:
         """Validate URL formats."""
@@ -345,13 +345,13 @@ class ValidatedCandidateBase(BaseModel):
 class ValidatedEducationBase(BaseModel):
     """Base model for education-related schemas with built-in validators."""
     
-    @field_validator('gpa')
+    @field_validator('gpa', check_fields=False)
     @classmethod
     def validate_gpa_score(cls, v: Optional[float]) -> Optional[float]:
         """Validate GPA score."""
         return EducationValidator.validate_gpa(v)
     
-    @field_validator('degree')
+    @field_validator('degree', check_fields=False)
     @classmethod
     def validate_degree_type(cls, v: Optional[str]) -> Optional[str]:
         """Validate degree type."""
@@ -385,7 +385,7 @@ class ValidatedWorkHistoryBase(BaseModel):
 class ValidatedSkillBase(BaseModel):
     """Base model for skill-related schemas with built-in validators."""
     
-    @field_validator('name')
+    @field_validator('name', check_fields=False)
     @classmethod
     def validate_skill_name(cls, v: str) -> str:
         """Validate skill name."""
@@ -395,7 +395,7 @@ class ValidatedSkillBase(BaseModel):
 class ValidatedParsingJobBase(BaseModel):
     """Base model for parsing job schemas with built-in validators."""
     
-    @field_validator('confidence_score', 'ocr_confidence')
+    @field_validator('confidence_score', 'ocr_confidence', check_fields=False)
     @classmethod
     def validate_confidence_scores(cls, v: Optional[float]) -> Optional[float]:
         """Validate confidence scores."""

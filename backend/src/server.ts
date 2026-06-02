@@ -2,8 +2,6 @@ import dotenv from "dotenv";
 import { createServer } from "http";
 import app from "./app";
 import pool from "./database/db";
-import parseWorker from "./workers/parseWorker";
-import { closeQueue } from "./queues/parseQueue";
 import createSocketServer, { setSocketInstance } from "./socket";
 
 // Load environment variables
@@ -34,10 +32,6 @@ async function startServer(): Promise<void> {
     const io = createSocketServer(httpServer);
     setSocketInstance(io);
 
-    // Start the parse worker
-    // parseWorker.run()
-    // console.log('🔄 Resume parsing worker started')
-
     // Start HTTP server
     httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
@@ -48,7 +42,6 @@ async function startServer(): Promise<void> {
       );
       console.log(`💼 Jobs endpoints: http://localhost:${PORT}/api/jobs`);
       console.log(`🔌 Socket.io server initialized`);
-      console.log(`🔄 Resume parsing worker started`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
     });
   } catch (error) {
@@ -61,8 +54,6 @@ async function startServer(): Promise<void> {
 process.on("SIGTERM", async () => {
   console.log("🔄 SIGTERM received, shutting down gracefully");
   try {
-    await parseWorker.close();
-    await closeQueue();
     await pool.end();
     console.log("✅ All services shut down successfully");
   } catch (error) {
@@ -74,8 +65,6 @@ process.on("SIGTERM", async () => {
 process.on("SIGINT", async () => {
   console.log("🔄 SIGINT received, shutting down gracefully");
   try {
-    await parseWorker.close();
-    await closeQueue();
     await pool.end();
     console.log("✅ All services shut down successfully");
   } catch (error) {

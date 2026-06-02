@@ -17,6 +17,8 @@ from app.models.correction_pattern import CorrectionPattern
 from app.models.skill_suggestion import SkillSuggestion
 from app.models.permission import Permission
 from app.models.role_permission import RolePermission
+from app.models.job_description import JobDescription
+from app.models.match_score import MatchScore
 
 __all__ = [
     "Base",
@@ -42,4 +44,6 @@ __all__ = [
     "SkillSuggestion",
     "Permission",
     "RolePermission",
+    "JobDescription",
+    "MatchScore",
 ]

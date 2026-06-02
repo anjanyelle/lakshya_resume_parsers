@@ -13,10 +13,6 @@ services:
       timeout: 5s
       retries: 5
 
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis_data:/data
 
   backend:
     build:
@@ -25,157 +21,11 @@ services:
     env_file: .env
     depends_on:
       - postgres
-      - redis
     volumes:
       - uploads:/var/uploads
     environment:
       STORAGE_DIR: /var/uploads
 
-  worker_doc_convert:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - uploads:/var/uploads
-    environment:
-      STORAGE_DIR: /var/uploads
-    command:
-      [
-        "celery",
-        "-A",
-        "app.workers.celery_app.celery_app",
-        "worker",
-        "-Q",
-        "doc_convert",
-        "-c",
-        "3",
-      ]
-
-  worker_ocr:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - uploads:/var/uploads
-    environment:
-      STORAGE_DIR: /var/uploads
-    command:
-      [
-        "celery",
-        "-A",
-        "app.workers.celery_app.celery_app",
-        "worker",
-        "-Q",
-        "ocr",
-        "-c",
-        "4",
-      ]
-
-  worker_extract:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - uploads:/var/uploads
-    environment:
-      STORAGE_DIR: /var/uploads
-    command:
-      [
-        "celery",
-        "-A",
-        "app.workers.celery_app.celery_app",
-        "worker",
-        "-Q",
-        "extract",
-        "-c",
-        "8",
-      ]
-
-  worker_parse:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - uploads:/var/uploads
-    environment:
-      STORAGE_DIR: /var/uploads
-    command:
-      [
-        "celery",
-        "-A",
-        "app.workers.celery_app.celery_app",
-        "worker",
-        "-Q",
-        "parse",
-        "-c",
-        "12",
-        "--prefetch-multiplier",
-        "1",
-      ]
-
-  worker_llm:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - uploads:/var/uploads
-    environment:
-      STORAGE_DIR: /var/uploads
-    command:
-      [
-        "celery",
-        "-A",
-        "app.workers.celery_app.celery_app",
-        "worker",
-        "-Q",
-        "llm",
-        "-c",
-        "4",
-      ]
-
-  worker_persist:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: .env
-    depends_on:
-      - postgres
-      - redis
-    volumes:
-      - uploads:/var/uploads
-    environment:
-      STORAGE_DIR: /var/uploads
-    command:
-      [
-        "celery",
-        "-A",
-        "app.workers.celery_app.celery_app",
-        "worker",
-        "-Q",
-        "persist",
-        "-c",
-        "6",
-      ]
 
   frontend:
     build:
@@ -188,5 +38,4 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
   uploads:

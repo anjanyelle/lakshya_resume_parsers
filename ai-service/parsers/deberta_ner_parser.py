@@ -154,6 +154,24 @@ class DeBERTaNerParser:
             # Remove prefixes from each line
             for prefix_pattern in prefixes_to_remove:
                 cleaned_line = re.sub(prefix_pattern, '', cleaned_line, flags=re.IGNORECASE)
+                
+            stripped = cleaned_line.strip()
+            if not stripped:
+                continue
+                
+            # Skip bullet points
+            if re.match(r'^[•\-\*\+►▸▶→]\s*', stripped):
+                continue
+                
+            # Skip long sentences/paragraphs (likely descriptions, not headers)
+            if len(stripped) > 130:
+                continue
+                
+            # Skip lines that start with typical resume action verbs
+            action_verbs = r'(?i)^(developed|designed|managed|led|responsible|worked|created|implemented|architected|built|maintained|collaborated|participated|involved|using|integrated|optimized|improved|resolved|tested|analyzed|supported|delivered|directed)\b'
+            if re.match(action_verbs, stripped):
+                continue
+                
             cleaned_lines.append(cleaned_line)
         
         return '\n'.join(cleaned_lines)

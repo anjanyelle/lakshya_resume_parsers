@@ -18,6 +18,7 @@ from app.api.v1.endpoints import (
     taxonomy,
     upload,
     users,
+    matching,
 )
 
 api_router = APIRouter()
@@ -38,3 +39,4 @@ api_router.include_router(accuracy.router, tags=["accuracy"])
 api_router.include_router(admin.router, tags=["admin"])
 api_router.include_router(users.router, tags=["users"])
 api_router.include_router(permissions.router, tags=["permissions"])
+api_router.include_router(matching.router, tags=["matching"])

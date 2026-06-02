@@ -40,6 +40,14 @@ from app.utils.review import (
     suggest_skills,
 )
 from app.workers.pipeline import start_parsing_workflow
+from pydantic import BaseModel
+
+class CandidateCreateWithRelations(CandidateCreate):
+    skills: list[str] = []
+    work_experience: list[dict] = []
+    education: list[dict] = []
+    certifications: list[str] = []
+    projects: list[str] = []
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -63,6 +71,94 @@ def _parse_optional_bool(value: str | None):
     if raw in {"false", "0", "no", "n"}:
         return False
     return None
+
+
+@router.post("/candidates", status_code=201)
+def create_candidate(
+    payload: CandidateCreateWithRelations,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    enforce_rate_limit(current_user.email, limit=30, per_seconds=60)
+    
+    # Create Candidate
+    candidate = Candidate(
+        tenant_id=current_user.tenant_id,
+        email=payload.email,
+        full_name=payload.full_name,
+        phone=payload.phone,
+        location=payload.location,
+        linkedin_url=payload.linkedin_url,
+        github_url=payload.github_url,
+        summary=payload.summary,
+        status="success",
+        review_status="pending",
+    )
+    if payload.email:
+        candidate.email_hash = hash_value(payload.email)
+    
+    db.add(candidate)
+    db.flush()  # To get candidate.id
+    
+    # Save Skills
+    if payload.skills:
+        from app.models import Skill, CandidateSkill
+        for skill_name in payload.skills:
+            if not skill_name:
+                continue
+            skill = db.query(Skill).filter(Skill.name == skill_name).first()
+            if not skill:
+                skill = Skill(name=skill_name, category="technical")
+                db.add(skill)
+                db.flush()
+            cs = CandidateSkill(candidate_id=candidate.id, skill_id=skill.id)
+            db.add(cs)
+            
+    # Save Work Experience
+    if payload.work_experience:
+        for work in payload.work_experience:
+            wh = WorkHistory(
+                candidate_id=candidate.id,
+                company_name=work.get("company_name") or work.get("company"),
+                job_title=work.get("job_title") or work.get("title"),
+                start_date=_parse_optional_date(work.get("start_date")),
+                end_date=_parse_optional_date(work.get("end_date")),
+                is_current=_parse_optional_bool(work.get("is_current")),
+                location=work.get("location"),
+                description=work.get("description"),
+            )
+            db.add(wh)
+            
+    # Save Education
+    if payload.education:
+        for edu in payload.education:
+            e = Education(
+                candidate_id=candidate.id,
+                institution=edu.get("institution") or edu.get("institution_name"),
+                degree=edu.get("degree") or edu.get("degree_name"),
+                field_of_study=edu.get("field_of_study"),
+                start_date=_parse_optional_date(edu.get("start_date")),
+                end_date=_parse_optional_date(edu.get("end_date")),
+                gpa=edu.get("gpa") if isinstance(edu.get("gpa"), (int, float)) else None,
+            )
+            db.add(e)
+            
+    # Save Certifications
+    if payload.certifications:
+        for cert in payload.certifications:
+            if isinstance(cert, str) and cert.strip():
+                c = Certification(candidate_id=candidate.id, name=cert.strip())
+                db.add(c)
+                
+    # Save Projects as JSON in candidate
+    if payload.projects:
+        import json
+        candidate.projects = json.dumps(payload.projects)
+        
+    db.commit()
+    db.refresh(candidate)
+    
+    return {"message": "Candidate created successfully", "candidate": {"id": candidate.id}}
 
 
 @router.get("/candidates", response_model=list[CandidatePublicRead])
