@@ -378,7 +378,7 @@ class SectionExtractor:
             # Validate and correct sections using SectionValidator
             try:
                 validator = SectionValidator()
-                corrected_sections = validator.validate_and_correct(all_sections)
+                corrected_sections, _ = validator.validate_and_correct(all_sections)
                 
                 # Log sections after validation
                 logger.info(f"✅ Sections after validation: {list(corrected_sections.keys())}")
@@ -871,7 +871,7 @@ class ResumeParser:
         
         try:
             validator = SectionValidator()
-            corrected_sections = validator.validate_and_correct(all_sections)
+            corrected_sections, _ = validator.validate_and_correct(all_sections)
             
             sections_after_validation = len(corrected_sections)
             sections_after_keys = set(corrected_sections.keys())
@@ -1174,7 +1174,7 @@ class ResumeParser:
 
 
 # FastAPI compatible function
-def parse_resume(resume_text: str, model_path: str = "./models/resume-ner-deberta", file_path: Optional[str] = None) -> Dict:
+def parse_resume(resume_text: str, model_path: Optional[str] = None, file_path: Optional[str] = None) -> Dict:
     """
     Parse resume text and extract structured information
     
@@ -1203,6 +1203,15 @@ def parse_resume(resume_text: str, model_path: str = "./models/resume-ner-debert
             }
         }
     """
+    import os
+    if model_path is None:
+        if os.path.exists("ai-service/models/resume-ner-deberta/config.json"):
+            model_path = "ai-service/models/resume-ner-deberta"
+        elif os.path.exists("models/resume-ner-deberta/config.json"):
+            model_path = "models/resume-ner-deberta"
+        else:
+            model_path = "./models/resume-ner-deberta"
+            
     parser = ResumeParser(model_path)
     return parser.parse(resume_text, file_path)
 

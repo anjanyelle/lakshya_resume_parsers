@@ -953,8 +953,15 @@ async def parse_sections(request: ParseSectionsRequest):
                             logger.warning(f"🚫 Rejected {len(rejected_education)} invalid education entries")
                         
                         logger.info(f"✅ After validation: {len(education)} valid education entries")
+                        
+                        # TRIGGER FALLBACK IF NO EXPERIENCES LEFT
+                        if len(work_experience) == 0 and request.experience_text and request.experience_text.strip():
+                            raise ValueError("DeBERTa validation rejected all experiences - falling back to regex")
+                            
                     except Exception as e:
-                        logger.warning(f"Validation failed: {e}, using unvalidated results")
+                        logger.warning(f"Validation failed: {e}, using unvalidated results or triggering fallback")
+                        if "falling back to regex" in str(e):
+                            raise e
                     
                     # Post-process skills: extract extra skills from job titles/descriptions and raw text
                     try:

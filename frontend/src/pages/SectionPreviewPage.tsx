@@ -82,6 +82,32 @@ export default function SectionPreviewPage() {
   const [showRawText, setShowRawText] = useState(false);
   const { token } = useAuthStore();
 
+  // Map canonical UI section names → possible AI service key names (in priority order)
+  const SECTION_ALIASES: Record<string, string[]> = {
+    summary:        ["summary", "summary_objective", "objective", "professional_summary", "profile"],
+    experience:     ["experience", "work_experience", "work_history", "employment", "professional_experience"],
+    education:      ["education", "educational_background", "academic_background", "academics"],
+    skills:         ["skills", "technical_skills", "core_skills", "key_skills", "competencies"],
+    certifications: ["certifications", "certification", "certificates", "licenses"],
+    projects:       ["projects", "project_experience", "key_projects"],
+    contact:        ["contact", "contact_information", "personal_information", "personal_details"],
+  };
+
+  // Resolve a canonical section name to the actual key present in the sections object
+  const resolveSection = (sections: Record<string, any>, canonical: string) => {
+    const aliases = SECTION_ALIASES[canonical] || [canonical];
+    for (const alias of aliases) {
+      if (sections[alias] && sections[alias].text?.trim()) return sections[alias];
+    }
+    return null;
+  };
+
+  // Check if ANY alias is in detected_sections
+  const isSectionDetected = (detectedSections: string[], canonical: string) => {
+    const aliases = SECTION_ALIASES[canonical] || [canonical];
+    return aliases.some(a => detectedSections.includes(a));
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -339,7 +365,8 @@ export default function SectionPreviewPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Section Detection Summary</h2>
               <div className="grid grid-cols-6 gap-4">
                 {["summary", "experience", "education", "skills", "certifications", "projects"].map((section) => {
-                  const isDetected = previewData.detected_sections.includes(section);
+                  const isDetected = isSectionDetected(previewData.detected_sections, section);
+                  const sectionData = resolveSection(previewData.sections, section);
                   return (
                     <div
                       key={section}
@@ -353,6 +380,11 @@ export default function SectionPreviewPage() {
                         <p className="text-xs uppercase text-gray-700 font-semibold mb-2">
                           {section}
                         </p>
+                        {sectionData && (
+                          <p className="text-xs text-gray-500 mb-1">
+                            {sectionData.char_count.toLocaleString()} chars
+                          </p>
+                        )}
                         <div className="flex items-center justify-center gap-2">
                           <div
                             className={`w-3 h-3 rounded-full ${
@@ -688,8 +720,8 @@ export default function SectionPreviewPage() {
             {/* Section Cards */}
             <div className="space-y-4">
               {["summary", "experience", "education", "skills", "certifications", "projects"].map((sectionName) => {
-                const sectionData = previewData.sections[sectionName];
-                const isDetected = previewData.detected_sections.includes(sectionName);
+                const sectionData = resolveSection(previewData.sections, sectionName);
+                const isDetected = isSectionDetected(previewData.detected_sections, sectionName);
 
                 return (
                   <div
@@ -709,7 +741,7 @@ export default function SectionPreviewPage() {
                         )}
                       </div>
                       <div>
-                        {isDetected && sectionData?.text.trim() ? (
+                        {isDetected && sectionData?.text?.trim() ? (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
                             <div className="w-2 h-2 rounded-full bg-green-500" />
                             Detected
@@ -725,7 +757,7 @@ export default function SectionPreviewPage() {
 
                     {/* Card Body */}
                     <div className="p-6">
-                      {isDetected && sectionData?.text.trim() ? (
+                      {isDetected && sectionData?.text?.trim() ? (
                         <textarea
                           readOnly
                           value={sectionData.text}

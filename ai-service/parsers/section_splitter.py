@@ -975,9 +975,9 @@ class SectionSplitter:
                 self.logger.debug(f"❌ Single word - not a section header: '{clean_line}'")
                 return None
             
-            # Score ≥ 5: Confirmed heading with unknown section name
+            # Score ≥ 7: Very likely heading with unknown section name
             # Try partial matching to assign to nearest section
-            if heuristic_score >= 5:
+            if heuristic_score >= 7:
                 self.logger.info(f"✅ Detected unknown section header (score={heuristic_score}): '{clean_line}'")
                 matched_section = self._match_unknown_section_partial(clean_line)
                 return matched_section

@@ -59,7 +59,7 @@ export class CandidateModel {
       
       // Get work experience
       const workExperienceResult = await client.query(
-        "SELECT * FROM work_experience WHERE candidate_id = $1 ORDER BY start_date DESC",
+        "SELECT * FROM work_history WHERE candidate_id = $1 ORDER BY start_date DESC",
         [id]
       );
       
@@ -86,9 +86,10 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT id, skill_name, category, proficiency_level, years_experience, confidence_score 
-           FROM skills 
-           WHERE candidate_id = $1`,
+          `SELECT s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience 
+           FROM candidate_skills cs
+           JOIN skills s ON cs.skill_id = s.id
+           WHERE cs.candidate_id = $1`,
           [id]
         );
         skillRows = skillsResult.rows;
@@ -227,18 +228,18 @@ export class CandidateModel {
         whereClause += ` AND (name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
       }
       
-      // Add company filter (join with work_experience)
+      // Add company filter (join with work_history)
       if (company) {
         queryParams.push(`%${company}%`);
-        joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
+        joinClause += " JOIN work_history we ON candidates.id = we.candidate_id";
         whereClause += ` AND we.company_name ILIKE $${queryParams.length}`;
       }
       
-      // Add job_title filter (join with work_experience)
+      // Add job_title filter (join with work_history)
       if (jobTitle) {
         queryParams.push(`%${jobTitle}%`);
         if (!joinClause) {
-          joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
+          joinClause += " JOIN work_history we ON candidates.id = we.candidate_id";
         }
         whereClause += ` AND we.job_title ILIKE $${queryParams.length}`;
       }

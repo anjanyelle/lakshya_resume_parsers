@@ -15,7 +15,7 @@ import re
 
 # Import configuration
 try:
-    from config.deberta_config import DEBERTA_MODEL_PATH, REQUIRED_MODEL_FILES, REQUIRED_MODEL_WEIGHTS
+    from config.deberta_config import DEBERTA_MODEL_PATH, REQUIRED_MODEL_FILES, REQUIRED_MODEL_WEIGHTS  # type: ignore
 except ImportError:
     # Fallback if config not available
     DEBERTA_MODEL_PATH = str(Path(__file__).parent.parent / "models" / "resume-ner-final")
@@ -376,11 +376,11 @@ class DeBERTaNerParser:
             sections['education_text'] = '\n'.join(edu_lines).strip()
         
         # Limit to reasonable length (prevent too much text)
-        if len(sections['work_experience_text']) > 3000:
-            sections['work_experience_text'] = sections['work_experience_text'][:3000]
+        if len(sections['work_experience_text']) > 15000:
+            sections['work_experience_text'] = sections['work_experience_text'][:15000]
         
-        if len(sections['education_text']) > 1000:
-            sections['education_text'] = sections['education_text'][:1000]
+        if len(sections['education_text']) > 5000:
+            sections['education_text'] = sections['education_text'][:5000]
         
         logger.info(f"📄 Extracted sections: Work={len(sections['work_experience_text'])} chars, Education={len(sections['education_text'])} chars")
         return sections

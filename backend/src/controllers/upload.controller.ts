@@ -11,7 +11,221 @@ import {
 import FormData from "form-data";
 import fs from "fs";
 import axios from "axios";
+import path from "path";
+import crypto from "crypto";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers — used to store ALL parsed sections inline (no-Redis mode)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function parseDateStr(raw: any): string | null {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  const lower = s.toLowerCase();
+  if (["present", "current", "now", "till date"].includes(lower)) return null;
+
+  // Month Year e.g. "Jan 2020"
+  const mY = s.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{4})$/i);
+  if (mY) {
+    const map: Record<string, string> = {
+      jan:"01",feb:"02",mar:"03",apr:"04",may:"05",jun:"06",
+      jul:"07",aug:"08",sep:"09",oct:"10",nov:"11",dec:"12",
+    };
+    return `${mY[2]}-${map[mY[1].toLowerCase().slice(0,3)]}-01`;
+  }
+  const yOnly = s.match(/^(\d{4})$/);
+  if (yOnly) { const y = parseInt(yOnly[1]); if (y>=1900&&y<=2100) return `${y}-01-01`; }
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    if (y >= 1900 && y <= 2100) return d.toISOString().split("T")[0];
+  }
+  return null;
+}
+
+function safeDate(raw: any): string | null {
+  const d = parseDateStr(raw);
+  if (!d) return null;
+  const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  const [,yr,mo,dy] = m.map(Number);
+  if (yr<1900||yr>2100||mo<1||mo>12||dy<1||dy>31) return null;
+  return d;
+}
+
+function trunc(s: string | null | undefined, max = 255): string | null {
+  if (!s) return null;
+  return s.length <= max ? s : s.substring(0, max - 3) + "...";
+}
+
+// Stores ALL sections from the AI response into PostgreSQL
+async function storeAllParsedData(client: any, candidateId: string, ai: any, filePath?: string) {
+  // ── 1. UPDATE candidates table ────────────────────────────────────────────
+  const emailHash = ai.email
+    ? crypto.createHash("md5").update(ai.email.trim().toLowerCase()).digest("hex")
+    : null;
+
+  let resumeHash: string | null = null;
+  if (filePath && fs.existsSync(filePath)) {
+    try { resumeHash = crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex"); }
+    catch { /* ignore hash errors */ }
+  }
+
+  const location =
+    ai.location ||
+    (Array.isArray(ai.locations) && ai.locations.length > 0 ? ai.locations[0] : null);
+
+  const qualityScore = ai.extraction_quality?.extraction_quality_percentage
+    ? Math.round(ai.extraction_quality.extraction_quality_percentage) : null;
+  const confidenceScore = ai.confidence?.overall ?? null;
+
+  await client.query(
+    `UPDATE candidates
+     SET full_name            = COALESCE($1,  full_name),
+         email                = COALESCE($2,  email),
+         phone                = COALESCE($3,  phone),
+         location             = COALESCE($4,  location),
+         linkedin_url         = COALESCE($5,  linkedin_url),
+         github_url           = COALESCE($6,  github_url),
+         summary              = COALESCE($7,  summary),
+         status               = 'success',
+         review_status        = 'pending',
+         email_hash           = COALESCE($8,  email_hash),
+         resume_hash          = COALESCE($9,  resume_hash),
+         resume_quality_score = COALESCE($10, resume_quality_score),
+         confidence_score     = COALESCE($11, confidence_score),
+         updated_at           = NOW()
+     WHERE id = $12`,
+    [
+      trunc(ai.name),
+      trunc(ai.email),
+      trunc(ai.phone, 50),
+      trunc(location),
+      trunc(ai.linkedin, 500),
+      trunc(ai.github, 500),
+      trunc(ai.summary, 2000),
+      emailHash,
+      resumeHash,
+      qualityScore,
+      confidenceScore,
+      candidateId,
+    ]
+  );
+  console.log(`  ✅ Candidate profile updated`);
+
+  // ── 2. WORK HISTORY ───────────────────────────────────────────────────────
+  // Accept both field names the AI may return
+  const workItems: any[] =
+    (Array.isArray(ai.work_experience) && ai.work_experience.length > 0 ? ai.work_experience : null) ??
+    (Array.isArray(ai.work_history)   && ai.work_history.length   > 0 ? ai.work_history   : null) ??
+    [];
+
+  await client.query("DELETE FROM work_history WHERE candidate_id = $1", [candidateId]);
+  for (const w of workItems) {
+    const isCurrent = w.is_current ||
+      ["present","current","now","till date"].includes(String(w.end_date || "").toLowerCase());
+    await client.query(
+      `INSERT INTO work_history
+         (candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        candidateId,
+        trunc(w.job_title || w.title),
+        trunc(w.company_name || w.company),
+        safeDate(w.start_date),
+        safeDate(isCurrent ? null : w.end_date),
+        isCurrent,
+        trunc(w.description || (Array.isArray(w.responsibilities) ? w.responsibilities.join("; ") : null), 2000),
+        trunc(w.location),
+      ]
+    );
+  }
+  console.log(`  ✅ Work history: ${workItems.length} entries stored`);
+
+  // ── 3. EDUCATION ──────────────────────────────────────────────────────────
+  const eduItems: any[] = Array.isArray(ai.education) ? ai.education : [];
+  await client.query("DELETE FROM education WHERE candidate_id = $1", [candidateId]);
+  for (const e of eduItems) {
+    await client.query(
+      `INSERT INTO education (id, candidate_id, degree, institution, field_of_study, start_date, end_date, gpa)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [
+        uuidv4(),
+        candidateId,
+        trunc(e.degree || e.degree_name),
+        trunc(e.institution || e.institution_name || e.school),
+        trunc(e.field_of_study || e.major),
+        safeDate(e.start_year || e.start_date),
+        safeDate(e.end_year   || e.end_date || e.graduation_date),
+        e.gpa ?? null,
+      ]
+    );
+  }
+  console.log(`  ✅ Education: ${eduItems.length} entries stored`);
+
+  // ── 4. SKILLS + CANDIDATE_SKILLS ──────────────────────────────────────────
+  const rawSkills: any[] = Array.isArray(ai.skills) ? ai.skills : [];
+  await client.query("DELETE FROM candidate_skills WHERE candidate_id = $1", [candidateId]);
+  for (const sk of rawSkills) {
+    const skillName = typeof sk === "string" ? sk.trim() : (sk.name || sk.skill_name || "").trim();
+    if (!skillName) continue;
+    const nameTrimmed = trunc(skillName)!;
+
+    // Find or create the global skill row
+    const existing = await client.query("SELECT id FROM skills WHERE name = $1", [nameTrimmed]);
+    let skillId: string;
+    if (existing.rows.length > 0) {
+      skillId = existing.rows[0].id;
+    } else {
+      const ins = await client.query(
+        "INSERT INTO skills (id, name, category) VALUES ($1,$2,'technical') RETURNING id",
+        [uuidv4(), nameTrimmed]
+      );
+      skillId = ins.rows[0].id;
+    }
+
+    await client.query(
+      `INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level)
+       VALUES ($1,$2,'intermediate') ON CONFLICT DO NOTHING`,
+      [candidateId, skillId]
+    );
+  }
+  console.log(`  ✅ Skills: ${rawSkills.length} entries stored`);
+
+  // ── 5. CERTIFICATIONS ─────────────────────────────────────────────────────
+  const certs: any[] = Array.isArray(ai.certifications) ? ai.certifications : [];
+  if (certs.length > 0) {
+    try {
+      await client.query("DELETE FROM certifications WHERE candidate_id = $1", [candidateId]);
+      for (const c of certs) {
+        const name = (typeof c === "string" ? c : (c.name || "")).trim();
+        if (!name) continue;
+        await client.query(
+          `INSERT INTO certifications (id, candidate_id, name) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING`,
+          [uuidv4(), candidateId, trunc(name)]
+        );
+      }
+      console.log(`  ✅ Certifications: ${certs.length} entries stored`);
+    } catch (e: any) {
+      console.warn(`  ⚠️  Certifications skipped: ${e.message}`);
+    }
+  }
+
+  // ── 6. PROJECTS (stored as JSONB on candidate row) ────────────────────────
+  const projects: any[] = Array.isArray(ai.projects) ? ai.projects : [];
+  if (projects.length > 0) {
+    try {
+      await client.query("UPDATE candidates SET projects = $1 WHERE id = $2",
+        [JSON.stringify(projects), candidateId]);
+      console.log(`  ✅ Projects: ${projects.length} entries stored`);
+    } catch { /* column may not exist in older migrations */ }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main upload handler
+// ─────────────────────────────────────────────────────────────────────────────
 export const uploadResume = async (
   req: Request,
   res: Response,
@@ -19,155 +233,180 @@ export const uploadResume = async (
   let client: any = null;
 
   try {
-    // 1. Validate file was uploaded
+    // 1. Validate file
     if (!req.file) {
-      res.status(400).json({
-        error: "No file uploaded",
-        message: "Please upload a resume file",
-        code: "NO_FILE_UPLOADED",
-      });
+      res.status(400).json({ error: "No file uploaded", message: "Please upload a resume file", code: "NO_FILE_UPLOADED" });
       return;
     }
-
-    // Validate uploaded file
     validateUploadedFile(req.file);
 
-    const fileInfo = getFileInfo(req.file);
-    const userId = (req as any).user?.id;
-    const llmProvider = req.body.llm_provider || '';
-    const forceOcr = req.body.force_ocr === 'true' || req.body.force_ocr === true || req.body.forceOcr === 'true' || req.body.forceOcr === true;
+    const fileInfo    = getFileInfo(req.file);
+    const userId      = (req as any).user?.id;
+    const llmProvider = req.body.llm_provider || "";
+    const forceOcr    = req.body.force_ocr === "true" || req.body.force_ocr === true;
+    const useRedis    = process.env.USE_REDIS !== "false";
 
-    console.log(
-      `📄 Processing resume upload: ${fileInfo.originalname} (${fileInfo.type}) (forceOcr: ${forceOcr})`,
-    );
-    if (llmProvider) {
-      console.log(`🤖 Using LLM provider: ${llmProvider}`);
-    }
+    console.log(`📄 Resume upload: ${fileInfo.originalname} (${fileInfo.type}) | Redis=${useRedis}`);
 
-    // 2. Create database client and start transaction
+    // 2. DB transaction: create candidate + parsing_job
     client = await getClient();
+    await client.query("BEGIN");
 
-    try {
-      await client.query("BEGIN");
+    const candidateId = uuidv4();
+    const tenantId    = (req as any).user?.tenant_id || "default";
+    const cRes = await client.query(
+      `INSERT INTO candidates (id, status, tenant_id, created_at, updated_at)
+       VALUES ($1,'pending',$2,NOW(),NOW()) RETURNING *`,
+      [candidateId, tenantId]
+    );
+    const candidate = cRes.rows[0];
+    console.log(`  ✅ Candidate created: ${candidate.id}`);
 
-      // 3. Create candidate record in database (status: 'pending')
-      const candidateId = uuidv4();
-      const tenantId = (req as any).user?.tenant_id || 'default';
-      const candidateQuery = `
-        INSERT INTO candidates (id, status, tenant_id, created_at, updated_at)
-        VALUES ($1, 'pending', $2, NOW(), NOW())
-        RETURNING *
-      `;
+    const parsingJobId = uuidv4();
+    const pjRes = await client.query(
+      `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, started_at)
+       VALUES ($1,$2,$3,$4,'pending',NOW()) RETURNING *`,
+      [parsingJobId, candidate.id, fileInfo.originalname, fileInfo.path]
+    );
+    const parsingJob = pjRes.rows[0];
+    console.log(`  ✅ Parsing job created: ${parsingJob.id}`);
 
-      const candidateResult = await client.query(candidateQuery, [candidateId, tenantId]);
-      const candidate = candidateResult.rows[0];
-
-      console.log(`✅ Created candidate record: ${candidate.id}`);
-
-      // 4. Create parsing_job record (status: 'pending')
-      const parsingJobId = uuidv4();
-      const parsingJobQuery = `
-        INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, started_at)
-        VALUES ($1, $2, $3, $4, 'pending', NOW())
-        RETURNING *
-      `;
-
-      const parsingJobResult = await client.query(parsingJobQuery, [
-        parsingJobId,
-        candidate.id,
-        fileInfo.originalname,
-        fileInfo.path,
-      ]);
-      const parsingJob = parsingJobResult.rows[0];
-
-      console.log(`✅ Created parsing job record: ${parsingJob.id}`);
-
-      // 5. Add job to Redis queue
+    if (useRedis) {
+      // ── ASYNC PATH: hand off to BullMQ worker ──────────────────────────────
       const jobId = await addParsingJob(
-        candidate.id,
-        fileInfo.path,
-        fileInfo.type,
-        userId,
-        llmProvider,
-        forceOcr,
+        candidate.id, fileInfo.path, fileInfo.type, userId, llmProvider, forceOcr
       );
-
-      console.log(`✅ Added job to Redis queue: ${jobId}`);
-
-      // Commit transaction
       await client.query("COMMIT");
-
-      // 6. Return success response
+      console.log(`  ✅ Job queued via Redis: ${jobId}`);
       res.status(201).json({
         success: true,
-        message: "Resume uploaded successfully and processing started",
+        message: "Resume uploaded and queued for parsing",
         data: {
           candidateId: candidate.id,
-          jobId: jobId,
+          jobId,
           parsingJobId: parsingJob.id,
           status: "queued",
-          fileInfo: {
-            originalName: fileInfo.originalname,
-            size: fileInfo.size,
-            type: fileInfo.type,
-          },
+          fileInfo: { originalName: fileInfo.originalname, size: fileInfo.size, type: fileInfo.type },
         },
       });
-    } catch (dbError) {
-      // Rollback transaction on database error
-      await client.query("ROLLBACK");
 
-      // Delete uploaded file if database operations failed
-      deleteUploadedFile(fileInfo.path);
+    } else {
+      // ── DIRECT PARSE PATH: call AI service inline ──────────────────────────
+      await client.query("COMMIT"); // commit DB records before slow AI call
 
-      console.error("❌ Database error during upload:", dbError);
+      const directClient = await getClient();
+      try {
+        // Mark as processing
+        await directClient.query(
+          `UPDATE parsing_jobs SET status = 'processing' WHERE id = $1`,
+          [parsingJobId]
+        );
 
-      res.status(500).json({
-        error: "Database error",
-        message: "Failed to save candidate information",
-        code: "DATABASE_ERROR",
-      });
-      return;
+        // Call the Python AI service
+        const AI_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
+        console.log(`  🤖 Calling AI service: ${AI_URL}/parse`);
+
+        const aiRes = await fetch(`${AI_URL}/parse`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file_path: path.resolve(fileInfo.path),
+            candidate_id: candidateId,
+            ...(llmProvider ? { llm_provider: llmProvider } : {}),
+            force_ocr: forceOcr,
+          }),
+        });
+
+        if (!aiRes.ok) {
+          throw new Error(`AI service error ${aiRes.status}: ${await aiRes.text()}`);
+        }
+
+        const aiData: any = await aiRes.json();
+        console.log(`  🤖 AI responded with status: ${aiData.status}`);
+
+        if (aiData.status !== "success") {
+          throw new Error(`AI returned status="${aiData.status}": ${aiData.error || "unknown"}`);
+        }
+
+        // Store ALL sections into the database
+        console.log(`📥 Storing parsed data for candidate ${candidateId}...`);
+        await storeAllParsedData(directClient, candidateId, aiData, fileInfo.path);
+
+        // Mark parsing_job as completed
+        await directClient.query(
+          `UPDATE parsing_jobs
+           SET status = 'completed',
+               confidence_score = $1,
+               parsed_data = $2,
+               completed_at = NOW()
+           WHERE id = $3`,
+          [aiData.confidence?.overall ?? null, JSON.stringify(aiData), parsingJobId]
+        );
+
+        const workCount = (
+          (Array.isArray(aiData.work_experience) ? aiData.work_experience : []).length ||
+          (Array.isArray(aiData.work_history)   ? aiData.work_history   : []).length
+        );
+
+        console.log(`✅ Direct parse complete — candidate ${candidateId}`);
+        res.status(201).json({
+          success: true,
+          message: "Resume uploaded and parsed successfully",
+          data: {
+            candidateId: candidate.id,
+            parsingJobId: parsingJob.id,
+            status: "completed",
+            parsed: {
+              name:                  aiData.name  || null,
+              email:                 aiData.email || null,
+              phone:                 aiData.phone || null,
+              skills_count:          (aiData.skills         || []).length,
+              work_history_count:    workCount,
+              education_count:       (aiData.education      || []).length,
+              certifications_count:  (aiData.certifications || []).length,
+            },
+            fileInfo: { originalName: fileInfo.originalname, size: fileInfo.size, type: fileInfo.type },
+          },
+        });
+
+      } catch (parseErr: any) {
+        const errMsg = parseErr instanceof Error ? parseErr.message : String(parseErr);
+        console.error(`❌ Direct parse failed for candidate ${candidateId}:`, errMsg);
+        await directClient.query(
+          `UPDATE parsing_jobs SET status = 'failed', error_message = $1, completed_at = NOW() WHERE id = $2`,
+          [errMsg, parsingJobId]
+        );
+        await directClient.query(
+          `UPDATE candidates SET status = 'failed' WHERE id = $1`,
+          [candidateId]
+        );
+        res.status(500).json({
+          error: "Parse failed",
+          message: errMsg,
+          code: "PARSE_FAILED",
+          candidateId: candidate.id,
+        });
+      } finally {
+        directClient.release();
+      }
     }
   } catch (error) {
-    // Delete uploaded file if any error occurred
-    if (req.file) {
-      deleteUploadedFile(req.file.path);
-    }
-
+    if (req.file) deleteUploadedFile(req.file.path);
     console.error("❌ Upload error:", error);
 
-    // Handle specific error types
     if (error instanceof Error) {
       if (error.message.includes("Invalid file type")) {
-        res.status(400).json({
-          error: "Invalid file type",
-          message: error.message,
-          code: "INVALID_FILE_TYPE",
-          allowedTypes: ["PDF", "DOCX", "TXT"],
-        });
+        res.status(400).json({ error: "Invalid file type", message: error.message, code: "INVALID_FILE_TYPE", allowedTypes: ["PDF","DOCX","TXT"] });
         return;
       }
-
       if (error.message.includes("File size exceeds")) {
-        res.status(400).json({
-          error: "File too large",
-          message: error.message,
-          code: "FILE_TOO_LARGE",
-        });
+        res.status(400).json({ error: "File too large", message: error.message, code: "FILE_TOO_LARGE" });
         return;
       }
     }
-
-    res.status(500).json({
-      error: "Upload failed",
-      message: "An unexpected error occurred while processing your upload",
-      code: "UPLOAD_FAILED",
-    });
+    res.status(500).json({ error: "Upload failed", message: "An unexpected error occurred", code: "UPLOAD_FAILED" });
   } finally {
-    if (client) {
-      client.release();
-    }
+    if (client) client.release();
   }
 };
 

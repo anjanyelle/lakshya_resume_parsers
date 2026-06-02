@@ -26,6 +26,25 @@ logging.basicConfig(
     format='%(message)s'
 )
 
+# Global parser instance
+parser_instance = None
+
+def get_parser():
+    global parser_instance
+    if parser_instance is None:
+        from resume_parser_pipeline import ResumeParser
+        # Resolve model path dynamically
+        model_path = None
+        if os.path.exists("ai-service/models/resume-ner-deberta/config.json"):
+            model_path = "ai-service/models/resume-ner-deberta"
+        elif os.path.exists("models/resume-ner-deberta/config.json"):
+            model_path = "models/resume-ner-deberta"
+        else:
+            model_path = "./models/resume-ner-deberta"
+        print(f"Initializing ResumeParser with model path: {model_path} ...")
+        parser_instance = ResumeParser(model_path)
+    return parser_instance
+
 def analyze_resume(file_path: str) -> Dict:
     """
     Analyze a single resume file
@@ -33,7 +52,6 @@ def analyze_resume(file_path: str) -> Dict:
     Returns:
         Dictionary with analysis results
     """
-    from resume_parser_pipeline import parse_resume
     from parsers.text_extractor import TextExtractor
     
     result = {
@@ -68,7 +86,8 @@ def analyze_resume(file_path: str) -> Dict:
             result['extraction_method'] = 'direct'
         
         # Parse the resume
-        parsed = parse_resume('', file_path=file_path)
+        parser = get_parser()
+        parsed = parser.parse('', file_path=file_path)
         
         # Analyze sections
         result['has_experience'] = len(parsed.get('experience', '')) > 0

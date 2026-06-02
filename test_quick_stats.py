@@ -12,8 +12,25 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'ai-service'))
 
 logging.basicConfig(level=logging.WARNING, format='%(message)s')
 
+# Global parser instance
+parser_instance = None
+
+def get_parser():
+    global parser_instance
+    if parser_instance is None:
+        from resume_parser_pipeline import ResumeParser
+        # Resolve model path dynamically
+        model_path = None
+        if os.path.exists("ai-service/models/resume-ner-deberta/config.json"):
+            model_path = "ai-service/models/resume-ner-deberta"
+        elif os.path.exists("models/resume-ner-deberta/config.json"):
+            model_path = "models/resume-ner-deberta"
+        else:
+            model_path = "./models/resume-ner-deberta"
+        parser_instance = ResumeParser(model_path)
+    return parser_instance
+
 def analyze_resume(file_path: str):
-    from resume_parser_pipeline import parse_resume
     from parsers.text_extractor import TextExtractor
     
     result = {
@@ -28,7 +45,8 @@ def analyze_resume(file_path: str):
     }
     
     try:
-        parsed = parse_resume('', file_path=file_path)
+        parser = get_parser()
+        parsed = parser.parse('', file_path=file_path)
         
         result['has_experience'] = len(parsed.get('experience', '')) > 0
         result['has_education'] = len(parsed.get('education', '')) > 0

@@ -11,8 +11,10 @@ const redisConfig = {
   lazyConnect: true,
 };
 
-// Create Redis connection
-const connection = new IORedis(redisConfig);
+const USE_REDIS = process.env.USE_REDIS !== 'false';
+
+// Create Redis connection conditionally
+const connection = USE_REDIS ? new IORedis(redisConfig) : null as any;
 
 // Queue options with retry and timeout configuration
 const queueOptions: QueueOptions = {
@@ -29,8 +31,22 @@ const queueOptions: QueueOptions = {
   },
 };
 
-// Create the resume parsing queue
-export const parseQueue = new Queue("resume-parsing", queueOptions);
+// Create the resume parsing queue conditionally
+export const parseQueue = USE_REDIS ? new Queue("resume-parsing", queueOptions) : {
+  add: async () => ({ id: 'dummy-job-' + Date.now() }),
+  getJob: async () => null,
+  getJobs: async (): Promise<any[]> => [],
+  pause: async () => {},
+  resume: async () => {},
+  clean: async () => 0,
+  getWaiting: async () => [],
+  getActive: async () => [],
+  getCompleted: async () => [],
+  getFailed: async () => [],
+  getDelayed: async () => [],
+  close: async () => {},
+  on: () => {}
+} as any;
 
 // Job data interface
 export interface ParseJobData {
@@ -103,7 +119,7 @@ export const getCandidateJobs = async (candidateId: string) => {
     -1,
     true,
   );
-  return jobs.filter((job) => job.data.candidateId === candidateId);
+  return jobs.filter((job: any) => job.data && job.data.candidateId === candidateId);
 };
 
 // Pause the queue (useful for maintenance)
@@ -161,22 +177,26 @@ export const getQueueStats = async () => {
 
 // Graceful shutdown
 export const closeQueue = async () => {
-  await parseQueue.close();
-  await connection.quit();
-  console.log("🔌 Parse queue and Redis connection closed");
+  if (USE_REDIS) {
+    await parseQueue.close();
+    await connection.quit();
+    console.log("🔌 Parse queue and Redis connection closed");
+  }
 };
 
 // Error handling
-parseQueue.on("error", (err) => {
-  console.error("❌ Queue error:", err);
-});
+if (USE_REDIS) {
+  parseQueue.on("error", (err: any) => {
+    console.error("❌ Queue error:", err);
+  });
 
-connection.on("error", (err) => {
-  console.error("❌ Redis connection error:", err);
-});
+  connection.on("error", (err: any) => {
+    console.error("❌ Redis connection error:", err);
+  });
 
-connection.on("connect", () => {
-  console.log("🔗 Redis connected successfully");
-});
+  connection.on("connect", () => {
+    console.log("🔗 Redis connected successfully");
+  });
+}
 
 export default parseQueue;

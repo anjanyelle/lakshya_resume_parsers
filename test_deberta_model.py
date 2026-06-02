@@ -16,8 +16,15 @@ import torch
 sys.path.insert(0, os.path.dirname(__file__))
 
 class DeBERTaModelTester:
-    def __init__(self, model_path: str = "./models/resume-ner-deberta"):
+    def __init__(self, model_path: str = None):
         """Initialize the model tester"""
+        if model_path is None:
+            if os.path.exists("ai-service/models/resume-ner-deberta/config.json"):
+                model_path = "ai-service/models/resume-ner-deberta"
+            elif os.path.exists("models/resume-ner-deberta/config.json"):
+                model_path = "models/resume-ner-deberta"
+            else:
+                model_path = "./models/resume-ner-deberta"
         self.model_path = model_path
         self.tokenizer = None
         self.model = None

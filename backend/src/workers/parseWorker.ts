@@ -211,8 +211,10 @@ const redisConfig = {
   lazyConnect: true,
 };
 
-// Create Redis connection
-const connection = new IORedis(redisConfig);
+const USE_REDIS = process.env.USE_REDIS !== 'false';
+
+// Create Redis connection conditionally
+const connection = USE_REDIS ? new IORedis(redisConfig) : null as any;
 
 // AI Service URL
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
@@ -476,30 +478,36 @@ const updateCandidateWithParsedData = async (
       }
     }
 
-    // Insert work experience if provided
-    if (
-      parsedData.work_experience &&
-      Array.isArray(parsedData.work_experience)
-    ) {
-      // Check if work_experience table has candidate_id column
+    // Insert work experience if provided (accept both field names the AI may return)
+    const workItems: any[] =
+      (parsedData.work_experience && Array.isArray(parsedData.work_experience) && parsedData.work_experience.length > 0
+        ? parsedData.work_experience
+        : null) ??
+      ((parsedData as any).work_history && Array.isArray((parsedData as any).work_history) && (parsedData as any).work_history.length > 0
+        ? (parsedData as any).work_history
+        : null) ??
+      [];
+
+    if (workItems.length > 0) {
+      // Check if work_history table has candidate_id column
       const workColumnCheck = await client.query(`
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'work_experience' 
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = 'work_history'
         AND column_name = 'candidate_id'
       `);
 
       if (workColumnCheck.rows.length > 0) {
-        // First, delete existing work experience
         await client.query(
-          "DELETE FROM work_experience WHERE candidate_id = $1",
+          "DELETE FROM work_history WHERE candidate_id = $1",
           [candidateId],
         );
 
-        // Insert new work experience
-        for (const work of parsedData.work_experience) {
+        for (const work of workItems) {
+          const isCurrent = work.is_current ||
+            ["present","current","now","till date"].includes(String(work.end_date || "").toLowerCase());
           const workQuery = `
-          INSERT INTO work_experience (candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
+          INSERT INTO work_history (candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `;
           await client.query(workQuery, [
@@ -507,12 +515,18 @@ const updateCandidateWithParsedData = async (
             truncateString(work.job_title || work.title, 255),
             truncateString(work.company_name || work.company, 255),
             validateDateFormat(parseDateString(work.start_date || null)),
-            validateDateFormat(parseDateString(work.end_date || null)),
-            work.is_current || false,
-            truncateString(work.description || null, 1000), // Assuming description might be TEXT type
+            validateDateFormat(parseDateString(isCurrent ? null : (work.end_date || null))),
+            isCurrent,
+            truncateString(
+              work.description ||
+              (Array.isArray(work.responsibilities) ? work.responsibilities.join("; ") : null) ||
+              null,
+              2000
+            ),
             truncateString(work.location || null, 255),
           ]);
         }
+        console.log(`✅ Stored ${workItems.length} work history entries for ${candidateId}`);
       }
     }
 
@@ -816,8 +830,8 @@ const processor: Processor<ParseJobData> = async (job: Job<ParseJobData>) => {
   }
 };
 
-// Create the worker
-export const parseWorker = new Worker<ParseJobData>(
+// Create the worker conditionally
+export const parseWorker = USE_REDIS ? new Worker<ParseJobData>(
   "resume-parsing",
   processor,
   {
@@ -828,10 +842,14 @@ export const parseWorker = new Worker<ParseJobData>(
       duration: 60000, // Max 10 jobs per minute
     },
   },
-);
+) : {
+  close: async () => {},
+  on: () => {},
+  run: async () => {}
+} as any;
 
 // Worker event handlers
-parseWorker.on("completed", (job: Job, result: any) => {
+parseWorker.on("completed", (job: any, result: any) => {
   console.log(
     `🎉 Job ${job.id} completed for candidate ${job.data.candidateId}`,
   );
@@ -845,7 +863,7 @@ parseWorker.on("failed", (job: Job | undefined, err: Error) => {
   );
 });
 
-parseWorker.on("error", (err) => {
+parseWorker.on("error", (err: any) => {
   console.error("❌ Worker error:", err);
 });
 
@@ -854,7 +872,7 @@ parseWorker.on("ready", () => {
 });
 
 // Progress updates
-parseWorker.on("progress", (job: Job<ParseJobData>, progress: any) => {
+parseWorker.on("progress", (job: any, progress: any) => {
   const progressNum =
     typeof progress === "number" ? progress : parseInt(progress.toString());
   console.log(
@@ -864,10 +882,12 @@ parseWorker.on("progress", (job: Job<ParseJobData>, progress: any) => {
 
 // Graceful shutdown
 export const closeWorker = async () => {
-  console.log("🔄 Closing parse worker...");
-  await parseWorker.close();
-  await connection.quit();
-  console.log("🔌 Parse worker and Redis connection closed");
+  if (USE_REDIS) {
+    console.log("🔄 Closing parse worker...");
+    await parseWorker.close();
+    await connection.quit();
+    console.log("🔌 Parse worker and Redis connection closed");
+  }
 };
 
 // Handle process termination

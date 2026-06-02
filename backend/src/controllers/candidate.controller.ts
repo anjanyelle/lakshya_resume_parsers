@@ -272,10 +272,11 @@ export const createCandidate = async (
           }
 
           const workQuery = `
-            INSERT INTO work_experience (candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            INSERT INTO work_history (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           `;
           await client.query(workQuery, [
+            crypto.randomUUID(),
             candidate.id,
             work.job_title || work.title || null,
             work.company_name || work.company || null,
