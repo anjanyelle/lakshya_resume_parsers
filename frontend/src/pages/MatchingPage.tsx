@@ -14,45 +14,15 @@ import {
   Cell,
 } from "recharts";
 
-interface MatchResult {
-  id: string;
-  job_id: string;
-  job_title?: string;
-  candidate_id: string;
-  candidate_name: string;
-  candidate_email: string;
-  overall_score: number;
-  skill_score: number;
-  experience_score: number;
-  education_score: number;
-  matching_skills: string[];
-  missing_skills: string[];
-  recommendation:
-    | "Strong Match"
-    | "Good Match"
-    | "Partial Match"
-    | "Not Recommended";
-  reason: string;
-  created_at: string;
-}
-
-interface Job {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  employment_type: string;
-  status: "active" | "inactive" | "closed";
-}
-
 export default function MatchingPage() {
   const [selectedJob, setSelectedJob] = useState<string>("");
   const [isMatching, setIsMatching] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [matchResults, setMatchResults] = useState<MatchResult[]>([]);
-  const [jobs, setJobs] = useState<Job[]>([]);
 
-  const { runMatching, fetchMatchResults, fetchJobs } = useJobStore();
+  const { runMatching, fetchMatchResults, fetchJobs, jobs: storeJobs, matchResults: storeMatchResults } = useJobStore();
+
+  const jobs = (storeJobs || []).filter((job) => job.status === "active");
+  const matchResults = storeMatchResults || [];
 
   useEffect(() => {
     loadJobs();
@@ -61,10 +31,7 @@ export default function MatchingPage() {
 
   const loadJobs = async () => {
     try {
-      const fetchedJobs = fetchJobs();
-      if (fetchedJobs && Array.isArray(fetchedJobs)) {
-        setJobs(fetchedJobs.filter((job: Job) => job.status === "active"));
-      }
+      await fetchJobs();
     } catch (error) {
       toast.error("Failed to load jobs");
     }
@@ -72,10 +39,7 @@ export default function MatchingPage() {
 
   const loadMatchResults = async () => {
     try {
-      const results = fetchMatchResults("all");
-      if (results && Array.isArray(results)) {
-        setMatchResults(results);
-      }
+      await fetchMatchResults("all");
     } catch (error) {
       console.error("Failed to load match results");
     }
@@ -181,9 +145,11 @@ export default function MatchingPage() {
     }
   };
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "?";
     return name
       .split(" ")
+      .filter(Boolean)
       .map((part) => part.charAt(0).toUpperCase())
       .slice(0, 2)
       .join("");

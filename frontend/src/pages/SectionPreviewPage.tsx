@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Upload, FileText, Loader2, ChevronDown, ChevronUp, Download, AlertCircle, CheckCircle, Info } from "lucide-react";
 import { api } from "../services/api";
-import { useAuthStore } from "../store/useAuthStore";
 
 interface SectionPreviewResponse {
   filename: string;
@@ -80,7 +79,6 @@ export default function SectionPreviewPage() {
   const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showRawText, setShowRawText] = useState(false);
-  const { token } = useAuthStore();
 
   // Map canonical UI section names → possible AI service key names (in priority order)
   const SECTION_ALIASES: Record<string, string[]> = {

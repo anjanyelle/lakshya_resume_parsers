@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/useAuthStore";
 import {
   connectSocket,
   subscribeToParsingProgress,
@@ -416,8 +415,6 @@ export default function UploadPage() {
       setParsedPhone(parsedSections.contact?.phone || "");
     }
   }, [parsedSections]);
-
-  const { token } = useAuthStore();
 
   // Socket.io connection
   useEffect(() => {

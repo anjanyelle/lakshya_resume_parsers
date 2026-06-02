@@ -12,14 +12,15 @@ interface StatCard {
 
 export default function DashboardPage() {
   const { candidates, fetchCandidates } = useCandidateStore();
-  const { jobs, fetchJobs, matchResults } = useJobStore();
+  const { jobs, fetchJobs, matchResults, fetchMatchResults } = useJobStore();
   const [stats, setStats] = useState<StatCard[]>([]);
 
   useEffect(() => {
     // Load initial data
     fetchCandidates();
     fetchJobs();
-  }, [fetchCandidates, fetchJobs]);
+    fetchMatchResults("all");
+  }, [fetchCandidates, fetchJobs, fetchMatchResults]);
 
   useEffect(() => {
     // Calculate stats when data changes
