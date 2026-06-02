@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import { query } from "../database/db";
+import { v4 as uuidv4 } from "uuid";
 
 interface RegisterRequest {
   email: string;
@@ -42,11 +43,12 @@ export const registerUser = async (
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
     // Create user
+    const id = uuidv4();
     const result = await query(
-      `INSERT INTO users (email, hashed_password, role) 
-       VALUES ($1, $2, $3) 
+      `INSERT INTO users (id, email, hashed_password, role, is_active) 
+       VALUES ($1, $2, $3, $4, $5) 
        RETURNING id, email, role, created_at`,
-      [email, passwordHash, role],
+      [id, email, passwordHash, role, true],
     );
 
     const user = result.rows[0];

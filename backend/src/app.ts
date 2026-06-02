@@ -7,6 +7,8 @@ import uploadRoutes from "./routes/upload.routes";
 import resumeRoutes from "./routes/resume.routes";
 import matchingRoutes from "./routes/matching.routes";
 import labelingRoutes from "./routes/labeling.routes";
+import settingsRoutes from "./routes/settings.routes";
+import analyticsRoutes from "./routes/analytics.routes";
 
 const app: Application = express();
 
@@ -45,6 +47,11 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/matching", matchingRoutes);
 app.use("/api/labeling", labelingRoutes);
+app.use("/api/settings", settingsRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/accuracy", analyticsRoutes);
+app.use("/api/api/analytics", analyticsRoutes);
+app.use("/api/api/accuracy", analyticsRoutes);
 
 // 404 handler
 app.use("*", (req: Request, res: Response) => {

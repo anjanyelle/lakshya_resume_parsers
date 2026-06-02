@@ -1,4 +1,5 @@
 import { PoolClient } from "pg";
+import { v4 as uuidv4 } from "uuid";
 
 export interface JobDescription {
   id?: string;
@@ -14,6 +15,14 @@ export interface JobDescription {
   salary_min?: number;
   salary_max?: number;
   created_at?: Date;
+  updated_at?: Date;
+  
+  // Custom ATS columns
+  education_requirement?: string;
+  seniority_level?: string;
+  salary_range?: string;
+  status?: string;
+  preferred_skills?: string[];
 }
 
 export interface JobFilter {
@@ -34,9 +43,10 @@ export class JobModel {
       INSERT INTO job_descriptions (
         title, description, required_skills, department, location,
         employment_type, min_experience_years, max_experience_years,
-        education_level, salary_min, salary_max
+        education_level, salary_min, salary_max, education_requirement,
+        seniority_level, salary_range, status, preferred_skills
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       RETURNING *
     `;
 
@@ -52,6 +62,11 @@ export class JobModel {
       data.education_level,
       data.salary_min,
       data.salary_max,
+      data.education_requirement || null,
+      data.seniority_level || null,
+      data.salary_range || null,
+      data.status || "active",
+      JSON.stringify(data.preferred_skills || []),
     ];
 
     const result = await client.query(query, values);
@@ -59,6 +74,26 @@ export class JobModel {
     
     if (job.required_skills && typeof job.required_skills === 'string') {
       job.required_skills = JSON.parse(job.required_skills);
+    }
+    if (job.preferred_skills && typeof job.preferred_skills === 'string') {
+      job.preferred_skills = JSON.parse(job.preferred_skills);
+    }
+
+    // Populate job_skills table for matching functionality
+    const requiredSkills = data.required_skills || [];
+    for (const skill of requiredSkills) {
+      await client.query(
+        "INSERT INTO job_skills (id, job_id, skill_name, skill_type) VALUES ($1, $2, $3, $4)",
+        [uuidv4(), job.id, skill, "required"]
+      );
+    }
+
+    const preferredSkills = data.preferred_skills || [];
+    for (const skill of preferredSkills) {
+      await client.query(
+        "INSERT INTO job_skills (id, job_id, skill_name, skill_type) VALUES ($1, $2, $3, $4)",
+        [uuidv4(), job.id, skill, "preferred"]
+      );
     }
     
     return job;
@@ -133,6 +168,9 @@ export class JobModel {
       if (job.required_skills && typeof job.required_skills === 'string') {
         job.required_skills = JSON.parse(job.required_skills);
       }
+      if (job.preferred_skills && typeof job.preferred_skills === 'string') {
+        job.preferred_skills = JSON.parse(job.preferred_skills);
+      }
       return job;
     });
 
@@ -153,6 +191,9 @@ export class JobModel {
     const job = result.rows[0];
     if (job.required_skills && typeof job.required_skills === 'string') {
       job.required_skills = JSON.parse(job.required_skills);
+    }
+    if (job.preferred_skills && typeof job.preferred_skills === 'string') {
+      job.preferred_skills = JSON.parse(job.preferred_skills);
     }
     
     return job;
@@ -233,6 +274,36 @@ export class JobModel {
       paramCount++;
     }
 
+    if (data.education_requirement !== undefined) {
+      updates.push(`education_requirement = $${paramCount}`);
+      values.push(data.education_requirement);
+      paramCount++;
+    }
+
+    if (data.seniority_level !== undefined) {
+      updates.push(`seniority_level = $${paramCount}`);
+      values.push(data.seniority_level);
+      paramCount++;
+    }
+
+    if (data.salary_range !== undefined) {
+      updates.push(`salary_range = $${paramCount}`);
+      values.push(data.salary_range);
+      paramCount++;
+    }
+
+    if (data.status !== undefined) {
+      updates.push(`status = $${paramCount}`);
+      values.push(data.status);
+      paramCount++;
+    }
+
+    if (data.preferred_skills !== undefined) {
+      updates.push(`preferred_skills = $${paramCount}`);
+      values.push(JSON.stringify(data.preferred_skills));
+      paramCount++;
+    }
+
     if (updates.length === 0) {
       return this.findById(client, id);
     }
@@ -240,7 +311,7 @@ export class JobModel {
     values.push(id);
     const query = `
       UPDATE job_descriptions
-      SET ${updates.join(", ")}
+      SET ${updates.join(", ")}, updated_at = NOW()
       WHERE id = $${paramCount}
       RETURNING *
     `;
@@ -255,11 +326,36 @@ export class JobModel {
     if (job.required_skills && typeof job.required_skills === 'string') {
       job.required_skills = JSON.parse(job.required_skills);
     }
+    if (job.preferred_skills && typeof job.preferred_skills === 'string') {
+      job.preferred_skills = JSON.parse(job.preferred_skills);
+    }
+
+    // Sync job_skills table
+    if (data.required_skills !== undefined) {
+      await client.query("DELETE FROM job_skills WHERE job_id = $1 AND skill_type = 'required'", [id]);
+      for (const skill of data.required_skills) {
+        await client.query(
+          "INSERT INTO job_skills (id, job_id, skill_name, skill_type) VALUES ($1, $2, $3, $4)",
+          [uuidv4(), id, skill, "required"]
+        );
+      }
+    }
+
+    if (data.preferred_skills !== undefined) {
+      await client.query("DELETE FROM job_skills WHERE job_id = $1 AND skill_type = 'preferred'", [id]);
+      for (const skill of data.preferred_skills) {
+        await client.query(
+          "INSERT INTO job_skills (id, job_id, skill_name, skill_type) VALUES ($1, $2, $3, $4)",
+          [uuidv4(), id, skill, "preferred"]
+        );
+      }
+    }
     
     return job;
   }
 
   static async delete(client: PoolClient, id: string): Promise<boolean> {
+    await client.query("DELETE FROM job_skills WHERE job_id = $1", [id]);
     const query = "DELETE FROM job_descriptions WHERE id = $1 RETURNING id";
     const result = await client.query(query, [id]);
     return result.rows.length > 0;
@@ -269,7 +365,7 @@ export class JobModel {
     const query = `
       SELECT DISTINCT department
       FROM job_descriptions
-      WHERE department IS NOT NULL
+      WHERE department IS NOT NULL AND department != ''
       ORDER BY department
     `;
     const result = await client.query(query);
@@ -280,7 +376,7 @@ export class JobModel {
     const query = `
       SELECT DISTINCT location
       FROM job_descriptions
-      WHERE location IS NOT NULL
+      WHERE location IS NOT NULL AND location != ''
       ORDER BY location
     `;
     const result = await client.query(query);

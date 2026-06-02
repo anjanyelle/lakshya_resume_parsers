@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import {
   createJob,
   getAllJobs,
@@ -12,6 +12,42 @@ import {
 import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
 const router = Router();
+
+// Middleware to normalize job payload from frontend format to backend validation rules
+const normalizeJobData = (req: Request, res: Response, next: NextFunction) => {
+  // 1. Normalize employment_type casing and resolve "remote" -> "full-time"
+  if (req.body.employment_type && typeof req.body.employment_type === "string") {
+    const typeLower = req.body.employment_type.toLowerCase();
+    if (typeLower === "remote") {
+      req.body.employment_type = "full-time";
+    } else {
+      req.body.employment_type = typeLower;
+    }
+  }
+
+  // 2. Map skills object array to string array for validation
+  if (Array.isArray(req.body.required_skills)) {
+    req.body.required_skills = req.body.required_skills.map((s: any) =>
+      typeof s === "string" ? s : s.skill_name || ""
+    ).filter((s: string) => s.trim().length > 0);
+  }
+
+  // 3. Map education_requirement to education_level for enum validation
+  if (req.body.education_requirement && typeof req.body.education_requirement === "string") {
+    const eduMap: { [key: string]: string } = {
+      "high school": "high-school",
+      "associate": "any",
+      "bachelor": "bachelor",
+      "master": "master",
+      "phd": "phd",
+      "none": "any",
+    };
+    const key = req.body.education_requirement.toLowerCase();
+    req.body.education_level = eduMap[key] || "any";
+  }
+
+  next();
+};
 
 // All job routes require authentication
 router.use(authenticateToken);
@@ -93,7 +129,7 @@ router.use(authenticateToken);
  *       401:
  *         description: Unauthorized
  */
-router.post("/", createJobValidation, createJob);
+router.post("/", normalizeJobData, createJobValidation, createJob);
 
 /**
  * @swagger
@@ -279,7 +315,7 @@ router.get("/:id", getJobById);
  *       401:
  *         description: Unauthorized
  */
-router.put("/:id", updateJobValidation, updateJob);
+router.put("/:id", normalizeJobData, updateJobValidation, updateJob);
 
 /**
  * @swagger

@@ -17,6 +17,8 @@ import MatchingPage from "./pages/MatchingPage";
 import SectionPreviewPage from "./pages/SectionPreviewPage";
 import ModelTestPage from "./pages/ModelTestPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import SettingsPage from "./pages/SettingsPage";
+import AccuracyPage from "./pages/AccuracyPage";
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -175,6 +177,28 @@ function App() {
         }
       >
         <Route index element={<AnalyticsPage />} />
+      </Route>
+
+      <Route
+        path="/accuracy"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AccuracyPage />} />
+      </Route>
+
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SettingsPage />} />
       </Route>
 
       {/* Catch all route - redirect to dashboard if authenticated, login if not */}

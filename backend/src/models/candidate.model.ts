@@ -219,13 +219,13 @@ export class CandidateModel {
       const offset = (page - 1) * limit;
       
       // Build WHERE clause for search
-      let whereClause = "WHERE status = 'success'";
+      let whereClause = "WHERE candidates.status = 'success'";
       const queryParams: any[] = [];
       let joinClause = "";
       
       if (search) {
         queryParams.push(`%${search}%`);
-        whereClause += ` AND (name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
+        whereClause += ` AND (full_name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
       }
       
       // Add company filter (join with work_history)

@@ -244,17 +244,16 @@ export const getAllMatchResults = async (
       const result = await client.query(query);
 
       if (result.rows.length === 0) {
-        res.status(404).json({
-          error: "NO_MATCH_RESULTS",
-          message: "No match results found. Run matching first.",
-        });
+        res.json({ matches: [] });
         return;
       }
 
-      // Parse JSON arrays for skills
+      // Map match results safely
       const matches = result.rows.map((row) => ({
         ...row,
-        skills: row.skills ? JSON.parse(row.skills) : [],
+        matching_skills: row.matching_skills || [],
+        missing_skills: row.missing_skills || [],
+        extra_skills: row.extra_skills || [],
       }));
 
       res.json({ matches });
@@ -309,14 +308,16 @@ export const getMatchResultsForJob = async (
       const result = await client.query(query, [jobId]);
 
       if (result.rows.length === 0) {
-        res.status(404).json({
-          error: "NO_MATCH_RESULTS",
-          message: `No match results found for job ${jobId}. Run matching first.`,
+        res.json({
+          success: true,
+          jobId,
+          total_matches: 0,
+          matches: [],
         });
         return;
       }
 
-      // Parse JSON arrays for skills
+      // Map matching skills correctly
       const matches = result.rows.map((row) => ({
         ...row,
         matching_skills: row.matching_skills || [],

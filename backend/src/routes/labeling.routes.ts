@@ -7,12 +7,17 @@ const router = Router();
 // GET /api/labeling/next - Get next unlabeled candidate
 router.get("/next", async (req: AuthenticatedRequest, res) => {
   try {
-    // Get next candidate with confidence < 0.90 that hasn't been labeled yet
+    // Get next candidate with confidence < 0.90 that hasn't been labeled yet (using parsing_jobs table)
     const sql = `
       SELECT c.* 
       FROM candidates c
+      JOIN (
+        SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+        FROM parsing_jobs
+        ORDER BY candidate_id, updated_at DESC
+      ) pj ON c.id = pj.candidate_id
       LEFT JOIN labeled_data ld ON c.id = ld.candidate_id
-      WHERE (c.parsing_status->>'confidence_score')::float < 0.90 
+      WHERE pj.confidence_score < 0.90 
       AND ld.id IS NULL
       ORDER BY c.created_at ASC
       LIMIT 1
@@ -160,29 +165,42 @@ router.post("/save", async (req: AuthenticatedRequest, res) => {
 // GET /api/labeling/progress - Get labeling progress
 router.get("/progress", async (req: AuthenticatedRequest, res) => {
   try {
-    // Get total candidates with confidence < 0.90
+    // Get total candidates with confidence < 0.90 (using parsing_jobs table)
     const totalQuery = `
-      SELECT COUNT(*) as total
+      SELECT COUNT(DISTINCT c.id) as total
       FROM candidates c
-      WHERE (c.parsing_status->>'confidence_score')::float < 0.90
+      JOIN (
+        SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+        FROM parsing_jobs
+        ORDER BY candidate_id, updated_at DESC
+      ) pj ON c.id = pj.candidate_id
+      WHERE pj.confidence_score < 0.90
     `;
 
     // Get labeled candidates count
     const labeledQuery = `
-      SELECT COUNT(*) as labeled
+      SELECT COUNT(DISTINCT ld.candidate_id) as labeled
       FROM labeled_data ld
-      JOIN candidates c ON ld.candidate_id = c.id
-      WHERE (c.parsing_status->>'confidence_score')::float < 0.90
+      JOIN (
+        SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+        FROM parsing_jobs
+        ORDER BY candidate_id, updated_at DESC
+      ) pj ON ld.candidate_id = pj.candidate_id
+      WHERE pj.confidence_score < 0.90
     `;
 
     // Calculate accuracy estimate (approved vs corrected ratio)
     const accuracyQuery = `
       SELECT 
-        COUNT(*) FILTER (WHERE action = 'approved') as approved,
-        COUNT(*) FILTER (WHERE action = 'corrected') as corrected
+        COUNT(*) FILTER (WHERE ld.action = 'approved') as approved,
+        COUNT(*) FILTER (WHERE ld.action = 'corrected') as corrected
       FROM labeled_data ld
-      JOIN candidates c ON ld.candidate_id = c.id
-      WHERE (c.parsing_status->>'confidence_score')::float < 0.90
+      JOIN (
+        SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+        FROM parsing_jobs
+        ORDER BY candidate_id, updated_at DESC
+      ) pj ON ld.candidate_id = pj.candidate_id
+      WHERE pj.confidence_score < 0.90
     `;
 
     const [totalResult, labeledResult, accuracyResult] = await Promise.all([
@@ -224,21 +242,31 @@ router.get("/queue", async (req: AuthenticatedRequest, res) => {
         c.id,
         c.full_name,
         c.email,
-        (c.parsing_status->>'confidence_score')::float as confidence_score,
+        pj.confidence_score,
         c.created_at
       FROM candidates c
+      JOIN (
+        SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+        FROM parsing_jobs
+        ORDER BY candidate_id, updated_at DESC
+      ) pj ON c.id = pj.candidate_id
       LEFT JOIN labeled_data ld ON c.id = ld.candidate_id
-      WHERE (c.parsing_status->>'confidence_score')::float < 0.90 
+      WHERE pj.confidence_score < 0.90 
       AND ld.id IS NULL
       ORDER BY c.created_at ASC
       LIMIT $1 OFFSET $2
     `;
 
     const countQuery = `
-      SELECT COUNT(*) as total
+      SELECT COUNT(DISTINCT c.id) as total
       FROM candidates c
+      JOIN (
+        SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+        FROM parsing_jobs
+        ORDER BY candidate_id, updated_at DESC
+      ) pj ON c.id = pj.candidate_id
       LEFT JOIN labeled_data ld ON c.id = ld.candidate_id
-      WHERE (c.parsing_status->>'confidence_score')::float < 0.90 
+      WHERE pj.confidence_score < 0.90 
       AND ld.id IS NULL
     `;
 
