@@ -225,7 +225,19 @@ export class CandidateModel {
       
       if (search) {
         queryParams.push(`%${search}%`);
-        whereClause += ` AND (full_name ILIKE $${queryParams.length} OR email ILIKE $${queryParams.length})`;
+        whereClause += ` AND (
+          candidates.full_name ILIKE $${queryParams.length} 
+          OR candidates.email ILIKE $${queryParams.length}
+          OR EXISTS (
+            SELECT 1 FROM candidate_skills cs
+            JOIN skills s ON cs.skill_id = s.id
+            WHERE cs.candidate_id = candidates.id AND s.name ILIKE $${queryParams.length}
+          )
+          OR EXISTS (
+            SELECT 1 FROM skills s
+            WHERE s.candidate_id = candidates.id AND s.name ILIKE $${queryParams.length}
+          )
+        )`;
       }
       
       // Add company filter (join with work_history)
@@ -287,9 +299,61 @@ export class CandidateModel {
       `;
       
       const candidatesResult = await client.query(candidatesQuery, queryParams);
+      const candidates = candidatesResult.rows;
+      
+      if (candidates.length === 0) {
+        return {
+          candidates: [],
+          total
+        };
+      }
+      
+      const candidateIds = candidates.map(c => c.id);
+      
+      // Batch fetch work history
+      const workHistoryResult = await client.query(
+        "SELECT * FROM work_history WHERE candidate_id = ANY($1) ORDER BY start_date DESC",
+        [candidateIds]
+      );
+      
+      // Batch fetch skills (handle both many-to-many and flat schemas)
+      let skillRows: any[] = [];
+      try {
+        const skillsResult = await client.query(
+          `SELECT cs.candidate_id, s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience 
+           FROM candidate_skills cs
+           JOIN skills s ON cs.skill_id = s.id
+           WHERE cs.candidate_id = ANY($1)`,
+          [candidateIds]
+        );
+        skillRows = skillsResult.rows;
+      } catch (skillErr) {
+        try {
+          const skillsResult = await client.query(
+            `SELECT id, candidate_id, name as skill_name, category, proficiency_level, years_experience 
+             FROM skills 
+             WHERE candidate_id = ANY($1)`,
+            [candidateIds]
+          );
+          skillRows = skillsResult.rows;
+        } catch (flatSkillErr) {
+          console.warn("Failed to fetch skills in candidate list:", flatSkillErr);
+        }
+      }
+      
+      // Map work history and skills back to candidate rows
+      const candidatesWithDetails = candidates.map(candidate => {
+        const candidateWork = workHistoryResult.rows.filter((w: any) => w.candidate_id === candidate.id);
+        const candidateSkills = skillRows.filter((s: any) => s.candidate_id === candidate.id);
+        return {
+          ...candidate,
+          work_experience: candidateWork,
+          skills: candidateSkills
+        };
+      });
       
       return {
-        candidates: candidatesResult.rows,
+        candidates: candidatesWithDetails,
         total
       };
     } catch (error) {

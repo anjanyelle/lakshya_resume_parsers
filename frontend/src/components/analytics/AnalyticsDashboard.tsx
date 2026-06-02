@@ -111,7 +111,7 @@ const AnalyticsDashboard: React.FC = () => {
         </div>
 
         {/* Summary KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {parsingStats && (
             <>
               <MetricCard
@@ -134,19 +134,19 @@ const AnalyticsDashboard: React.FC = () => {
               />
               <MetricCard
                 title="Success Rate"
-                value={`${parsingStats.success_rate}%`}
+                value={`${Number(parsingStats.success_rate || 0).toFixed(1)}%`}
                 icon={TrendingUp}
                 color="purple"
               />
               <MetricCard
                 title="Avg Parsing Time"
-                value={`${parsingStats.average_parsing_time}s`}
+                value={`${Number(parsingStats.average_parsing_time || 0).toFixed(1)}s`}
                 icon={Clock}
                 color="orange"
               />
               <MetricCard
                 title="Avg Confidence"
-                value={`${parsingStats.average_confidence_score}%`}
+                value={`${Number(parsingStats.average_confidence_score || 0).toFixed(1)}%`}
                 icon={Activity}
                 color="yellow"
               />

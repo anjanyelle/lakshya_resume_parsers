@@ -37,7 +37,7 @@ const AccuracyOverview: React.FC<AccuracyOverviewProps> = ({ data }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-600 font-medium">Field Accuracy</p>
-              <p className="text-2xl font-bold text-green-900">{data.field_accuracy_percentage}%</p>
+              <p className="text-2xl font-bold text-green-900">{Number(data.field_accuracy_percentage || 0).toFixed(1)}%</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>

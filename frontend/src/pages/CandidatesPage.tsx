@@ -263,6 +263,7 @@ export default function CandidatesPage() {
               <option value="date-added">Date Added</option>
               <option value="name">Name</option>
               <option value="confidence-score">Confidence Score</option>
+              <option value="match-score">Match Score</option>
             </select>
           </div>
         </div>
@@ -317,12 +318,12 @@ export default function CandidatesPage() {
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(candidate.parsing_status?.confidence_score || 0)}`}
                   >
-                    {Math.round(
+                    Parse: {Math.round(
                       (candidate.parsing_status?.confidence_score || 0) * 100,
                     )}
                     %
                   </span>
-                  {candidate.match_score !== undefined && candidate.match_score !== null && (
+                  {candidate.match_score !== undefined && candidate.match_score !== null && candidate.match_score > 0 && (
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${getMatchScoreColor(candidate.match_score)}`}
                     >
