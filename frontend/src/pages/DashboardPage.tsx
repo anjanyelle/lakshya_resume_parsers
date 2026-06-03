@@ -11,7 +11,7 @@ interface StatCard {
 }
 
 export default function DashboardPage() {
-  const { candidates, fetchCandidates } = useCandidateStore();
+  const { candidates, pagination, fetchCandidates } = useCandidateStore();
   const { jobs, fetchJobs, matchResults, fetchMatchResults } = useJobStore();
   const [stats, setStats] = useState<StatCard[]>([]);
 
@@ -24,7 +24,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Calculate stats when data changes
-    const totalCandidates = (candidates || []).length;
+    const totalCandidates = pagination?.total_items ?? (candidates || []).length;
     const activeJobs = (jobs || []).length;
     const matchesToday = (matchResults || []).length;
     const avgScore =
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Score
+                      Confidence
                     </th>
                   </tr>
                 </thead>
@@ -240,9 +240,9 @@ export default function DashboardPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {candidate.parsing_status?.confidence_score
+                        {candidate.parsing_status?.confidence_score !== undefined && candidate.parsing_status?.confidence_score !== null
                           ? `${Math.round(candidate.parsing_status.confidence_score * 100)}%`
-                          : "-"}
+                          : "N/A"}
                       </td>
                     </tr>
                   ))}

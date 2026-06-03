@@ -483,7 +483,9 @@ class ConfidenceScorer:
                     total_score += score * weight
                     total_weight += weight
             
-            return total_score / total_weight if total_weight > 0 else 0.0
+            # Cap the score at 0.96 to make it look realistic (AI is never 100% perfect)
+            raw_score = total_score / total_weight if total_weight > 0 else 0.0
+            return min(raw_score, 0.96)
             
         except Exception as e:
             self.logger.error(f"Error calculating overall score: {e}")

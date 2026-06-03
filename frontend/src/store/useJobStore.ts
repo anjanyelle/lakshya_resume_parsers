@@ -32,6 +32,7 @@ interface Job {
 interface MatchResult {
   id: string;
   job_id: string;
+  job_title?: string;
   candidate_id: string;
   candidate_name: string;
   candidate_email: string;

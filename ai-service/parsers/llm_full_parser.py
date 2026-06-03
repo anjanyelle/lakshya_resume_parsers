@@ -158,7 +158,9 @@ JSON SCHEMA TO RETURN:
     }}
   ],
   "summary": "Professional summary if available",
-  "years_of_experience": 0
+  "years_of_experience": 0,
+  "other_information": "Any other relevant sections found in the resume (e.g., publications, awards, hobbies, volunteer work) combined into a readable text block. Keep it structured. Leave empty if none.",
+  "confidence_score": 0.95
 }}
 
 ---
@@ -168,6 +170,7 @@ IMPORTANT:
 * Maintain chronological order (latest first)
 * Extract ALL work experiences, education, and skills
 * Be intelligent about parsing - understand context
+* Output a real 'confidence_score' between 0.0 and 1.0 reflecting how well you could extract and structure the data based on resume clarity.
 
 ---
 

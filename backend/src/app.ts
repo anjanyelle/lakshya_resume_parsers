@@ -9,6 +9,7 @@ import matchingRoutes from "./routes/matching.routes";
 import labelingRoutes from "./routes/labeling.routes";
 import settingsRoutes from "./routes/settings.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import jdMatchRoutes from "./routes/jdMatch.routes";
 
 const app: Application = express();
 
@@ -49,6 +50,7 @@ app.use("/api/matching", matchingRoutes);
 app.use("/api/labeling", labelingRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/jd", jdMatchRoutes);
 app.use("/api/accuracy", analyticsRoutes);
 app.use("/api/api/analytics", analyticsRoutes);
 app.use("/api/api/accuracy", analyticsRoutes);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { api } from "../services/api";
 
 interface Candidate {
   id: string;
@@ -21,6 +22,7 @@ interface Candidate {
     confidence_score?: number;
     error_message?: string;
   };
+  other_information?: string;
   created_at: string;
 }
 
@@ -34,6 +36,10 @@ interface FormData {
   name: string;
   email: string;
   phone: string;
+  location: string;
+  linkedin_url: string;
+  summary: string;
+  other_information: string;
   skills: string[];
   companies: string[];
   job_titles: string[];
@@ -63,6 +69,10 @@ export default function LabelingPage() {
     name: "",
     email: "",
     phone: "",
+    location: "",
+    linkedin_url: "",
+    summary: "",
+    other_information: "",
     skills: [],
     companies: [],
     job_titles: [],
@@ -77,28 +87,29 @@ export default function LabelingPage() {
 
   const loadProgress = async () => {
     try {
-      const response = await fetch("/api/labeling/progress");
-      const data = await response.json();
-      if (response.ok) {
-        setProgress(data);
-      }
+      const response = await api.get("/labeling/progress");
+      setProgress(response.data);
     } catch (error) {
-      console.error("Failed to load progress");
+      console.error("Failed to load progress", error);
     }
   };
 
   const loadNextCandidate = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/labeling/next");
-      const data = await response.json();
+      const response = await api.get("/labeling/next");
+      const data = response.data;
 
-      if (response.ok && data) {
+      if (data) {
         setCurrentCandidate(data);
         setFormData({
           name: data.full_name || "",
           email: data.email || "",
           phone: data.phone || "",
+          location: data.location || "",
+          linkedin_url: data.linkedin_url || "",
+          summary: data.summary || "",
+          other_information: data.other_information || "",
           skills: data.skills || [],
           companies: data.companies || [],
           job_titles: data.job_titles || [],
@@ -106,12 +117,16 @@ export default function LabelingPage() {
           universities: data.universities || [],
         });
       } else {
-        // No more candidates to label
         setCurrentCandidate(null);
         toast.success("All candidates have been labeled!");
       }
-    } catch (error) {
-      toast.error("Failed to load next candidate");
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        setCurrentCandidate(null);
+        toast.success("All candidates have been labeled!");
+      } else {
+        toast.error("Failed to load next candidate");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -140,25 +155,15 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      const response = await fetch("/api/labeling/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidate_id: currentCandidate.id,
-          corrected_fields: formData,
-          action: "corrected",
-        }),
+      await api.post("/labeling/save", {
+        candidate_id: currentCandidate.id,
+        corrected_fields: formData,
+        action: "corrected",
       });
 
-      if (response.ok) {
-        toast.success("Corrections saved!");
-        loadProgress();
-        loadNextCandidate();
-      } else {
-        toast.error("Failed to save corrections");
-      }
+      toast.success("Corrections saved!");
+      loadProgress();
+      loadNextCandidate();
     } catch (error) {
       toast.error("Failed to save corrections");
     }
@@ -168,30 +173,20 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      const response = await fetch("/api/labeling/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidate_id: currentCandidate.id,
-          action: "skipped",
-        }),
+      await api.post("/labeling/save", {
+        candidate_id: currentCandidate.id,
+        action: "skipped",
       });
 
-      if (response.ok) {
-        toast("Candidate skipped", {
-          icon: "⏭️",
-          style: {
-            background: "#f3f4f6",
-            color: "#374151",
-          },
-        });
-        loadProgress();
-        loadNextCandidate();
-      } else {
-        toast.error("Failed to skip candidate");
-      }
+      toast("Candidate skipped", {
+        icon: "⏭️",
+        style: {
+          background: "#f3f4f6",
+          color: "#374151",
+        },
+      });
+      loadProgress();
+      loadNextCandidate();
     } catch (error) {
       toast.error("Failed to skip candidate");
     }
@@ -201,27 +196,61 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      const response = await fetch("/api/labeling/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidate_id: currentCandidate.id,
-          corrected_fields: formData,
-          action: "approved",
-        }),
+      await api.post("/labeling/save", {
+        candidate_id: currentCandidate.id,
+        corrected_fields: formData,
+        action: "approved",
       });
 
-      if (response.ok) {
-        toast.success("Candidate approved for training!");
-        loadProgress();
-        loadNextCandidate();
-      } else {
-        toast.error("Failed to approve candidate");
-      }
+      toast.success("Candidate approved for training!");
+      loadProgress();
+      loadNextCandidate();
     } catch (error) {
       toast.error("Failed to approve candidate");
+    }
+  };
+
+  const autoDetectFields = () => {
+    const text = currentCandidate?.raw_resume_text || "";
+    if (!text) {
+      toast.error("No raw resume text available to scan");
+      return;
+    }
+    
+    // Scan for email
+    const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    // Scan for phone number
+    const phoneMatch = text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    // Scan for LinkedIn URL
+    const linkedinMatch = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9_-]+\/?/i);
+    
+    let detectedCount = 0;
+    const newUpdates: Partial<FormData> = {};
+    
+    if (emailMatch && !formData.email) {
+      newUpdates.email = emailMatch[0];
+      detectedCount++;
+    }
+    if (phoneMatch && !formData.phone) {
+      newUpdates.phone = phoneMatch[0];
+      detectedCount++;
+    }
+    if (linkedinMatch && !formData.linkedin_url) {
+      // Clean up URL if it doesn't have https
+      let url = linkedinMatch[0];
+      if (!url.startsWith('http')) url = 'https://' + url;
+      newUpdates.linkedin_url = url;
+      detectedCount++;
+    }
+    
+    if (detectedCount > 0) {
+      setFormData(prev => ({
+        ...prev,
+        ...newUpdates
+      }));
+      toast.success(`Auto-detected and filled ${detectedCount} field(s)!`);
+    } else {
+      toast.error("No new email, phone, or LinkedIn detected in text.");
     }
   };
 
@@ -360,10 +389,17 @@ export default function LabelingPage() {
         {/* Right Panel - Editable Form */}
         <div className="w-1/2">
           <div className="bg-white rounded-lg shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-lg font-medium text-gray-900">
                 Corrected Data
               </h2>
+              <button
+                type="button"
+                onClick={autoDetectFields}
+                className="px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100 transition-colors flex items-center gap-1 shadow-sm"
+              >
+                Auto-Detect Info
+              </button>
             </div>
             <div className="p-6 space-y-4">
               {/* Name */}
@@ -411,11 +447,83 @@ export default function LabelingPage() {
                 />
               </div>
 
-              {/* Skills */}
+              {/* Location */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Skills
+                  Location
                 </label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, location: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              {/* LinkedIn URL */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  LinkedIn URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.linkedin_url}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, linkedin_url: e.target.value }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Summary */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Summary
+                </label>
+                <textarea
+                  value={formData.summary}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, summary: e.target.value }))
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              {/* Other Information */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Other Information
+                </label>
+                <textarea
+                  value={formData.other_information}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, other_information: e.target.value }))
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Publications, awards, hobbies, etc."
+                />
+              </div>
+
+              {/* Skills */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Skills
+                  </label>
+                  {formData.skills.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, skills: [] }))}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    >
+                      Clear All ({formData.skills.length})
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -462,9 +570,20 @@ export default function LabelingPage() {
 
               {/* Companies */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Companies
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Companies
+                  </label>
+                  {formData.companies.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, companies: [] }))}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    >
+                      Clear All ({formData.companies.length})
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -511,9 +630,20 @@ export default function LabelingPage() {
 
               {/* Job Titles */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Titles
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Job Titles
+                  </label>
+                  {formData.job_titles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, job_titles: [] }))}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    >
+                      Clear All ({formData.job_titles.length})
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -560,9 +690,20 @@ export default function LabelingPage() {
 
               {/* Education Degrees */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Education Degrees
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Education Degrees
+                  </label>
+                  {formData.education_degrees.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, education_degrees: [] }))}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    >
+                      Clear All ({formData.education_degrees.length})
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"
@@ -609,9 +750,20 @@ export default function LabelingPage() {
 
               {/* Universities */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Universities
-                </label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Universities
+                  </label>
+                  {formData.universities.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, universities: [] }))}
+                      className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    >
+                      Clear All ({formData.universities.length})
+                    </button>
+                  )}
+                </div>
                 <div className="flex gap-2 mb-2">
                   <input
                     type="text"

@@ -835,19 +835,22 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                 llm_result['candidate_id'] = candidate_id
                 llm_result['status'] = 'success'
                 
+                # Get the actual confidence score from LLM if available, else default to 0.95
+                llm_overall_confidence = float(llm_result.get('confidence_score', 0.95))
+                
                 # Calculate confidence (LLM results are generally high confidence)
                 llm_result['confidence'] = {
-                    'overall': 0.95,
+                    'overall': llm_overall_confidence,
                     'fields': {
-                        'name': 0.95 if llm_result.get('name') else 0.0,
-                        'email': 0.95 if llm_result.get('email') else 0.0,
-                        'phone': 0.95 if llm_result.get('phone') else 0.0,
-                        'skills': 0.95 if llm_result.get('skills') else 0.0,
-                        'work_experience': 0.95 if llm_result.get('work_experience') else 0.0,
-                        'education': 0.95 if llm_result.get('education') else 0.0,
+                        'name': llm_overall_confidence if llm_result.get('name') else 0.0,
+                        'email': llm_overall_confidence if llm_result.get('email') else 0.0,
+                        'phone': llm_overall_confidence if llm_result.get('phone') else 0.0,
+                        'skills': llm_overall_confidence if llm_result.get('skills') else 0.0,
+                        'work_experience': llm_overall_confidence if llm_result.get('work_experience') else 0.0,
+                        'education': llm_overall_confidence if llm_result.get('education') else 0.0,
                     },
-                    'needs_review': False,
-                    'quality_level': 'excellent'
+                    'needs_review': llm_overall_confidence < 0.6,
+                    'quality_level': 'excellent' if llm_overall_confidence >= 0.85 else 'good' if llm_overall_confidence >= 0.7 else 'fair'
                 }
                 
                 # Add processing metrics

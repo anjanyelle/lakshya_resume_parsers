@@ -17,6 +17,7 @@ const links = [
   { label: "Candidates", path: "/candidates", icon: Users },
   { label: "Jobs", path: "/jobs", icon: Briefcase },
   { label: "Matching", path: "/matching", icon: GitCompare },
+  { label: "JD Match", path: "/job-description-match", icon: Sparkles },
   { label: "Settings", path: "/settings", icon: Settings },
 ];
 

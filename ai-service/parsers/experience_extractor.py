@@ -522,12 +522,40 @@ def split_job_blocks(experience_text: str) -> list:
             blocks.append(block_text)
     return blocks
 
+def deduplicate_text(text: str) -> str:
+    """Remove repeated paragraphs/sentences that appear due to DOCX multi-page repetition."""
+    if not text or len(text) < 100:
+        return text
+    
+    # Split into sentences/chunks by period or newline
+    # Use a sliding window to detect repeated blocks
+    # Strategy: split into chunks of ~200 chars, find first repeat
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    if len(sentences) <= 2:
+        return text
+    
+    seen = []
+    unique_sentences = []
+    for sent in sentences:
+        sent_clean = re.sub(r'\s+', ' ', sent.strip()).lower()
+        if len(sent_clean) > 20 and sent_clean in seen:
+            # Found a repeat - stop here
+            break
+        if sent_clean:
+            seen.append(sent_clean)
+        unique_sentences.append(sent)
+    
+    return ' '.join(unique_sentences)
+
+
 def extract_experience(experience_text: str) -> list:
     """
-    Handles 3 real-world resume formats:
-    Format 1 — Client: Company, City  +  Role: Title  +  Duration: dates
-    Format 2 — Title – dates (next line = Company City)
-    Format 3 — Standard: Title at Company / Jan 2020 – Present
+    Handles real-world resume formats:
+    Format 0 — Pipe-separated: "Title | Company | Jan 2020 - Present"
+    Format 1 — Client/Role/Duration blocks (consultancy style)
+    Format 1b — "COMPANY  Title (dates)" inline format
+    Format 2 — Standard: Title (line 1), Company (line 2), Dates (line 3)
+    Format 3 — Date-boundary split
     """
     if not experience_text:
         return []
@@ -552,6 +580,9 @@ def extract_experience(experience_text: str) -> list:
     DURATION_RE = re.compile(r'(?i)^duration\s*[:\-]\s*(.+)')
     BULLET_RE   = re.compile(r'^[•\-\*\+►▸▶→]\s*')
 
+    # Pre-process text to add newlines before Client: if they are embedded (common in docx)
+    experience_text = re.sub(r'(?i)(?<=[^\n])\s+(Client\s*[:\-])', r'\n\1', experience_text)
+    
     # Split text into lines for multi-pass processing
     lines = [l.rstrip() for l in experience_text.split('\n')]
 
@@ -594,6 +625,15 @@ def extract_experience(experience_text: str) -> list:
         client_m = CLIENT_RE.match(line)
         if client_m:
             company_raw = client_m.group(1).strip()
+            
+            # Handle case where Role: is embedded on the same line as Client:
+            # e.g. "Accenture (Confidential...), New York, NY Role: Lead"
+            inline_role_from_client = ''
+            inline_role_m = re.search(r'\s+Role\s*[:\-]\s*(.*)$', company_raw, re.IGNORECASE)
+            if inline_role_m:
+                inline_role_from_client = inline_role_m.group(1).strip()
+                company_raw = company_raw[:inline_role_m.start()].strip()
+            
             # Extract location if present: "State Farm                    Location: Bloomington, IL"
             # Split by multiple spaces or "Location:" keyword
             location_match = re.search(r'(?:Location:\s*|,\s*)([A-Za-z\s]+,\s*[A-Z]{2})\s*$', company_raw)
@@ -602,15 +642,32 @@ def extract_experience(experience_text: str) -> list:
             else:
                 # strip city: "Home Depot Atlanta, GA" → "Home Depot"
                 company = re.split(r'\s{2,}', company_raw)[0].strip()
+            # Also clean off trailing location-like text: "Accenture (Confidential...), New York, NY"
+            company = re.sub(r'\s*\([^)]*\).*$', '', company).strip()  # remove parenthetical
+            company = re.sub(r',\s*[A-Za-z ]+,?\s*[A-Z]{2}\s*$', '', company).strip()  # remove City, ST
             
             # consume Role and Duration lines that follow
-            title, start_date, end_date, is_current = '', None, None, False
+            title, start_date, end_date, is_current = inline_role_from_client, None, None, False
+            description_lines = []
             j = i + 1
+            # Detect if the inline role from client line is a PARTIAL title
+            # (e.g., "Lead" = prefix, "Senior" = prefix, "Data" = prefix)
+            # Only treat as complete if it contains a SUBSTANTIVE role word
+            _substantive_roles = {'developer','engineer','architect','consultant','analyst','specialist',
+                                   'scientist','researcher','designer','manager','administrator',
+                                   'admin','officer','intern','trainee','coordinator','representative',
+                                   'associate','programmer','tester','expert','director'}
+            _inline_words_lower = inline_role_from_client.lower().split() if inline_role_from_client else []
+            _is_complete_title = any(w in _substantive_roles for w in _inline_words_lower)
+            found_title = bool(inline_role_from_client and _is_complete_title)
+            found_partial_title = bool(inline_role_from_client and not _is_complete_title)
+            found_dates = False
             
-            while j < len(lines) and j < i + 10:
+            # Phase 1: Scan up to 20 lines to find Role: and Duration: (the header block)
+            while j < len(lines) and j < i + 20:
                 nxt = lines[j].strip()
                 
-                # Stop if we hit another Client: line or Responsibilities section
+                # Stop if we hit another Client: line or a bullet-heavy description block (actual content)
                 if CLIENT_RE.match(nxt) or nxt.lower().startswith('responsibilities'):
                     break
                 
@@ -618,8 +675,15 @@ def extract_experience(experience_text: str) -> list:
                 dur_m  = DURATION_RE.match(nxt)
                 
                 if role_m:
-                    # Extract title and dates from Role line
+                    # Extract title from Role line - may be on next line due to word wrap
                     role_text = role_m.group(1).strip()
+                    # If role_text is very short (< 4 chars) or empty, the actual role is on next line
+                    if len(role_text) < 4 and j + 1 < len(lines):
+                        next_nxt = lines[j + 1].strip()
+                        if next_nxt and not DATE_LINE_PATTERN.search(next_nxt) and not ROLE_RE.match(next_nxt) and not DURATION_RE.match(next_nxt):
+                            role_text = (role_text + ' ' + next_nxt).strip()
+                            j += 1  # skip the continuation line
+                    
                     # Check if dates are on same line: "SR. BIG DATA ENGINEER    October 2022 – Current"
                     date_info = extract_date_range(role_text)
                     if date_info['start_date']:
@@ -631,15 +695,23 @@ def extract_experience(experience_text: str) -> list:
                         is_current = date_info['is_current']
                     else:
                         title = re.sub(r'\s*[-–—]\s*$', '', role_text).strip()
+                    found_title = True
                 elif dur_m:
                     date_info = extract_date_range(dur_m.group(1))
                     if date_info['start_date']:
                         start_date = date_info['start_date']
                         end_date   = date_info['end_date']
                         is_current = date_info['is_current']
+                    found_dates = True
                 elif nxt and not NOISE_LINE.match(nxt):
-                    # Could be inline "Role: X" without keyword or dates on separate line
-                    if not title and DATE_LINE_PATTERN.search(nxt):
+                    # Handle partial title continuation from Client line
+                    # e.g., inline_role_from_client was 'Lead', next line is 'Data Engineer'
+                    if found_partial_title and not DATE_LINE_PATTERN.search(nxt) and not DURATION_RE.match(nxt):
+                        title = (title + ' ' + nxt).strip()
+                        found_partial_title = False
+                        found_title = True
+                    # Could be inline 'Role: X' without keyword or dates on separate line
+                    elif not title and DATE_LINE_PATTERN.search(nxt):
                         # This line has dates, might be title + dates
                         date_info = extract_date_range(nxt)
                         if date_info['start_date']:
@@ -648,22 +720,88 @@ def extract_experience(experience_text: str) -> list:
                             start_date = date_info['start_date']
                             end_date = date_info['end_date']
                             is_current = date_info['is_current']
+                            found_dates = True
+                    elif found_title and found_dates:
+                        # We've entered the description - collect max 15 desc lines then break
+                        desc_count = 0
+                        while j < len(lines) and desc_count < 15:
+                            dl = lines[j].strip()
+                            if CLIENT_RE.match(dl) or not dl:
+                                break
+                            description_lines.append(BULLET_RE.sub('', dl).strip() if BULLET_RE.match(dl) else dl)
+                            j += 1
+                            desc_count += 1
+                        break  # Done with this block
                 j += 1
 
             # Validate job title before adding
             if company and title and is_valid_job_title(title):
+                raw_description = ' '.join(description_lines)
                 results.append({
                     'title':      title,
                     'company':    company,
-                    'description': '',
+                    'description': deduplicate_text(raw_description),
                     'start_date': start_date,
                     'end_date':   end_date,
                     'is_current': is_current,
                 })
+                # Skip ahead to next Client: block
+                while j < len(lines) and not CLIENT_RE.match(lines[j].strip()):
+                    j += 1
                 i = j
             else:
                 i += 1
             continue
+
+        # ── FORMAT 1b: Inline "COMPANY  Senior Title (dates)" or "COMPANY  Title (dates)" ──
+        # Examples: "CVS HEALTH  Senior Python Engineer (2023  Present  Dallas, TX)"
+        #           "flipkart Senior Python Engineer (2023  2024)"
+        #           "ATT  Senior Python Engineer (2020  2023 )"
+        inline_company_m = re.match(
+            r'^([A-Z][A-Z0-9\s&.]{2,30?})\s{2,}(.+?)\s*\(([^)]+)\)\s*$', line
+        )
+        if not inline_company_m:
+            # Also try: "Company  Title dates" without parens
+            inline_company_m = re.match(
+                r'^([A-Z][A-Z0-9\s&.]{2,25})\s{2,}(.+?)\s+((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{4}).+)$',
+                line, re.IGNORECASE
+            )
+        if inline_company_m:
+            potential_company = inline_company_m.group(1).strip()
+            potential_title = inline_company_m.group(2).strip()
+            date_part = inline_company_m.group(3).strip()
+            
+            if is_valid_job_title(potential_title) and DATE_LINE_PATTERN.search(date_part):
+                date_info = extract_date_range(date_part)
+                if date_info['start_date']:
+                    # Collect description lines
+                    desc_lines = []
+                    j = i + 1
+                    while j < len(lines) and j < i + 20:
+                        desc_nxt = lines[j].strip()
+                        if not desc_nxt:
+                            j += 1
+                            continue
+                        # Stop at next job entry pattern
+                        if (re.match(r'^[A-Z][A-Z0-9\s&.]{2,30}\s{2,}', desc_nxt) or
+                            CLIENT_RE.match(desc_nxt) or
+                            (is_valid_job_title(desc_nxt) and DATE_LINE_PATTERN.search(desc_nxt))):
+                            break
+                        if not NOISE_LINE.match(desc_nxt):
+                            desc_lines.append(BULLET_RE.sub('', desc_nxt).strip())
+                        j += 1
+                    
+                    raw_description = ' '.join(desc_lines)
+                    results.append({
+                        'title': potential_title,
+                        'company': potential_company,
+                        'description': deduplicate_text(raw_description),
+                        'start_date': date_info['start_date'],
+                        'end_date': date_info['end_date'],
+                        'is_current': date_info['is_current'],
+                    })
+                    i = j
+                    continue
 
         # ── FORMAT 2: Title, Company, Dates (Standard format) ───────────
         # Format: Title (line 1), Company (line 2), Dates (line 3), Description (line 4+)
@@ -763,6 +901,7 @@ def extract_experience(experience_text: str) -> list:
                         description_lines.append(desc_line)
                 
                 description = '\n'.join(description_lines)
+                description = deduplicate_text(description)
                 
                 # DON'T remove company suffixes - keep the full company name
                 # Only remove location if it's clearly separated by comma
@@ -845,7 +984,7 @@ def extract_experience(experience_text: str) -> list:
                         break
 
             desc_lines = clines[2:] if not company or company in clines[1:3] else clines[1:]
-            description = '\n'.join(desc_lines)
+            description = deduplicate_text('\n'.join(desc_lines))
 
             # Validate job title before adding
             if title and is_valid_job_title(title):

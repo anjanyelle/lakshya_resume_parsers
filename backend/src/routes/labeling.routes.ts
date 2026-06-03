@@ -26,7 +26,7 @@ router.get("/next", async (req: AuthenticatedRequest, res) => {
     const result = await query(sql);
 
     if (result.rows.length === 0) {
-      res.status(404).json({ message: "No more candidates to label" });
+      res.json(null);
       return;
     }
 
@@ -133,19 +133,27 @@ router.post("/save", async (req: AuthenticatedRequest, res) => {
           full_name = COALESCE($1, full_name),
           email = COALESCE($2, email),
           phone = COALESCE($3, phone),
-          skills = COALESCE($4, skills),
-          companies = COALESCE($5, companies),
-          job_titles = COALESCE($6, job_titles),
-          education_degrees = COALESCE($7, education_degrees),
-          universities = COALESCE($8, universities),
+          location = COALESCE($4, location),
+          linkedin_url = COALESCE($5, linkedin_url),
+          summary = COALESCE($6, summary),
+          other_information = COALESCE($7, other_information),
+          skills = COALESCE($8, skills),
+          companies = COALESCE($9, companies),
+          job_titles = COALESCE($10, job_titles),
+          education_degrees = COALESCE($11, education_degrees),
+          universities = COALESCE($12, universities),
           updated_at = NOW()
-        WHERE id = $9
+        WHERE id = $13
       `;
 
       await query(updateQuery, [
         corrected_fields.name,
         corrected_fields.email,
         corrected_fields.phone,
+        corrected_fields.location,
+        corrected_fields.linkedin_url,
+        corrected_fields.summary,
+        corrected_fields.other_information,
         JSON.stringify(corrected_fields.skills || []),
         JSON.stringify(corrected_fields.companies || []),
         JSON.stringify(corrected_fields.job_titles || []),

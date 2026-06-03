@@ -77,13 +77,6 @@ export default function CandidatesPage() {
     return "bg-gray-100 text-gray-600";
   };
 
-  const getMatchScoreColor = (score: number) => {
-    if (score >= 0.8) return "bg-green-100 text-green-800";
-    if (score >= 0.6) return "bg-blue-100 text-blue-800";
-    if (score >= 0.4) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
-  };
-
   
   const getExperienceSummary = (workExperience: any[]) => {
     if (!workExperience || workExperience.length === 0) return "No experience";
@@ -317,18 +310,11 @@ export default function CandidatesPage() {
                   <span
                     className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(candidate.parsing_status?.confidence_score || 0)}`}
                   >
-                    {Math.round(
+                    Confidence: {Math.round(
                       (candidate.parsing_status?.confidence_score || 0) * 100,
                     )}
                     %
                   </span>
-                  {candidate.match_score !== undefined && candidate.match_score !== null && (
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${getMatchScoreColor(candidate.match_score)}`}
-                    >
-                      Match: {Math.round(candidate.match_score * 100)}%
-                    </span>
-                  )}
                 </div>
               </div>
 

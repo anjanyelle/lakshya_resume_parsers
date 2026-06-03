@@ -63,6 +63,10 @@ interface SectionData {
     text: string;
     char_count: number;
   };
+  other?: {
+    text: string;
+    char_count: number;
+  };
 }
 
 interface ParsedSectionsResponse {
@@ -577,6 +581,20 @@ export default function UploadPage() {
 
       // Backend returns extracted sections
       const rawSections = response.data.sections || {};
+
+      // Known standard sections
+      const knownSections = ['experience', 'education', 'skills', 'summary', 'certifications', 'projects', 'contact'];
+
+      // Collect any extra/unknown sections (languages, references, other, etc.) into 'other'
+      const extraSectionTexts: string[] = [];
+      for (const key of Object.keys(rawSections)) {
+        if (!knownSections.includes(key) && rawSections[key]?.text?.trim()) {
+          extraSectionTexts.push(`[${key.toUpperCase()}]\n${rawSections[key].text.trim()}`);
+        }
+      }
+
+      const otherText = extraSectionTexts.join('\n\n');
+
       return {
         experience: rawSections.experience || { text: "", char_count: 0 },
         education: rawSections.education || { text: "", char_count: 0 },
@@ -585,6 +603,7 @@ export default function UploadPage() {
         certifications: rawSections.certifications || { text: "", char_count: 0 },
         projects: rawSections.projects || { text: "", char_count: 0 },
         contact: rawSections.contact || { text: "", char_count: 0 },
+        other: otherText ? { text: otherText, char_count: otherText.length } : undefined,
       };
     } catch (error: any) {
       console.error("Error extracting sections:", error);
@@ -764,6 +783,7 @@ export default function UploadPage() {
           certifications_text: extractedSections.certifications?.text || "",
           projects_text: extractedSections.projects?.text || "",
           contact_text: extractedSections.contact?.text || "",
+          other_text: extractedSections.other?.text || "",
           raw_text: rawResumeText || "",  // Full resume text for accurate name/contact extraction
         }
       );

@@ -29,6 +29,11 @@ class MatchResult:
     skill_score: float
     experience_score: float
     education_score: float
+    responsibilities_score: float
+    job_title_score: float
+    domain_score: float
+    project_score: float
+    certification_score: float
     matching_skills: List[str]
     missing_skills: List[str]
     extra_skills: List[str]
@@ -50,9 +55,14 @@ class MatchingEngine:
         
         # Scoring weights
         self.weights = {
-            'skills': 0.50,
-            'experience': 0.30,
-            'education': 0.20
+            'skills': 0.40,
+            'experience': 0.20,
+            'responsibilities': 0.15,
+            'job_title': 0.10,
+            'domain': 0.05,
+            'projects': 0.05,
+            'certifications': 0.03,
+            'education': 0.02
         }
         
         # Score thresholds for recommendations
@@ -310,9 +320,26 @@ class MatchingEngine:
                 candidate_education, required_education
             )
             
+            # Additional scores (Simplified for now)
+            candidate_job_titles = candidate.get('job_titles', [])
+            candidate_projects = candidate.get('projects', [])
+            candidate_certs = candidate.get('certifications', [])
+            
+            req_job_title = job.get('job_title', '')
+            req_domain = job.get('domain', '')
+            req_responsibilities = job.get('key_responsibilities', [])
+            
+            responsibilities_score = self._calculate_responsibilities_score(candidate, req_responsibilities)
+            job_title_score = self._calculate_job_title_score(candidate_job_titles, req_job_title)
+            domain_score = self._calculate_domain_score(candidate, req_domain)
+            project_score = 100.0 if candidate_projects else 50.0
+            certification_score = 100.0 if candidate_certs else 50.0
+            
             # Calculate overall score
             overall_score = self.calculate_overall_score(
-                skill_score, experience_score, education_score
+                skill_score, experience_score, education_score,
+                responsibilities_score, job_title_score, domain_score,
+                project_score, certification_score
             )
             
             # Analyze skill matches
@@ -338,6 +365,11 @@ class MatchingEngine:
                 skill_score=round(skill_score, 1),
                 experience_score=round(experience_score, 1),
                 education_score=round(education_score, 1),
+                responsibilities_score=round(responsibilities_score, 1),
+                job_title_score=round(job_title_score, 1),
+                domain_score=round(domain_score, 1),
+                project_score=round(project_score, 1),
+                certification_score=round(certification_score, 1),
                 matching_skills=skill_analysis['matching'],
                 missing_skills=skill_analysis['missing'],
                 extra_skills=skill_analysis['extra'],
@@ -612,23 +644,44 @@ class MatchingEngine:
         return max(25.0, 100.0 - penalty)
     
     def calculate_overall_score(self, skill_score: float, experience_score: float, 
-                              education_score: float) -> float:
-        """
-        Calculate weighted overall score.
-        
-        Args:
-            skill_score: Skill compatibility score
-            experience_score: Experience compatibility score
-            education_score: Education compatibility score
-            
-        Returns:
-            Overall score (0-100)
-        """
+                              education_score: float, responsibilities_score: float = 0.0,
+                              job_title_score: float = 0.0, domain_score: float = 0.0,
+                              project_score: float = 0.0, certification_score: float = 0.0) -> float:
+        """Calculate weighted overall score using 8 dimensions."""
         overall = (
             skill_score * self.weights['skills'] +
             experience_score * self.weights['experience'] +
-            education_score * self.weights['education']
+            education_score * self.weights['education'] +
+            responsibilities_score * self.weights['responsibilities'] +
+            job_title_score * self.weights['job_title'] +
+            domain_score * self.weights['domain'] +
+            project_score * self.weights['projects'] +
+            certification_score * self.weights['certifications']
         )
+        return round(overall, 1)
+
+    def _calculate_responsibilities_score(self, candidate: Dict[str, Any], req_responsibilities: List[str]) -> float:
+        if not req_responsibilities: return 100.0
+        score = 60.0 # base score
+        if candidate.get('work_experience'): score += 20.0
+        return min(100.0, score)
+        
+    def _calculate_job_title_score(self, candidate_titles: List[str], req_title: str) -> float:
+        if not req_title: return 100.0
+        if not candidate_titles: return 50.0
+        req_lower = req_title.lower()
+        for title in candidate_titles:
+            t_lower = title.lower()
+            if req_lower in t_lower or t_lower in req_lower:
+                return 100.0
+        return 60.0
+        
+    def _calculate_domain_score(self, candidate: Dict[str, Any], req_domain: str) -> float:
+        if not req_domain: return 100.0
+        candidate_text = str(candidate).lower()
+        if req_domain.lower() in candidate_text:
+            return 100.0
+        return 50.0
         
         return round(overall, 1)
     
@@ -797,6 +850,11 @@ class MatchingEngine:
             'skill_score': result.skill_score,
             'experience_score': result.experience_score,
             'education_score': result.education_score,
+            'responsibilities_score': result.responsibilities_score,
+            'job_title_score': result.job_title_score,
+            'domain_score': result.domain_score,
+            'project_score': result.project_score,
+            'certification_score': result.certification_score,
             'matching_skills': result.matching_skills,
             'missing_skills': result.missing_skills,
             'extra_skills': result.extra_skills,
@@ -812,6 +870,11 @@ class MatchingEngine:
             'skill_score': 0.0,
             'experience_score': 0.0,
             'education_score': 0.0,
+            'responsibilities_score': 0.0,
+            'job_title_score': 0.0,
+            'domain_score': 0.0,
+            'project_score': 0.0,
+            'certification_score': 0.0,
             'matching_skills': [],
             'missing_skills': [],
             'extra_skills': [],

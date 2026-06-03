@@ -1289,7 +1289,8 @@ class JobDescriptionParser:
                 'salary_range': self._extract_salary_range(cleaned_text),
                 'location': self._extract_location(cleaned_text),
                 'company': self._extract_company(cleaned_text),
-                'job_title': self._extract_job_title(cleaned_text)
+                'job_title': self._extract_job_title(cleaned_text),
+                'domain': self._extract_domain(cleaned_text)
             }
             
             # Extract experience requirements
@@ -1676,8 +1677,35 @@ class JobDescriptionParser:
             'salary_range': None,
             'location': None,
             'company': None,
-            'job_title': None
+            'job_title': None,
+            'domain': None
         }
+
+    def _extract_domain(self, text: str) -> Optional[str]:
+        """Extract domain/industry from job description."""
+        domains = [
+            'Healthcare', 'Finance', 'Fintech', 'E-commerce', 'Retail', 
+            'Education', 'Edtech', 'Logistics', 'Supply Chain', 'Manufacturing',
+            'Automotive', 'Real Estate', 'Proptech', 'Travel', 'Hospitality',
+            'Media', 'Entertainment', 'Gaming', 'Telecom', 'Cybersecurity',
+            'SaaS', 'Cloud Computing', 'AI', 'Machine Learning', 'Data Science',
+            'Energy', 'Cleantech', 'Agriculture', 'Agtech', 'Insurance', 'Insurtech'
+        ]
+        
+        text_lower = text.lower()
+        
+        # Simple keyword matching for domains
+        domain_scores = {}
+        for domain in domains:
+            score = text_lower.count(domain.lower())
+            if score > 0:
+                domain_scores[domain] = score
+                
+        if domain_scores:
+            # Return the highest scored domain
+            return max(domain_scores, key=domain_scores.get)
+        
+        return None
 
 
 # Example usage and testing

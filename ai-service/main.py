@@ -82,6 +82,14 @@ except ImportError as e:
     MATCHING_ENGINE_AVAILABLE = False
     logger.warning(f"Matching engine not available: {e}")
 
+# Import job description parser
+try:
+    from parsers.jd_parser import JobDescriptionParser
+    JD_PARSER_AVAILABLE = True
+except ImportError as e:
+    JD_PARSER_AVAILABLE = False
+    logger.warning(f"JD Parser not available: {e}")
+
 # Initialize matching engine if available
 matching_engine = None
 if MATCHING_ENGINE_AVAILABLE:
@@ -207,6 +215,9 @@ class MatchBatchRequest(BaseModel):
     candidates_data: List[Dict[str, Any]]
     job_data: Dict[str, Any]
 
+class ParseJdRawRequest(BaseModel):
+    jobDescription: str
+
 class MatchBatchResponse(BaseModel):
     results: List[Dict[str, Any]]
 
@@ -215,6 +226,11 @@ class MatchResponse(BaseModel):
     skill_score: float
     experience_score: float
     education_score: float
+    responsibilities_score: float = 0.0
+    job_title_score: float = 0.0
+    domain_score: float = 0.0
+    project_score: float = 0.0
+    certification_score: float = 0.0
     matching_skills: List[str]
     missing_skills: List[str]
     extra_skills: List[str]
@@ -242,6 +258,7 @@ class ParseSectionsRequest(BaseModel):
     certifications_text: Optional[str] = None
     projects_text: Optional[str] = None
     contact_text: Optional[str] = None
+    other_text: Optional[str] = None  # Any extra/unknown sections (languages, references, etc.)
     raw_text: Optional[str] = None  # Full resume text for fallback name extraction
 
 class ParseSectionsResponse(BaseModel):
@@ -772,6 +789,29 @@ async def match_candidates_batch(request: MatchBatchRequest):
             detail=f"Batch matching failed: {str(e)}"
         )
 
+@app.post("/parse-jd-raw")
+async def parse_jd_raw(request: ParseJdRawRequest):
+    """
+    Parse a raw job description string.
+    """
+    if not JD_PARSER_AVAILABLE:
+        raise HTTPException(status_code=503, detail="JD Parser not available")
+    
+    try:
+        parser = JobDescriptionParser()
+        result = parser.parse(request.jobDescription)
+        return result
+    except Exception as e:
+        logger.error(f"Error parsing raw JD: {e}")
+        raise HTTPException(status_code=500, detail=f"JD Parsing failed: {str(e)}")
+
+@app.post("/match-jd-candidates", response_model=MatchBatchResponse)
+async def match_jd_candidates(request: MatchBatchRequest):
+    """
+    Match a batch of candidates to a job description (alias for /match-batch).
+    """
+    return await match_candidates_batch(request)
+
 @app.post("/parse-sections", response_model=ParseSectionsResponse)
 async def parse_sections(request: ParseSectionsRequest):
     """
@@ -1002,18 +1042,18 @@ async def parse_sections(request: ParseSectionsRequest):
 
                     processing_time_ms = (time.time() - start_time) * 1000
                     
-                    return ParseSectionsResponse(
-                        status="success",
-                        work_experience=work_experience,
-                        education=education,
-                        skills=skills,
-                        summary=summary,
-                        certifications=certifications,
-                        projects=projects,
-                        contact=contact,
-                        processing_time_ms=processing_time_ms,
-                        message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
-                    )
+                    return {
+                        "status": "success",
+                        "work_experience": work_experience,
+                        "education": education,
+                        "skills": skills,
+                        "summary": summary,
+                        "certifications": certifications,
+                        "projects": projects,
+                        "contact": contact,
+                        "processing_time_ms": processing_time_ms,
+                        "message": f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
+                    }
             else:
                 logger.info("DeBERTa model not available, falling back to regex extractors")
         except Exception as e:
@@ -1214,18 +1254,18 @@ async def parse_sections(request: ParseSectionsRequest):
 
         processing_time_ms = (time.time() - start_time) * 1000
         
-        return ParseSectionsResponse(
-            status="success",
-            work_experience=work_experience,
-            education=education,
-            skills=skills,
-            summary=summary,
-            certifications=certifications,
-            projects=projects,
-            contact=contact,
-            processing_time_ms=processing_time_ms,
-            message=f"Successfully parsed {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
-        )
+        return {
+            "status": "success",
+            "work_experience": work_experience,
+            "education": education,
+            "skills": skills,
+            "summary": summary,
+            "certifications": certifications,
+            "projects": projects,
+            "contact": contact,
+            "processing_time_ms": processing_time_ms,
+            "message": f"Successfully parsed {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
+        }
         
     except Exception as e:
         logger.error(f"Error parsing sections: {e}", exc_info=True)

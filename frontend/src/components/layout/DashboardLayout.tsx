@@ -111,6 +111,25 @@ export default function DashboardLayout() {
       ),
     },
     {
+      name: "JD Match",
+      href: "/job-description-match",
+      icon: (
+        <svg
+          className="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+          />
+        </svg>
+      ),
+    },
+    {
       name: "Labeling",
       href: "/labeling",
       icon: (
@@ -278,10 +297,9 @@ export default function DashboardLayout() {
                 }}
                 className={`
                   group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left transition-colors
-                  ${
-                    isActive(item.href)
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ${isActive(item.href)
+                    ? "bg-indigo-100 text-indigo-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }
                 `}
               >

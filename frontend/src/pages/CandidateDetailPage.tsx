@@ -481,7 +481,7 @@ export default function CandidateDetailPage() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-gray-900 text-sm">
-                        Job ID: {match.job_id}
+                        {match.job_title || `Job ID: ${match.job_id.substring(0, 8)}`}
                       </h4>
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded ${getMatchColor(match.overall_score)}`}
