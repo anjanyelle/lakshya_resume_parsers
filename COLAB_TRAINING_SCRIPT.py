@@ -12,7 +12,7 @@ import shutil
 print("="*60)
 print("STEP 0: CHECK GPU")
 print("="*60)
-
+   
 import torch
 if not torch.cuda.is_available():
     print("❌ NO GPU DETECTED!")
