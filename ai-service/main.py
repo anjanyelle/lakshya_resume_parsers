@@ -1411,6 +1411,72 @@ async def startup_event():
         # Continue with available models
         logger.warning("Service starting with degraded functionality")
 
+@app.post("/extract-skills")
+async def extract_skills(request: Request):
+    """
+    Extract all skills from resume text using 18,300+ skills taxonomy.
+    
+    Request body:
+    {
+        "text": "Full resume text here..."
+    }
+    
+    Response:
+    {
+        "status": "success",
+        "total_skills": 25,
+        "skills": ["Python", "AWS", "Docker", ...],
+        "skills_by_domain": {
+            "Programming Languages and Language Internals": ["Python", "Java"],
+            "Cloud Computing Platforms": ["AWS", "Azure"],
+            ...
+        },
+        "processing_time_ms": 45.2
+    }
+    """
+    try:
+        start_time = time.time()
+        
+        # Parse request body
+        body = await request.json()
+        text = body.get('text', '')
+        
+        if not text or not text.strip():
+            raise HTTPException(status_code=400, detail="Text is required")
+        
+        # Extract skills using rule parser
+        if not master_parser:
+            raise HTTPException(status_code=503, detail="Parser not initialized")
+        
+        rule_parser = master_parser.rule_parser
+        skills = rule_parser.extract_skills(text)
+        
+        # Categorize skills by domain
+        skills_by_domain = {}
+        for skill in skills:
+            skill_lower = skill.lower().strip()
+            domain = rule_parser.skill_to_domain.get(skill_lower, "Other")
+            
+            if domain not in skills_by_domain:
+                skills_by_domain[domain] = []
+            skills_by_domain[domain].append(skill)
+        
+        processing_time_ms = (time.time() - start_time) * 1000
+        
+        return {
+            "status": "success",
+            "total_skills": len(skills),
+            "skills": skills,
+            "skills_by_domain": skills_by_domain,
+            "processing_time_ms": processing_time_ms
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error extracting skills: {e}")
+        raise HTTPException(status_code=500, detail=f"Skill extraction failed: {str(e)}")
+
 @app.on_event("shutdown")
 async def shutdown_event():
     """Application shutdown event."""

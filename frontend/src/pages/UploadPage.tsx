@@ -139,6 +139,7 @@ export default function UploadPage() {
   const [parsedEmail, setParsedEmail] = useState("");
   const [parsedPhone, setParsedPhone] = useState("");
   const [rawResumeText, setRawResumeText] = useState(""); // Full raw text from preview-sections
+  const [extractedSkillsFromText, setExtractedSkillsFromText] = useState<any>(null); // Skills extracted from resume text
 
   // Skills editing states
   const [newSkillText, setNewSkillText] = useState("");
@@ -575,6 +576,10 @@ export default function UploadPage() {
       const rawText = response.data.raw_text || "";
       setRawResumeText(rawText);
 
+      // Capture extracted skills from text
+      const skillsData = response.data.extracted_skills_from_text || null;
+      setExtractedSkillsFromText(skillsData);
+
       // Backend returns extracted sections
       const rawSections = response.data.sections || {};
       return {
@@ -833,6 +838,7 @@ export default function UploadPage() {
     setParsedEmail("");
     setParsedPhone("");
     setRawResumeText("");
+    setExtractedSkillsFromText(null);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -1262,6 +1268,75 @@ export default function UploadPage() {
                   placeholder="Enter technical and soft skills (comma separated or listed)..."
                   className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm font-mono text-gray-800 resize-y focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
+              </div>
+            </div>
+          )}
+
+          {/* Extracted Skills from Resume Text */}
+          {extractedSkillsFromText && extractedSkillsFromText.total_skills > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    🎯 EXTRACTED SKILLS ({extractedSkillsFromText.total_skills})
+                  </h3>
+                  <span className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                    AI Extracted
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  Skills automatically extracted from resume using SkillExtractor
+                </p>
+              </div>
+              <div className="p-6 space-y-4">
+                {/* Display by Category */}
+                {extractedSkillsFromText.categories && extractedSkillsFromText.categories.length > 0 && (
+                  <div className="space-y-4">
+                    {extractedSkillsFromText.categories.map((category: string) => (
+                      <div key={category} className="border-l-4 border-blue-400 pl-4">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">{category}</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {extractedSkillsFromText.skills_by_category[category]?.map((skill: any, idx: number) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+                              title={`Confidence: ${(skill.confidence * 100).toFixed(0)}%`}
+                            >
+                              {skill.name}
+                              <span className="ml-1.5 text-blue-500 text-[10px]">
+                                {(skill.confidence * 100).toFixed(0)}%
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* All Skills (Flat List) */}
+                <div className="pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">All Skills (Sorted by Confidence)</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {extractedSkillsFromText.all_skills?.slice(0, 50).map((skill: any, idx: number) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 border border-blue-200 hover:shadow-sm transition-shadow"
+                        title={`Category: ${skill.category || 'N/A'} | Confidence: ${(skill.confidence * 100).toFixed(0)}%`}
+                      >
+                        {skill.name}
+                        <span className="ml-2 px-1.5 py-0.5 bg-blue-200 text-blue-700 rounded text-[10px] font-semibold">
+                          {(skill.confidence * 100).toFixed(0)}%
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                  {extractedSkillsFromText.all_skills?.length > 50 && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Showing top 50 of {extractedSkillsFromText.all_skills.length} skills
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           )}

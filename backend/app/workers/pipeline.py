@@ -3215,7 +3215,9 @@ def task_extract_skills(self, job_id: str) -> str:  # noqa: ANN001
         # (e.g. Helidon, Quarkus, Prometheus from Environment lines). section_only=False when we have jobs.
         skills_section_stripped = (skills_section or "").strip()
         has_substantial_section = len(skills_section_stripped) >= 40 and len(skills_section_stripped.split()) >= 2
-        section_only = has_substantial_section and not jobs
+        # ENHANCEMENT: Always scan entire resume for skills (work experience, projects, certifications, summary)
+        # This ensures no skill mentioned anywhere in the resume is missed
+        section_only = False
         matches = extractor.extract_all(
             skills_section,
             jobs,

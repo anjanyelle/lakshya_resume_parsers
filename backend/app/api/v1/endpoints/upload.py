@@ -386,6 +386,7 @@ class SectionPreviewResponse(BaseModel):
     detected_sections: list[str]
     missing_sections: list[str]
     validation_metadata: dict[str, Any]
+    extracted_skills_from_text: Optional[dict[str, Any]] = None  # Skills from external API: POST http://localhost:8000/extract-skills
 
 @router.post("/preview-sections", response_model=SectionPreviewResponse)
 async def preview_sections_endpoint(file: UploadFile = File(...), force_ocr: bool = Form(False)):
@@ -415,6 +416,28 @@ async def preview_sections_endpoint(file: UploadFile = File(...), force_ocr: boo
         standard_sections = ['summary', 'experience', 'education', 'skills', 'certifications', 'projects', 'contact']
         missing_sections = [s for s in standard_sections if s not in detected_sections]
         
+        # Call external Skill Extraction API with FULL resume text
+        # API: POST http://localhost:8000/extract-skills
+        extracted_skills_from_text = None
+        try:
+            import httpx
+            logger.info(f"Calling skill extraction API with full resume text ({len(text)} characters)")
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    "http://localhost:8000/extract-skills",
+                    json={"text": text},
+                    headers={"Content-Type": "application/json"}
+                )
+                if response.status_code == 200:
+                    extracted_skills_from_text = response.json()
+                    logger.info(f"Successfully extracted skills from API: {extracted_skills_from_text.get('total_skills', 0) if isinstance(extracted_skills_from_text, dict) else 'N/A'} skills")
+                else:
+                    logger.warning(f"Skill extraction API returned status {response.status_code}: {response.text}")
+        except Exception as e:
+            logger.error(f"Failed to call skill extraction API: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+        
         return SectionPreviewResponse(
             filename=file.filename,
             extraction_method="auto",
@@ -424,7 +447,8 @@ async def preview_sections_endpoint(file: UploadFile = File(...), force_ocr: boo
             sections=sections_dict,
             detected_sections=detected_sections,
             missing_sections=missing_sections,
-            validation_metadata={"spacy_available": False, "warnings": []}
+            validation_metadata={"spacy_available": False, "warnings": []},
+            extracted_skills_from_text=extracted_skills_from_text
         )
     finally:
         import os

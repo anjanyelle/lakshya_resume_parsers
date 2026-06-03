@@ -16,6 +16,7 @@ from app.api.deps import enforce_rate_limit, get_current_user, get_db, require_r
 from app.core.config import get_settings
 from app.models import Candidate, Certification, Education, ParsingJob, ReviewStatus, WorkHistory
 from app.schemas.candidate import (
+    CandidateCreate,
     CandidateRead,
     CandidateUpdate,
     CertificationCreate,

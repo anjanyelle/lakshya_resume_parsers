@@ -15,6 +15,7 @@ from app.api.v1.endpoints import (
     review,
     search,
     skills,
+    skills_categorized,
     taxonomy,
     upload,
     users,
@@ -30,6 +31,7 @@ api_router.include_router(parsing.router, tags=["parsing"])
 api_router.include_router(jobs.router, tags=["jobs"])
 api_router.include_router(search.router, tags=["search"])
 api_router.include_router(skills.router, tags=["skills"])
+api_router.include_router(skills_categorized.router, tags=["skills"])
 api_router.include_router(analytics.router, tags=["analytics"])
 api_router.include_router(gdpr.router, tags=["gdpr"])
 api_router.include_router(review.router, tags=["review"])

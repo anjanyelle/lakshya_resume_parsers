@@ -5,6 +5,8 @@ Uses regex patterns and specialized libraries for accurate data extraction.
 
 import re
 import logging
+import json
+import os
 from typing import List, Dict, Optional, Union, Any
 from datetime import datetime
 import phonenumbers
@@ -34,6 +36,9 @@ class RuleBasedParser:
                 'RELATIVE_BASE': datetime.now()
             }
         )
+        
+        # Load comprehensive 18,300+ skills taxonomy
+        self._load_comprehensive_taxonomy()
         
         # Pre-compiled regex patterns for better performance
         self._compile_patterns()
@@ -1036,6 +1041,34 @@ class RuleBasedParser:
         'Space Tech', 'Satellite Systems', 'CubeSat', 'LoRa', 'SDR',
         'Neuromorphic Computing', 'Photonic Computing', 'DNA Computing',
     ]
+    
+    def _load_comprehensive_taxonomy(self):
+        """Load comprehensive 18,300+ skills taxonomy from JSON file."""
+        taxonomy_path = os.path.join(os.path.dirname(__file__), '..', 'worldwide_clean_18300_it_skills_domain_wise.json')
+        
+        try:
+            with open(taxonomy_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                domains = data.get('domains', {})
+                
+                # Flatten all skills from all domains into a single list
+                all_skills = []
+                self.skill_to_domain = {}  # Map skill -> domain for categorization
+                
+                for domain, skills in domains.items():
+                    for skill in skills:
+                        all_skills.append(skill)
+                        # Store mapping for categorization
+                        self.skill_to_domain[skill.lower().strip()] = domain
+                
+                # Replace SKILL_TAXONOMY with comprehensive list
+                self.SKILL_TAXONOMY = all_skills
+                self.logger.info(f"✅ Loaded {len(all_skills)} skills from 18,300+ taxonomy across {len(domains)} domains")
+                
+        except Exception as e:
+            self.logger.warning(f"⚠️ Could not load comprehensive taxonomy, using built-in fallback: {e}")
+            # Keep the existing SKILL_TAXONOMY as fallback
+            self.skill_to_domain = {}
 
     def extract_skills_from_dictionary(self, text: str) -> Dict[str, Any]:
         """
@@ -1170,6 +1203,25 @@ class RuleBasedParser:
                     skill_without_spaces = skill_lower.replace(' ', '')
                     escaped_without_spaces = re.escape(skill_without_spaces)
                     pattern += r'|\b' + escaped_without_spaces + r'\b'
+                
+                # For skills with slashes, also match without slashes (e.g. 'CI/CD' -> 'CICD', 'ci-cd')
+                if '/' in skill_lower:
+                    skill_without_slashes = skill_lower.replace('/', '')
+                    escaped_without_slashes = re.escape(skill_without_slashes)
+                    pattern += r'|\b' + escaped_without_slashes + r'\b'
+                    # Also match with hyphens instead of slashes
+                    skill_with_hyphens = skill_lower.replace('/', '-')
+                    escaped_with_hyphens = re.escape(skill_with_hyphens)
+                    pattern += r'|\b' + escaped_with_hyphens + r'\b'
+                
+                # For skills with hyphens, also match without hyphens (e.g. 'Machine-Learning' -> 'Machine Learning', 'machinelearning')
+                if '-' in skill_lower and '/' not in skill_lower:  # Don't duplicate if already handled above
+                    skill_without_hyphens = skill_lower.replace('-', '')
+                    escaped_without_hyphens = re.escape(skill_without_hyphens)
+                    pattern += r'|\b' + escaped_without_hyphens + r'\b'
+                    skill_with_spaces = skill_lower.replace('-', ' ')
+                    escaped_with_spaces = re.escape(skill_with_spaces)
+                    pattern += r'|\b' + escaped_with_spaces + r'\b'
                 
                 if re.search(pattern, text_lower):
                     found_skills.add(skill.strip())

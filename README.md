@@ -97,6 +97,10 @@ npm install
 npm run dev
 
 
+cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend"
+source venv/bin/activate
+uvicorn app.main:app --reload --host 0.0.0.0 --port 3001
+
 
 cd /Users/anjanyelle/Desktop/untitled\ folder\ 3/Lakshya-LLM-Resume-Parser
 source venv/bin/activate
