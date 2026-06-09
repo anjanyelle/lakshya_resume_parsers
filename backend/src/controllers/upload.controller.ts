@@ -12,6 +12,7 @@ import fs from "fs";
 import axios from "axios";
 import path from "path";
 import crypto from "crypto";
+import { OpenAIParserService } from "../services/openai-parser.service";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers — used to store ALL parsed sections inline (no-Redis mode)
@@ -607,14 +608,96 @@ export const previewSections = async (
 };
 
 /**
- * Parse resume sections using DeBERTa NER extraction
- * Forwards request to Python AI service's /parse-sections endpoint
+ * Parse resume sections using selected AI model (DeBERTa or OpenAI)
+ * Supports model selection via request body parameter
  */
 export const parseSections = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
+    const { model, experience_text, education_text } = req.body;
+    const selectedModel = model || "own-model";
+
+    console.log(`🎯 Selected Model: ${selectedModel}`);
+
+    // If model is gpt-4o-mini, use OpenAI parser for experience/education + existing parser for rest
+    if (selectedModel === "gpt-4o-mini") {
+      try {
+        console.log("🤖 Using Hybrid Parser: OpenAI for Experience/Education + Existing for Skills/Contact/Summary");
+
+        const experienceText = experience_text || "";
+        const educationText = education_text || "";
+
+        if (!experienceText && !educationText) {
+          res.status(400).json({
+            error: "Missing sections",
+            message: "Experience or education section text is required",
+            code: "MISSING_SECTIONS",
+          });
+          return;
+        }
+
+        // Step A: Use OpenAI for work experience and education
+        console.log("📤 Step A: Calling OpenAI for experience and education...");
+        const openaiService = new OpenAIParserService();
+        const openaiResult = await openaiService.parseResumeSections(
+          experienceText,
+          educationText
+        );
+
+        console.log(`✅ OpenAI Response Received`);
+        console.log(`📊 Extracted ${openaiResult.work_experience.length} work experiences`);
+        console.log(`🎓 Extracted ${openaiResult.education.length} education entries`);
+
+        // Step B: Use existing parser for skills, contact, summary, certifications, projects
+        console.log("📤 Step B: Calling existing parser for skills, contact, summary, certifications, projects...");
+        const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+        const endpoint = `${aiServiceUrl}/parse-sections`;
+
+        const existingResponse = await axios.post(endpoint, req.body, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 60000,
+        });
+
+        const existingResult = existingResponse.data;
+        console.log(`✅ Existing parser response received`);
+
+        // Step C: Merge results
+        console.log("🔀 Step C: Merging OpenAI and existing parser results...");
+        const mergedResult = {
+          status: "success",
+          work_experience: openaiResult.work_experience,
+          education: openaiResult.education,
+          skills: existingResult.skills || [],
+          summary: existingResult.summary || "",
+          certifications: existingResult.certifications || [],
+          projects: existingResult.projects || [],
+          contact: existingResult.contact || {},
+          processing_time_ms: openaiResult.processing_time_ms,
+          message: `Successfully parsed with OpenAI (experience/education) + Existing parser (skills/contact/summary): ${openaiResult.work_experience.length} experience entries, ${openaiResult.education.length} education entries, ${existingResult.skills?.length || 0} skills`,
+          metadata: {
+            model: "gpt-4o-mini-hybrid",
+            openai_token_usage: openaiResult.token_usage,
+            openai_processing_time_ms: openaiResult.processing_time_ms,
+            existing_processing_time_ms: existingResult.processing_time_ms,
+          },
+        };
+
+        console.log(`✅ Hybrid parsing completed successfully`);
+        res.status(200).json(mergedResult);
+        return;
+
+      } catch (openaiError: any) {
+        console.error("❌ Hybrid parsing failed, falling back to full DeBERTa:", openaiError.message);
+        console.log("🔄 Attempting fallback to DeBERTa parser...");
+        // Fall through to DeBERTa parser below
+      }
+    }
+
+    // Default: Use DeBERTa NER parser (own-model) or fallback
     const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
     const endpoint = `${aiServiceUrl}/parse-sections`;
 
@@ -627,7 +710,7 @@ export const parseSections = async (
       timeout: 60000, // 60 second timeout
     });
 
-    console.log(`✅ Parse sections completed successfully`);
+    console.log(`✅ Parse sections completed successfully (DeBERTa)`);
     res.status(200).json(response.data);
 
   } catch (error: any) {

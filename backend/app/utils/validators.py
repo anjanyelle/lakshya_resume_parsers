@@ -122,9 +122,9 @@ class EducationValidator:
         if gpa is None:
             return None
             
-        if gpa < 0 or gpa > 4.0:
+        if gpa < 0 or gpa > 100:
             logger.warning(f"Invalid GPA: {gpa}")
-            raise ValueError("GPA must be between 0.0 and 4.0")
+            raise ValueError("GPA must be between 0.0 and 100")
             
         return round(gpa, 2)
     

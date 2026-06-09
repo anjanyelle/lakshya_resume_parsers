@@ -762,6 +762,7 @@ export default function UploadPage() {
       const response = await api.post<ParsedSectionsResponse>(
         `/upload/parse-sections`,
         {
+          model: selectedLLM, // Send selected model (own-model or gpt-4o-mini)
           experience_text: extractedSections.experience?.text || "",
           education_text: extractedSections.education?.text || "",
           skills_text: extractedSections.skills?.text || "",

@@ -287,11 +287,13 @@ export class CandidateModel {
                pj.error_message as pj_error_message,
                pj.completed_at as pj_completed_at
         FROM candidates 
-        LEFT JOIN (
+        LEFT JOIN LATERAL (
             SELECT DISTINCT ON (candidate_id) candidate_id, status, confidence_score, error_message, completed_at, updated_at
             FROM parsing_jobs
+            WHERE parsing_jobs.candidate_id = candidates.id
             ORDER BY candidate_id, updated_at DESC
-        ) pj ON candidates.id = pj.candidate_id
+            LIMIT 1
+        ) pj ON true
         ${joinClause}
         ${whereClause}
         ORDER BY candidates.created_at DESC
