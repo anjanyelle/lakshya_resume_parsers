@@ -310,7 +310,7 @@ export class CandidateModel {
         };
       }
       
-      const candidateIds = candidates.map(c => c.id);
+      const candidateIds = candidates.map((c: any) => c.id);
       
       // Batch fetch work history
       const workHistoryResult = await client.query(
@@ -344,7 +344,7 @@ export class CandidateModel {
       }
       
       // Map work history and skills back to candidate rows
-      const candidatesWithDetails = candidates.map(candidate => {
+      const candidatesWithDetails = candidates.map((candidate: any) => {
         const candidateWork = workHistoryResult.rows.filter((w: any) => w.candidate_id === candidate.id);
         const candidateSkills = skillRows.filter((s: any) => s.candidate_id === candidate.id);
         return {

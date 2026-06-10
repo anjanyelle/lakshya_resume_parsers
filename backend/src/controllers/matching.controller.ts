@@ -44,12 +44,24 @@ export const matchCandidatesToJob = async (
       // 2. Get all candidates from database
       const candidatesQuery = `
         SELECT c.*, 
-               array_agg(DISTINCT s.skill_name) as skills,
-               COALESCE(AVG(s.confidence_score), 0.8) as avg_skill_confidence,
-               COALESCE(c.years_of_experience, 0) as years_of_experience
+               (
+                 SELECT array_agg(DISTINCT s.name)
+                 FROM candidate_skills cs
+                 JOIN skills s ON cs.skill_id = s.id
+                 WHERE cs.candidate_id = c.id
+               ) as skills,
+               (
+                 SELECT json_agg(we.*)
+                 FROM work_history we
+                 WHERE we.candidate_id = c.id
+               ) as work_experience,
+               (
+                 SELECT json_agg(ed.*)
+                 FROM education ed
+                 WHERE ed.candidate_id = c.id
+               ) as education,
+               c.years_of_experience
         FROM candidates c
-        LEFT JOIN skills s ON c.id = s.candidate_id
-        GROUP BY c.id
         ORDER BY c.created_at DESC
         LIMIT $1
       `;
@@ -77,8 +89,9 @@ export const matchCandidatesToJob = async (
         linkedin: candidate.linkedin_url,
         github: candidate.github_url,
         skills: candidate.skills || [],
-        years_of_experience: candidate.years_of_experience,
-        education: [], // Will be populated if needed
+        years_of_experience: candidate.years_of_experience || undefined,
+        work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
+        education: candidate.education || [],
       }));
 
       const jobData = {
@@ -357,13 +370,25 @@ export const matchSingleCandidate = async (
       // Get candidate details
       const candidateQuery = `
         SELECT c.*, 
-               array_agg(DISTINCT s.skill_name) as skills,
-               COALESCE(AVG(s.confidence_score), 0.8) as avg_skill_confidence,
-               COALESCE(c.years_of_experience, 0) as years_of_experience
+               (
+                 SELECT array_agg(DISTINCT s.name)
+                 FROM candidate_skills cs
+                 JOIN skills s ON cs.skill_id = s.id
+                 WHERE cs.candidate_id = c.id
+               ) as skills,
+               (
+                 SELECT json_agg(we.*)
+                 FROM work_history we
+                 WHERE we.candidate_id = c.id
+               ) as work_experience,
+               (
+                 SELECT json_agg(ed.*)
+                 FROM education ed
+                 WHERE ed.candidate_id = c.id
+               ) as education,
+               c.years_of_experience
         FROM candidates c
-        LEFT JOIN skills s ON c.id = s.candidate_id
         WHERE c.id = $1
-        GROUP BY c.id
       `;
 
       const candidateResult = await client.query(candidateQuery, [candidateId]);
@@ -413,8 +438,9 @@ export const matchSingleCandidate = async (
           linkedin: candidate.linkedin_url,
           github: candidate.github_url,
           skills: candidate.skills || [],
-          years_of_experience: candidate.years_of_experience,
-          education: [], // Will be populated if needed
+          years_of_experience: candidate.years_of_experience || undefined,
+          work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
+          education: candidate.education || [],
         },
         job_data: {
           id: job.id,

@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "db:setup": "psql $DATABASE_URL -f database/setup.sql",
+    "db:setup": "npx ts-node scripts/run_setup.ts",
+    "db:migrate": "npx ts-node scripts/apply_all_migrations.ts",
+    "db:init": "npm run db:setup && npm run db:migrate",
     "clean": "rm -rf dist"
   },
   "dependencies": {

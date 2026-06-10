@@ -704,12 +704,12 @@ class MatchingEngine:
         
         for edu in education_list:
             if isinstance(edu, dict):
-                degree = edu.get('degree', '') or edu.get('degree_name', '')
+                degree = (edu.get('degree', '') or edu.get('degree_name', '')).lower()
                 if degree:
-                    level = self.education_levels.get(degree.lower(), 1)
-                    if level > highest_level:
-                        highest_level = level
-                        highest_degree = degree
+                    for key, val in self.education_levels.items():
+                        if key in degree and val > highest_level:
+                            highest_level = val
+                            highest_degree = edu.get('degree', '') or edu.get('degree_name', '')
         
         return highest_degree
     
