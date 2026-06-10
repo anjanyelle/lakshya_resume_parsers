@@ -1,4 +1,3 @@
 -- Migration: Add 'deleted' value to candidate_status enum
--- Alter type statements cannot run inside transaction blocks in PG, so this SQL is executed outside transactions.
-
-ALTER TYPE candidate_status ADD VALUE IF NOT EXISTS 'deleted';
+-- candidate_status is a TEXT column in this database schema, so this is a no-op.
+-- ALTER TYPE candidate_status ADD VALUE IF NOT EXISTS 'deleted';
