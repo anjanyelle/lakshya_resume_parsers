@@ -9,10 +9,10 @@ ALTER TABLE parsing_jobs
 
 -- Fix the labeled_data table to allow multiple labeling rounds
 -- (Remove unique constraint on candidate_id so a resume can be re-labeled)
-ALTER TABLE labeled_data
+ALTER TABLE IF EXISTS labeled_data
   DROP CONSTRAINT IF EXISTS labeled_data_candidate_id_key;
 
-ALTER TABLE labeled_data
+ALTER TABLE IF EXISTS labeled_data
   ADD COLUMN IF NOT EXISTS version INTEGER DEFAULT 1,
   ADD COLUMN IF NOT EXISTS model_version VARCHAR(50);
 
