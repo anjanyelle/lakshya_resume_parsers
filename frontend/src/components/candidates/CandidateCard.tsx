@@ -5,12 +5,18 @@ type CandidateCardProps = {
 };
 
 export default function CandidateCard({ candidate }: CandidateCardProps) {
+  const fullName = candidate.full_name || (candidate as any).name || "Unnamed candidate";
+  const displayName = fullName.length > 18 ? fullName.substring(0, 18) + "..." : fullName;
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-subtle">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">
-            {candidate.full_name || "Unnamed candidate"}
+          <h3 
+            title={fullName}
+            className="text-lg font-semibold text-slate-900 truncate cursor-pointer hover:text-purple-600 transition-colors"
+          >
+            {displayName}
           </h3>
           <p className="text-sm text-slate-600">
             {candidate.current_title || "Role"} ·{" "}

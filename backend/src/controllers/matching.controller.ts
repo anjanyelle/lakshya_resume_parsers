@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { getClient } from "../database/db";
 import { callAIService } from "../services/aiService";
+import { extractJD } from "../services/jd-extractor.service";
+import { rankCandidates, CandidateData } from "../services/ats-engine.service";
 
 /**
  * Controller for handling candidate-job matching operations
@@ -525,6 +527,166 @@ export const matchSingleCandidate = async (
     res.status(500).json({
       error: "INTERNAL_ERROR",
       message: "Failed to match candidate to job",
+    });
+  }
+};
+
+/**
+ * POST /api/matching/jd/parse
+ * Parse a raw Job Description text and rank ALL candidates by ATS score.
+ * Uses local TypeScript logic only — NO external AI APIs.
+ */
+export const parseJDAndMatch = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { jd_text } = req.body as { jd_text: string };
+
+    if (!jd_text || typeof jd_text !== "string" || jd_text.trim().length < 20) {
+      res.status(400).json({
+        error: "INVALID_JD",
+        message: "Please provide a valid Job Description text (minimum 20 characters).",
+      });
+      return;
+    }
+
+    // 1. Extract skills / keywords from JD (local NLP)
+    const extractedJD = extractJD(jd_text);
+    console.log(
+      `🔍 JD Extraction: ${extractedJD.skills.length} skills, ${extractedJD.experienceYears}y exp, ${extractedJD.roleKeywords.length} role keywords`
+    );
+
+    const client = await getClient();
+    try {
+      // 2. Fetch ALL candidates with their complete parsed resume data
+      const candidatesQuery = `
+        SELECT
+          c.id,
+          c.full_name,
+          c.email,
+          c.phone,
+          c.location,
+          c.summary,
+          c.raw_resume_text,
+          c.years_of_experience,
+          c.projects,
+          -- Skills array
+          (
+            SELECT array_agg(DISTINCT s.name)
+            FROM skills s
+            WHERE s.candidate_id = c.id
+              AND s.name IS NOT NULL
+          ) AS skills,
+          -- Work history
+          (
+            SELECT json_agg(
+              json_build_object(
+                'job_title', wh.job_title,
+                'company_name', wh.company_name,
+                'start_date', wh.start_date,
+                'end_date', wh.end_date,
+                'is_current', wh.is_current,
+                'description', wh.description
+              )
+            )
+            FROM work_history wh
+            WHERE wh.candidate_id = c.id
+          ) AS work_history,
+          -- Education
+          (
+            SELECT json_agg(
+              json_build_object(
+                'degree', ed.degree,
+                'institution', ed.institution,
+                'field_of_study', ed.field_of_study
+              )
+            )
+            FROM education ed
+            WHERE ed.candidate_id = c.id
+          ) AS education,
+          -- Certifications
+          (
+            SELECT array_agg(DISTINCT cert.name)
+            FROM certifications cert
+            WHERE cert.candidate_id = c.id
+              AND cert.name IS NOT NULL
+          ) AS certifications,
+          -- Latest parsed data (skills, summary, projects from AI parser)
+          (
+            SELECT pj.parsed_data
+            FROM parsing_jobs pj
+            WHERE pj.candidate_id = c.id
+              AND pj.status = 'completed'
+            ORDER BY pj.completed_at DESC
+            LIMIT 1
+          ) AS parsed_data
+        FROM candidates c
+        WHERE c.status NOT IN ('deleted')
+          AND c.full_name IS NOT NULL
+        ORDER BY c.created_at DESC
+      `;
+
+      const result = await client.query(candidatesQuery);
+
+      if (result.rows.length === 0) {
+        res.json({
+          success: true,
+          extracted_skills: extractedJD.skills,
+          experience_required: extractedJD.experienceYears,
+          total_candidates: 0,
+          matches: [],
+        });
+        return;
+      }
+
+      // 3. Map DB rows to CandidateData shape expected by the ATS engine
+      const candidates: CandidateData[] = result.rows.map((row) => ({
+        id: row.id,
+        full_name: row.full_name || "Unknown",
+        email: row.email || "",
+        phone: row.phone,
+        location: row.location,
+        summary: row.summary,
+        raw_resume_text: row.raw_resume_text,
+        years_of_experience: row.years_of_experience
+          ? parseFloat(row.years_of_experience)
+          : undefined,
+        skills: (row.skills || []).filter(Boolean) as string[],
+        work_history: (row.work_history && row.work_history[0] !== null
+          ? row.work_history
+          : []) as CandidateData["work_history"],
+        education: (row.education && row.education[0] !== null
+          ? row.education
+          : []) as CandidateData["education"],
+        certifications: (row.certifications || []).filter(Boolean) as string[],
+        projects: row.projects || [],
+        parsed_data: row.parsed_data || null,
+      }));
+
+      // 4. Score and rank candidates using the local ATS engine
+      console.log(`⚙️  ATS Engine: Scoring ${candidates.length} candidates...`);
+      const ranked = rankCandidates(extractedJD, candidates);
+      console.log(`✅ ATS Ranking complete. Top score: ${ranked[0]?.overall_score ?? 0}%`);
+
+      // 5. Return results (stateless — no DB write required for JD matching)
+      res.json({
+        success: true,
+        extracted_skills: extractedJD.skills,
+        experience_required: extractedJD.experienceYears,
+        role_keywords: extractedJD.roleKeywords,
+        education_keywords: extractedJD.educationKeywords,
+        total_candidates: candidates.length,
+        matches: ranked,
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Error in parseJDAndMatch:", error);
+    res.status(500).json({
+      error: "INTERNAL_ERROR",
+      message: "Failed to process Job Description matching.",
     });
   }
 };

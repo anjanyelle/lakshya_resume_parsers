@@ -14,6 +14,7 @@ import CandidatesPage from "./pages/CandidatesPage";
 import CandidateDetailPage from "./pages/CandidateDetailPage";
 import JobsPage from "./pages/JobsPage";
 import MatchingPage from "./pages/MatchingPage";
+import JDMatchingPage from "./pages/JDMatchingPage";
 import SectionPreviewPage from "./pages/SectionPreviewPage";
 import ModelTestPage from "./pages/ModelTestPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -135,6 +136,16 @@ function App() {
         <Route index element={<MatchingPage />} />
       </Route>
 
+      <Route
+        path="/jd-matching"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<JDMatchingPage />} />
+      </Route>
       <Route
         path="/labeling"
         element={
