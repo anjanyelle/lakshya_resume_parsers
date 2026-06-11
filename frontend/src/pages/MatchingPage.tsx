@@ -31,6 +31,12 @@ export default function MatchingPage() {
     loadMatchResults();
   }, []);
 
+  useEffect(() => {
+    if (location.state?.jobId) {
+      setSelectedJob(location.state.jobId);
+    }
+  }, [location.state?.jobId]);
+
   const loadJobs = async () => {
     try {
       await fetchJobs();
@@ -243,7 +249,10 @@ export default function MatchingPage() {
             </label>
             <select
               value={selectedJob}
-              onChange={(e) => setSelectedJob(e.target.value)}
+              onChange={(e) => {
+                setSelectedJob(e.target.value);
+                setExpandedRows(new Set());
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">All Jobs</option>

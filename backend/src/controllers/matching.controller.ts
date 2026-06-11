@@ -62,6 +62,14 @@ export const matchCandidatesToJob = async (
                  FROM education ed
                  WHERE ed.candidate_id = c.id
                ) as education,
+               (
+                 SELECT pj.parsed_data
+                 FROM parsing_jobs pj
+                 WHERE pj.candidate_id = c.id
+                   AND pj.status = 'completed'
+                 ORDER BY pj.completed_at DESC
+                 LIMIT 1
+               ) as parsed_data,
                c.years_of_experience
         FROM candidates c
         ORDER BY c.created_at DESC
@@ -94,6 +102,7 @@ export const matchCandidatesToJob = async (
         years_of_experience: candidate.years_of_experience || undefined,
         work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
         education: candidate.education || [],
+        parsed_data: candidate.parsed_data || null,
       }));
 
       const jobData = {

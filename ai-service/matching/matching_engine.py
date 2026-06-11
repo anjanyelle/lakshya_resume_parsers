@@ -270,6 +270,27 @@ class MatchingEngine:
         else:
             self.logger.warning("Semantic skill matching disabled - sentence_transformers not available")
     
+    def _extract_candidate_skills(self, candidate: Dict[str, Any]) -> List[str]:
+        """Extract skills from candidate data with fallbacks."""
+        skills = candidate.get('skills', [])
+        if skills:
+            return self._normalize_skills(skills)
+            
+        parsed = candidate.get('parsed_data') or {}
+        if isinstance(parsed, str):
+            import json
+            try: parsed = json.loads(parsed)
+            except: parsed = {}
+            
+        if 'skills' in parsed and parsed['skills']:
+            return self._normalize_skills(parsed['skills'])
+        if 'technical_skills' in parsed and parsed['technical_skills']:
+            return self._normalize_skills(parsed['technical_skills'])
+        if 'core_skills' in parsed and parsed['core_skills']:
+            return self._normalize_skills(parsed['core_skills'])
+            
+        return []
+
     def calculate_match_score(self, candidate: Dict[str, Any], job: Dict[str, Any], embeddings_map: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Calculate comprehensive match score between candidate and job.
@@ -286,7 +307,7 @@ class MatchingEngine:
             self.logger.info("Calculating candidate-job match score")
             
             # Extract relevant data
-            candidate_skills = self._normalize_skills(candidate.get('skills', []))
+            candidate_skills = self._extract_candidate_skills(candidate)
             required_skills = self._normalize_skills(job.get('required_skills', []))
             preferred_skills = self._normalize_skills(job.get('preferred_skills', []))
             
@@ -294,7 +315,7 @@ class MatchingEngine:
             min_experience = job.get('min_experience_years', 0)
             max_experience = job.get('max_experience_years')
             
-            candidate_education = self._normalize_education(candidate.get('education', []))
+            candidate_education = self._extract_candidate_education(candidate)
             required_education = job.get('education_requirement', 'Any')
             
             # Calculate individual scores
@@ -449,8 +470,8 @@ class MatchingEngine:
                             best_score = similarity
                             best_match_idx = cand_idx
                 
-                # Check if similarity exceeds threshold
-                if best_score > 0.75 and best_match_idx != -1:
+                # Check if similarity exceeds threshold (lowered to 0.65 to catch partial matches)
+                if best_score > 0.65 and best_match_idx != -1:
                     matched_pairs.append((
                         required_skill,
                         candidate_skills[best_match_idx],
@@ -531,6 +552,54 @@ class MatchingEngine:
         
         return max(0.0, min(100.0, skill_score))
     
+    def _normalize_skills(self, skills: Any) -> List[str]:
+        """Normalize skill names for better matching."""
+        if not skills:
+            return []
+            
+        # Parse JSON string if needed
+        import json
+        if isinstance(skills, str):
+            try:
+                parsed = json.loads(skills)
+                if isinstance(parsed, list):
+                    skills = parsed
+                else:
+                    skills = [skills]
+            except:
+                skills = [skills]
+        
+        normalized = []
+        for skill in skills:
+            if isinstance(skill, dict) and 'skill_name' in skill:
+                skill = skill['skill_name']
+            if isinstance(skill, str):
+                normalized_skill = skill.lower().strip()
+                normalized_skill = re.sub(r'\s+', ' ', normalized_skill)
+                
+                maps = {
+                    'java': 'java',
+                    'js': 'javascript',
+                    'javascript': 'javascript',
+                    'react.js': 'react',
+                    'reactjs': 'react',
+                    'react': 'react',
+                    'node': 'node.js',
+                    'nodejs': 'node.js',
+                    'node.js': 'node.js',
+                    'springboot': 'spring boot',
+                    'spring boot': 'spring boot',
+                    'type script': 'typescript',
+                    'typescript': 'typescript',
+                }
+                if normalized_skill in maps:
+                    normalized_skill = maps[normalized_skill]
+                
+                if normalized_skill:
+                    normalized.append(normalized_skill)
+        
+        return list(set(normalized))
+        
     def _normalize_skills_with_synonyms(self, skills: List[str]) -> List[str]:
         """Normalize skills using synonym mapping."""
         if not skills:
@@ -539,17 +608,32 @@ class MatchingEngine:
         normalized = []
         for skill in skills:
             if isinstance(skill, str):
-                # Convert to lowercase and strip whitespace
                 normalized_skill = skill.lower().strip()
-                
-                # Apply synonym mapping
-                if normalized_skill in self.SKILL_SYNONYMS:
-                    normalized_skill = self.SKILL_SYNONYMS[normalized_skill].lower()
-                
-                # Remove common variations
                 normalized_skill = re.sub(r'\s+', ' ', normalized_skill)
-                normalized_skill = normalized_skill.replace('javascript', 'js')
-                normalized_skill = normalized_skill.replace('typescript', 'ts')
+                
+                maps = {
+                    'java': 'java',
+                    'js': 'javascript',
+                    'javascript': 'javascript',
+                    'react.js': 'react',
+                    'reactjs': 'react',
+                    'react': 'react',
+                    'node': 'node.js',
+                    'nodejs': 'node.js',
+                    'node.js': 'node.js',
+                    'springboot': 'spring boot',
+                    'spring boot': 'spring boot',
+                    'type script': 'typescript',
+                    'typescript': 'typescript',
+                }
+                
+                if normalized_skill in maps:
+                    normalized_skill = maps[normalized_skill]
+                else:
+                    for key, val in self.SKILL_SYNONYMS.items():
+                        if normalized_skill == key.lower():
+                            normalized_skill = val.lower()
+                            break
                 
                 if normalized_skill:
                     normalized.append(normalized_skill)
@@ -605,6 +689,9 @@ class MatchingEngine:
         # No requirement or candidate exceeds requirement
         if required_level == 0 or candidate_level >= required_level:
             return 100.0
+            
+        if candidate_education.lower() == 'unknown':
+            return 50.0  # Partial score if missing instead of 0
         
         # Below requirement: 25 points penalty per level
         level_gap = required_level - candidate_level
@@ -651,30 +738,22 @@ class MatchingEngine:
         else:
             return 'Not Recommended'
     
-    def _normalize_skills(self, skills: List[str]) -> List[str]:
-        """Normalize skill names for better matching."""
-        if not skills:
-            return []
-        
-        normalized = []
-        for skill in skills:
-            if isinstance(skill, str):
-                # Convert to lowercase and strip whitespace
-                normalized_skill = skill.lower().strip()
-                # Remove common variations
-                normalized_skill = re.sub(r'\s+', ' ', normalized_skill)
-                normalized_skill = normalized_skill.replace('javascript', 'js')
-                normalized_skill = normalized_skill.replace('typescript', 'ts')
-                if normalized_skill:
-                    normalized.append(normalized_skill)
-        
-        return list(set(normalized))  # Remove duplicates
-    
     def _extract_candidate_experience(self, candidate: Dict[str, Any]) -> float:
         """Extract total years of experience from candidate data."""
-        # Try explicit years field
-        if 'years_of_experience' in candidate:
-            return float(candidate['years_of_experience'] or 0)
+        if 'years_of_experience' in candidate and candidate['years_of_experience'] is not None:
+            try: return float(candidate['years_of_experience'])
+            except: pass
+            
+        parsed = candidate.get('parsed_data') or {}
+        if isinstance(parsed, str):
+            import json
+            try: parsed = json.loads(parsed)
+            except: parsed = {}
+            
+        for key in ['total_experience_years', 'experience_years', 'total_experience']:
+            if key in parsed and parsed[key] is not None:
+                try: return float(parsed[key])
+                except: pass
         
         # Calculate from work experience
         work_experience = candidate.get('work_experience', [])
@@ -687,20 +766,36 @@ class MatchingEngine:
                 # Try to extract duration from work experience
                 duration_months = exp.get('duration_months')
                 if duration_months:
-                    total_years += duration_months / 12
+                    total_years += float(duration_months) / 12.0
                 else:
                     # Estimate from start/end dates (simplified)
                     total_years += 2.0  # Default estimate per job
         
         return total_years
     
+    def _extract_candidate_education(self, candidate: Dict[str, Any]) -> str:
+        education = candidate.get('education', [])
+        if education and isinstance(education, list) and len(education) > 0:
+            return self._normalize_education(education)
+            
+        parsed = candidate.get('parsed_data') or {}
+        if isinstance(parsed, str):
+            import json
+            try: parsed = json.loads(parsed)
+            except: parsed = {}
+            
+        if 'education' in parsed and parsed['education']:
+            return self._normalize_education(parsed['education'])
+            
+        return 'Unknown'
+        
     def _normalize_education(self, education_list: List[Dict[str, Any]]) -> str:
         """Extract highest education level from education list."""
         if not education_list:
-            return 'None'
+            return 'Unknown'
         
         highest_level = 0
-        highest_degree = 'None'
+        highest_degree = 'Unknown'
         
         for edu in education_list:
             if isinstance(edu, dict):
@@ -710,6 +805,12 @@ class MatchingEngine:
                         if key in degree and val > highest_level:
                             highest_level = val
                             highest_degree = edu.get('degree', '') or edu.get('degree_name', '')
+            elif isinstance(edu, str):
+                degree = edu.lower()
+                for key, val in self.education_levels.items():
+                    if key in degree and val > highest_level:
+                        highest_level = val
+                        highest_degree = edu
         
         return highest_degree
     
@@ -755,40 +856,30 @@ class MatchingEngine:
                         skill_analysis: Dict[str, List[str]], experience_gap: float,
                         candidate: Dict[str, Any], job: Dict[str, Any]) -> str:
         """Generate human-readable explanation for the recommendation."""
-        reasons = []
+        req_count = len(self._normalize_skills(job.get('required_skills', [])))
+        match_count = len(skill_analysis['matching'])
         
-        # Skill analysis
-        if skill_score >= 80:
-            reasons.append(f"Excellent skill match with {len(skill_analysis['matching'])} relevant skills")
-        elif skill_score >= 60:
-            reasons.append(f"Good skill alignment with {len(skill_analysis['matching'])} matching skills")
+        reason = ""
+        if req_count > 0:
+            matched_str = ", ".join(skill_analysis['matching']) if skill_analysis['matching'] else "None"
+            reason += f"Matched {match_count} of {req_count} skills: {matched_str}. "
+            if skill_analysis['missing']:
+                reason += f"Missing: {', '.join(skill_analysis['missing'])}. "
         else:
-            missing_count = len(skill_analysis['missing'])
-            reasons.append(f"Missing {missing_count} key skills: {', '.join(skill_analysis['missing'][:3])}")
+            reason += "No specific skills required. "
+            
+        cand_exp = self._extract_candidate_experience(candidate)
+        min_exp = job.get('min_experience_years', 0)
+        max_exp = job.get('max_experience_years')
         
-        # Experience analysis
-        if experience_score >= 90:
-            reasons.append("Experience level perfectly matches requirements")
-        elif experience_score >= 70:
-            reasons.append("Experience level is acceptable for the role")
-        elif experience_gap > 0:
-            reasons.append(f"Under-qualified by {experience_gap:.1f} years of experience")
-        elif experience_gap < 0:
-            reasons.append("Over-qualified for the position")
+        exp_req = f"{min_exp}"
+        if max_exp:
+            exp_req += f"-{max_exp}"
+        exp_req += " years"
         
-        # Education analysis
-        if education_score >= 90:
-            reasons.append("Education level meets or exceeds requirements")
-        elif education_score >= 70:
-            reasons.append("Education level is acceptable")
-        else:
-            reasons.append("Education level below requirements")
+        reason += f"Candidate has {cand_exp:.1f} years experience; required {exp_req}."
         
-        # Extra skills bonus
-        if skill_analysis['extra']:
-            reasons.append(f"Brings {len(skill_analysis['extra'])} additional valuable skills")
-        
-        return "; ".join(reasons)
+        return reason.strip()
     
     def _result_to_dict(self, result: MatchResult) -> Dict[str, Any]:
         """Convert MatchResult to dictionary."""
