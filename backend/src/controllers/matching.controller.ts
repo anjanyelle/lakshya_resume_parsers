@@ -62,14 +62,6 @@ export const matchCandidatesToJob = async (
                  FROM education ed
                  WHERE ed.candidate_id = c.id
                ) as education,
-               (
-                 SELECT pj.parsed_data
-                 FROM parsing_jobs pj
-                 WHERE pj.candidate_id = c.id
-                   AND pj.status = 'completed'
-                 ORDER BY pj.completed_at DESC
-                 LIMIT 1
-               ) as parsed_data,
                c.years_of_experience
         FROM candidates c
         ORDER BY c.created_at DESC
@@ -99,7 +91,7 @@ export const matchCandidatesToJob = async (
         linkedin: candidate.linkedin_url,
         github: candidate.github_url,
         skills: candidate.skills || [],
-        years_of_experience: candidate.years_of_experience || undefined,
+        years_of_experience: candidate.years_experience || undefined,
         work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
         education: candidate.education || [],
         parsed_data: candidate.parsed_data || null,
@@ -397,7 +389,7 @@ export const matchSingleCandidate = async (
                  FROM education ed
                  WHERE ed.candidate_id = c.id
                ) as education,
-               c.years_of_experience
+               c.years_experience
         FROM candidates c
         WHERE c.id = $1
       `;
@@ -449,7 +441,7 @@ export const matchSingleCandidate = async (
           linkedin: candidate.linkedin_url,
           github: candidate.github_url,
           skills: candidate.skills || [],
-          years_of_experience: candidate.years_of_experience || undefined,
+          years_of_experience: candidate.years_experience || undefined,
           work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
           education: candidate.education || [],
         },
@@ -578,7 +570,7 @@ export const parseJDAndMatch = async (
           c.location,
           c.summary,
           c.raw_resume_text,
-          c.years_of_experience,
+          c.years_experience,
           c.projects,
           -- Skills array
           (
@@ -658,8 +650,8 @@ export const parseJDAndMatch = async (
         location: row.location,
         summary: row.summary,
         raw_resume_text: row.raw_resume_text,
-        years_of_experience: row.years_of_experience
-          ? parseFloat(row.years_of_experience)
+        years_of_experience: row.years_experience
+          ? parseFloat(row.years_experience)
           : undefined,
         skills: (row.skills || []).filter(Boolean) as string[],
         work_history: (row.work_history && row.work_history[0] !== null
