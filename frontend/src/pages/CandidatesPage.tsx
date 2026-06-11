@@ -35,8 +35,6 @@ export default function CandidatesPage() {
   const [inputCompany, setInputCompany] = useState(company || "");
   const [inputJobTitle, setInputJobTitle] = useState(jobTitle || "");
   const [inputCertification, setInputCertification] = useState(certification || "");
-  const [inputSalaryMin, setInputSalaryMin] = useState(salaryMin?.toString() || "");
-  const [inputSalaryMax, setInputSalaryMax] = useState(salaryMax?.toString() || "");
 
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInitialMount = useRef(true);
@@ -59,10 +57,6 @@ export default function CandidatesPage() {
       setCompany(inputCompany);
       setJobTitle(inputJobTitle);
       setCertification(inputCertification);
-      setSalaryRange(
-        inputSalaryMin ? parseFloat(inputSalaryMin) : null,
-        inputSalaryMax ? parseFloat(inputSalaryMax) : null
-      );
       setCurrentPage(1);
     }, 1500);
 
@@ -71,7 +65,7 @@ export default function CandidatesPage() {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [inputSearchTerm, inputCompany, inputJobTitle, inputCertification, inputSalaryMin, inputSalaryMax]);
+  }, [inputSearchTerm, inputCompany, inputJobTitle, inputCertification]);
 
   // Fetch candidates when committed filter store values or page changes
   useEffect(() => {
@@ -95,14 +89,12 @@ export default function CandidatesPage() {
     setInputCompany("");
     setInputJobTitle("");
     setInputCertification("");
-    setInputSalaryMin("");
-    setInputSalaryMax("");
     resetFilters();
     setCurrentPage(1);
   };
 
   const hasActiveFilters =
-    inputSearchTerm || inputCompany || inputJobTitle || inputCertification || inputSalaryMin || inputSalaryMax;
+    inputSearchTerm || inputCompany || inputJobTitle || inputCertification;
 
   // Client-side filter and sort (search is handled server-side)
   const filteredCandidates = candidates
@@ -196,7 +188,7 @@ export default function CandidatesPage() {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex flex-col gap-4">
             {/* Search Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Name Search */}
               <div className="relative">
                 <input
@@ -243,30 +235,6 @@ export default function CandidatesPage() {
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                 />
                 <Award className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              </div>
-
-              {/* Salary Min */}
-              <div className="relative">
-                <input
-                  type="number"
-                  placeholder="Min salary..."
-                  value={inputSalaryMin}
-                  onChange={(e) => setInputSalaryMin(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                />
-                <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              </div>
-
-              {/* Salary Max */}
-              <div className="relative">
-                <input
-                  type="number"
-                  placeholder="Max salary..."
-                  value={inputSalaryMax}
-                  onChange={(e) => setInputSalaryMax(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                />
-                <DollarSign className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
               </div>
             </div>
 
@@ -430,7 +398,7 @@ export default function CandidatesPage() {
                         {candidate.skills.length > 4 && (
                           <button
                             onClick={() => toggleSkills(candidate.id)}
-                            className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200 hover:bg-purple-200 cursor-pointer"
+                            className="px-2.5 py-1 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors cursor-pointer shadow-sm"
                           >
                             {expandedSkills.has(candidate.id)
                               ? "Show less"

@@ -92,6 +92,27 @@ export default function JobsPage() {
   const [currentSkill, setCurrentSkill] = useState("");
   const [currentPreferredSkill, setCurrentPreferredSkill] = useState("");
 
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Set<string>>(new Set());
+  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
+
+  const toggleDescription = (jobId: string) => {
+    setExpandedDescriptions((prev) => {
+      const next = new Set(prev);
+      if (next.has(jobId)) next.delete(jobId);
+      else next.add(jobId);
+      return next;
+    });
+  };
+
+  const toggleSkills = (jobId: string) => {
+    setExpandedSkills((prev) => {
+      const next = new Set(prev);
+      if (next.has(jobId)) next.delete(jobId);
+      else next.add(jobId);
+      return next;
+    });
+  };
+
   const parseExperience = (range: string) => {
     switch (range) {
       case "0-2 years": return { min: 0, max: 2 };
@@ -240,10 +261,8 @@ export default function JobsPage() {
 
       if (editingJob) {
         await updateJob(editingJob.id, jobData);
-        toast.success("Job updated successfully!");
       } else {
         await createJob(jobData);
-        toast.success("Job created successfully!");
       }
 
       setIsCreateModalOpen(false);
@@ -314,7 +333,6 @@ export default function JobsPage() {
 
     try {
       await updateJob(jobId, { status: "closed" });
-      toast.success("Job deactivated successfully!");
       loadJobs();
     } catch (error: any) {
       toast.error(error.message || "Failed to deactivate job");
@@ -754,7 +772,7 @@ export default function JobsPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-semibold text-gray-900">{job.title}</h3>
-                    <span className="text-xs text-gray-400">#{job.id.substring(0, 8)}</span>
+
                   </div>
                   <p className="text-sm text-gray-600">{job.department}</p>
                 </div>
@@ -769,7 +787,19 @@ export default function JobsPage() {
 
               {/* Description Preview */}
               {job.description && (
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{job.description}</p>
+                <div 
+                  className="mb-4 cursor-pointer group"
+                  onClick={() => toggleDescription(job.id)}
+                >
+                  <p className={`text-sm text-gray-600 ${expandedDescriptions.has(job.id) ? '' : 'line-clamp-2'}`}>
+                    {job.description}
+                  </p>
+                  {job.description.length > 100 && (
+                    <span className="text-xs text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1 inline-block font-medium">
+                      {expandedDescriptions.has(job.id) ? "Show less" : "Show more"}
+                    </span>
+                  )}
+                </div>
               )}
 
               {/* Job Details Grid */}
@@ -812,14 +842,25 @@ export default function JobsPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Must Have</p>
                     <div className="flex flex-wrap gap-1">
-                      {job.required_skills.slice(0, 3).map((skill, index) => (
+                      {(expandedSkills.has(job.id) ? job.required_skills : job.required_skills.slice(0, 3)).map((skill, index) => (
                         <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
                           {typeof skill === 'string' ? skill : skill.skill_name}
                         </span>
                       ))}
-                      {job.required_skills.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                          +{job.required_skills.length - 3}
+                      {!expandedSkills.has(job.id) && job.required_skills.length > 3 && (
+                        <span 
+                          onClick={() => toggleSkills(job.id)}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-medium rounded cursor-pointer transition-colors"
+                        >
+                          +{job.required_skills.length - 3} more
+                        </span>
+                      )}
+                      {expandedSkills.has(job.id) && job.required_skills.length > 3 && (
+                        <span 
+                          onClick={() => toggleSkills(job.id)}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-medium rounded cursor-pointer transition-colors"
+                        >
+                          Show less
                         </span>
                       )}
                     </div>
@@ -829,14 +870,25 @@ export default function JobsPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Good to Have</p>
                     <div className="flex flex-wrap gap-1">
-                      {job.preferred_skills.slice(0, 3).map((skill, index) => (
+                      {(expandedSkills.has(job.id) ? job.preferred_skills : job.preferred_skills.slice(0, 3)).map((skill, index) => (
                         <span key={index} className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded">
                           {typeof skill === 'string' ? skill : skill.skill_name}
                         </span>
                       ))}
-                      {job.preferred_skills.length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                          +{job.preferred_skills.length - 3}
+                      {!expandedSkills.has(job.id) && job.preferred_skills.length > 3 && (
+                        <span 
+                          onClick={() => toggleSkills(job.id)}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-medium rounded cursor-pointer transition-colors"
+                        >
+                          +{job.preferred_skills.length - 3} more
+                        </span>
+                      )}
+                      {expandedSkills.has(job.id) && job.preferred_skills.length > 3 && (
+                        <span 
+                          onClick={() => toggleSkills(job.id)}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-medium rounded cursor-pointer transition-colors"
+                        >
+                          Show less
                         </span>
                       )}
                     </div>

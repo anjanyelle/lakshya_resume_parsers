@@ -67,7 +67,12 @@ SELECT
     END as accuracy_estimate,
     MAX(ld.labeled_at) as last_labeled_at
 FROM candidates c
+JOIN (
+  SELECT DISTINCT ON (candidate_id) candidate_id, confidence_score
+  FROM parsing_jobs
+  ORDER BY candidate_id, updated_at DESC
+) pj ON c.id = pj.candidate_id
 LEFT JOIN labeled_data ld ON c.id = ld.candidate_id
-WHERE (c.parsing_status->>'confidence_score')::float < 0.90;
+WHERE pj.confidence_score < 0.90;
 
 COMMENT ON VIEW labeling_statistics IS 'Statistics view for resume data labeling progress and accuracy';

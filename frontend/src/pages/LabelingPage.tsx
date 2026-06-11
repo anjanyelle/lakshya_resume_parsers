@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import api from "../services/api";
 
 interface Candidate {
   id: string;
@@ -70,18 +71,20 @@ export default function LabelingPage() {
     universities: [],
   });
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
-    loadProgress();
-    loadNextCandidate();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      loadProgress();
+      loadNextCandidate();
+    }
   }, []);
 
   const loadProgress = async () => {
     try {
-      const response = await fetch("/api/labeling/progress");
-      const data = await response.json();
-      if (response.ok) {
-        setProgress(data);
-      }
+      const response = await api.get("/labeling/progress");
+      setProgress(response.data);
     } catch (error) {
       console.error("Failed to load progress");
     }
@@ -90,28 +93,28 @@ export default function LabelingPage() {
   const loadNextCandidate = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/labeling/next");
-      const data = await response.json();
-
-      if (response.ok && data) {
-        setCurrentCandidate(data);
-        setFormData({
-          name: data.full_name || "",
-          email: data.email || "",
-          phone: data.phone || "",
-          skills: data.skills || [],
-          companies: data.companies || [],
-          job_titles: data.job_titles || [],
-          education_degrees: data.education_degrees || [],
-          universities: data.universities || [],
-        });
-      } else {
+      const response = await api.get("/labeling/next");
+      const data = response.data;
+      
+      setCurrentCandidate(data);
+      setFormData({
+        name: data.full_name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+        skills: data.skills || [],
+        companies: data.companies || [],
+        job_titles: data.job_titles || [],
+        education_degrees: data.education_degrees || [],
+        universities: data.universities || [],
+      });
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
         // No more candidates to label
         setCurrentCandidate(null);
         toast.success("All candidates have been labeled!");
+      } else {
+        toast.error("Failed to load next candidate");
       }
-    } catch (error) {
-      toast.error("Failed to load next candidate");
     } finally {
       setIsLoading(false);
     }
@@ -140,25 +143,15 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      const response = await fetch("/api/labeling/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidate_id: currentCandidate.id,
-          corrected_fields: formData,
-          action: "corrected",
-        }),
+      await api.post("/labeling/save", {
+        candidate_id: currentCandidate.id,
+        corrected_fields: formData,
+        action: "corrected",
       });
 
-      if (response.ok) {
-        toast.success("Corrections saved!");
-        loadProgress();
-        loadNextCandidate();
-      } else {
-        toast.error("Failed to save corrections");
-      }
+      toast.success("Corrections saved!");
+      loadProgress();
+      loadNextCandidate();
     } catch (error) {
       toast.error("Failed to save corrections");
     }
@@ -168,30 +161,20 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      const response = await fetch("/api/labeling/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidate_id: currentCandidate.id,
-          action: "skipped",
-        }),
+      await api.post("/labeling/save", {
+        candidate_id: currentCandidate.id,
+        action: "skipped",
       });
 
-      if (response.ok) {
-        toast("Candidate skipped", {
-          icon: "⏭️",
-          style: {
-            background: "#f3f4f6",
-            color: "#374151",
-          },
-        });
-        loadProgress();
-        loadNextCandidate();
-      } else {
-        toast.error("Failed to skip candidate");
-      }
+      toast("Candidate skipped", {
+        icon: "⏭️",
+        style: {
+          background: "#f3f4f6",
+          color: "#374151",
+        },
+      });
+      loadProgress();
+      loadNextCandidate();
     } catch (error) {
       toast.error("Failed to skip candidate");
     }
@@ -201,25 +184,15 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      const response = await fetch("/api/labeling/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          candidate_id: currentCandidate.id,
-          corrected_fields: formData,
-          action: "approved",
-        }),
+      await api.post("/labeling/save", {
+        candidate_id: currentCandidate.id,
+        corrected_fields: formData,
+        action: "approved",
       });
 
-      if (response.ok) {
-        toast.success("Candidate approved for training!");
-        loadProgress();
-        loadNextCandidate();
-      } else {
-        toast.error("Failed to approve candidate");
-      }
+      toast.success("Candidate approved for training!");
+      loadProgress();
+      loadNextCandidate();
     } catch (error) {
       toast.error("Failed to approve candidate");
     }

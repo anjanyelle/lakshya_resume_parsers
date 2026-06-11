@@ -20,10 +20,11 @@ export default function MatchingPage() {
   const [selectedJob, setSelectedJob] = useState<string>(location.state?.jobId || "");
   const [isMatching, setIsMatching] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   const { runMatching, fetchMatchResults, fetchJobs, jobs: storeJobs, matchResults: storeMatchResults } = useJobStore();
 
-  const jobs = (storeJobs || []).filter((job) => job.status === "active");
+  const jobs = storeJobs || [];
   const matchResults = storeMatchResults || [];
 
   useEffect(() => {
@@ -60,9 +61,10 @@ export default function MatchingPage() {
     }
 
     setIsMatching(true);
+    setShowSuccessBanner(false);
     try {
       await runMatching(selectedJob);
-      toast.success("Matching completed successfully!");
+      setShowSuccessBanner(true);
       loadMatchResults();
     } catch (error: any) {
       toast.error(error.message || "Matching failed");
@@ -163,72 +165,80 @@ export default function MatchingPage() {
       .join("");
   };
 
+  const filteredResults = selectedJob
+    ? matchResults.filter((result) => result.job_id === selectedJob)
+    : matchResults;
+
+  const selectedJobObj = jobs.find((j) => j.id === selectedJob);
+  const jobStatus = (selectedJobObj?.status || "active").toLowerCase();
+  
+  const isDraft = jobStatus === "draft";
+  const isOnHold = jobStatus === "on hold" || jobStatus === "on_hold";
+  const isClosed = jobStatus === "closed";
+  const isActive = jobStatus === "active" || (!isDraft && !isOnHold && !isClosed);
+
   // Chart data
   const scoreDistribution = [
     {
       range: "90-100%",
-      count: matchResults.filter((r) => r.overall_score >= 90).length,
+      count: filteredResults.filter((r) => r.overall_score >= 90).length,
     },
     {
       range: "80-89%",
-      count: matchResults.filter(
+      count: filteredResults.filter(
         (r) => r.overall_score >= 80 && r.overall_score < 90,
       ).length,
     },
     {
       range: "70-79%",
-      count: matchResults.filter(
+      count: filteredResults.filter(
         (r) => r.overall_score >= 70 && r.overall_score < 80,
       ).length,
     },
     {
       range: "60-69%",
-      count: matchResults.filter(
+      count: filteredResults.filter(
         (r) => r.overall_score >= 60 && r.overall_score < 70,
       ).length,
     },
     {
       range: "50-59%",
-      count: matchResults.filter(
+      count: filteredResults.filter(
         (r) => r.overall_score >= 50 && r.overall_score < 60,
       ).length,
     },
     {
       range: "<50%",
-      count: matchResults.filter((r) => r.overall_score < 50).length,
+      count: filteredResults.filter((r) => r.overall_score < 50).length,
     },
   ];
 
   const recommendationData = [
     {
       name: "Strong Match",
-      value: matchResults.filter((r) => r.recommendation === "Strong Match")
+      value: filteredResults.filter((r) => r.recommendation === "Strong Match")
         .length,
       color: "#10b981",
     },
     {
       name: "Good Match",
-      value: matchResults.filter((r) => r.recommendation === "Good Match")
+      value: filteredResults.filter((r) => r.recommendation === "Good Match")
         .length,
       color: "#3b82f6",
     },
     {
       name: "Partial Match",
-      value: matchResults.filter((r) => r.recommendation === "Partial Match")
+      value: filteredResults.filter((r) => r.recommendation === "Partial Match")
         .length,
       color: "#f59e0b",
     },
     {
       name: "Not Recommended",
-      value: matchResults.filter((r) => r.recommendation === "Not Recommended")
+      value: filteredResults.filter((r) => r.recommendation === "Not Recommended")
         .length,
       color: "#ef4444",
     },
   ];
-
-  const filteredResults = selectedJob
-    ? matchResults.filter((result) => result.job_id === selectedJob)
-    : matchResults;
 
   return (
     <div className="p-6">
@@ -252,6 +262,7 @@ export default function MatchingPage() {
               onChange={(e) => {
                 setSelectedJob(e.target.value);
                 setExpandedRows(new Set());
+                setShowSuccessBanner(false);
               }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             >
@@ -267,7 +278,7 @@ export default function MatchingPage() {
           <div className="flex gap-3">
             <button
               onClick={handleRunMatching}
-              disabled={isMatching || !selectedJob}
+              disabled={isMatching || !selectedJob || !isActive}
               className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
             >
               {isMatching ? (
@@ -315,7 +326,7 @@ export default function MatchingPage() {
 
             <button
               onClick={exportToCSV}
-              disabled={filteredResults.length === 0}
+              disabled={filteredResults.length === 0 || !isActive}
               className="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
             >
               <svg
@@ -338,10 +349,63 @@ export default function MatchingPage() {
       </div>
 
       <div className="flex gap-6">
-        {/* Results Table */}
-        <div className="flex-1">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            {isMatching ? (
+        {selectedJob && !isActive ? (
+          <div className="flex-1 bg-white rounded-lg shadow-sm p-12 flex flex-col items-center justify-center text-center">
+            {isDraft && (
+              <div className="max-w-md">
+                <div className="text-4xl mb-4">📝</div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Draft Job</h2>
+                <p className="text-gray-600 mb-2">This job is currently saved as Draft.</p>
+                <p className="text-gray-600 mb-4">Candidate matching is not available until the job is activated.</p>
+                <p className="text-gray-600">Please change the job status to Active to perform matching.</p>
+                <div className="mt-8 flex justify-center gap-4 text-sm">
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-gray-700 font-medium">Job Status : Draft</span>
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-gray-500 font-medium">Matching Status : Disabled</span>
+                </div>
+              </div>
+            )}
+            {isOnHold && (
+              <div className="max-w-md">
+                <div className="text-4xl mb-4">⏸️</div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Hiring On Hold</h2>
+                <p className="text-gray-600 mb-2">This job is currently On Hold.</p>
+                <p className="text-gray-600 mb-4">Candidate matching is temporarily unavailable because hiring has been paused.</p>
+                <p className="text-gray-600">Resume matching will be available once the job is moved back to Active status.</p>
+                <div className="mt-8 flex justify-center gap-4 text-sm">
+                  <span className="px-3 py-1 bg-yellow-100 rounded-full text-yellow-800 font-medium">Job Status : On Hold</span>
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-gray-500 font-medium">Matching Status : Temporarily Disabled</span>
+                </div>
+              </div>
+            )}
+            {isClosed && (
+              <div className="max-w-md">
+                <div className="text-4xl mb-4">🔒</div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Job Closed</h2>
+                <p className="text-gray-600 mb-2">This job posting has been closed.</p>
+                <p className="text-gray-600 mb-4">Candidate matching is no longer available for closed jobs.</p>
+                <p className="text-gray-600">Please reopen or create a new job to perform matching again.</p>
+                <div className="mt-8 flex justify-center gap-4 text-sm">
+                  <span className="px-3 py-1 bg-red-100 rounded-full text-red-800 font-medium">Job Status : Closed</span>
+                  <span className="px-3 py-1 bg-gray-100 rounded-full text-gray-500 font-medium">Matching Status : Unavailable</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Results Table */}
+            <div className="flex-1">
+              {showSuccessBanner && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-start">
+                  <span className="text-green-500 mr-3 text-xl">✅</span>
+                  <div>
+                    <h4 className="text-green-800 font-medium">Matching completed successfully.</h4>
+                    <p className="text-green-700 text-sm mt-1">Showing the best matching candidates based on Skills, Experience, Education, and Match Score.</p>
+                  </div>
+                </div>
+              )}
+              <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                {isMatching ? (
               <div className="p-12 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
                 <p className="text-gray-600">Running matching algorithm...</p>
@@ -657,6 +721,8 @@ export default function MatchingPage() {
             </div>
           </div>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

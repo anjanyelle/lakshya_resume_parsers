@@ -864,18 +864,7 @@ export default function UploadPage() {
         <div className="mb-10">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-slate-800">Resume Analyzer</h1>
-              <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
-                Demo Mode
-              </span>
-            </div>
-            <div className="relative">
-              <select className="px-4 py-2 pr-10 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg text-sm font-medium text-slate-700 shadow-sm hover:border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all">
-                <option>Full Stack Developer</option>
-                <option>Frontend Developer</option>
-                <option>Backend Developer</option>
-                <option>Data Scientist</option>
-              </select>
+              <h1 className="text-2xl font-semibold text-slate-800">Resume Parser</h1>
             </div>
           </div>
           <p className="text-sm text-slate-600">

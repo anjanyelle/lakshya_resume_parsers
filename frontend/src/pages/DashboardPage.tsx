@@ -5,8 +5,6 @@ import { useJobStore } from "../store/useJobStore";
 interface StatCard {
   title: string;
   value: string | number;
-  change?: string;
-  changeType?: "increase" | "decrease" | "neutral";
   icon: React.ReactNode;
 }
 
@@ -39,8 +37,6 @@ export default function DashboardPage() {
       {
         title: "Total Candidates",
         value: totalCandidates,
-        change: "+12%",
-        changeType: "increase",
         icon: (
           <svg
             className="h-6 w-6"
@@ -60,8 +56,6 @@ export default function DashboardPage() {
       {
         title: "Active Jobs",
         value: activeJobs,
-        change: "+5%",
-        changeType: "increase",
         icon: (
           <svg
             className="h-6 w-6"
@@ -81,8 +75,6 @@ export default function DashboardPage() {
       {
         title: "Matches Today",
         value: matchesToday,
-        change: "+8%",
-        changeType: "increase",
         icon: (
           <svg
             className="h-6 w-6"
@@ -102,8 +94,6 @@ export default function DashboardPage() {
       {
         title: "Avg Match Score",
         value: `${avgScore}%`,
-        change: "+3%",
-        changeType: "increase",
         icon: (
           <svg
             className="h-6 w-6"
@@ -152,22 +142,6 @@ export default function DashboardPage() {
                   <p className="text-2xl font-semibold text-gray-900">
                     {stat.value}
                   </p>
-                  {stat.change && (
-                    <span
-                      className={`
-                      ml-2 text-sm font-medium
-                      ${
-                        stat.changeType === "increase"
-                          ? "text-green-600"
-                          : stat.changeType === "decrease"
-                            ? "text-red-600"
-                            : "text-gray-500"
-                      }
-                    `}
-                    >
-                      {stat.change}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
