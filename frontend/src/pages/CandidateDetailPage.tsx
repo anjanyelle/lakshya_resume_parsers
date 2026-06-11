@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import { useJobStore } from "../store/useJobStore";
 import toast from "react-hot-toast";
-import SkillsTreeChart from "../components/candidate/SkillsTreeChart";
 
 type TabType = "overview" | "skills" | "experience" | "education";
 
@@ -271,19 +270,35 @@ export default function CandidateDetailPage() {
               {/* Skills Tab */}
               {activeTab === "skills" && (
                 <div className="space-y-6">
-                  {/* Skills Tree Visualization */}
+                  {/* Skills Overview - Chip-based UI */}
                   {currentCandidate.skills && currentCandidate.skills.length > 0 && (
                     <div className="bg-white border border-gray-200 rounded-lg p-6">
                       <h3 className="text-lg font-medium text-gray-900 mb-4">
                         Skills Overview
                       </h3>
-                      <SkillsTreeChart 
-                        skills={currentCandidate.skills}
-                      />
+                      <div className="space-y-6">
+                        {Object.entries(groupedSkills).map(([category, skills]) => (
+                          <div key={category}>
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                              {category}
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {skills.map((skill) => (
+                                <span
+                                  key={skill.id}
+                                  className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full shadow-sm hover:bg-purple-100 transition-colors"
+                                >
+                                  {skill.skill_name || skill.name}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
-                  {/* Skills Grid */}
+                  {/* Skills Grid - Detailed View */}
                   {Object.entries(groupedSkills).map(([category, skills]) => (
                     <div key={category}>
                       <h3 className="text-lg font-medium text-gray-900 mb-3">

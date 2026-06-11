@@ -111,6 +111,72 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'candidates' AND column_name = 'ssn') THEN
             ALTER TABLE candidates ADD COLUMN ssn TEXT;
         END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'candidates' AND column_name = 'resume_file_path') THEN
+            ALTER TABLE candidates ADD COLUMN resume_file_path TEXT;
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'candidates' AND column_name = 'resume_path') THEN
+            ALTER TABLE candidates ADD COLUMN resume_path TEXT;
+        END IF;
+    END IF;
+END $$;
+
+-- Fix skills table structure
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'skills') THEN
+        -- Add name column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'skills' AND column_name = 'name') THEN
+            ALTER TABLE skills ADD COLUMN name VARCHAR(255);
+        END IF;
+        
+        -- Add candidate_id column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'skills' AND column_name = 'candidate_id') THEN
+            ALTER TABLE skills ADD COLUMN candidate_id UUID;
+        END IF;
+        
+        -- Make candidate_id nullable
+        ALTER TABLE skills ALTER COLUMN candidate_id DROP NOT NULL;
+        
+        -- Add skill_name column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'skills' AND column_name = 'skill_name') THEN
+            ALTER TABLE skills ADD COLUMN skill_name VARCHAR(255);
+        END IF;
+        
+        -- Make skill_name nullable if it exists and has NOT NULL constraint
+        ALTER TABLE skills ALTER COLUMN skill_name DROP NOT NULL;
+    END IF;
+END $$;
+
+-- Create work_history table if it doesn't exist (code expects this name)
+CREATE TABLE IF NOT EXISTS work_history (
+    id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    candidate_id UUID NOT NULL REFERENCES candidates (id) ON DELETE CASCADE,
+    job_title    VARCHAR(255),
+    company_name VARCHAR(255),
+    start_date   DATE,
+    end_date     DATE,
+    is_current   BOOLEAN DEFAULT FALSE,
+    description  TEXT,
+    location     VARCHAR(255)
+);
+
+CREATE INDEX IF NOT EXISTS idx_work_history_candidate_id ON work_history(candidate_id);
+
+-- Fix parsing_jobs table structure
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'parsing_jobs') THEN
+        -- Add filename column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'parsing_jobs' AND column_name = 'filename') THEN
+            ALTER TABLE parsing_jobs ADD COLUMN filename TEXT;
+        END IF;
+        
+        -- Add file_path column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'parsing_jobs' AND column_name = 'file_path') THEN
+            ALTER TABLE parsing_jobs ADD COLUMN file_path TEXT;
+        END IF;
     END IF;
 END $$;
 
