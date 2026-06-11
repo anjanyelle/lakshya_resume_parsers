@@ -64,6 +64,7 @@ class CandidatePublicRead(BaseModel):
     review_assigned_to: str | None = None
     review_notes: str | None = None
     review_confidence: float | None = None
+    raw_resume_text: Optional[str] = None
 
     work_history: List[WorkHistoryRead] = Field(default_factory=list)
     education: List[EducationRead] = Field(default_factory=list)

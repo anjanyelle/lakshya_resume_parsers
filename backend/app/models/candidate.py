@@ -92,6 +92,7 @@ class Candidate(Base):
     review_rejected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     review_rejected_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     model_results: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    raw_resume_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )

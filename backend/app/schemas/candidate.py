@@ -318,6 +318,7 @@ class CandidateBase(BaseModel):
     status: CandidateStatus = CandidateStatus.PENDING
     consent_given: Optional[bool] = None
     consent_date: Optional[datetime] = None
+    raw_resume_text: Optional[str] = None
     
     @field_validator('phone')
     @classmethod
@@ -364,6 +365,7 @@ class CandidateUpdate(BaseModel):
     status: Optional[CandidateStatus] = None
     consent_given: Optional[bool] = None
     consent_date: Optional[datetime] = None
+    raw_resume_text: Optional[str] = None
     
     @field_validator('phone')
     @classmethod
