@@ -180,5 +180,32 @@ BEGIN
     END IF;
 END $$;
 
+-- Rename password_hash to hashed_password in users table
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'password_hash') THEN
+        ALTER TABLE users RENAME COLUMN password_hash TO hashed_password;
+    END IF;
+END $$;
+
+-- Add missing columns to users table
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users') THEN
+        -- Add is_active column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'is_active') THEN
+            ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
+        END IF;
+        
+        -- Add tenant_id column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'tenant_id') THEN
+            ALTER TABLE users ADD COLUMN tenant_id VARCHAR(100) DEFAULT 'default';
+        END IF;
+    END IF;
+END $$;
+
+-- Delete existing admin user to recreate with correct password hash
+DELETE FROM users WHERE email = 'admin@example.com';
+
 -- Verify the fix
 SELECT 'Migration completed successfully' as result;

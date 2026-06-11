@@ -70,8 +70,8 @@ async def create_admin_user() -> None:
         f"Connecting to database: {database_url.split('@')[1] if '@' in database_url else 'local'}"
     )
 
-    # Ensure migrations have run (same DB as app; CMD may run alembic before this, but re-run is safe)
-    _run_migrations()
+    # Skip migrations since tables already exist
+    # _run_migrations()
 
     engine = create_engine(database_url)
 
@@ -84,13 +84,13 @@ async def create_admin_user() -> None:
     for attempt in range(2):
         db = SessionLocal()
         try:
-            existing_admin = db.query(User).filter(User.email == "admin1@example.com").first()
+            existing_admin = db.query(User).filter(User.email == "admin@example.com").first()
             if existing_admin:
-                print("✅ Admin user already exists: admin1@example.com")
+                print("✅ Admin user already exists: admin@example.com")
                 return
 
             admin_user = User(
-                email="admin1@example.com",
+                email="admin@example.com",
                 hashed_password=get_password_hash("Test@123"),
                 is_active=True,
                 role="admin",
@@ -100,7 +100,7 @@ async def create_admin_user() -> None:
             db.commit()
 
             print("✅ Admin user created successfully!")
-            print("   Email: admin1@example.com")
+            print("   Email: admin@example.com")
             print("   Password: Test@123")
             print("   Role: admin")
             return

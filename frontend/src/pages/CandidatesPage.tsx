@@ -12,10 +12,23 @@ export default function CandidatesPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("date-added");
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
 
   const { candidates, pagination, isLoading, fetchCandidates } = useCandidateStore();
   const { searchTerm, company, jobTitle, certification, salaryMin, salaryMax, setSearchTerm, setCompany, setJobTitle, setCertification, setSalaryRange, resetFilters } = useFilterStore();
   const navigate = useNavigate();
+
+  const toggleSkills = (candidateId: string) => {
+    setExpandedSkills((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(candidateId)) {
+        newSet.delete(candidateId);
+      } else {
+        newSet.add(candidateId);
+      }
+      return newSet;
+    });
+  };
 
   // Local input state — holds raw typed values before debounce commits them
   const [inputSearchTerm, setInputSearchTerm] = useState(searchTerm || "");
@@ -397,18 +410,32 @@ export default function CandidatesPage() {
                     <div className="mb-4">
                       <p className="text-sm font-medium text-gray-700 mb-2">Top Skills</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {candidate.skills.slice(0, 4).map((skill, index) => (
-                          <span
-                            key={index}
-                            className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200"
-                          >
-                            {skill.skill_name}
-                          </span>
-                        ))}
+                        {expandedSkills.has(candidate.id)
+                          ? candidate.skills.map((skill, index) => (
+                              <span
+                                key={index}
+                                className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200"
+                              >
+                                {skill.skill_name}
+                              </span>
+                            ))
+                          : candidate.skills.slice(0, 4).map((skill, index) => (
+                              <span
+                                key={index}
+                                className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200"
+                              >
+                                {skill.skill_name}
+                              </span>
+                            ))}
                         {candidate.skills.length > 4 && (
-                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg border border-gray-200">
-                            +{candidate.skills.length - 4} more
-                          </span>
+                          <button
+                            onClick={() => toggleSkills(candidate.id)}
+                            className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200 hover:bg-purple-200 cursor-pointer"
+                          >
+                            {expandedSkills.has(candidate.id)
+                              ? "Show less"
+                              : `+${candidate.skills.length - 4} more`}
+                          </button>
                         )}
                       </div>
                     </div>

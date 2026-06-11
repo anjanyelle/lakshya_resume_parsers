@@ -119,6 +119,7 @@ function ScoreGauge({ score, label }: { score: number; label: string }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function CandidateCard({ match, rank }: { match: ATSMatch; rank: number }) {
   const [expanded, setExpanded] = useState(false);
+  const [showAllSkills, setShowAllSkills] = useState(false);
   const labelStyle = getMatchLabelStyle(match.match_label);
 
   return (
@@ -207,18 +208,30 @@ function CandidateCard({ match, rank }: { match: ATSMatch; rank: number }) {
         {/* Matched skills preview */}
         {match.matched_skills.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {match.matched_skills.slice(0, 6).map((skill) => (
-              <span
-                key={skill}
-                className="px-2 py-0.5 bg-green-50 text-green-700 text-xs font-medium rounded border border-green-200"
-              >
-                ✓ {skill}
-              </span>
-            ))}
+            {showAllSkills
+              ? match.matched_skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-2 py-0.5 bg-green-50 text-green-700 text-xs font-medium rounded border border-green-200"
+                  >
+                    ✓ {skill}
+                  </span>
+                ))
+              : match.matched_skills.slice(0, 6).map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-2 py-0.5 bg-green-50 text-green-700 text-xs font-medium rounded border border-green-200"
+                  >
+                    ✓ {skill}
+                  </span>
+                ))}
             {match.matched_skills.length > 6 && (
-              <span className="px-2 py-0.5 bg-gray-50 text-gray-500 text-xs rounded border border-gray-200">
-                +{match.matched_skills.length - 6} more
-              </span>
+              <button
+                onClick={() => setShowAllSkills(!showAllSkills)}
+                className="px-2 py-0.5 bg-gray-50 text-gray-500 text-xs rounded border border-gray-200 hover:bg-gray-100 cursor-pointer"
+              >
+                {showAllSkills ? "Show less" : `+${match.matched_skills.length - 6} more`}
+              </button>
             )}
           </div>
         )}
@@ -314,6 +327,7 @@ export default function JDMatchingPage() {
   const [jdText, setJdText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<JDParseResponse | null>(null);
+  const [showAllExtractedSkills, setShowAllExtractedSkills] = useState(false);
   const [filterLabel, setFilterLabel] = useState<string>("All");
 
   const handleParseJD = async () => {
@@ -481,15 +495,24 @@ export default function JDMatchingPage() {
             {/* Extracted skill chips */}
             {results.extracted_skills.length > 0 && (
               <div className="flex flex-wrap gap-1 max-w-lg">
-                {results.extracted_skills.slice(0, 12).map((s) => (
-                  <span key={s} className="px-2 py-0.5 bg-white border border-indigo-200 text-indigo-700 text-xs rounded-full">
-                    {s}
-                  </span>
-                ))}
+                {showAllExtractedSkills
+                  ? results.extracted_skills.map((s) => (
+                      <span key={s} className="px-2 py-0.5 bg-white border border-indigo-200 text-indigo-700 text-xs rounded-full">
+                        {s}
+                      </span>
+                    ))
+                  : results.extracted_skills.slice(0, 12).map((s) => (
+                      <span key={s} className="px-2 py-0.5 bg-white border border-indigo-200 text-indigo-700 text-xs rounded-full">
+                        {s}
+                      </span>
+                    ))}
                 {results.extracted_skills.length > 12 && (
-                  <span className="px-2 py-0.5 bg-white border border-indigo-200 text-indigo-500 text-xs rounded-full">
-                    +{results.extracted_skills.length - 12} more
-                  </span>
+                  <button
+                    onClick={() => setShowAllExtractedSkills(!showAllExtractedSkills)}
+                    className="px-2 py-0.5 bg-white border border-indigo-200 text-indigo-500 text-xs rounded-full hover:bg-indigo-50 cursor-pointer"
+                  >
+                    {showAllExtractedSkills ? "Show less" : `+${results.extracted_skills.length - 12} more`}
+                  </button>
                 )}
               </div>
             )}
