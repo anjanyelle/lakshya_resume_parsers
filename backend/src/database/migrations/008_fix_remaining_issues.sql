@@ -180,5 +180,82 @@ BEGIN
     END IF;
 END $$;
 
+-- Fix job_descriptions table structure
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'job_descriptions') THEN
+        -- Add location column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'location') THEN
+            ALTER TABLE job_descriptions ADD COLUMN location VARCHAR(255);
+        END IF;
+        
+        -- Add employment_type column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'employment_type') THEN
+            ALTER TABLE job_descriptions ADD COLUMN employment_type VARCHAR(100);
+        END IF;
+        
+        -- Add min_experience_years column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'min_experience_years') THEN
+            ALTER TABLE job_descriptions ADD COLUMN min_experience_years INTEGER;
+        END IF;
+        
+        -- Add max_experience_years column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'max_experience_years') THEN
+            ALTER TABLE job_descriptions ADD COLUMN max_experience_years INTEGER;
+        END IF;
+        
+        -- Add education_level column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'education_level') THEN
+            ALTER TABLE job_descriptions ADD COLUMN education_level VARCHAR(100);
+        END IF;
+        
+        -- Add salary_min column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'salary_min') THEN
+            ALTER TABLE job_descriptions ADD COLUMN salary_min DECIMAL(12,2);
+        END IF;
+        
+        -- Add salary_max column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'salary_max') THEN
+            ALTER TABLE job_descriptions ADD COLUMN salary_max DECIMAL(12,2);
+        END IF;
+        
+        -- Add education_requirement column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'education_requirement') THEN
+            ALTER TABLE job_descriptions ADD COLUMN education_requirement TEXT;
+        END IF;
+        
+        -- Add seniority_level column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'seniority_level') THEN
+            ALTER TABLE job_descriptions ADD COLUMN seniority_level VARCHAR(100);
+        END IF;
+        
+        -- Add salary_range column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'salary_range') THEN
+            ALTER TABLE job_descriptions ADD COLUMN salary_range VARCHAR(100);
+        END IF;
+        
+        -- Add status column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'status') THEN
+            ALTER TABLE job_descriptions ADD COLUMN status VARCHAR(50) DEFAULT 'active';
+        END IF;
+        
+        -- Add preferred_skills column if it doesn't exist
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'job_descriptions' AND column_name = 'preferred_skills') THEN
+            ALTER TABLE job_descriptions ADD COLUMN preferred_skills JSONB DEFAULT '[]';
+        END IF;
+    END IF;
+END $$;
+
+-- Create job_skills table if it doesn't exist
+CREATE TABLE IF NOT EXISTS job_skills (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    job_id UUID NOT NULL REFERENCES job_descriptions (id) ON DELETE CASCADE,
+    skill_name VARCHAR(255) NOT NULL,
+    skill_type VARCHAR(50) CHECK (skill_type IN ('required', 'preferred'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_job_skills_job_id ON job_skills (job_id);
+CREATE INDEX IF NOT EXISTS idx_job_skills_skill_name ON job_skills (skill_name);
+
 -- Verify the fix
 SELECT 'Migration completed successfully' as result;
