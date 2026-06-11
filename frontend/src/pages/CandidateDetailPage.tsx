@@ -12,9 +12,22 @@ export default function CandidateDetailPage() {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [showRawResume, setShowRawResume] = useState(false);
   const [isMatching, setIsMatching] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const { currentCandidate, fetchCandidate } = useCandidateStore();
   const { matchResults, fetchMatchResults } = useJobStore();
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     if (id) {
@@ -277,23 +290,45 @@ export default function CandidateDetailPage() {
                         Skills Overview
                       </h3>
                       <div className="space-y-6">
-                        {Object.entries(groupedSkills).map(([category, skills]) => (
-                          <div key={category}>
-                            <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-                              {category}
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {skills.map((skill) => (
-                                <span
-                                  key={skill.id}
-                                  className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full shadow-sm hover:bg-purple-100 transition-colors"
-                                >
-                                  {skill.skill_name || skill.name}
-                                </span>
-                              ))}
+                        {Object.entries(groupedSkills).map(([category, skills]) => {
+                          const isExpanded = expandedCategories.has(category);
+                          const visibleSkills = isExpanded ? skills : skills.slice(0, 6);
+                          const remainingCount = skills.length - 6;
+
+                          return (
+                            <div key={category}>
+                              <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                                {category}
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
+                                {visibleSkills.map((skill) => (
+                                  <span
+                                    key={skill.id}
+                                    className="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 text-xs font-semibold rounded-full shadow-sm hover:bg-purple-100 transition-colors"
+                                  >
+                                    {skill.skill_name || skill.name}
+                                  </span>
+                                ))}
+                                {!isExpanded && remainingCount > 0 && (
+                                  <button
+                                    onClick={() => toggleCategory(category)}
+                                    className="px-3 py-1 bg-purple-100 text-purple-700 border border-purple-300 text-xs font-semibold rounded-full shadow-sm hover:bg-purple-200 transition-colors cursor-pointer"
+                                  >
+                                    +{remainingCount} more
+                                  </button>
+                                )}
+                                {isExpanded && (
+                                  <button
+                                    onClick={() => toggleCategory(category)}
+                                    className="px-3 py-1 bg-purple-100 text-purple-700 border border-purple-300 text-xs font-semibold rounded-full shadow-sm hover:bg-purple-200 transition-colors cursor-pointer"
+                                  >
+                                    Show less
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
