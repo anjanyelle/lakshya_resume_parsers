@@ -19,6 +19,7 @@ export interface Candidate {
   created_at?: Date;
   updated_at?: Date;
   summary?: string;
+  raw_resume_text?: string;
 }
 
 export interface CandidateWithDetails extends Candidate {
@@ -140,8 +141,8 @@ export class CandidateModel {
     const result = await client.query(
       `INSERT INTO candidates (
         id, email, phone, full_name, status, summary, resume_file_path,
-        consent_given, tenant_id, review_status, email_hash, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING *`,
+        consent_given, tenant_id, review_status, email_hash, raw_resume_text, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -153,7 +154,8 @@ export class CandidateModel {
         data.consent_given !== undefined ? data.consent_given : false,
         data.tenant_id || "default",
         data.review_status || "pending",
-        emailHash
+        emailHash,
+        data.raw_resume_text || null
       ]
     );
     return result.rows[0];
@@ -172,8 +174,9 @@ export class CandidateModel {
            status = COALESCE($4, status), 
            summary = COALESCE($5, summary), 
            email_hash = COALESCE($6, email_hash),
+           raw_resume_text = COALESCE($7, raw_resume_text),
            updated_at = NOW() 
-       WHERE id = $7 
+       WHERE id = $8 
        RETURNING *`,
       [
         data.email,
@@ -182,6 +185,7 @@ export class CandidateModel {
         data.status,
         data.summary,
         emailHash,
+        data.raw_resume_text,
         id
       ]
     );

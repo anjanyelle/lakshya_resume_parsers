@@ -95,8 +95,9 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
          resume_hash          = COALESCE($9,  resume_hash),
          resume_quality_score = COALESCE($10, resume_quality_score),
          confidence_score     = COALESCE($11, confidence_score),
+         raw_resume_text      = COALESCE($12, raw_resume_text),
          updated_at           = NOW()
-     WHERE id = $12`,
+     WHERE id = $13`,
     [
       trunc(ai.name),
       trunc(ai.email),
@@ -109,6 +110,7 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
       resumeHash,
       qualityScore,
       confidenceScore,
+      ai.raw_text || ai.raw_resume_text || null,
       candidateId,
     ]
   );
@@ -305,6 +307,48 @@ export const uploadResume = async (
 
         if (aiData.status !== "success") {
           throw new Error(`AI returned status="${aiData.status}": ${aiData.error || "unknown"}`);
+        }
+
+        // Extract raw text from file if not provided by AI service
+        let rawText = aiData.raw_text || aiData.raw_resume_text;
+        console.log(`  🔍 AI response raw_text present: ${!!aiData.raw_text}, raw_resume_text present: ${!!aiData.raw_resume_text}`);
+        
+        if (!rawText) {
+          try {
+            // Call preview-sections endpoint to get raw text
+            console.log(`  📄 Calling preview-sections to get raw text...`);
+            const previewRes = await fetch(`${AI_URL}/preview-sections`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                file_path: path.resolve(fileInfo.path),
+                force_ocr: forceOcr,
+              }),
+            });
+            
+            if (previewRes.ok) {
+              const previewData: any = await previewRes.json();
+              console.log(`  🔍 Preview response keys: ${Object.keys(previewData).join(', ')}`);
+              rawText = previewData.raw_text || previewData.text || previewData.raw_resume_text;
+              if (rawText) {
+                console.log(`  📄 Extracted raw text from preview-sections (length: ${rawText.length})`);
+              } else {
+                console.log(`  ⚠️ Preview response did not contain raw text`);
+              }
+            } else {
+              console.log(`  ⚠️ Preview-sections returned status: ${previewRes.status}`);
+            }
+          } catch (err) {
+            console.warn(`  ⚠️ Failed to get raw text from preview-sections: ${err}`);
+          }
+        }
+
+        // Add raw text to aiData for storage
+        if (rawText) {
+          aiData.raw_text = rawText;
+          console.log(`  ✅ Raw text added to aiData (length: ${rawText.length})`);
+        } else {
+          console.log(`  ⚠️ No raw text available to store`);
         }
 
         // Store ALL sections into the database

@@ -5122,6 +5122,12 @@ def task_save_to_database(self, job_id: str) -> str:  # noqa: ANN001
         job.status = ParsingJobStatus.SUCCESS
         job.last_stage = "save_to_database"
         job.completed_at = datetime.now(timezone.utc)
+        
+        # Store raw resume text in candidate record
+        if job.raw_text and candidate and not candidate.raw_resume_text:
+            candidate.raw_resume_text = job.raw_text
+            logger.info(f"Saved raw_resume_text to candidate record (length: {len(job.raw_text)})")
+        
         session.commit()
         observe_parsing_success(job.confidence_score, job.started_at)
 
