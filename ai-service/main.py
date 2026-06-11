@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+# Trigger reload
 from pydantic import BaseModel, field_validator, model_validator
 import logging
 import time
@@ -146,7 +147,8 @@ class ParseResponse(BaseModel):
     text_info: Optional[Dict[str, Any]] = None
     extraction_quality: Optional[Dict[str, Any]] = None
     model_results: Optional[Dict[str, Any]] = None
-    
+    raw_text: Optional[str] = None
+    raw_resume_text: Optional[str] = None
     # Validators to ensure None values are converted to empty lists
     @field_validator('websites', 'skills', 'work_experience', 'work_history', 'education', 'job_titles', 'companies', 'locations', 'dates', mode='before')
     @classmethod

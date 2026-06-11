@@ -30,6 +30,7 @@ interface JDParseResponse {
   success: boolean;
   extracted_skills: string[];
   experience_required: number;
+  experience_text?: string;
   role_keywords: string[];
   education_keywords: string[];
   total_candidates: number;
@@ -461,13 +462,13 @@ export default function JDMatchingPage() {
                 </svg>
                 <span><strong>{results.extracted_skills.length}</strong> skills extracted</span>
               </div>
-              {results.experience_required > 0 && (
+              {(results.experience_required > 0 || results.experience_text) && (
                 <div className="flex items-center gap-2 text-sm text-indigo-800">
                   <svg className="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span><strong>{results.experience_required}+</strong> years required</span>
+                  <span><strong>{results.experience_text || `${results.experience_required}+ years`}</strong> required</span>
                 </div>
               )}
               <div className="flex items-center gap-2 text-sm text-indigo-800">

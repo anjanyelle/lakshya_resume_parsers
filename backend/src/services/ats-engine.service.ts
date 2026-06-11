@@ -422,6 +422,23 @@ export function scoreCandidate(jd: ExtractedJD, candidate: CandidateData): ATSSc
  * Score ALL candidates and return them sorted by overall_score descending.
  */
 export function rankCandidates(jd: ExtractedJD, candidates: CandidateData[]): ATSScore[] {
-  const scored = candidates.map((c) => scoreCandidate(jd, c));
+  // 1. Filter candidates strictly by JD experience requirements
+  let validCandidates = candidates;
+  if (jd.experienceMin !== null && jd.experienceMin !== undefined) {
+    validCandidates = validCandidates.filter((c) => {
+      const expYears = c.years_of_experience || computeExperienceYears(c.work_history || []);
+      
+      // Candidate must have at least the minimum required
+      if (expYears < jd.experienceMin!) return false;
+      
+      // If a maximum is specified, candidate must not exceed it
+      if (jd.experienceMax !== null && jd.experienceMax !== undefined && expYears > jd.experienceMax) return false;
+      
+      return true;
+    });
+  }
+
+  // 2. Score and rank remaining valid candidates
+  const scored = validCandidates.map((c) => scoreCandidate(jd, c));
   return scored.sort((a, b) => b.overall_score - a.overall_score);
 }

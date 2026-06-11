@@ -257,6 +257,8 @@ export interface ExtractedJD {
   skills: string[];            // normalized canonical skills
   rawSkills: string[];         // original extracted skill tokens
   experienceYears: number;     // 0 if not found
+  experienceMin: number | null; // min boundary
+  experienceMax: number | null; // max boundary
   experienceText: string;      // raw matched text like "5+ years"
   educationKeywords: string[]; // e.g. ["B.Tech", "Computer Science"]
   roleKeywords: string[];      // e.g. ["senior", "full stack", "backend"]
@@ -283,33 +285,39 @@ function normalizeSkill(raw: string): string {
   return SKILL_ALIASES[lower] || raw.trim();
 }
 
-function extractExperienceYears(text: string): { years: number; text: string } {
-  // Patterns: "5+ years", "3-5 years", "minimum 4 years", "at least 2 years"
-  const patterns = [
-    /(\d+)\s*\+\s*years?/gi,
-    /(\d+)\s*to\s*(\d+)\s*years?/gi,
-    /(\d+)\s*[-–]\s*(\d+)\s*years?/gi,
-    /minimum\s+of\s+(\d+)\s*years?/gi,
-    /minimum\s+(\d+)\s*years?/gi,
-    /at least\s+(\d+)\s*years?/gi,
-    /(\d+)\s*years?\s+of\s+experience/gi,
-    /(\d+)\s*years?\s+experience/gi,
-    /experience\s+of\s+(\d+)/gi,
-  ];
+function extractExperienceRules(rawText: string): { min: number | null; max: number | null; text: string; fallbackYears: number } {
+  const t = rawText.toLowerCase();
 
-  for (const pattern of patterns) {
-    const matches = [...text.matchAll(pattern)];
-    if (matches.length > 0) {
-      const match = matches[0];
-      const rawText = match[0];
-      // For range patterns take the lower bound
-      const years = parseInt(match[1], 10) || 0;
-      if (years > 0 && years <= 30) {
-        return { years, text: rawText };
-      }
-    }
+  // 1. Range Rule (e.g. 3-5 years, 3 to 5 years)
+  const rangeMatch = t.match(/(\d+)\s*(?:-|–|to|and maximum)\s*(\d+)\s*years?/i) 
+    || t.match(/minimum\s+(\d+)\s*years?\s+and\s+maximum\s+(\d+)\s*years?/i);
+  if (rangeMatch) {
+    const min = parseInt(rangeMatch[1], 10);
+    const max = parseInt(rangeMatch[2], 10);
+    return { min, max, text: rangeMatch[0], fallbackYears: min };
   }
-  return { years: 0, text: "" };
+
+  // 2. Plus Rule (e.g. 5+ years, 5 years and above)
+  const plusMatch = t.match(/(\d+)\s*\+\s*years?/i)
+    || t.match(/(\d+)\s*years?\s+(?:and\s+)?above/i)
+    || t.match(/(?:minimum|at\s+least|min)\s*(?:of\s*)?(\d+)\s*years?/i)
+    || t.match(/(\d+)\s*(?:or\s+)?more\s*years?/i);
+  if (plusMatch) {
+    const min = parseInt(plusMatch[1], 10);
+    return { min, max: null, text: plusMatch[0], fallbackYears: min };
+  }
+
+  // 3. Single Number Rule (e.g. 2 Years -> 1 to 2 Years)
+  // Look for a number followed by 'years' or 'year'
+  const singleMatch = t.match(/(?:^|\s|[^0-9a-zA-Z])(\d+)\s*years?(?:\s+experience|\s+of\s+experience)?(?:$|\s|[^0-9a-zA-Z])/i);
+  if (singleMatch) {
+    const n = parseInt(singleMatch[1], 10);
+    const min = Math.max(0, n - 1);
+    const max = n;
+    return { min, max, text: singleMatch[0].trim(), fallbackYears: n };
+  }
+
+  return { min: null, max: null, text: "", fallbackYears: 0 };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -318,8 +326,8 @@ function extractExperienceYears(text: string): { years: number; text: string } {
 export function extractJD(rawJDText: string): ExtractedJD {
   const normalized = normalizeText(rawJDText);
 
-  // 1. Experience years
-  const expResult = extractExperienceYears(normalized);
+  // 1. Experience years (pass raw text to preserve hyphens for ranges)
+  const expResult = extractExperienceRules(rawJDText);
 
   // 2. Multi-word skills first (before tokenization loses them)
   const foundSkills: Set<string> = new Set<string>();
@@ -385,7 +393,9 @@ export function extractJD(rawJDText: string): ExtractedJD {
   return {
     skills: Array.from(foundSkills),
     rawSkills: [...new Set(rawSkillTokens)],
-    experienceYears: expResult.years,
+    experienceYears: expResult.fallbackYears,
+    experienceMin: expResult.min,
+    experienceMax: expResult.max,
     experienceText: expResult.text,
     educationKeywords: educationFound,
     roleKeywords: roleFound,

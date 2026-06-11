@@ -572,6 +572,8 @@ class MasterParser:
             # Add candidate_id and status
             merged_results['candidate_id'] = candidate_id
             merged_results['status'] = 'success'
+            merged_results['raw_text'] = raw_text
+            merged_results['raw_resume_text'] = raw_text
             
             # Add processing metrics
             merged_results['processing_metrics'] = metrics
@@ -861,6 +863,10 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                 if quality_report:
                     llm_result['extraction_quality'] = quality_report
                 
+                # Ensure raw_text is included
+                llm_result['raw_text'] = text
+                llm_result['raw_resume_text'] = text
+                
                 return llm_result
             else:
                 self.logger.warning(f"⚠️ Full LLM parsing failed, falling back to hybrid pipeline")
@@ -1034,6 +1040,10 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         result = self._assemble_final_result(
             candidate_id, merged_results, confidence_scores, metrics, file_info, quality_report
         )
+        
+        # Ensure raw_text is included in the final result
+        result['raw_text'] = text
+        result['raw_resume_text'] = text
         
         return result
     

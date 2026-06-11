@@ -674,6 +674,7 @@ export const parseJDAndMatch = async (
         success: true,
         extracted_skills: extractedJD.skills,
         experience_required: extractedJD.experienceYears,
+        experience_text: extractedJD.experienceText, // Add this
         role_keywords: extractedJD.roleKeywords,
         education_keywords: extractedJD.educationKeywords,
         total_candidates: candidates.length,

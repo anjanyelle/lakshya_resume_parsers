@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
+// Trigger reload
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+import FormData from "form-data";
 import { getClient } from "../database/db";
 import {
   validateUploadedFile,
@@ -249,6 +252,36 @@ export const uploadResume = async (
 
     console.log(`📄 Resume upload: ${fileInfo.originalname} (${fileInfo.type})`);
 
+    // ── 1.5. Extract Text IMMEDIATELY ─────────────────────────────────────────────
+    let rawResumeText = "";
+    try {
+      console.log(`  📄 Extracting text via /preview-sections before DB insert...`);
+      const AI_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
+      const formData = new FormData();
+      formData.append("file", fs.createReadStream(path.resolve(fileInfo.path)));
+      formData.append("force_ocr", String(forceOcr));
+
+      const previewRes = await axios.post(`${AI_URL}/preview-sections`, formData, {
+        headers: {
+          ...formData.getHeaders()
+        }
+      });
+      
+      if (previewRes.status === 200) {
+        const previewData = previewRes.data;
+        const extracted = previewData.raw_text || previewData.text || previewData.raw_resume_text || "";
+        rawResumeText = extracted.trim();
+      }
+    } catch (err) {
+      console.warn(`  ⚠️ Failed to extract text beforehand: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    if (!rawResumeText) {
+       console.log("  ⚠️ raw_resume_text is empty after initial extraction!");
+    } else {
+       console.log(`  ✅ Extracted raw text (length: ${rawResumeText.length})`);
+    }
+
     // 2. DB transaction: create candidate + parsing_job
     client = await getClient();
     await client.query("BEGIN");
@@ -256,18 +289,18 @@ export const uploadResume = async (
     const candidateId = uuidv4();
     const tenantId    = (req as any).user?.tenant_id || "default";
     const cRes = await client.query(
-      `INSERT INTO candidates (id, status, tenant_id, created_at, updated_at)
-       VALUES ($1,'pending',$2,NOW(),NOW()) RETURNING *`,
-      [candidateId, tenantId]
+      `INSERT INTO candidates (id, status, tenant_id, raw_resume_text, created_at, updated_at)
+       VALUES ($1,'pending',$2,$3,NOW(),NOW()) RETURNING *`,
+      [candidateId, tenantId, rawResumeText || null]
     );
     const candidate = cRes.rows[0];
     console.log(`  ✅ Candidate created: ${candidate.id}`);
 
     const parsingJobId = uuidv4();
     const pjRes = await client.query(
-      `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, started_at)
-       VALUES ($1,$2,$3,$4,'pending',NOW()) RETURNING *`,
-      [parsingJobId, candidate.id, fileInfo.originalname, fileInfo.path]
+      `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, raw_text, started_at)
+       VALUES ($1,$2,$3,$4,'pending',$5,NOW()) RETURNING *`,
+      [parsingJobId, candidate.id, fileInfo.originalname, fileInfo.path, rawResumeText || null]
     );
     const parsingJob = pjRes.rows[0];
     console.log(`  ✅ Parsing job created: ${parsingJob.id}`);
@@ -310,39 +343,11 @@ export const uploadResume = async (
         }
 
         // Extract raw text from file if not provided by AI service
-        let rawText = aiData.raw_text || aiData.raw_resume_text;
-        console.log(`  🔍 AI response raw_text present: ${!!aiData.raw_text}, raw_resume_text present: ${!!aiData.raw_resume_text}`);
+        console.log(`  🔍 DEBUG: aiData.raw_text type: typeof ${typeof aiData.raw_text}, value length: ${aiData.raw_text ? aiData.raw_text.length : 'null'}`);
+        console.log(`  🔍 DEBUG: aiData.raw_resume_text type: typeof ${typeof aiData.raw_resume_text}, value length: ${aiData.raw_resume_text ? aiData.raw_resume_text.length : 'null'}`);
+        let rawText = aiData.raw_text || aiData.raw_resume_text || rawResumeText;
+        console.log(`  🔍 AI response raw_text present: ${!!aiData.raw_text}, raw_resume_text present: ${!!aiData.raw_resume_text}, fallback used: ${!aiData.raw_text && !aiData.raw_resume_text}`);
         
-        if (!rawText) {
-          try {
-            // Call preview-sections endpoint to get raw text
-            console.log(`  📄 Calling preview-sections to get raw text...`);
-            const previewRes = await fetch(`${AI_URL}/preview-sections`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                file_path: path.resolve(fileInfo.path),
-                force_ocr: forceOcr,
-              }),
-            });
-            
-            if (previewRes.ok) {
-              const previewData: any = await previewRes.json();
-              console.log(`  🔍 Preview response keys: ${Object.keys(previewData).join(', ')}`);
-              rawText = previewData.raw_text || previewData.text || previewData.raw_resume_text;
-              if (rawText) {
-                console.log(`  📄 Extracted raw text from preview-sections (length: ${rawText.length})`);
-              } else {
-                console.log(`  ⚠️ Preview response did not contain raw text`);
-              }
-            } else {
-              console.log(`  ⚠️ Preview-sections returned status: ${previewRes.status}`);
-            }
-          } catch (err) {
-            console.warn(`  ⚠️ Failed to get raw text from preview-sections: ${err}`);
-          }
-        }
-
         // Add raw text to aiData for storage
         if (rawText) {
           aiData.raw_text = rawText;
@@ -361,9 +366,10 @@ export const uploadResume = async (
            SET status = 'completed',
                confidence_score = $1,
                parsed_data = $2,
+               raw_text = $3,
                completed_at = NOW()
-           WHERE id = $3`,
-          [aiData.confidence?.overall ?? null, JSON.stringify(aiData), parsingJobId]
+           WHERE id = $4`,
+          [aiData.confidence?.overall ?? null, JSON.stringify(aiData), aiData.raw_text || aiData.raw_resume_text || null, parsingJobId]
         );
 
         const workCount = (
@@ -751,7 +757,7 @@ export const parseSections = async (
       headers: {
         "Content-Type": "application/json",
       },
-      timeout: 60000, // 60 second timeout
+      timeout: 300000, // 5 minute timeout for heavy NER models
     });
 
     console.log(`✅ Parse sections completed successfully (DeBERTa)`);
@@ -761,11 +767,11 @@ export const parseSections = async (
     console.error("❌ Error in parse sections:", error.message);
 
     // Handle specific error cases
-    if (error.code === "ECONNREFUSED" || error.code === "ETIMEDOUT") {
-      res.status(503).json({
-        error: "AI service unavailable",
-        message: "The Python AI service is currently unreachable. Please try again later.",
-        code: "AI_SERVICE_UNAVAILABLE",
+    if (error.code === "ECONNREFUSED" || error.code === "ETIMEDOUT" || error.code === "ECONNABORTED") {
+      res.status(504).json({
+        error: "AI service timeout or unavailable",
+        message: "The AI service took too long to respond or is unreachable. The resume might be too large or the AI server is busy.",
+        code: "AI_SERVICE_TIMEOUT",
       });
       return;
     }
