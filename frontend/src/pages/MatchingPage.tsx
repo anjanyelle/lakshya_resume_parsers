@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useJobStore } from "../store/useJobStore";
 import toast from "react-hot-toast";
 import {
@@ -15,7 +16,8 @@ import {
 } from "recharts";
 
 export default function MatchingPage() {
-  const [selectedJob, setSelectedJob] = useState<string>("");
+  const location = useLocation();
+  const [selectedJob, setSelectedJob] = useState<string>(location.state?.jobId || "");
   const [isMatching, setIsMatching] = useState(false);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 

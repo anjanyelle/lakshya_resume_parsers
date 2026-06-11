@@ -23,6 +23,11 @@ export interface JobDescription {
   salary_range?: string;
   status?: string;
   preferred_skills?: string[];
+  currency?: string;
+  salary_period?: string;
+  work_mode?: string;
+  number_of_openings?: number;
+  notice_period?: string;
 }
 
 export interface JobFilter {
@@ -44,9 +49,10 @@ export class JobModel {
         title, description, required_skills, department, location,
         employment_type, min_experience_years, max_experience_years,
         education_level, salary_min, salary_max, education_requirement,
-        seniority_level, salary_range, status, preferred_skills
+        seniority_level, salary_range, status, preferred_skills,
+        currency, salary_period, work_mode, number_of_openings, notice_period
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
       RETURNING *
     `;
 
@@ -67,6 +73,11 @@ export class JobModel {
       data.salary_range || null,
       data.status || "active",
       JSON.stringify(data.preferred_skills || []),
+      data.currency || 'USD',
+      data.salary_period || 'Yearly',
+      data.work_mode || null,
+      data.number_of_openings || 1,
+      data.notice_period || null,
     ];
 
     const result = await client.query(query, values);
@@ -301,6 +312,36 @@ export class JobModel {
     if (data.preferred_skills !== undefined) {
       updates.push(`preferred_skills = $${paramCount}`);
       values.push(JSON.stringify(data.preferred_skills));
+      paramCount++;
+    }
+
+    if (data.currency !== undefined) {
+      updates.push(`currency = $${paramCount}`);
+      values.push(data.currency);
+      paramCount++;
+    }
+
+    if (data.salary_period !== undefined) {
+      updates.push(`salary_period = $${paramCount}`);
+      values.push(data.salary_period);
+      paramCount++;
+    }
+
+    if (data.work_mode !== undefined) {
+      updates.push(`work_mode = $${paramCount}`);
+      values.push(data.work_mode);
+      paramCount++;
+    }
+
+    if (data.number_of_openings !== undefined) {
+      updates.push(`number_of_openings = $${paramCount}`);
+      values.push(data.number_of_openings);
+      paramCount++;
+    }
+
+    if (data.notice_period !== undefined) {
+      updates.push(`notice_period = $${paramCount}`);
+      values.push(data.notice_period);
       paramCount++;
     }
 
