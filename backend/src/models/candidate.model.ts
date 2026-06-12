@@ -110,22 +110,19 @@ export class CandidateModel {
 
       // Get latest parsing job
       const parsingJobResult = await client.query(
-        "SELECT status, confidence_score, error_message, completed_at, raw_text, parsed_data FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
+        "SELECT status, confidence_score, error_message, completed_at, parsed_data FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
         [id]
       );
       const parsingJob = parsingJobResult.rows[0] || null;
 
       // Safe fallback for raw_resume_text
       let safeRawText = candidate.raw_resume_text || null;
-      if (!safeRawText && parsingJob) {
-        safeRawText = parsingJob.raw_text || null;
-        if (!safeRawText && parsingJob.parsed_data) {
-          try {
-            const pd = typeof parsingJob.parsed_data === 'string' ? JSON.parse(parsingJob.parsed_data) : parsingJob.parsed_data;
-            safeRawText = pd.raw_text || pd.full_text || pd.raw_resume_text || "";
-          } catch (e) {
-            // ignore JSON parse error
-          }
+      if (!safeRawText && parsingJob && parsingJob.parsed_data) {
+        try {
+          const pd = typeof parsingJob.parsed_data === 'string' ? JSON.parse(parsingJob.parsed_data) : parsingJob.parsed_data;
+          safeRawText = pd.raw_text || pd.full_text || pd.raw_resume_text || "";
+        } catch (e) {
+          // ignore JSON parse error
         }
       }
 

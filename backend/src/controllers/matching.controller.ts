@@ -62,7 +62,7 @@ export const matchCandidatesToJob = async (
                  FROM education ed
                  WHERE ed.candidate_id = c.id
                ) as education,
-               c.years_of_experience
+               c.years_experience
         FROM candidates c
         ORDER BY c.created_at DESC
         LIMIT $1
@@ -181,14 +181,21 @@ export const matchCandidatesToJob = async (
       const insertScoreQuery = `
         INSERT INTO match_scores (
           job_id, candidate_id, overall_score, skill_score, 
-          experience_score, education_score, matching_skills, 
-          missing_skills, extra_skills, experience_gap_years, 
-          recommendation, reason, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+          experience_score, education_score, matched_skills, 
+          missing_skills, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
       `;
 
       for (const match of sortedMatches) {
         if (!match.error) {
+          // Ensure skills arrays are properly formatted as JSON
+          const matchingSkills = Array.isArray(match.matching_skills) 
+            ? match.matching_skills 
+            : (typeof match.matching_skills === 'string' ? match.matching_skills.split(',').map((s: string) => s.trim()) : []);
+          const missingSkills = Array.isArray(match.missing_skills) 
+            ? match.missing_skills 
+            : (typeof match.missing_skills === 'string' ? match.missing_skills.split(',').map((s: string) => s.trim()) : []);
+          
           await client.query(insertScoreQuery, [
             jobId,
             match.candidate_id,
@@ -196,12 +203,8 @@ export const matchCandidatesToJob = async (
             match.skill_score,
             match.experience_score,
             match.education_score,
-            match.matching_skills || [],
-            match.missing_skills || [],
-            match.extra_skills || [],
-            match.experience_gap_years,
-            match.recommendation,
-            match.reason,
+            JSON.stringify(matchingSkills),
+            JSON.stringify(missingSkills),
           ]);
 
           // Update candidate record's match_score column (scaled to 0-1)
@@ -466,25 +469,28 @@ export const matchSingleCandidate = async (
       const insertScoreQuery = `
         INSERT INTO match_scores (
           job_id, candidate_id, overall_score, skill_score, 
-          experience_score, education_score, matching_skills, 
-          missing_skills, extra_skills, experience_gap_years, 
-          recommendation, reason, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+          experience_score, education_score, matched_skills, 
+          missing_skills, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
         ON CONFLICT (job_id, candidate_id) 
         DO UPDATE SET
           overall_score = EXCLUDED.overall_score,
           skill_score = EXCLUDED.skill_score,
           experience_score = EXCLUDED.experience_score,
           education_score = EXCLUDED.education_score,
-          matching_skills = EXCLUDED.matching_skills,
+          matched_skills = EXCLUDED.matched_skills,
           missing_skills = EXCLUDED.missing_skills,
-          extra_skills = EXCLUDED.extra_skills,
-          experience_gap_years = EXCLUDED.experience_gap_years,
-          recommendation = EXCLUDED.recommendation,
-          reason = EXCLUDED.reason,
           created_at = NOW()
       `;
 
+      // Ensure skills arrays are properly formatted as JSON
+      const matchingSkills = Array.isArray(matchResult.matching_skills) 
+        ? matchResult.matching_skills 
+        : (typeof matchResult.matching_skills === 'string' ? matchResult.matching_skills.split(',').map((s: string) => s.trim()) : []);
+      const missingSkills = Array.isArray(matchResult.missing_skills) 
+        ? matchResult.missing_skills 
+        : (typeof matchResult.missing_skills === 'string' ? matchResult.missing_skills.split(',').map((s: string) => s.trim()) : []);
+      
       await client.query(insertScoreQuery, [
         jobId,
         candidateId,
@@ -492,12 +498,8 @@ export const matchSingleCandidate = async (
         matchResult.skill_score,
         matchResult.experience_score,
         matchResult.education_score,
-        matchResult.matching_skills || [],
-        matchResult.missing_skills || [],
-        matchResult.extra_skills || [],
-        matchResult.experience_gap_years,
-        matchResult.recommendation,
-        matchResult.reason,
+        JSON.stringify(matchingSkills),
+        JSON.stringify(missingSkills),
       ]);
 
       // Update candidate record's match_score column (scaled to 0-1)
