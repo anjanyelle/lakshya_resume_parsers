@@ -20,6 +20,7 @@ import ModelTestPage from "./pages/ModelTestPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AccuracyPage from "./pages/AccuracyPage";
+import UsersPage from "./pages/UsersPage";
 
 // Protected Route Component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -199,6 +200,17 @@ function App() {
         }
       >
         <Route index element={<AccuracyPage />} />
+      </Route>
+
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<UsersPage />} />
       </Route>
 
       <Route

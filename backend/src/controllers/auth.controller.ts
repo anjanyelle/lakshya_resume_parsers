@@ -45,10 +45,10 @@ export const registerUser = async (
     // Create user
     const id = uuidv4();
     const result = await query(
-      `INSERT INTO users (id, email, hashed_password, role, is_active) 
-       VALUES ($1, $2, $3, $4, $5) 
+      `INSERT INTO users (id, email, hashed_password, role, is_active, tenant_id) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING id, email, role, created_at`,
-      [id, email, passwordHash, role, true],
+      [id, email, passwordHash, role, true, "default"],
     );
 
     const user = result.rows[0];
