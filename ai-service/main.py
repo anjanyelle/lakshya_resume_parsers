@@ -808,7 +808,67 @@ async def parse_sections(request: ParseSectionsRequest):
             'github': None
         }
         
-        # 0. Parse contact details
+        # ── Helper: clean job title suffix from raw extracted name ─────────────
+        def _clean_name(raw: str | None) -> str | None:
+            """Strip common job-title suffixes that get concatenated with names."""
+            if not raw:
+                return None
+            raw = raw.strip()
+            # Remove anything after a | or newline
+            for sep in ['|', '\n', '\r']:
+                if sep in raw:
+                    raw = raw[:raw.index(sep)].strip()
+            # Typical title keywords; anything from here onwards is stripped
+            _TITLE_TOKENS = [
+                'senior', 'junior', 'lead', 'principal', 'staff', 'associate',
+                'engineer', 'developer', 'developer,', 'architect', 'manager',
+                'analyst', 'consultant', 'director', 'vp', 'head', 'chief',
+                'intern', 'fresher', 'graduate', 'specialist', 'scientist',
+            ]
+            words = raw.split()
+            clean_words = []
+            for w in words:
+                if w.lower() in _TITLE_TOKENS:
+                    break
+                clean_words.append(w)
+            name_candidate = ' '.join(clean_words).strip(' ,;:')
+            # Must be 2+ words and all alphabetic (allow hyphens/apostrophes)
+            if name_candidate and len(name_candidate.split()) >= 1:
+                # Convert ALL-CAPS names to Title Case
+                if name_candidate.isupper() or name_candidate.istitle():
+                    name_candidate = name_candidate.title()
+                return name_candidate if name_candidate else None
+            return None
+
+        # ── Priority 0: Extract name from raw_text header lines ────────────────
+        # Most resumes begin with: "Full Name\n" or "FULL NAME  Job Title"
+        # This runs before the section-based fallback to get the best signal.
+        if not contact.get('name') and request.raw_text:
+            try:
+                _header = request.raw_text.strip()
+                _first_lines = [l.strip() for l in _header.split('\n') if l.strip()][:4]
+                for _line in _first_lines:
+                    # Skip lines that look like contact info
+                    _ll = _line.lower()
+                    if any(x in _ll for x in ['@', 'http', 'www', 'phone:', 'email:', 'linkedin', 'github', 'address:', '+1', '+91']):
+                        continue
+                    if any(c.isdigit() for c in _line):
+                        continue
+                    _words = _line.split()
+                    if len(_words) < 2 or len(_words) > 8:
+                        continue
+                    # Check first word looks like a proper-noun (title-case or ALL-CAPS)
+                    if not (_words[0][0].isupper()):
+                        continue
+                    _cleaned = _clean_name(_line)
+                    if _cleaned and len(_cleaned.split()) >= 2:
+                        contact['name'] = _cleaned
+                        logger.info(f"Extracted name from raw_text header: {contact['name']}")
+                        break
+            except Exception as _e:
+                logger.warning(f"Header name extraction failed: {_e}")
+
+        # 0. Parse contact details from explicit contact section
         if request.contact_text and request.contact_text.strip():
             try:
                 from parsers.rule_parser import RuleBasedParser
@@ -822,15 +882,18 @@ async def parse_sections(request: ParseSectionsRequest):
                     pass
                 
                 # Guess candidate name from first few lines of contact text
-                lines = [l.strip() for l in request.contact_text.split('\n') if l.strip()]
-                for line in lines[:3]:
-                    line_lower = line.lower()
-                    if (len(line) < 40 and 
-                        '@' not in line and 
-                        not any(char.isdigit() for char in line) and 
-                        not any(label in line_lower for label in ['linkedin', 'github', 'http', 'www', 'address', 'email', 'phone', 'contact'])):
-                        contact['name'] = line
-                        break
+                if not contact.get('name'):
+                    lines = [l.strip() for l in request.contact_text.split('\n') if l.strip()]
+                    for line in lines[:3]:
+                        line_lower = line.lower()
+                        if (len(line) < 50 and 
+                            '@' not in line and 
+                            not any(char.isdigit() for char in line) and 
+                            not any(label in line_lower for label in ['linkedin', 'github', 'http', 'www', 'address', 'email', 'phone', 'contact'])):
+                            _n = _clean_name(line)
+                            if _n:
+                                contact['name'] = _n
+                                break
             except Exception as e:
                 logger.warning(f"Failed to extract contact details: {e}")
 
@@ -846,7 +909,30 @@ async def parse_sections(request: ParseSectionsRequest):
         
         # Also include raw_text for better name extraction (catches header text that may not be in any section)
         raw_text_for_name = request.raw_text or combined_all_text
-        
+
+        # ── Priority: always try raw_text header for email/phone first ─────────
+        # The email and phone almost always appear in the document header (first ~5 lines)
+        # which may not be part of any extracted section.
+        if request.raw_text:
+            try:
+                from parsers.rule_parser import RuleBasedParser
+                _rp = RuleBasedParser()
+                # Only search first 500 chars (the header) for email/phone
+                _header_text = request.raw_text[:800]
+                if not contact.get('email'):
+                    contact['email'] = _rp.extract_email(_header_text)
+                if not contact.get('phone'):
+                    contact['phone'] = _rp.extract_phone(_header_text)
+                if not contact.get('linkedin'):
+                    contact['linkedin'] = _rp.extract_linkedin(_header_text)
+                if not contact.get('github'):
+                    try:
+                        contact['github'] = _rp.extract_github(_header_text)
+                    except:
+                        pass
+            except Exception as _e:
+                logger.warning(f"raw_text header email/phone extraction failed: {_e}")
+
         if combined_all_text:
             try:
                 from parsers.rule_parser import RuleBasedParser
@@ -864,7 +950,8 @@ async def parse_sections(request: ParseSectionsRequest):
                         pass
                 if not contact.get('name'):
                     # Try raw_text first (full document) then combined sections
-                    contact['name'] = rule_parser.extract_name(raw_text_for_name) or rule_parser.extract_name(combined_all_text)
+                    raw_name = rule_parser.extract_name(raw_text_for_name) or rule_parser.extract_name(combined_all_text)
+                    contact['name'] = _clean_name(raw_name)
             except Exception as e:
                 logger.warning(f"Failed to extract contact details from combined text fallback: {e}")
         elif raw_text_for_name:
@@ -873,7 +960,7 @@ async def parse_sections(request: ParseSectionsRequest):
                 from parsers.rule_parser import RuleBasedParser
                 rule_parser = RuleBasedParser()
                 if not contact.get('name'):
-                    contact['name'] = rule_parser.extract_name(raw_text_for_name)
+                    contact['name'] = _clean_name(rule_parser.extract_name(raw_text_for_name))
                 if not contact.get('email'):
                     contact['email'] = rule_parser.extract_email(raw_text_for_name)
                 if not contact.get('phone'):

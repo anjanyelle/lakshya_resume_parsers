@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-// Trigger reload
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import FormData from "form-data";
@@ -10,9 +9,7 @@ import {
   getFileType,
   deleteUploadedFile,
 } from "../middleware/upload.middleware";
-import FormData from "form-data";
 import fs from "fs";
-import axios from "axios";
 import path from "path";
 import crypto from "crypto";
 import { OpenAIParserService } from "../services/openai-parser.service";

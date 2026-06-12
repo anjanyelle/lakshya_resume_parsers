@@ -53,6 +53,7 @@ interface ParsedSectionsResponse {
     location?: string;
     start_date?: string;
     end_date?: string;
+    is_current?: boolean;
     duration?: string;
     responsibilities?: string[];
     technologies?: string[];
@@ -66,6 +67,17 @@ interface ParsedSectionsResponse {
     field_of_study?: string;
     [key: string]: any;
   }>;
+  skills: string[];
+  summary?: string | null;
+  certifications: string[];
+  projects: string[];
+  contact?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    linkedin?: string;
+    github?: string;
+  };
   processing_time_ms: number;
   message: string;
 }
@@ -226,13 +238,32 @@ export default function SectionPreviewPage() {
     setParsedData(null);
 
     try {
-      // Use relative URL - Vite proxy will forward to AI service on port 8000
+      // Resolve all canonical sections using aliases so we pass the right text
+      const resolve = (canonical: string) =>
+        resolveSection(previewData.sections, canonical)?.text || null;
+
+      const payload = {
+        experience_text:     resolve("experience"),
+        education_text:      resolve("education"),
+        skills_text:         resolve("skills"),
+        contact_text:        resolve("contact"),
+        summary_text:        resolve("summary"),
+        certifications_text: resolve("certifications"),
+        projects_text:       resolve("projects"),
+        // raw_text lets the AI extract name even if contact section is missing
+        raw_text:            previewData.raw_text || null,
+      };
+
+      console.log("[parse-sections] payload section keys present:",
+        Object.entries(payload)
+          .filter(([, v]) => !!v)
+          .map(([k]) => k)
+          .join(", ")
+      );
+
       const response = await api.post<ParsedSectionsResponse>(
         `/upload/parse-sections`,
-        {
-          experience_text: previewData.sections.experience?.text || null,
-          education_text: previewData.sections.education?.text || null,
-        }
+        payload
       );
 
       setParsedData(response.data);
@@ -604,6 +635,40 @@ export default function SectionPreviewPage() {
                   </p>
                 </div>
 
+                {/* Contact */}
+                {parsedData.contact && (parsedData.contact.name || parsedData.contact.email || parsedData.contact.phone) && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">Contact Details</h3>
+                    <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200 grid grid-cols-2 gap-3 text-sm">
+                      {parsedData.contact.name && (
+                        <div><span className="text-gray-600">Name:</span><span className="font-medium text-gray-900 ml-2">{parsedData.contact.name}</span></div>
+                      )}
+                      {parsedData.contact.email && (
+                        <div><span className="text-gray-600">Email:</span><span className="font-medium text-gray-900 ml-2">{parsedData.contact.email}</span></div>
+                      )}
+                      {parsedData.contact.phone && (
+                        <div><span className="text-gray-600">Phone:</span><span className="font-medium text-gray-900 ml-2">{parsedData.contact.phone}</span></div>
+                      )}
+                      {parsedData.contact.linkedin && (
+                        <div className="col-span-2"><span className="text-gray-600">LinkedIn:</span><span className="font-medium text-gray-900 ml-2 break-all">{parsedData.contact.linkedin}</span></div>
+                      )}
+                      {parsedData.contact.github && (
+                        <div className="col-span-2"><span className="text-gray-600">GitHub:</span><span className="font-medium text-gray-900 ml-2 break-all">{parsedData.contact.github}</span></div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Summary */}
+                {parsedData.summary && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">Summary</h3>
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700 leading-relaxed">
+                      {parsedData.summary}
+                    </div>
+                  </div>
+                )}
+
                 {/* Work Experience */}
                 {parsedData.work_experience.length > 0 && (
                   <div className="mb-6">
@@ -632,7 +697,15 @@ export default function SectionPreviewPage() {
                                 <span className="font-medium text-gray-900 ml-2">{exp.location}</span>
                               </div>
                             )}
-                            {exp.duration && (
+                            {(exp.start_date || exp.end_date) && (
+                              <div>
+                                <span className="text-gray-600">Period:</span>
+                                <span className="font-medium text-gray-900 ml-2">
+                                  {exp.start_date || "—"} – {exp.is_current || String(exp.end_date || "").toLowerCase().includes("present") ? "Present" : (exp.end_date || "—")}
+                                </span>
+                              </div>
+                            )}
+                            {exp.duration && !exp.start_date && (
                               <div>
                                 <span className="text-gray-600">Duration:</span>
                                 <span className="font-medium text-gray-900 ml-2">{exp.duration}</span>
@@ -672,7 +745,7 @@ export default function SectionPreviewPage() {
 
                 {/* Education */}
                 {parsedData.education.length > 0 && (
-                  <div>
+                  <div className="mb-6">
                     <h3 className="text-md font-semibold text-gray-900 mb-3">
                       Education ({parsedData.education.length} entries)
                     </h3>
@@ -705,6 +778,55 @@ export default function SectionPreviewPage() {
                               </div>
                             )}
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skills */}
+                {parsedData.skills && parsedData.skills.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">
+                      Skills ({parsedData.skills.length})
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {parsedData.skills.map((skill, idx) => (
+                        <span key={idx} className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-xs font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Certifications */}
+                {parsedData.certifications && parsedData.certifications.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">
+                      Certifications ({parsedData.certifications.length})
+                    </h3>
+                    <ul className="space-y-1">
+                      {parsedData.certifications.map((cert, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                          <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                          {cert}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Projects */}
+                {parsedData.projects && parsedData.projects.length > 0 && (
+                  <div>
+                    <h3 className="text-md font-semibold text-gray-900 mb-3">
+                      Projects ({parsedData.projects.length})
+                    </h3>
+                    <div className="space-y-2">
+                      {parsedData.projects.map((proj, idx) => (
+                        <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200 text-sm text-gray-700">
+                          {proj}
                         </div>
                       ))}
                     </div>
