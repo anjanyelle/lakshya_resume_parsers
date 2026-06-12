@@ -45,10 +45,10 @@ export const registerUser = async (
     // Create user
     const id = uuidv4();
     const result = await query(
-      `INSERT INTO users (id, email, hashed_password, role, is_active, tenant_id) 
-       VALUES ($1, $2, $3, $4, $5, $6) 
+      `INSERT INTO users (id, email, hashed_password, role, is_active, tenant_id, created_at) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING id, email, role, created_at`,
-      [id, email, passwordHash, role, true, "default"],
+      [id, email, passwordHash, role, true, "default", new Date()],
     );
 
     const user = result.rows[0];
@@ -70,9 +70,9 @@ export const registerUser = async (
       },
       token,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error", details: error?.message || String(error) });
   }
 };
 
