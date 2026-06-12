@@ -1,0 +1,95 @@
+CARLOS RIVERA
+Engineering Manager · Full Stack · Platform
+
+Email: carlos.r@fullstack.dev
+Phone: +1 (737) 402-8840
+Location: Austin, TX (Remote OK)
+GitHub: github.com/crivera-eng
+Portfolio: carlos-rivera.dev
+
+
+PROFILE
+Engineering Manager and Full-Stack Architect with 12+ years of experience building high-traffic web platforms and leading high-performing teams. Specialist in TypeScript ecosystems, React, Node.js, and platform engineering. Proven track record scaling engineering teams from 3 to 40+ across Shopify, Twilio, and venture-backed startups. Open-source contributor with 8,000+ GitHub stars. Passionate about developer experience, system design, and mentoring engineers.
+
+
+KEY HIGHLIGHTS
+- 12+ Years Engineering Experience
+- Built 4 Scale-Ups
+- 8K+ GitHub Stars
+- TypeScript Expert
+- Platform Engineering Leader
+- Open Source Contributor
+
+
+TECHNICAL SKILLS
+
+Languages:
+TypeScript, JavaScript, Python, Go, Rust
+
+Frontend:
+React, Next.js, Remix, Vue 3, Svelte, Tailwind CSS, WebGL
+
+Backend:
+Node.js, Fastify, GraphQL, tRPC
+
+Databases:
+PostgreSQL, Redis
+
+Cloud & Platform:
+AWS, Cloudflare Workers, Vercel, Kubernetes
+
+
+PROFESSIONAL EXPERIENCE
+
+Senior Engineering Manager – Platform
+Shopify Inc. (Remote)  
+2021 – Present
+- Lead a 40-person Platform Engineering team managing storefront infrastructure processing 300M+ daily page views
+- Architected "Oxygen", Shopify’s edge-native hosting platform for Hydrogen storefronts (12,000+ active merchants)
+- Led migration from React 17 to React 18 Server Components, reducing TTFB by 48%
+- Built TypeScript SDK adopted by 4,000+ developers, reducing integration time from 2 weeks to 2 days
+- Established frontend performance culture with Lighthouse CI and performance budgets
+- Scaled team from 12 to 40 engineers with 92% retention
+
+Staff Software Engineer → Engineering Manager
+Twilio Inc., San Francisco, CA  
+2018 – 2021
+- Led development of Twilio Flex platform used by 2,000+ enterprise customers
+- Designed 80+ reusable UI components, reducing design-to-code time by 60%
+- Built Node.js SDK handling 500K+ API calls/day with strong TypeScript typing
+- Managed 14 engineers across multiple time zones
+- Introduced async-first culture reducing meetings by 45%
+
+Senior Full Stack Engineer
+Canva (Remote)  
+2015 – 2018
+- Built real-time collaborative editing features used by 15M+ users
+- Developed export pipeline (PDF, PNG, SVG) handling 2M+ daily exports
+- Led TypeScript adoption and mentored 20+ engineers
+
+Software Engineer
+Rackspace Technology, San Antonio, TX  
+2011 – 2015
+- Built cloud management portal for 30,000+ customers
+- Reduced support tickets by 40%
+- Led migration from PHP to Node.js/React, improving load speed by 6x
+
+
+EDUCATION
+Bachelor of Science in Computer Science  
+University of Texas at Austin  
+2011 · Honors · Turing Scholars
+
+
+CERTIFICATIONS
+- AWS Solutions Architect
+- Certified Kubernetes Administrator (CKA)
+- Google Cloud Professional
+- MongoDB Developer
+
+
+OPEN SOURCE & PUBLICATIONS
+- ts-reset — TypeScript utility library (8,200+ GitHub stars, 420+ contributors)
+- "The TypeScript Handbook" — O’Reilly (2022), 35,000+ copies sold
+- Engineering Blog — 180K monthly readers
+- YouTube Channel — 240K subscribers (Full-stack architecture deep dives)

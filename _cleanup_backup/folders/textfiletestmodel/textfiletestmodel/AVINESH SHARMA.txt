@@ -1,0 +1,56 @@
+AVINESH SHARMA
+Full Stack Engineering Lead  |  Java & React Specialist  |  Enterprise Solutions Architect
++91-87654-32109   |   avinesh.sharma@devstack.co.in   |   Bengaluru, Karnataka
+LinkedIn: linkedin.com/in/avinesh-fullstack   |   Portfolio: avinesh.dev
+▌ PROFESSIONAL SUMMARY
+Dynamic Full Stack Engineering Lead with 14+ years of hands-on experience building enterprise-grade web and mobile applications using Java Spring Boot, React.js, Node.js, and cloud-native architectures. Demonstrated expertise in leading Agile teams of 10–20 engineers, architecting scalable SaaS platforms, and driving digital transformation for clients across BFSI, Retail, and Healthcare verticals. Track record of consistently delivering projects on time and 15–30% under budget through rigorous technical leadership and process optimization.
+▌ TECHNICAL SKILLS
+Backend	Java 17, Spring Boot, Node.js, Python, Go	Frontend	React.js, Next.js, TypeScript, Angular 16
+Cloud	AWS (EC2, ECS, Lambda, RDS), Azure	Mobile	React Native, Flutter, Ionic
+Databases	Oracle, PostgreSQL, MongoDB, Redis, Cassandra	Testing	JUnit 5, Jest, Selenium, Cypress, K6
+DevOps	Docker, Kubernetes, GitHub Actions, Jenkins	Architecture	Microservices, Event-Driven, CQRS, DDD
+▌ PROFESSIONAL EXPERIENCE
+Engineering Lead – Full Stack
+Accenture India → Client: Amazon Alexa Smart Home Platform
+Feb 2022 – Present  |  Bengaluru / Seattle (Hybrid)
+◆	Led development of 12 new Alexa Skills and smart home device integrations serving 8M+ active users across 45 countries
+◆	Redesigned backend microservices using Spring Boot 3 and AWS Lambda, reducing average API response time from 1.2s to 180ms
+◆	Architected real-time event processing pipeline using Kafka and AWS Kinesis, handling 2M+ events per minute at peak
+◆	Established React.js component library (120+ components) adopted by 6 development teams across Alexa organization
+◆	Implemented A/B testing framework enabling product team to run 30+ concurrent experiments across 8M user base
+◆	Drove code quality program reducing production defect rate by 72% through automated testing and code review processes
+◆	Collaborated with Amazon Seattle teams in weekly architecture sync, influencing platform-wide API design standards
+Senior Software Engineer – Java/React
+Tech Mahindra → Client: HDFC Bank Digital Banking Portal
+Apr 2019 – Jan 2022  |  Pune, India
+◆	Built HDFC Bank's next-generation internet banking portal (React.js) serving 12M+ monthly active users
+◆	Developed 45+ RESTful APIs using Java Spring Boot for account management, payments, and investment modules
+◆	Implemented UPI payment gateway integration processing ₹2,400 Crore+ in daily transactions
+◆	Achieved WCAG 2.1 AA accessibility compliance across all customer-facing digital touchpoints
+◆	Reduced page load time by 65% through server-side rendering, code splitting, and CDN optimization
+◆	Developed reusable UI framework adopted by 3 additional HDFC product teams for their digital initiatives
+Mid-Level Java Developer
+Mphasis → Client: BP Oil & Gas Data Platform
+Jun 2016 – Mar 2019  |  Chennai, India / London (Rotational)
+◆	Developed data ingestion and analytics platform processing 50TB+ of daily oil field sensor data
+◆	Built Spring Batch jobs processing 500M+ records nightly with 99.95% accuracy for regulatory reporting
+◆	Designed RESTful API layer used by 8 downstream applications across BP's global technology ecosystem
+◆	Migrated legacy Oracle PL/SQL procedures to Java microservices, reducing data processing time by 78%
+◆	Implemented OAuth 2.0 / OIDC authentication framework standardized across all BP India delivery projects
+Software Developer
+L&T Infotech → Client: Siemens Healthineers EMR System
+Jan 2014 – May 2016  |  Mumbai, India
+◆	Developed Electronic Medical Records (EMR) modules for Siemens Healthineers serving 400+ hospitals globally
+◆	Built HL7 FHIR integration layer enabling seamless data exchange between hospital information systems
+◆	Implemented audit logging framework ensuring HIPAA compliance across all patient data transactions
+◆	Created Angular 2 dashboard for medical staff reducing patient record retrieval time from 45s to 3s
+Junior Developer
+Infosys BPO → Client: Target Corporation E-Commerce
+Aug 2011 – Dec 2013  |  Mysore / Bengaluru, India
+◆	Developed Java-based product catalog management system for Target's e-commerce platform
+◆	Built automated data transformation pipelines processing 2M+ product SKUs daily from supplier feeds
+◆	Created JUnit test suites achieving 85% code coverage for core business logic modules
+ EDUCATION
+B.E. – Electronics & Communication Engineering
+BMS College of Engineering, Bengaluru  |  2007 – 2011  |  First Class with Distinction (79.8%)
+▌

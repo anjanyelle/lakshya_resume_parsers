@@ -1,0 +1,87 @@
+AHAREEF
+
+Sr. Big Data Engineer
+
++1 (341) 203-5403  |  ahareef1912@gmail.com  |  linkedin.com/in/manasa |  New York, NY
+
+PROFESSIONAL SUMMARY
+
+Results-driven Sr. Big Data Engineer with 10+ years of experience designing and deploying production-grade data pipelines, agentic AI/LLM systems, and cloud-native architectures across healthcare, finance, aviation, and technology sectors. Expert in Python, Apache Spark, AWS, Azure, Dagster, DSPy, LangChain, and distributed systems. Proven track record of leading complex migrations, building HIPAA/PCI-DSS/SOX-compliant platforms, and delivering scalable solutions processing millions of records daily. Deep expertise in LLM prompt optimization, NER-based metadata classification, and real-time streaming architectures.
+
+TECHNICAL SKILLS
+
+Programming Languages: Python, Scala, Java, PySpark, SQL, T-SQL, Unix, Spring Boot
+
+Cloud Platforms: AWS (S3, Glue, EMR, Lambda, ECS, EKS, EC2, RDS, Redshift, SageMaker, CDK, EventBridge, CloudWatch, SQS, SNS), GCP (BigQuery, DataProc, GKE, Spanner, Cloud Functions), Azure (Data Factory, Databricks, SQL, Data Lake, Blob Storage, HDInsight, CosmosDB)
+
+Big Data Ecosystem: Apache Spark, Kafka, Airflow, Hive, HDFS, NiFi, Spark Streaming, Zookeeper, Sqoop, Flume, MapReduce, Yarn, Dagster
+
+Databases: Teradata 15/14, MySQL, Oracle 11g/10g, MS SQL Server 2014/2012, MongoDB, PostgreSQL, Snowflake
+
+ETL Tools: AWS Glue, Informatica PowerCenter 10.x/9.6, Talend 5.6, SSIS, Semarchy xDM
+
+ML / AI Frameworks: DSPy, LangChain, LangGraph, MLflow, MLLIB, NumPy, Pandas, Scikit-Learn
+
+DevOps & CI/CD: Docker, Kubernetes, Jenkins, Git, AWS CDK, SonarQube, PMD
+
+BI & Reporting: Tableau, Power BI, Grafana, Prometheus, Collibra, Splunk
+
+Compliance & Methodologies: Agile, Waterfall, SDLC, HIPAA, HITECH, PCI-DSS, SOX, GLBA, SOC 2, FAA/IATA
+
+
+PROFESSIONAL EXPERIENCE
+
+Sr. Big Data Engineer  |  Humana  |  August 2023 – Present  |  Louisville, KY
+
+- Designed and deployed agentic retrieval workflows using Python, LangChain, and LangGraph
+- Migrated orchestration from Airflow to Dagster across 40+ pipelines
+- Built LLM-driven scoring systems using DSPy and MLflow
+- Engineered backend services using AWS Lambda, EventBridge, CDK
+- Developed data modeling frameworks linking PRs, commits, and epics
+- Implemented monitoring using CloudWatch and Dagster
+
+Environment: AWS, Dagster, DSPy, Python, MLflow, Power BI, S3, Lambda, GitHub, EKS, Glue
+
+
+Sr. Data Engineer  |  Morgan Stanley  |  October 2020 – July 2023  |  New York, NY
+
+- Built production-grade pipelines using Python and AWS
+- Developed retrieval agents for GitHub metadata
+- Migrated Airflow to Dagster
+- Implemented monitoring and anomaly detection
+- Built secure backend APIs using AWS Lambda and EKS
+
+Environment: AWS, Lambda, Airflow, Dagster, Python, Glue, GitHub, Power BI
+
+
+Data Engineer / Data Analyst  |  Delta Airlines  |  December 2017 – September 2020  |  Atlanta, GA
+
+- Built Airflow pipelines for PR and commit metadata
+- Developed analytics dashboards using Power BI
+- Implemented monitoring with Prometheus and Grafana
+
+Environment: AWS, Python, Airflow, Power BI, Grafana
+
+
+Data Engineer / Migration Specialist  |  Cisco  |  February 2016 – November 2017  |  San Jose, CA
+
+- Built Azure-based data integration platform
+- Developed ETL pipelines using Talend and Data Factory
+- Implemented predictive analytics using Databricks
+
+Environment: Azure, Talend, Python, Databricks
+
+
+ETL Developer  |  Flipkart  |  August 2014 – December 2015  |  Bangalore, India
+
+- Built ETL pipelines using AWS and Informatica
+- Designed data warehouse solutions in Redshift
+- Developed dashboards using Tableau
+
+Environment: AWS, Informatica, Talend, Tableau
+
+
+EDUCATION
+
+Bachelor of Technology in Computer Science & Engineering  
+Koneru Lakshmaiah University | 2010–2014

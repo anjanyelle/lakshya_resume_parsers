@@ -1,0 +1,83 @@
+CRISTIANO RONALDO JR.
+Director of Engineering & Enterprise Architecture
++44 20 7946 0823  |  cristiano.jr@techleader.com  |  London, United Kingdom  |  linkedin.com/in/crisronaldo-jr
+EXECUTIVE SUMMARY
+Visionary Director of Engineering with 14+ years of progressive leadership experience spanning enterprise software development, cloud transformation, and large-scale digital innovation across the UK, Europe, and the Middle East. Recognized for building high-performing engineering organizations of 60+ engineers, delivering mission-critical platforms serving over 50 million users, and driving measurable business outcomes through technology. Expert in stakeholder management, Agile transformation, and aligning technology investments with strategic organizational objectives. Consistent record of reducing operational costs by 30-40% while accelerating product velocity by 2-3x.
+
+KEY HIGHLIGHTS & CORE COMPETENCIES
+Technical Leadership
+•	Directed engineering divisions of 60+ across distributed teams in UK, Portugal, UAE, and India
+•	Architected 12 enterprise-grade platforms — each serving 1M+ concurrent users
+•	Spearheaded Agile and DevOps transformations reducing time-to-market by 55%
+•	Led cloud migration of monolithic systems to microservices architecture on AWS and Azure
+TECHNICAL SKILLS
+Languages	Java, Python, Go, TypeScript, Kotlin, Scala, C#, Rust, Bash/Shell
+Cloud & DevOps	AWS (Solutions Architect Pro), Azure, GCP, Kubernetes, Docker, Terraform, Helm, ArgoCD
+Architecture	Microservices, Event-Driven, CQRS, Domain-Driven Design, Serverless, API Gateway Patterns
+Data & AI	Apache Kafka, Spark, Databricks, PostgreSQL, Redis, Elasticsearch, MongoDB, Snowflake
+Frameworks	Spring Boot, Node.js/Express, FastAPI, React, Angular, GraphQL, REST, gRPC
+Monitoring	Datadog, Prometheus, Grafana, New Relic, ELK Stack, PagerDuty
+Security	OAuth2, SAML, Zero-Trust Architecture, OWASP, SOC2, ISO 27001 Compliance
+Methodologies	SAFe Agile, Scrum, Kanban, OKRs, SRE Principles, ITIL v4, PRINCE2
+
+PROFESSIONAL EXPERIENCE
+Director of Engineering  |  NovaTech Global Solutions
+March 2020 – Present   London, UK
+•	Lead a 65-person engineering organization across 5 squads delivering cloud-native SaaS products for the fintech and insurance sectors
+•	Established an internal Platform Engineering team that reduced developer onboarding from 3 weeks to 2 days
+•	Drove architecture redesign of a $25M legacy banking platform to event-driven microservices, cutting latency by 68%
+•	Introduced OKR framework across all engineering squads; achieved 91% OKR completion rate in FY2023
+•	Collaborated with CPO and CTO on 3-year technology roadmap shaping $80M product investment strategy
+•	Built strategic partnerships with AWS and Snowflake, securing $2.1M in credits and priority technical support
+•	Championed diversity initiatives; increased underrepresented group hires by 44% in 2022-2023
+◦	Client: Barclays Digital — Core Banking API Modernization ($18M, 2021-2023)
+◦	Client: Aviva Insurance — ML Claims Platform ($8.5M, 2022-2024)
+Senior Engineering Manager  |  Quantum Systems UK
+June 2017 – February 2020   Manchester, UK
+•	Managed 3 cross-functional teams (28 engineers) delivering real-time trading and risk analytics systems
+•	Redesigned CI/CD pipeline reducing deployment frequency from bi-weekly to 15 times/day with 99.98% uptime
+•	Implemented SRE practices including error budgets, SLOs, and chaos engineering for 6 critical services
+•	Reduced production incidents by 74% in 18 months through rigorous post-mortem culture and automation
+•	Mentored 12 engineers to senior/staff-level roles; 3 promoted to Engineering Manager positions
+•	Secured and delivered $22M multi-year contract with a leading European investment bank
+◦	Client: Deutsche Bank AG — Real-Time Risk Engine ($14M, 2018-2020)
+◦	Client: Lloyds Banking Group — Regulatory Reporting Automation ($7.5M, 2017-2019)
+Lead Software Engineer  |  Apex Digital Partners
+January 2015 – May 2017   London, UK
+•	Architected and led development of an end-to-end e-commerce platform processing $4B+ in annual GMV
+•	Built and led a team of 14 engineers across backend, frontend, and data engineering disciplines
+•	Introduced Domain-Driven Design principles that improved system modularity and reduced defect rates by 55%
+•	Designed multi-region disaster recovery architecture achieving 99.999% availability SLA
+•	Delivered 6 major product releases on schedule, managing scope, risk, and stakeholder expectations
+◦	Client: ASOS — Payment & Checkout Modernization ($6M, 2015-2016)
+
+Software Engineer  |  Nexus Code Ltd
+September 2010 – July 2012   Bristol, UK
+•	Developed full-stack web applications for healthcare and government clients using Java EE and Angular
+•	Implemented OAuth 2.0 and SAML-based authentication for NHS digital identity platform serving 800K users
+•	Participated in Agile ceremonies and drove sprint velocity improvements of 30% through process refinement
+
+
+ACHIEVEMENTS & AWARDS
+•	TechLeader of the Year 2023 — UK Technology Awards (Top 25 Engineering Leaders in UK)
+•	Forbes Technology Council Member — Selected 2022 (Technology Innovation Contributor)
+•	FinTech Innovation Award — Real-Time Fraud AI Platform (UK Finance Awards 2023)
+
+
+CERTIFICATIONS & PROFESSIONAL DEVELOPMENT
+•	AWS Certified Solutions Architect – Professional (SAP-C02) — Amazon Web Services, 2023
+•	Google Cloud Professional Cloud Architect — Google Cloud, 2022
+•	Certified Kubernetes Administrator (CKA) — CNCF, 2022
+•	Azure Solutions Architect Expert (AZ-305) — Microsoft, 2021
+•	TOGAF 9.2 — Enterprise Architecture Certification, The Open Group, 2020
+
+EDUCATION
+MSc Computer Science (Distinction)
+Imperial College London  |  2008 – 2010
+Thesis: Distributed Consensus Algorithms in Fault-Tolerant Microservice Architectures
+BEng Computer Engineering (First Class Honours)
+University of Manchester  |  2005 – 2008
+Specialization: Distributed Systems & Network Engineering. Dean's List 2006, 2007, 2008.
+Executive Education: Digital Leadership Programme
+London Business School  |  2019 (6-Month Part-Time)
+

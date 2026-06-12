@@ -1,0 +1,93 @@
+BHUMI PATEL
+Lead Data Scientist  |  AI/ML Architect  |  Analytics Engineering
++91-9988-776655  •  bhumi.patel@dataml.io  •  Ahmedabad, Gujarat  •  linkedin.com/in/bhumi-patel-ds  •  kaggle.com/bhumipatel
+CORE SKILLS
+ML / Deep Learning
+▸ TensorFlow 2.x
+▸ PyTorch
+▸ Keras
+▸ Scikit-learn
+▸ XGBoost/LightGBM
+▸ Hugging Face Transformers
+▸ BERT / GPT Fine-tuning
+▸ Computer Vision (OpenCV, YOLO)
+▸ NLP / NER / Sentiment
+▸ Time Series Forecasting
+Data Engineering
+▸ Apache Spark (PySpark)
+▸ Apache Airflow
+▸ dbt (data build tool)
+▸ Kafka + Flink
+▸ Pandas, NumPy, Dask
+▸ SQL, SparkSQL
+▸ Feature Store (Feast)
+▸ MLflow / Kubeflow
+Cloud & Platforms
+▸ AWS SageMaker
+▸ GCP Vertex AI
+▸ Azure ML
+▸ Databricks
+▸ Snowflake
+▸ BigQuery
+▸ Redshift
+▸ AWS S3/Glue/Lambda
+Languages
+▸ Python 3.x (Expert)
+▸ R (Proficient)
+▸ SQL (Advanced)
+▸ Scala (Intermediate)
+▸ Java (Familiar)
+Viz & BI Tools
+▸ Tableau
+▸ Power BI
+▸ Plotly Dash
+▸ Streamlit
+▸ Looker
+▸ Matplotlib/Seaborn
+CERTIFICATIONS
+Google Prof. ML Engineer
+AWS Certified ML Specialist
+Databricks Spark Developer
+Deep Learning Specialization
+Coursera – DeepLearning.AI
+TensorFlow Developer Cert.
+Tableau Desktop Specialist
+EDUCATION
+M.Tech – Data Science
+IIT Bombay, Mumbai
+2009 – 2011 | CGPA 9.1
+B.E. – Computer Science
+DAIICT, Gandhinagar
+2005 – 2009 | CGPA 8.8
+LANGUAGES
+Gujarati • Hindi • English
+INTERESTS
+Kaggle competitions
+Research papers (ArXiv)
+Data visualization art
+Yoga & meditation	PROFESSIONAL SUMMARY
+Accomplished Lead Data Scientist with 14 years of experience transforming raw data into strategic intelligence for Fortune 500 enterprises and high-growth startups. Specialist in end-to-end machine learning pipelines — from exploratory data analysis and feature engineering through model deployment, monitoring, and business impact measurement.
+Expert in NLP, computer vision, and time-series prediction. Has built production ML systems processing 100TB+ datasets and serving real-time predictions at 1M+ requests/hour. Passionate about democratizing data science through scalable MLOps platforms and enabling data-driven decisions across business functions.
+PROFESSIONAL EXPERIENCE
+Lead Data Scientist – Personalization & Search
+Flipkart Internet Pvt. Ltd.  •  Apr 2019 – Present
+◆	Team Lead: Lead a 12-member data science team building recommendation engines, search ranking algorithms, and demand forecasting models powering India's largest e-commerce platform.
+◆	Recommendation Engine: Redesigned collaborative filtering system using deep neural networks (Autoencoders + Transformer embeddings), improving click-through rates by 34% and revenue per session by $0.18.
+◆	Real-Time ML Serving: Built sub-5ms prediction serving infrastructure using FastAPI, Redis, and Triton Inference Server handling 2M personalized product recommendations/minute during Big Billion Days.
+◆	NLP Search Ranking: Fine-tuned multilingual BERT model for product search understanding in 8 Indian languages, improving search relevance NDCG@10 from 0.71 to 0.89.
+◆	Demand Forecasting: Deployed LSTM + XGBoost ensemble for 72-hour demand forecasting across 50M SKUs, reducing overstock by 23% and stockout rate by 18% — saving ₹120Cr annually.
+◆	MLOps Platform: Architected company-wide MLOps platform on Kubeflow + MLflow + Feature Store (Feast), reducing model deployment time from 3 weeks to 2 days for the entire data science organization.
+◆	A/B Testing Framework: Led development of a rigorous multi-armed bandit A/B testing framework running 200+ concurrent model experiments, enabling scientific decision-making at scale.
+Senior Data Scientist – Advanced Analytics
+Mu Sigma Inc.  •  Aug 2015 – Mar 2019
+◆	Client Delivery: Delivered analytics solutions for 6 Fortune 100 clients (retail, telecom, BFSI) generating $25M in engagement revenue over 4 years.
+◆	Churn Prediction: Built telecom customer churn prediction model using gradient boosting and SHAP explainability, achieving 91% recall and enabling targeted retention interventions saving $8M/year.
+◆	Image Classification: Developed CNN-based product image quality classifier for retail client using ResNet50 transfer learning, automatically flagging 95% of low-quality product images.
+◆	Credit Scoring: Redesigned credit risk scoring pipeline for BFSI client using logistic regression + random forest ensemble, improving Gini coefficient from 0.42 to 0.68.
+◆	Dashboard Development: Created executive-level Tableau dashboards consolidating 40+ KPIs from 6 data sources, reducing monthly reporting effort from 80 hours to 4 hours.
+Data Analyst → Data Scientist
+Tata Consultancy Services (TCS)  •  Jan 2012 – Jul 2015
+◆	Statistical Modeling: Applied regression, clustering (K-Means, DBSCAN), and classification models for manufacturing quality control, reducing defect rate by 31%.
+◆	Big Data Pipeline: Built Hadoop/Hive-based data pipeline processing 500GB daily operational logs, enabling business intelligence reporting previously impossible due to data volume.
+◆	Python Automation: Automated 35 manual Excel-based reporting workflows using Python + Pandas, saving 400+ man-hours monthly across the analytics team.
+◆	Text Analytics: Developed NLP pipeline for customer support ticket categorization using TF-IDF + Naive Bayes, routing 78% of tickets automatically.

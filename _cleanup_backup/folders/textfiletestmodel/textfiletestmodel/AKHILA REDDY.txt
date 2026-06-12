@@ -1,0 +1,86 @@
+AKHILA REDDY VENKATRAMAN
+Cloud Solutions Architect • AWS/Azure/GCP Specialist • DevSecOps Leader
+
+Location: Hyderabad, Telangana
+Phone: +91-9000-112233
+Email: akhila.venkatraman@cloudarch.io
+LinkedIn: linkedin.com/in/akhila-reddy-cloudarch
+Portfolio: akhila.cloud
+
+
+EXECUTIVE SUMMARY
+Distinguished Cloud Solutions Architect and DevSecOps leader with 15 years of experience, including 9 years in enterprise cloud transformations. Managed $300M+ cloud infrastructure across healthcare, BFSI, telecom, and manufacturing.
+
+Expert in multi-cloud, hybrid architecture, zero-trust security, infrastructure-as-code, and FinOps. Trusted advisor to C-suite executives. Led cloud migrations for 6 enterprises delivering $45M in cost savings.
+
+
+
+
+
+TECHNICAL PROFICIENCIES
+
+AWS: EC2, EKS, ECS, Lambda, RDS, Aurora, DynamoDB, S3, CloudFront, VPC, IAM, WAF, GuardDuty
+Azure: AKS, Functions, Entra ID, Blob, DevOps, Sentinel, Policy
+GCP: GKE, Cloud Run, BigQuery, Pub/Sub, Anthos
+
+IaC: Terraform, Pulumi, CloudFormation, Bicep, Ansible, Chef, Puppet, CDK
+Containers: Docker, Kubernetes, Helm, ArgoCD, Istio, Linkerd
+DevSecOps: Jenkins, GitLab CI/CD, GitHub Actions, Snyk, Checkov, Vault
+Monitoring: Prometheus, Grafana, ELK, Datadog, Splunk
+Languages: Python, Bash, Go, YAML, SQL, PowerShell
+FinOps: Cost Explorer, CloudHealth, Kubecost, rightsizing
+
+
+PROFESSIONAL EXPERIENCE
+
+Senior Solutions Architect — AWS India (2021–Present)
+- Managed 15 enterprise accounts ($300M+ cloud spend)
+- Migrated 1,200+ workloads for major bank (zero Sev-1 issues)
+- Delivered $28M TCO savings
+- Designed HIPAA-compliant healthcare platform (120 hospitals)
+- Built 5G NFV architecture reducing provisioning from 3 weeks to 4 hours
+- Achieved 34% cost reduction via FinOps
+- Designed zero-trust multi-account AWS architecture
+- Mentored 8 architects
+- Speaker at AWS events; President’s Award 2023
+
+Cloud Solutions Architect — Microsoft India (2017–2020)
+- Migrated 800+ workloads to Azure
+- Built hybrid governance using Azure Arc
+- Enabled CI/CD for 200+ teams (monthly → daily deployments)
+- Delivered SAP HANA on Azure (4x performance)
+- Reduced cloud spend by 41% ($3.8M annually)
+
+Technology Consultant — Deloitte India (2013–2017)
+- Designed hybrid cloud roadmaps for enterprises
+- Built VMware private cloud (provisioning: 6 weeks → 2 hours)
+- Delivered DR solutions (RTO 15 min, RPO 1 hour)
+- Led ServiceNow ITSM implementation
+
+Network Engineer — Tata Communications (2010–2013)
+- Managed MPLS network (500+ clients, 99.95% SLA)
+- Generated $12M cloud business via assessments
+- Automated network configs (85% time reduction)
+
+
+
+
+CERTIFICATIONS
+- AWS Solutions Architect Professional (2023)
+- AWS Security Specialty (2022)
+- AWS DevOps Engineer Professional (2021)
+- Azure Solutions Architect Expert (2020)
+
+
+
+EDUCATION
+M.Tech CSE — NIT Warangal (2008–2010)
+B.Tech ECE — Osmania University (2004–2008)
+
+
+ACHIEVEMENTS
+- AWS President’s Award (2023)
+- Microsoft Circle of Excellence (2020)
+
+
+
