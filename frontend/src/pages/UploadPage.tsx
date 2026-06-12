@@ -14,6 +14,7 @@ import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
 import ModelResultsView from "../components/upload/ModelResultsView";
 import { parseToDateInput } from "../utils/date";
+import { validateEmail } from "../utils/validation";
 
 interface LLMModel {
   id: string;
@@ -281,26 +282,7 @@ export default function UploadPage() {
     setIsEditingContact(true);
   };
 
-  // Validation Helpers
-  const validateEmail = (val: string) => {
-    const trimmed = val.trim();
-    if (!trimmed) return undefined;
-    if (trimmed.length > 254) return "Please enter a valid Email Address.";
-    if (/\s/.test(trimmed)) return "Please enter a valid Email Address.";
-    if (trimmed.includes("..")) return "Please enter a valid Email Address.";
-    if ((trimmed.match(/@/g) || []).length !== 1) return "Please enter a valid Email Address.";
-    if (!/^[a-zA-Z0-9._\-+@]+$/.test(trimmed)) return "Please enter a valid Email Address.";
-    const parts = trimmed.split("@");
-    if (parts.length !== 2) return "Please enter a valid Email Address.";
-    const [local, domain] = parts;
-    if (!local || !domain) return "Please enter a valid Email Address.";
-    if (!domain.includes(".")) return "Please enter a valid Email Address.";
-    const domainParts = domain.split(".");
-    const ext = domainParts[domainParts.length - 1];
-    if (ext.length < 2) return "Please enter a valid Email Address.";
-    if (/^[^a-zA-Z0-9]+$/.test(trimmed)) return "Please enter a valid Email Address.";
-    return undefined;
-  };
+
 
   const validatePhone = (val: string) => {
     const trimmed = val.trim();
@@ -1432,10 +1414,12 @@ export default function UploadPage() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-slate-800 mb-3">
-                Upload Resume Files
+                {isBulkMode ? "Upload Resume Files" : "Upload Resume File"}
               </h3>
               <p className="text-sm text-slate-600 mb-6">
-                Drag & drop your resume files here, or click to browse
+                {isBulkMode
+                  ? "Drag & drop your resume files here, or click to browse"
+                  : "Drag & drop your resume file here, or click to browse"}
               </p>
               <p className="text-xs text-slate-500 mb-6">
                 Supports PDF, DOC, and DOCX files • Max 10MB per file

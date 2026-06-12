@@ -6,10 +6,9 @@ import Input from "../components/common/Input";
 import { login, register } from "../services/api/auth";
 import { useAuthStore } from "../store/authStore";
 
-type Mode = "login" | "register";
+import { validateEmail } from "../utils/validation";
 
-const validateEmail = (value: string) =>
-  value.includes("@") ? null : "Enter a valid email";
+type Mode = "login" | "register";
 
 const validatePassword = (value: string) =>
   value.length >= 6 ? null : "Password must be at least 6 characters";
