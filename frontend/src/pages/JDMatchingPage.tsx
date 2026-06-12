@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { api } from "../services/api";
 import toast from "react-hot-toast";
 
@@ -544,7 +544,7 @@ export default function JDMatchingPage() {
           {/* Candidate cards */}
           {filteredMatches.length > 0 ? (
             <div className="space-y-4">
-              {filteredMatches.map((match, idx) => (
+              {filteredMatches.map((match) => (
                 <CandidateCard
                   key={match.candidate_id}
                   match={match}

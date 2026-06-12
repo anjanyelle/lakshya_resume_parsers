@@ -123,6 +123,69 @@ const LLM_MODELS: LLMModel[] = [
   },
 ];
 
+// ATS Validation Utilities
+export const validateJobTitle = (title: string): string | null => {
+  if (!title || title.trim().length === 0) return "Job Title is required.";
+  const trimmed = title.trim();
+  if (trimmed.length < 2 || trimmed.length > 100) return "Please enter a valid Job Title.";
+  if (!/^[\w\s.\-&/()']+$/.test(trimmed)) return "Please enter a valid Job Title.";
+  if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Job Title.";
+  return null;
+};
+
+export const validateCompanyName = (name: string): string | null => {
+  if (!name || name.trim().length === 0) return "Company Name is required.";
+  const trimmed = name.trim();
+  if (trimmed.length < 2 || trimmed.length > 150) return "Please enter a valid Company Name.";
+  if (!/^[\w\s.,&'\-]+$/.test(trimmed)) return "Please enter a valid Company Name.";
+  if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Company Name.";
+  return null;
+};
+
+export const validateLocation = (location: string): string | null => {
+  if (!location || location.trim().length === 0) return "Location is required.";
+  const trimmed = location.trim();
+  if (trimmed.length < 2 || trimmed.length > 100) return "Please enter a valid location.";
+  if (!/^[A-Za-z\s,\-.]+$/.test(trimmed)) return "Please enter a valid location.";
+  return null;
+};
+
+export const validateDegree = (degree: string): string | null => {
+  if (!degree || degree.trim().length === 0) return "Degree is required.";
+  const trimmed = degree.trim();
+  if (trimmed.length < 2 || trimmed.length > 100) return "Degree is required.";
+  if (!/^[\w\s.\-&]+$/.test(trimmed)) return "Degree is required.";
+  if (/^[^a-zA-Z]+$/.test(trimmed)) return "Degree is required.";
+  return null;
+};
+
+export const validateInstitution = (inst: string): string | null => {
+  if (!inst || inst.trim().length === 0) return "Institution Name is required.";
+  const trimmed = inst.trim();
+  if (trimmed.length < 2 || trimmed.length > 150) return "Institution Name is required.";
+  if (!/^[\w\s.\-&,']+$/.test(trimmed)) return "Institution Name is required.";
+  if (/^[^a-zA-Z]+$/.test(trimmed)) return "Institution Name is required.";
+  return null;
+};
+
+export const validateFieldOfStudy = (field: string): string | null => {
+  if (!field || field.trim().length === 0) return null;
+  const trimmed = field.trim();
+  if (trimmed.length > 100) return "Field of study is too long.";
+  if (!/^[\w\s&/\-]+$/.test(trimmed)) return "Invalid characters in Field of Study.";
+  if (/^[^a-zA-Z]+$/.test(trimmed)) return "Field of study must contain letters.";
+  return null;
+};
+
+export const validateGraduationDate = (dateStr: string): string | null => {
+  if (!dateStr || dateStr.trim().length === 0) return "Please select a valid graduation date.";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "Please select a valid graduation date.";
+  if (d > new Date()) return "Please select a valid graduation date.";
+  return null;
+};
+
+
 export default function UploadPage() {
   const navigate = useNavigate();
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
@@ -183,12 +246,11 @@ export default function UploadPage() {
     graduation_date: ""
   });
 
-  // Helper for strict text validation (must contain letters, min 2 chars)
   const isValidTextString = (str: string | undefined | null) => {
     if (!str) return false;
     const trimmed = str.trim();
     if (trimmed.length < 2) return false;
-    if (!/[a-zA-Z]/.test(trimmed)) return false;
+    if (/^[^a-zA-Z]+$/.test(trimmed)) return false;
     return true;
   };
 
@@ -219,21 +281,46 @@ export default function UploadPage() {
     setIsEditingContact(true);
   };
 
+  // Validation Helpers
+  const validateEmail = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return undefined;
+    if (trimmed.length > 254) return "Please enter a valid Email Address.";
+    if (/\s/.test(trimmed)) return "Please enter a valid Email Address.";
+    if (trimmed.includes("..")) return "Please enter a valid Email Address.";
+    if ((trimmed.match(/@/g) || []).length !== 1) return "Please enter a valid Email Address.";
+    if (!/^[a-zA-Z0-9._\-+@]+$/.test(trimmed)) return "Please enter a valid Email Address.";
+    const parts = trimmed.split("@");
+    if (parts.length !== 2) return "Please enter a valid Email Address.";
+    const [local, domain] = parts;
+    if (!local || !domain) return "Please enter a valid Email Address.";
+    if (!domain.includes(".")) return "Please enter a valid Email Address.";
+    const domainParts = domain.split(".");
+    const ext = domainParts[domainParts.length - 1];
+    if (ext.length < 2) return "Please enter a valid Email Address.";
+    if (/^[^a-zA-Z0-9]+$/.test(trimmed)) return "Please enter a valid Email Address.";
+    return undefined;
+  };
+
+  const validatePhone = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return undefined;
+    if (!/^\+?\d+$/.test(trimmed)) return "Please enter a valid Phone Number.";
+    const digitCount = trimmed.replace(/\D/g, "").length;
+    if (digitCount < 7 || digitCount > 15) return "Please enter a valid Phone Number.";
+    return undefined;
+  };
+
   const handleSaveContact = () => {
     const errors: {name?: string, email?: string, phone?: string} = {};
     if (!isValidTextString(tempContact.name)) {
-      errors.name = "Candidate Name is required and must contain letters (min 2 characters)";
+      errors.name = "Candidate Name is required (min 2 chars, no pure special chars)";
     }
-    if (tempContact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempContact.email)) {
-      errors.email = "Invalid email format";
-    }
-    if (tempContact.phone) {
-      if (!/^[\d\s\+\-\(\)]+$/.test(tempContact.phone)) {
-        errors.phone = "Phone number can only contain numbers and symbols (+, -, parentheses)";
-      } else if (tempContact.phone.replace(/\D/g, '').length < 7) {
-        errors.phone = "Phone number must contain at least 7 digits";
-      }
-    }
+    const emailErr = validateEmail(tempContact.email);
+    if (emailErr) errors.email = emailErr;
+    
+    const phoneErr = validatePhone(tempContact.phone);
+    if (phoneErr) errors.phone = phoneErr;
 
     if (Object.keys(errors).length > 0) {
       setContactErrors(errors);
@@ -292,19 +379,39 @@ export default function UploadPage() {
 
   const handleSaveWork = (idx: number) => {
     const errors: any = {};
-    if (!isValidTextString(editWorkData.job_title)) {
-      errors.job_title = "Job Title must contain letters and cannot be just numbers";
-    }
-    if (!isValidTextString(editWorkData.company_name)) {
-      errors.company_name = "Company Name must contain letters and cannot be just numbers";
-    }
-    if (editWorkData.start_date && editWorkData.end_date && !editWorkData.is_current) {
-      if (new Date(editWorkData.start_date) > new Date(editWorkData.end_date)) {
-        errors.date = "Start Date must be before End Date";
+    
+    const titleErr = validateJobTitle(editWorkData.job_title);
+    if (titleErr) errors.job_title = titleErr;
+    
+    const companyErr = validateCompanyName(editWorkData.company_name);
+    if (companyErr) errors.company_name = companyErr;
+    
+    const locErr = validateLocation(editWorkData.location);
+    if (locErr) errors.location = locErr;
+
+    if (!editWorkData.start_date) {
+      errors.start_date = "Start Date is required.";
+    } else {
+      const sDate = new Date(editWorkData.start_date);
+      if (sDate > new Date()) errors.start_date = "Start Date cannot be a future date.";
+      if (!editWorkData.is_current && editWorkData.end_date) {
+        const eDate = new Date(editWorkData.end_date);
+        if (sDate > eDate) errors.end_date = "Start Date must be before End Date.";
       }
     }
-    if (editWorkData.location && !isValidTextString(editWorkData.location)) {
-      errors.location = "Location must contain letters and cannot be just numbers";
+
+    if (!editWorkData.is_current && !editWorkData.end_date) {
+      errors.end_date = "End Date is required.";
+    }
+
+    if (parsedSections) {
+      const isDuplicate = parsedSections.work_experience.some((exp, i) => 
+        i !== idx && 
+        exp.job_title?.trim() === editWorkData.job_title?.trim() && 
+        exp.company_name?.trim() === editWorkData.company_name?.trim() && 
+        exp.start_date === editWorkData.start_date
+      );
+      if (isDuplicate) errors.duplicate = "This work experience already exists.";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -337,19 +444,38 @@ export default function UploadPage() {
 
   const handleAddWork = () => {
     const errors: any = {};
-    if (!isValidTextString(newWorkData.job_title)) {
-      errors.job_title = "Job Title must contain letters and cannot be just numbers";
-    }
-    if (!isValidTextString(newWorkData.company_name)) {
-      errors.company_name = "Company Name must contain letters and cannot be just numbers";
-    }
-    if (newWorkData.start_date && newWorkData.end_date && !newWorkData.is_current) {
-      if (new Date(newWorkData.start_date) > new Date(newWorkData.end_date)) {
-        errors.date = "Start Date must be before End Date";
+    
+    const titleErr = validateJobTitle(newWorkData.job_title);
+    if (titleErr) errors.job_title = titleErr;
+    
+    const companyErr = validateCompanyName(newWorkData.company_name);
+    if (companyErr) errors.company_name = companyErr;
+    
+    const locErr = validateLocation(newWorkData.location);
+    if (locErr) errors.location = locErr;
+
+    if (!newWorkData.start_date) {
+      errors.start_date = "Start Date is required.";
+    } else {
+      const sDate = new Date(newWorkData.start_date);
+      if (sDate > new Date()) errors.start_date = "Start Date cannot be a future date.";
+      if (!newWorkData.is_current && newWorkData.end_date) {
+        const eDate = new Date(newWorkData.end_date);
+        if (sDate > eDate) errors.end_date = "Start Date must be before End Date.";
       }
     }
-    if (newWorkData.location && !isValidTextString(newWorkData.location)) {
-      errors.location = "Location must contain letters and cannot be just numbers";
+
+    if (!newWorkData.is_current && !newWorkData.end_date) {
+      errors.end_date = "End Date is required.";
+    }
+
+    if (parsedSections) {
+      const isDuplicate = parsedSections.work_experience.some((exp) => 
+        exp.job_title?.trim() === newWorkData.job_title?.trim() && 
+        exp.company_name?.trim() === newWorkData.company_name?.trim() && 
+        exp.start_date === newWorkData.start_date
+      );
+      if (isDuplicate) errors.duplicate = "This work experience already exists.";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -385,11 +511,27 @@ export default function UploadPage() {
 
   const handleSaveEdu = (idx: number) => {
     const errors: any = {};
-    if (!isValidTextString(editEduData.degree)) {
-      errors.degree = "Degree must contain letters and cannot be just numbers";
-    }
-    if (!isValidTextString(editEduData.institution)) {
-      errors.institution = "Institution must contain letters and cannot be just numbers";
+    
+    const degErr = validateDegree(editEduData.degree);
+    if (degErr) errors.degree = degErr;
+    
+    const instErr = validateInstitution(editEduData.institution);
+    if (instErr) errors.institution = instErr;
+    
+    const fieldErr = validateFieldOfStudy(editEduData.field_of_study);
+    if (fieldErr) errors.field_of_study = fieldErr;
+    
+    const gradErr = validateGraduationDate(editEduData.graduation_date);
+    if (gradErr) errors.graduation_date = gradErr;
+
+    if (parsedSections) {
+      const isDuplicate = parsedSections.education.some((edu, i) => 
+        i !== idx && 
+        edu.degree?.trim() === editEduData.degree?.trim() && 
+        edu.institution?.trim() === editEduData.institution?.trim() && 
+        edu.graduation_date === editEduData.graduation_date
+      );
+      if (isDuplicate) errors.duplicate = "This education record already exists.";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -422,11 +564,26 @@ export default function UploadPage() {
 
   const handleAddEdu = () => {
     const errors: any = {};
-    if (!isValidTextString(newEduData.degree)) {
-      errors.degree = "Degree must contain letters and cannot be just numbers";
-    }
-    if (!isValidTextString(newEduData.institution)) {
-      errors.institution = "Institution must contain letters and cannot be just numbers";
+    
+    const degErr = validateDegree(newEduData.degree);
+    if (degErr) errors.degree = degErr;
+    
+    const instErr = validateInstitution(newEduData.institution);
+    if (instErr) errors.institution = instErr;
+    
+    const fieldErr = validateFieldOfStudy(newEduData.field_of_study);
+    if (fieldErr) errors.field_of_study = fieldErr;
+    
+    const gradErr = validateGraduationDate(newEduData.graduation_date);
+    if (gradErr) errors.graduation_date = gradErr;
+
+    if (parsedSections) {
+      const isDuplicate = parsedSections.education.some((edu) => 
+        edu.degree?.trim() === newEduData.degree?.trim() && 
+        edu.institution?.trim() === newEduData.institution?.trim() && 
+        edu.graduation_date === newEduData.graduation_date
+      );
+      if (isDuplicate) errors.duplicate = "This education record already exists.";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -463,7 +620,7 @@ export default function UploadPage() {
 
   const handleAddSkill = () => {
     if (!isValidTextString(newSkillText)) {
-      setSkillError("Skill must contain letters and cannot be just numbers");
+      setSkillError("Skill is required (min 2 chars, no pure special chars)");
       return;
     }
     setSkillError("");
@@ -487,7 +644,7 @@ export default function UploadPage() {
 
   const handleSaveProject = (idx: number) => {
     if (!isValidTextString(editProjectText)) {
-      setProjectError("Project description must contain letters and cannot be just numbers");
+      setProjectError("Project description is required (min 2 chars)");
       return;
     }
     setProjectError("");
@@ -515,7 +672,7 @@ export default function UploadPage() {
 
   const handleAddProject = () => {
     if (!isValidTextString(newProjectText)) {
-      setNewProjectError("Project description must contain letters and cannot be just numbers");
+      setNewProjectError("Project description is required (min 2 chars)");
       return;
     }
     setNewProjectError("");
@@ -538,7 +695,7 @@ export default function UploadPage() {
 
   const handleSaveCert = (idx: number) => {
     if (!isValidTextString(editCertText)) {
-      setCertError("Certification name must contain letters and cannot be just numbers");
+      setCertError("Certification name is required (min 2 chars)");
       return;
     }
     setCertError("");
@@ -566,7 +723,7 @@ export default function UploadPage() {
 
   const handleAddCert = () => {
     if (!isValidTextString(newCertText)) {
-      setNewCertError("Certification name must contain letters and cannot be just numbers");
+      setNewCertError("Certification name is required (min 2 chars)");
       return;
     }
     setNewCertError("");
@@ -1010,9 +1167,8 @@ export default function UploadPage() {
       return;
     }
 
-    // --- Global Validation ---
     if (!isValidTextString(parsedName)) {
-      toast.error("Candidate Name is required and must contain letters (min 2 characters)");
+      toast.error("Candidate Name is required (min 2 chars, no pure special chars)");
       return;
     }
     if (parsedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parsedEmail)) {
@@ -1024,60 +1180,6 @@ export default function UploadPage() {
       return;
     }
 
-    for (let i = 0; i < parsedSections.work_experience.length; i++) {
-      const exp = parsedSections.work_experience[i];
-      if (!isValidTextString(exp.job_title)) {
-        toast.error(`Work Experience #${i + 1}: Job Title must contain letters`);
-        return;
-      }
-      if (!isValidTextString(exp.company_name)) {
-        toast.error(`Work Experience #${i + 1}: Company Name must contain letters`);
-        return;
-      }
-      if (exp.start_date && exp.end_date && !exp.is_current) {
-        if (new Date(exp.start_date) > new Date(exp.end_date)) {
-          toast.error(`Work Experience "${exp.job_title}": Start Date must be before End Date`);
-          return;
-        }
-      }
-      if (exp.location && !isValidTextString(exp.location)) {
-        toast.error(`Work Experience #${i + 1}: Location must contain letters`);
-        return;
-      }
-    }
-
-    for (let i = 0; i < parsedSections.education.length; i++) {
-      const edu = parsedSections.education[i];
-      if (!isValidTextString(edu.degree)) {
-        toast.error(`Education #${i + 1}: Degree must contain letters`);
-        return;
-      }
-      if (!isValidTextString(edu.institution)) {
-        toast.error(`Education #${i + 1}: Institution must contain letters`);
-        return;
-      }
-    }
-
-    for (let i = 0; i < parsedSections.projects.length; i++) {
-      if (!isValidTextString(parsedSections.projects[i])) {
-        toast.error(`Project #${i + 1} must contain letters`);
-        return;
-      }
-    }
-
-    for (let i = 0; i < parsedSections.certifications.length; i++) {
-      if (!isValidTextString(parsedSections.certifications[i])) {
-        toast.error(`Certification #${i + 1} must contain letters`);
-        return;
-      }
-    }
-
-    for (let i = 0; i < parsedSections.skills.length; i++) {
-      if (!isValidTextString(parsedSections.skills[i])) {
-        toast.error(`Skill #${i + 1} must contain letters`);
-        return;
-      }
-    }
 
     setIsSavingCandidate(true);
 
@@ -1794,7 +1896,16 @@ export default function UploadPage() {
                       <input
                         type="email"
                         value={tempContact.email}
-                        onChange={(e) => setTempContact({ ...tempContact, email: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setTempContact({ ...tempContact, email: val });
+                          const err = validateEmail(val);
+                          setContactErrors(prev => ({ ...prev, email: err }));
+                        }}
+                        onBlur={(e) => {
+                          const err = validateEmail(e.target.value);
+                          setContactErrors(prev => ({ ...prev, email: err }));
+                        }}
                         placeholder="Email address..."
                         className={`w-full px-2.5 py-1.5 bg-white border ${contactErrors.email ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                       />
@@ -1805,7 +1916,16 @@ export default function UploadPage() {
                       <input
                         type="text"
                         value={tempContact.phone}
-                        onChange={(e) => setTempContact({ ...tempContact, phone: e.target.value })}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setTempContact({ ...tempContact, phone: val });
+                          const err = validatePhone(val);
+                          setContactErrors(prev => ({ ...prev, phone: err }));
+                        }}
+                        onBlur={(e) => {
+                          const err = validatePhone(e.target.value);
+                          setContactErrors(prev => ({ ...prev, phone: err }));
+                        }}
                         placeholder="Phone number..."
                         className={`w-full px-2.5 py-1.5 bg-white border ${contactErrors.phone ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                       />
@@ -1910,7 +2030,14 @@ export default function UploadPage() {
                           type="text"
                           placeholder="Job Title"
                           value={newWorkData.job_title}
-                          onChange={(e) => setNewWorkData({ ...newWorkData, job_title: e.target.value })}
+                          onChange={(e) => {
+                            setNewWorkData({ ...newWorkData, job_title: e.target.value });
+                            if (newWorkErrors.job_title) setNewWorkErrors({ ...newWorkErrors, job_title: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateJobTitle(e.target.value);
+                            if (err) setNewWorkErrors({ ...newWorkErrors, job_title: err });
+                          }}
                           className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.job_title ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                         />
                         {newWorkErrors.job_title && <p className="text-red-500 text-xs mt-1">{newWorkErrors.job_title}</p>}
@@ -1920,7 +2047,14 @@ export default function UploadPage() {
                           type="text"
                           placeholder="Company Name"
                           value={newWorkData.company_name}
-                          onChange={(e) => setNewWorkData({ ...newWorkData, company_name: e.target.value })}
+                          onChange={(e) => {
+                            setNewWorkData({ ...newWorkData, company_name: e.target.value });
+                            if (newWorkErrors.company_name) setNewWorkErrors({ ...newWorkErrors, company_name: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateCompanyName(e.target.value);
+                            if (err) setNewWorkErrors({ ...newWorkErrors, company_name: err });
+                          }}
                           className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.company_name ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                         />
                         {newWorkErrors.company_name && <p className="text-red-500 text-xs mt-1">{newWorkErrors.company_name}</p>}
@@ -1930,7 +2064,14 @@ export default function UploadPage() {
                           type="text"
                           placeholder="Location"
                           value={newWorkData.location}
-                          onChange={(e) => setNewWorkData({ ...newWorkData, location: e.target.value })}
+                          onChange={(e) => {
+                            setNewWorkData({ ...newWorkData, location: e.target.value });
+                            if (newWorkErrors.location) setNewWorkErrors({ ...newWorkErrors, location: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateLocation(e.target.value);
+                            if (err) setNewWorkErrors({ ...newWorkErrors, location: err });
+                          }}
                           className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.location ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                         />
                         {newWorkErrors.location && <p className="text-red-500 text-xs mt-1">{newWorkErrors.location}</p>}
@@ -1939,19 +2080,26 @@ export default function UploadPage() {
                         <input
                           type="date"
                           value={parseToDateInput(newWorkData.start_date)}
-                          onChange={(e) => setNewWorkData({ ...newWorkData, start_date: e.target.value })}
-                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                          onChange={(e) => {
+                            setNewWorkData({ ...newWorkData, start_date: e.target.value });
+                            if (newWorkErrors.start_date) setNewWorkErrors({ ...newWorkErrors, start_date: null });
+                          }}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.start_date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                         />
+                        {newWorkErrors.start_date && <p className="text-red-500 text-xs mt-1">{newWorkErrors.start_date}</p>}
                       </div>
                       <div>
                         <input
                           type="date"
                           disabled={newWorkData.is_current}
                           value={newWorkData.is_current ? "" : parseToDateInput(newWorkData.end_date)}
-                          onChange={(e) => setNewWorkData({ ...newWorkData, end_date: e.target.value })}
-                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:bg-gray-100`}
+                          onChange={(e) => {
+                            setNewWorkData({ ...newWorkData, end_date: e.target.value });
+                            if (newWorkErrors.end_date) setNewWorkErrors({ ...newWorkErrors, end_date: null });
+                          }}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.end_date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:bg-gray-100`}
                         />
-                        {newWorkErrors.date && <p className="text-red-500 text-xs mt-1">{newWorkErrors.date}</p>}
+                        {newWorkErrors.end_date && <p className="text-red-500 text-xs mt-1">{newWorkErrors.end_date}</p>}
                       </div>
                       <div className="flex items-center gap-2">
                         <input
@@ -2032,7 +2180,14 @@ export default function UploadPage() {
                               <input
                                 type="text"
                                 value={editWorkData.job_title || ""}
-                                onChange={(e) => setEditWorkData({ ...editWorkData, job_title: e.target.value })}
+                                onChange={(e) => {
+                                  setEditWorkData({ ...editWorkData, job_title: e.target.value });
+                                  if (workErrors.job_title) setWorkErrors({ ...workErrors, job_title: null });
+                                }}
+                                onBlur={(e) => {
+                                  const err = validateJobTitle(e.target.value);
+                                  if (err) setWorkErrors({ ...workErrors, job_title: err });
+                                }}
                                 className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.job_title ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
                               {workErrors.job_title && <p className="text-red-500 text-xs mt-1">{workErrors.job_title}</p>}
@@ -2042,7 +2197,14 @@ export default function UploadPage() {
                               <input
                                 type="text"
                                 value={editWorkData.company_name || ""}
-                                onChange={(e) => setEditWorkData({ ...editWorkData, company_name: e.target.value })}
+                                onChange={(e) => {
+                                  setEditWorkData({ ...editWorkData, company_name: e.target.value });
+                                  if (workErrors.company_name) setWorkErrors({ ...workErrors, company_name: null });
+                                }}
+                                onBlur={(e) => {
+                                  const err = validateCompanyName(e.target.value);
+                                  if (err) setWorkErrors({ ...workErrors, company_name: err });
+                                }}
                                 className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.company_name ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
                               {workErrors.company_name && <p className="text-red-500 text-xs mt-1">{workErrors.company_name}</p>}
@@ -2052,7 +2214,14 @@ export default function UploadPage() {
                               <input
                                 type="text"
                                 value={editWorkData.location || ""}
-                                onChange={(e) => setEditWorkData({ ...editWorkData, location: e.target.value })}
+                                onChange={(e) => {
+                                  setEditWorkData({ ...editWorkData, location: e.target.value });
+                                  if (workErrors.location) setWorkErrors({ ...workErrors, location: null });
+                                }}
+                                onBlur={(e) => {
+                                  const err = validateLocation(e.target.value);
+                                  if (err) setWorkErrors({ ...workErrors, location: err });
+                                }}
                                 className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.location ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
                               {workErrors.location && <p className="text-red-500 text-xs mt-1">{workErrors.location}</p>}
@@ -2062,9 +2231,13 @@ export default function UploadPage() {
                               <input
                                 type="date"
                                 value={parseToDateInput(editWorkData.start_date)}
-                                onChange={(e) => setEditWorkData({ ...editWorkData, start_date: e.target.value })}
-                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
+                                onChange={(e) => {
+                                  setEditWorkData({ ...editWorkData, start_date: e.target.value });
+                                  if (workErrors.start_date) setWorkErrors({ ...workErrors, start_date: null });
+                                }}
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.start_date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
+                              {workErrors.start_date && <p className="text-red-500 text-xs mt-1">{workErrors.start_date}</p>}
                             </div>
                             <div>
                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">End Date</label>
@@ -2072,10 +2245,13 @@ export default function UploadPage() {
                                 type="date"
                                 disabled={editWorkData.is_current}
                                 value={editWorkData.is_current ? "" : parseToDateInput(editWorkData.end_date)}
-                                onChange={(e) => setEditWorkData({ ...editWorkData, end_date: e.target.value })}
-                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm disabled:opacity-50 disabled:bg-gray-100`}
+                                onChange={(e) => {
+                                  setEditWorkData({ ...editWorkData, end_date: e.target.value });
+                                  if (workErrors.end_date) setWorkErrors({ ...workErrors, end_date: null });
+                                }}
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.end_date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm disabled:opacity-50 disabled:bg-gray-100`}
                               />
-                              {workErrors.date && <p className="text-red-500 text-xs mt-1">{workErrors.date}</p>}
+                              {workErrors.end_date && <p className="text-red-500 text-xs mt-1">{workErrors.end_date}</p>}
                             </div>
                             <div className="flex items-center gap-2 pt-5">
                               <input
@@ -2170,7 +2346,14 @@ export default function UploadPage() {
                           type="text"
                           placeholder="Degree / Qualification"
                           value={newEduData.degree}
-                          onChange={(e) => setNewEduData({ ...newEduData, degree: e.target.value })}
+                          onChange={(e) => {
+                            setNewEduData({ ...newEduData, degree: e.target.value });
+                            if (newEduErrors.degree) setNewEduErrors({ ...newEduErrors, degree: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateDegree(e.target.value);
+                            if (err) setNewEduErrors({ ...newEduErrors, degree: err });
+                          }}
                           className={`w-full px-3 py-1.5 bg-white border ${newEduErrors.degree ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                         />
                         {newEduErrors.degree && <p className="text-red-500 text-xs mt-1">{newEduErrors.degree}</p>}
@@ -2180,24 +2363,51 @@ export default function UploadPage() {
                           type="text"
                           placeholder="Institution / University"
                           value={newEduData.institution}
-                          onChange={(e) => setNewEduData({ ...newEduData, institution: e.target.value })}
+                          onChange={(e) => {
+                            setNewEduData({ ...newEduData, institution: e.target.value });
+                            if (newEduErrors.institution) setNewEduErrors({ ...newEduErrors, institution: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateInstitution(e.target.value);
+                            if (err) setNewEduErrors({ ...newEduErrors, institution: err });
+                          }}
                           className={`w-full px-3 py-1.5 bg-white border ${newEduErrors.institution ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
                         />
                         {newEduErrors.institution && <p className="text-red-500 text-xs mt-1">{newEduErrors.institution}</p>}
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Field of Study"
-                        value={newEduData.field_of_study}
-                        onChange={(e) => setNewEduData({ ...newEduData, field_of_study: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <input
-                        type="date"
-                        value={parseToDateInput(newEduData.graduation_date)}
-                        onChange={(e) => setNewEduData({ ...newEduData, graduation_date: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Field of Study"
+                          value={newEduData.field_of_study}
+                          onChange={(e) => {
+                            setNewEduData({ ...newEduData, field_of_study: e.target.value });
+                            if (newEduErrors.field_of_study) setNewEduErrors({ ...newEduErrors, field_of_study: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateFieldOfStudy(e.target.value);
+                            if (err) setNewEduErrors({ ...newEduErrors, field_of_study: err });
+                          }}
+                          className={`w-full px-3 py-1.5 bg-white border ${newEduErrors.field_of_study ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newEduErrors.field_of_study && <p className="text-red-500 text-xs mt-1">{newEduErrors.field_of_study}</p>}
+                      </div>
+                      <div>
+                        <input
+                          type="date"
+                          value={parseToDateInput(newEduData.graduation_date)}
+                          onChange={(e) => {
+                            setNewEduData({ ...newEduData, graduation_date: e.target.value });
+                            if (newEduErrors.graduation_date) setNewEduErrors({ ...newEduErrors, graduation_date: null });
+                          }}
+                          onBlur={(e) => {
+                            const err = validateGraduationDate(e.target.value);
+                            if (err) setNewEduErrors({ ...newEduErrors, graduation_date: err });
+                          }}
+                          className={`w-full px-3 py-1.5 bg-white border ${newEduErrors.graduation_date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newEduErrors.graduation_date && <p className="text-red-500 text-xs mt-1">{newEduErrors.graduation_date}</p>}
+                      </div>
                     </div>
                     <div className="flex justify-end gap-2 text-xs">
                       <button
@@ -2260,7 +2470,14 @@ export default function UploadPage() {
                             <input
                               type="text"
                               value={editEduData.degree || ""}
-                              onChange={(e) => setEditEduData({ ...editEduData, degree: e.target.value })}
+                              onChange={(e) => {
+                                setEditEduData({ ...editEduData, degree: e.target.value });
+                                if (eduErrors.degree) setEduErrors({ ...eduErrors, degree: null });
+                              }}
+                              onBlur={(e) => {
+                                const err = validateDegree(e.target.value);
+                                if (err) setEduErrors({ ...eduErrors, degree: err });
+                              }}
                               className={`w-full px-2.5 py-1.5 bg-white border ${eduErrors.degree ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                             />
                             {eduErrors.degree && <p className="text-red-500 text-xs mt-1">{eduErrors.degree}</p>}
@@ -2270,7 +2487,14 @@ export default function UploadPage() {
                             <input
                               type="text"
                               value={editEduData.institution || ""}
-                              onChange={(e) => setEditEduData({ ...editEduData, institution: e.target.value })}
+                              onChange={(e) => {
+                                setEditEduData({ ...editEduData, institution: e.target.value });
+                                if (eduErrors.institution) setEduErrors({ ...eduErrors, institution: null });
+                              }}
+                              onBlur={(e) => {
+                                const err = validateInstitution(e.target.value);
+                                if (err) setEduErrors({ ...eduErrors, institution: err });
+                              }}
                               className={`w-full px-2.5 py-1.5 bg-white border ${eduErrors.institution ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                             />
                             {eduErrors.institution && <p className="text-red-500 text-xs mt-1">{eduErrors.institution}</p>}
@@ -2280,18 +2504,34 @@ export default function UploadPage() {
                             <input
                               type="text"
                               value={editEduData.field_of_study || ""}
-                              onChange={(e) => setEditEduData({ ...editEduData, field_of_study: e.target.value })}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              onChange={(e) => {
+                                setEditEduData({ ...editEduData, field_of_study: e.target.value });
+                                if (eduErrors.field_of_study) setEduErrors({ ...eduErrors, field_of_study: null });
+                              }}
+                              onBlur={(e) => {
+                                const err = validateFieldOfStudy(e.target.value);
+                                if (err) setEduErrors({ ...eduErrors, field_of_study: err });
+                              }}
+                              className={`w-full px-2.5 py-1.5 bg-white border ${eduErrors.field_of_study ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                             />
+                            {eduErrors.field_of_study && <p className="text-red-500 text-xs mt-1">{eduErrors.field_of_study}</p>}
                           </div>
                           <div>
                             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Graduation Date</label>
                             <input
                               type="date"
                               value={parseToDateInput(editEduData.graduation_date)}
-                              onChange={(e) => setEditEduData({ ...editEduData, graduation_date: e.target.value })}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              onChange={(e) => {
+                                setEditEduData({ ...editEduData, graduation_date: e.target.value });
+                                if (eduErrors.graduation_date) setEduErrors({ ...eduErrors, graduation_date: null });
+                              }}
+                              onBlur={(e) => {
+                                const err = validateGraduationDate(e.target.value);
+                                if (err) setEduErrors({ ...eduErrors, graduation_date: err });
+                              }}
+                              className={`w-full px-2.5 py-1.5 bg-white border ${eduErrors.graduation_date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                             />
+                            {eduErrors.graduation_date && <p className="text-red-500 text-xs mt-1">{eduErrors.graduation_date}</p>}
                           </div>
                         </div>
                       ) : (

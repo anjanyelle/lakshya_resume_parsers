@@ -30,12 +30,12 @@ interface Job {
     id: string;
     skill_name: string;
     skill_type: "required" | "preferred";
-  } | string>;
+  }>;
   preferred_skills?: Array<{
     id: string;
     skill_name: string;
     skill_type: "required" | "preferred";
-  } | string>;
+  }>;
 }
 
 interface JobFormData {
@@ -88,6 +88,42 @@ const departments = [
   "Product",
   "Design",
 ];
+
+// ATS Validation Utilities
+export const validateJobTitle = (title: string): string | null => {
+  if (!title || title.trim().length === 0) return "Job Title is required.";
+  const trimmed = title.trim();
+  if (trimmed.length < 2 || trimmed.length > 100) return "Please enter a valid Job Title.";
+  if (!/^[\w\s.\-&/+()']+$/.test(trimmed)) return "Please enter a valid Job Title.";
+  if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Job Title.";
+  return null;
+};
+
+export const validateSalary = (salary: string): string | null => {
+  if (!salary || salary.trim() === "") return null;
+  const trimmed = salary.trim();
+  if (!/^\d+$/.test(trimmed)) return "Salary must be a positive whole number.";
+  if (trimmed.length > 10) return "Salary is too long.";
+  return null;
+};
+
+export const validateNumberOpenings = (openings: string | number): string | null => {
+  const str = String(openings);
+  if (!str || str.trim() === "") return "Number of Openings is required.";
+  const trimmed = str.trim();
+  if (!/^\d+$/.test(trimmed)) return "Number of Openings must be between 1 and 1000.";
+  const num = parseInt(trimmed, 10);
+  if (num < 1 || num > 1000) return "Number of Openings must be between 1 and 1000.";
+  return null;
+};
+
+export const validateJobDescription = (desc: string): string | null => {
+  if (!desc || desc.trim().length === 0) return "Job Description must contain at least 50 characters.";
+  const trimmed = desc.trim();
+  if (trimmed.length < 50) return "Job Description must contain at least 50 characters.";
+  if (trimmed.length > 5000) return "Job Description cannot exceed 5000 characters.";
+  return null;
+};
 
 export default function JobsPage() {
   const navigate = useNavigate();
@@ -165,10 +201,10 @@ export default function JobsPage() {
     fetchJobs,
     createJob,
     updateJob,
-    deleteJob,
     isLoading: storeLoading,
   } = useJobStore();
 
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof JobFormData, string>>>({});
   const [formData, setFormData] = useState<JobFormData>({
     title: "",
     department: "",
@@ -204,64 +240,90 @@ export default function JobsPage() {
     }
   };
 
+  const selectedCountry = Country.getAllCountries().find(c => c.name === formData.country);
+  const selectedState = selectedCountry ? State.getStatesOfCountry(selectedCountry.isoCode).find(s => s.name === formData.state) : undefined;
+  const availableStates = selectedCountry ? State.getStatesOfCountry(selectedCountry.isoCode) : [];
+  const availableCities = selectedState && selectedCountry ? City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode) : [];
+
+  const isFormValid = 
+    Object.keys(formErrors).length === 0 &&
+    formData.title.trim().length >= 2 &&
+    formData.department &&
+    formData.employment_type &&
+    formData.experience_range &&
+    formData.country &&
+    formData.description.length >= 50 &&
+    formData.required_skills.length > 0;
+
+  const handleBlur = (field: keyof JobFormData) => {
+    let error: string | null = null;
+    switch (field) {
+      case "title": error = validateJobTitle(formData.title); break;
+      case "department": error = formData.department ? null : "Please select Department."; break;
+      case "employment_type": error = formData.employment_type ? null : "Please select Employment Type."; break;
+      case "experience_range": error = formData.experience_range ? null : "Please select Experience Range."; break;
+      case "country": error = formData.country ? null : "Please select Country."; break;
+      case "state": error = (formData.country && !formData.state && availableStates.length > 0) ? "Please select State." : null; break;
+      case "city": error = (formData.state && !formData.city && availableCities.length > 0) ? "Please select City." : null; break;
+      case "salary_min": error = validateSalary(formData.salary_min); break;
+      case "salary_max": error = validateSalary(formData.salary_max); break;
+      case "number_of_openings": error = validateNumberOpenings(formData.number_of_openings); break;
+      case "description": error = validateJobDescription(formData.description); break;
+    }
+    
+    if (field === "salary_min" || field === "salary_max") {
+      const sMin = formData.salary_min ? parseInt(formData.salary_min) : 0;
+      const sMax = formData.salary_max ? parseInt(formData.salary_max) : 0;
+      if (formData.salary_min && formData.salary_max && sMin > sMax) {
+        if (field === "salary_max") error = "Salary Max must be greater than or equal to Salary Min.";
+      }
+    }
+
+    setFormErrors(prev => {
+      const next = { ...prev };
+      if (error) next[field] = error;
+      else delete next[field];
+      return next;
+    });
+    return error;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title?.trim()) {
-      toast.error("Job Title is required");
-      return;
-    }
-    if (formData.title.trim().length < 3) {
-      toast.error("Job Title must be at least 3 characters");
-      return;
-    }
-    if (!/[a-zA-Z]/.test(formData.title)) {
-      toast.error("Job Title must contain letters and cannot be purely numbers");
-      return;
-    }
-    if (!formData.department) {
-      toast.error("Department is required");
-      return;
-    }
-    if (!formData.employment_type) {
-      toast.error("Employment Type is required");
-      return;
-    }
-    if (!formData.experience_range) {
-      toast.error("Experience Range is required");
-      return;
-    }
-    if (!formData.country) {
-      toast.error("Country is required for Location");
-      return;
-    }
+    const fieldsToValidate: (keyof JobFormData)[] = [
+      "title", "department", "employment_type", "experience_range", "country", "state", "city", 
+      "salary_min", "salary_max", "number_of_openings", "description"
+    ];
 
-    if (formData.description.length < 50) {
-      toast.error("Description must be at least 50 characters long");
-      return;
+    let hasErrors = false;
+    const newErrors: Partial<Record<keyof JobFormData, string>> = {};
+
+    for (const field of fieldsToValidate) {
+      const err = handleBlur(field);
+      if (err) {
+        newErrors[field] = err;
+        hasErrors = true;
+      }
     }
 
     if (formData.required_skills.length === 0) {
-      toast.error("At least one required skill is required");
+      newErrors.required_skills = "At least one Required Skill is mandatory.";
+      hasErrors = true;
+    } else {
+      delete newErrors.required_skills;
+    }
+
+    setFormErrors(newErrors);
+
+    if (hasErrors) {
+      toast.error("Please fix the validation errors before submitting.");
       return;
     }
 
     const sMin = formData.salary_min ? parseInt(formData.salary_min) : 0;
     const sMax = formData.salary_max ? parseInt(formData.salary_max) : 0;
-    if (sMin < 0 || sMax < 0) {
-      toast.error("Salary cannot be negative");
-      return;
-    }
-    if (sMin && sMax && sMin >= sMax) {
-      toast.error("Salary minimum must be less than maximum");
-      return;
-    }
-
     const numOpenings = parseInt(formData.number_of_openings) || 1;
-    if (numOpenings <= 0) {
-      toast.error("Number of openings must be greater than 0");
-      return;
-    }
 
     // Construct Location String
     let finalLocation = formData.country;
@@ -412,11 +474,16 @@ export default function JobsPage() {
     );
     
     if (!existsInRequired && !existsInPreferred) {
+      if (formData.required_skills.length >= 50) {
+        toast.error("Maximum 50 required skills allowed.");
+        return;
+      }
       setFormData((prev) => ({
         ...prev,
         required_skills: [...prev.required_skills, normalized],
       }));
       setCurrentSkill("");
+      if (formErrors.required_skills) setFormErrors(prev => ({ ...prev, required_skills: undefined }));
     } else {
       if (existsInPreferred) {
         toast.error("Skill is already in preferred skills");
@@ -426,12 +493,13 @@ export default function JobsPage() {
   };
 
   const removeSkill = (skillToRemove: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      required_skills: prev.required_skills.filter(
-        (skill) => skill !== skillToRemove,
-      ),
-    }));
+    setFormData((prev) => {
+      const nextSkills = prev.required_skills.filter((skill) => skill !== skillToRemove);
+      if (nextSkills.length === 0) {
+        setFormErrors(errors => ({ ...errors, required_skills: "At least one Required Skill is mandatory." }));
+      }
+      return { ...prev, required_skills: nextSkills };
+    });
   };
 
   const addPreferredSkill = () => {
@@ -446,6 +514,10 @@ export default function JobsPage() {
     );
     
     if (!existsInRequired && !existsInPreferred) {
+      if (formData.preferred_skills.length >= 50) {
+        toast.error("Maximum 50 preferred skills allowed.");
+        return;
+      }
       setFormData((prev) => ({
         ...prev,
         preferred_skills: [...prev.preferred_skills, normalized],
@@ -488,12 +560,6 @@ export default function JobsPage() {
       year: "numeric",
     });
   };
-
-  const selectedCountry = Country.getAllCountries().find(c => c.name === formData.country);
-  const selectedState = selectedCountry ? State.getStatesOfCountry(selectedCountry.isoCode).find(s => s.name === formData.state) : undefined;
-  
-  const availableStates = selectedCountry ? State.getStatesOfCountry(selectedCountry.isoCode) : [];
-  const availableCities = selectedState && selectedCountry ? City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode) : [];
 
   return (
     <div className="p-6">
@@ -548,11 +614,15 @@ export default function JobsPage() {
                   <input
                     type="text"
                     value={formData.title}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, title: e.target.value }));
+                      if (formErrors.title) setFormErrors(prev => ({ ...prev, title: undefined }));
+                    }}
+                    onBlur={() => handleBlur("title")}
+                    className={`w-full px-3 py-2 border ${formErrors.title ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                     placeholder="e.g. Senior Software Engineer"
-                    required
                   />
+                  {formErrors.title && <p className="mt-1 text-xs text-red-500">{formErrors.title}</p>}
                 </div>
 
                 {/* Grid 1 */}
@@ -561,25 +631,33 @@ export default function JobsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
                     <select
                       value={formData.department}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, department: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      required
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, department: e.target.value }));
+                        if (formErrors.department) setFormErrors(prev => ({ ...prev, department: undefined }));
+                      }}
+                      onBlur={() => handleBlur("department")}
+                      className={`w-full px-3 py-2 border ${formErrors.department ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                     >
                       <option value="">Select Department</option>
                       {departments.map((dept) => <option key={dept} value={dept}>{dept}</option>)}
                     </select>
+                    {formErrors.department && <p className="mt-1 text-xs text-red-500">{formErrors.department}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Employment Type *</label>
                     <select
                       value={formData.employment_type}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, employment_type: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      required
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, employment_type: e.target.value }));
+                        if (formErrors.employment_type) setFormErrors(prev => ({ ...prev, employment_type: undefined }));
+                      }}
+                      onBlur={() => handleBlur("employment_type")}
+                      className={`w-full px-3 py-2 border ${formErrors.employment_type ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                     >
                       <option value="">Select Type</option>
                       {employmentTypes.map((type) => <option key={type} value={type}>{type}</option>)}
                     </select>
+                    {formErrors.employment_type && <p className="mt-1 text-xs text-red-500">{formErrors.employment_type}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Work Mode</label>
@@ -599,41 +677,61 @@ export default function JobsPage() {
                 <div className="grid grid-cols-1 gap-4 mb-2">
                   <label className="block text-sm font-medium text-gray-700 -mb-2">Location *</label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <select
-                      value={formData.country}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value, state: "", city: "" }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      required
-                    >
-                      <option value="">Select Country</option>
-                      {Country.getAllCountries().map((c) => (
-                        <option key={c.isoCode} value={c.name}>{c.name}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <select
+                        value={formData.country}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, country: e.target.value, state: "", city: "" }));
+                          if (formErrors.country) setFormErrors(prev => ({ ...prev, country: undefined, state: undefined, city: undefined }));
+                        }}
+                        onBlur={() => handleBlur("country")}
+                        className={`w-full px-3 py-2 border ${formErrors.country ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+                      >
+                        <option value="">Select Country</option>
+                        {Country.getAllCountries().map((c) => (
+                          <option key={c.isoCode} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
+                      {formErrors.country && <p className="mt-1 text-xs text-red-500">{formErrors.country}</p>}
+                    </div>
 
-                    <select
-                      value={formData.state}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value, city: "" }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      disabled={!formData.country || availableStates.length === 0}
-                    >
-                      <option value="">Select State/Province</option>
-                      {availableStates.map((s) => (
-                        <option key={s.isoCode} value={s.name}>{s.name}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <select
+                        value={formData.state}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, state: e.target.value, city: "" }));
+                          if (formErrors.state) setFormErrors(prev => ({ ...prev, state: undefined, city: undefined }));
+                        }}
+                        onBlur={() => handleBlur("state")}
+                        className={`w-full px-3 py-2 border ${formErrors.state ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+                        disabled={!formData.country || availableStates.length === 0}
+                      >
+                        <option value="">Select State/Province</option>
+                        {availableStates.map((s) => (
+                          <option key={s.isoCode} value={s.name}>{s.name}</option>
+                        ))}
+                      </select>
+                      {formErrors.state && <p className="mt-1 text-xs text-red-500">{formErrors.state}</p>}
+                    </div>
 
-                    <select
-                      value={formData.city}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      disabled={!formData.state || availableCities.length === 0}
-                    >
-                      <option value="">Select City</option>
-                      {availableCities.map((city) => (
-                        <option key={city.name} value={city.name}>{city.name}</option>
-                      ))}
-                    </select>
+                    <div>
+                      <select
+                        value={formData.city}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, city: e.target.value }));
+                          if (formErrors.city) setFormErrors(prev => ({ ...prev, city: undefined }));
+                        }}
+                        onBlur={() => handleBlur("city")}
+                        className={`w-full px-3 py-2 border ${formErrors.city ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
+                        disabled={!formData.state || availableCities.length === 0}
+                      >
+                        <option value="">Select City</option>
+                        {availableCities.map((city) => (
+                          <option key={city.name} value={city.name}>{city.name}</option>
+                        ))}
+                      </select>
+                      {formErrors.city && <p className="mt-1 text-xs text-red-500">{formErrors.city}</p>}
+                    </div>
                   </div>
                 </div>
 
@@ -642,12 +740,16 @@ export default function JobsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Experience Range *</label>
                     <select
                       value={formData.experience_range}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, experience_range: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      required
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, experience_range: e.target.value }));
+                        if (formErrors.experience_range) setFormErrors(prev => ({ ...prev, experience_range: undefined }));
+                      }}
+                      onBlur={() => handleBlur("experience_range")}
+                      className={`w-full px-3 py-2 border ${formErrors.experience_range ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                     >
                       {experienceRanges.map((range) => <option key={range} value={range}>{range}</option>)}
                     </select>
+                    {formErrors.experience_range && <p className="mt-1 text-xs text-red-500">{formErrors.experience_range}</p>}
                   </div>
                 </div>
 
@@ -658,20 +760,30 @@ export default function JobsPage() {
                     <input
                       type="number"
                       value={formData.salary_min}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, salary_min: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, salary_min: e.target.value }));
+                        if (formErrors.salary_min) setFormErrors(prev => ({ ...prev, salary_min: undefined }));
+                      }}
+                      onBlur={() => handleBlur("salary_min")}
+                      className={`w-full px-3 py-2 border ${formErrors.salary_min ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                       placeholder="e.g. 100000"
                     />
+                    {formErrors.salary_min && <p className="mt-1 text-xs text-red-500">{formErrors.salary_min}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Salary Max</label>
                     <input
                       type="number"
                       value={formData.salary_max}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, salary_max: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, salary_max: e.target.value }));
+                        if (formErrors.salary_max) setFormErrors(prev => ({ ...prev, salary_max: undefined }));
+                      }}
+                      onBlur={() => handleBlur("salary_max")}
+                      className={`w-full px-3 py-2 border ${formErrors.salary_max ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                       placeholder="e.g. 150000"
                     />
+                    {formErrors.salary_max && <p className="mt-1 text-xs text-red-500">{formErrors.salary_max}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
@@ -719,9 +831,14 @@ export default function JobsPage() {
                       type="number"
                       min="1"
                       value={formData.number_of_openings}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, number_of_openings: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, number_of_openings: e.target.value }));
+                        if (formErrors.number_of_openings) setFormErrors(prev => ({ ...prev, number_of_openings: undefined }));
+                      }}
+                      onBlur={() => handleBlur("number_of_openings")}
+                      className={`w-full px-3 py-2 border ${formErrors.number_of_openings ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                     />
+                    {formErrors.number_of_openings && <p className="mt-1 text-xs text-red-500">{formErrors.number_of_openings}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Notice Period</label>
@@ -762,13 +879,16 @@ export default function JobsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, description: e.target.value }));
+                      if (formErrors.description) setFormErrors(prev => ({ ...prev, description: undefined }));
+                    }}
+                    onBlur={() => handleBlur("description")}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className={`w-full px-3 py-2 border ${formErrors.description ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
                     placeholder="Job description, responsibilities, requirements... (min 50 chars)"
-                    required
-                    minLength={50}
                   />
+                  {formErrors.description && <p className="mt-1 text-xs text-red-500">{formErrors.description}</p>}
                 </div>
 
                 {/* Required Skills */}
@@ -799,6 +919,7 @@ export default function JobsPage() {
                       </span>
                     ))}
                   </div>
+                  {formErrors.required_skills && <p className="mt-2 text-xs text-red-500">{formErrors.required_skills}</p>}
                 </div>
 
                 {/* Preferred Skills */}
@@ -843,7 +964,8 @@ export default function JobsPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  disabled={!isFormValid}
+                  className={`px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${!isFormValid ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'} transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                 >
                   {editingJob ? "Save Changes" : "Create Job"}
                 </button>

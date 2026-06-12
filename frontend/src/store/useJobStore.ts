@@ -17,6 +17,13 @@ interface Job {
   status?: string;
   created_at: string;
   updated_at: string;
+  work_mode?: string;
+  salary_min?: number;
+  salary_max?: number;
+  currency?: string;
+  salary_period?: string;
+  number_of_openings?: number;
+  notice_period?: string;
   required_skills?: Array<{
     id: string;
     skill_name: string;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import { useFilterStore } from "../store/filterStore";
 import toast from "react-hot-toast";
-import { Users, Search, RefreshCw, User, Award, DollarSign, X } from "lucide-react";
+import { Users, Search, RefreshCw, User, Award, X } from "lucide-react";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
 type SortType = "date-added" | "name" | "confidence-score" | "match-score";
@@ -15,7 +15,7 @@ export default function CandidatesPage() {
   const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
 
   const { candidates, pagination, isLoading, fetchCandidates } = useCandidateStore();
-  const { searchTerm, company, jobTitle, certification, salaryMin, salaryMax, setSearchTerm, setCompany, setJobTitle, setCertification, setSalaryRange, resetFilters } = useFilterStore();
+  const { searchTerm, company, jobTitle, certification, salaryMin, salaryMax, setSearchTerm, setCompany, setJobTitle, setCertification, resetFilters } = useFilterStore();
   const navigate = useNavigate();
 
   const toggleSkills = (candidateId: string) => {
@@ -41,6 +41,52 @@ export default function CandidatesPage() {
 
   const itemsPerPage = 20;
 
+  // Validation helpers
+  const validateNameEmailSkill = (val: string) => {
+    if (val.length === 0) return null;
+    const trimmed = val.trim();
+    if (trimmed.length === 0) return "Please enter a valid Name, Email, or Skill.";
+    if (trimmed.length > 100) return "Please enter a valid Name, Email, or Skill.";
+    if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Name, Email, or Skill.";
+    if (!/^[a-zA-Z0-9\s._\-@+]+$/.test(trimmed)) return "Please enter a valid Name, Email, or Skill.";
+    return null;
+  };
+
+  const validateCompany = (val: string) => {
+    if (val.length === 0) return null;
+    const trimmed = val.trim();
+    if (trimmed.length === 0) return "Please enter a valid Company Name.";
+    if (trimmed.length > 100) return "Please enter a valid Company Name.";
+    if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Company Name.";
+    if (!/^[a-zA-Z0-9\s.,&'-]+$/.test(trimmed)) return "Please enter a valid Company Name.";
+    return null;
+  };
+
+  const validateJobTitle = (val: string) => {
+    if (val.length === 0) return null;
+    const trimmed = val.trim();
+    if (trimmed.length === 0) return "Please enter a valid Job Title.";
+    if (trimmed.length > 100) return "Please enter a valid Job Title.";
+    if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Job Title.";
+    if (!/^[a-zA-Z0-9\s.\-/+&()]+$/.test(trimmed)) return "Please enter a valid Job Title.";
+    return null;
+  };
+
+  const validateCertification = (val: string) => {
+    if (val.length === 0) return null;
+    const trimmed = val.trim();
+    if (trimmed.length === 0) return "Please enter a valid Certification Name.";
+    if (trimmed.length > 100) return "Please enter a valid Certification Name.";
+    if (/^[^a-zA-Z]+$/.test(trimmed)) return "Please enter a valid Certification Name.";
+    if (!/^[a-zA-Z0-9\s.\-&/]+$/.test(trimmed)) return "Please enter a valid Certification Name.";
+    return null;
+  };
+
+  const searchError = validateNameEmailSkill(inputSearchTerm);
+  const companyError = validateCompany(inputCompany);
+  const jobTitleError = validateJobTitle(inputJobTitle);
+  const certError = validateCertification(inputCertification);
+
   // Debounce: commit local inputs to the filter store 400 ms after the user stops typing
   useEffect(() => {
     if (isInitialMount.current) {
@@ -53,10 +99,11 @@ export default function CandidatesPage() {
     }
 
     debounceTimer.current = setTimeout(() => {
-      setSearchTerm(inputSearchTerm);
-      setCompany(inputCompany);
-      setJobTitle(inputJobTitle);
-      setCertification(inputCertification);
+      // Only apply filters that are valid
+      if (!searchError) setSearchTerm(inputSearchTerm);
+      if (!companyError) setCompany(inputCompany);
+      if (!jobTitleError) setJobTitle(inputJobTitle);
+      if (!certError) setCertification(inputCertification);
       setCurrentPage(1);
     }, 1500);
 
@@ -65,7 +112,7 @@ export default function CandidatesPage() {
         clearTimeout(debounceTimer.current);
       }
     };
-  }, [inputSearchTerm, inputCompany, inputJobTitle, inputCertification]);
+  }, [inputSearchTerm, inputCompany, inputJobTitle, inputCertification, searchError, companyError, jobTitleError, certError]);
 
   // Fetch candidates when committed filter store values or page changes
   useEffect(() => {
@@ -191,50 +238,62 @@ export default function CandidatesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Name Search */}
               <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by name, email, or skill..."
-                  value={inputSearchTerm}
-                  onChange={(e) => setInputSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                />
-                <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, or skill..."
+                    value={inputSearchTerm}
+                    onChange={(e) => setInputSearchTerm(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-3 border ${searchError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none`}
+                  />
+                  <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                </div>
+                {searchError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5">{searchError}</p>}
               </div>
 
               {/* Company Search */}
               <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by company..."
-                  value={inputCompany}
-                  onChange={(e) => setInputCompany(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                />
-                <Users className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by company..."
+                    value={inputCompany}
+                    onChange={(e) => setInputCompany(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-3 border ${companyError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none`}
+                  />
+                  <Users className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                </div>
+                {companyError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5">{companyError}</p>}
               </div>
 
               {/* Job Title Search */}
               <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by job title..."
-                  value={inputJobTitle}
-                  onChange={(e) => setInputJobTitle(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                />
-                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by job title..."
+                    value={inputJobTitle}
+                    onChange={(e) => setInputJobTitle(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-3 border ${jobTitleError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none`}
+                  />
+                  <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                </div>
+                {jobTitleError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5">{jobTitleError}</p>}
               </div>
 
               {/* Certification Search */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by certification..."
-                  value={inputCertification}
-                  onChange={(e) => setInputCertification(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                />
-                <Award className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <div className="relative mb-2">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by certification..."
+                    value={inputCertification}
+                    onChange={(e) => setInputCertification(e.target.value)}
+                    className={`w-full pl-10 pr-4 py-3 border ${certError ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none`}
+                  />
+                  <Award className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                </div>
+                {certError && <p className="text-red-500 text-xs mt-1 absolute -bottom-5">{certError}</p>}
               </div>
             </div>
 
