@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJobStore } from "../store/useJobStore";
 import toast from "react-hot-toast";
+import { Country, State, City } from "country-state-city";
 
 interface Job {
   id: string;
@@ -41,6 +42,9 @@ interface JobFormData {
   title: string;
   department: string;
   location: string;
+  country: string;
+  state: string;
+  city: string;
   employment_type: string;
   work_mode: string;
   description: string;
@@ -169,6 +173,9 @@ export default function JobsPage() {
     title: "",
     department: "",
     location: "",
+    country: "",
+    state: "",
+    city: "",
     employment_type: "",
     work_mode: "Onsite",
     description: "",
@@ -200,8 +207,32 @@ export default function JobsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.department || !formData.employment_type || !formData.experience_range) {
-      toast.error("Please fill in all required fields");
+    if (!formData.title?.trim()) {
+      toast.error("Job Title is required");
+      return;
+    }
+    if (formData.title.trim().length < 3) {
+      toast.error("Job Title must be at least 3 characters");
+      return;
+    }
+    if (!/[a-zA-Z]/.test(formData.title)) {
+      toast.error("Job Title must contain letters and cannot be purely numbers");
+      return;
+    }
+    if (!formData.department) {
+      toast.error("Department is required");
+      return;
+    }
+    if (!formData.employment_type) {
+      toast.error("Employment Type is required");
+      return;
+    }
+    if (!formData.experience_range) {
+      toast.error("Experience Range is required");
+      return;
+    }
+    if (!formData.country) {
+      toast.error("Country is required for Location");
       return;
     }
 
@@ -217,6 +248,10 @@ export default function JobsPage() {
 
     const sMin = formData.salary_min ? parseInt(formData.salary_min) : 0;
     const sMax = formData.salary_max ? parseInt(formData.salary_max) : 0;
+    if (sMin < 0 || sMax < 0) {
+      toast.error("Salary cannot be negative");
+      return;
+    }
     if (sMin && sMax && sMin >= sMax) {
       toast.error("Salary minimum must be less than maximum");
       return;
@@ -228,12 +263,17 @@ export default function JobsPage() {
       return;
     }
 
+    // Construct Location String
+    let finalLocation = formData.country;
+    if (formData.state) finalLocation = `${formData.state}, ${finalLocation}`;
+    if (formData.city) finalLocation = `${formData.city}, ${finalLocation}`;
+
     try {
       const exp = parseExperience(formData.experience_range);
       const jobData: Partial<Job> = {
-        title: formData.title,
+        title: formData.title.trim(),
         department: formData.department,
-        location: formData.location,
+        location: finalLocation,
         employment_type: formData.employment_type,
         work_mode: formData.work_mode,
         description: formData.description,
@@ -279,6 +319,9 @@ export default function JobsPage() {
       title: "",
       department: "",
       location: "",
+      country: "",
+      state: "",
+      city: "",
       employment_type: "",
       work_mode: "Onsite",
       description: "",
@@ -305,10 +348,28 @@ export default function JobsPage() {
   };
 
   const openEditModal = (job: Job) => {
+    let jobCountry = "", jobState = "", jobCity = "";
+    if (job.location) {
+      const parts = job.location.split(",").map(p => p.trim());
+      if (parts.length === 3) {
+        jobCity = parts[0];
+        jobState = parts[1];
+        jobCountry = parts[2];
+      } else if (parts.length === 2) {
+        jobCity = parts[0];
+        jobCountry = parts[1];
+      } else {
+        jobCountry = job.location;
+      }
+    }
+
     setFormData({
       title: job.title,
       department: job.department || "",
       location: job.location || "",
+      country: jobCountry,
+      state: jobState,
+      city: jobCity,
       employment_type: job.employment_type || "",
       work_mode: job.work_mode || "Onsite",
       description: job.description,
@@ -428,6 +489,12 @@ export default function JobsPage() {
     });
   };
 
+  const selectedCountry = Country.getAllCountries().find(c => c.name === formData.country);
+  const selectedState = selectedCountry ? State.getStatesOfCountry(selectedCountry.isoCode).find(s => s.name === formData.state) : undefined;
+  
+  const availableStates = selectedCountry ? State.getStatesOfCountry(selectedCountry.isoCode) : [];
+  const availableCities = selectedState && selectedCountry ? City.getCitiesOfState(selectedCountry.isoCode, selectedState.isoCode) : [];
+
   return (
     <div className="p-6">
       {/* Header */}
@@ -529,17 +596,48 @@ export default function JobsPage() {
                 </div>
 
                 {/* Grid 2 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    <input
-                      type="text"
-                      value={formData.location}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
+                <div className="grid grid-cols-1 gap-4 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 -mb-2">Location *</label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <select
+                      value={formData.country}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value, state: "", city: "" }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="e.g. New York, NY"
-                    />
+                      required
+                    >
+                      <option value="">Select Country</option>
+                      {Country.getAllCountries().map((c) => (
+                        <option key={c.isoCode} value={c.name}>{c.name}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={formData.state}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value, city: "" }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      disabled={!formData.country || availableStates.length === 0}
+                    >
+                      <option value="">Select State/Province</option>
+                      {availableStates.map((s) => (
+                        <option key={s.isoCode} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={formData.city}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      disabled={!formData.state || availableCities.length === 0}
+                    >
+                      <option value="">Select City</option>
+                      {availableCities.map((city) => (
+                        <option key={city.name} value={city.name}>{city.name}</option>
+                      ))}
+                    </select>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Experience Range *</label>
                     <select

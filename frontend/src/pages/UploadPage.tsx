@@ -13,6 +13,7 @@ import ParsedDataDebugView from "../components/upload/ParsedDataDebugView";
 import SpeedGauge from "../components/upload/SpeedGauge";
 import ParsedResultCard from "../components/upload/ParsedResultCard";
 import ModelResultsView from "../components/upload/ModelResultsView";
+import { parseToDateInput } from "../utils/date";
 
 interface LLMModel {
   id: string;
@@ -25,7 +26,7 @@ interface LLMModel {
 interface UploadFile {
   file: File;
   id: string;
-  status: "pending" | "uploading" | "parsing" | "completed" | "error";
+  status: "pending" | "uploading" | "parsing" | "completed" | "error" | "saved";
   progress: number;
   message: string;
   candidateId?: string;
@@ -127,6 +128,7 @@ export default function UploadPage() {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [currentUpload, setCurrentUpload] = useState<UploadFile | null>(null);
+  const [viewingBulkFileId, setViewingBulkFileId] = useState<string | null>(null);
   const [selectedLLM, setSelectedLLM] = useState<string>("own-model");
   const [showLLMDropdown, setShowLLMDropdown] = useState(false);
   const [forceOcr, setForceOcr] = useState(false);
@@ -181,9 +183,77 @@ export default function UploadPage() {
     graduation_date: ""
   });
 
+  // Helper for strict text validation (must contain letters, min 2 chars)
+  const isValidTextString = (str: string | undefined | null) => {
+    if (!str) return false;
+    const trimmed = str.trim();
+    if (trimmed.length < 2) return false;
+    if (!/[a-zA-Z]/.test(trimmed)) return false;
+    return true;
+  };
+
   // Summary editing states
   const [isEditingSummary, setIsEditingSummary] = useState(false);
   const [editSummaryText, setEditSummaryText] = useState("");
+
+  // Contact editing states
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [tempContact, setTempContact] = useState({ name: "", email: "", phone: "" });
+
+  // Error states for inline validation
+  const [contactErrors, setContactErrors] = useState<{name?: string, email?: string, phone?: string}>({});
+  const [workErrors, setWorkErrors] = useState<any>({});
+  const [newWorkErrors, setNewWorkErrors] = useState<any>({});
+  const [eduErrors, setEduErrors] = useState<any>({});
+  const [newEduErrors, setNewEduErrors] = useState<any>({});
+  const [skillError, setSkillError] = useState("");
+  const [projectError, setProjectError] = useState("");
+  const [newProjectError, setNewProjectError] = useState("");
+  const [certError, setCertError] = useState("");
+  const [newCertError, setNewCertError] = useState("");
+
+  // Contact Handlers
+  const handleStartEditContact = () => {
+    setTempContact({ name: parsedName, email: parsedEmail, phone: parsedPhone });
+    setContactErrors({});
+    setIsEditingContact(true);
+  };
+
+  const handleSaveContact = () => {
+    const errors: {name?: string, email?: string, phone?: string} = {};
+    if (!isValidTextString(tempContact.name)) {
+      errors.name = "Candidate Name is required and must contain letters (min 2 characters)";
+    }
+    if (tempContact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(tempContact.email)) {
+      errors.email = "Invalid email format";
+    }
+    if (tempContact.phone) {
+      if (!/^[\d\s\+\-\(\)]+$/.test(tempContact.phone)) {
+        errors.phone = "Phone number can only contain numbers and symbols (+, -, parentheses)";
+      } else if (tempContact.phone.replace(/\D/g, '').length < 7) {
+        errors.phone = "Phone number must contain at least 7 digits";
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setContactErrors(errors);
+      return;
+    }
+
+    setContactErrors({});
+    setParsedName(tempContact.name);
+    setParsedEmail(tempContact.email);
+    setParsedPhone(tempContact.phone);
+    setIsEditingContact(false);
+  };
+
+  const handleDeleteContact = () => {
+    setParsedName("");
+    setParsedEmail("");
+    setParsedPhone("");
+    setContactErrors({});
+    setIsEditingContact(false);
+  };
 
   // Summary Handlers
   const handleStartEditSummary = () => {
@@ -217,9 +287,32 @@ export default function UploadPage() {
   const handleStartEditWork = (idx: number, data: any) => {
     setEditingWorkIdx(idx);
     setEditWorkData({ ...data });
+    setWorkErrors({});
   };
 
   const handleSaveWork = (idx: number) => {
+    const errors: any = {};
+    if (!isValidTextString(editWorkData.job_title)) {
+      errors.job_title = "Job Title must contain letters and cannot be just numbers";
+    }
+    if (!isValidTextString(editWorkData.company_name)) {
+      errors.company_name = "Company Name must contain letters and cannot be just numbers";
+    }
+    if (editWorkData.start_date && editWorkData.end_date && !editWorkData.is_current) {
+      if (new Date(editWorkData.start_date) > new Date(editWorkData.end_date)) {
+        errors.date = "Start Date must be before End Date";
+      }
+    }
+    if (editWorkData.location && !isValidTextString(editWorkData.location)) {
+      errors.location = "Location must contain letters and cannot be just numbers";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setWorkErrors(errors);
+      return;
+    }
+
+    setWorkErrors({});
     if (parsedSections) {
       const updated = [...parsedSections.work_experience];
       updated[idx] = editWorkData;
@@ -243,6 +336,28 @@ export default function UploadPage() {
   };
 
   const handleAddWork = () => {
+    const errors: any = {};
+    if (!isValidTextString(newWorkData.job_title)) {
+      errors.job_title = "Job Title must contain letters and cannot be just numbers";
+    }
+    if (!isValidTextString(newWorkData.company_name)) {
+      errors.company_name = "Company Name must contain letters and cannot be just numbers";
+    }
+    if (newWorkData.start_date && newWorkData.end_date && !newWorkData.is_current) {
+      if (new Date(newWorkData.start_date) > new Date(newWorkData.end_date)) {
+        errors.date = "Start Date must be before End Date";
+      }
+    }
+    if (newWorkData.location && !isValidTextString(newWorkData.location)) {
+      errors.location = "Location must contain letters and cannot be just numbers";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setNewWorkErrors(errors);
+      return;
+    }
+
+    setNewWorkErrors({});
     if (parsedSections) {
       setParsedSections({
         ...parsedSections,
@@ -265,9 +380,24 @@ export default function UploadPage() {
   const handleStartEditEdu = (idx: number, data: any) => {
     setEditingEduIdx(idx);
     setEditEduData({ ...data });
+    setEduErrors({});
   };
 
   const handleSaveEdu = (idx: number) => {
+    const errors: any = {};
+    if (!isValidTextString(editEduData.degree)) {
+      errors.degree = "Degree must contain letters and cannot be just numbers";
+    }
+    if (!isValidTextString(editEduData.institution)) {
+      errors.institution = "Institution must contain letters and cannot be just numbers";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setEduErrors(errors);
+      return;
+    }
+
+    setEduErrors({});
     if (parsedSections) {
       const updated = [...parsedSections.education];
       updated[idx] = editEduData;
@@ -291,6 +421,20 @@ export default function UploadPage() {
   };
 
   const handleAddEdu = () => {
+    const errors: any = {};
+    if (!isValidTextString(newEduData.degree)) {
+      errors.degree = "Degree must contain letters and cannot be just numbers";
+    }
+    if (!isValidTextString(newEduData.institution)) {
+      errors.institution = "Institution must contain letters and cannot be just numbers";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setNewEduErrors(errors);
+      return;
+    }
+
+    setNewEduErrors({});
     if (parsedSections) {
       setParsedSections({
         ...parsedSections,
@@ -318,7 +462,12 @@ export default function UploadPage() {
   };
 
   const handleAddSkill = () => {
-    if (newSkillText.trim() && parsedSections) {
+    if (!isValidTextString(newSkillText)) {
+      setSkillError("Skill must contain letters and cannot be just numbers");
+      return;
+    }
+    setSkillError("");
+    if (parsedSections) {
       if (!parsedSections.skills.includes(newSkillText.trim())) {
         setParsedSections({
           ...parsedSections,
@@ -333,9 +482,15 @@ export default function UploadPage() {
   const handleStartEditProject = (idx: number, text: string) => {
     setEditingProjectIdx(idx);
     setEditProjectText(text);
+    setProjectError("");
   };
 
   const handleSaveProject = (idx: number) => {
+    if (!isValidTextString(editProjectText)) {
+      setProjectError("Project description must contain letters and cannot be just numbers");
+      return;
+    }
+    setProjectError("");
     if (parsedSections) {
       const updated = [...parsedSections.projects];
       updated[idx] = editProjectText;
@@ -359,7 +514,12 @@ export default function UploadPage() {
   };
 
   const handleAddProject = () => {
-    if (newProjectText.trim() && parsedSections) {
+    if (!isValidTextString(newProjectText)) {
+      setNewProjectError("Project description must contain letters and cannot be just numbers");
+      return;
+    }
+    setNewProjectError("");
+    if (parsedSections) {
       setParsedSections({
         ...parsedSections,
         projects: [...parsedSections.projects, newProjectText.trim()]
@@ -373,9 +533,15 @@ export default function UploadPage() {
   const handleStartEditCert = (idx: number, text: string) => {
     setEditingCertIdx(idx);
     setEditCertText(text);
+    setCertError("");
   };
 
   const handleSaveCert = (idx: number) => {
+    if (!isValidTextString(editCertText)) {
+      setCertError("Certification name must contain letters and cannot be just numbers");
+      return;
+    }
+    setCertError("");
     if (parsedSections) {
       const updated = [...parsedSections.certifications];
       updated[idx] = editCertText;
@@ -399,7 +565,12 @@ export default function UploadPage() {
   };
 
   const handleAddCert = () => {
-    if (newCertText.trim() && parsedSections) {
+    if (!isValidTextString(newCertText)) {
+      setNewCertError("Certification name must contain letters and cannot be just numbers");
+      return;
+    }
+    setNewCertError("");
+    if (parsedSections) {
       setParsedSections({
         ...parsedSections,
         certifications: [...parsedSections.certifications, newCertText.trim()]
@@ -670,8 +841,8 @@ export default function UploadPage() {
             ? {
                 ...f,
                 status: "uploading",
-                message: "Uploading...",
-                progress: 0,
+                message: "Extracting...",
+                progress: 20,
               }
             : f,
         ),
@@ -682,49 +853,69 @@ export default function UploadPage() {
       formData.append("llm_provider", selectedLLM);
       formData.append("force_ocr", forceOcr ? "true" : "false");
 
-      const response = await api.post(
-        `/upload`,
+      const extractResponse = await api.post(
+        `/upload/preview-sections`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / (progressEvent.total || 1)
-            );
-            setUploadFiles((prev) =>
-              prev.map((f) =>
-                f.id === uploadFile.id
-                  ? {
-                      ...f,
-                      progress: Math.min(percentCompleted, 99),
-                      message: "Uploading...",
-                    }
-                  : f
-              )
-            );
-          },
         }
       );
 
-      const { candidateId } = response.data.data;
+      const rawText = extractResponse.data.raw_text || "";
+      const rawSections = extractResponse.data.sections || {};
+      const extracted = {
+        experience: rawSections.experience || { text: "", char_count: 0 },
+        education: rawSections.education || { text: "", char_count: 0 },
+        skills: rawSections.skills || { text: "", char_count: 0 },
+        summary: rawSections.summary || { text: "", char_count: 0 },
+        certifications: rawSections.certifications || { text: "", char_count: 0 },
+        projects: rawSections.projects || { text: "", char_count: 0 },
+        contact: rawSections.contact || { text: "", char_count: 0 },
+      };
 
       setUploadFiles((prev) =>
         prev.map((f) =>
           f.id === uploadFile.id
             ? {
                 ...f,
-                status: "parsing",
-                message: "Queued for parsing...",
-                progress: 0,
-                candidateId,
+                message: "Parsing with AI...",
+                progress: 60,
+              }
+            : f,
+        ),
+      );
+
+      const parseResponse = await api.post(`/upload/parse-sections`, {
+          model: selectedLLM,
+          experience_text: extracted.experience?.text || "",
+          education_text: extracted.education?.text || "",
+          skills_text: extracted.skills?.text || "",
+          summary_text: extracted.summary?.text || "",
+          certifications_text: extracted.certifications?.text || "",
+          projects_text: extracted.projects?.text || "",
+          contact_text: extracted.contact?.text || "",
+          raw_text: rawText,
+      });
+
+      const parsedData = parseResponse.data;
+
+      setUploadFiles((prev) =>
+        prev.map((f) =>
+          f.id === uploadFile.id
+            ? {
+                ...f,
+                status: "completed",
+                message: "Ready for review!",
+                progress: 100,
+                result: parsedData,
               }
             : f
         )
       );
 
-      toast.success(`${uploadFile.file.name} uploaded successfully!`);
+      toast.success(`${uploadFile.file.name} parsed successfully!`);
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || "Upload failed";
       setUploadFiles((prev) =>
@@ -735,6 +926,29 @@ export default function UploadPage() {
         )
       );
       toast.error(`Failed to upload ${uploadFile.file.name}: ${errorMessage}`);
+    }
+  };
+
+  const handleViewBulkFile = (fileId: string) => {
+    const file = uploadFiles.find(f => f.id === fileId);
+    if (file && file.result) {
+      setParsedSections(file.result);
+      setParsedName(file.result.contact?.name || "");
+      setParsedEmail(file.result.contact?.email || "");
+      setParsedPhone(file.result.contact?.phone || "");
+      setViewingBulkFileId(fileId);
+      
+      // Reset editing states
+      setEditingProjectIdx(null);
+      setEditingCertIdx(null);
+      setEditingWorkIdx(null);
+      setEditingEduIdx(null);
+      setIsAddingProject(false);
+      setIsAddingCert(false);
+      setIsAddingWork(false);
+      setIsAddingEdu(false);
+
+      toast.success("Ready to review. Scroll down to edit and save!");
     }
   };
 
@@ -796,6 +1010,75 @@ export default function UploadPage() {
       return;
     }
 
+    // --- Global Validation ---
+    if (!isValidTextString(parsedName)) {
+      toast.error("Candidate Name is required and must contain letters (min 2 characters)");
+      return;
+    }
+    if (parsedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parsedEmail)) {
+      toast.error("Invalid email format");
+      return;
+    }
+    if (parsedPhone && parsedPhone.replace(/\D/g, '').length < 7) {
+      toast.error("Invalid phone number format");
+      return;
+    }
+
+    for (let i = 0; i < parsedSections.work_experience.length; i++) {
+      const exp = parsedSections.work_experience[i];
+      if (!isValidTextString(exp.job_title)) {
+        toast.error(`Work Experience #${i + 1}: Job Title must contain letters`);
+        return;
+      }
+      if (!isValidTextString(exp.company_name)) {
+        toast.error(`Work Experience #${i + 1}: Company Name must contain letters`);
+        return;
+      }
+      if (exp.start_date && exp.end_date && !exp.is_current) {
+        if (new Date(exp.start_date) > new Date(exp.end_date)) {
+          toast.error(`Work Experience "${exp.job_title}": Start Date must be before End Date`);
+          return;
+        }
+      }
+      if (exp.location && !isValidTextString(exp.location)) {
+        toast.error(`Work Experience #${i + 1}: Location must contain letters`);
+        return;
+      }
+    }
+
+    for (let i = 0; i < parsedSections.education.length; i++) {
+      const edu = parsedSections.education[i];
+      if (!isValidTextString(edu.degree)) {
+        toast.error(`Education #${i + 1}: Degree must contain letters`);
+        return;
+      }
+      if (!isValidTextString(edu.institution)) {
+        toast.error(`Education #${i + 1}: Institution must contain letters`);
+        return;
+      }
+    }
+
+    for (let i = 0; i < parsedSections.projects.length; i++) {
+      if (!isValidTextString(parsedSections.projects[i])) {
+        toast.error(`Project #${i + 1} must contain letters`);
+        return;
+      }
+    }
+
+    for (let i = 0; i < parsedSections.certifications.length; i++) {
+      if (!isValidTextString(parsedSections.certifications[i])) {
+        toast.error(`Certification #${i + 1} must contain letters`);
+        return;
+      }
+    }
+
+    for (let i = 0; i < parsedSections.skills.length; i++) {
+      if (!isValidTextString(parsedSections.skills[i])) {
+        toast.error(`Skill #${i + 1} must contain letters`);
+        return;
+      }
+    }
+
     setIsSavingCandidate(true);
 
     try {
@@ -817,10 +1100,16 @@ export default function UploadPage() {
       );
 
       toast.success("Candidate Profile saved successfully!");
-      if (response.data?.candidate?.id) {
-        navigate(`/candidates/${response.data.candidate.id}`);
+      if (isBulkMode && viewingBulkFileId) {
+        setUploadFiles(prev => prev.map(f => f.id === viewingBulkFileId ? { ...f, status: "saved", message: "Saved!" } : f));
+        setViewingBulkFileId(null);
+        setParsedSections(null);
       } else {
-        navigate("/candidates");
+        if (response.data?.candidate?.id) {
+          navigate(`/candidates/${response.data.candidate.id}`);
+        } else {
+          navigate("/candidates");
+        }
       }
     } catch (error: any) {
       console.error("Error saving candidate:", error);
@@ -1101,11 +1390,13 @@ export default function UploadPage() {
         </div>
       )}
 
-      {/* Extracted Sections Preview */}
-      {extractedSections && !isBulkMode && (
-        <div className="space-y-6">
-          {/* Section Preview Header */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+      {/* Extracted Sections Preview / Parsed Results Editor */}
+      {((extractedSections && !isBulkMode) || (parsedSections && viewingBulkFileId)) && (
+        <div className="space-y-6 mt-8">
+          {extractedSections && !isBulkMode && (
+            <>
+              {/* Section Preview Header */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Extracted Sections</h2>
             <p className="text-sm text-gray-600 mb-4">
               Review and edit the extracted sections below before parsing with the AI model.
@@ -1426,6 +1717,8 @@ export default function UploadPage() {
               </div>
             </div>
           </div>
+          </>
+          )}
 
           {/* Parsed Results */}
           {parsedSections && (
@@ -1443,41 +1736,98 @@ export default function UploadPage() {
                 </p>
               </div>
 
-              {/* Contact Details (Editable) */}
-              <div className="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Contact Details (Rule-wise / Regex Extracted)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Candidate Name</label>
-                    <input
-                      type="text"
-                      value={parsedName}
-                      onChange={(e) => setParsedName(e.target.value)}
-                      placeholder="Candidate name..."
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      value={parsedEmail}
-                      onChange={(e) => setParsedEmail(e.target.value)}
-                      placeholder="Email address..."
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={parsedPhone}
-                      onChange={(e) => setParsedPhone(e.target.value)}
-                      placeholder="Phone number..."
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
+              {/* Contact Details */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Contact Details (Rule-wise / Regex Extracted)
+                  </h3>
+                  <div className="flex gap-2">
+                    {!isEditingContact ? (
+                      <>
+                        <button
+                          onClick={handleStartEditContact}
+                          className="px-2.5 py-1 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={handleDeleteContact}
+                          className="px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={handleSaveContact}
+                          className="px-2.5 py-1 text-xs font-semibold text-green-600 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setIsEditingContact(false)}
+                          className="px-2.5 py-1 text-xs font-semibold text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
+                {isEditingContact ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Candidate Name</label>
+                      <input
+                        type="text"
+                        value={tempContact.name}
+                        onChange={(e) => setTempContact({ ...tempContact, name: e.target.value })}
+                        placeholder="Candidate name..."
+                        className={`w-full px-2.5 py-1.5 bg-white border ${contactErrors.name ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                      />
+                      {contactErrors.name && <p className="text-red-500 text-xs mt-1">{contactErrors.name}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Email Address</label>
+                      <input
+                        type="email"
+                        value={tempContact.email}
+                        onChange={(e) => setTempContact({ ...tempContact, email: e.target.value })}
+                        placeholder="Email address..."
+                        className={`w-full px-2.5 py-1.5 bg-white border ${contactErrors.email ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                      />
+                      {contactErrors.email && <p className="text-red-500 text-xs mt-1">{contactErrors.email}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Phone Number</label>
+                      <input
+                        type="text"
+                        value={tempContact.phone}
+                        onChange={(e) => setTempContact({ ...tempContact, phone: e.target.value })}
+                        placeholder="Phone number..."
+                        className={`w-full px-2.5 py-1.5 bg-white border ${contactErrors.phone ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                      />
+                      {contactErrors.phone && <p className="text-red-500 text-xs mt-1">{contactErrors.phone}</p>}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
+                    <div>
+                      <span className="text-gray-500 block text-xs mb-1">Candidate Name</span>
+                      <span className="font-medium text-gray-900">{parsedName || <span className="text-gray-400 italic">Not available</span>}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 block text-xs mb-1">Email Address</span>
+                      <span className="font-medium text-gray-900">{parsedEmail || <span className="text-gray-400 italic">Not available</span>}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 block text-xs mb-1">Phone Number</span>
+                      <span className="font-medium text-gray-900">{parsedPhone || <span className="text-gray-400 italic">Not available</span>}</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Professional Summary */}
@@ -1555,41 +1905,54 @@ export default function UploadPage() {
                   <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
                     <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Work Experience</h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                      <input
-                        type="text"
-                        placeholder="Job Title"
-                        value={newWorkData.job_title}
-                        onChange={(e) => setNewWorkData({ ...newWorkData, job_title: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Company Name"
-                        value={newWorkData.company_name}
-                        onChange={(e) => setNewWorkData({ ...newWorkData, company_name: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Location"
-                        value={newWorkData.location}
-                        onChange={(e) => setNewWorkData({ ...newWorkData, location: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Start Date (e.g. 2023-01-01)"
-                        value={newWorkData.start_date}
-                        onChange={(e) => setNewWorkData({ ...newWorkData, start_date: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="End Date (or Present)"
-                        value={newWorkData.end_date}
-                        onChange={(e) => setNewWorkData({ ...newWorkData, end_date: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Job Title"
+                          value={newWorkData.job_title}
+                          onChange={(e) => setNewWorkData({ ...newWorkData, job_title: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.job_title ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newWorkErrors.job_title && <p className="text-red-500 text-xs mt-1">{newWorkErrors.job_title}</p>}
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Company Name"
+                          value={newWorkData.company_name}
+                          onChange={(e) => setNewWorkData({ ...newWorkData, company_name: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.company_name ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newWorkErrors.company_name && <p className="text-red-500 text-xs mt-1">{newWorkErrors.company_name}</p>}
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Location"
+                          value={newWorkData.location}
+                          onChange={(e) => setNewWorkData({ ...newWorkData, location: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.location ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newWorkErrors.location && <p className="text-red-500 text-xs mt-1">{newWorkErrors.location}</p>}
+                      </div>
+                      <div>
+                        <input
+                          type="date"
+                          value={parseToDateInput(newWorkData.start_date)}
+                          onChange={(e) => setNewWorkData({ ...newWorkData, start_date: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="date"
+                          disabled={newWorkData.is_current}
+                          value={newWorkData.is_current ? "" : parseToDateInput(newWorkData.end_date)}
+                          onChange={(e) => setNewWorkData({ ...newWorkData, end_date: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newWorkErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 disabled:bg-gray-100`}
+                        />
+                        {newWorkErrors.date && <p className="text-red-500 text-xs mt-1">{newWorkErrors.date}</p>}
+                      </div>
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -1627,7 +1990,7 @@ export default function UploadPage() {
                 <div className="space-y-4">
                   {parsedSections.work_experience.map((exp, idx) => (
                     <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
-                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-4 right-4 flex gap-1.5 transition-opacity">
                         {editingWorkIdx !== idx ? (
                           <>
                             <button
@@ -1670,8 +2033,9 @@ export default function UploadPage() {
                                 type="text"
                                 value={editWorkData.job_title || ""}
                                 onChange={(e) => setEditWorkData({ ...editWorkData, job_title: e.target.value })}
-                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.job_title ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
+                              {workErrors.job_title && <p className="text-red-500 text-xs mt-1">{workErrors.job_title}</p>}
                             </div>
                             <div>
                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Company Name</label>
@@ -1679,8 +2043,9 @@ export default function UploadPage() {
                                 type="text"
                                 value={editWorkData.company_name || ""}
                                 onChange={(e) => setEditWorkData({ ...editWorkData, company_name: e.target.value })}
-                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.company_name ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
+                              {workErrors.company_name && <p className="text-red-500 text-xs mt-1">{workErrors.company_name}</p>}
                             </div>
                             <div>
                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Location</label>
@@ -1688,26 +2053,29 @@ export default function UploadPage() {
                                 type="text"
                                 value={editWorkData.location || ""}
                                 onChange={(e) => setEditWorkData({ ...editWorkData, location: e.target.value })}
-                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.location ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
+                              {workErrors.location && <p className="text-red-500 text-xs mt-1">{workErrors.location}</p>}
                             </div>
                             <div>
                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Start Date</label>
                               <input
-                                type="text"
-                                value={editWorkData.start_date || ""}
+                                type="date"
+                                value={parseToDateInput(editWorkData.start_date)}
                                 onChange={(e) => setEditWorkData({ ...editWorkData, start_date: e.target.value })}
-                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                               />
                             </div>
                             <div>
                               <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">End Date</label>
                               <input
-                                type="text"
-                                value={editWorkData.end_date || ""}
+                                type="date"
+                                disabled={editWorkData.is_current}
+                                value={editWorkData.is_current ? "" : parseToDateInput(editWorkData.end_date)}
                                 onChange={(e) => setEditWorkData({ ...editWorkData, end_date: e.target.value })}
-                                className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                                className={`w-full px-2.5 py-1.5 bg-white border ${workErrors.date ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm disabled:opacity-50 disabled:bg-gray-100`}
                               />
+                              {workErrors.date && <p className="text-red-500 text-xs mt-1">{workErrors.date}</p>}
                             </div>
                             <div className="flex items-center gap-2 pt-5">
                               <input
@@ -1797,20 +2165,26 @@ export default function UploadPage() {
                   <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
                     <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Education</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                      <input
-                        type="text"
-                        placeholder="Degree / Qualification"
-                        value={newEduData.degree}
-                        onChange={(e) => setNewEduData({ ...newEduData, degree: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Institution / University"
-                        value={newEduData.institution}
-                        onChange={(e) => setNewEduData({ ...newEduData, institution: e.target.value })}
-                        className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Degree / Qualification"
+                          value={newEduData.degree}
+                          onChange={(e) => setNewEduData({ ...newEduData, degree: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newEduErrors.degree ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newEduErrors.degree && <p className="text-red-500 text-xs mt-1">{newEduErrors.degree}</p>}
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Institution / University"
+                          value={newEduData.institution}
+                          onChange={(e) => setNewEduData({ ...newEduData, institution: e.target.value })}
+                          className={`w-full px-3 py-1.5 bg-white border ${newEduErrors.institution ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                        {newEduErrors.institution && <p className="text-red-500 text-xs mt-1">{newEduErrors.institution}</p>}
+                      </div>
                       <input
                         type="text"
                         placeholder="Field of Study"
@@ -1819,9 +2193,8 @@ export default function UploadPage() {
                         className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
                       <input
-                        type="text"
-                        placeholder="Graduation Date / Year"
-                        value={newEduData.graduation_date}
+                        type="date"
+                        value={parseToDateInput(newEduData.graduation_date)}
                         onChange={(e) => setNewEduData({ ...newEduData, graduation_date: e.target.value })}
                         className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
@@ -1846,7 +2219,7 @@ export default function UploadPage() {
                 <div className="space-y-3">
                   {parsedSections.education.map((edu, idx) => (
                     <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
-                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-4 right-4 flex gap-1.5 transition-opacity">
                         {editingEduIdx !== idx ? (
                           <>
                             <button
@@ -1888,8 +2261,9 @@ export default function UploadPage() {
                               type="text"
                               value={editEduData.degree || ""}
                               onChange={(e) => setEditEduData({ ...editEduData, degree: e.target.value })}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              className={`w-full px-2.5 py-1.5 bg-white border ${eduErrors.degree ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                             />
+                            {eduErrors.degree && <p className="text-red-500 text-xs mt-1">{eduErrors.degree}</p>}
                           </div>
                           <div>
                             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Institution</label>
@@ -1897,8 +2271,9 @@ export default function UploadPage() {
                               type="text"
                               value={editEduData.institution || ""}
                               onChange={(e) => setEditEduData({ ...editEduData, institution: e.target.value })}
-                              className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
+                              className={`w-full px-2.5 py-1.5 bg-white border ${eduErrors.institution ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm`}
                             />
+                            {eduErrors.institution && <p className="text-red-500 text-xs mt-1">{eduErrors.institution}</p>}
                           </div>
                           <div>
                             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Field of Study</label>
@@ -1912,8 +2287,8 @@ export default function UploadPage() {
                           <div>
                             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Graduation Date</label>
                             <input
-                              type="text"
-                              value={editEduData.graduation_date || ""}
+                              type="date"
+                              value={parseToDateInput(editEduData.graduation_date)}
                               onChange={(e) => setEditEduData({ ...editEduData, graduation_date: e.target.value })}
                               className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm"
                             />
@@ -1961,26 +2336,29 @@ export default function UploadPage() {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Extracted Skills ({parsedSections.skills.length} - Rule-wise)
                   </h3>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Add a skill..."
-                      value={newSkillText}
-                      onChange={(e) => setNewSkillText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddSkill();
-                        }
-                      }}
-                      className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 w-36"
-                    />
-                    <button
-                      onClick={handleAddSkill}
-                      className="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs hover:bg-purple-700 font-medium"
-                    >
-                      Add
-                    </button>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Add a skill..."
+                        value={newSkillText}
+                        onChange={(e) => setNewSkillText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddSkill();
+                          }
+                        }}
+                        className={`px-3 py-1 bg-white border ${skillError ? 'border-red-500' : 'border-gray-200'} rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 w-36`}
+                      />
+                      <button
+                        onClick={handleAddSkill}
+                        className="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs hover:bg-purple-700 font-medium"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {skillError && <p className="text-red-500 text-[10px] m-0">{skillError}</p>}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -2024,12 +2402,15 @@ export default function UploadPage() {
                 {isAddingProject && (
                   <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
                     <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Project Description</h4>
-                    <textarea
-                      placeholder="Enter project details..."
-                      value={newProjectText}
-                      onChange={(e) => setNewProjectText(e.target.value)}
-                      className="w-full p-3 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-24"
-                    />
+                    <div className="flex flex-col gap-1">
+                      <textarea
+                        placeholder="Enter project details..."
+                        value={newProjectText}
+                        onChange={(e) => setNewProjectText(e.target.value)}
+                        className={`w-full p-3 bg-white border ${newProjectError ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 h-24`}
+                      />
+                      {newProjectError && <p className="text-red-500 text-xs mt-1">{newProjectError}</p>}
+                    </div>
                     <div className="flex justify-end gap-2 text-xs">
                       <button
                         onClick={handleAddProject}
@@ -2050,7 +2431,7 @@ export default function UploadPage() {
                 <div className="space-y-3">
                   {parsedSections.projects.map((proj, idx) => (
                     <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
-                      <div className="absolute top-4 right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-4 right-4 flex gap-1.5 transition-opacity">
                         {editingProjectIdx !== idx ? (
                           <>
                             <button
@@ -2085,11 +2466,14 @@ export default function UploadPage() {
                       </div>
 
                       {editingProjectIdx === idx ? (
-                        <textarea
-                          value={editProjectText}
-                          onChange={(e) => setEditProjectText(e.target.value)}
-                          className="w-full p-2.5 bg-white border border-gray-200 rounded-lg text-sm h-24 focus:outline-none"
-                        />
+                        <div className="flex flex-col w-full gap-1">
+                          <textarea
+                            value={editProjectText}
+                            onChange={(e) => setEditProjectText(e.target.value)}
+                            className={`w-full p-2.5 bg-white border ${projectError ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm h-24 focus:outline-none`}
+                          />
+                          {projectError && <p className="text-red-500 text-xs mt-1">{projectError}</p>}
+                        </div>
                       ) : (
                         <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed pr-20">
                           {proj}
@@ -2122,13 +2506,16 @@ export default function UploadPage() {
                 {isAddingCert && (
                   <div className="mb-4 bg-purple-50/50 p-4 rounded-xl border border-purple-200 space-y-3">
                     <h4 className="text-xs font-bold text-purple-800 uppercase tracking-wider">New Certification Name</h4>
-                    <input
-                      type="text"
-                      placeholder="e.g. AWS Certified Solutions Architect"
-                      value={newCertText}
-                      onChange={(e) => setNewCertText(e.target.value)}
-                      className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
+                    <div className="flex flex-col gap-1">
+                      <input
+                        type="text"
+                        placeholder="e.g. AWS Certified Solutions Architect"
+                        value={newCertText}
+                        onChange={(e) => setNewCertText(e.target.value)}
+                        className={`w-full px-3 py-1.5 bg-white border ${newCertError ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                      />
+                      {newCertError && <p className="text-red-500 text-xs mt-1">{newCertError}</p>}
+                    </div>
                     <div className="flex justify-end gap-2 text-xs">
                       <button
                         onClick={handleAddCert}
@@ -2151,12 +2538,15 @@ export default function UploadPage() {
                     <li key={idx} className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200 text-sm text-gray-700 relative group">
                       {editingCertIdx === idx ? (
                         <div className="flex items-center gap-2 w-full pr-20">
-                          <input
-                            type="text"
-                            value={editCertText}
-                            onChange={(e) => setEditCertText(e.target.value)}
-                            className="flex-grow px-2 py-1 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                          />
+                          <div className="flex flex-col w-full gap-1">
+                            <input
+                              type="text"
+                              value={editCertText}
+                              onChange={(e) => setEditCertText(e.target.value)}
+                              className={`flex-grow px-2 py-1 bg-white border ${certError ? 'border-red-500' : 'border-gray-200'} rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                            />
+                            {certError && <p className="text-red-500 text-xs mt-1">{certError}</p>}
+                          </div>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2.5 pr-20">
@@ -2167,7 +2557,7 @@ export default function UploadPage() {
                         </div>
                       )}
 
-                      <div className="absolute right-4 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute right-4 flex gap-1.5 transition-opacity">
                         {editingCertIdx !== idx ? (
                           <>
                             <button
@@ -2378,7 +2768,7 @@ export default function UploadPage() {
                   )}
                   <span
                     className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                      uploadFile.status === "completed"
+                      uploadFile.status === "completed" || uploadFile.status === "saved"
                         ? "bg-gradient-to-r from-teal-500 to-teal-600 text-white"
                         : uploadFile.status === "error"
                           ? "bg-gradient-to-r from-red-500 to-pink-500 text-white"
@@ -2413,6 +2803,20 @@ export default function UploadPage() {
                       style={{ width: `${uploadFile.progress}%` }}
                     />
                   </div>
+                  {uploadFile.status === "completed" && !uploadFile.candidateId && (
+                    <div className="flex justify-end mt-3">
+                      <button
+                        onClick={() => handleViewBulkFile(uploadFile.id)}
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Review Profile
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

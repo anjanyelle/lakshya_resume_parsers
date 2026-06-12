@@ -12,6 +12,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.62.8",
     "axios": "^1.13.6",
+    "country-state-city": "^3.2.1",
     "echarts": "^6.0.0",
     "lucide-react": "^0.468.0",
     "mammoth": "^1.6.0",

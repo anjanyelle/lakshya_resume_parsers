@@ -132,9 +132,10 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
       ["present","current","now","till date"].includes(String(w.end_date || "").toLowerCase());
     await client.query(
       `INSERT INTO work_history
-         (candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+         (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
       [
+        uuidv4(),
         candidateId,
         trunc(w.job_title || w.title),
         trunc(w.company_name || w.company),
@@ -289,8 +290,8 @@ export const uploadResume = async (
     const candidateId = uuidv4();
     const tenantId    = (req as any).user?.tenant_id || "default";
     const cRes = await client.query(
-      `INSERT INTO candidates (id, status, tenant_id, raw_resume_text, created_at, updated_at)
-       VALUES ($1,'pending',$2,$3,NOW(),NOW()) RETURNING *`,
+      `INSERT INTO candidates (id, status, review_status, tenant_id, consent_given, raw_resume_text, created_at, updated_at)
+       VALUES ($1,'pending','pending',$2,false,$3,NOW(),NOW()) RETURNING *`,
       [candidateId, tenantId, rawResumeText || null]
     );
     const candidate = cRes.rows[0];
@@ -419,6 +420,9 @@ export const uploadResume = async (
         directClient.release();
       }
   } catch (error) {
+    if (client) {
+      try { await client.query("ROLLBACK"); } catch (e) {}
+    }
     if (req.file) deleteUploadedFile(req.file.path);
     console.error("❌ Upload error:", error);
 
