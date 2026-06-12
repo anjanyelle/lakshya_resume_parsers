@@ -111,13 +111,31 @@ CREATE INDEX IF NOT EXISTS idx_education_candidate_id ON education (candidate_id
 -- 7. job_descriptions table
 -- ============================================================
 CREATE TABLE IF NOT EXISTS job_descriptions (
-    id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title            VARCHAR(255) NOT NULL,
-    department       VARCHAR(255),
-    description      TEXT,
-    required_skills  JSONB DEFAULT '[]',
-    experience_years INTEGER,
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title                 VARCHAR(255) NOT NULL,
+    department            VARCHAR(255),
+    description           TEXT,
+    required_skills       JSONB DEFAULT '[]',
+    experience_years      INTEGER,
+    created_at            TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    location              VARCHAR(255),
+    employment_type       VARCHAR(50),
+    min_experience_years  INTEGER,
+    max_experience_years  INTEGER,
+    education_level       VARCHAR(100),
+    salary_min            INTEGER,
+    salary_max            INTEGER,
+    updated_at            TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    education_requirement VARCHAR(255),
+    seniority_level       VARCHAR(100),
+    salary_range          VARCHAR(255),
+    status                VARCHAR(50) DEFAULT 'active',
+    preferred_skills      JSONB DEFAULT '[]',
+    currency              VARCHAR(10) DEFAULT 'USD',
+    salary_period         VARCHAR(20) DEFAULT 'Yearly',
+    work_mode             VARCHAR(50),
+    number_of_openings    INTEGER DEFAULT 1,
+    notice_period         VARCHAR(50)
 );
 
 CREATE INDEX IF NOT EXISTS idx_job_descriptions_title      ON job_descriptions (title);
