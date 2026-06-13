@@ -189,9 +189,10 @@ EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 -- ============================================================
--- STEP 6: match_scores — add extended columns
+-- STEP 6: match_scores — add extended columns and fix types
 -- ============================================================
 
+-- First, ensure columns exist (they might be created as TEXT[] if new)
 ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS role_score            NUMERIC;
 ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS project_score         NUMERIC;
 ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS certification_score   NUMERIC;
@@ -206,6 +207,39 @@ ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS match_summary         TEXT;
 ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS match_label           VARCHAR(50);
 ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS jd_hash               VARCHAR(64);
 ALTER TABLE match_scores ADD COLUMN IF NOT EXISTS updated_at            TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+
+-- CRITICAL FIX for the "invalid input syntax for type json" error
+-- If the columns were previously created as JSONB (from old migration 015),
+-- we must explicitly cast them to TEXT[] so node-postgres can pass JS arrays cleanly.
+DO $$
+BEGIN
+    -- Create a temporary helper function for conversion
+    CREATE OR REPLACE FUNCTION pg_temp.jsonb_to_text_array(j jsonb) RETURNS text[] AS $func$
+    BEGIN
+      IF j IS NULL OR jsonb_typeof(j) != 'array' THEN
+        RETURN '{}'::text[];
+      END IF;
+      RETURN ARRAY(SELECT jsonb_array_elements_text(j));
+    END;
+    $func$ LANGUAGE plpgsql IMMUTABLE;
+
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='match_scores' AND column_name='matching_skills' AND data_type='jsonb') THEN
+        ALTER TABLE match_scores ALTER COLUMN matching_skills TYPE text[] USING pg_temp.jsonb_to_text_array(matching_skills::jsonb);
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='match_scores' AND column_name='missing_skills' AND data_type='jsonb') THEN
+        ALTER TABLE match_scores ALTER COLUMN missing_skills TYPE text[] USING pg_temp.jsonb_to_text_array(missing_skills::jsonb);
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='match_scores' AND column_name='extra_skills' AND data_type='jsonb') THEN
+        ALTER TABLE match_scores ALTER COLUMN extra_skills TYPE text[] USING pg_temp.jsonb_to_text_array(extra_skills::jsonb);
+    END IF;
+    
+    -- Also check matched_skills (old column name from 015)
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='match_scores' AND column_name='matched_skills' AND data_type='jsonb') THEN
+        ALTER TABLE match_scores ALTER COLUMN matched_skills TYPE text[] USING pg_temp.jsonb_to_text_array(matched_skills::jsonb);
+    END IF;
+END $$;
 
 -- Ensure UNIQUE constraint on (candidate_id, job_id)
 DO $$
