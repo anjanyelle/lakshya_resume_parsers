@@ -91,7 +91,7 @@ export const matchCandidatesToJob = async (
         linkedin: candidate.linkedin_url,
         github: candidate.github_url,
         skills: candidate.skills || [],
-        years_of_experience: candidate.years_experience || undefined,
+        years_of_experience: candidate.years_of_experience || undefined,
         work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
         education: candidate.education || [],
         parsed_data: candidate.parsed_data || null,
@@ -101,8 +101,8 @@ export const matchCandidatesToJob = async (
         id: job.id,
         title: job.title,
         description: job.description,
-        required_skills: job.required_skills || [],
-        preferred_skills: job.preferred_skills || [],
+        required_skills: (job.required_skills || []).filter(Boolean),
+        preferred_skills: (job.preferred_skills || []).filter(Boolean),
         min_experience_years: job.min_experience_years,
         max_experience_years: job.max_experience_years,
         education_requirement: job.education_requirement,
@@ -389,7 +389,7 @@ export const matchSingleCandidate = async (
                  FROM education ed
                  WHERE ed.candidate_id = c.id
                ) as education,
-               c.years_experience
+               c.years_of_experience
         FROM candidates c
         WHERE c.id = $1
       `;
@@ -441,7 +441,7 @@ export const matchSingleCandidate = async (
           linkedin: candidate.linkedin_url,
           github: candidate.github_url,
           skills: candidate.skills || [],
-          years_of_experience: candidate.years_experience || undefined,
+          years_of_experience: candidate.years_of_experience || undefined,
           work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
           education: candidate.education || [],
         },
@@ -449,8 +449,8 @@ export const matchSingleCandidate = async (
           id: job.id,
           title: job.title,
           description: job.description,
-          required_skills: job.required_skills || [],
-          preferred_skills: job.preferred_skills || [],
+          required_skills: (job.required_skills || []).filter(Boolean),
+          preferred_skills: (job.preferred_skills || []).filter(Boolean),
           min_experience_years: job.min_experience_years,
           max_experience_years: job.max_experience_years,
           education_requirement: job.education_requirement,
@@ -570,7 +570,7 @@ export const parseJDAndMatch = async (
           c.location,
           c.summary,
           c.raw_resume_text,
-          c.years_experience,
+          c.years_of_experience,
           c.projects,
           -- Skills array
           (
@@ -650,8 +650,8 @@ export const parseJDAndMatch = async (
         location: row.location,
         summary: row.summary,
         raw_resume_text: row.raw_resume_text,
-        years_of_experience: row.years_experience
-          ? parseFloat(row.years_experience)
+        years_of_experience: row.years_of_experience
+          ? parseFloat(row.years_of_experience)
           : undefined,
         skills: (row.skills || []).filter(Boolean) as string[],
         work_history: (row.work_history && row.work_history[0] !== null

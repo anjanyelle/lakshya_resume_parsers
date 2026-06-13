@@ -495,7 +495,7 @@ export const getUploadStats = async (
 
       // Get candidates with files
       const withFilesResult = await client.query(
-        "SELECT COUNT(*) FROM candidates WHERE file_path IS NOT NULL",
+        "SELECT COUNT(*) FROM candidates WHERE resume_file_path IS NOT NULL",
       );
       const withFiles = parseInt(withFilesResult.rows[0].count);
 
