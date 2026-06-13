@@ -2392,6 +2392,16 @@ export default function UploadPage() {
                         />
                         {newEduErrors.graduation_date && <p className="text-red-500 text-xs mt-1">{newEduErrors.graduation_date}</p>}
                       </div>
+                      <div>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="GPA / Percentage"
+                          value={newEduData.gpa ?? ""}
+                          onChange={(e) => setNewEduData({ ...newEduData, gpa: e.target.value ? parseFloat(e.target.value) : null })}
+                          className={`w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500`}
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-end gap-2 text-xs">
                       <button
@@ -2517,6 +2527,18 @@ export default function UploadPage() {
                             />
                             {eduErrors.graduation_date && <p className="text-red-500 text-xs mt-1">{eduErrors.graduation_date}</p>}
                           </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">GPA / Percentage</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={editEduData.gpa ?? ""}
+                              onChange={(e) => {
+                                setEditEduData({ ...editEduData, gpa: e.target.value ? parseFloat(e.target.value) : null });
+                              }}
+                              className={`w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm`}
+                            />
+                          </div>
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 gap-3 text-sm pr-20">
@@ -2542,6 +2564,12 @@ export default function UploadPage() {
                             <div>
                               <span className="text-gray-600">Graduation:</span>
                               <span className="font-medium text-gray-900 ml-2">{edu.graduation_date}</span>
+                            </div>
+                          )}
+                          {edu.gpa != null && (
+                            <div>
+                              <span className="text-gray-600">GPA/Percentage:</span>
+                              <span className="font-medium text-gray-900 ml-2">{edu.gpa}</span>
                             </div>
                           )}
                         </div>

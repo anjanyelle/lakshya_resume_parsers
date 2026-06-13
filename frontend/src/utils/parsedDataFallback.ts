@@ -164,6 +164,7 @@ export function educationFromParsed(items: any[] | undefined): Education[] {
       field_of_study: _get(item, "field_of_study") ?? null,
       start_date: startDate ?? null,
       end_date: endDate ?? null,
+      gpa: item?.gpa ?? item?.grade ?? null,
       description,
     };
   });

@@ -389,6 +389,8 @@ export default function CandidatesPage() {
             {paginatedCandidates.map((candidate) => {
               const fullName = candidate.full_name || (candidate as any).name || "Unnamed Candidate";
               const displayName = fullName.length > 18 ? fullName.substring(0, 18) + "..." : fullName;
+              const email = candidate.email || "";
+              const displayEmail = email.length > 22 ? email.substring(0, 22) + "..." : email;
 
               return (
                 <div
@@ -398,17 +400,17 @@ export default function CandidatesPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center">
-                      <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
+                      <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
                         <User className="w-6 h-6 text-purple-600" />
                       </div>
-                      <div className="ml-3">
+                      <div className="ml-3 min-w-0">
                         <h3
                           title={fullName}
                           className="font-semibold text-gray-900 text-lg truncate cursor-pointer hover:text-purple-600 transition-colors"
                         >
                           {displayName}
                         </h3>
-                        <p className="text-sm text-gray-600">{candidate.email}</p>
+                        <p title={email} className="text-sm text-gray-600 truncate">{displayEmail || "No email"}</p>
                       </div>
                     </div>
 

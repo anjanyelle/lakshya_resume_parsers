@@ -34,6 +34,7 @@ function toPayload(item: Partial<Education>): EducationPayload {
     field_of_study: item.field_of_study ?? null,
     start_date: item.start_date ?? null,
     end_date: item.end_date ?? null,
+    gpa: item.gpa ? Number(item.gpa) : null,
     description: item.description ?? null,
   };
 }
@@ -98,6 +99,7 @@ export default function EducationSection({
         field_of_study: form.field_of_study || null,
         start_date: form.start_date || null,
         end_date: form.end_date || null,
+        gpa: form.gpa || null,
         description: form.description || null,
       };
       if (editingId && !isParsedId(editingId)) {
@@ -195,6 +197,11 @@ export default function EducationSection({
                   {item.description && (
                     <p className="mt-1 text-xs text-slate-600">
                       {item.description}
+                    </p>
+                  )}
+                  {item.gpa != null && (
+                    <p className="mt-1 text-xs font-medium text-slate-700">
+                      GPA / Percentage: {item.gpa}
                     </p>
                   )}
                 </div>
@@ -298,6 +305,23 @@ export default function EducationSection({
                   setForm((f) => ({ ...f, end_date: e.target.value }))
                 }
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                GPA / Percentage
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={form.gpa ?? ""}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, gpa: e.target.value ? parseFloat(e.target.value) : null }))
+                }
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                placeholder="e.g. 3.8 or 85"
               />
             </div>
           </div>
