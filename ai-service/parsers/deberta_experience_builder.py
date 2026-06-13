@@ -287,7 +287,13 @@ class DeBERTaExperienceBuilder:
         companies.sort(key=lambda x: x['start'])
         
         experiences = []
-        proximity_window = 400  # Characters - entities within this range are grouped together (increased from 150 to catch all entries)
+        proximity_window = 400  # Characters - entities within this range are grouped together
+
+        # ── Entity consumption tracking (Problem 5 fix) ───────────────────────
+        # Tracks entity positions that have already been claimed by a company.
+        # Prevents the same ROLE / DATE / LOCATION from being assigned to two
+        # adjacent companies when their proximity windows overlap.
+        used_entity_positions: set = set()
         
         for i, company in enumerate(companies):
             company_pos = company['start']
@@ -297,12 +303,33 @@ class DeBERTaExperienceBuilder:
             window_start = max(0, company_pos - proximity_window)
             window_end = company_pos + proximity_window
             
-            # Find entities within proximity window
-            nearby_role = self._find_entity_in_window(roles, window_start, window_end, company_pos)
-            nearby_location = self._find_entity_in_window(locations, window_start, window_end, company_pos)
-            nearby_start_date = self._find_entity_in_window(start_dates, window_start, window_end, company_pos)
-            nearby_end_date = self._find_entity_in_window(end_dates, window_start, window_end, company_pos)
-            nearby_client = self._find_entity_in_window(clients_raw, window_start, window_end, company_pos)
+            # Find entities within proximity window — skipping already-consumed ones
+            nearby_role = self._find_entity_in_window(
+                roles, window_start, window_end, company_pos,
+                exclude_positions=used_entity_positions
+            )
+            nearby_location = self._find_entity_in_window(
+                locations, window_start, window_end, company_pos,
+                exclude_positions=used_entity_positions
+            )
+            nearby_start_date = self._find_entity_in_window(
+                start_dates, window_start, window_end, company_pos,
+                exclude_positions=used_entity_positions
+            )
+            nearby_end_date = self._find_entity_in_window(
+                end_dates, window_start, window_end, company_pos,
+                exclude_positions=used_entity_positions
+            )
+            nearby_client = self._find_entity_in_window(
+                clients_raw, window_start, window_end, company_pos,
+                exclude_positions=used_entity_positions
+            )
+
+            # Mark claimed entities as consumed so adjacent companies cannot reuse them
+            for matched in [nearby_role, nearby_location, nearby_start_date,
+                            nearby_end_date, nearby_client]:
+                if matched:
+                    used_entity_positions.add(matched['start'])
             
             # Check if end date indicates current position
             is_current = False
@@ -349,23 +376,33 @@ class DeBERTaExperienceBuilder:
         return experiences
     
     def _find_entity_in_window(self, entities: List[Dict], window_start: int, window_end: int, 
-                                anchor_pos: int) -> Dict:
+                                anchor_pos: int,
+                                exclude_positions: set = None) -> Dict:
         """
         Find the entity closest to anchor_pos within the given window.
-        
+
         Args:
-            entities: List of entity dictionaries with 'start', 'end', 'text', 'type'
-            window_start: Start of search window (character position)
-            window_end: End of search window (character position)
-            anchor_pos: Anchor position (e.g., company position) to measure distance from
+            entities:          List of entity dictionaries with 'start', 'end', 'text', 'type'
+            window_start:      Start of search window (character position)
+            window_end:        End of search window (character position)
+            anchor_pos:        Anchor position (e.g., company position) to measure distance from
+            exclude_positions: Set of entity 'start' positions already consumed by another company.
+                               Entities whose start is in this set are skipped.
+                               (Improves Problem 5: prevents cross-record entity sharing)
             
         Returns:
             Entity dictionary if found, None otherwise
         """
+        if exclude_positions is None:
+            exclude_positions = set()
+
         candidates = []
         
         for entity in entities:
             entity_pos = entity['start']
+            # Skip entities already consumed by a closer company
+            if entity_pos in exclude_positions:
+                continue
             # Check if entity is within window
             if window_start <= entity_pos <= window_end:
                 # Calculate distance from anchor

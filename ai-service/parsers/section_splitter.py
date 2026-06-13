@@ -529,7 +529,11 @@ class SectionSplitter:
             
             # Save the last section
             if current_content:
-                sections[current_section] = '\n'.join(current_content).strip()
+                content_text = '\n'.join(current_content).strip()
+                if current_section in sections:
+                    sections[current_section] += '\n\n' + content_text
+                else:
+                    sections[current_section] = content_text
             
             # If we only have the default contact section, rename it to 'other' to ensure compatibility
             if len(sections) == 1 and 'contact' in sections:
