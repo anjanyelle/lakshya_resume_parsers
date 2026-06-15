@@ -129,6 +129,7 @@ class DeBERTaNerParser:
         """
         Pre-process text to normalize format for better model inference.
         Removes format artifacts that confuse the model.
+        Extended to remove Responsibilities, Duties, Environment, Technologies, etc.
         """
         import re
         
@@ -144,12 +145,83 @@ class DeBERTaNerParser:
             r'^Location:\s*',
             r'^Duration:\s*',
             r'^Period:\s*',
+            # Extended prefixes for noise removal
+            r'^Duties:\s*',
+            r'^Duty:\s*',
+            r'^Technologies:\s*',
+            r'^Technology Stack:\s*',
+            r'^Tech Stack:\s*',
+            r'^Tools Used:\s*',
+            r'^Tools:\s*',
+            r'^Frameworks:\s*',
+            r'^Platforms:\s*',
+            r'^Libraries:\s*',
+            r'^Cloud Services:\s*',
+            r'^Utilities Used:\s*',
+            r'^Software Used:\s*',
+            r'^Development Tools:\s*',
+            r'^Project Description:\s*',
+            r'^Description:\s*',
+            r'^Achievements:\s*',
+            r'^Key Achievements:\s*',
+            r'^Skills Used:\s*',
+            r'^Key Skills:\s*',
+            r'^Technical Skills:\s*',
+        ]
+        
+        # Section headers to skip entirely (not just prefixes)
+        section_headers_to_skip = [
+            r'^Responsibilities$',
+            r'^Duties$',
+            r'^Environment$',
+            r'^Technologies$',
+            r'^Technology Stack$',
+            r'^Tech Stack$',
+            r'^Tools Used$',
+            r'^Tools$',
+            r'^Frameworks$',
+            r'^Platforms$',
+            r'^Libraries$',
+            r'^Cloud Services$',
+            r'^Utilities Used$',
+            r'^Software Used$',
+            r'^Development Tools$',
+            r'^Project Description$',
+            r'^Description$',
+            r'^Achievements$',
+            r'^Key Achievements$',
+            r'^Skills Used$',
+            r'^Key Skills$',
+            r'^Technical Skills$',
         ]
         
         lines = text.split('\n')
         cleaned_lines = []
+        in_noise_section = False
         
         for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            
+            # Check if this is a noise section header
+            for header_pattern in section_headers_to_skip:
+                if re.match(header_pattern, stripped, re.IGNORECASE):
+                    in_noise_section = True
+                    break
+            
+            # If we're in a noise section, skip until we hit a new entity-bearing line
+            if in_noise_section:
+                # Check if this line looks like an entity (company, role, date, location)
+                # Entity indicators: dates, company-like words, role-like words
+                if (re.search(r'\b\d{4}\b', stripped) or  # Date
+                    re.search(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}', stripped, re.IGNORECASE) or  # Month date
+                    re.search(r'\b(?:at|@)\s+[A-Z]', stripped, re.IGNORECASE) or  # Company indicator
+                    re.search(r'\b(?:Engineer|Developer|Manager|Director|Analyst|Specialist|Consultant|Architect|Lead|Senior|Junior)\b', stripped, re.IGNORECASE)):  # Role indicator
+                    in_noise_section = False
+                else:
+                    continue  # Skip this line
+            
             cleaned_line = line
             # Remove prefixes from each line
             for prefix_pattern in prefixes_to_remove:
@@ -171,10 +243,67 @@ class DeBERTaNerParser:
             action_verbs = r'(?i)^(developed|designed|managed|led|responsible|worked|created|implemented|architected|built|maintained|collaborated|participated|involved|using|integrated|optimized|improved|resolved|tested|analyzed|supported|delivered|directed)\b'
             if re.match(action_verbs, stripped):
                 continue
+            
+            # Skip lines that are purely tech keywords (not entities)
+            tech_keywords_pattern = r'(?i)^(?:python|java|javascript|typescript|react|angular|vue|node\.js|docker|kubernetes|aws|azure|gcp|sql|mongodb|postgresql|redis|git|html|css|redux|graphql|rest api|microservices|ci/cd|jenkins|linux|windows|agile|scrum|jira|maven|gradle|hadoop|spark|scala|kotlin|swift|flutter|django|flask|spring|spring boot|hibernate|oracle|mysql|elasticsearch|kafka|rabbitmq|terraform|ansible|s3|ec2|lambda|dynamodb|cloudwatch|api|rest|soap|server|database|system|cloud|machine learning|ml|ai|artificial intelligence|deep learning|nlp|computer vision|data analytics|data science|big data|data warehousing|etl|pipeline|pipelines)(?:[\s,;]|$)'
+            if re.match(tech_keywords_pattern, stripped):
+                continue
                 
             cleaned_lines.append(cleaned_line)
         
         return '\n'.join(cleaned_lines)
+    
+    def _is_valid_record(self, record_text: str) -> bool:
+        """
+        Validate if a record is valid for DeBERTa processing.
+        
+        A record is invalid if:
+        - < 20 characters
+        - Only punctuation
+        - Only one token
+        - Only location
+        - Only date
+        
+        Args:
+            record_text: Text of the record
+            
+        Returns:
+            True if valid, False otherwise
+        """
+        import re
+        
+        if not record_text or not record_text.strip():
+            return False
+        
+        stripped = record_text.strip()
+        
+        # Check minimum length
+        if len(stripped) < 20:
+            return False
+        
+        # Check if only punctuation
+        if re.match(r'^[\s\-\–—•\*\+\:\,\.\;\!\?\(\)\[\]\{\}\/\\\|]+$', stripped):
+            return False
+        
+        # Check if only one token
+        tokens = stripped.split()
+        if len(tokens) == 1:
+            return False
+        
+        # Check if only location (contains only location keywords)
+        location_keywords = ['india', 'usa', 'ca', 'ny', 'tx', 'wa', 'bangalore', 
+                           'hyderabad', 'chennai', 'mumbai', 'delhi', 'pune',
+                           'seattle', 'francisco', 'york', 'austin', 'boston',
+                           'remote', 'on-site', 'onsite']
+        if all(token.lower() in location_keywords for token in tokens):
+            return False
+        
+        # Check if only date (contains only date patterns)
+        date_pattern = re.compile(r'^\s*(?:\d{4}|\w+\s+\d{4}|\d{1,2}/\d{1,2}/\d{4})\s*$', re.IGNORECASE)
+        if date_pattern.match(stripped):
+            return False
+        
+        return True
     
     def _load_model(self):
         """Load the trained DeBERTa NER model with graceful fallback."""
@@ -311,62 +440,98 @@ class DeBERTaNerParser:
         Extract only Work Experience and Education sections for DeBERTa processing.
         This focused approach prevents token truncation and improves accuracy.
         
+        Phase 1 Fix: Use comprehensive SectionSplitter to prevent leakage from other sections.
+        
         Args:
             text: Full resume text
             
         Returns:
             Dictionary with clean work_experience and education sections
         """
-        import re
-        
-        # Split text into lines for better section detection
-        lines = text.split('\n')
+        # Phase 1: Use comprehensive SectionSplitter to prevent leakage
+        from parsers.section_splitter import SectionSplitter
+        splitter = SectionSplitter()
         
         sections = {'work_experience_text': '', 'education_text': ''}
         
-        # Find section boundaries by detecting headers
-        work_start = -1
-        work_end = -1
-        edu_start = -1
-        edu_end = -1
-        
-        # Common section headers (case-insensitive)
-        work_headers = ['work experience', 'employment history', 'professional experience', 
-                       'experience', 'career history', 'work history', 'professional background']
-        edu_headers = ['education', 'academic background', 'qualifications', 
-                      'educational background', 'academic qualifications']
-        other_headers = ['projects', 'certifications', 'skills', 'technical skills', 
-                        'summary', 'objective', 'achievements', 'awards', 'publications']
-        
-        # Find work experience section
-        for i, line in enumerate(lines):
-            line_lower = line.strip().lower()
+        try:
+            # Use SectionSplitter for comprehensive section detection
+            all_sections = splitter.split_sections(text)
             
-            # Check if this line is a work experience header
-            if any(header == line_lower or line_lower.startswith(header) for header in work_headers):
-                work_start = i  # Include the header line (structured parser will handle it)
-                continue
+            # Extract experience section with proper stop conditions
+            if 'experience' in all_sections:
+                sections['work_experience_text'] = all_sections['experience'].strip()
+                logger.info(f"✅ Phase 1: Extracted experience section ({len(sections['work_experience_text'])} chars) using SectionSplitter")
+            else:
+                logger.warning("⚠️ Phase 1: No experience section found by SectionSplitter")
             
-            # Check if this line is an education header (marks end of work experience)
+            # Extract education section with proper stop conditions
+            if 'education' in all_sections:
+                sections['education_text'] = all_sections['education'].strip()
+                logger.info(f"✅ Phase 1: Extracted education section ({len(sections['education_text'])} chars) using SectionSplitter")
+            else:
+                logger.warning("⚠️ Phase 1: No education section found by SectionSplitter")
+            
+            # Phase 1: Verify no leakage - check for other section content in extracted sections
+            # Common section headers that should NOT appear in experience/education
+            leakage_indicators = ['skills', 'certifications', 'projects', 'summary', 'objective', 
+                                 'achievements', 'awards', 'publications', 'references', 'languages',
+                                 'volunteering', 'interests', 'hobbies']
+            
+            for section_type, section_text in sections.items():
+                if section_text:
+                    section_lower = section_text.lower()
+                    for indicator in leakage_indicators:
+                        # Check if section header appears in the middle of extracted text
+                        if f'\n{indicator}' in section_lower or f'{indicator}:' in section_lower:
+                            logger.warning(f"⚠️ Phase 1: Potential leakage detected in {section_type}: contains '{indicator}'")
+                            # Truncate at the leakage point
+                            leakage_pos = section_lower.find(indicator)
+                            if leakage_pos > 0:
+                                sections[section_type] = section_text[:leakage_pos].strip()
+                                logger.info(f"✅ Phase 1: Truncated {section_type} at leakage point")
+            
+        except Exception as e:
+            logger.error(f"❌ Phase 1: Error using SectionSplitter: {e}, falling back to simple extraction")
+            # Fallback to simple extraction if SectionSplitter fails
+            import re
+            lines = text.split('\n')
+            
+            work_start = -1
+            work_end = -1
+            edu_start = -1
+            edu_end = -1
+            
+            # Common section headers (case-insensitive)
+            work_headers = ['work experience', 'employment history', 'professional experience', 
+                           'experience', 'career history', 'work history', 'professional background']
+            edu_headers = ['education', 'academic background', 'qualifications', 
+                          'educational background', 'academic qualifications']
+            other_headers = ['projects', 'certifications', 'skills', 'technical skills', 
+                            'summary', 'objective', 'achievements', 'awards', 'publications']
+            
+            # Find work experience section
+            for i, line in enumerate(lines):
+                line_lower = line.strip().lower()
+                
+                if any(header == line_lower or line_lower.startswith(header) for header in work_headers):
+                    work_start = i
+                    continue
+                
+                if work_start != -1 and work_end == -1:
+                    if any(header == line_lower or line_lower.startswith(header) for header in edu_headers + other_headers):
+                        work_end = i
+                        break
+            
             if work_start != -1 and work_end == -1:
-                if any(header == line_lower or line_lower.startswith(header) for header in edu_headers + other_headers):
-                    work_end = i
-                    break
-        
-        # If work section found but no end, take rest of document
-        if work_start != -1 and work_end == -1:
-            work_end = len(lines)
-        
-        # Extract work experience text
-        if work_start != -1 and work_end != -1:
-            # Skip the header line (work_start) and extract content only
-            work_lines = lines[work_start + 1:work_end]
-            sections['work_experience_text'] = '\n'.join(work_lines).strip()
-        else:
-            # If no section headers found, assume entire text is work experience
-            # This handles cases where text is already just the work experience section
-            logger.info("No work experience header found, treating entire text as work experience")
-            sections['work_experience_text'] = text.strip()
+                work_end = len(lines)
+            
+            if work_start != -1 and work_end != -1:
+                work_lines = lines[work_start + 1:work_end]
+                sections['work_experience_text'] = '\n'.join(work_lines).strip()
+            else:
+                logger.info("No work experience header found, treating entire text as work experience")
+                sections['work_experience_text'] = text.strip()
         
         # Find education section
         for i, line in enumerate(lines):
@@ -700,30 +865,243 @@ class DeBERTaNerParser:
         
         return ' '.join(result_parts)
     
-    def _parse_single_section(self, text: str, section_type: str) -> Dict[str, List[str]]:
-        """Parse a single section with DeBERTa using Hugging Face pipeline with aggregation."""
-        if not text or not text.strip():
-            logger.warning(f"Empty {section_type} section, skipping DeBERTa parsing")
+    def _split_text_into_chunks(self, text: str, max_chars: int = 400) -> List[str]:
+        """
+        Split text into safe semantic chunks to prevent token truncation.
+        Splits at sentence boundaries to preserve meaning.
+        
+        Args:
+            text: Text to chunk
+            max_chars: Maximum characters per chunk (default 400, safe for 512 token limit)
+            
+        Returns:
+            List of text chunks
+        """
+        import re
+        
+        if not text or len(text) <= max_chars:
+            return [text]
+        
+        chunks = []
+        current_chunk = ""
+        
+        # Split by sentences (period, question mark, exclamation)
+        sentences = re.split(r'(?<=[.!?])\s+', text)
+        
+        for sentence in sentences:
+            if len(current_chunk) + len(sentence) + 1 <= max_chars:
+                if current_chunk:
+                    current_chunk += " " + sentence
+                else:
+                    current_chunk = sentence
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk)
+                current_chunk = sentence
+        
+        if current_chunk:
+            chunks.append(current_chunk)
+        
+        logger.info(f"   📦 Split text into {len(chunks)} chunks (max {max_chars} chars each)")
+        return chunks
+    
+    def _parse_single_record(self, record_text: str, section_type: str, record_id: int = 0) -> Dict[str, List[str]]:
+        """
+        Parse a single record (job or education entry) with DeBERTa.
+        Supports chunking for large records.
+        
+        Args:
+            record_text: Text of a single record
+            section_type: Type of section ('experience' or 'education')
+            record_id: ID of the record for tracking (Bug 4 fix)
+            
+        Returns:
+            Dictionary of extracted entities
+        """
+        if not record_text or not record_text.strip():
             return {}
         
+        # Stage 6: Normalization Logging
+        logger.info("\n" + "=" * 80)
+        logger.info("🔄 STEP 6: NORMALIZATION")
+        logger.info("=" * 80)
+        logger.info(f"Record {record_id}")
+        logger.info("\nRaw Record:")
+        logger.info("-" * 80)
+        logger.info(record_text)
+        logger.info("-" * 80)
+        
         # Detect and convert structured formats to natural language
-        text = self._convert_to_natural_language(text)
+        record_text = self._convert_to_natural_language(record_text)
+        
+        logger.info("\nNormalized Record:")
+        logger.info("-" * 80)
+        logger.info(record_text)
+        logger.info("-" * 80)
+        logger.info("=" * 80)
+        
+        # Stage 7: Preprocessing Logging
+        logger.info("\n" + "=" * 80)
+        logger.info("🧹 STEP 7: PREPROCESSING")
+        logger.info("=" * 80)
+        logger.info(f"Record {record_id}")
+        logger.info("\nBefore preprocessing:")
+        logger.info("-" * 80)
+        logger.info(record_text)
+        logger.info("-" * 80)
         
         # Pre-process text to normalize format
-        text = self._preprocess_text(text)
+        record_text = self._preprocess_text(record_text)
         
-        # Log the input text for debugging
-        logger.info(f"🔍 DeBERTa parsing {section_type} section:")
-        logger.info(f"   Text length: {len(text)} chars")
-        logger.info(f"   Text preview: {text[:300]}...")
+        logger.info("\nAfter preprocessing:")
+        logger.info("-" * 80)
+        logger.info(record_text)
+        logger.info("-" * 80)
+        logger.info("=" * 80)
         
+        # Stage 8: Chunking Logging
+        logger.info("\n" + "=" * 80)
+        logger.info("📦 STEP 8: CHUNKING")
+        logger.info("=" * 80)
+        logger.info(f"Record {record_id}")
+        
+        # Check if record needs chunking
+        chunks = self._split_text_into_chunks(record_text, max_chars=400)
+        
+        logger.info(f"Total chunks: {len(chunks)}")
+        logger.info("\n")
+        
+        for chunk_idx, chunk in enumerate(chunks):
+            logger.info("=" * 80)
+            logger.info(f"CHUNK {chunk_idx + 1}")
+            logger.info("=" * 80)
+            logger.info(f"Character count: {len(chunk)}")
+            logger.info("\nChunk text:")
+            logger.info("-" * 80)
+            logger.info(chunk)
+            logger.info("-" * 80)
+            logger.info("\n")
+        
+        logger.info("=" * 80)
+        
+        # Initialize entities for this record
+        all_entities = {
+            'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
+            'START_DATE': [], 'DATE_START': [], 'END_DATE': [], 'DATE_END': [],
+            'DEGREE': [], 'EDUCATION': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
+            'EDU_YEAR_START': [], 'EDU_YEAR_END': [],
+            '_positions': []  # Bug 4 fix: Ensure _positions exists
+        }
+        
+        # Process each chunk and merge results
+        chunk_offset = 0  # Track offset for chunk merging (Bug 9 fix)
+        for chunk_idx, chunk in enumerate(chunks):
+            # Stage 9: Final DeBERTa Input Logging
+            logger.info("\n" + "=" * 80)
+            logger.info("🤖 STEP 9: FINAL DEBERTA INPUT")
+            logger.info("=" * 80)
+            logger.info(f"Record {record_id}, Chunk {chunk_idx + 1}")
+            logger.info("\nExact text passed to model:")
+            logger.info("-" * 80)
+            logger.info(chunk)
+            logger.info("-" * 80)
+            logger.info("=" * 80)
+            
+            chunk_entities = self._run_deberta_inference(chunk, section_type, record_id)
+            
+            # Stage 10: Raw DeBERTa Output Logging
+            logger.info("\n" + "=" * 80)
+            logger.info("🧠 STEP 10: RAW DEBERTA OUTPUT")
+            logger.info("=" * 80)
+            logger.info(f"Record {record_id}, Chunk {chunk_idx + 1}")
+            logger.info("\nComplete NER output:")
+            logger.info("-" * 80)
+            for entity_type, entity_list in chunk_entities.items():
+                if entity_type != '_positions' and entity_list:
+                    logger.info(f"{entity_type}: {entity_list}")
+            logger.info("-" * 80)
+            logger.info("=" * 80)
+            
+            # Merge chunk entities into all_entities (Bug 9 fix: validate chunk merge)
+            for entity_type, entity_list in chunk_entities.items():
+                if entity_type == '_positions':
+                    # Adjust positions for chunk offset
+                    for pos_entity in entity_list:
+                        pos_entity['start'] = pos_entity.get('start', 0) + chunk_offset
+                        pos_entity['end'] = pos_entity.get('end', 0) + chunk_offset
+                        pos_entity['record_id'] = record_id
+                        pos_entity['type'] = pos_entity.get('type', '')
+                        pos_entity['text'] = pos_entity.get('text', '')
+                    all_entities[entity_type].extend(entity_list)
+                else:
+                    all_entities[entity_type].extend(entity_list)
+            
+            # Update chunk offset for next chunk
+            chunk_offset += len(chunk)
+            
+            # Bug 9 fix: Log chunk merge
+            logger.info(f"      📊 Chunk {chunk_idx + 1} offset: {chunk_offset - len(chunk)} to {chunk_offset}")
+        
+        # Deduplicate entities within this record (Bug 1 fix: skip _positions to avoid unhashable type: dict)
+        for entity_type in all_entities:
+            if entity_type == '_positions':
+                # _positions contains dictionaries, cannot use set()
+                # Deduplicate by text and type instead
+                seen = set()
+                deduped = []
+                for pos in all_entities[entity_type]:
+                    key = (pos.get('type', ''), pos.get('text', ''))
+                    if key not in seen:
+                        seen.add(key)
+                        deduped.append(pos)
+                all_entities[entity_type] = deduped
+            else:
+                # String entities can use set() for deduplication
+                all_entities[entity_type] = list(set(all_entities[entity_type]))
+        
+        # Bug 6 fix: Better debug logging - Final entities for record
+        final_summary = {k: len(v) for k, v in all_entities.items() if v and k != '_positions'}
+        logger.info(f"   ✅ Final Entities for Record {record_id}: {final_summary}")
+        
+        # Bug 11 fix: Log ExperienceBuilder output for this record
+        if section_type == 'experience':
+            logger.info(f"   🏢 ExperienceBuilder Output for Record {record_id}:")
+            logger.info(f"      Companies: {all_entities.get('COMPANY', [])}")
+            logger.info(f"      Roles: {all_entities.get('ROLE', [])}")
+            logger.info(f"      Locations: {all_entities.get('LOCATION', [])}")
+            logger.info(f"      Start Dates: {all_entities.get('START_DATE', [])}")
+            logger.info(f"      End Dates: {all_entities.get('END_DATE', [])}")
+        elif section_type == 'education':
+            logger.info(f"   🎓 EducationBuilder Output for Record {record_id}:")
+            logger.info(f"      Degrees: {all_entities.get('DEGREE', [])}")
+            logger.info(f"      Institutions: {all_entities.get('INSTITUTION', [])}")
+            logger.info(f"      Fields: {all_entities.get('FIELD', [])}")
+            logger.info(f"      Grades: {all_entities.get('GRADE', [])}")
+            logger.info(f"      Start Years: {all_entities.get('EDU_YEAR_START', [])}")
+            logger.info(f"      End Years: {all_entities.get('EDU_YEAR_END', [])}")
+        
+        return all_entities
+    
+    def _run_deberta_inference(self, text: str, section_type: str, record_id: int = 0) -> Dict[str, List[str]]:
+        """
+        Run DeBERTa inference on a single text chunk.
+        
+        Args:
+            text: Text to process
+            section_type: Type of section ('experience' or 'education')
+            record_id: ID of the record for tracking (Bug 4 fix)
+            
+        Returns:
+            Dictionary of extracted entities
+        """
         # Initialize entities with label names from trained model
-        entities_with_positions = []  # List of {type, text, start, end}
+        entities_with_positions = []  # List of {type, text, start, end, record_id}
         entities = {
             'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
-            'START_DATE': [], 'END_DATE': [], 'DATE_START': [], 'DATE_END': [],
+            'START_DATE': [], 'DATE_START': [], 'END_DATE': [], 'DATE_END': [],
             'DEGREE': [], 'EDUCATION': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
-            'EDU_YEAR_START': [], 'EDU_YEAR_END': []
+            'EDU_YEAR_START': [], 'EDU_YEAR_END': [],
+            '_positions': []  # Bug 2 fix: Ensure _positions exists
         }
         
         # Use Hugging Face pipeline with aggregation to properly combine multi-token entities
@@ -817,7 +1195,8 @@ class DeBERTaNerParser:
                         'type': entity_type,
                         'text': entity_text,
                         'start': entity_start,
-                        'end': entity_end
+                        'end': entity_end,
+                        'record_id': record_id  # Bug 4 fix: Track record_id
                     })
             
             logger.info(f"✅ Pipeline extracted {len(predictions)} aggregated entities")
@@ -868,7 +1247,8 @@ class DeBERTaNerParser:
                                 'type': current_entity,
                                 'text': clean_text,
                                 'start': current_start,
-                                'end': start
+                                'end': start,
+                                'record_id': record_id  # Bug 4 fix: Track record_id
                             })
                     
                     current_label = label[2:]
@@ -888,7 +1268,8 @@ class DeBERTaNerParser:
                                 'type': current_entity,
                                 'text': clean_text,
                                 'start': current_start,
-                                'end': start
+                                'end': start,
+                                'record_id': record_id  # Bug 4 fix: Track record_id
                             })
                         current_entity = None
                         current_text = ""
@@ -902,23 +1283,11 @@ class DeBERTaNerParser:
                     entities[current_entity].append(clean_text)
                     entities_with_positions.append({
                         'type': current_entity,
-                    'text': clean_text,
-                    'start': current_start,
-                    'end': len(text)  # End at text length
-                })
-        
-        # Log extracted entities (after validation filters)
-        entity_summary = {k: len(v) for k, v in entities.items() if v}
-        if not entity_summary:
-            logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type} after validation filters")
-            logger.warning(f"   This could mean: (1) Model didn't detect entities, or (2) Validation filters rejected them")
-        else:
-            logger.info(f"✅ DeBERTa extracted from {section_type} (before hybrid post-processing): {entity_summary}")
-            if entities.get('ROLE'):
-                logger.info(f"   Roles extracted: {entities['ROLE']}")
-            if entities.get('COMPANY'):
-                logger.info(f"   Companies extracted: {entities['COMPANY'][:5]}")  # First 5
-            logger.info(f"   Total entities with positions: {len(entities_with_positions)}")
+                        'text': clean_text,
+                        'start': current_start,
+                        'end': len(text),  # End at text length
+                        'record_id': record_id  # Bug 4 fix: Track record_id
+                    })
         
         # Store positions for proximity-based grouping (before hybrid processing)
         entities['_positions'] = entities_with_positions
@@ -928,14 +1297,234 @@ class DeBERTaNerParser:
         try:
             from parsers.hybrid_ner_postprocessor import apply_hybrid_postprocessing
             entities = apply_hybrid_postprocessing(entities, text)
-            
-            # Log after hybrid processing
-            entity_summary_after = {k: len(v) for k, v in entities.items() if v and k != '_positions'}
-            logger.info(f"✅ After hybrid post-processing: {entity_summary_after}")
-            if entities.get('PERSON_NAME'):
-                logger.info(f"   Person names added: {entities['PERSON_NAME']}")
         except Exception as e:
-            logger.warning(f"⚠️ Hybrid post-processing failed: {e}, using original entities")
+            logger.warning(f"Hybrid post-processing failed: {e}")
+        
+        return entities
+    
+    def _parse_section_with_record_splitting(self, text: str, section_type: str) -> Dict[str, List[str]]:
+        """
+        Parse a section by splitting it into individual records first.
+        This improves DeBERTa accuracy by processing each record separately.
+        
+        Args:
+            text: Section text (entire Experience or Education section)
+            section_type: Type of section ('experience' or 'education')
+            
+        Returns:
+            Dictionary of extracted entities from all records merged
+        """
+        if not text or not text.strip():
+            logger.warning(f"Empty {section_type} section, skipping record-level parsing")
+            return {}
+        
+        logger.info(f"🔍 Starting record-level parsing for {section_type} section ({len(text)} chars)")
+        
+        # Import SectionSplitter to reuse existing record splitting logic
+        from parsers.section_splitter import SectionSplitter
+        splitter = SectionSplitter()
+        
+        # Split section into individual records
+        if section_type == 'experience':
+            records = splitter.extract_experience_blocks(text)
+            logger.info(f"   📋 Split experience section into {len(records)} job records")
+        else:  # education
+            records = splitter.extract_education_blocks(text)
+            logger.info(f"   📋 Split education section into {len(records)} education records")
+        
+        # Validate and filter invalid records (Bug 1 fix)
+        valid_records = []
+        
+        # Stage 4/5: Record Splitting Logging (Experience or Education)
+        logger.info("\n" + "=" * 80)
+        if section_type == 'experience':
+            logger.info("📝 STEP 4: EXPERIENCE RECORD SPLITTING")
+        else:
+            logger.info("📝 STEP 5: EDUCATION RECORD SPLITTING")
+        logger.info("=" * 80)
+        logger.info(f"Total records found: {len(records)}")
+        logger.info("\n")
+        
+        for idx, record in enumerate(records):
+            # Convert record dict to text for validation
+            if isinstance(record, dict):
+                record_text = '\n'.join([f"{k}: {v}" for k, v in record.items() if v])
+            else:
+                record_text = str(record)
+            
+            logger.info("=" * 80)
+            if section_type == 'experience':
+                logger.info(f"EXPERIENCE RECORD {idx + 1}")
+            else:
+                logger.info(f"EDUCATION RECORD {idx + 1}")
+            logger.info("=" * 80)
+            logger.info(f"Character count: {len(record_text)}")
+            logger.info("\nComplete record:")
+            logger.info("-" * 80)
+            logger.info(record_text)
+            logger.info("-" * 80)
+            logger.info("\n")
+            
+            # Validate record
+            if self._is_valid_record(record_text):
+                valid_records.append(record)
+            else:
+                logger.warning(f"   ⚠️ Record {idx + 1} is invalid (< 20 chars, only punctuation, or single token), merging with adjacent record")
+                # Try to merge with previous or next record
+                if valid_records:
+                    # Merge with previous record
+                    prev_record = valid_records[-1]
+                    if isinstance(prev_record, dict):
+                        prev_text = '\n'.join([f"{k}: {v}" for k, v in prev_record.items() if v])
+                    else:
+                        prev_text = str(prev_record)
+                    merged_text = prev_text + '\n' + record_text
+                    # Update previous record with merged text
+                    if isinstance(prev_record, dict):
+                        # Keep the dict structure but update description
+                        prev_record['description'] = merged_text
+                    else:
+                        valid_records[-1] = merged_text
+                    logger.info(f"   ✅ Merged invalid record {idx + 1} with previous record")
+                elif idx + 1 < len(records):
+                    # Merge with next record
+                    next_record = records[idx + 1]
+                    if isinstance(next_record, dict):
+                        next_text = '\n'.join([f"{k}: {v}" for k, v in next_record.items() if v])
+                    else:
+                        next_text = str(next_record)
+                    merged_text = record_text + '\n' + next_text
+                    # Update next record with merged text
+                    if isinstance(next_record, dict):
+                        next_record['description'] = merged_text
+                    else:
+                        records[idx + 1] = merged_text
+                    logger.info(f"   ✅ Merged invalid record {idx + 1} with next record")
+        
+        logger.info("=" * 80)
+        records = valid_records
+        logger.info(f"   📋 After validation: {len(records)} valid records")
+        
+        # Initialize merged entities with positions for improved grouping
+        merged_entities = {
+            'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
+            'START_DATE': [], 'DATE_START': [], 'END_DATE': [], 'DATE_END': [],
+            'DEGREE': [], 'EDUCATION': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
+            'EDU_YEAR_START': [], 'EDU_YEAR_END': [],
+            '_positions': []  # Store positions for record-aware grouping
+        }
+        
+        # Track record boundaries for improved grouping
+        record_boundaries = []  # List of (start_pos, end_pos) for each record
+        current_pos = 0
+        
+        # Process each record
+        for idx, record in enumerate(records):
+            # Convert record dict to text
+            if isinstance(record, dict):
+                record_text = '\n'.join([f"{k}: {v}" for k, v in record.items() if v])
+            else:
+                record_text = str(record)
+            
+            record_start = current_pos
+            record_end = current_pos + len(record_text)
+            record_boundaries.append((record_start, record_end))
+            current_pos = record_end + 1  # +1 for separator
+            
+            logger.info(f"   📝 Processing record {idx + 1}/{len(records)} ({len(record_text)} chars, pos {record_start}-{record_end})")
+            
+            # Bug 11 fix: Detailed logging for each record
+            logger.info(f"   ==========================")
+            logger.info(f"   Record {idx + 1}")
+            logger.info(f"   ==========================")
+            logger.info(f"   📄 Raw Record:")
+            logger.info(f"      {record_text[:300]}...")
+            
+            try:
+                # Parse single record with chunking support (Bug 2 fix: continue on failure)
+                record_entities = self._parse_single_record(record_text, section_type, record_id=idx)
+                
+                # Ensure _positions exists (Bug 2 fix)
+                if '_positions' not in record_entities:
+                    record_entities['_positions'] = []
+                
+                # Merge record entities into merged_entities
+                # Adjust positions to be relative to the full text
+                for entity_type, entity_list in record_entities.items():
+                    if entity_type == '_positions':
+                        # Adjust positions for each entity (Bug 4 fix: validate entity merge)
+                        for pos_entity in entity_list:
+                            # Ensure all required fields exist (Bug 8 fix: validate _positions tracking)
+                            pos_entity['start'] = pos_entity.get('start', 0) + record_start
+                            pos_entity['end'] = pos_entity.get('end', 0) + record_start
+                            pos_entity['record_id'] = idx  # Track which record this entity came from
+                            pos_entity['type'] = pos_entity.get('type', '')
+                            pos_entity['text'] = pos_entity.get('text', '')
+                        merged_entities['_positions'].extend(entity_list)
+                    else:
+                        merged_entities[entity_type].extend(entity_list)
+                
+                # Bug 11 fix: Log merged entities for this record
+                merged_summary = {k: len(v) for k, v in record_entities.items() if v and k != '_positions'}
+                logger.info(f"   ✅ Merged Entities for Record {idx + 1}: {merged_summary}")
+            except Exception as e:
+                logger.error(f"   ❌ Error processing record {idx + 1}: {e}")
+                logger.error(f"   ⚠️ Skipping record {idx + 1} and continuing with next record")
+                continue  # Bug 2 fix: continue processing after record failure
+        
+        # Store record boundaries for improved grouping
+        merged_entities['_record_boundaries'] = record_boundaries
+        
+        # Deduplicate entities across all records (Bug 1 fix: handle _positions separately)
+        for entity_type in merged_entities:
+            if entity_type == '_positions':
+                # _positions contains dictionaries, cannot use set()
+                # Deduplicate by text, type, and record_id
+                seen = set()
+                deduped = []
+                for pos in merged_entities[entity_type]:
+                    key = (pos.get('type', ''), pos.get('text', ''), pos.get('record_id', 0))
+                    if key not in seen:
+                        seen.add(key)
+                        deduped.append(pos)
+                merged_entities[entity_type] = deduped
+            elif entity_type != '_record_boundaries':
+                # String entities can use set() for deduplication
+                merged_entities[entity_type] = list(set(merged_entities[entity_type]))
+        
+        logger.info(f"✅ Record-level parsing complete. Total entities: {sum(len(v) for k, v in merged_entities.items() if k not in ['_positions', '_record_boundaries'])}")
+        logger.info(f"   Record boundaries: {len(record_boundaries)} records")
+        
+        return merged_entities
+    
+    def _parse_single_section(self, text: str, section_type: str) -> Dict[str, List[str]]:
+        """
+        Parse a single section with DeBERTa using Hugging Face pipeline with aggregation.
+        Now uses record-level splitting for better accuracy.
+        """
+        if not text or not text.strip():
+            logger.warning(f"Empty {section_type} section, skipping DeBERTa parsing")
+            return {}
+        
+        # Use record-level splitting for better accuracy
+        logger.info(f"🔍 DeBERTa parsing {section_type} section with record-level splitting")
+        logger.info(f"   Text length: {len(text)} chars")
+        logger.info(f"   Text preview: {text[:300]}...")
+        
+        # Parse with record-level splitting
+        entities = self._parse_section_with_record_splitting(text, section_type)
+        
+        # Log extracted entities (after validation filters)
+        entity_summary = {k: len(v) for k, v in entities.items() if v}
+        if not entity_summary:
+            logger.warning(f"⚠️ DeBERTa extracted ZERO entities from {section_type} after validation filters")
+            logger.warning(f"   This could mean: (1) Model didn't detect entities, or (2) Validation filters rejected them")
+        else:
+            logger.info(f"✅ DeBERTa extracted from {section_type}: {entity_summary}")
+            if entities.get('ROLE'):
+                logger.info(f"   Roles extracted: {entities['ROLE']}")
+            if entities.get('COMPANY'):
+                logger.info(f"   Companies extracted: {entities['COMPANY'][:5]}")  # First 5
         
         return entities
     

@@ -7,6 +7,7 @@ import re
 import logging
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
+import json
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -2978,16 +2979,28 @@ class EducationExtractor:
         Returns:
             List of education dictionaries with detailed information
         """
+        # Stage 14: Education Builder Logging
+        logger.info("\n" + "=" * 80)
+        logger.info("🎓 STEP 14: EDUCATION BUILDER")
+        logger.info("=" * 80)
+        logger.info("\nInput entities:")
+        logger.info("-" * 80)
+        logger.info(f"Education section text: {education_section_text[:500]}...")
+        logger.info("-" * 80)
+        
         try:
             if not education_section_text or not education_section_text.strip():
+                logger.warning("No education text provided")
                 return []
             
             # Split into individual education blocks
             edu_blocks = self._split_into_education_blocks(education_section_text)
             
+            logger.info(f"\nTotal education blocks: {len(edu_blocks)}")
+            
             education_list = []
             
-            for block in edu_blocks:
+            for idx, block in enumerate(edu_blocks):
                 education = self._parse_education_block(block)
                 if education:
                     education_list.append(education)
@@ -2997,6 +3010,14 @@ class EducationExtractor:
             
             # Sort by end year (most recent first)
             education_list.sort(key=lambda x: x.get('end_year') or 0, reverse=True)
+            
+            logger.info("\nBuilt Education JSON:")
+            logger.info("-" * 80)
+            for idx, edu in enumerate(education_list):
+                logger.info(f"\nEducation {idx + 1}:")
+                logger.info(f"  {json.dumps(edu, indent=2)}")
+            logger.info("-" * 80)
+            logger.info("=" * 80)
             
             self.logger.info(f"Extracted {len(education_list)} education entries")
             return education_list

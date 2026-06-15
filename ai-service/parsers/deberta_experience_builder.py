@@ -10,6 +10,7 @@ import logging
 from typing import Dict, List, Any
 from collections import defaultdict
 import re
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +87,43 @@ class DeBERTaExperienceBuilder:
         Returns:
             List of structured work experience dictionaries
         """
+        # Stage 12: Entity Grouping Logging
+        logger.info("\n" + "=" * 80)
+        logger.info("🔄 STEP 12: ENTITY GROUPING")
+        logger.info("=" * 80)
+        logger.info("\nCompanies:")
+        logger.info("-" * 80)
+        companies = entities.get('COMPANY', []) or entities.get('companies', [])
+        logger.info(f"{companies}")
+        logger.info("-" * 80)
+        
+        logger.info("\nRoles:")
+        logger.info("-" * 80)
+        roles = entities.get('ROLE', []) or entities.get('job_titles', [])
+        logger.info(f"{roles}")
+        logger.info("-" * 80)
+        
+        logger.info("\nLocations:")
+        logger.info("-" * 80)
+        locations = entities.get('LOCATION', []) or entities.get('locations', [])
+        logger.info(f"{locations}")
+        logger.info("-" * 80)
+        
+        logger.info("\nDates:")
+        logger.info("-" * 80)
+        start_dates = entities.get('START_DATE', []) or entities.get('DATE_START', [])
+        end_dates = entities.get('END_DATE', []) or entities.get('DATE_END', [])
+        logger.info(f"Start dates: {start_dates}")
+        logger.info(f"End dates: {end_dates}")
+        logger.info("-" * 80)
+        
+        logger.info("\nClients:")
+        logger.info("-" * 80)
+        clients = entities.get('CLIENT', []) or entities.get('clients', [])
+        logger.info(f"{clients}")
+        logger.info("-" * 80)
+        logger.info("=" * 80)
+        
         # Check if we have position data from the new extraction method
         positions_data = entities.get('_positions', [])
         
@@ -96,8 +134,6 @@ class DeBERTaExperienceBuilder:
         else:
             # Fallback to old method using text.find()
             self.logger.info("⚠️ No position data, using fallback text.find() method")
-            companies = entities.get('COMPANY', []) or entities.get('companies', [])
-            roles = entities.get('ROLE', []) or entities.get('job_titles', [])
             start_dates = entities.get('DATE_START', []) or entities.get('START_DATE', []) or []
             end_dates = entities.get('DATE_END', []) or entities.get('END_DATE', []) or []
             locations = entities.get('LOCATION', []) or entities.get('locations', [])
@@ -110,23 +146,44 @@ class DeBERTaExperienceBuilder:
                 self.logger.warning("No companies or roles found in DeBERTa entities")
                 return []
             
-            # Strategy: Use companies as anchors - each company is a separate experience
-            experiences = self._build_experiences_by_company(
-                text, companies, roles, start_dates, end_dates, locations, clients
-            )
+            experiences = self._build_experiences_by_position(
+                positions_data, text
+            ) if positions_data else self._build_experiences_fallback(companies, roles, start_dates, end_dates, locations, clients, text)
+        
+        # Stage 13: Experience Builder Logging
+        logger.info("\n" + "=" * 80)
+        logger.info("🏢 STEP 13: EXPERIENCE BUILDER")
+        logger.info("=" * 80)
+        logger.info("\nInput entities:")
+        logger.info("-" * 80)
+        logger.info(f"Companies: {companies}")
+        logger.info(f"Roles: {roles}")
+        logger.info(f"Locations: {locations}")
+        logger.info(f"Start dates: {start_dates}")
+        logger.info(f"End dates: {end_dates}")
+        logger.info(f"Clients: {clients}")
+        logger.info("-" * 80)
+        
+        logger.info("\nBuilt Experience JSON:")
+        logger.info("-" * 80)
+        for idx, exp in enumerate(experiences):
+            logger.info(f"\nExperience {idx + 1}:")
+            logger.info(f"  {json.dumps(exp, indent=2)}")
+        logger.info("-" * 80)
+        logger.info("=" * 80)
         
         self.logger.info(f"✅ Built {len(experiences)} work experiences from DeBERTa entities")
         return experiences
     
     def _build_experiences_by_position(self, positions_data: List[Dict], text: str) -> List[Dict[str, Any]]:
         """
-        Build experiences using position-based clustering (NEW METHOD).
+        Build experiences using position-based clustering with record boundaries (IMPROVED METHOD).
         
-        Groups entities by proximity - entities within ~150 characters of each other
-        are considered part of the same job entry.
+        Groups entities by record boundaries first, then by proximity within each record.
+        This prevents cross-record confusion.
         
         Args:
-            positions_data: List of {type, text, start, end} dictionaries
+            positions_data: List of {type, text, start, end, record_id} dictionaries
             text: Original text for context
             
         Returns:
@@ -139,6 +196,13 @@ class DeBERTaExperienceBuilder:
         start_dates = [e for e in positions_data if e['type'] in ['START_DATE', 'DATE_START']]
         end_dates = [e for e in positions_data if e['type'] in ['END_DATE', 'DATE_END']]
         clients_raw = [e for e in positions_data if e['type'] == 'CLIENT']
+        
+        # Group entities by record_id if available (record-aware grouping)
+        if positions_data and 'record_id' in positions_data[0]:
+            self.logger.info("🎯 Using record-aware entity grouping")
+            return self._build_experiences_by_record_id(
+                companies_raw, roles_raw, locations, start_dates, end_dates, clients_raw, text
+            )
         
         # Filter out technology keywords and generic descriptors from roles
         roles = []
@@ -178,6 +242,106 @@ class DeBERTaExperienceBuilder:
         filtered_count = 0
         for company in companies_raw:
             company_text = company['text'].lower().strip()
+            
+            # Bug 3 fix: Additional filters for incorrect company names
+            # Filter out technologies, SQL queries, responsibilities, education text, skills, framework names
+            
+            # Check if it's a technology/framework name
+            tech_patterns = [
+                r'\bcloud composer\b',
+                r'\bcomputer science\b',
+                r'\bcomplex sql\b',
+                r'\bunified ehr\b',
+                r'\breact\b',
+                r'\bangular\b',
+                r'\bvue\b',
+                r'\bnode\.?js\b',
+                r'\bdocker\b',
+                r'\bkubernetes\b',
+                r'\baws\b',
+                r'\bazure\b',
+                r'\bgcp\b',
+                r'\bsql\b',
+                r'\bmongodb\b',
+                r'\bpostgresql\b',
+                r'\bredis\b',
+                r'\bpython\b',
+                r'\bjava\b',
+                r'\bjavascript\b',
+                r'\btypescript\b',
+                r'\bdjango\b',
+                r'\bflask\b',
+                r'\bspring\b',
+                r'\bhibernate\b',
+                r'\bgraphql\b',
+                r'\brest api\b',
+                r'\bmicroservices\b',
+                r'\bci/cd\b',
+            ]
+            
+            import re
+            for pattern in tech_patterns:
+                if re.search(pattern, company_text, re.IGNORECASE):
+                    filtered_count += 1
+                    self.logger.debug(f"🔧 Filtered technology/framework from companies: '{company['text']}'")
+                    continue
+            
+            # Check if it's a responsibility/action phrase
+            action_phrases = [
+                r'\bdeveloped\b',
+                r'\bdesigned\b',
+                r'\bimplemented\b',
+                r'\bbuilt\b',
+                r'\bcreated\b',
+                r'\bmanaged\b',
+                r'\bled\b',
+                r'\barchitected\b',
+                r'\boptimized\b',
+                r'\bimproved\b',
+                r'\bresolved\b',
+                r'\btested\b',
+                r'\banalyzed\b',
+                r'\bsupported\b',
+                r'\bdelivered\b',
+            ]
+            
+            for phrase in action_phrases:
+                if re.search(phrase, company_text, re.IGNORECASE):
+                    filtered_count += 1
+                    self.logger.debug(f"🔧 Filtered action phrase from companies: '{company['text']}'")
+                    continue
+            
+            # Check if it's education-related
+            edu_keywords = ['university', 'college', 'institute', 'school', 'bachelor', 'master', 'phd', 'degree', 'b.sc', 'm.sc', 'b.tech', 'm.tech']
+            if any(keyword in company_text for keyword in edu_keywords):
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered education term from companies: '{company['text']}'")
+                continue
+            
+            # Check if it's a skill/competency
+            skill_keywords = ['skills', 'competencies', 'technologies', 'frameworks', 'tools', 'libraries', 'platforms']
+            if any(keyword in company_text for keyword in skill_keywords):
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered skill term from companies: '{company['text']}'")
+                continue
+            
+            # Check if it's too short to be a company name (less than 3 chars)
+            if len(company['text'].strip()) < 3:
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered too-short text from companies: '{company['text']}'")
+                continue
+            
+            # Check if it's only punctuation
+            if re.match(r'^[\s\-\–—•\*\+\:\,\.\;\!\?\(\)\[\]\{\}\/\\\|]+$', company['text']):
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered punctuation-only from companies: '{company['text']}'")
+                continue
+            
+            # Check if it's a query/phrase (contains verbs)
+            if re.search(r'\b(developed|designed|implemented|built|created|managed|led|architected|optimized|improved|resolved|tested|analyzed|supported|delivered)\b', company_text, re.IGNORECASE):
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered query/phrase from companies: '{company['text']}'")
+                continue
             
             # Check if it's an exact match with tech keywords
             if company_text in self.tech_keywords:
@@ -273,11 +437,28 @@ class DeBERTaExperienceBuilder:
         
         self.logger.info(f" Position-based entities: {len(companies)} companies (after filtering), {len(roles)} roles, {len(locations)} locations")
         
-        # Fallback: If no companies but we have roles, try to extract companies from text using regex
+        # Bug 10 fix: Prevent regex fallback when DeBERTa already succeeded
+        # Only use regex fallback if DeBERTa completely failed (no entities at all)
+        # If companies is empty but we have roles/locations/dates, DeBERTa partially succeeded
+        # In that case, use record-aware grouping instead of regex fallback
         if not companies and roles:
-            self.logger.warning("⚠️ No companies extracted by DeBERTa, attempting regex fallback...")
-            companies = self._extract_companies_regex(text, positions_data)
-            self.logger.info(f"📝 Regex fallback found {len(companies)} companies")
+            # Check if DeBERTa extracted any entities at all
+            total_deberta_entities = len(companies) + len(roles) + len(locations) + len(start_dates) + len(end_dates) + len(clients_raw)
+            if total_deberta_entities == 0:
+                # DeBERTa completely failed, use regex fallback
+                self.logger.warning("⚠️ DeBERTa extracted ZERO entities, attempting regex fallback...")
+                companies = self._extract_companies_regex(text, positions_data)
+                self.logger.info(f"📝 Regex fallback found {len(companies)} companies")
+            else:
+                # DeBERTa partially succeeded but no companies found
+                # Try to use record-aware grouping or proximity-based grouping
+                self.logger.warning("⚠️ No companies extracted but other entities found, attempting record-aware grouping...")
+                # Don't use regex fallback, let the record-aware grouping handle it
+                if positions_data and 'record_id' in positions_data[0]:
+                    self.logger.info("🎯 Using record-aware grouping to find companies")
+                    # Record-aware grouping will be called later
+                else:
+                    self.logger.info("📝 Using proximity-based grouping to find companies")
         
         if not companies:
             self.logger.warning("No companies found - cannot build experiences")
@@ -346,6 +527,144 @@ class DeBERTaExperienceBuilder:
             start_text = nearby_start_date['text'] if nearby_start_date else 'No start'
             end_text = end_date_text or ('Present' if is_current else 'No end')
             self.logger.info(f"  ✓ Job {i+1}: {role_text} at {company['text']} ({start_text} - {end_text})")
+        return experiences
+    
+    def _build_experiences_by_record_id(self, companies_raw: List[Dict], roles_raw: List[Dict],
+                                       locations: List[Dict], start_dates: List[Dict],
+                                       end_dates: List[Dict], clients_raw: List[Dict],
+                                       text: str) -> List[Dict[str, Any]]:
+        """
+        Build experiences using record_id for grouping (IMPROVED METHOD).
+        
+        Groups entities by record_id first, then by proximity within each record.
+        This prevents cross-record confusion by ensuring entities from different records
+        are never grouped together.
+        
+        Args:
+            companies_raw: List of {type, text, start, end, record_id} for companies
+            roles_raw: List of {type, text, start, end, record_id} for roles
+            locations: List of {type, text, start, end, record_id} for locations
+            start_dates: List of {type, text, start, end, record_id} for start dates
+            end_dates: List of {type, text, start, end, record_id} for end dates
+            clients_raw: List of {type, text, start, end, record_id} for clients
+            text: Original text for context
+            
+        Returns:
+            List of structured work experience dictionaries
+        """
+        # Filter out technology keywords from roles
+        roles = []
+        for role in roles_raw:
+            role_text = role['text'].lower().strip()
+            if role_text not in self.tech_keywords:
+                roles.append(role)
+        
+        # Filter out technology keywords from companies
+        companies = []
+        for company in companies_raw:
+            company_text = company['text'].lower().strip()
+            if company_text not in self.tech_keywords:
+                companies.append(company)
+        
+        # Group entities by record_id
+        from collections import defaultdict
+        records = defaultdict(lambda: {
+            'companies': [],
+            'roles': [],
+            'locations': [],
+            'start_dates': [],
+            'end_dates': [],
+            'clients': []
+        })
+        
+        for company in companies:
+            record_id = company.get('record_id', 0)
+            records[record_id]['companies'].append(company)
+        
+        for role in roles:
+            record_id = role.get('record_id', 0)
+            records[record_id]['roles'].append(role)
+        
+        for location in locations:
+            record_id = location.get('record_id', 0)
+            records[record_id]['locations'].append(location)
+        
+        for start_date in start_dates:
+            record_id = start_date.get('record_id', 0)
+            records[record_id]['start_dates'].append(start_date)
+        
+        for end_date in end_dates:
+            record_id = end_date.get('record_id', 0)
+            records[record_id]['end_dates'].append(end_date)
+        
+        for client in clients_raw:
+            record_id = client.get('record_id', 0)
+            records[record_id]['clients'].append(client)
+        
+        self.logger.info(f"🎯 Grouped entities into {len(records)} records by record_id")
+        
+        # Build experiences for each record
+        experiences = []
+        for record_id, record_entities in sorted(records.items()):
+            self.logger.info(f"  📝 Building experience for record {record_id}")
+            
+            # Get the first company as anchor (or use first role if no company)
+            if record_entities['companies']:
+                anchor = record_entities['companies'][0]
+            elif record_entities['roles']:
+                anchor = record_entities['roles'][0]
+            else:
+                self.logger.warning(f"  ⚠️ No company or role in record {record_id}, skipping")
+                continue
+            
+            # Find the closest entities within this record
+            anchor_pos = anchor['start']
+            
+            # Use a smaller proximity window since we're within the same record
+            proximity_window = 200  # Reduced from 400 since we're within same record
+            window_start = max(0, anchor_pos - proximity_window)
+            window_end = anchor_pos + proximity_window
+            
+            nearby_role = self._find_entity_in_window(record_entities['roles'], window_start, window_end, anchor_pos)
+            nearby_location = self._find_entity_in_window(record_entities['locations'], window_start, window_end, anchor_pos)
+            nearby_start_date = self._find_entity_in_window(record_entities['start_dates'], window_start, window_end, anchor_pos)
+            nearby_end_date = self._find_entity_in_window(record_entities['end_dates'], window_start, window_end, anchor_pos)
+            nearby_client = self._find_entity_in_window(record_entities['clients'], window_start, window_end, anchor_pos)
+            
+            # Check if end date indicates current position
+            is_current = False
+            end_date_text = nearby_end_date['text'] if nearby_end_date else None
+            if end_date_text:
+                end_date_lower = end_date_text.lower()
+                if 'present' in end_date_lower or 'current' in end_date_lower:
+                    is_current = True
+                    end_date_text = None
+            
+            # Determine company and role
+            company_text = anchor['text'] if anchor['type'] == 'COMPANY' else (record_entities['companies'][0]['text'] if record_entities['companies'] else '')
+            role_text = nearby_role['text'] if nearby_role else (anchor['text'] if anchor['type'] == 'ROLE' else '')
+            
+            # Determine client name if different from company name
+            client_name = nearby_client['text'] if nearby_client and nearby_client['text'] != company_text else ''
+            
+            # Create experience
+            exp = {
+                'job_title': role_text,
+                'company_name': company_text,
+                'location': nearby_location['text'] if nearby_location else '',
+                'start_date': self._parse_date(nearby_start_date['text']) if nearby_start_date else None,
+                'end_date': self._parse_date(end_date_text) if end_date_text and not is_current else None,
+                'is_current': is_current,
+                'client': client_name,
+                'clients': [client_name] if client_name else [],
+                'description': ''
+            }
+            
+            experiences.append(exp)
+            
+            # Log for debugging
+            self.logger.info(f"  ✓ Record {record_id}: {role_text} at {company_text}")
+        
         return experiences
     
     def _find_entity_in_window(self, entities: List[Dict], window_start: int, window_end: int, 

@@ -61,6 +61,17 @@ function trunc(s: string | null | undefined, max = 255): string | null {
 
 // Stores ALL sections from the AI response into PostgreSQL
 async function storeAllParsedData(client: any, candidateId: string, ai: any, filePath?: string) {
+  // Stage 17: Backend Mapping Logging
+  console.log("\n" + "=".repeat(80));
+  console.log("🔄 STEP 17: BACKEND MAPPING");
+  console.log("=".repeat(80));
+  console.log("\nParser JSON → Mapped DTO → Mapped Entity");
+  console.log("-".repeat(80));
+  console.log("Parser JSON:");
+  console.log(JSON.stringify(ai, null, 2));
+  console.log("-".repeat(80));
+  console.log("=".repeat(80));
+  
   // ── 1. UPDATE candidates table ────────────────────────────────────────────
   const emailHash = ai.email
     ? crypto.createHash("md5").update(ai.email.trim().toLowerCase()).digest("hex")
@@ -116,6 +127,15 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
   );
   console.log(`  ✅ Candidate profile updated`);
 
+  // Stage 18: Database Storage Logging
+  console.log("\n" + "=".repeat(80));
+  console.log("💾 STEP 18: DATABASE STORAGE");
+  console.log("=".repeat(80));
+  console.log("\nCandidate ID:");
+  console.log("-".repeat(80));
+  console.log(candidateId);
+  console.log("-".repeat(80));
+
   // ── 2. WORK HISTORY ───────────────────────────────────────────────────────
   // Accept both field names the AI may return
   const workItems: any[] =
@@ -145,6 +165,14 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
     );
   }
   console.log(`  ✅ Work history: ${workItems.length} entries stored`);
+  
+  console.log("\nExperience rows:");
+  console.log("-".repeat(80));
+  console.log(`Total work history rows stored: ${workItems.length}`);
+  for (const w of workItems) {
+    console.log(`  - ${w.job_title || w.title} at ${w.company_name || w.company}`);
+  }
+  console.log("-".repeat(80));
 
   // ── 3. EDUCATION ──────────────────────────────────────────────────────────
   const eduItems: any[] = Array.isArray(ai.education) ? ai.education : [];
@@ -166,9 +194,39 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
     );
   }
   console.log(`  ✅ Education: ${eduItems.length} entries stored`);
-
+  
   // ── 4. SKILLS + CANDIDATE_SKILLS ──────────────────────────────────────────
   const rawSkills: any[] = Array.isArray(ai.skills) ? ai.skills : [];
+  
+  console.log("\nEducation rows:");
+  console.log("-".repeat(80));
+  console.log(`Total education rows stored: ${eduItems.length}`);
+  for (const e of eduItems) {
+    console.log(`  - ${e.degree || e.degree_name} from ${e.institution || e.institution_name || e.school}`);
+  }
+  console.log("-".repeat(80));
+  
+  console.log("\nSkills rows:");
+  console.log("-".repeat(80));
+  console.log(`Total skills rows stored: ${rawSkills.length}`);
+  for (const sk of rawSkills) {
+    const skillName = typeof sk === "string" ? sk.trim() : (sk.name || sk.skill_name || "").trim();
+    console.log(`  - ${skillName}`);
+  }
+  console.log("-".repeat(80));
+  
+  console.log("\nSummary:");
+  console.log("-".repeat(80));
+  console.log(`Stored values:`);
+  console.log(`  - Candidate ID: ${candidateId}`);
+  console.log(`  - Work history: ${workItems.length} rows`);
+  console.log(`  - Education: ${eduItems.length} rows`);
+  console.log(`  - Skills: ${rawSkills.length} rows`);
+  console.log(`  - Summary: ${ai.summary ? 'Yes' : 'No'}`);
+  console.log("-".repeat(80));
+  console.log("=".repeat(80));
+
+  // ── 4. SKILLS + CANDIDATE_SKILLS ──────────────────────────────────────────
   await client.query("DELETE FROM candidate_skills WHERE candidate_id = $1", [candidateId]);
   for (const sk of rawSkills) {
     const skillName = typeof sk === "string" ? sk.trim() : (sk.name || sk.skill_name || "").trim();

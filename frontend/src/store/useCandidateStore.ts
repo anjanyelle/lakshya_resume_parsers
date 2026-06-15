@@ -138,6 +138,23 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
       set({ isLoading: true, error: null });
       try {
         const response = await api.get(`/candidates/${id}`);
+        
+        // Stage 20: Frontend Payload Logging
+        console.log("\n" + "=".repeat(80));
+        console.log("🖥️ STEP 20: FRONTEND PAYLOAD");
+        console.log("=".repeat(80));
+        console.log("\nPayload sent to frontend:");
+        console.log("-".repeat(80));
+        console.log(JSON.stringify(response.data.candidate, null, 2));
+        console.log("-".repeat(80));
+        
+        console.log("\nVerify Experience and Education arrays:");
+        console.log("-".repeat(80));
+        console.log(`Experience array length: ${response.data.candidate.work_experience?.length || 0}`);
+        console.log(`Education array length: ${response.data.candidate.education?.length || 0}`);
+        console.log("-".repeat(80));
+        console.log("=".repeat(80));
+        
         set({ currentCandidate: response.data.candidate, isLoading: false });
       } catch (error: any) {
         const errorMessage =

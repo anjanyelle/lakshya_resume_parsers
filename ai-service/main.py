@@ -364,13 +364,24 @@ async def parse_resume(request: ParseRequest):
                 detail=f"Unsupported file format: {file_ext}. Supported formats: {supported_formats}"
             )
         
+        # Stage 1: Resume Upload Logging
         logger.info("=" * 80)
-        logger.info(f"📄 PARSE REQUEST RECEIVED")
+        logger.info("📄 STEP 1: RESUME UPLOAD")
+        logger.info("=" * 80)
         logger.info(f"File: {request.file_path}")
+        
+        # Get file info
+        if os.path.exists(request.file_path):
+            file_size = os.path.getsize(request.file_path)
+            file_ext = os.path.splitext(request.file_path)[1].lower()
+            logger.info(f"Filename: {os.path.basename(request.file_path)}")
+            logger.info(f"Extension: {file_ext}")
+            logger.info(f"Size: {file_size} bytes ({file_size / 1024:.2f} KB)")
+        else:
+            logger.warning(f"File not found: {request.file_path}")
+        
         logger.info(f"Candidate ID: {request.candidate_id}")
         logger.info(f"LLM Provider: '{request.llm_provider}' (type: {type(request.llm_provider).__name__})")
-        logger.info(f"LLM Provider is truthy: {bool(request.llm_provider)}")
-        logger.info(f"LLM Provider == 'gemini-2.0-flash-lite': {request.llm_provider == 'gemini-2.0-flash-lite'}")
         logger.info("=" * 80)
         
         # Parse using MasterParser

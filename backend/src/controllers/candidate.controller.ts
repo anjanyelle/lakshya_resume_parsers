@@ -519,7 +519,18 @@ export const getCandidateById = async (
         return;
       }
 
-      res.json({ candidate: mapCandidateWithParsingStatus(candidate) });
+      // Stage 19: API Response Logging
+      console.log("\n" + "=".repeat(80));
+      console.log("🌐 STEP 19: API RESPONSE");
+      console.log("=".repeat(80));
+      console.log("\nComplete API response JSON returned to frontend:");
+      console.log("-".repeat(80));
+      const response = { candidate: mapCandidateWithParsingStatus(candidate) };
+      console.log(JSON.stringify(response, null, 2));
+      console.log("-".repeat(80));
+      console.log("=".repeat(80));
+
+      res.json(response);
     } finally {
       client.release();
     }
