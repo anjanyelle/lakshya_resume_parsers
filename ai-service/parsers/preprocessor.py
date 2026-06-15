@@ -35,13 +35,55 @@ class ResumePreprocessor:
         if not raw_text:
             return ""
         
-        text = self._normalize_bullets(raw_text)
+        text = self._reconstruct_reading_order(raw_text)
+        text = self._normalize_bullets(text)
         text = self._fix_broken_lines(text)
         text = self._normalize_section_headers(text)
         text = self._fix_encoding_artifacts(text)
         text = self._normalize_whitespace(text)
         
         return text.strip()
+
+    def _reconstruct_reading_order(self, text: str) -> str:
+        """
+        Intelligently reconstruct reading order of multi-column or side-by-side layouts.
+        If lines contain large gutters (3+ spaces), reconstruct columns sequentially
+        rather than line-by-line to prevent scrambled text.
+        """
+        if not text:
+            return ""
+        
+        lines = text.split('\n')
+        
+        # Check if text has side-by-side columns
+        gutter_lines_count = sum(1 for line in lines if len(line.strip()) > 10 and '   ' in line)
+        if len(lines) > 5 and (gutter_lines_count / len(lines)) > 0.2:
+            reconstructed_text = []
+            current_col1 = []
+            current_col2 = []
+            
+            for line in lines:
+                if '   ' in line:
+                    parts = re.split(r' {3,}', line)
+                    if len(parts) >= 2:
+                        current_col1.append(parts[0].strip())
+                        current_col2.append(' '.join(parts[1:]).strip())
+                    else:
+                        current_col1.append(line.strip())
+                else:
+                    if current_col1 or current_col2:
+                        reconstructed_text.extend(current_col1)
+                        reconstructed_text.extend(current_col2)
+                        current_col1 = []
+                        current_col2 = []
+                    reconstructed_text.append(line.strip())
+                    
+            if current_col1 or current_col2:
+                reconstructed_text.extend(current_col1)
+                reconstructed_text.extend(current_col2)
+                
+            return '\n'.join(reconstructed_text)
+        return text
     
     def _normalize_bullets(self, text: str) -> str:
         """

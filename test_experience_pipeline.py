@@ -40,9 +40,17 @@ def test_resume(resume_path: str):
     logger.info(f"{'='*80}\n")
     
     try:
-        # Read resume text
-        with open(resume_path, 'r', encoding='utf-8', errors='ignore') as f:
-            text = f.read()
+        # Read resume text using TextExtractor
+        from parsers.text_extractor import TextExtractor
+        extractor = TextExtractor()
+        if resume_path.endswith('.pdf'):
+            res = extractor.extract_from_pdf(resume_path)
+            text = res.get('text', '')
+        elif resume_path.endswith('.docx'):
+            text = extractor.extract_from_docx(resume_path)
+        else:
+            with open(resume_path, 'r', encoding='utf-8', errors='ignore') as f:
+                text = f.read()
         
         # Split sections
         splitter = SectionSplitter()

@@ -525,7 +525,7 @@ def split_job_blocks(experience_text: str) -> list:
     
     # Patterns for detecting job block boundaries
     COMPANY_HEADER_RE = re.compile(
-        r'^(?:Company|Client|Employer|Organization):\s*',
+        r'^(?:Company|Client|Employer|Organization|Location|Employer|Duration|Period):\s*',
         re.IGNORECASE
     )
     
@@ -534,7 +534,7 @@ def split_job_blocks(experience_text: str) -> list:
         'engineer', 'developer', 'manager', 'architect', 'analyst',
         'consultant', 'designer', 'specialist', 'lead', 'senior',
         'junior', 'director', 'associate', 'intern', 'trainee',
-        'coordinator', 'administrator', 'officer', 'assistant'
+        'coordinator', 'administrator', 'officer', 'assistant', 'programmer'
     ]
     
     # Company indicators (start of new job when followed by role)
@@ -548,11 +548,30 @@ def split_job_blocks(experience_text: str) -> list:
     while i < len(lines):
         line = lines[i].strip()
         
+        # If current line is empty, it could indicate a boundary
         if not line:
+            is_boundary = False
+            j = i + 1
+            while j < len(lines) and not lines[j].strip():
+                j += 1
+            if j < len(lines):
+                next_line = lines[j].strip()
+                if (DATE_LINE_PATTERN.search(next_line) or 
+                    COMPANY_HEADER_RE.match(next_line) or 
+                    (len(next_line) < 80 and next_line and next_line[0].isupper() and any(ind in next_line.lower() for ind in JOB_TITLE_INDICATORS))):
+                    is_boundary = True
+            
+            if is_boundary and current_block:
+                block_text = '\n'.join(current_block).strip()
+                if len(block_text) > 10:
+                    blocks.append(block_text)
+                current_block = []
+            else:
+                current_block.append('')
             i += 1
             continue
         
-        # Check if this line starts a new job block
+        # Check other indicators
         is_new_job = False
         
         # 1. Company: / Client: / Employer: header
@@ -585,7 +604,7 @@ def split_job_blocks(experience_text: str) -> list:
         # If we found a new job boundary and have content in current_block, save it
         if is_new_job and current_block:
             block_text = '\n'.join(current_block).strip()
-            if len(block_text) > 20:
+            if len(block_text) > 10:
                 blocks.append(block_text)
             current_block = [line]
         else:
@@ -596,19 +615,10 @@ def split_job_blocks(experience_text: str) -> list:
     # Don't forget the last block
     if current_block:
         block_text = '\n'.join(current_block).strip()
-        if len(block_text) > 20:
+        if len(block_text) > 10:
             blocks.append(block_text)
     
-    # Post-processing: merge blocks that are too short (likely split incorrectly)
-    merged_blocks = []
-    for i, block in enumerate(blocks):
-        if len(block) < 100 and i > 0:
-            # Merge with previous block
-            merged_blocks[-1] = merged_blocks[-1] + '\n' + block
-        else:
-            merged_blocks.append(block)
-    
-    return merged_blocks
+    return [b for b in blocks if len(b.strip()) > 10]
 
 def extract_experience(experience_text: str) -> list:
     """
