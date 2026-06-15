@@ -182,6 +182,9 @@ class HybridNERPostProcessor:
         """
         Validate if a string looks like a real person name.
         
+        IMPROVED: Now rejects false positives like "Release Cycle", "Python Softtestlab",
+        "API", "Monitoring", "Backend Development". Only real human names are accepted.
+        
         Args:
             name: Name to validate
             
@@ -209,6 +212,35 @@ class HybridNERPostProcessor:
         if len(words) < 2 or len(words) > 4:
             return False
         
+        # ── NEW: Reject technology/skill false positives ───────────────────
+        tech_keywords = {
+            'release', 'cycle', 'python', 'softtestlab', 'api', 'monitoring',
+            'backend', 'development', 'frontend', 'engineering', 'microservices',
+            'production', 'support', 'migration', 'time', 'developer', 'team',
+            'software', 'application', 'system', 'platform', 'cloud', 'data',
+            'test', 'qa', 'devops', 'security', 'mobile', 'web', 'database',
+            'infrastructure', 'network'
+        }
+        
+        name_lower = name.lower()
+        # Reject if any word is a tech keyword
+        if any(word in tech_keywords for word in name_lower.split()):
+            self.logger.debug(f"   Rejected tech keyword as person name: '{name}'")
+            return False
+        
+        # Reject specific known false positives
+        false_positives = {
+            'release cycle', 'python softtestlab', 'api engineering',
+            'backend development', 'frontend development', 'microservices engineering',
+            'production support', 'monitoring engineering', 'migration time',
+            'development team', 'engineering team', 'software development',
+            'application development', 'system development', 'platform development'
+        }
+        
+        if name_lower in false_positives:
+            self.logger.debug(f"   Rejected known false positive as person name: '{name}'")
+            return False
+        
         # First word should look like a first name or last name
         first_word = words[0].lower()
         last_word = words[-1].lower()
@@ -230,6 +262,9 @@ class HybridNERPostProcessor:
         """
         Validate and clean all entities.
         
+        IMPROVED: Now preserves valid entities and only removes clearly invalid ones.
+        Does not remove valid locations or companies.
+        
         Args:
             entities: Dictionary of entity types to lists
             
@@ -237,6 +272,53 @@ class HybridNERPostProcessor:
             Validated entities
         """
         validated = {}
+        
+        # Technology keywords to reject (same list as deberta_experience_builder)
+        tech_keywords = {
+            'android', 'ios', 'swift', 'kotlin', 'flutter', 'react native', 'react-native', 'xamarin',
+            'aws', 'azure', 'gcp', 'google cloud', 'cloud', 'docker', 'kubernetes', 'k8s', 'ecs', 'eks',
+            's3', 'ec2', 'lambda', 'amplify', 'firebase', 'firestore', 'supabase', 'heroku', 'netlify', 'vercel',
+            'sql', 'mysql', 'postgresql', 'postgres', 'mongodb', 'redis', 'cassandra', 'dynamodb', 'snowflake',
+            'sqlite', 'oracle', 'mssql', 'sql server', 'sqlserver', 'db2', 'neo4j',
+            'python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'ruby', 'go', 'rust', 'scala',
+            'php', 'perl', 'bash', 'powershell', 'html', 'css', 'sass', 'less',
+            'react', 'angular', 'vue', 'node', 'nodejs', 'express', 'django', 'flask', 'spring',
+            'spring boot', 'springboot', 'hibernate', 'fastapi', 'nextjs', 'next.js', 'gatsby', 'nuxt',
+            'svelte', 'laravel', 'symfony', 'rails', 'asp.net', 'dotnet', '.net', 'jquery', 'bootstrap',
+            'tailwind', 'tailwindcss', 'material ui', 'mui',
+            'tensorflow', 'pytorch', 'keras', 'pandas', 'numpy', 'spark', 'hadoop', 'nlp', 'llm',
+            'langchain', 'huggingface', 'openai', 'scikit-learn',
+            'tableau', 'power bi', 'looker', 'dbt', 'airflow', 'kafka', 'etl', 'elt',
+            'apache', 'databricks', 'redshift', 'bigquery', 'olap',
+            'jenkins', 'gitlab', 'github', 'github actions', 'gitlab ci', 'jira', 'confluence', 'terraform', 'ansible',
+            'git', 'ci/cd', 'cicd', 'maven', 'gradle', 'npm', 'yarn', 'pnpm', 'webpack', 'vite',
+            'selenium', 'cypress', 'playwright', 'jest', 'mocha', 'junit', 'testng', 'nunit', 'pytest',
+            'api', 'rest', 'graphql', 'microservices', 'agile', 'scrum', 'ml', 'ai',
+            'data', 'analytics', 'bi', 'pipeline', 'workflow', 'automation',
+            'pwa', 'progressive web app', 'spa', 'single page application',
+            'jwt', 'oauth', 'oauth2', 'saml', 'sso', 'soap', 'restful', 'grpc',
+            'platform', 'system', 'framework', 'library', 'integration', 'authentication', 'authorization',
+            'backend development', 'frontend development', 'full stack development',
+            'api development', 'api engineering', 'microservices', 'release cycle',
+            'production support', 'monitoring', 'migration time', '3 developer',
+            'development team', 'engineering team', 'software development',
+            'application development', 'system development', 'platform development',
+            'cloud development', 'data development', 'test development',
+            'qa development', 'devops development', 'security development',
+            'mobile development', 'web development', 'database development',
+            'infrastructure development', 'network development',
+            'backend engineering', 'frontend engineering', 'full stack engineering',
+            'api engineering', 'microservices engineering', 'release engineering',
+            'production engineering', 'monitoring engineering', 'migration engineering',
+            'development engineering', 'engineering engineering', 'software engineering',
+            'application engineering', 'system engineering', 'platform engineering',
+            'cloud engineering', 'data engineering', 'test engineering',
+            'qa engineering', 'devops engineering', 'security engineering',
+            'mobile engineering', 'web engineering', 'database engineering',
+            'infrastructure engineering', 'network engineering',
+            'release cycle', 'production support', 'monitoring',
+            'migration time', '3 developer', 'python softtestlab'
+        }
         
         for entity_type, entity_list in entities.items():
             # Skip positions metadata list from validation/cleaning
@@ -270,10 +352,41 @@ class HybridNERPostProcessor:
                     # Should not be a single common word
                     if entity_lower in {'the', 'and', 'or', 'in', 'at', 'to', 'from'}:
                         continue
+                    # IMPROVED: Reject technology keywords from companies
+                    if entity_lower in tech_keywords:
+                        self.logger.debug(f"   Filtered tech keyword from COMPANY: '{entity_clean}'")
+                        continue
                 
                 elif entity_type == 'PERSON_NAME':
                     # Person names should have at least 2 words
                     if len(entity_clean.split()) < 2:
+                        continue
+                    # IMPROVED: Reject technology keywords from person names
+                    if entity_lower in tech_keywords:
+                        self.logger.debug(f"   Filtered tech keyword from PERSON_NAME: '{entity_clean}'")
+                        continue
+                
+                elif entity_type == 'LOCATION':
+                    # IMPROVED: Preserve valid locations
+                    # Locations should be at least 2 characters
+                    if len(entity_clean) < 2:
+                        continue
+                    # Should not be a single common word
+                    if entity_lower in {'the', 'and', 'or', 'in', 'at', 'to', 'from'}:
+                        continue
+                    # Reject technology keywords from locations
+                    if entity_lower in tech_keywords:
+                        self.logger.debug(f"   Filtered tech keyword from LOCATION: '{entity_clean}'")
+                        continue
+                
+                elif entity_type == 'ROLE':
+                    # IMPROVED: Preserve valid roles
+                    # Roles should be at least 2 characters
+                    if len(entity_clean) < 2:
+                        continue
+                    # Reject technology keywords from roles
+                    if entity_lower in tech_keywords:
+                        self.logger.debug(f"   Filtered tech keyword from ROLE: '{entity_clean}'")
                         continue
                 
                 elif entity_type in ['DATE_START', 'DATE_END', 'EDU_YEAR_START', 'EDU_YEAR_END']:

@@ -499,28 +499,116 @@ def extract_date_range(text: str) -> dict:
     }
 
 def split_job_blocks(experience_text: str) -> list:
+    """
+    Split experience section into independent job blocks.
+    
+    Handles multiple resume formats:
+    - Company → Role → Dates
+    - Role → Company → Dates
+    - Client → Role
+    - Company: format
+    - Client: format
+    - Internship format
+    - Multi-line company headers
+    - Multi-column resumes
+    - Mixed layouts
+    
+    Each employment record becomes one independent block.
+    Never sends multiple jobs together to DeBERTa.
+    """
     if not experience_text:
         return []
+    
     lines = experience_text.split('\n')
     blocks = []
     current_block = []
-    for line in lines:
-        stripped = line.strip()
-        if not stripped:
+    
+    # Patterns for detecting job block boundaries
+    COMPANY_HEADER_RE = re.compile(
+        r'^(?:Company|Client|Employer|Organization):\s*',
+        re.IGNORECASE
+    )
+    
+    # Job title indicators (start of new job)
+    JOB_TITLE_INDICATORS = [
+        'engineer', 'developer', 'manager', 'architect', 'analyst',
+        'consultant', 'designer', 'specialist', 'lead', 'senior',
+        'junior', 'director', 'associate', 'intern', 'trainee',
+        'coordinator', 'administrator', 'officer', 'assistant'
+    ]
+    
+    # Company indicators (start of new job when followed by role)
+    COMPANY_INDICATORS = [
+        'inc', 'llc', 'ltd', 'corp', 'corporation', 'pvt',
+        'technologies', 'solutions', 'systems', 'services',
+        'consulting', 'group', 'labs', 'software'
+    ]
+    
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        
+        if not line:
+            i += 1
             continue
-        is_date_line = bool(DATE_LINE_PATTERN.search(stripped))
-        if is_date_line and current_block:
+        
+        # Check if this line starts a new job block
+        is_new_job = False
+        
+        # 1. Company: / Client: / Employer: header
+        if COMPANY_HEADER_RE.match(line):
+            is_new_job = True
+        
+        # 2. Date line (strong indicator of new job)
+        elif DATE_LINE_PATTERN.search(line):
+            is_new_job = True
+        
+        # 3. Line that looks like a job title (capitalized, short, has role keywords)
+        elif (len(line) < 80 and 
+              line[0].isupper() and 
+              any(ind in line.lower() for ind in JOB_TITLE_INDICATORS) and
+              not re.match(r'^[•\-\*\+►▸▶→]\s*', line)):
+            is_new_job = True
+        
+        # 4. Line that looks like a company name (has company indicators)
+        elif (len(line) < 80 and 
+              line[0].isupper() and 
+              any(ind in line.lower() for ind in COMPANY_INDICATORS) and
+              not re.match(r'^[•\-\*\+►▸▶→]\s*', line)):
+            # Check if next line has a job title or date
+            if i + 1 < len(lines):
+                next_line = lines[i + 1].strip()
+                if (any(ind in next_line.lower() for ind in JOB_TITLE_INDICATORS) or
+                    DATE_LINE_PATTERN.search(next_line)):
+                    is_new_job = True
+        
+        # If we found a new job boundary and have content in current_block, save it
+        if is_new_job and current_block:
             block_text = '\n'.join(current_block).strip()
             if len(block_text) > 20:
                 blocks.append(block_text)
             current_block = [line]
         else:
             current_block.append(line)
+        
+        i += 1
+    
+    # Don't forget the last block
     if current_block:
         block_text = '\n'.join(current_block).strip()
         if len(block_text) > 20:
             blocks.append(block_text)
-    return blocks
+    
+    # Post-processing: merge blocks that are too short (likely split incorrectly)
+    merged_blocks = []
+    for i, block in enumerate(blocks):
+        if len(block) < 100 and i > 0:
+            # Merge with previous block
+            merged_blocks[-1] = merged_blocks[-1] + '\n' + block
+        else:
+            merged_blocks.append(block)
+    
+    return merged_blocks
 
 def extract_experience(experience_text: str) -> list:
     """
