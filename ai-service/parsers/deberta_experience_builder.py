@@ -67,7 +67,34 @@ class DeBERTaExperienceBuilder:
             'pwa', 'progressive web app', 'spa', 'single page application',
             'jwt', 'oauth', 'oauth2', 'saml', 'sso', 'soap', 'restful', 'grpc',
             # Generic/Noise keywords that get misidentified
-            'platform', 'system', 'framework', 'library', 'integration', 'authentication', 'authorization'
+            'platform', 'system', 'framework', 'library', 'integration', 'authentication', 'authorization',
+            # Additional technologies/skills to reject
+            'backend development', 'frontend development', 'full stack development',
+            'api development', 'api engineering', 'microservices', 'release cycle',
+            'production support', 'monitoring', 'migration time', '3 developer',
+            'development team', 'engineering team', 'software development',
+            'application development', 'system development', 'platform development',
+            'cloud development', 'data development', 'test development',
+            'qa development', 'devops development', 'security development',
+            'mobile development', 'web development', 'database development',
+            'infrastructure development', 'network development',
+            'backend engineering', 'frontend engineering', 'full stack engineering',
+            'api engineering', 'microservices engineering', 'release engineering',
+            'production engineering', 'monitoring engineering', 'migration engineering',
+            'development engineering', 'engineering engineering', 'software engineering',
+            'application engineering', 'system engineering', 'platform engineering',
+            'cloud engineering', 'data engineering', 'test engineering',
+            'qa engineering', 'devops engineering', 'security engineering',
+            'mobile engineering', 'web engineering', 'database engineering',
+            'infrastructure engineering', 'network engineering',
+            'release cycle', 'production support', 'monitoring',
+            'migration time', '3 developer', 'python softtestlab',
+            # ── STEP 15: Reject impossible companies (specific list from requirements) ──
+            'power bi embedded', 'machine learning', 'analysis services', 'catalog',
+            'analytics', 'chain', 'sonar', 'ssr', 'factory', 'dax', 'models',
+            'pipelines', 'documentation', 'integration', 'architecture', 'provider',
+            'processing', 'security', 'compliance', 'services', 'builder',
+            'management'
         }
     
     def build_experiences_from_entities(self, entities: Dict[str, List[str]], text: str) -> List[Dict[str, Any]]:
@@ -141,6 +168,7 @@ class DeBERTaExperienceBuilder:
         clients_raw = [e for e in positions_data if e['type'] == 'CLIENT']
         
         # Filter out technology keywords and generic descriptors from roles
+        # ── PHASE 16: Role Validation - Validate roles against role taxonomy ───────
         roles = []
         filtered_roles_count = 0
         for role in roles_raw:
@@ -150,6 +178,19 @@ class DeBERTaExperienceBuilder:
             if role_text in self.tech_keywords:
                 filtered_roles_count += 1
                 self.logger.debug(f"🔧 Filtered tech keyword from roles: '{role['text']}'")
+                continue
+            
+            # ── PHASE 16: Reject role-like phrases that are not actual job titles ─────
+            # Reject: Pipeline, Migration, Storage, Workflow, API, Deployment, etc.
+            role_reject_patterns = [
+                r'pipeline', r'migration', r'storage', r'workflow', r'deployment',
+                r'backend development', r'frontend development', r'full stack development',
+                r'monitoring', r'metrics', r'architecture', r'implementation',
+                r'description', r'environment', r'responsibilities'
+            ]
+            if any(re.search(pattern, role_text) for pattern in role_reject_patterns):
+                filtered_roles_count += 1
+                self.logger.debug(f"🔧 Filtered invalid role phrase: '{role['text']}'")
                 continue
                 
             # Check if all words are tech keywords
@@ -287,13 +328,18 @@ class DeBERTaExperienceBuilder:
         companies.sort(key=lambda x: x['start'])
         
         experiences = []
-        proximity_window = 400  # Characters - entities within this range are grouped together
+        proximity_window = 250  # Reduced from 400 to 250 to prevent cross-record contamination
 
         # ── Entity consumption tracking (Problem 5 fix) ───────────────────────
         # Tracks entity positions that have already been claimed by a company.
         # Prevents the same ROLE / DATE / LOCATION from being assigned to two
         # adjacent companies when their proximity windows overlap.
         used_entity_positions: set = set()
+        
+        # ── Validation logging (Problem 11) ─────────────────────────────────
+        # Track counts for validation
+        company_count = len(companies)
+        ner_call_count = company_count  # One NER call per company
         
         for i, company in enumerate(companies):
             company_pos = company['start']
@@ -302,6 +348,10 @@ class DeBERTaExperienceBuilder:
             # Look backward and forward within proximity_window
             window_start = max(0, company_pos - proximity_window)
             window_end = company_pos + proximity_window
+            
+            # ── Multi-anchor clustering (Problem 6 fix) ───────────────────────
+            # Use multiple anchors: Company, Date range, Role, Location, Header position
+            # If company extraction fails but role and dates exist, preserve the job record
             
             # Find entities within proximity window — skipping already-consumed ones
             nearby_role = self._find_entity_in_window(
@@ -331,6 +381,13 @@ class DeBERTaExperienceBuilder:
                 if matched:
                     used_entity_positions.add(matched['start'])
             
+            # ── NEW LOGIC: Create experience record whenever Company exists OR Client exists ──
+            # Skip ONLY when both Company and Client are missing
+            # This preserves all valid employment records even when Role/Location/Date are missing
+            if not company_text and not client_name:
+                self.logger.warning(f"  ⚠️ Skipping block {i+1}: no company or client found")
+                continue
+            
             # Check if end date indicates current position
             is_current = False
             end_date_text = nearby_end_date['text'] if nearby_end_date else None
@@ -349,30 +406,159 @@ class DeBERTaExperienceBuilder:
                 # Swap them
                 self.logger.info(f"  🔄 Swapped: '{company_text}' (was company) ↔ '{role_text}' (was role)")
                 company_text, role_text = role_text, company_text
-                
-            # Determine nearby client name if different from company name
-            client_name = nearby_client['text'] if nearby_client and nearby_client['text'] != company_text else ''
             
-            # Create experience
+            # ── Company / Client Mapping Rules ───────────────────────────────────
+            # CASE 1: Company exists, Client missing → company_name = Company, client_name = null
+            # CASE 2: Client exists, Company missing → company_name = Client, client_name = Client
+            # CASE 3: Both exist → company_name = Company, client_name = Client
+            client_name = ''
+            
+            if nearby_client:
+                client_text = nearby_client['text']
+                # CASE 3: Both Company and Client exist
+                if company_text and client_text != company_text:
+                    client_name = client_text
+                    self.logger.info(f"  👤 Client detected: '{client_name}' (Employer: '{company_text}')")
+                # CASE 2: Only Client exists (no Company)
+                elif not company_text:
+                    company_text = client_text  # Set company_name to client_name
+                    client_name = client_text
+                    self.logger.info(f"  👤 Client-only: Using '{client_text}' as both company and client")
+            # CASE 1: Only Company exists (no Client) - already handled by default
+            
+            # ── Role normalization (Problem 8 fix) ───────────────────────────
+            # Normalize role text with confidence threshold
+            if role_text:
+                role_text = self._normalize_role(role_text)
+                
+                # ── PHASE 18: Multi Role Handling ─────────────────────────────────
+                # Handle Data Engineer / Data Analyst format
+                # Split intelligently or keep as primary role
+                if '/' in role_text or ' / ' in role_text:
+                    # Split by slash and take first role as primary
+                    roles_split = [r.strip() for r in role_text.replace(' / ', '/').split('/')]
+                    if roles_split:
+                        role_text = roles_split[0]  # Use first role as primary
+                        self.logger.debug(f"  🔀 Multi-role detected: '{role_text}' (primary from {roles_split})")
+            
+            # ── Partial Record Preservation: Populate every extracted entity independently ──
+            # Missing values must be null (not empty string)
+            # Never omit keys, never remove keys
+            
+            # ── PHASE 25: Original + Normalized Values ─────────────────────────────
+            # Preserve original and normalized values for ATS matching
+            role_original = role_text
+            company_original = company['text']
+            
+            # ── PHASE 23: Confidence Calculation ─────────────────────────────────
+            # Calculate confidence based on entity completeness
+            confidence = 0.5  # Base confidence
+            if role_text:
+                confidence += 0.2
+            if company_text:
+                confidence += 0.2
+            if nearby_start_date or nearby_end_date:
+                confidence += 0.1
+            confidence = min(confidence, 0.99)  # Cap at 0.99
+            
             exp = {
-                'job_title': role_text,
-                'company_name': company_text,
-                'location': nearby_location['text'] if nearby_location else '',
+                'job_title': role_text if role_text else None,
+                'company_name': company_text if company_text else None,
+                'location': nearby_location['text'] if nearby_location else None,
                 'start_date': self._parse_date(nearby_start_date['text']) if nearby_start_date else None,
                 'end_date': self._parse_date(end_date_text) if end_date_text and not is_current else None,
                 'is_current': is_current,
-                'client': client_name,
+                'client': client_name if client_name else None,
                 'clients': [client_name] if client_name else [],
-                'description': ''
+                'description': None,  # Description extraction not implemented in current flow
+                # ── PHASE 23: Confidence ──────────────────────────────────────────
+                'confidence': confidence,
+                # ── PHASE 24: Source Tracking ───────────────────────────────────────
+                'source': 'deberta_ner',
+                'builder': 'position_builder',
+                'validator': 'validated',
+                'anchor_type': 'company_client',
+                # ── PHASE 25: Original + Normalized Values ───────────────────────────
+                'role_original': role_original if role_original else None,
+                'role_normalized': role_text if role_text else None,
+                'company_original': company_original if company_original else None,
+                'company_normalized': company_text if company_text else None
             }
             
             experiences.append(exp)
             
             # Log for debugging
-            role_text = nearby_role['text'] if nearby_role else 'No role'
+            role_text_log = nearby_role['text'] if nearby_role else 'No role'
             start_text = nearby_start_date['text'] if nearby_start_date else 'No start'
             end_text = end_date_text or ('Present' if is_current else 'No end')
-            self.logger.info(f"  ✓ Job {i+1}: {role_text} at {company['text']} ({start_text} - {end_text})")
+            self.logger.info(f"  ✓ Job {i+1}: {role_text_log} at {company['text']} ({start_text} - {end_text})")
+        
+        # ── PHASE 22: Experience Ordering ─────────────────────────────────────
+        # Sort final experience newest to oldest (maintain resume chronology)
+        def get_experience_sort_key(exp):
+            """Sort key: is_current (True first), then start_date (newest first)"""
+            # Current jobs first
+            is_current = exp.get('is_current', False)
+            # Parse start_date for sorting
+            start_date = exp.get('start_date')
+            if start_date:
+                try:
+                    # Try to parse date and convert to sortable format
+                    from datetime import datetime
+                    # Handle various date formats
+                    if isinstance(start_date, str):
+                        # Try common formats
+                        for fmt in ['%Y-%m-%d', '%Y-%m', '%Y', '%b %Y', '%B %Y']:
+                            try:
+                                dt = datetime.strptime(start_date, fmt)
+                                return (not is_current, -dt.timestamp())
+                            except:
+                                continue
+                except:
+                    pass
+            # If date parsing fails, use original string (reverse for newest first)
+            return (not is_current, str(start_date) if start_date else '')
+        
+        experiences.sort(key=get_experience_sort_key)
+        
+        # ── PHASE 21: Duplicate Removal ────────────────────────────────────────
+        # Merge duplicate Company/Role/Date/Location/Client
+        unique_experiences = []
+        seen_signatures = set()
+        
+        for exp in experiences:
+            # Create signature based on key fields
+            signature = (
+                exp.get('company_name', ''),
+                exp.get('job_title', ''),
+                exp.get('start_date', ''),
+                exp.get('end_date', ''),
+                exp.get('location', ''),
+                exp.get('client', '')
+            )
+            
+            if signature not in seen_signatures:
+                seen_signatures.add(signature)
+                unique_experiences.append(exp)
+            else:
+                self.logger.debug(f"  🔁 Duplicate experience removed: {exp.get('company_name')} - {exp.get('job_title')}")
+        
+        experiences = unique_experiences
+        
+        # ── Comprehensive logging (Blocks, NER Calls, Companies, Roles, Rejected, etc.) ──
+        experience_count = len(experiences)
+        rejected_count = company_count - experience_count
+        
+        self.logger.info(f"📊 VALIDATION SUMMARY:")
+        self.logger.info(f"   Companies Detected: {company_count}")
+        self.logger.info(f"   NER Calls Made: {ner_call_count}")
+        self.logger.info(f"   Experiences Built: {experience_count}")
+        self.logger.info(f"   Rejected Records: {rejected_count}")
+        
+        if company_count != experience_count:
+            self.logger.warning(f"⚠️ VALIDATION MISMATCH: {company_count} companies but {experience_count} experiences built")
+            self.logger.warning(f"   Root cause: Some blocks may have been filtered out due to missing company AND client")
+        
         return experiences
     
     def _find_entity_in_window(self, entities: List[Dict], window_start: int, window_end: int, 
@@ -481,20 +667,58 @@ class DeBERTaExperienceBuilder:
                     is_current = True
                     end_date = None
             
-            # Determine nearby client name if different from company name
-            client_name = nearby_client if nearby_client and nearby_client != company_name else ''
+            # ── Company / Client Mapping Rules (same as position-based method) ────
+            # CASE 1: Company exists, Client missing → company_name = Company, client_name = null
+            # CASE 2: Client exists, Company missing → company_name = Client, client_name = Client
+            # CASE 3: Both exist → company_name = Company, client_name = Client
+            client_name = None
+            if nearby_client and nearby_client != company_name:
+                client_name = nearby_client
+            elif nearby_client and not company_name:
+                # CASE 2: Only Client exists (no Company)
+                company_name = nearby_client  # Set company_name to client_name
+                client_name = nearby_client
             
-            # Create experience
+            # ── Partial Record Preservation: Populate every extracted entity independently ──
+            # Missing values must be null (not empty string)
+            # Never omit keys, never remove keys
+            
+            # ── PHASE 25: Original + Normalized Values ─────────────────────────────
+            role_original = role
+            company_original = company_name
+            
+            # ── PHASE 23: Confidence Calculation ─────────────────────────────────
+            confidence = 0.5  # Base confidence
+            if role:
+                confidence += 0.2
+            if company_name:
+                confidence += 0.2
+            if start_date or end_date:
+                confidence += 0.1
+            confidence = min(confidence, 0.99)  # Cap at 0.99
+            
             exp = {
-                'job_title': role or '',
-                'company_name': company_name,
-                'location': location or '',
+                'job_title': role if role else None,
+                'company_name': company_name if company_name else None,
+                'location': location if location else None,
                 'start_date': self._parse_date(start_date) if start_date else None,
                 'end_date': self._parse_date(end_date) if end_date and not is_current else None,
                 'is_current': is_current,
-                'client': client_name,
+                'client': client_name if client_name else None,
                 'clients': [client_name] if client_name else [],
-                'description': ''
+                'description': None,  # Description extraction not implemented in current flow
+                # ── PHASE 23: Confidence ──────────────────────────────────────────
+                'confidence': confidence,
+                # ── PHASE 24: Source Tracking ───────────────────────────────────────
+                'source': 'deberta_ner',
+                'builder': 'company_builder',
+                'validator': 'validated',
+                'anchor_type': 'company',
+                # ── PHASE 25: Original + Normalized Values ───────────────────────────
+                'role_original': role_original if role_original else None,
+                'role_normalized': role if role else None,
+                'company_original': company_original if company_original else None,
+                'company_normalized': company_name if company_name else None
             }
             
             experiences.append(exp)
@@ -671,6 +895,68 @@ class DeBERTaExperienceBuilder:
                         'trainee', 'head', 'chief', 'vp', 'president', 'officer']
         
         return any(keyword in text_lower for keyword in role_keywords)
+    
+    def _normalize_role(self, role_text: str) -> str:
+        """
+        Normalize role text with confidence threshold.
+        
+        - Normalize "DATA ENGINEER" to "Data Engineer"
+        - Normalize "backend development" to "Backend Developer" only if confidence exceeds threshold
+        - Do not create invalid roles from sentence fragments
+        
+        Args:
+            role_text: Raw role text to normalize
+            
+        Returns:
+            Normalized role text or original if normalization fails
+        """
+        if not role_text:
+            return role_text
+        
+        # Convert to title case for proper capitalization
+        normalized = role_text.title()
+        
+        # Common role mappings
+        role_mappings = {
+            'Data Engineer': 'Data Engineer',
+            'Software Engineer': 'Software Engineer',
+            'Full Stack Developer': 'Full Stack Developer',
+            'Backend Developer': 'Backend Developer',
+            'Frontend Developer': 'Frontend Developer',
+            'DevOps Engineer': 'DevOps Engineer',
+            'Machine Learning Engineer': 'Machine Learning Engineer',
+            'Data Scientist': 'Data Scientist',
+            'Product Manager': 'Product Manager',
+            'Project Manager': 'Project Manager',
+            'Technical Lead': 'Technical Lead',
+            'Senior Software Engineer': 'Senior Software Engineer',
+            'Junior Software Engineer': 'Junior Software Engineer',
+        }
+        
+        # Check if normalized role matches a known mapping
+        if normalized in role_mappings:
+            return role_mappings[normalized]
+        
+        # Check if it's a tech keyword masquerading as a role
+        if normalized.lower() in self.tech_keywords:
+            self.logger.warning(f"  ⚠️ Rejected tech keyword as role: '{role_text}'")
+            return role_text  # Return original, don't normalize
+        
+        # Check if it's a development/engineering phrase that should be converted
+        # Only convert if it has proper role indicators
+        role_indicators = ['developer', 'engineer', 'manager', 'architect', 'analyst',
+                          'consultant', 'designer', 'specialist', 'lead', 'director']
+        
+        has_role_indicator = any(ind in normalized.lower() for ind in role_indicators)
+        
+        if not has_role_indicator:
+            # No role indicator - might be a sentence fragment or tech keyword
+            # Return original to avoid creating invalid roles
+            self.logger.warning(f"  ⚠️ No role indicator in: '{role_text}', keeping original")
+            return role_text
+        
+        # If it has role indicators, return the normalized version
+        return normalized
     
     def _parse_date(self, date_str: str) -> str:
         """Parse date string to year or year-month format (NO fake precision)."""

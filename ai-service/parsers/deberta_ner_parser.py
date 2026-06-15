@@ -130,9 +130,8 @@ class DeBERTaNerParser:
         Pre-process text to normalize format for better model inference.
         Removes format artifacts that confuse the model.
 
-        Extended from original 9-prefix list to cover all known noise labels.
-        Entity-bearing lines (dates, company indicators, degree keywords, role words)
-        are never removed — only pure noise-label headers and their continuation blocks.
+        EXTENDED: Now restricts role extraction to job headers only by removing
+        role-like text from responsibilities, environment, technologies, etc.
         """
         import re
 
@@ -163,6 +162,12 @@ class DeBERTaNerParser:
             r'^Development Tools:\s*',
             r'^Project Description:\s*',
             r'^Duties:\s*',
+            # Additional prefixes for role restriction
+            r'^Skills Used:\s*',
+            r'^Achievements:\s*',
+            r'^Key Achievements:\s*',
+            r'^Highlights:\s*',
+            r'^Key Highlights:\s*',
         ]
 
         # ── Regex for detecting noise-label-only lines (header sentinel) ─────
@@ -171,7 +176,8 @@ class DeBERTaNerParser:
             r'^(?:'
             r'technologies|technology stack|tech stack|tools used|frameworks|platforms|'
             r'libraries|cloud services|utilities used|software used|development tools|'
-            r'project description|duties|responsibilities|environment'
+            r'project description|duties|responsibilities|environment|skills used|'
+            r'achievements|key achievements|highlights|key highlights'
             r')\s*:?\s*$',
             re.IGNORECASE
         )
@@ -198,17 +204,138 @@ class DeBERTaNerParser:
             r'analyzed|supported|delivered|directed)\b'
         )
 
+        # ── NEW: Role-like phrases to skip from non-header sections ───────────
+        # These look like roles but appear in responsibilities/descriptions
+        _NON_HEADER_ROLE_PHRASES = re.compile(
+            r'(?i)^(?:'
+            r'backend development|frontend development|full.?stack development|'
+            r'api development|api engineering|microservices|release cycle|'
+            r'production support|monitoring|migration time|3 developer|'
+            r'development team|engineering team|software development|'
+            r'application development|system development|platform development|'
+            r'cloud development|data development|test development|'
+            r'qa development|devops development|security development|'
+            r'mobile development|web development|database development|'
+            r'infrastructure development|network development|'
+            r'backend engineering|frontend engineering|full.?stack engineering|'
+            r'api engineering|microservices engineering|release engineering|'
+            r'production engineering|monitoring engineering|migration engineering|'
+            r'development engineering|engineering engineering|software engineering|'
+            r'application engineering|system engineering|platform engineering|'
+            r'cloud engineering|data engineering|test engineering|'
+            r'qa engineering|devops engineering|security engineering|'
+            r'mobile engineering|web engineering|database engineering|'
+            r'infrastructure engineering|network engineering'
+            r')$',
+            re.IGNORECASE
+        )
+
         lines = text.split('\n')
         cleaned_lines = []
         skip_continuation = False  # True while inside a noise-label block
+        in_header_section = True  # True if we're in the header section (first 3 lines)
+        header_stop_detected = False  # True when we hit a stop keyword (Responsibilities, Environment, etc.)
 
+        # ── STEP 3: Header Detection Stop Keywords ───────────────────────────
+        # These keywords indicate the end of the header section
+        header_stop_keywords = [
+            'responsibilities', 'responsibility', 'environment', 'technologies', 
+            'technology stack', 'tech stack', 'skills used', 'tools used', 
+            'frameworks', 'platforms', 'libraries', 'cloud services', 
+            'utilities used', 'software used', 'development tools', 
+            'project description', 'duties', 'achievements', 'key achievements',
+            'highlights', 'key highlights', 'description', 'project',
+            'architecture', 'documentation', 'monitoring', 'security',
+            'integration', 'design', 'implementation', 'migration',
+            'compliance'
+        ]
+
+        # ── PHASE 10: Environment Extraction ───────────────────────────────────
+        # These keywords indicate environment/technologies section
+        environment_keywords = [
+            'environment', 'technologies', 'technology stack', 'tech stack', 
+            'skills used', 'tools used', 'frameworks', 'platforms', 'libraries',
+            'cloud services', 'utilities used', 'software used', 'development tools'
+        ]
+
+        # ── PHASE 1.5: Remove OCR Noise ───────────────────────────────────────
+        # Remove bullets, unicode, tabs, double spaces before NER
+        ocr_noise_patterns = [
+            r'^[\s•■▪○★\-\*]+',  # Bullets and special characters at line start
+            r'\t+',  # Tabs
+            r'  +',  # Multiple spaces (replace with single)
+            r'[\u200b\u200c\u200d\u2060\ufeff]',  # Hidden unicode characters
+            r'^[\s]+',  # Leading whitespace
+            r'[\s]+$',  # Trailing whitespace
+        ]
+
+        # ── PHASE 1.4: Multi-line Header Reconstruction ─────────────────────────
+        # Merge company/role split over multiple lines
+        # Example: "J.P.\nMorgan\nChase" → "J.P. Morgan Chase"
+        lines_for_reconstruction = []
         for line in lines:
-            stripped = line.strip()
+            # Apply OCR noise removal first
+            cleaned_line = line
+            for pattern in ocr_noise_patterns:
+                cleaned_line = re.sub(pattern, ' ', cleaned_line, flags=re.MULTILINE)
+            cleaned_line = cleaned_line.strip()
+            lines_for_reconstruction.append(cleaned_line)
+        
+        # Reconstruct multi-line headers
+        reconstructed_lines = []
+        i = 0
+        while i < len(lines_for_reconstruction):
+            current_line = lines_for_reconstruction[i]
+            
+            # Check if current line looks like a partial company/role (short, capitalized)
+            # and next line continues it
+            if (i + 1 < len(lines_for_reconstruction) and 
+                len(current_line) < 50 and 
+                current_line and 
+                lines_for_reconstruction[i + 1] and
+                # Both lines are capitalized (suggesting continuation)
+                (current_line[0].isupper() or current_line[0].isdigit()) and
+                (lines_for_reconstruction[i + 1][0].isupper() or lines_for_reconstruction[i + 1][0].isdigit())):
+                
+                # Merge with next line
+                merged = f"{current_line} {lines_for_reconstruction[i + 1]}"
+                reconstructed_lines.append(merged)
+                i += 2  # Skip next line as it's been merged
+            else:
+                reconstructed_lines.append(current_line)
+                i += 1
+        
+        lines = reconstructed_lines
+
+        for line_idx, line in enumerate(lines):
+            stripped = line
+            stripped_lower = stripped.lower()
 
             # ── Blank line resets continuation skip ──────────────────────────
             if not stripped:
                 skip_continuation = False
                 continue
+
+            # ── STEP 3: Detect header stop keywords ─────────────────────────
+            # Once we hit these keywords, only description text follows
+            if in_header_section and any(keyword in stripped_lower for keyword in header_stop_keywords):
+                header_stop_detected = True
+                in_header_section = False
+                logger.debug(f"[PREPROCESS] Header stop keyword detected: '{stripped}'")
+                continue  # Skip the stop keyword line itself
+
+            # ── Track header section (first 10 lines or until stop keyword) ───────
+            if line_idx < 10 and in_header_section and not header_stop_detected:
+                # Keep header lines as-is for role extraction
+                if not _NOISE_SENTINEL.match(stripped):
+                    for prefix_pattern in prefixes_to_remove:
+                        cleaned_line = re.sub(prefix_pattern, '', cleaned_line, flags=re.IGNORECASE)
+                    stripped_cleaned = cleaned_line.strip()
+                    if stripped_cleaned:
+                        cleaned_lines.append(cleaned_line)
+                continue
+            else:
+                in_header_section = False
 
             # ── Detect pure noise-label sentinel lines ────────────────────────
             # e.g., a line that reads exactly "Technologies:" or "Tech Stack:"
@@ -216,6 +343,22 @@ class DeBERTaNerParser:
                 skip_continuation = True
                 logger.debug(f"[PREPROCESS] Noise sentinel detected, skipping block: '{stripped}'")
                 continue
+
+            # ── PHASE 9: Description Extraction ─────────────────────────────────
+            # Everything after stop keywords becomes Description
+            # Preserve bullets, paragraphs, normalize whitespace
+            if header_stop_detected:
+                # Store description lines for later extraction
+                # Don't skip - we'll extract this as description
+                # Just don't extract Company/Role from it
+                is_date_or_location = bool(_DATE_RE.search(stripped)) or bool(
+                    re.search(r'\b(?:city|state|country|location|remote|hybrid)\b', stripped_lower)
+                )
+                if not is_date_or_location:
+                    # This is description content - keep it but don't extract entities from it
+                    # We'll extract description separately in the experience builder
+                    logger.debug(f"[PREPROCESS] Description line after stop keyword: '{stripped[:80]}'")
+                    continue
 
             # ── If inside a noise-label continuation block ────────────────────
             # Skip unless line is entity-bearing (date / role / company / degree)
@@ -227,6 +370,11 @@ class DeBERTaNerParser:
                 else:
                     # Entity line found — exit skip mode and keep line
                     skip_continuation = False
+
+            # ── NEW: Skip role-like phrases from non-header sections ───────────
+            if _NON_HEADER_ROLE_PHRASES.match(stripped):
+                logger.debug(f"[PREPROCESS] Skipping non-header role phrase: '{stripped}'")
+                continue
 
             # ── Per-line prefix stripping (inline "Tech Stack: React, Node") ──
             cleaned_line = line
@@ -455,6 +603,9 @@ class DeBERTaNerParser:
                     continue
 
                 # Aggregate consecutive same-type entities (same logic as _parse_single_section)
+                # ── PHASE 19: Entity Repair - Merge adjacent compatible entities ─────
+                # Example: Morgan + Stanley → Morgan Stanley
+                # Example: J.P. + Morgan + Chase → J.P. Morgan Chase
                 aggregated: List[Dict] = []
                 current_ent: Optional[Dict] = None
 
@@ -686,8 +837,11 @@ class DeBERTaNerParser:
                        'experience', 'career history', 'work history', 'professional background']
         edu_headers = ['education', 'academic background', 'qualifications', 
                       'educational background', 'academic qualifications']
+        # ── STEP 12: Projects section must never contribute Experience records ──
+        # These headers mark the end of work experience section
         other_headers = ['projects', 'certifications', 'skills', 'technical skills', 
-                        'summary', 'objective', 'achievements', 'awards', 'publications']
+                        'summary', 'objective', 'achievements', 'awards', 'publications',
+                        'project experience', 'personal projects', 'academic projects']
         
         # Find work experience section
         for i, line in enumerate(lines):
