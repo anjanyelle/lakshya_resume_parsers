@@ -527,7 +527,7 @@ def split_job_blocks(experience_text: str) -> list:
     # Feature 17: Header Pattern Expansion - Support additional formats
     COMPANY_HEADER_RE = re.compile(
         r'^(?:Company|Client|Employer|Organization|Location|Duration|Period|Employer\s+Name|Worked\s+For|Project|Assignment):\s*',
-        re.IGNORECASE
+        re.IGNORECASE  
     )
     
     # Job title indicators (start of new job)
