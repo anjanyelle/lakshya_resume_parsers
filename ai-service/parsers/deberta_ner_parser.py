@@ -2,16 +2,39 @@
 """
 DeBERTa NER Parser - Integration with trained Resume NER model
 Uses the fine-tuned DeBERTa-v3 model for entity extraction.
+
+Safeguard 4: Import Validation - Verify all required imports at startup
 """
 
 import torch
 import sys
 import os
+import traceback
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Union, Set, Tuple
 from collections import defaultdict
 import logging
 import re
+
+# Safeguard 4: Import Validation - Verify critical imports
+_required_imports = {
+    'torch': torch,
+    'typing.Dict': Dict,
+    'typing.List': List,
+    'typing.Any': Any,
+    'typing.Optional': Optional,
+    'typing.Union': Union,
+    'typing.Set': Set,
+    'typing.Tuple': Tuple,
+    'collections.defaultdict': defaultdict,
+    'logging': logging,
+    're': re,
+    'traceback': traceback
+}
+
+for name, module in _required_imports.items():
+    if module is None:
+        raise ImportError(f"Critical import failed: {name}. Cannot start parser.")
 
 # Import configuration
 try:
@@ -90,6 +113,54 @@ class DeBERTaNerParser:
             return False
         
         return True
+    
+    def _normalize_gpa(self, gpa_text: str) -> Optional[str]:
+        """
+        Normalize GPA values to standard format.
+        
+        Examples:
+        - 3.84.0 → 3.84/4.0
+        - 3.84/4.0 → 3.84/4.0 (already normalized)
+        - 3.84 → 3.84 (no scale)
+        
+        Args:
+            gpa_text: Raw GPA text from DeBERTa
+            
+        Returns:
+            Normalized GPA string or None if invalid
+        """
+        if not gpa_text:
+            return None
+        
+        import re
+        
+        gpa_text = gpa_text.strip()
+        
+        # Pattern 1: 3.84.0 → 3.84/4.0 (malformed with extra .0)
+        match = re.match(r'^(\d+\.?\d*)\.0$', gpa_text)
+        if match:
+            gpa_value = match.group(1)
+            return f"{gpa_value}/4.0"
+        
+        # Pattern 2: Already in format X/Y (e.g., 3.84/4.0, 8.5/10)
+        if '/' in gpa_text:
+            return gpa_text
+        
+        # Pattern 3: Just a number (e.g., 3.84, 8.5) - return as-is
+        match = re.match(r'^(\d+\.?\d*)$', gpa_text)
+        if match:
+            return gpa_text
+        
+        # Pattern 4: Percentage (e.g., 85%, 85.5%) - convert to GPA if possible
+        match = re.match(r'^(\d+\.?\d*)%$', gpa_text)
+        if match:
+            percentage = float(match.group(1))
+            # Convert percentage to 4.0 scale: (percentage / 100) * 4
+            gpa_value = round((percentage / 100) * 4, 2)
+            return f"{gpa_value}/4.0"
+        
+        # Return original if no pattern matches
+        return gpa_text
     
     def _extract_years_from_text(self, text: str) -> tuple:
         """
@@ -250,65 +321,8 @@ class DeBERTaNerParser:
             'compliance'
         ]
 
-        # ── PHASE 10: Environment Extraction ───────────────────────────────────
-        # These keywords indicate environment/technologies section
-        environment_keywords = [
-            'environment', 'technologies', 'technology stack', 'tech stack', 
-            'skills used', 'tools used', 'frameworks', 'platforms', 'libraries',
-            'cloud services', 'utilities used', 'software used', 'development tools'
-        ]
-
-        # ── PHASE 1.5: Remove OCR Noise ───────────────────────────────────────
-        # Remove bullets, unicode, tabs, double spaces before NER
-        ocr_noise_patterns = [
-            r'^[\s•■▪○★\-\*]+',  # Bullets and special characters at line start
-            r'\t+',  # Tabs
-            r'  +',  # Multiple spaces (replace with single)
-            r'[\u200b\u200c\u200d\u2060\ufeff]',  # Hidden unicode characters
-            r'^[\s]+',  # Leading whitespace
-            r'[\s]+$',  # Trailing whitespace
-        ]
-
-        # ── PHASE 1.4: Multi-line Header Reconstruction ─────────────────────────
-        # Merge company/role split over multiple lines
-        # Example: "J.P.\nMorgan\nChase" → "J.P. Morgan Chase"
-        lines_for_reconstruction = []
-        for line in lines:
-            # Apply OCR noise removal first
-            cleaned_line = line
-            for pattern in ocr_noise_patterns:
-                cleaned_line = re.sub(pattern, ' ', cleaned_line, flags=re.MULTILINE)
-            cleaned_line = cleaned_line.strip()
-            lines_for_reconstruction.append(cleaned_line)
-        
-        # Reconstruct multi-line headers
-        reconstructed_lines = []
-        i = 0
-        while i < len(lines_for_reconstruction):
-            current_line = lines_for_reconstruction[i]
-            
-            # Check if current line looks like a partial company/role (short, capitalized)
-            # and next line continues it
-            if (i + 1 < len(lines_for_reconstruction) and 
-                len(current_line) < 50 and 
-                current_line and 
-                lines_for_reconstruction[i + 1] and
-                # Both lines are capitalized (suggesting continuation)
-                (current_line[0].isupper() or current_line[0].isdigit()) and
-                (lines_for_reconstruction[i + 1][0].isupper() or lines_for_reconstruction[i + 1][0].isdigit())):
-                
-                # Merge with next line
-                merged = f"{current_line} {lines_for_reconstruction[i + 1]}"
-                reconstructed_lines.append(merged)
-                i += 2  # Skip next line as it's been merged
-            else:
-                reconstructed_lines.append(current_line)
-                i += 1
-        
-        lines = reconstructed_lines
-
         for line_idx, line in enumerate(lines):
-            stripped = line
+            stripped = line.strip()
             stripped_lower = stripped.lower()
 
             # ── Blank line resets continuation skip ──────────────────────────
@@ -328,6 +342,7 @@ class DeBERTaNerParser:
             if line_idx < 10 and in_header_section and not header_stop_detected:
                 # Keep header lines as-is for role extraction
                 if not _NOISE_SENTINEL.match(stripped):
+                    cleaned_line = line
                     for prefix_pattern in prefixes_to_remove:
                         cleaned_line = re.sub(prefix_pattern, '', cleaned_line, flags=re.IGNORECASE)
                     stripped_cleaned = cleaned_line.strip()
@@ -344,20 +359,17 @@ class DeBERTaNerParser:
                 logger.debug(f"[PREPROCESS] Noise sentinel detected, skipping block: '{stripped}'")
                 continue
 
-            # ── PHASE 9: Description Extraction ─────────────────────────────────
-            # Everything after stop keywords becomes Description
-            # Preserve bullets, paragraphs, normalize whitespace
+            # ── STEP 10-11: Responsibilities/Environment only contribute to description ──
+            # Everything after these keywords belongs only to description
+            # No entity extraction for Company or Role
             if header_stop_detected:
-                # Store description lines for later extraction
-                # Don't skip - we'll extract this as description
-                # Just don't extract Company/Role from it
+                # After stop keyword, only allow dates and locations (for description context)
+                # Reject Company and Role entities
                 is_date_or_location = bool(_DATE_RE.search(stripped)) or bool(
                     re.search(r'\b(?:city|state|country|location|remote|hybrid)\b', stripped_lower)
                 )
                 if not is_date_or_location:
-                    # This is description content - keep it but don't extract entities from it
-                    # We'll extract description separately in the experience builder
-                    logger.debug(f"[PREPROCESS] Description line after stop keyword: '{stripped[:80]}'")
+                    logger.debug(f"[PREPROCESS] Skipping description line after stop keyword: '{stripped[:80]}'")
                     continue
 
             # ── If inside a noise-label continuation block ────────────────────
@@ -400,6 +412,262 @@ class DeBERTaNerParser:
             cleaned_lines.append(cleaned_line)
 
         return '\n'.join(cleaned_lines)
+
+    def _recover_pdf_layout(self, text: str) -> str:
+        """
+        Phase 1.3: PDF Layout Recovery
+        
+        Normalize multi-column resumes, side-by-side layouts, OCR artifacts,
+        table layouts, and broken line wrapping to reconstruct reading order.
+        
+        Args:
+            text: Raw text from PDF OCR
+            
+        Returns:
+            Text with reconstructed reading order
+        """
+        import re
+        
+        lines = text.split('\n')
+        recovered_lines = []
+        
+        # Detect and handle multi-column layouts
+        # Strategy: If lines are short and numerous, likely multi-column
+        avg_line_length = sum(len(line) for line in lines) / len(lines) if lines else 0
+        
+        # If average line length is very short (< 40 chars), likely multi-column
+        if avg_line_length < 40 and len(lines) > 10:
+            # Try to merge short lines that belong together
+            current_line = ""
+            for line in lines:
+                stripped = line.strip()
+                if not stripped:
+                    if current_line:
+                        recovered_lines.append(current_line)
+                        current_line = ""
+                    continue
+                
+                # If line ends with punctuation or is very short, likely continuation
+                if current_line and (stripped[0].islower() or len(stripped) < 20):
+                    current_line += " " + stripped
+                else:
+                    if current_line:
+                        recovered_lines.append(current_line)
+                    current_line = stripped
+            
+            if current_line:
+                recovered_lines.append(current_line)
+        else:
+            # Single column, keep as-is
+            recovered_lines = lines
+        
+        # Remove table artifacts (vertical bars, multiple spaces)
+        cleaned_lines = []
+        for line in recovered_lines:
+            # Remove vertical bars and table separators
+            cleaned = re.sub(r'\|', ' ', line)
+            # Remove multiple consecutive spaces
+            cleaned = re.sub(r' {2,}', ' ', cleaned)
+            cleaned_lines.append(cleaned)
+        
+        return '\n'.join(cleaned_lines)
+
+    def _reconstruct_multiline_headers(self, text: str) -> str:
+        """
+        Phase 1.4: Multi-line Header Reconstruction
+        
+        Merge company/role split over multiple lines into single lines.
+        
+        Examples:
+            J.P.          Morgan          Chase  →  J.P. Morgan Chase
+            Senior        Software        Engineer  →  Senior Software Engineer
+        
+        Args:
+            text: Text with potentially split headers
+            
+        Returns:
+            Text with reconstructed headers
+        """
+        import re
+        
+        lines = text.split('\n')
+        reconstructed_lines = []
+        
+        # Patterns that indicate a line might be a continuation of a header
+        continuation_patterns = [
+            r'^[A-Z]\.$',  # Single letter with period (J.P., A.B., etc.)
+            r'^[A-Z][a-z]+$',  # Single capitalized word
+            r'^[A-Z]{2,}$',  # All caps acronym
+        ]
+        
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            if not line:
+                reconstructed_lines.append(line)
+                i += 1
+                continue
+            
+            # Check if this line might be a header continuation
+            is_continuation = False
+            for pattern in continuation_patterns:
+                if re.match(pattern, line):
+                    is_continuation = True
+                    break
+            
+            # If it's a continuation and previous line exists, merge
+            if is_continuation and reconstructed_lines and reconstructed_lines[-1]:
+                # Check if previous line is also short (likely header)
+                prev_line = reconstructed_lines[-1].strip()
+                if len(prev_line) < 50 and not prev_line.endswith('.'):
+                    # Merge with previous line
+                    reconstructed_lines[-1] = prev_line + " " + line
+                    i += 1
+                    continue
+            
+            reconstructed_lines.append(line)
+            i += 1
+        
+        return '\n'.join(reconstructed_lines)
+
+    def _remove_ocr_noise(self, text: str) -> str:
+        """
+        Phase 1.5: Remove OCR Noise
+        
+        Remove bullets, tabs, double spaces, hidden unicode characters
+        before NER processing.
+        
+        Args:
+            text: Text with OCR noise
+            
+        Returns:
+            Cleaned text
+        """
+        import re
+        
+        # Remove common OCR bullet characters
+        bullet_chars = ['•', '■', '▪', '○', '★', '*', '-', '►', '▸', '▶', '→']
+        cleaned = text
+        
+        for char in bullet_chars:
+            cleaned = cleaned.replace(char, '')
+        
+        # Remove tabs and replace with single space
+        cleaned = cleaned.replace('\t', ' ')
+        
+        # Remove double spaces
+        cleaned = re.sub(r' {2,}', ' ', cleaned)
+        
+        # Remove hidden unicode characters (non-printable except common ones)
+        # Keep: newline, space, common punctuation
+        cleaned = re.sub(r'[^\x20-\x7E\n\r\t]', '', cleaned)
+        
+        # Remove leading/trailing spaces from each line
+        lines = cleaned.split('\n')
+        cleaned_lines = [line.strip() for line in lines]
+        
+        # Remove empty lines
+        cleaned_lines = [line for line in cleaned_lines if line]
+        
+        return '\n'.join(cleaned_lines)
+
+    def _extract_description(self, text: str, header_stop_position: int = -1) -> str:
+        """
+        Phase 9: Description Extraction
+        
+        Extract everything below Responsibilities/Environment as Description.
+        Preserve bullets and paragraphs. Normalize whitespace.
+        
+        Args:
+            text: Full job block text
+            header_stop_position: Position where header section ends (if known)
+            
+        Returns:
+            Extracted description text
+        """
+        import re
+        
+        lines = text.split('\n')
+        description_lines = []
+        in_description = False
+        
+        # Keywords that indicate start of description section
+        description_keywords = [
+            'responsibilities', 'responsibility', 'duties', 'achievements',
+            'highlights', 'key highlights', 'description', 'project description'
+        ]
+        
+        for line in lines:
+            stripped = line.strip().lower()
+            
+            # Check if this line starts a description section
+            if any(keyword in stripped for keyword in description_keywords):
+                in_description = True
+                continue
+            
+            # If we're in description section, collect lines
+            if in_description:
+                description_lines.append(line.strip())
+        
+        # Normalize whitespace
+        description = ' '.join(description_lines)
+        description = re.sub(r' {2,}', ' ', description)
+        
+        return description.strip()
+
+    def _extract_environment(self, text: str) -> dict:
+        """
+        Phase 10: Environment Extraction
+        
+        Extract and store environment/technologies_used separately.
+        Never classify as Company, Client, or Role.
+        
+        Args:
+            text: Full job block text
+            
+        Returns:
+            Dictionary with 'environment' and 'technologies_used' fields
+        """
+        import re
+        
+        result = {
+            'environment': None,
+            'technologies_used': None
+        }
+        
+        # Keywords that indicate environment section
+        environment_keywords = [
+            'environment', 'technologies', 'technology stack', 'tech stack',
+            'tools used', 'frameworks', 'platforms', 'libraries', 'cloud services',
+            'software used', 'development tools'
+        ]
+        
+        lines = text.split('\n')
+        environment_lines = []
+        in_environment = False
+        
+        for line in lines:
+            stripped = line.strip().lower()
+            
+            # Check if this line starts an environment section
+            if any(keyword in stripped for keyword in environment_keywords):
+                in_environment = True
+                continue
+            
+            # If we're in environment section, collect lines
+            if in_environment:
+                environment_lines.append(line.strip())
+        
+        # Normalize whitespace
+        environment_text = ' '.join(environment_lines)
+        environment_text = re.sub(r' {2,}', ' ', environment_text)
+        
+        if environment_text.strip():
+            result['environment'] = environment_text.strip()
+            result['technologies_used'] = environment_text.strip()
+        
+        return result
 
     # ── Record-level splitters ────────────────────────────────────────────────
 
@@ -552,8 +820,17 @@ class DeBERTaNerParser:
         # Step 1: convert structured formats → natural language
         converted = self._convert_to_natural_language(record_text)
 
-        # Step 2: extended preprocessing
-        preprocessed = self._preprocess_text(converted)
+        # Step 2: PDF Layout Recovery (Phase 1.3)
+        layout_recovered = self._recover_pdf_layout(converted)
+
+        # Step 3: Multi-line Header Reconstruction (Phase 1.4)
+        headers_reconstructed = self._reconstruct_multiline_headers(layout_recovered)
+
+        # Step 4: Remove OCR Noise (Phase 1.5)
+        noise_removed = self._remove_ocr_noise(headers_reconstructed)
+
+        # Step 5: extended preprocessing
+        preprocessed = self._preprocess_text(noise_removed)
 
         logger.debug(f"[{section_type.upper()}-RECORD] After preprocess ({len(preprocessed)} chars): "
                      f"{preprocessed[:100]!r}")
@@ -564,8 +841,39 @@ class DeBERTaNerParser:
 
         logger.debug(f"[{section_type.upper()}-RECORD] Sending to DeBERTa: {preprocessed[:150]!r}")
 
+        # ── STEP 1: MODEL INPUT DEBUG LOGGING ─────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 1: DeBERTa MODEL INPUT")
+        logger.info("=" * 80)
+        logger.info(f"Section: {section_type}")
+        logger.info(f"Character Count: {len(preprocessed)}")
+        
+        # Estimate token count
+        estimated_tokens = len(preprocessed.split()) * 1.3
+        logger.info(f"Estimated Token Count: {estimated_tokens:.0f}")
+        
         # Step 3: chunk if needed
         chunks = self._chunk_record_for_deberta(preprocessed)
+        
+        logger.info(f"Number of Chunks: {len(chunks)}")
+        
+        if len(chunks) > 1:
+            logger.info("-" * 80)
+            for chunk_idx, chunk in enumerate(chunks):
+                logger.info(f"Chunk {chunk_idx + 1}:")
+                logger.info(f"  Start Position: {sum(len(c) + 1 for c in chunks[:chunk_idx]) if chunk_idx > 0 else 0}")
+                logger.info(f"  End Position: {sum(len(c) + 1 for c in chunks[:chunk_idx + 1]) - 1}")
+                logger.info(f"  Character Count: {len(chunk)}")
+                logger.info(f"  Token Count: {len(chunk.split()) * 1.3:.0f}")
+                logger.info(f"  Text Preview: {chunk[:200]}...")
+                logger.info("-" * 80)
+        else:
+            logger.info("-" * 80)
+            logger.info("Full Input Text:")
+            logger.info(preprocessed)
+            logger.info("-" * 80)
+        logger.info("=" * 80)
+        # ── END STEP 1 ─────────────────────────────────────────────────────────
 
         # ── Entity accumulator (same structure as _parse_single_section) ─────
         entities: Dict[str, Any] = {
@@ -597,15 +905,30 @@ class DeBERTaNerParser:
 
                 try:
                     predictions = ner_pipeline(chunk)
+                    
+                    # ── STEP 2: MODEL OUTPUT DEBUG LOGGING ─────────────────────────────
+                    logger.info("=" * 80)
+                    logger.info(f"STEP 2: DeBERTa MODEL OUTPUT (Chunk {chunk_idx + 1})")
+                    logger.info("=" * 80)
+                    logger.info(f"Raw Entities: {len(predictions)}")
+                    for pred in predictions:
+                        entity_text = chunk[pred['start']:pred['end']].strip()
+                        score = pred.get('score', 0.0)
+                        logger.info(f"ENTITY:")
+                        logger.info(f"  text = \"{entity_text}\"")
+                        logger.info(f"  label = {pred['entity_group']}")
+                        logger.info(f"  score = {score:.3f}")
+                        logger.info(f"  start = {pred['start']}")
+                        logger.info(f"  end = {pred['end']}")
+                        logger.info("-" * 40)
+                    logger.info("=" * 80)
+                    # ── END STEP 2 ─────────────────────────────────────────────────────
                 except Exception as chunk_err:
                     logger.warning(f"[{section_type.upper()}-RECORD] Chunk {chunk_idx} inference failed: {chunk_err}")
                     chunk_text_offset += len(chunk) + 1
                     continue
 
                 # Aggregate consecutive same-type entities (same logic as _parse_single_section)
-                # ── PHASE 19: Entity Repair - Merge adjacent compatible entities ─────
-                # Example: Morgan + Stanley → Morgan Stanley
-                # Example: J.P. + Morgan + Chase → J.P. Morgan Chase
                 aggregated: List[Dict] = []
                 current_ent: Optional[Dict] = None
 
@@ -659,9 +982,32 @@ class DeBERTaNerParser:
                 chunk_text_offset += len(chunk) + 1  # +1 for newline separator between chunks
 
         except Exception as e:
-            logger.warning(f"[{section_type.upper()}-RECORD] Pipeline failed: {e}, using manual fallback path")
-            # Delegate to existing _parse_single_section which has its own fallback
-            return self._parse_single_section(record_text, section_type)
+            # Safeguard 11: Exception Logging with full traceback
+            # Safeguard 1: Never silently fallback - return empty dict on exception
+            logger.error(f"[{section_type.upper()}-RECORD] Pipeline failed: {e}")
+            logger.error(f"Full traceback:\n{traceback.format_exc()}")
+            logger.error(f"Input record (first 200 chars): {record_text[:200]}")
+            
+            # ── STEP 15: FALLBACK AUDIT DEBUG LOGGING ───────────────────────────────
+            logger.info("=" * 80)
+            logger.info("STEP 15: FALLBACK AUDIT - Exception Occurred")
+            logger.info("=" * 80)
+            logger.info("FALLBACK: NO")
+            logger.info("Reason: Model inference failed")
+            logger.info("Exception type: " + type(e).__name__)
+            logger.info("Exception message: " + str(e))
+            logger.info("Stack trace logged above")
+            logger.info("Action: Returning empty entities (no fallback to rule-based)")
+            logger.info("=" * 80)
+            # ── END STEP 15 ───────────────────────────────────────────────────────────
+            
+            # Return empty entities, NOT fallback to _parse_single_section
+            return {
+                'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
+                'START_DATE': [], 'END_DATE': [], 'DATE_START': [], 'DATE_END': [],
+                'DEGREE': [], 'EDUCATION': [], 'INSTITUTION': [], 'FIELD': [], 'GRADE': [],
+                'EDU_YEAR_START': [], 'EDU_YEAR_END': []
+            }
 
         # Attach positions for DeBERTaExperienceBuilder
         entities['_positions'] = entities_with_positions
@@ -679,13 +1025,17 @@ class DeBERTaNerParser:
         return entities
 
     def _load_model(self):
-        """Load the trained DeBERTa NER model with graceful fallback."""
-        # First check if model files exist
+        """
+        Safeguard 5: Startup Self Test - Load the trained DeBERTa NER model.
+        
+        Fails hard if model files don't exist or loading fails.
+        No silent fallback to rule-based parsing.
+        """
+        # Safeguard 5: Check if model files exist - fail hard if not
         if not self._check_model_files_exist():
-            logger.warning(f"⚠️  DeBERTa model not found at {self.model_path}. Using structured parser fallback.")
-            self.is_loaded = False
-            self.deberta_available = False
-            return
+            error_msg = f"❌ CRITICAL: DeBERTa model files not found at {self.model_path}. Cannot start parser without model."
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
         
         try:
             # Try to load transformers-based model
@@ -726,12 +1076,11 @@ class DeBERTaNerParser:
             logger.info(f"✅ DeBERTa NER model loaded successfully with {len(self.id_to_label)} labels")
             
         except Exception as e:
-            logger.error(f"❌ Failed to load DeBERTa model: {e}")
-            logger.warning(f"⚠️  DeBERTa model not found at {self.model_path}. Using structured parser fallback.")
-            self.model = None
-            self.tokenizer = None
-            self.is_loaded = False
-            self.deberta_available = False
+            # Safeguard 11: Exception Logging with full traceback
+            error_msg = f"❌ CRITICAL: Failed to load DeBERTa model: {e}"
+            logger.error(error_msg)
+            logger.error(f"Full traceback:\n{traceback.format_exc()}")
+            raise RuntimeError(error_msg) from e
     
     def is_available(self) -> bool:
         """Check if DeBERTa parser is available (model loaded or structured parser available)."""
@@ -739,9 +1088,14 @@ class DeBERTaNerParser:
     
     def parse_text(self, text: str) -> Dict[str, Any]:
         """
+        Safeguard 2: Fail Safe Experience Parsing
+        Safeguard 3: Fail Safe Education Parsing
+        
         Parse resume text using DeBERTa NER model with section-focused approach.
         IMPORTANT: DeBERTa only processes experience and education sections,
         never the full resume text. This prevents token overflow and improves accuracy.
+        
+        NO SILENT FALLBACK: If DeBERTa fails, returns empty experience/education lists.
         
         Args:
             text: Full resume text
@@ -749,17 +1103,11 @@ class DeBERTaNerParser:
         Returns:
             Dictionary with extracted entities from focused sections
         """
-        # Skip DeBERTa entirely if not available
-        if not self.deberta_available:
-            logger.info("DeBERTa not available, using structured parser")
-            sections = self.extract_target_sections(text)
-            return self.parse_focused_sections(sections)
-        
-        # Additional safety check
+        # Safeguard 13: Pipeline Health Check
         if not self.is_loaded or self.model is None:
-            logger.warning("DeBERTa model not loaded, using structured parser fallback")
-            sections = self.extract_target_sections(text)
-            return self.parse_focused_sections(sections)
+            error_msg = "❌ CRITICAL: DeBERTa model not loaded. Cannot parse without model."
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
         
         try:
             # CRITICAL: Extract only relevant sections — don't pass full text to DeBERTa
@@ -789,12 +1137,16 @@ class DeBERTaNerParser:
             # Merge entities from both sections
             all_entities = self._merge_section_entities(exp_entities, edu_entities)
             
-            # Check if DeBERTa found any entities
+            # Safeguard 7: Entity Count Validation
             entity_count = sum(len(v) for v in all_entities.values() if isinstance(v, list))
+            logger.info(f"✅ DeBERTa extracted {entity_count} entities from focused sections")
             
+            # Safeguard 8: DeBERTa Integrity Check
+            # If zero entities, log warning but DO NOT fallback to rule-based
             if entity_count == 0:
-                logger.warning("DeBERTa found no entities, using rule-based fallback")
-                return self._rule_based_fallback(text)
+                logger.warning("⚠️ DeBERTa found no entities - returning empty results (no fallback)")
+                # Return empty entities, not rule-based fallback
+                return self._format_results(all_entities)
             
             logger.info(f"✅ DeBERTa extracted {entity_count} entities from focused sections")
             
@@ -802,11 +1154,49 @@ class DeBERTaNerParser:
             all_entities['_original_text'] = sections.get('work_experience_text', text)
             
             # Convert to expected format
-            return self._format_results(all_entities)
+            result = self._format_results(all_entities)
+            
+            # Safeguard 18: Final Source Validation before API response
+            # Validate that all experiences have source="deberta_ner"
+            if 'work_experience' in result:
+                for exp in result['work_experience']:
+                    if exp.get('source') != 'deberta_ner':
+                        logger.error(f"❌ CRITICAL: Final source validation failed. Experience has invalid source: {exp.get('source')}")
+                        logger.error(f"Experience record: {exp}")
+                        raise ValueError(f"Experience source validation failed. Expected 'deberta_ner', got '{exp.get('source')}'")
+            
+            # Validate that all education records have source="deberta_ner"
+            if 'education' in result:
+                for edu in result['education']:
+                    if edu.get('source') != 'deberta_ner':
+                        logger.error(f"❌ CRITICAL: Final source validation failed. Education has invalid source: {edu.get('source')}")
+                        logger.error(f"Education record: {edu}")
+                        raise ValueError(f"Education source validation failed. Expected 'deberta_ner', got '{edu.get('source')}'")
+            
+            return result
             
         except Exception as e:
-            logger.error(f"Error parsing text with DeBERTa: {e}")
-            return self._rule_based_fallback(text)
+            # Safeguard 11: Exception Logging with full traceback
+            # Safeguard 1: Never silently fallback - return empty results on exception
+            logger.error(f"❌ CRITICAL: Error parsing text with DeBERTa: {e}")
+            logger.error(f"Full traceback:\n{traceback.format_exc()}")
+            logger.error(f"Input text (first 500 chars): {text[:500]}")
+            # Return empty results, NOT rule-based fallback
+            return {
+                'companies': [],
+                'job_titles': [],
+                'locations': [],
+                'clients': [],
+                'work_experience': [],
+                'education': [],
+                'degrees': [],
+                'institutions': [],
+                'skills': [],
+                'certifications': [],
+                'projects': [],
+                'summary': '',
+                'contact': {}
+            }
     
     def extract_target_sections(self, text: str) -> Dict[str, str]:
         """
@@ -910,6 +1300,9 @@ class DeBERTaNerParser:
     
     def parse_focused_sections(self, sections: Dict[str, str]) -> Dict[str, Any]:
         """
+        Safeguard 6: Builder Exception Isolation
+        Safeguard 13: Pipeline Health Check
+        
         Parse only the extracted sections with DeBERTa for maximum accuracy.
 
         REFACTORED: Now performs one DeBERTa inference per individual record
@@ -918,13 +1311,7 @@ class DeBERTaNerParser:
           - Problem 3: token truncation (chunking via _chunk_record_for_deberta)
           - Problem 4: cross-record entity grouping (each record scoped)
 
-        Reused without change:
-          - _split_experience_into_records() → split_job_blocks()
-          - _split_education_into_records() → extract_education_blocks()
-          - _run_deberta_on_record() → same HF pipeline logic as before
-          - DeBERTaExperienceBuilder.build_experiences_from_entities() (unchanged)
-          - _format_results() (unchanged)
-          - _structured_fallback_sections() (unchanged fallback)
+        NO SILENT FALLBACK: If DeBERTa fails, returns empty experience/education lists.
 
         Args:
             sections: Dictionary with work_experience_text and education_text
@@ -932,9 +1319,11 @@ class DeBERTaNerParser:
         Returns:
             Dictionary with extracted entities — identical schema to before
         """
+        # Safeguard 13: Pipeline Health Check
         if not self.is_loaded or self.model is None:
-            logger.warning("DeBERTa model not loaded, using fallback")
-            return self._structured_fallback_sections(sections)
+            error_msg = "❌ CRITICAL: DeBERTa model not loaded. Cannot parse without model."
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
 
         try:
             all_entities: Dict[str, Any] = {}
@@ -997,24 +1386,12 @@ class DeBERTaNerParser:
                     exp_section
                 )
 
-                # Fallback: if DeBERTa found nothing, use extract_experience (unchanged)
+                # Safeguard 8: DeBERTa Integrity Check
+                # If DeBERTa found no experiences, log warning but DO NOT fallback to rule-based
                 if len(work_experiences) == 0:
-                    logger.warning("⚠️ DeBERTa found no experiences, using extract_experience fallback")
-                    from parsers.experience_extractor import extract_experience
-                    raw_experiences = extract_experience(exp_section)
-                    work_experiences = [
-                        {
-                            'job_title': exp.get('title', ''),
-                            'company_name': exp.get('company', ''),
-                            'location': '',
-                            'start_date': exp.get('start_date'),
-                            'end_date': exp.get('end_date'),
-                            'is_current': exp.get('is_current', False),
-                            'clients': [],
-                            'description': exp.get('description', '')
-                        }
-                        for exp in raw_experiences
-                    ]
+                    logger.warning("⚠️ DeBERTa found no experiences - returning empty list (no fallback)")
+                    # Return empty experiences, NOT extract_experience fallback
+                    work_experiences = []
 
                 # Collect lists for compatibility (same as before)
                 all_entities['companies'] = [
@@ -1080,16 +1457,36 @@ class DeBERTaNerParser:
             # ── Final check and format (unchanged) ───────────────────────────
             entity_count = sum(len(v) for v in all_entities.values() if isinstance(v, list))
 
+            # Safeguard 8: DeBERTa Integrity Check
+            # If zero entities, log warning but DO NOT fallback to rule-based
             if entity_count == 0:
-                logger.warning("No entities found in sections, using fallback")
-                return self._structured_fallback_sections(sections)
+                logger.warning("⚠️ No entities found in sections - returning empty results (no fallback)")
+                return self._format_results(all_entities)
 
             logger.info(f"✅ Found {entity_count} entities across all records")
             return self._format_results(all_entities)
 
         except Exception as e:
-            logger.error(f"Error parsing sections: {e}", exc_info=True)
-            return self._structured_fallback_sections(sections)
+            # Safeguard 11: Exception Logging with full traceback
+            # Safeguard 1: Never silently fallback - return empty results on exception
+            logger.error(f"❌ CRITICAL: Error parsing sections: {e}")
+            logger.error(f"Full traceback:\n{traceback.format_exc()}")
+            # Return empty results, NOT _structured_fallback_sections
+            return {
+                'companies': [],
+                'job_titles': [],
+                'locations': [],
+                'clients': [],
+                'work_experience': [],
+                'education': [],
+                'degrees': [],
+                'institutions': [],
+                'skills': [],
+                'certifications': [],
+                'projects': [],
+                'summary': '',
+                'contact': {}
+            }
     
     def _merge_section_entities(self, exp_entities: Dict, edu_entities: Dict) -> Dict[str, List[str]]:
         """Merge entities from experience and education sections."""
@@ -2027,37 +2424,53 @@ class DeBERTaNerParser:
             start_dates = [exp.get('start_date') for exp in structured_experiences]
             end_dates = [exp.get('end_date') for exp in structured_experiences]
         
-        # Extract education - FIXED to handle DEGREE-only cases
+        # Extract education - REQUIREMENT 8: Only from DeBERTa entities
+        # ── STEP 11: EDUCATION BUILDER DEBUG LOGGING ───────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 11: EDUCATION BUILDER - Entity Mapping")
+        logger.info("=" * 80)
         education = []
         institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
         degrees = entities.get('DEGREE', [])
         fields = entities.get('FIELD', [])
         edu_start = entities.get('EDU_YEAR_START', [])
         edu_end = entities.get('EDU_YEAR_END', [])
+        grades = entities.get('GRADE', [])
         
-        # Fallback: If institutions not extracted but degrees exist, try regex extraction
-        original_text = entities.get('_original_text', '')
-        if not institutions and degrees and original_text:
-            import re
-            # Common institution patterns
-            inst_patterns = [
-                r'\b(JNTU|IIT|NIT|IIIT|BITS|MIT|Stanford|Harvard|Berkeley|CMU)\s*(?:Hyderabad|Delhi|Mumbai|Bangalore|Chennai|Pune)?\b',
-                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+(?:University|College|Institute)\b',
-                r'\b([A-Z]{2,5})\s+(?:University|College|Institute)\b'
-            ]
-            for pattern in inst_patterns:
-                matches = re.findall(pattern, original_text, re.IGNORECASE)
-                if matches:
-                    institutions = [m if isinstance(m, str) else m[0] for m in matches[:len(degrees)]]
-                    logger.info(f"🔧 Fallback extracted {len(institutions)} institutions: {institutions}")
-                    break
+        logger.info(f"Raw Education Entities:")
+        logger.info(f"  INSTITUTION/EDUCATION: {institutions}")
+        logger.info(f"  DEGREE: {degrees}")
+        logger.info(f"  FIELD: {fields}")
+        logger.info(f"  EDU_YEAR_START: {edu_start}")
+        logger.info(f"  EDU_YEAR_END: {edu_end}")
+        logger.info(f"  GRADE: {grades}")
+        logger.info("-" * 80)
+        # ── END STEP 11 START ───────────────────────────────────────────────────────
+        
+        # ── REQUIREMENT 8: EDUCATION RECONSTRUCTION - Only DeBERTa Entities ─────────────
+        # Build Education only from: INSTITUTION, DEGREE, FIELD, START_DATE, END_DATE, GPA
+        # Never infer: Bachelor of Arts from Bachelor of Technology
+        # Never infer institutions
+        # Use only DeBERTa entities
+        # No regex regeneration
+        
+        # ── REQUIREMENT 14: EDUCATION LEAKAGE PREVENTION ─────────────────────────────
+        # University, College, Bachelor, Master, GPA, Academic Project, Coursework
+        # must never become Experience entities
+        # This is handled by Safeguard 16 in deberta_experience_builder.py
         
         # Build education entries
         max_edu = max(len(institutions), len(degrees)) if (institutions or degrees) else 0
         
+        logger.info(f"Building {max_edu} education entries...")
+        logger.info("-" * 80)
+        
         if max_edu > 0:
             for i in range(max_edu):
-                # Get years from model if available
+                # ── ISSUE 13: EDUCATION DATE EXTRACTION ─────────────────────────────────
+                # Use DeBERTa extracted dates first
+                # Do not leave years null when DeBERTa extracted dates
+                # If education contains: August 2012, May 2014 → start_year=2012, end_year=2014
                 start_year = edu_start[i] if i < len(edu_start) else None
                 end_year = edu_end[i] if i < len(edu_end) else None
                 
@@ -2076,18 +2489,50 @@ class DeBERTaNerParser:
                     if extracted_end:
                         end_year = extracted_end
                 
+                # ── REQUIREMENT 13: GPA NORMALIZATION ─────────────────────────────────────
+                # Normalize: 3.84.0 → 3.84/4.0
+                grade_raw = entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None
+                grade_normalized = self._normalize_gpa(grade_raw) if grade_raw else None
+                
+                # ── ISSUE 14: EDUCATION FIELD RECONSTRUCTION ─────────────────────────────
+                # Preserve complete field names
+                # Examples: Computer Science and Engineering, Information Technology, Information Systems, Electronics and Communication Engineering
+                # Do not truncate multi-token fields
+                # FIELD entities are already complete from DeBERTa extraction
                 edu = {
                     'institution': institutions[i] if i < len(institutions) else '',
                     'degree': degrees[i] if i < len(degrees) else '',
                     'field_of_study': fields[i] if i < len(fields) else None,
                     'start_year': start_year,
                     'end_year': end_year,
-                    'grade': entities.get('GRADE', [None])[i] if i < len(entities.get('GRADE', [])) else None,
+                    'grade': grade_normalized,
                     'source': 'deberta_ner'
                 }
                 # Add if has institution OR degree (not both required)
                 if edu['institution'] or edu['degree']:
                     education.append(edu)
+                    
+                    # ── STEP 11: LOG EDUCATION MAPPING ───────────────────────────────────
+                    logger.info(f"Education Entry {i + 1}:")
+                    logger.info(f"  INSTITUTION: {edu['institution']}")
+                    logger.info(f"  ↓")
+                    logger.info(f"  institution: \"{edu['institution']}\"")
+                    logger.info(f"  DEGREE: {edu['degree']}")
+                    logger.info(f"  ↓")
+                    logger.info(f"  degree: \"{edu['degree']}\"")
+                    logger.info(f"  FIELD: {edu['field_of_study']}")
+                    logger.info(f"  ↓")
+                    logger.info(f"  field_of_study: \"{edu['field_of_study']}\"")
+                    logger.info(f"  START_YEAR: {edu['start_year']}")
+                    logger.info(f"  END_YEAR: {edu['end_year']}")
+                    logger.info(f"  GRADE: {edu['grade']}")
+                    logger.info("-" * 40)
+                    # ── END STEP 11 MAPPING ────────────────────────────────────────────────
+        
+        logger.info("=" * 80)
+        logger.info(f"STEP 11 COMPLETED: {len(education)} education entries built")
+        logger.info("=" * 80)
+        # ── END STEP 11 ───────────────────────────────────────────────────────────
         
         # Log education extraction for debugging
         if degrees:
@@ -2101,6 +2546,41 @@ class DeBERTaNerParser:
         
         # Extract other entities
         clients = entities.get('clients', entities.get('CLIENT', []))
+        
+        # ── STEP 13: FINAL JSON BUILD DEBUG LOGGING ───────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 13: FINAL JSON BUILD - Experience & Education Objects")
+        logger.info("=" * 80)
+        logger.info("FINAL EXPERIENCE OBJECTS:")
+        for i, exp in enumerate(work_experience):
+            logger.info(f"Experience {i + 1}:")
+            logger.info(f"  company: {exp.get('company')}")
+            logger.info(f"  company_name: {exp.get('company_name')}")
+            logger.info(f"  role: {exp.get('role')}")
+            logger.info(f"  job_title: {exp.get('job_title')}")
+            logger.info(f"  client: {exp.get('client')}")
+            logger.info(f"  location: {exp.get('location')}")
+            logger.info(f"  start_date: {exp.get('start_date')}")
+            logger.info(f"  end_date: {exp.get('end_date')}")
+            logger.info(f"  is_current: {exp.get('is_current')}")
+            logger.info(f"  description: {exp.get('description')}")
+            logger.info(f"  environment: {exp.get('environment')}")
+            logger.info(f"  technologies_used: {exp.get('technologies_used')}")
+            logger.info(f"  source: {exp.get('source')}")
+            logger.info("-" * 40)
+        logger.info("FINAL EDUCATION OBJECTS:")
+        for i, edu in enumerate(education):
+            logger.info(f"Education {i + 1}:")
+            logger.info(f"  institution: {edu.get('institution')}")
+            logger.info(f"  degree: {edu.get('degree')}")
+            logger.info(f"  field_of_study: {edu.get('field_of_study')}")
+            logger.info(f"  start_year: {edu.get('start_year')}")
+            logger.info(f"  end_year: {edu.get('end_year')}")
+            logger.info(f"  grade: {edu.get('grade')}")
+            logger.info(f"  source: {edu.get('source')}")
+            logger.info("-" * 40)
+        logger.info("=" * 80)
+        # ── END STEP 13 ───────────────────────────────────────────────────────────
         
         return {
             'companies': companies_list,

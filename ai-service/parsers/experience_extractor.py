@@ -524,8 +524,10 @@ def split_job_blocks(experience_text: str) -> list:
     current_block = []
     
     # Patterns for detecting job block boundaries
+    # Feature 17: Header Pattern Expansion - Support additional formats
     COMPANY_HEADER_RE = re.compile(
         r'^(?:Company|Client|Employer|Organization|Location|Employer|Duration|Period):\s*',
+        r'^(?:Company|Client|Employer|Organization|Employer\s+Name|Worked\s+For|Project|Assignment):\s*',
         re.IGNORECASE
     )
     

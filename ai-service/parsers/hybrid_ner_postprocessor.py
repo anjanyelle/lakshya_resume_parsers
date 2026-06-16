@@ -75,11 +75,33 @@ class HybridNERPostProcessor:
         Returns:
             Corrected entities dictionary
         """
+        # ── STEP 3: POST PROCESSING DEBUG LOGGING ─────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 3: POST PROCESSING - Entity Normalization")
+        logger.info("=" * 80)
+        logger.info("Original Entities Before Post-Processing:")
+        for entity_type, entity_list in entities.items():
+            if entity_type != '_positions' and entity_list:
+                logger.info(f"  {entity_type}: {entity_list}")
+        logger.info("-" * 80)
+        # ── END STEP 3 START ───────────────────────────────────────────────────
+        
         self.logger.info("🔧 Running hybrid NER post-processing...")
         
         # Step 1: Filter out misclassified first names from COMPANY
         removed_companies = []
         entities, removed_companies = self._filter_first_names_from_companies(entities)
+        
+        # ── STEP 3: LOG REMOVALS ───────────────────────────────────────────────
+        if removed_companies:
+            logger.info("COMPANY FILTERING - First Names Removed:")
+            for company in removed_companies:
+                logger.info(f"  ↓")
+                logger.info(f"  Original: \"{company}\"")
+                logger.info(f"  ↓")
+                logger.info(f"  Removed: Reason = First name misclassified as COMPANY")
+                logger.info("-" * 40)
+        # ── END STEP 3 REMOVALS ─────────────────────────────────────────────────
         
         # Step 1b: Update _positions array to remove filtered companies
         if '_positions' in entities and removed_companies:
@@ -97,9 +119,26 @@ class HybridNERPostProcessor:
             if person_names:
                 entities['PERSON_NAME'] = person_names
                 self.logger.info(f"✅ Added {len(person_names)} person names via spaCy")
+                
+                # ── STEP 3: LOG ADDITIONS ───────────────────────────────────────────
+                logger.info("PERSON NAME ADDITION - spaCy Extraction:")
+                for name in person_names:
+                    logger.info(f"  ↓")
+                    logger.info(f"  Added: \"{name}\"")
+                    logger.info(f"  Reason = spaCy PERSON entity extraction")
+                    logger.info("-" * 40)
+                # ── END STEP 3 ADDITIONS ─────────────────────────────────────────────
         
         # Step 3: Validate and clean entities
         entities = self._validate_entities(entities)
+        
+        # ── STEP 3: LOG FINAL NORMALIZED ENTITIES ─────────────────────────────────
+        logger.info("Normalized Entities After Post-Processing:")
+        for entity_type, entity_list in entities.items():
+            if entity_type != '_positions' and entity_list:
+                logger.info(f"  {entity_type}: {entity_list}")
+        logger.info("=" * 80)
+        # ── END STEP 3 ───────────────────────────────────────────────────────────
         
         self.logger.info("✅ Hybrid post-processing complete")
         return entities

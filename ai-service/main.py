@@ -393,6 +393,16 @@ async def parse_resume(request: ParseRequest):
         
         logger.info(f"Successfully parsed resume for candidate: {request.candidate_id} in {parse_time:.1f}ms")
         
+        # ── STEP 14: API RESPONSE DEBUG LOGGING ───────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 14: API RESPONSE - Final JSON Returned to UI")
+        logger.info("=" * 80)
+        import json
+        logger.info("FINAL JSON RESPONSE:")
+        logger.info(json.dumps(result, indent=2, default=str))
+        logger.info("=" * 80)
+        # ── END STEP 14 ───────────────────────────────────────────────────────────
+        
         return ParseResponse(**result)
         
     except HTTPException:
@@ -451,6 +461,16 @@ async def parse_text_direct(request: ParseTextRequest):
             parse_metrics['total_confidence_score'] += confidence_score
         
         logger.info(f"Successfully parsed text for candidate: {request.candidate_id} in {parse_time:.1f}ms")
+        
+        # ── STEP 14: API RESPONSE DEBUG LOGGING ───────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 14: API RESPONSE - Final JSON Returned to UI")
+        logger.info("=" * 80)
+        import json
+        logger.info("FINAL JSON RESPONSE:")
+        logger.info(json.dumps(result, indent=2, default=str))
+        logger.info("=" * 80)
+        # ── END STEP 14 ───────────────────────────────────────────────────────────
         
         return ParseResponse(**result)
         
