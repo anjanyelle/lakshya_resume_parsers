@@ -489,14 +489,7 @@ class DeBERTaExperienceBuilder:
                 exclude_positions=used_entity_positions
             )
             
-            # ── STEP 8: LOCATION ASSOCIATION DEBUG LOGGING ─────────────────────────────
-            logger.info(f"Experience {i + 1} - Location Association:")
-            logger.info(f"  Detected LOCATION: {nearby_location['text'] if nearby_location else 'None'}")
-            logger.info(f"  ↓")
-            logger.info(f"  Assigned to: Experience {i + 1} ({company_text})")
-            logger.info(f"  Reason: Proximity window search (within {proximity_window} chars of company)")
-            logger.info("-" * 40)
-            # ── END STEP 8 ───────────────────────────────────────────────────────────
+            # ── STEP 8: LOCATION ASSOCIATION DEBUG LOGGING (deferred until company_text is set) ─
             # ── REQUIREMENT 9: DATE OWNERSHIP ─────────────────────────────────────────
             # Associate nearest start/end dates
             # Prevent date bleeding
@@ -516,6 +509,15 @@ class DeBERTaExperienceBuilder:
 
             # ── FIX 1: Initialize company_text and client_name before use ─────────────
             company_text = company['text']
+
+            # ── STEP 8: LOCATION ASSOCIATION DEBUG LOGGING ─────────────────────────────
+            logger.info(f"Experience {i + 1} - Location Association:")
+            logger.info(f"  Detected LOCATION: {nearby_location['text'] if nearby_location else 'None'}")
+            logger.info(f"  ↓")
+            logger.info(f"  Assigned to: Experience {i + 1} ({company_text})")
+            logger.info(f"  Reason: Proximity window search (within {proximity_window} chars of company)")
+            logger.info("-" * 40)
+            # ── END STEP 8 ───────────────────────────────────────────────────────────
             
             # ── REQUIREMENT 3: COMPANY RECONSTRUCTION - Preserve Complete Names ─────────
             # Preserve complete multi-word company names

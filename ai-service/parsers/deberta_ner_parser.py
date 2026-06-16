@@ -675,28 +675,89 @@ class DeBERTaNerParser:
         """
         Split an experience section into individual job records.
 
-        REUSES existing split_job_blocks() from experience_extractor.py — no duplicate logic.
-        If splitting returns nothing, treats the entire section as one record so DeBERTa
-        still runs instead of silently failing.
+        Problem solved here:
+        PDF/OCR extraction often joins the Environment list of job N with the
+        Client: header of job N+1 on the SAME line, e.g.:
+            "...Eclipse IDE. Client: Capital One McLean, VA"
+        split_job_blocks() checks for COMPANY_HEADER_RE.match(line) which requires
+        the pattern to appear at the START of the line — so it misses the embedded
+        Client: and never creates a boundary.
+
+        Fix (applied BEFORE calling split_job_blocks):
+        1. Insert a newline before any Client:/Company:/Employer: that appears
+           mid-line (i.e., not already at the start of a line).
+        2. Call split_job_blocks on the normalized text.
+        3. Merge consecutive micro-blocks that belong to the same job
+           (a Client: header-only block immediately followed by a Role/Date block).
 
         Args:
             experience_text: Full experience section text
 
         Returns:
-            List of individual job record strings
+            List of individual job record strings — one per employer
         """
+        import re as _re
+
+        # ── STEP 1: Normalize mid-line Client:/Company:/Employer: occurrences ──
+        # Inject a newline so split_job_blocks can detect line-start anchors.
+        # Pattern: any Client:/Company:/Employer: that is NOT already at line start.
+        # We match it when preceded by a non-newline character.
+        normalized = _re.sub(
+            r'(?<=[^\n])\s*(Client:|Company:|Employer:|Employer\s+Name:)',
+            r'\n\1',
+            experience_text,
+            flags=_re.IGNORECASE
+        )
+
+        logger.info(f"[EXP-SPLIT] Normalization injected "
+                    f"{normalized.count(chr(10)) - experience_text.count(chr(10))} extra newlines "
+                    f"to isolate embedded Client:/Company: headers")
+
         try:
             from parsers.experience_extractor import split_job_blocks
-            records = split_job_blocks(experience_text)
-            if records:
-                logger.debug(f"[EXP-SPLIT] split_job_blocks produced {len(records)} records")
-                return records
-            # Fallback: single record
-            logger.debug("[EXP-SPLIT] split_job_blocks returned 0 records — treating as 1 record")
-            return [experience_text]
+            raw_blocks = split_job_blocks(normalized)
         except Exception as e:
             logger.warning(f"[EXP-SPLIT] split_job_blocks failed ({e}), treating as 1 record")
             return [experience_text]
+
+        if not raw_blocks:
+            logger.debug("[EXP-SPLIT] split_job_blocks returned 0 records — treating as 1 record")
+            return [experience_text]
+
+        # ── STEP 2: Merge fragmented micro-blocks ──────────────────────────────
+        # After normalization a single job may produce two blocks:
+        #   Block A: "Client: Capital One McLean, VA"         (header only)
+        #   Block B: "Sr. Full Stack Java Developer Mar 2019…" (role+content)
+        # These must be merged back into one record.
+        HEADER_ONLY_RE = _re.compile(
+            r'^(?:Client|Company|Employer|Employer\s+Name):\s*.{1,120}$',
+            _re.IGNORECASE
+        )
+
+        merged: List[str] = []
+        i = 0
+        while i < len(raw_blocks):
+            block = raw_blocks[i].strip()
+            # If this block is ONLY a header line (no body content below it)
+            # and the next block contains a role/date, merge them.
+            if (HEADER_ONLY_RE.match(block) and
+                    '\n' not in block and
+                    i + 1 < len(raw_blocks)):
+                next_block = raw_blocks[i + 1].strip()
+                merged.append(block + '\n' + next_block)
+                logger.debug(f"[EXP-SPLIT] Merged header block {i+1} with body block {i+2}")
+                i += 2
+            else:
+                merged.append(block)
+                i += 1
+
+        logger.info(f"[EXP-SPLIT] split_job_blocks produced {len(raw_blocks)} raw blocks → "
+                    f"{len(merged)} merged record(s)")
+        for rec_idx, rec in enumerate(merged):
+            first_line = rec.strip().split('\n')[0][:100]
+            logger.info(f"  Record {rec_idx + 1}: {first_line!r}")
+
+        return [r for r in merged if r.strip()]
 
     def _split_education_into_records(self, education_text: str) -> List[str]:
         """
