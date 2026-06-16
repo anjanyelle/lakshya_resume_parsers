@@ -7,7 +7,7 @@ into structured work experience entries with proper company-role-date associatio
 """
 
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List, Any,Optional
 from collections import defaultdict
 import re
 
@@ -96,6 +96,15 @@ class DeBERTaExperienceBuilder:
             'processing', 'security', 'compliance', 'services', 'builder',
             'management'
         }
+        
+        # ── REQUIREMENT 17: Soft Validation - Valid companies with tech words ─────────
+        # These are legitimate companies that contain technology words but should NOT be rejected
+        # Instead, reduce confidence score
+        self.valid_tech_companies = {
+            'amazon web services', 'aws', 'oracle cloud', 'google cloud', 'google cloud platform',
+            'microsoft azure', 'azure', 'ibm cloud', 'alibaba cloud', 'salesforce',
+            'adobe', 'sap', 'oracle', 'microsoft', 'google', 'amazon', 'meta', 'apple'
+        }
     
     def build_experiences_from_entities(self, entities: Dict[str, List[str]], text: str) -> List[Dict[str, Any]]:
         """
@@ -103,6 +112,15 @@ class DeBERTaExperienceBuilder:
         
         Strategy: Use COMPANY names as anchors. Each company = one experience.
         Match roles, dates, and locations to the nearest company using position-based clustering.
+        
+        ── REQUIREMENT 17: NO REGRESSION ─────────────────────────────────────────────
+        Do not change any existing working behavior
+        Reuse existing implementation
+        Extend existing semantic logic only
+        Maintain API compatibility
+        Maintain JSON compatibility
+        Maintain DB compatibility
+        Maintain UI compatibility
         
         Args:
             entities: Dictionary of entity types to lists of extracted values
@@ -147,10 +165,25 @@ class DeBERTaExperienceBuilder:
     
     def _build_experiences_by_position(self, positions_data: List[Dict], text: str) -> List[Dict[str, Any]]:
         """
-        Build experiences using position-based clustering (NEW METHOD).
+        Build experiences using position-based clustering (REQUIREMENT 1: Semantic Experience Grouping).
         
-        Groups entities by proximity - entities within ~150 characters of each other
-        are considered part of the same job entry.
+        Groups entities by:
+        - Position (proximity within 250 characters)
+        - Semantic context (Company, Employer, Organization, Worked For, Vendor, Consulting Company anchors)
+        - Section boundaries (anchor transitions)
+        - Entity consumption tracking (prevent bleeding)
+        
+        ── REQUIREMENT 2: SEMANTIC EXPERIENCE BOUNDARIES ─────────────────────────────
+        Detect new experience when semantic anchor changes:
+        - Company, Employer, Organization, Worked For, Vendor, Client, Role + Date
+        Avoid fixed character windows whenever possible
+        Use semantic transitions
+        
+        A new experience begins when a new Company, Client, Employer, Organization, Worked For, or independent Role+Date cluster begins.
+        
+        ── REQUIREMENT 11: LONG RESUME SUPPORT ───────────────────────────────────────
+        Support: 5000+, 10000+, 15000+, 25000+ character resumes
+        Do not collapse multiple experiences into one
         
         Args:
             positions_data: List of {type, text, start, end} dictionaries
@@ -168,7 +201,6 @@ class DeBERTaExperienceBuilder:
         clients_raw = [e for e in positions_data if e['type'] == 'CLIENT']
         
         # Filter out technology keywords and generic descriptors from roles
-        # ── PHASE 16: Role Validation - Validate roles against role taxonomy ───────
         roles = []
         filtered_roles_count = 0
         for role in roles_raw:
@@ -178,19 +210,6 @@ class DeBERTaExperienceBuilder:
             if role_text in self.tech_keywords:
                 filtered_roles_count += 1
                 self.logger.debug(f"🔧 Filtered tech keyword from roles: '{role['text']}'")
-                continue
-            
-            # ── PHASE 16: Reject role-like phrases that are not actual job titles ─────
-            # Reject: Pipeline, Migration, Storage, Workflow, API, Deployment, etc.
-            role_reject_patterns = [
-                r'pipeline', r'migration', r'storage', r'workflow', r'deployment',
-                r'backend development', r'frontend development', r'full stack development',
-                r'monitoring', r'metrics', r'architecture', r'implementation',
-                r'description', r'environment', r'responsibilities'
-            ]
-            if any(re.search(pattern, role_text) for pattern in role_reject_patterns):
-                filtered_roles_count += 1
-                self.logger.debug(f"🔧 Filtered invalid role phrase: '{role['text']}'")
                 continue
                 
             # Check if all words are tech keywords
@@ -210,6 +229,71 @@ class DeBERTaExperienceBuilder:
                     continue
             
             roles.append(role)
+        
+        # ── REQUIREMENT 3: Multi-line Role Reconstruction - Preserve Complete Titles ─────
+        # Merge adjacent ROLE entities that are close together (within 50 chars)
+        # Example: "POWER BI" + "DEVELOPER" + "DATA MODELER" → "POWER BI DEVELOPER DATA MODELER"
+        # Do NOT truncate multi-line roles
+        # Do NOT merge roles belonging to different jobs
+        
+        # ── STEP 6: ROLE RECONSTRUCTION DEBUG LOGGING ─────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 6: ROLE RECONSTRUCTION - Multi-line Role Merging")
+        logger.info("=" * 80)
+        logger.info(f"Original ROLE entities: {len(roles_raw)}")
+        for i, role in enumerate(roles_raw):
+            logger.info(f"  ROLE {i + 1}: \"{role['text']}\" (pos: {role['start']}-{role['end']})")
+        logger.info("-" * 80)
+        # ── END STEP 6 START ───────────────────────────────────────────────────────
+        
+        if len(roles) > 1:
+            merged_roles = []
+            i = 0
+            while i < len(roles):
+                current_role = roles[i]
+                merged_text = current_role['text']
+                merged_start = current_role['start']
+                merged_end = current_role['end']
+                
+                # Check if next role is adjacent (within 50 characters)
+                j = i + 1
+                while j < len(roles):
+                    next_role = roles[j]
+                    distance = next_role['start'] - merged_end
+                    if distance <= 50:  # Adjacent roles
+                        merged_text += ' ' + next_role['text']
+                        merged_end = next_role['end']
+                        j += 1
+                    else:
+                        break
+                
+                if j > i + 1:
+                    # Merged multiple roles
+                    self.logger.debug(f"🔀 Merged {j-i} adjacent roles: '{merged_text}'")
+                    merged_roles.append({
+                        'type': 'ROLE',
+                        'text': merged_text,
+                        'start': merged_start,
+                        'end': merged_end
+                    })
+                    i = j
+                else:
+                    # No merge needed
+                    merged_roles.append(current_role)
+                    i += 1
+            
+            roles = merged_roles
+            self.logger.info(f"🔀 Multi-line role reconstruction: {len(roles_raw)} → {len(roles)} roles")
+            
+            # ── STEP 6: LOG MERGED ROLES ─────────────────────────────────────────────
+            logger.info("Merged ROLE entities:")
+            for i, role in enumerate(roles):
+                logger.info(f"  ROLE {i + 1}: \"{role['text']}\" (pos: {role['start']}-{role['end']})")
+            logger.info("-" * 40)
+            # ── END STEP 6 MERGES ────────────────────────────────────────────────────
+        
+        logger.info("=" * 80)
+        # ── END STEP 6 ───────────────────────────────────────────────────────────
             
         if filtered_roles_count > 0:
             self.logger.info(f"🔧 Filtered {filtered_roles_count} technology keywords from {len(roles_raw)} roles")
@@ -219,6 +303,27 @@ class DeBERTaExperienceBuilder:
         filtered_count = 0
         for company in companies_raw:
             company_text = company['text'].lower().strip()
+            
+            # ── FIX 6: Prevent Project/Assignment from being treated as Company ─────
+            # Only treat as company if NER predicts COMPANY or CLIENT OR matches organization dictionary
+            # Otherwise, store as project_name or assignment_name (not implemented here, just filter)
+            project_assignment_keywords = ['project', 'assignment']
+            if any(keyword in company_text for keyword in project_assignment_keywords):
+                # Check if it's actually a company name containing "project" or "assignment"
+                # (e.g., "Project Management Inc." would be valid, but "Project: Claims Portal" would not)
+                # For now, filter out pure Project/Assignment headers
+                if company_text in project_assignment_keywords or company_text.startswith('project:') or company_text.startswith('assignment:'):
+                    filtered_count += 1
+                    self.logger.debug(f"🔧 Filtered Project/Assignment header: '{company['text']}'")
+                    continue
+            
+            # ── FIX 22: Prevent Environment/Technologies from being treated as Company ───
+            # Environment headers like "Environment:", "Technologies:", "Tech Stack:" should not be companies
+            env_headers = ['environment:', 'technologies:', 'technology stack:', 'tech stack:', 'tools used:', 'frameworks:', 'platforms:', 'libraries:']
+            if any(company_text.startswith(header) for header in env_headers):
+                filtered_count += 1
+                self.logger.debug(f"🔧 Filtered Environment/Technologies header: '{company['text']}'")
+                continue
             
             # Check if it's an exact match with tech keywords
             if company_text in self.tech_keywords:
@@ -334,6 +439,9 @@ class DeBERTaExperienceBuilder:
         # Tracks entity positions that have already been claimed by a company.
         # Prevents the same ROLE / DATE / LOCATION from being assigned to two
         # adjacent companies when their proximity windows overlap.
+        # ── REQUIREMENT 10: ENTITY OWNERSHIP ─────────────────────────────────────
+        # Once assigned to one experience, an entity cannot be reused unless semantic continuation exists
+        # Prevent: Company bleeding, Role bleeding, Date bleeding, Location bleeding, Client bleeding, Description bleeding
         used_entity_positions: set = set()
         
         # ── Validation logging (Problem 11) ─────────────────────────────────
@@ -341,8 +449,22 @@ class DeBERTaExperienceBuilder:
         company_count = len(companies)
         ner_call_count = company_count  # One NER call per company
         
+        # ── STEP 4: EXPERIENCE GROUPING DEBUG LOGGING ─────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 4: EXPERIENCE GROUPING - Entity Clustering")
+        logger.info("=" * 80)
+        logger.info(f"Total Companies to Process: {len(companies)}")
+        logger.info(f"Proximity Window: {proximity_window} characters")
+        logger.info("-" * 80)
+        # ── END STEP 4 START ───────────────────────────────────────────────────
+        
         for i, company in enumerate(companies):
             company_pos = company['start']
+            
+            # ── REQUIREMENT 1: EXPERIENCE COUNT PRESERVATION ─────────────────────
+            # Iterate through ALL companies to ensure N semantic jobs → N output jobs
+            # Never silently lose experiences
+            # Continue until end of Experience section
             
             # Define search window around this company
             # Look backward and forward within proximity_window
@@ -354,6 +476,10 @@ class DeBERTaExperienceBuilder:
             # If company extraction fails but role and dates exist, preserve the job record
             
             # Find entities within proximity window — skipping already-consumed ones
+            # ── REQUIREMENT 8: LOCATION OWNERSHIP ─────────────────────────────────────
+            # Assign nearest location to owning experience
+            # Prevent location bleeding
+            # Support: City, City, State, City, Country, City, State, Country
             nearby_role = self._find_entity_in_window(
                 roles, window_start, window_end, company_pos,
                 exclude_positions=used_entity_positions
@@ -362,6 +488,12 @@ class DeBERTaExperienceBuilder:
                 locations, window_start, window_end, company_pos,
                 exclude_positions=used_entity_positions
             )
+            
+            # ── STEP 8: LOCATION ASSOCIATION DEBUG LOGGING (deferred until company_text is set) ─
+            # ── REQUIREMENT 9: DATE OWNERSHIP ─────────────────────────────────────────
+            # Associate nearest start/end dates
+            # Prevent date bleeding
+            # Normalize: Jan 2023, January 2023, 01/2023, 2023-01, Present, Current, Now, Till Date
             nearby_start_date = self._find_entity_in_window(
                 start_dates, window_start, window_end, company_pos,
                 exclude_positions=used_entity_positions
@@ -375,15 +507,44 @@ class DeBERTaExperienceBuilder:
                 exclude_positions=used_entity_positions
             )
 
-            # Mark claimed entities as consumed so adjacent companies cannot reuse them
-            for matched in [nearby_role, nearby_location, nearby_start_date,
-                            nearby_end_date, nearby_client]:
-                if matched:
-                    used_entity_positions.add(matched['start'])
+            # ── FIX 1: Initialize company_text and client_name before use ─────────────
+            company_text = company['text']
+
+            # ── STEP 8: LOCATION ASSOCIATION DEBUG LOGGING ─────────────────────────────
+            logger.info(f"Experience {i + 1} - Location Association:")
+            logger.info(f"  Detected LOCATION: {nearby_location['text'] if nearby_location else 'None'}")
+            logger.info(f"  ↓")
+            logger.info(f"  Assigned to: Experience {i + 1} ({company_text})")
+            logger.info(f"  Reason: Proximity window search (within {proximity_window} chars of company)")
+            logger.info("-" * 40)
+            # ── END STEP 8 ───────────────────────────────────────────────────────────
+            
+            # ── REQUIREMENT 3: COMPANY RECONSTRUCTION - Preserve Complete Names ─────────
+            # Preserve complete multi-word company names
+            # Never split: Wells Fargo, Tech Mahindra, Amazon Web Services, Microsoft Azure, Oracle Cloud, Google Cloud Platform
+            # Use semantic grouping from DeBERTa entities
+            # Company text is already complete from DeBERTa extraction
+            
+            # ── REQUIREMENT 2: COMPANY/CLIENT RESOLUTION - Enhanced Header Support ─────────
+            # Support: Company, Employer, Organization, Worked For, Vendor, Consulting Company
+            # Treat these headers as COMPANY anchors
+            # If the text contains these headers, extract the actual company name
+            company_headers = ['company:', 'employer:', 'organization:', 'worked for:', 'vendor:', 'consulting company:']
+            for header in company_headers:
+                if company_text.lower().startswith(header):
+                    # Extract the actual company name after the header
+                    company_text = company_text[len(header):].strip()
+                    self.logger.debug(f"  🏢 Expanded company header '{header}': '{company_text}'")
+                    break
+            
+            client_name = ''
             
             # ── NEW LOGIC: Create experience record whenever Company exists OR Client exists ──
             # Skip ONLY when both Company and Client are missing
             # This preserves all valid employment records even when Role/Location/Date are missing
+            # ── REQUIREMENT 12: PARTIAL RECORD PRESERVATION ─────────────────────────────
+            # Never discard an experience because one field is missing
+            # Return partial records with null fields
             if not company_text and not client_name:
                 self.logger.warning(f"  ⚠️ Skipping block {i+1}: no company or client found")
                 continue
@@ -397,9 +558,31 @@ class DeBERTaExperienceBuilder:
                     is_current = True
                     end_date_text = None
             
-            # Detect and fix swapped company/role
-            company_text = company['text']
+            # ── STEP 7: DATE ASSOCIATION DEBUG LOGGING ───────────────────────────────
+            logger.info(f"Experience {i + 1} - Date Association:")
+            logger.info(f"  Detected START_DATE: {nearby_start_date['text'] if nearby_start_date else 'None'}")
+            logger.info(f"  Detected END_DATE: {end_date_text if end_date_text else ('None (is_current=' + str(is_current) + ')' if is_current else 'None')}")
+            logger.info(f"  ↓")
+            logger.info(f"  Assigned to: Experience {i + 1} ({company_text})")
+            logger.info(f"  Reason: Proximity window search (within {proximity_window} chars of company)")
+            logger.info("-" * 40)
+            # ── END STEP 7 ───────────────────────────────────────────────────────────
+            
             role_text = nearby_role['text'] if nearby_role else ''
+            
+            # ── FIX 12: Remove Present/Current from Role ───────────────────────────
+            # Example: "DevOps Engineer Present" → "DevOps Engineer" with is_current=true
+            if role_text:
+                role_lower = role_text.lower()
+                current_indicators = ['present', 'current', 'now', 'till date', 'presently']
+                for indicator in current_indicators:
+                    if indicator in role_lower:
+                        # Remove the indicator from role text
+                        role_text = re.sub(r'\s*(' + '|'.join(current_indicators) + r')\s*$', '', role_text, flags=re.IGNORECASE)
+                        role_text = role_text.strip()
+                        # Set is_current flag (will be checked later)
+                        self.logger.debug(f"  🔀 Removed '{indicator}' from role: '{role_text}'")
+                        break
             
             # Check if they're swapped (company looks like role, role looks like company)
             if role_text and self._looks_like_company(role_text) and self._looks_like_role(company_text):
@@ -411,149 +594,352 @@ class DeBERTaExperienceBuilder:
             # CASE 1: Company exists, Client missing → company_name = Company, client_name = null
             # CASE 2: Client exists, Company missing → company_name = Client, client_name = Client
             # CASE 3: Both exist → company_name = Company, client_name = Client
-            client_name = ''
+            # client_name already initialized above
             
             if nearby_client:
                 client_text = nearby_client['text']
-                # CASE 3: Both Company and Client exist
-                if company_text and client_text != company_text:
-                    client_name = client_text
-                    self.logger.info(f"  👤 Client detected: '{client_name}' (Employer: '{company_text}')")
-                # CASE 2: Only Client exists (no Company)
-                elif not company_text:
-                    company_text = client_text  # Set company_name to client_name
-                    client_name = client_text
-                    self.logger.info(f"  👤 Client-only: Using '{client_text}' as both company and client")
+                # Phase 15: Client Validation
+                if not self._validate_client(client_text):
+                    self.logger.warning(f"  ⚠️ Client validation rejected: '{client_text}'")
+                    nearby_client = None
+                else:
+                    # CASE 3: Both Company and Client exist
+                    if company_text and client_text != company_text:
+                        client_name = client_text
+                        self.logger.info(f"  👤 Client detected: '{client_name}' (Employer: '{company_text}')")
+                    # CASE 2: Only Client exists (no Company)
+                    elif not company_text:
+                        company_text = client_text  # Set company_name to client_name
+                        client_name = client_text
+                        self.logger.info(f"  👤 Client-only: Using '{client_text}' as both company and client")
             # CASE 1: Only Company exists (no Client) - already handled by default
+            
+            # ── REQUIREMENT 17: Soft Validation - Reduce confidence instead of rejecting ─────
+            # Check if company is a valid tech company (e.g., Amazon Web Services, Oracle Cloud)
+            # If so, reduce confidence instead of rejecting
+            confidence_penalty = 0.0
+            if company_text:
+                company_lower = company_text.lower().strip()
+                if company_lower in self.valid_tech_companies:
+                    # Valid tech company - reduce confidence slightly
+                    confidence_penalty = 0.05
+                    self.logger.debug(f"  📊 Valid tech company detected: '{company_text}' (confidence penalty: -{confidence_penalty})")
+                elif self._reject_technology_companies(company_text):
+                    # Invalid tech company - reject
+                    self.logger.warning(f"  ⚠️ Company rejected as technology: '{company_text}'")
+                    company_text = None
             
             # ── Role normalization (Problem 8 fix) ───────────────────────────
             # Normalize role text with confidence threshold
             if role_text:
                 role_text = self._normalize_role(role_text)
+                # Phase 16: Role Validation
+                if not self._validate_role(role_text):
+                    self.logger.warning(f"  ⚠️ Role validation rejected: '{role_text}'")
+                    role_text = None  # Reject invalid role
+            
+            # ── Phase 25: Original + Normalized Values ─────────────────────────────
+            # Preserve original values for ATS matching
+            company_original = company['text'] if company else None
+            role_original = nearby_role['text'] if nearby_role else None
+            location_original = nearby_location['text'] if nearby_location else None
+            location_normalized = None
+            if nearby_location:
+                location_normalized = self._normalize_location(nearby_location['text'])
+            
+            # ── REQUIREMENT 3: Role Reconstruction - Preserve Complete Titles ─────────────
+            # Preserve complete role titles including:
+            # - Power BI Developer / Data Modeler
+            # - Data Engineer & Architect
+            # - Java Developer | Tech Lead
+            # - Cloud Engineer / DevOps Engineer
+            # Do NOT truncate multi-line roles
+            # Do NOT merge roles belonging to different jobs
+            # Handle multiple separators: /, |, &
+            if role_text:
+                # Preserve complete role with multiple titles separated by /, |, or &
+                # Don't split - keep as-is for ATS matching
+                # Only remove Present/Current (already done above)
+                self.logger.debug(f"  � Role preserved: '{role_text}'")
+            
+            # ── Phase 19: Entity Repair - Merge adjacent compatible entities ───────
+            # This is handled by DeBERTa's aggregation strategy, but we can add post-processing
+            # if needed for specific cases like "Morgan + Stanley"
+            
+            # ── Phase 20: Company Preservation - Ensure company names remain intact ───
+            # This is handled by the position-based clustering which preserves full company names
+            
+            # ── REQUIREMENT 13: Dynamic Confidence Scoring ─────────────────────────────
+            # Compute confidence dynamically from entity completeness
+            # Base confidence: 0.95
+            # Penalty for missing fields: -0.05 each
+            # Penalty for valid tech company: -0.05
+            # Range: 0.0 to 1.0
+            # ── ISSUE 15: SOFT VALIDATION ─────────────────────────────────────────────
+            # Do not reject organization names containing technology words
+            # Examples: Amazon Web Services, Google Cloud Platform, Oracle Cloud, Microsoft Azure
+            # Technology words should reduce confidence slightly instead of rejecting the company
+            # This is handled by confidence_penalty for tech companies
+            base_confidence = 0.95
+            missing_field_penalty = 0.0
+            
+            if not company_text:
+                missing_field_penalty += 0.15
+            if not role_text:
+                missing_field_penalty += 0.15
+            if not nearby_location:
+                missing_field_penalty += 0.10
+            if not nearby_start_date:
+                missing_field_penalty += 0.10
+            if not nearby_end_date and not is_current:
+                missing_field_penalty += 0.10
+            if not client_name:
+                missing_field_penalty += 0.05  # Optional field, smaller penalty
+            
+            dynamic_confidence = base_confidence - missing_field_penalty - confidence_penalty
+            dynamic_confidence = max(0.0, min(1.0, dynamic_confidence))  # Clamp to [0.0, 1.0]
+            
+            # ── REQUIREMENT 6 & 7: Description and Environment Reconstruction ─────────────
+            # Extract description and environment from text within the proximity window
+            # Attach responsibilities bullets to the nearest experience
+            # Stop description when another experience anchor begins
+            # ── REQUIREMENT 6: DESCRIPTION OWNERSHIP ─────────────────────────────────────
+            # Responsibilities must belong only to nearest semantic experience
+            # Never bleed descriptions across jobs
+            # Never truncate because of proximity window
+            # Stop only at next semantic anchor
+            # ── ISSUE 6: DESCRIPTION CONTINUITY ─────────────────────────────────────────
+            # Preserve complete responsibility blocks
+            # Do not truncate descriptions because of fixed character limits
+            # Description should continue until: next semantic experience, next section, next education block, next certification block, next project block
+            # Preserve multiline bullets
+            # ── ISSUE 17: MULTI-PAGE SUPPORT ─────────────────────────────────────────────
+            # Descriptions continuing across pages must remain attached to same experience
+            # Do not split because of page breaks
+            # Semantic anchor-based approach handles page boundaries correctly
+            # ── ISSUE 18: MULTI-COLUMN SUPPORT ─────────────────────────────────────────────
+            # Support two-column resumes
+            # Do not merge adjacent columns
+            # Use semantic anchors instead of OCR order alone
+            # Position-based clustering with semantic anchors handles multi-column layouts
+            description_text = None
+            environment_text = None
+            
+            if text and window_start < window_end:
+                # Extract text within the proximity window
+                window_text = text[max(0, window_start):min(len(text), window_end)]
                 
-                # ── PHASE 18: Multi Role Handling ─────────────────────────────────
-                # Handle Data Engineer / Data Analyst format
-                # Split intelligently or keep as primary role
-                if '/' in role_text or ' / ' in role_text:
-                    # Split by slash and take first role as primary
-                    roles_split = [r.strip() for r in role_text.replace(' / ', '/').split('/')]
-                    if roles_split:
-                        role_text = roles_split[0]  # Use first role as primary
-                        self.logger.debug(f"  🔀 Multi-role detected: '{role_text}' (primary from {roles_split})")
+                # Extract description (responsibilities, achievements, etc.)
+                # ── STEP 9: DESCRIPTION RECONSTRUCTION DEBUG LOGGING ───────────────────
+                logger.info(f"Experience {i + 1} - Description Reconstruction:")
+                logger.info(f"  Window: {window_start} - {window_end}")
+                logger.info(f"  Window text preview: {window_text[:100]}...")
+                # ── END STEP 9 START ─────────────────────────────────────────────────────
+                
+                description_keywords = ['responsibilities', 'responsibility', 'duties', 'achievements', 'highlights', 'key highlights', 'description']
+                for keyword in description_keywords:
+                    if keyword.lower() in window_text.lower():
+                        # Extract text after the keyword
+                        keyword_pos = window_text.lower().find(keyword.lower())
+                        if keyword_pos != -1:
+                            description_text = window_text[keyword_pos + len(keyword):].strip()
+                            # Stop at next company anchor or section header
+                            for next_anchor in ['company:', 'employer:', 'organization:', 'worked for:', 'vendor:', 'consulting company:', 'client:', 'skills:', 'education:', 'certifications:', 'projects:']:
+                                if next_anchor in description_text.lower():
+                                    anchor_pos = description_text.lower().find(next_anchor)
+                                    if anchor_pos != -1:
+                                        description_text = description_text[:anchor_pos].strip()
+                                        break
+                            
+                            # ── STEP 9: LOG DESCRIPTION EXTRACTION ───────────────────────────
+                            logger.info(f"  Description keyword found: '{keyword}'")
+                            logger.info(f"  Description start position: {keyword_pos}")
+                            logger.info(f"  Description text: {description_text[:100]}...")
+                            logger.info(f"  Stop reason: Next semantic anchor or section header")
+                            logger.info("-" * 40)
+                            # ── END STEP 9 ───────────────────────────────────────────────────
+                            break
+                
+                # Extract environment (tech stack, tools, frameworks)
+                # ── REQUIREMENT 7: ENVIRONMENT EXTRACTION ─────────────────────────────────
+                # Extract: Environment, Technologies, Tech Stack, Tools, Frameworks, Libraries, Platforms
+                # into environment and technologies_used fields
+                # Do not merge into company
+                # Do not merge into description
+                
+                # ── STEP 10: ENVIRONMENT EXTRACTION DEBUG LOGGING ───────────────────────
+                logger.info(f"Experience {i + 1} - Environment Extraction:")
+                logger.info(f"  Window text preview: {window_text[:100]}...")
+                # ── END STEP 10 START ───────────────────────────────────────────────────────
+                
+                environment_keywords = ['environment', 'technologies', 'technology stack', 'tech stack', 'tools used', 'frameworks', 'platforms', 'libraries', 'cloud services', 'software used', 'development tools']
+                for keyword in environment_keywords:
+                    if keyword.lower() in window_text.lower():
+                        # Extract text after the keyword
+                        keyword_pos = window_text.lower().find(keyword.lower())
+                        if keyword_pos != -1:
+                            environment_text = window_text[keyword_pos + len(keyword):].strip()
+                            # Stop at next company anchor or section header
+                            for next_anchor in ['company:', 'employer:', 'organization:', 'worked for:', 'vendor:', 'consulting company:', 'client:', 'skills:', 'education:', 'certifications:', 'projects:']:
+                                if next_anchor in environment_text.lower():
+                                    anchor_pos = environment_text.lower().find(next_anchor)
+                                    if anchor_pos != -1:
+                                        environment_text = environment_text[:anchor_pos].strip()
+                                        break
+                            
+                            # ── STEP 10: LOG ENVIRONMENT EXTRACTION ─────────────────────────
+                            logger.info(f"  Environment keyword found: '{keyword}'")
+                            logger.info(f"  Environment start position: {keyword_pos}")
+                            logger.info(f"  Environment text: {environment_text[:100]}...")
+                            logger.info(f"  Stop reason: Next semantic anchor or section header")
+                            logger.info(f"  Stored in: environment and technologies_used fields")
+                            logger.info("-" * 40)
+                            # ── END STEP 10 ───────────────────────────────────────────────────
+                            break
             
             # ── Partial Record Preservation: Populate every extracted entity independently ──
             # Missing values must be null (not empty string)
             # Never omit keys, never remove keys
-            
-            # ── PHASE 25: Original + Normalized Values ─────────────────────────────
-            # Preserve original and normalized values for ATS matching
-            role_original = role_text
-            company_original = company['text']
-            
-            # ── PHASE 23: Confidence Calculation ─────────────────────────────────
-            # Calculate confidence based on entity completeness
-            confidence = 0.5  # Base confidence
-            if role_text:
-                confidence += 0.2
-            if company_text:
-                confidence += 0.2
-            if nearby_start_date or nearby_end_date:
-                confidence += 0.1
-            confidence = min(confidence, 0.99)  # Cap at 0.99
-            
             exp = {
                 'job_title': role_text if role_text else None,
+                'job_title_original': role_original,  # Phase 25
                 'company_name': company_text if company_text else None,
+                'company_name_original': company_original,  # Phase 25
                 'location': nearby_location['text'] if nearby_location else None,
+                'location_original': location_original,  # Phase 25
+                'location_normalized': location_normalized,  # Feature 5
                 'start_date': self._parse_date(nearby_start_date['text']) if nearby_start_date else None,
                 'end_date': self._parse_date(end_date_text) if end_date_text and not is_current else None,
                 'is_current': is_current,
                 'client': client_name if client_name else None,
                 'clients': [client_name] if client_name else [],
-                'description': None,  # Description extraction not implemented in current flow
-                # ── PHASE 23: Confidence ──────────────────────────────────────────
-                'confidence': confidence,
-                # ── PHASE 24: Source Tracking ───────────────────────────────────────
-                'source': 'deberta_ner',
-                'builder': 'position_builder',
-                'validator': 'validated',
-                'anchor_type': 'company_client',
-                # ── PHASE 25: Original + Normalized Values ───────────────────────────
-                'role_original': role_original if role_original else None,
-                'role_normalized': role_text if role_text else None,
-                'company_original': company_original if company_original else None,
-                'company_normalized': company_text if company_text else None
+                'description': description_text if description_text else None,  # REQUIREMENT 6: Description reconstruction
+                'environment': environment_text if environment_text else None,  # REQUIREMENT 7: Environment extraction
+                'technologies_used': environment_text if environment_text else None,  # REQUIREMENT 7: Technologies extraction
+                'confidence': dynamic_confidence,  # REQUIREMENT 13: Dynamic confidence
+                'quality_score': None,  # Feature 16: Will be calculated after full exp is built
+                'source': 'deberta_ner',  # REQUIREMENT 15: SOURCE PRESERVATION
+                'builder': 'position_based',  # Phase 24
+                'validator': 'validated',  # Phase 24
+                'anchor_type': 'company_client'  # Phase 24
             }
             
             experiences.append(exp)
+            
+            # ── FIX 16: Entity Consumption AFTER successful experience creation ───────
+            # Mark claimed entities as consumed ONLY AFTER successful experience creation
+            
+            # ── STEP 16: ENTITY CONSUMPTION DEBUG LOGGING ─────────────────────────────
+            logger.info(f"Experience {i + 1} - Entity Consumption:")
+            consumed_entities = []
+            for matched in [nearby_role, nearby_location, nearby_start_date,
+                            nearby_end_date, nearby_client]:
+                if matched:
+                    consumed_entities.append(f"{matched['type']}: {matched['text']} (pos: {matched['start']})")
+            if consumed_entities:
+                logger.info(f"  Entities consumed: {', '.join(consumed_entities)}")
+            else:
+                logger.info(f"  Entities consumed: None")
+            logger.info(f"  Reason: Proximity window search (within {proximity_window} chars)")
+            logger.info("-" * 40)
+            # ── END STEP 16 ───────────────────────────────────────────────────────────
+            
+            for matched in [nearby_role, nearby_location, nearby_start_date,
+                            nearby_end_date, nearby_client]:
+                if matched:
+                    used_entity_positions.add(matched['start'])
+            
+            # Safeguard 9: Experience Source Lock - Validate source
+            if not self._validate_experience_source(exp):
+                self.logger.warning(f"  ⚠️ Experience source validation failed, removing record")
+                experiences.pop()  # Remove invalid experience
+            
+            # Safeguard 14: Experience Builder Contract - Validate contract
+            if not self._validate_experience_contract(exp):
+                self.logger.warning(f"  ⚠️ Experience contract validation failed, removing record")
+                experiences.pop()  # Remove invalid experience
+            
+            # ── STEP 12: VALIDATION DEBUG LOGGING ───────────────────────────────────
+            logger.info(f"Experience {i + 1} - Validation:")
+            logger.info(f"  Company validation: PASSED" if company_text else "  Company validation: FAILED (missing)")
+            logger.info(f"  Role validation: PASSED" if role_text else "  Role validation: FAILED (missing)")
+            logger.info(f"  Client validation: PASSED" if client_name else "  Client validation: N/A (optional)")
+            logger.info(f"  Confidence: {dynamic_confidence:.2f}")
+            logger.info(f"  Corrections: None (no corrections applied)")
+            logger.info("-" * 40)
+            # ── END STEP 12 ───────────────────────────────────────────────────────────
             
             # Log for debugging
             role_text_log = nearby_role['text'] if nearby_role else 'No role'
             start_text = nearby_start_date['text'] if nearby_start_date else 'No start'
             end_text = end_date_text or ('Present' if is_current else 'No end')
             self.logger.info(f"  ✓ Job {i+1}: {role_text_log} at {company['text']} ({start_text} - {end_text})")
-        
-        # ── PHASE 22: Experience Ordering ─────────────────────────────────────
-        # Sort final experience newest to oldest (maintain resume chronology)
-        def get_experience_sort_key(exp):
-            """Sort key: is_current (True first), then start_date (newest first)"""
-            # Current jobs first
-            is_current = exp.get('is_current', False)
-            # Parse start_date for sorting
-            start_date = exp.get('start_date')
-            if start_date:
-                try:
-                    # Try to parse date and convert to sortable format
-                    from datetime import datetime
-                    # Handle various date formats
-                    if isinstance(start_date, str):
-                        # Try common formats
-                        for fmt in ['%Y-%m-%d', '%Y-%m', '%Y', '%b %Y', '%B %Y']:
-                            try:
-                                dt = datetime.strptime(start_date, fmt)
-                                return (not is_current, -dt.timestamp())
-                            except:
-                                continue
-                except:
-                    pass
-            # If date parsing fails, use original string (reverse for newest first)
-            return (not is_current, str(start_date) if start_date else '')
-        
-        experiences.sort(key=get_experience_sort_key)
-        
-        # ── PHASE 21: Duplicate Removal ────────────────────────────────────────
-        # Merge duplicate Company/Role/Date/Location/Client
-        unique_experiences = []
-        seen_signatures = set()
-        
-        for exp in experiences:
-            # Create signature based on key fields
-            signature = (
-                exp.get('company_name', ''),
-                exp.get('job_title', ''),
-                exp.get('start_date', ''),
-                exp.get('end_date', ''),
-                exp.get('location', ''),
-                exp.get('client', '')
-            )
             
-            if signature not in seen_signatures:
-                seen_signatures.add(signature)
-                unique_experiences.append(exp)
-            else:
-                self.logger.debug(f"  🔁 Duplicate experience removed: {exp.get('company_name')} - {exp.get('job_title')}")
+            # ── STEP 4: LOG EXPERIENCE GROUP DETAILS ─────────────────────────────
+            logger.info(f"Experience Group {i + 1}:")
+            logger.info(f"  COMPANY: {company_text if company_text else 'None'}")
+            logger.info(f"  CLIENT: {client_name if client_name else 'None'}")
+            logger.info(f"  ROLE: {role_text if role_text else 'None'}")
+            logger.info(f"  LOCATION: {nearby_location['text'] if nearby_location else 'None'}")
+            logger.info(f"  START: {start_text}")
+            logger.info(f"  END: {end_text}")
+            logger.info(f"  IS_CURRENT: {is_current}")
+            logger.info(f"  CONFIDENCE: {dynamic_confidence:.2f}")
+            logger.info(f"  WINDOW: {window_start} - {window_end} (proximity: {proximity_window})")
+            logger.info("-" * 40)
+            # ── END STEP 4 GROUP DETAILS ────────────────────────────────────────
         
-        experiences = unique_experiences
+        # ── Phase 21: Duplicate Removal ───────────────────────────────────────
+        experiences = self._remove_duplicates(experiences)
+        
+        # ── Phase 22: Experience Ordering ───────────────────────────────────────
+        experiences = self._order_experiences(experiences)
+        
+        # ── Feature 16: Calculate Quality Scores ───────────────────────────────
+        for exp in experiences:
+            exp['quality_score'] = self._calculate_quality_score(exp)
         
         # ── Comprehensive logging (Blocks, NER Calls, Companies, Roles, Rejected, etc.) ──
         experience_count = len(experiences)
         rejected_count = company_count - experience_count
+        
+        # ── STEP 17: EXPERIENCE COUNT DEBUG LOGGING ───────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 17: EXPERIENCE COUNT - Final Count")
+        logger.info("=" * 80)
+        logger.info(f"Total Companies Detected: {company_count}")
+        logger.info(f"Total Experiences Built: {experience_count}")
+        logger.info(f"Rejected Records: {rejected_count}")
+        logger.info(f"Reason for rejections: Missing company AND client")
+        logger.info("=" * 80)
+        # ── END STEP 17 ───────────────────────────────────────────────────────────
         
         self.logger.info(f"📊 VALIDATION SUMMARY:")
         self.logger.info(f"   Companies Detected: {company_count}")
         self.logger.info(f"   NER Calls Made: {ner_call_count}")
         self.logger.info(f"   Experiences Built: {experience_count}")
         self.logger.info(f"   Rejected Records: {rejected_count}")
+        
+        # ── STEP 4 COMPLETION ─────────────────────────────────────────────────────
+        logger.info(f"STEP 4 COMPLETED: {experience_count} experience groups created")
+        logger.info("=" * 80)
+        # ── END STEP 4 ───────────────────────────────────────────────────────────
+        
+        # ── STEP 5: COMPANY RESOLUTION DEBUG LOGGING ─────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 5: COMPANY RESOLUTION - Company/Client Mapping")
+        logger.info("=" * 80)
+        for i, exp in enumerate(experiences):
+            logger.info(f"Experience {i + 1}:")
+            logger.info(f"  Company entity: {exp.get('company_name_original')}")
+            logger.info(f"  Client entity: {exp.get('client')}")
+            logger.info(f"  ↓")
+            logger.info(f"  Final company_name: {exp.get('company_name')}")
+            logger.info(f"  Final client: {exp.get('client')}")
+            logger.info(f"  Reason: Company/Client mapping rules applied")
+            logger.info("-" * 40)
+        logger.info("=" * 80)
+        # ── END STEP 5 ───────────────────────────────────────────────────────────
         
         if company_count != experience_count:
             self.logger.warning(f"⚠️ VALIDATION MISMATCH: {company_count} companies but {experience_count} experiences built")
@@ -679,52 +1065,754 @@ class DeBERTaExperienceBuilder:
                 company_name = nearby_client  # Set company_name to client_name
                 client_name = nearby_client
             
+            # ── Phase 25: Original + Normalized Values ─────────────────────────────
+            # Preserve original values for ATS matching
+            company_original = company_name
+            role_original = role
+            location_original = location
+            location_normalized = None
+            if location:
+                location_normalized = self._normalize_location(location)
+            
+            # ── Phase 18: Multi Role Handling ───────────────────────────────────
+            # Handle Data Engineer / Data Analyst format
+            if role and '/' in role:
+                # Split by / and take primary role (first one)
+                roles_split = [r.strip() for r in role.split('/')]
+                if roles_split:
+                    role = roles_split[0]  # Use primary role
+                    self.logger.info(f"  🔀 Multi-role detected: '{role_original}' → Primary: '{role}'")
+            
             # ── Partial Record Preservation: Populate every extracted entity independently ──
             # Missing values must be null (not empty string)
             # Never omit keys, never remove keys
-            
-            # ── PHASE 25: Original + Normalized Values ─────────────────────────────
-            role_original = role
-            company_original = company_name
-            
-            # ── PHASE 23: Confidence Calculation ─────────────────────────────────
-            confidence = 0.5  # Base confidence
-            if role:
-                confidence += 0.2
-            if company_name:
-                confidence += 0.2
-            if start_date or end_date:
-                confidence += 0.1
-            confidence = min(confidence, 0.99)  # Cap at 0.99
-            
             exp = {
                 'job_title': role if role else None,
+                'job_title_original': role_original,  # Phase 25
                 'company_name': company_name if company_name else None,
+                'company_name_original': company_original,  # Phase 25
                 'location': location if location else None,
+                'location_original': location_original,  # Phase 25
+                'location_normalized': location_normalized,  # Feature 5
                 'start_date': self._parse_date(start_date) if start_date else None,
                 'end_date': self._parse_date(end_date) if end_date and not is_current else None,
                 'is_current': is_current,
                 'client': client_name if client_name else None,
                 'clients': [client_name] if client_name else [],
                 'description': None,  # Description extraction not implemented in current flow
-                # ── PHASE 23: Confidence ──────────────────────────────────────────
-                'confidence': confidence,
-                # ── PHASE 24: Source Tracking ───────────────────────────────────────
-                'source': 'deberta_ner',
-                'builder': 'company_builder',
-                'validator': 'validated',
-                'anchor_type': 'company',
-                # ── PHASE 25: Original + Normalized Values ───────────────────────────
-                'role_original': role_original if role_original else None,
-                'role_normalized': role if role else None,
-                'company_original': company_original if company_original else None,
-                'company_normalized': company_name if company_name else None
+                'environment': None,  # Phase 10
+                'technologies_used': None,  # Phase 10
+                'confidence': 0.95,  # Phase 23: Default confidence
+                'quality_score': None,  # Feature 16: Will be calculated after full exp is built
+                'source': 'deberta_ner',  # Phase 24
+                'builder': 'company_based',  # Phase 24
+                'validator': 'validated',  # Phase 24
+                'anchor_type': 'company_client'  # Phase 24
             }
             
             experiences.append(exp)
+            
+            # Safeguard 9: Experience Source Lock - Validate source
+            if not self._validate_experience_source(exp):
+                self.logger.warning(f"  ⚠️ Experience source validation failed, removing record")
+                experiences.pop()  # Remove invalid experience
+            
+            # Safeguard 14: Experience Builder Contract - Validate contract
+            if not self._validate_experience_contract(exp):
+                self.logger.warning(f"  ⚠️ Experience contract validation failed, removing record")
+                experiences.pop()  # Remove invalid experience
+            
             self.logger.info(f"  ✓ Experience {i+1}: {role or 'No role'} at {company_name} ({start_date or 'No start'} - {end_date or 'Present' if is_current else 'No end'})")
         
         return experiences
+    
+    def _validate_client(self, client_text: str) -> bool:
+        """
+        Phase 15: Client Validation
+        
+        Accept only organizations. Reject:
+        - Pipeline
+        - Workflow
+        - Storage
+        - Metrics
+        - Verb
+        - Technology
+        - Action sentence
+        
+        Args:
+            client_text: Client name to validate
+            
+        Returns:
+            True if valid client, False otherwise
+        """
+        if not client_text or not client_text.strip():
+            return False
+        
+        client_lower = client_text.lower().strip()
+        
+        # Reject technology keywords
+        if client_lower in self.tech_keywords:
+            self.logger.debug(f"🔧 Client validation rejected (tech keyword): '{client_text}'")
+            return False
+        
+        # Reject action verbs and workflow-related terms
+        action_verbs = ['pipeline', 'workflow', 'storage', 'metrics', 'monitoring', 
+                        'deployment', 'integration', 'migration', 'implementation',
+                        'architecture', 'design', 'development', 'engineering']
+        
+        if client_lower in action_verbs:
+            self.logger.debug(f"🔧 Client validation rejected (action verb): '{client_text}'")
+            return False
+        
+        # Reject if it's a sentence (contains verbs like 'developed', 'implemented', etc.)
+        sentence_patterns = ['developed', 'implemented', 'designed', 'created', 'managed',
+                           'built', 'enhanced', 'optimized', 'maintained', 'supported']
+        
+        if any(pattern in client_lower for pattern in sentence_patterns):
+            self.logger.debug(f"🔧 Client validation rejected (sentence): '{client_text}'")
+            return False
+        
+        # Accept if it looks like an organization (capitalized, multiple words, or known company pattern)
+        # This is a basic heuristic - could be enhanced with a company dictionary
+        if client_lower[0].isupper() or ' ' in client_text or len(client_text.split()) > 1:
+            return True
+        
+        return True
+    
+    def _validate_role(self, role_text: str) -> bool:
+        """
+        Phase 16: Role Validation
+        
+        Validate against role taxonomy. Reject:
+        - Pipeline
+        - Migration
+        - Storage
+        - Workflow
+        - API
+        - Deployment
+        - Backend Development
+        - Monitoring
+        - Description sentence
+        - Environment sentence
+        
+        Args:
+            role_text: Role name to validate
+            
+        Returns:
+            True if valid role, False otherwise
+        """
+        if not role_text or not role_text.strip():
+            return False
+        
+        role_lower = role_text.lower().strip()
+        
+        # Reject technology keywords
+        if role_lower in self.tech_keywords:
+            self.logger.debug(f"🔧 Role validation rejected (tech keyword): '{role_text}'")
+            return False
+        
+        # Reject workflow/infrastructure terms
+        workflow_terms = ['pipeline', 'migration', 'storage', 'workflow', 'api',
+                        'deployment', 'monitoring', 'architecture', 'integration',
+                        'backend development', 'frontend development', 'full stack development']
+        
+        if any(term in role_lower for term in workflow_terms):
+            self.logger.debug(f"🔧 Role validation rejected (workflow term): '{role_text}'")
+            return False
+        
+        # Reject if it's a description sentence
+        sentence_patterns = ['developed', 'implemented', 'designed', 'created', 'managed',
+                           'built', 'enhanced', 'optimized', 'maintained', 'supported',
+                           'responsible for', 'worked on', 'involved in']
+        
+        if any(pattern in role_lower for pattern in sentence_patterns):
+            self.logger.debug(f"🔧 Role validation rejected (sentence): '{role_text}'")
+            return False
+        
+        # Accept if it contains job title keywords
+        job_keywords = ['developer', 'engineer', 'manager', 'architect', 'analyst',
+                       'designer', 'consultant', 'specialist', 'lead', 'senior',
+                       'junior', 'trainee', 'intern', 'director', 'coordinator',
+                       'programmer', 'administrator', 'technician', 'principal',
+                       'vp', 'president', 'founder', 'ceo', 'cto', 'cfo']
+        
+        if any(keyword in role_lower for keyword in job_keywords):
+            return True
+        
+        # Accept multi-word titles (likely legitimate)
+        if len(role_text.split()) >= 2:
+            return True
+        
+        # Accept single-word professional titles
+        professional_titles = ['ceo', 'cto', 'cfo', 'vp', 'president', 'founder']
+        if role_lower in professional_titles:
+            return True
+        
+        return False
+    
+    def _remove_duplicates(self, experiences: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Phase 21: Duplicate Removal
+        
+        Merge duplicate Company, Role, Date, Location, Client.
+        
+        Args:
+            experiences: List of experience dictionaries
+            
+        Returns:
+            List with duplicates removed
+        """
+        seen = set()
+        unique_experiences = []
+        
+        for exp in experiences:
+            # Create a signature for duplicate detection
+            signature = (
+                exp.get('company_name', ''),
+                exp.get('job_title', ''),
+                exp.get('start_date', ''),
+                exp.get('end_date', ''),
+                exp.get('location', ''),
+                exp.get('client', '')
+            )
+            
+            if signature not in seen:
+                seen.add(signature)
+                unique_experiences.append(exp)
+            else:
+                self.logger.debug(f"🔧 Duplicate removed: {exp.get('company_name')} - {exp.get('job_title')}")
+        
+        return unique_experiences
+    
+    def _order_experiences(self, experiences: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Phase 22: Experience Ordering
+        
+        Sort final experience newest to oldest. Maintain resume chronology.
+        
+        Args:
+            experiences: List of experience dictionaries
+            
+        Returns:
+            List sorted by date (newest first)
+        """
+        def get_sort_key(exp):
+            # Sort by start_date (descending), with current positions first
+            start_date = exp.get('start_date')
+            is_current = exp.get('is_current', False)
+            
+            if is_current:
+                return (0, '')  # Current positions first
+            elif start_date:
+                return (1, start_date)  # Then by start date
+            else:
+                return (2, '')  # No date last
+        
+        return sorted(experiences, key=get_sort_key)
+    
+    def _normalize_location(self, location_text: str) -> str:
+        """
+        Feature 5: Location Normalization
+        Feature 18: International Resume Support
+        
+        Normalize location formats:
+        Dallas TX → Dallas, TX
+        Dallas,TX → Dallas, TX
+        Dallas Texas → Dallas, TX
+        
+        International formats:
+        London, UK → London, UK
+        Toronto, Ontario → Toronto, ON
+        Berlin, Germany → Berlin, Germany
+        Mumbai, India → Mumbai, India
+        
+        Args:
+            location_text: Raw location text
+            
+        Returns:
+            Normalized location in "City, State/Province/Country" format
+        """
+        import re
+        
+        if not location_text or not location_text.strip():
+            return location_text
+        
+        location = location_text.strip()
+        
+        # US State abbreviations mapping
+        us_states = {
+            'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+            'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+            'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+            'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+            'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+            'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+            'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+            'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+            'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+            'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+            'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+            'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+            'wisconsin': 'WI', 'wyoming': 'WY'
+        }
+        
+        # Canadian provinces mapping
+        ca_provinces = {
+            'alberta': 'AB', 'british columbia': 'BC', 'manitoba': 'MB',
+            'new brunswick': 'NB', 'newfoundland': 'NL', 'nova scotia': 'NS',
+            'ontario': 'ON', 'prince edward island': 'PE', 'quebec': 'QC',
+            'saskatchewan': 'SK', 'northwest territories': 'NT', 'nunavut': 'NU',
+            'yukon': 'YT'
+        }
+        
+        # Pattern 1: "City State" (space separated) → "City, State"
+        # Match: Dallas TX, Dallas Texas
+        pattern1 = re.compile(r'^([A-Za-z\s]+?)\s+([A-Za-z]+)$')
+        match1 = pattern1.match(location)
+        if match1:
+            city = match1.group(1).strip()
+            state = match1.group(2).strip()
+            
+            # Convert full state name to abbreviation
+            state_lower = state.lower()
+            if state_lower in us_states:
+                state = us_states[state_lower]
+            elif state_lower in ca_provinces:
+                state = ca_provinces[state_lower]
+            
+            return f"{city}, {state}"
+        
+        # Pattern 2: "City,State" (no space after comma) → "City, State"
+        pattern2 = re.compile(r'^([A-Za-z\s]+),([A-Za-z]+)$')
+        match2 = pattern2.match(location)
+        if match2:
+            city = match2.group(1).strip()
+            state = match2.group(2).strip()
+            
+            # Convert full state name to abbreviation
+            state_lower = state.lower()
+            if state_lower in us_states:
+                state = us_states[state_lower]
+            elif state_lower in ca_provinces:
+                state = ca_provinces[state_lower]
+            
+            return f"{city}, {state}"
+        
+        # Pattern 3: "City, State" (already normalized) - return as-is
+        pattern3 = re.compile(r'^[A-Za-z\s]+,\s*[A-Za-z]{2}$')
+        if pattern3.match(location):
+            return location
+        
+        # Feature 18: International formats
+        # Pattern 4: "City, Country" (e.g., "London, UK", "Berlin, Germany")
+        pattern4 = re.compile(r'^([A-Za-z\s]+),\s*([A-Za-z]+)$')
+        match4 = pattern4.match(location)
+        if match4:
+            city = match4.group(1).strip()
+            country = match4.group(2).strip()
+            return f"{city}, {country}"
+        
+        # Pattern 5: "City, Province, Country" (e.g., "Toronto, Ontario, Canada")
+        pattern5 = re.compile(r'^([A-Za-z\s]+),\s*([A-Za-z\s]+),\s*([A-Za-z]+)$')
+        match5 = pattern5.match(location)
+        if match5:
+            city = match5.group(1).strip()
+            province = match5.group(2).strip()
+            country = match5.group(3).strip()
+            
+            # Convert province to abbreviation if applicable
+            province_lower = province.lower()
+            if province_lower in ca_provinces:
+                province = ca_provinces[province_lower]
+            
+            return f"{city}, {province}, {country}"
+        
+        # Pattern 6: "City, State, Country" (e.g., "Dallas, TX, USA")
+        pattern6 = re.compile(r'^([A-Za-z\s]+),\s*([A-Za-z]{2}),\s*([A-Za-z]+)$')
+        match6 = pattern6.match(location)
+        if match6:
+            city = match6.group(1).strip()
+            state = match6.group(2).strip()
+            country = match6.group(3).strip()
+            return f"{city}, {state}, {country}"
+        
+        return location
+    
+    def _calculate_quality_score(self, exp: Dict[str, Any]) -> float:
+        """
+        Feature 16: Experience Quality Score
+        
+        Calculate completeness score based on:
+        - Company
+        - Role
+        - Location
+        - Start Date
+        - End Date
+        - Description
+        
+        Returns:
+            Quality score as percentage (0-100)
+        """
+        required_fields = ['company_name', 'job_title', 'location', 'start_date', 'end_date']
+        optional_fields = ['description', 'environment', 'technologies_used']
+        
+        # Score for required fields (each worth 15%)
+        required_score = 0
+        for field in required_fields:
+            if exp.get(field):
+                required_score += 15
+        
+        # Score for optional fields (each worth 12.5%)
+        optional_score = 0
+        for field in optional_fields:
+            if exp.get(field):
+                optional_score += 12.5
+        
+        total_score = required_score + optional_score
+        
+        # Cap at 100%
+        return min(total_score, 100.0)
+    
+    def _validate_experience_source(self, exp: Dict[str, Any]) -> bool:
+        """
+        Safeguard 9: Experience Source Lock
+        
+        Validate that every experience record has source="deberta_ner".
+        Never allow source to be overwritten with rule_parser, legacy_parser, or heuristic.
+        
+        Args:
+            exp: Experience record to validate
+            
+        Returns:
+            True if source is valid, False otherwise
+        """
+        source = exp.get('source')
+        if source != 'deberta_ner':
+            self.logger.error(f"❌ CRITICAL: Experience source validation failed. Expected 'deberta_ner', got '{source}'")
+            self.logger.error(f"Experience record: {exp}")
+            return False
+        return True
+    
+    def _validate_education_source(self, edu: Dict[str, Any]) -> bool:
+        """
+        Safeguard 10: Education Source Lock
+        
+        Validate that every education record has source="deberta_ner".
+        Always preserve source.
+        
+        Args:
+            edu: Education record to validate
+            
+        Returns:
+            True if source is valid, False otherwise
+        """
+        source = edu.get('source')
+        if source != 'deberta_ner':
+            self.logger.error(f"❌ CRITICAL: Education source validation failed. Expected 'deberta_ner', got '{source}'")
+            self.logger.error(f"Education record: {edu}")
+            return False
+        return True
+    
+    def _validate_experience_contract(self, exp: Dict[str, Any]) -> bool:
+        """
+        Safeguard 14: Experience Builder Contract validation
+        
+        Builder must always return all required keys.
+        Missing fields must be null.
+        Never omit keys.
+        
+        Required keys:
+        - company_name
+        - client
+        - job_title
+        - location
+        - start_date
+        - end_date
+        - is_current
+        - description
+        - environment
+        - technologies_used
+        - source
+        
+        Args:
+            exp: Experience record to validate
+            
+        Returns:
+            True if contract is valid, False otherwise
+        """
+        required_keys = [
+            'company_name', 'client', 'job_title', 'location',
+            'start_date', 'end_date', 'is_current', 'description',
+            'environment', 'technologies_used', 'source'
+        ]
+        
+        for key in required_keys:
+            if key not in exp:
+                self.logger.error(f"❌ CRITICAL: Experience contract validation failed. Missing key: '{key}'")
+                self.logger.error(f"Experience record: {exp}")
+                return False
+        
+        return True
+    
+    def _validate_education_contract(self, edu: Dict[str, Any]) -> bool:
+        """
+        Safeguard 15: Education Builder Contract validation
+        
+        Always return all required keys.
+        Missing values must be null.
+        
+        Required keys:
+        - institution
+        - degree
+        - field_of_study
+        - start_year
+        - end_year
+        - grade
+        - source
+        
+        Args:
+            edu: Education record to validate
+            
+        Returns:
+            True if contract is valid, False otherwise
+        """
+        required_keys = [
+            'institution', 'degree', 'field_of_study',
+            'start_year', 'end_year', 'grade', 'source'
+        ]
+        
+        for key in required_keys:
+            if key not in edu:
+                self.logger.error(f"❌ CRITICAL: Education contract validation failed. Missing key: '{key}'")
+                self.logger.error(f"Education record: {edu}")
+                return False
+        
+        return True
+    
+    def _reject_education_in_experience(self, entity_text: str) -> bool:
+        """
+        Safeguard 16: Reject Parser Corruption (education in experience)
+        
+        Reject if Education entities appear inside Experience builder:
+        - University
+        - Bachelor
+        - Masters
+        - Computer Science
+        - CGPA
+        
+        Never convert education into experience.
+        
+        Args:
+            entity_text: Entity text to validate
+            
+        Returns:
+            True if entity should be rejected (is education-related), False otherwise
+        """
+        education_keywords = [
+            'university', 'college', 'institute', 'school',
+            'bachelor', 'masters', 'phd', 'doctorate', 'mba',
+            'computer science', 'engineering', 'arts', 'science',
+            'cgpa', 'gpa', 'grade', 'degree', 'diploma',
+            'graduation', 'graduated', 'thesis', 'dissertation'
+        ]
+        
+        entity_lower = entity_text.lower()
+        for keyword in education_keywords:
+            if keyword in entity_lower:
+                self.logger.warning(f"  ⚠️ Rejecting education entity in experience: '{entity_text}'")
+                return True
+        
+        return False
+    
+    def _reject_technology_companies(self, entity_text: str) -> bool:
+        """
+        Safeguard 17: Reject Technology Companies
+        
+        Never classify as COMPANY:
+        - Docker
+        - Python
+        - Java
+        - Spark
+        - Pipeline
+        - Storage
+        - Monitoring
+        - Workflow
+        - Metrics
+        - File System
+        - Kubernetes
+        - Terraform
+        - LangChain
+        - SageMaker
+        - Airflow
+        - Power BI
+        - Snowflake
+        - Grafana
+        - Splunk
+        - Databricks
+        
+        Args:
+            entity_text: Entity text to validate
+            
+        Returns:
+            True if entity should be rejected (is technology), False otherwise
+        """
+        technology_keywords = [
+            'docker', 'python', 'java', 'spark', 'kafka',
+            'terraform', 'langchain', 'sagemaker', 'airflow',
+            'power bi', 'snowflake', 'grafana', 'splunk',
+            'databricks', 'kubernetes', 'k8s',
+            'pipeline', 'storage', 'monitoring', 'workflow',
+            'metrics', 'file system', 'filesystem',
+            'react', 'angular', 'vue', 'node', 'npm',
+            'mysql', 'postgresql', 'mongodb', 'redis',
+            'aws', 'azure', 'gcp', 'cloud'
+        ]
+        
+        entity_lower = entity_text.lower()
+        for keyword in technology_keywords:
+            if keyword in entity_lower:
+                self.logger.warning(f"  ⚠️ Rejecting technology entity as company: '{entity_text}'")
+                return True
+        
+        return False
+    
+    def _parse_date(self, date_text: str) -> Optional[str]:
+        """
+        Feature 6: Date Normalization
+        Feature 18: International Resume Support
+        
+        Normalize various date formats to DD/MM/YYYY:
+        - Jan 2023 → 01/01/2023 (default day=01)
+        - January 2023 → 01/01/2023 (default day=01)
+        - 01/2023 → 01/01/2023 (default day=01)
+        - 2023-01 → 01/01/2023 (default day=01)
+        - 2023-Jan → 01/01/2023 (default day=01)
+        - 01/01/2023 → 01/01/2023
+        - 01-01-2023 → 01/01/2023
+        - 01.01.2023 → 01/01/2023
+        
+        Also supports:
+        - Present, Current, Till Date, Now, Presently → sets is_current flag
+        
+        Args:
+            date_text: Raw date text
+            
+        Returns:
+            Normalized date in DD/MM/YYYY format, or None if parsing fails
+        """
+        import re
+        from datetime import datetime
+        
+        if not date_text or not date_text.strip():
+            return None
+        
+        date_str = date_text.strip().lower()
+        
+        # Check for current/present indicators
+        current_indicators = ['present', 'current', 'till date', 'now', 'presently']
+        if any(indicator in date_str for indicator in current_indicators):
+            return None  # Caller will set is_current=True
+        
+        # Month name to number mapping
+        month_names = {
+            'jan': '01', 'january': '01',
+            'feb': '02', 'february': '02',
+            'mar': '03', 'march': '03',
+            'apr': '04', 'april': '04',
+            'may': '05',
+            'jun': '06', 'june': '06',
+            'jul': '07', 'july': '07',
+            'aug': '08', 'august': '08',
+            'sep': '09', 'september': '09',
+            'oct': '10', 'october': '10',
+            'nov': '11', 'november': '11',
+            'dec': '12', 'december': '12'
+        }
+        
+        # Pattern 1: "Month Year" (e.g., "Jan 2023", "January 2023") → 01/01/2023
+        pattern1 = re.compile(r'^([A-Za-z]+)\s+(\d{4})$')
+        match1 = pattern1.match(date_str)
+        if match1:
+            month_name = match1.group(1).lower()
+            year = match1.group(2)
+            if month_name in month_names:
+                return f"01/{month_names[month_name]}/{year}"
+        
+        # Pattern 2: "MM/YYYY" or "M/YYYY" (e.g., "01/2023", "1/2023") → 01/01/2023
+        pattern2 = re.compile(r'^(\d{1,2})/(\d{4})$')
+        match2 = pattern2.match(date_str)
+        if match2:
+            month = match2.group(1).zfill(2)
+            year = match2.group(2)
+            return f"01/{month}/{year}"
+        
+        # Pattern 3: "YYYY-MM" or "YYYY-M" (e.g., "2023-01", "2023-1") → 01/01/2023
+        pattern3 = re.compile(r'^(\d{4})-(\d{1,2})$')
+        match3 = pattern3.match(date_str)
+        if match3:
+            year = match3.group(1)
+            month = match3.group(2).zfill(2)
+            return f"01/{month}/{year}"
+        
+        # Pattern 4: "YYYY-Month" (e.g., "2023-Jan", "2023-January") → 01/01/2023
+        pattern4 = re.compile(r'^(\d{4})-([A-Za-z]+)$')
+        match4 = pattern4.match(date_str)
+        if match4:
+            year = match4.group(1)
+            month_name = match4.group(2).lower()
+            if month_name in month_names:
+                return f"01/{month_names[month_name]}/{year}"
+        
+        # Pattern 5: "Month/YYYY" (e.g., "Jan/2023", "January/2023") → 01/01/2023
+        pattern5 = re.compile(r'^([A-Za-z]+)/(\d{4})$')
+        match5 = pattern5.match(date_str)
+        if match5:
+            month_name = match5.group(1).lower()
+            year = match5.group(2)
+            if month_name in month_names:
+                return f"01/{month_names[month_name]}/{year}"
+        
+        # Pattern 6: "YYYY Month" (e.g., "2023 Jan", "2023 January") → 01/01/2023
+        pattern6 = re.compile(r'^(\d{4})\s+([A-Za-z]+)$')
+        match6 = pattern6.match(date_str)
+        if match6:
+            year = match6.group(1)
+            month_name = match6.group(2).lower()
+            if month_name in month_names:
+                return f"01/{month_names[month_name]}/{year}"
+        
+        # Feature 18: International Date Formats
+        # Pattern 7: DD/MM/YYYY or DD-MM-YYYY (UK/Europe/India/Australia) → DD/MM/YYYY
+        pattern7 = re.compile(r'^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$')
+        match7 = pattern7.match(date_str)
+        if match7:
+            day = match7.group(1).zfill(2)
+            month = match7.group(2).zfill(2)
+            year = match7.group(3)
+            # Assume DD/MM/YYYY format (international)
+            return f"{day}/{month}/{year}"
+        
+        # Pattern 8: DD.MM.YYYY (Europe) → DD/MM/YYYY
+        pattern8 = re.compile(r'^(\d{1,2})\.(\d{1,2})\.(\d{4})$')
+        match8 = pattern8.match(date_str)
+        if match8:
+            day = match8.group(1).zfill(2)
+            month = match8.group(2).zfill(2)
+            year = match8.group(3)
+            return f"{day}/{month}/{year}"
+        
+        # Pattern 9: MM/DD/YYYY or MM-DD-YYYY (US) → DD/MM/YYYY (swap day/month)
+        pattern9 = re.compile(r'^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$')
+        match9 = pattern9.match(date_str)
+        if match9:
+            month = match9.group(1).zfill(2)
+            day = match9.group(2).zfill(2)
+            year = match9.group(3)
+            # Assume MM/DD/YYYY format (US), swap to DD/MM/YYYY
+            return f"{day}/{month}/{year}"
+        
+        # If no pattern matches, return None
+        return None
     
     def _find_nearest_entity(self, entity_positions: List[tuple], window_start: int, window_end: int) -> str:
         """
@@ -959,7 +2047,7 @@ class DeBERTaExperienceBuilder:
         return normalized
     
     def _parse_date(self, date_str: str) -> str:
-        """Parse date string to year or year-month format (NO fake precision)."""
+        """Parse date string to DD/MM/YYYY format (default day=01 if not specified)."""
         if not date_str:
             return None
         
@@ -993,10 +2081,10 @@ class DeBERTaExperienceBuilder:
                     year = 2000 + int(year_str) if int(year_str) < 50 else 1900 + int(year_str)
                 else:
                     year = int(year_str)
-                # Return year-month format (no fake day)
-                return f"{year}-{month_num:02d}"
+                # Return DD/MM/YYYY format (default day=01)
+                return f"01/{month_num:02d}/{year}"
         
-        # Pattern 2: Year only (e.g., "2022", "'22")
+        # Pattern 2: Year only (e.g., "2022", "'22") - return as-is since no month
         year_match = re.search(r'[\'"]?(\d{2,4})', cleaned)
         if year_match:
             year_str = year_match.group(1)

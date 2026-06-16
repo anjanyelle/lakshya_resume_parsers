@@ -393,6 +393,16 @@ async def parse_resume(request: ParseRequest):
         
         logger.info(f"Successfully parsed resume for candidate: {request.candidate_id} in {parse_time:.1f}ms")
         
+        # ── STEP 14: API RESPONSE DEBUG LOGGING ───────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 14: API RESPONSE - Final JSON Returned to UI")
+        logger.info("=" * 80)
+        import json
+        logger.info("FINAL JSON RESPONSE:")
+        logger.info(json.dumps(result, indent=2, default=str))
+        logger.info("=" * 80)
+        # ── END STEP 14 ───────────────────────────────────────────────────────────
+        
         return ParseResponse(**result)
         
     except HTTPException:
@@ -451,6 +461,16 @@ async def parse_text_direct(request: ParseTextRequest):
             parse_metrics['total_confidence_score'] += confidence_score
         
         logger.info(f"Successfully parsed text for candidate: {request.candidate_id} in {parse_time:.1f}ms")
+        
+        # ── STEP 14: API RESPONSE DEBUG LOGGING ───────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 14: API RESPONSE - Final JSON Returned to UI")
+        logger.info("=" * 80)
+        import json
+        logger.info("FINAL JSON RESPONSE:")
+        logger.info(json.dumps(result, indent=2, default=str))
+        logger.info("=" * 80)
+        # ── END STEP 14 ───────────────────────────────────────────────────────────
         
         return ParseResponse(**result)
         
@@ -995,114 +1015,164 @@ async def parse_sections(request: ParseSectionsRequest):
             if deberta_parser.is_loaded and deberta_parser.deberta_available:
                 logger.info("Using DeBERTa NER model for parsing sections")
                 
-                # Combine sections for DeBERTa parsing
-                combined_text = ""
-                if request.experience_text and request.experience_text.strip():
-                    combined_text += "WORK EXPERIENCE\n" + request.experience_text.strip() + "\n\n"
-                if request.education_text and request.education_text.strip():
-                    combined_text += "EDUCATION\n" + request.education_text.strip()
-                
-                if combined_text:
-                    # Parse with DeBERTa
-                    parsed_result = deberta_parser.parse_text(combined_text)
-                    
-                    # Extract work experience and education from DeBERTa results
-                    if 'work_experience' in parsed_result:
-                        work_experience = parsed_result['work_experience']
-                    if 'education' in parsed_result:
-                        education = parsed_result['education']
-                    
-                    logger.info(f"DeBERTa extracted {len(work_experience)} experiences (before validation), {len(education)} education entries")
-                    
-                    # VALIDATION: Filter out invalid companies, roles, and clients
-                    try:
-                        from parsers.entity_validator import get_validator
-                        validator = get_validator()
-                        
-                        # Validate and filter work experiences
-                        valid_experiences, rejected_experiences = validator.filter_work_experiences(
-                            work_experience, 
-                            min_confidence=0.6
-                        )
-                        
-                        work_experience = valid_experiences
-                        
-                        if rejected_experiences:
-                            logger.warning(f"🚫 Rejected {len(rejected_experiences)} invalid experiences:")
-                            for rej in rejected_experiences:
-                                logger.warning(f"   - {rej['experience'].get('job_title')} at {rej['experience'].get('company_name')}: {rej['validation'].get('issues', [])}")
-                        
-                        logger.info(f"✅ After validation: {len(work_experience)} valid experiences")
-                        
-                        # Validate and clean education entries
-                        valid_education, rejected_education = validator.filter_education_entries(education)
-                        education = valid_education
-                        
-                        if rejected_education:
-                            logger.warning(f"🚫 Rejected {len(rejected_education)} invalid education entries")
-                        
-                        logger.info(f"✅ After validation: {len(education)} valid education entries")
-                        
-                        # TRIGGER FALLBACK IF NO EXPERIENCES LEFT
-                        if len(work_experience) == 0 and request.experience_text and request.experience_text.strip():
-                            raise ValueError("DeBERTa validation rejected all experiences - falling back to regex")
-                            
-                    except Exception as e:
-                        logger.warning(f"Validation failed: {e}, using unvalidated results or triggering fallback")
-                        if "falling back to regex" in str(e):
-                            raise e
-                    
-                    # Post-process skills: extract extra skills from job titles/descriptions and raw text
-                    try:
-                        from parsers.rule_parser import RuleBasedParser
-                        rule_parser = RuleBasedParser()
-                        extra_skills = []
-                        for exp in work_experience:
-                            title = exp.get('job_title') or exp.get('title')
-                            if title:
-                                title_skills = rule_parser.extract_skills(title)
-                                if title_skills:
-                                    extra_skills.extend(title_skills)
-                            desc = exp.get('description')
-                            if desc:
-                                desc_skills = rule_parser.extract_skills(desc[:500])
-                                if desc_skills:
-                                    extra_skills.extend(desc_skills)
-                        
-                        if request.experience_text and request.experience_text.strip():
-                            raw_exp_skills = rule_parser.extract_skills(request.experience_text)
-                            if raw_exp_skills:
-                                extra_skills.extend(raw_exp_skills)
-                                
-                        if request.projects_text and request.projects_text.strip():
-                            raw_proj_skills = rule_parser.extract_skills(request.projects_text)
-                            if raw_proj_skills:
-                                extra_skills.extend(raw_proj_skills)
-                                
-                        if request.summary_text and request.summary_text.strip():
-                            raw_sum_skills = rule_parser.extract_skills(request.summary_text)
-                            if raw_sum_skills:
-                                extra_skills.extend(raw_sum_skills)
-                                
-                        if extra_skills:
-                            skills = list(dict.fromkeys(skills + extra_skills))
-                    except Exception as skill_err:
-                        logger.warning(f"Failed to post-process skills from experience in parse-sections: {skill_err}")
+                # ── FOCUSED SECTION PARSING (per-record, no data loss) ────────────────
+                # Pass sections directly — avoids combine→re-split round-trip that
+                # caused header_stop_detected to fire after job 1 and silently drop jobs 2-N.
+                # parse_focused_sections():
+                #   1. Calls _split_experience_into_records()  → one block per Client: header
+                #   2. Calls _run_deberta_on_record() × N      → one DeBERTa pass per job
+                #   3. Merges positions → experience builder   → N separate experience objects
+                # Input keys confirmed: 'work_experience_text', 'education_text'
+                # Output structure:  identical to parse_text() — both call _format_results()
+                # ──────────────────────────────────────────────────────────────────────
+                sections_for_deberta = {
+                    'work_experience_text': request.experience_text.strip()
+                        if request.experience_text and request.experience_text.strip() else '',
+                    'education_text': request.education_text.strip()
+                        if request.education_text and request.education_text.strip() else ''
+                }
 
-                    processing_time_ms = (time.time() - start_time) * 1000
-                    
-                    return ParseSectionsResponse(
-                        status="success",
-                        work_experience=work_experience,
-                        education=education,
-                        skills=skills,
-                        summary=summary,
-                        certifications=certifications,
-                        projects=projects,
-                        contact=contact,
-                        processing_time_ms=processing_time_ms,
-                        message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
+                logger.info("=" * 70)
+                logger.info("DEBERTA PIPELINE: parse_focused_sections() — per-record mode")
+                logger.info("=" * 70)
+                logger.info(f"  work_experience_text : {len(sections_for_deberta['work_experience_text'])} chars")
+                logger.info(f"  education_text       : {len(sections_for_deberta['education_text'])} chars")
+
+                # Pre-flight: show how many job records will reach DeBERTa
+                if sections_for_deberta['work_experience_text']:
+                    try:
+                        from parsers.experience_extractor import split_job_blocks
+                        _preview_records = split_job_blocks(sections_for_deberta['work_experience_text'])
+                        logger.info(f"  Job records found by split_job_blocks : {len(_preview_records)}")
+                        for _ri, _rec in enumerate(_preview_records):
+                            _first_line = _rec.strip().split('\n')[0][:120] if _rec.strip() else '(empty)'
+                            logger.info(f"    Record {_ri + 1}: {_first_line!r}")
+                    except Exception as _preview_err:
+                        logger.warning(f"  [PREFLIGHT] split_job_blocks preview failed: {_preview_err}")
+                logger.info("=" * 70)
+
+                if sections_for_deberta['work_experience_text'] or sections_for_deberta['education_text']:
+                    try:
+                        # PRIMARY: per-record pipeline — each job gets its own DeBERTa pass
+                        parsed_result = deberta_parser.parse_focused_sections(sections_for_deberta)
+                        logger.info(
+                            f"✅ parse_focused_sections returned "
+                            f"{len(parsed_result.get('work_experience', []))} experience(s), "
+                            f"{len(parsed_result.get('education', []))} education entry/entries"
+                        )
+                    except Exception as _pfs_err:
+                        # FALLBACK: revert to old single-blob parse_text() if focused path throws
+                        logger.error(f"⚠️  parse_focused_sections failed ({_pfs_err}) — falling back to parse_text()")
+                        combined_text = ""
+                        if sections_for_deberta['work_experience_text']:
+                            combined_text += "WORK EXPERIENCE\n" + sections_for_deberta['work_experience_text'] + "\n\n"
+                        if sections_for_deberta['education_text']:
+                            combined_text += "EDUCATION\n" + sections_for_deberta['education_text']
+                        parsed_result = deberta_parser.parse_text(combined_text)
+                        logger.info(
+                            f"✅ parse_text fallback returned "
+                            f"{len(parsed_result.get('work_experience', []))} experience(s)"
+                        )
+                else:
+                    parsed_result = {}
+
+                # Extract work experience and education from DeBERTa results
+                if 'work_experience' in parsed_result:
+                    work_experience = parsed_result['work_experience']
+                if 'education' in parsed_result:
+                    education = parsed_result['education']
+
+                logger.info(f"DeBERTa extracted {len(work_experience)} experiences (before validation), {len(education)} education entries")
+
+                # VALIDATION: Filter out invalid companies, roles, and clients
+                try:
+                    from parsers.entity_validator import get_validator
+                    validator = get_validator()
+
+                    # Validate and filter work experiences
+                    valid_experiences, rejected_experiences = validator.filter_work_experiences(
+                        work_experience,
+                        min_confidence=0.6
                     )
+
+                    work_experience = valid_experiences
+
+                    if rejected_experiences:
+                        logger.warning(f"🚫 Rejected {len(rejected_experiences)} invalid experiences:")
+                        for rej in rejected_experiences:
+                            logger.warning(f"   - {rej['experience'].get('job_title')} at {rej['experience'].get('company_name')}: {rej['validation'].get('issues', [])}")
+
+                    logger.info(f"✅ After validation: {len(work_experience)} valid experiences")
+
+                    # Validate and clean education entries
+                    valid_education, rejected_education = validator.filter_education_entries(education)
+                    education = valid_education
+
+                    if rejected_education:
+                        logger.warning(f"🚫 Rejected {len(rejected_education)} invalid education entries")
+
+                    logger.info(f"✅ After validation: {len(education)} valid education entries")
+
+                    # TRIGGER FALLBACK IF NO EXPERIENCES LEFT
+                    if len(work_experience) == 0 and request.experience_text and request.experience_text.strip():
+                        raise ValueError("DeBERTa validation rejected all experiences - falling back to regex")
+
+                except Exception as e:
+                    logger.warning(f"Validation failed: {e}, using unvalidated results or triggering fallback")
+                    if "falling back to regex" in str(e):
+                        raise e
+
+                # Post-process skills: extract extra skills from job titles/descriptions and raw text
+                try:
+                    from parsers.rule_parser import RuleBasedParser
+                    rule_parser = RuleBasedParser()
+                    extra_skills = []
+                    for exp in work_experience:
+                        title = exp.get('job_title') or exp.get('title')
+                        if title:
+                            title_skills = rule_parser.extract_skills(title)
+                            if title_skills:
+                                extra_skills.extend(title_skills)
+                        desc = exp.get('description')
+                        if desc:
+                            desc_skills = rule_parser.extract_skills(desc[:500])
+                            if desc_skills:
+                                extra_skills.extend(desc_skills)
+
+                    if request.experience_text and request.experience_text.strip():
+                        raw_exp_skills = rule_parser.extract_skills(request.experience_text)
+                        if raw_exp_skills:
+                            extra_skills.extend(raw_exp_skills)
+
+                    if request.projects_text and request.projects_text.strip():
+                        raw_proj_skills = rule_parser.extract_skills(request.projects_text)
+                        if raw_proj_skills:
+                            extra_skills.extend(raw_proj_skills)
+
+                    if request.summary_text and request.summary_text.strip():
+                        raw_sum_skills = rule_parser.extract_skills(request.summary_text)
+                        if raw_sum_skills:
+                            extra_skills.extend(raw_sum_skills)
+
+                    if extra_skills:
+                        skills = list(dict.fromkeys(skills + extra_skills))
+                except Exception as skill_err:
+                    logger.warning(f"Failed to post-process skills from experience in parse-sections: {skill_err}")
+
+                processing_time_ms = (time.time() - start_time) * 1000
+
+                return ParseSectionsResponse(
+                    status="success",
+                    work_experience=work_experience,
+                    education=education,
+                    skills=skills,
+                    summary=summary,
+                    certifications=certifications,
+                    projects=projects,
+                    contact=contact,
+                    processing_time_ms=processing_time_ms,
+                    message=f"Successfully parsed with DeBERTa: {len(work_experience)} experience entries, {len(education)} education entries, and {len(skills)} skills"
+                )
             else:
                 logger.info("DeBERTa model not available, falling back to regex extractors")
         except Exception as e:
