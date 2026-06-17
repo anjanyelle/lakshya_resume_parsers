@@ -904,28 +904,54 @@ class DeBERTaNerParser:
 
         # ── STEP 1: MODEL INPUT DEBUG LOGGING ─────────────────────────────────
         logger.info("=" * 80)
-        logger.info("STEP 1: DeBERTa MODEL INPUT")
+        logger.info("STEP 1: DeBERTa MODEL INPUT ANALYSIS")
         logger.info("=" * 80)
         logger.info(f"Section: {section_type}")
-        logger.info(f"Character Count: {len(preprocessed)}")
         
-        # Estimate token count
-        estimated_tokens = len(preprocessed.split()) * 1.3
+        # Calculate metrics
+        char_count = len(preprocessed)
+        word_count = len(preprocessed.split())
+        estimated_tokens = word_count * 1.3
+        
+        logger.info(f"Character Count: {char_count}")
+        logger.info(f"Word Count: {word_count}")
         logger.info(f"Estimated Token Count: {estimated_tokens:.0f}")
+        
+        # Check 512-token limit
+        fits_512 = estimated_tokens <= 512
+        logger.info(f"Fits within 512-token limit: {fits_512}")
+        
+        if not fits_512:
+            logger.info(f"⚠️  TRUNCATION WARNING: Record exceeds 512-token limit by {estimated_tokens - 512:.0f} tokens")
+            percentage_processed = (512 / estimated_tokens) * 100
+            logger.info(f"Percentage of record that would be processed: {percentage_processed:.1f}%")
+            logger.info(f"Model can fully see the record: NO")
+        else:
+            logger.info(f"Percentage of record that would be processed: 100.0%")
+            logger.info(f"Model can fully see the record: YES")
         
         # Step 3: chunk if needed
         chunks = self._chunk_record_for_deberta(preprocessed)
         
+        splitting_required = len(chunks) > 1
+        logger.info(f"Splitting Required: {splitting_required}")
         logger.info(f"Number of Chunks: {len(chunks)}")
         
         if len(chunks) > 1:
             logger.info("-" * 80)
             for chunk_idx, chunk in enumerate(chunks):
+                chunk_char_count = len(chunk)
+                chunk_word_count = len(chunk.split())
+                chunk_estimated_tokens = chunk_word_count * 1.3
+                chunk_fits_512 = chunk_estimated_tokens <= 512
+                
                 logger.info(f"Chunk {chunk_idx + 1}:")
                 logger.info(f"  Start Position: {sum(len(c) + 1 for c in chunks[:chunk_idx]) if chunk_idx > 0 else 0}")
                 logger.info(f"  End Position: {sum(len(c) + 1 for c in chunks[:chunk_idx + 1]) - 1}")
-                logger.info(f"  Character Count: {len(chunk)}")
-                logger.info(f"  Token Count: {len(chunk.split()) * 1.3:.0f}")
+                logger.info(f"  Character Count: {chunk_char_count}")
+                logger.info(f"  Word Count: {chunk_word_count}")
+                logger.info(f"  Estimated Token Count: {chunk_estimated_tokens:.0f}")
+                logger.info(f"  Fits 512: {chunk_fits_512}")
                 logger.info(f"  Text Preview: {chunk[:200]}...")
                 logger.info("-" * 80)
         else:
@@ -1399,6 +1425,10 @@ class DeBERTaNerParser:
                 exp_records = self._split_experience_into_records(exp_section)
                 logger.info(f"📋 Experience section split into {len(exp_records)} record(s)")
 
+                # ── Track record-level metrics for summary table ───────────────────
+                record_metrics = []  # List of dicts with metrics for each record
+                # ── End metrics tracking ─────────────────────────────────────────────
+
                 # Run DeBERTa once per record, collecting entities with absolute positions
                 merged_exp_entities: Dict[str, Any] = {
                     'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
@@ -1412,6 +1442,38 @@ class DeBERTaNerParser:
                 for rec_idx, record in enumerate(exp_records):
                     logger.debug(f"[EXP] Record {rec_idx + 1}/{len(exp_records)} "
                                  f"before preprocess: {record[:100]!r}")
+
+                    # ── Collect record metrics before processing ───────────────────
+                    # Convert and preprocess to get accurate metrics
+                    converted = self._convert_to_natural_language(record)
+                    layout_recovered = self._recover_pdf_layout(converted)
+                    headers_reconstructed = self._reconstruct_multiline_headers(layout_recovered)
+                    noise_removed = self._remove_ocr_noise(headers_reconstructed)
+                    preprocessed = self._preprocess_text(noise_removed)
+                    
+                    char_count = len(preprocessed)
+                    word_count = len(preprocessed.split())
+                    estimated_tokens = word_count * 1.3
+                    fits_512 = estimated_tokens <= 512
+                    truncated = not fits_512
+                    percentage_processed = (512 / estimated_tokens) * 100 if not fits_512 else 100.0
+                    model_can_fully_see = fits_512
+                    chunks_needed = len(self._chunk_record_for_deberta(preprocessed))
+                    splitting_required = chunks_needed > 1
+                    
+                    record_metrics.append({
+                        'record': rec_idx + 1,
+                        'characters': char_count,
+                        'words': word_count,
+                        'estimated_tokens': estimated_tokens,
+                        'fits_512': fits_512,
+                        'truncated': truncated,
+                        'percentage_processed': percentage_processed,
+                        'model_can_fully_see': model_can_fully_see,
+                        'splitting_required': splitting_required,
+                        'chunks_needed': chunks_needed
+                    })
+                    # ── End metrics collection ───────────────────────────────────────
 
                     rec_entities = self._run_deberta_on_record(
                         record, 'experience', char_offset=char_offset
@@ -1468,6 +1530,59 @@ class DeBERTaNerParser:
                 all_entities['work_experience'] = work_experiences
 
                 logger.info(f"✅ DeBERTa model built {len(work_experiences)} work experiences")
+
+                # ── STEP 2: SUMMARY TABLE AND TOTAL SECTION ANALYSIS ───────────────
+                logger.info("=" * 80)
+                logger.info("STEP 2: DEBERTA MODEL INPUT SUMMARY TABLE")
+                logger.info("=" * 80)
+                
+                if record_metrics:
+                    # Print table header
+                    logger.info(f"{'Record':<8} {'Chars':<10} {'Words':<10} {'Tokens':<12} {'Fits 512?':<12} {'Truncated?':<12}")
+                    logger.info("-" * 80)
+                    
+                    # Print each record row
+                    for metrics in record_metrics:
+                        logger.info(f"{metrics['record']:<8} {metrics['characters']:<10} "
+                                   f"{metrics['words']:<10} {metrics['estimated_tokens']:<12.0f} "
+                                   f"{str(metrics['fits_512']):<12} {str(metrics['truncated']):<12}")
+                    
+                    logger.info("-" * 80)
+                    
+                    # Calculate totals
+                    total_chars = sum(m['characters'] for m in record_metrics)
+                    total_words = sum(m['words'] for m in record_metrics)
+                    total_tokens = sum(m['estimated_tokens'] for m in record_metrics)
+                    any_truncated = any(m['truncated'] for m in record_metrics)
+                    any_splitting = any(m['splitting_required'] for m in record_metrics)
+                    
+                    logger.info(f"TOTALS:   {total_chars:<10} {total_words:<10} {total_tokens:<12.0f}")
+                    logger.info("-" * 80)
+                    
+                    # Total section analysis
+                    logger.info("=" * 80)
+                    logger.info("TOTAL EXPERIENCE SECTION ANALYSIS")
+                    logger.info("=" * 80)
+                    logger.info(f"Total Character Count: {total_chars}")
+                    logger.info(f"Total Word Count: {total_words}")
+                    logger.info(f"Total Estimated Token Count: {total_tokens:.0f}")
+                    logger.info(f"DeBERTa-v3-base Token Limit: 512")
+                    
+                    if total_tokens <= 512:
+                        logger.info(f"✅ Sending the WHOLE section at once would NOT cause truncation")
+                        logger.info(f"   The entire experience section fits within the 512-token limit")
+                    else:
+                        excess_tokens = total_tokens - 512
+                        percentage_of_section = (512 / total_tokens) * 100
+                        logger.info(f"⚠️  Sending the WHOLE section at once WOULD cause truncation")
+                        logger.info(f"   Exceeds 512-token limit by {excess_tokens:.0f} tokens")
+                        logger.info(f"   Only {percentage_of_section:.1f}% of the section would be processed")
+                        logger.info(f"   Current record-level approach prevents this truncation")
+                    
+                    logger.info(f"Any records require splitting: {any_splitting}")
+                    logger.info(f"Any records would be truncated if sent individually: {any_truncated}")
+                    logger.info("=" * 80)
+                # ── END STEP 2 ─────────────────────────────────────────────────────
 
             # ── Education: record-level inference ────────────────────────────
             if sections['education_text']:
