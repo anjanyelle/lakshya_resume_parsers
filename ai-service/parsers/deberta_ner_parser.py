@@ -151,13 +151,10 @@ class DeBERTaNerParser:
         if match:
             return gpa_text
         
-        # Pattern 4: Percentage (e.g., 85%, 85.5%) - convert to GPA if possible
+        # Pattern 4: Percentage (e.g., 85%, 85.5%) - keep as percentage
         match = re.match(r'^(\d+\.?\d*)%$', gpa_text)
         if match:
-            percentage = float(match.group(1))
-            # Convert percentage to 4.0 scale: (percentage / 100) * 4
-            gpa_value = round((percentage / 100) * 4, 2)
-            return f"{gpa_value}/4.0"
+            return gpa_text
         
         # Return original if no pattern matches
         return gpa_text
@@ -383,8 +380,13 @@ class DeBERTaNerParser:
                     # Entity line found — exit skip mode and keep line
                     skip_continuation = False
 
-            # ── NEW: Skip role-like phrases from non-header sections ───────────
-            if _NON_HEADER_ROLE_PHRASES.match(stripped):
+            # ── FIX 5: Skip role-like phrases ONLY from non-header sections ──────
+            # These patterns (e.g. "data engineering", "web development") look like
+            # roles but appear in responsibilities/descriptions.
+            # NEVER apply this filter to header lines (in_header_section is True)
+            # because legitimate role titles like "Data Engineering Intern" or
+            # "Web Developer" live in the header and must reach DeBERTa.
+            if not in_header_section and _NON_HEADER_ROLE_PHRASES.match(stripped):
                 logger.debug(f"[PREPROCESS] Skipping non-header role phrase: '{stripped}'")
                 continue
 
@@ -1438,10 +1440,35 @@ class DeBERTaNerParser:
                     '_positions': []
                 }
                 char_offset = 0
+                # ── FIX 2: Block boundaries for offset-safe entity scoping ────────────
+                # Track where each record actually starts in exp_section.
+                # We search forward from the last known position so we never
+                # mis-match a repeated substring.
+                block_boundaries = []  # List of (start, end) tuples in exp_section coords
+                search_from = 0
 
                 for rec_idx, record in enumerate(exp_records):
                     logger.debug(f"[EXP] Record {rec_idx + 1}/{len(exp_records)} "
                                  f"before preprocess: {record[:100]!r}")
+
+                    # ── FIX 2: Resolve true char_offset in exp_section ────────────────
+                    # Use the first 60 chars of the record as a search anchor.
+                    anchor = record.strip()[:60]
+                    found_pos = exp_section.find(anchor, search_from)
+                    if found_pos != -1:
+                        char_offset = found_pos
+                        search_from = found_pos + len(record)
+                    else:
+                        # Anchor not found (can happen after heavy preprocessing),
+                        # fall back to sequential accumulation.
+                        search_from = char_offset + len(record) + 1
+                    block_start = char_offset
+                    block_end = char_offset + len(record)
+                    block_boundaries.append((block_start, block_end))
+                    logger.debug(
+                        f"[EXP] Record {rec_idx + 1}: offset={char_offset} "
+                        f"(block {block_start}-{block_end})"
+                    )
 
                     # ── Collect record metrics before processing ───────────────────
                     # Convert and preprocess to get accurate metrics
@@ -1494,16 +1521,19 @@ class DeBERTaNerParser:
                                      if isinstance(v, list) and v and k != '_positions'}
                     logger.debug(f"[EXP] Record {rec_idx + 1} grouped JSON: {entity_counts}")
 
-                    # Advance offset: length of record + 1 newline separator
-                    char_offset += len(record) + 1
+                    # char_offset is already updated correctly above via anchor search
 
                 logger.info(f"📊 Merged DeBERTa exp entities: "
                             f"{len(merged_exp_entities.get('COMPANY', []))} companies, "
                             f"{len(merged_exp_entities.get('ROLE', []))} roles")
 
-                # Build structured experiences (DeBERTaExperienceBuilder — unchanged)
+                # Build structured experiences
+                # ── FIX 4: Pass block boundaries for block-scoped entity clustering ──
+                # block_boundaries is a list of (start, end) tuples pointing into
+                # exp_section — one entry per split record.
                 from parsers.deberta_experience_builder import DeBERTaExperienceBuilder
                 builder = DeBERTaExperienceBuilder()
+                merged_exp_entities['_block_boundaries'] = block_boundaries
                 work_experiences = builder.build_experiences_from_entities(
                     merged_exp_entities,
                     exp_section
@@ -1629,6 +1659,9 @@ class DeBERTaNerParser:
                         all_entities[key] = val
                     elif isinstance(val, list) and isinstance(all_entities.get(key), list):
                         all_entities[key] = all_entities[key] + val
+
+            # Store original education text for rule-based fallback
+            all_entities['_edu_original_text'] = sections.get('education_text', '')
 
             # ── Final check and format (unchanged) ───────────────────────────
             entity_count = sum(len(v) for v in all_entities.values() if isinstance(v, list))
@@ -2607,6 +2640,21 @@ class DeBERTaNerParser:
         logger.info("=" * 80)
         education = []
         institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
+        
+        # ── FALLBACK: Rule-based Institution Extraction ──
+        if not institutions:
+            edu_text = entities.get('_edu_original_text', '')
+            if edu_text:
+                import re
+                parts = re.split(r'[,\n|]', edu_text)
+                for part in parts:
+                    part = part.strip()
+                    # Look for institution keywords, including common Indian tech institutes
+                    if re.search(r'\b(University|College|Institute|Academy|School|JNTU|IIT|NIT|BITS|IIIT|VIT|SRM|BIT)\b', part, re.IGNORECASE):
+                        # Ensure it's not actually the degree
+                        if not re.search(r'\b(Bachelor|Master|B\.Tech|M\.Tech|Ph\.D|B\.E|M\.E|B\.Sc|M\.Sc|Degree)\b', part, re.IGNORECASE):
+                            institutions.append(part)
+        
         degrees = entities.get('DEGREE', [])
         fields = entities.get('FIELD', [])
         edu_start = entities.get('EDU_YEAR_START', [])

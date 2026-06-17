@@ -133,11 +133,16 @@ class DeBERTaExperienceBuilder:
         """
         # Check if we have position data from the new extraction method
         positions_data = entities.get('_positions', [])
+        # ── FIX 4: Extract block boundaries from the outer entities dict ───────────
+        # _block_boundaries lives in the top-level entities dict (injected by
+        # deberta_ner_parser.py).  It must be extracted here, before we hand
+        # only the _positions list to _build_experiences_by_position.
+        block_boundaries = entities.get('_block_boundaries', [])
         
         if positions_data:
             # Use position-based clustering (NEW METHOD)
             self.logger.info(f"🎯 Using position-based entity clustering with {len(positions_data)} entities")
-            experiences = self._build_experiences_by_position(positions_data, text)
+            experiences = self._build_experiences_by_position(positions_data, text, block_boundaries=block_boundaries)
         else:
             # Fallback to old method using text.find()
             self.logger.info("⚠️ No position data, using fallback text.find() method")
@@ -162,35 +167,24 @@ class DeBERTaExperienceBuilder:
         
         self.logger.info(f"✅ Built {len(experiences)} work experiences from DeBERTa entities")
         return experiences
-    
-    def _build_experiences_by_position(self, positions_data: List[Dict], text: str) -> List[Dict[str, Any]]:
+
+    def _build_experiences_by_position(self, positions_data: List[Dict], text: str,
+                                        block_boundaries: list = None) -> List[Dict]:
         """
-        Build experiences using position-based clustering (REQUIREMENT 1: Semantic Experience Grouping).
-        
-        Groups entities by:
-        - Position (proximity within 250 characters)
-        - Semantic context (Company, Employer, Organization, Worked For, Vendor, Consulting Company anchors)
-        - Section boundaries (anchor transitions)
-        - Entity consumption tracking (prevent bleeding)
-        
-        ── REQUIREMENT 2: SEMANTIC EXPERIENCE BOUNDARIES ─────────────────────────────
-        Detect new experience when semantic anchor changes:
-        - Company, Employer, Organization, Worked For, Vendor, Client, Role + Date
-        Avoid fixed character windows whenever possible
-        Use semantic transitions
-        
-        A new experience begins when a new Company, Client, Employer, Organization, Worked For, or independent Role+Date cluster begins.
-        
-        ── REQUIREMENT 11: LONG RESUME SUPPORT ───────────────────────────────────────
-        Support: 5000+, 10000+, 15000+, 25000+ character resumes
-        Do not collapse multiple experiences into one
-        
+        Build experiences using position-based clustering.
+
+        Groups entities by proximity (or by exact block boundaries when supplied)
+        to form individual work experience records.
+
         Args:
-            positions_data: List of {type, text, start, end} dictionaries
-            text: Original text for context
-            
+            positions_data:   List of {type, text, start, end} entity dicts.
+            text:             Original experience section text for context.
+            block_boundaries: Optional list of (start, end) tuples, one per split
+                              record, injected by deberta_ner_parser.py.  When
+                              supplied, entity lookup is scoped per block instead
+                              of using the fixed proximity window.
         Returns:
-            List of structured work experience dictionaries
+            List of structured work experience dictionaries.
         """
         # Separate entities by type with positions
         companies_raw = [e for e in positions_data if e['type'] == 'COMPANY']
@@ -433,19 +427,16 @@ class DeBERTaExperienceBuilder:
         companies.sort(key=lambda x: x['start'])
         
         experiences = []
-        proximity_window = 250  # Reduced from 400 to 250 to prevent cross-record contamination
+        proximity_window = 250  # Fallback when no block boundaries are available
 
-        # ── Entity consumption tracking (Problem 5 fix) ───────────────────────
-        # Tracks entity positions that have already been claimed by a company.
-        # Prevents the same ROLE / DATE / LOCATION from being assigned to two
-        # adjacent companies when their proximity windows overlap.
-        # ── REQUIREMENT 10: ENTITY OWNERSHIP ─────────────────────────────────────
-        # Once assigned to one experience, an entity cannot be reused unless semantic continuation exists
-        # Prevent: Company bleeding, Role bleeding, Date bleeding, Location bleeding, Client bleeding, Description bleeding
+        # Ensure block_boundaries is always a list (never None)
+        if block_boundaries is None:
+            block_boundaries = []
+
+        # ── Entity consumption tracking ───────────────────────────────────────
         used_entity_positions: set = set()
         
-        # ── Validation logging (Problem 11) ─────────────────────────────────
-        # Track counts for validation
+        # ── Validation logging ───────────────────────────────────────────────
         company_count = len(companies)
         ner_call_count = company_count  # One NER call per company
         
@@ -460,20 +451,22 @@ class DeBERTaExperienceBuilder:
         
         for i, company in enumerate(companies):
             company_pos = company['start']
-            
-            # ── REQUIREMENT 1: EXPERIENCE COUNT PRESERVATION ─────────────────────
-            # Iterate through ALL companies to ensure N semantic jobs → N output jobs
-            # Never silently lose experiences
-            # Continue until end of Experience section
-            
-            # Define search window around this company
-            # Look backward and forward within proximity_window
-            window_start = max(0, company_pos - proximity_window)
-            window_end = company_pos + proximity_window
-            
-            # ── Multi-anchor clustering (Problem 6 fix) ───────────────────────
-            # Use multiple anchors: Company, Date range, Role, Location, Header position
-            # If company extraction fails but role and dates exist, preserve the job record
+
+            # ── FIX 4: Use block-scoped window when boundaries are available ──
+            # When block_boundaries is populated (by the NER parser), each company
+            # belongs to exactly one block.  Use that block's [start, end] as the
+            # search window so entities from adjacent records can never bleed in.
+            window_start = None
+            window_end = None
+            for b_start, b_end in block_boundaries:
+                if b_start <= company_pos <= b_end:
+                    window_start = b_start
+                    window_end = b_end
+                    break
+            if window_start is None:
+                # Fallback: classic proximity window
+                window_start = max(0, company_pos - proximity_window)
+                window_end = company_pos + proximity_window
             
             # Find entities within proximity window — skipping already-consumed ones
             # ── REQUIREMENT 8: LOCATION OWNERSHIP ─────────────────────────────────────
@@ -889,64 +882,145 @@ class DeBERTaExperienceBuilder:
             logger.info("-" * 40)
             # ── END STEP 4 GROUP DETAILS ────────────────────────────────────────
         
+        # ── FIX 3: ROLE-anchor fallback sweep ──────────────────────────────────
+        # If any ROLE entity was never consumed by the COMPANY loop, it means the
+        # company name was missing from DeBERTa output for that job.
+        # We still produce an experience record anchored on the ROLE.
+        #
+        # IMPORTANT: Do NOT filter by role text — two different jobs can share
+        # the same title (e.g. "Java Developer" at American Airlines AND at HCL).
+        # Only skip a role if its exact position was already consumed.
+        if block_boundaries:
+            # Track (block_start, role_start) pairs to avoid producing two records
+            # for literally the same role token appearing twice in one block.
+            seen_role_positions = set()
+
+            for role in roles:
+                role_pos = role['start']
+                if role_pos in used_entity_positions:
+                    continue  # Already claimed by a company-anchored record
+
+                # Resolve block boundaries for this role
+                r_block_start, r_block_end = None, None
+                for b_start, b_end in block_boundaries:
+                    if b_start <= role_pos <= b_end:
+                        r_block_start, r_block_end = b_start, b_end
+                        break
+
+                if r_block_start is None:
+                    continue  # Cannot determine block scope — skip
+
+                # Guard against the same role token position being processed twice
+                dedup_key = (r_block_start, role_pos)
+                if dedup_key in seen_role_positions:
+                    continue
+                seen_role_positions.add(dedup_key)
+
+                nearby_r_location = self._find_entity_in_window(
+                    locations, r_block_start, r_block_end, role_pos,
+                    exclude_positions=used_entity_positions
+                )
+                nearby_r_start = self._find_entity_in_window(
+                    start_dates, r_block_start, r_block_end, role_pos,
+                    exclude_positions=used_entity_positions
+                )
+                nearby_r_end = self._find_entity_in_window(
+                    end_dates, r_block_start, r_block_end, role_pos,
+                    exclude_positions=used_entity_positions
+                )
+
+                r_end_date_text = nearby_r_end['text'] if nearby_r_end else None
+                r_is_current = False
+                if r_end_date_text:
+                    if 'present' in r_end_date_text.lower() or 'current' in r_end_date_text.lower():
+                        r_is_current = True
+                        r_end_date_text = None
+
+                r_role_text = self._normalize_role(role['text'])
+                if r_role_text and not self._validate_role(r_role_text):
+                    r_role_text = None
+
+                # Attempt to recover company name from the raw text around the block
+                r_company_text = None
+                if text and r_block_start is not None:
+                    block_raw = text[r_block_start:min(r_block_end, r_block_start + 300)]
+                    company_from_text = self._extract_companies_regex(block_raw, [
+                        {'type': 'ROLE', 'text': role['text'],
+                         'start': role_pos - r_block_start,
+                         'end': role_pos - r_block_start + len(role['text'])}
+                    ])
+                    if company_from_text:
+                        r_company_text = company_from_text[0]['text']
+
+                fallback_exp = {
+                    'job_title': r_role_text,
+                    'job_title_original': role['text'],
+                    'company_name': r_company_text,
+                    'company_name_original': r_company_text,
+                    'location': nearby_r_location['text'] if nearby_r_location else None,
+                    'location_original': nearby_r_location['text'] if nearby_r_location else None,
+                    'location_normalized': self._normalize_location(nearby_r_location['text']) if nearby_r_location else None,
+                    'start_date': self._parse_date(nearby_r_start['text']) if nearby_r_start else None,
+                    'end_date': self._parse_date(r_end_date_text) if r_end_date_text and not r_is_current else None,
+                    'is_current': r_is_current,
+                    'client': None,
+                    'clients': [],
+                    'description': None,
+                    'environment': None,
+                    'technologies_used': None,
+                    'confidence': 0.65,  # Lower confidence — no COMPANY entity found
+                    'quality_score': None,
+                    'source': 'deberta_ner',
+                    'builder': 'role_anchor_fallback',
+                    'validator': 'validated',
+                    'anchor_type': 'role_date'
+                }
+
+                logger.info(
+                    f"[ROLE-FALLBACK] Creating record anchored on ROLE '{role['text']}' "
+                    f"(pos={role_pos}, block={r_block_start}-{r_block_end})"
+                )
+                experiences.append(fallback_exp)
+
+                # Mark consumed entities so they cannot be reused
+                for matched in [role, nearby_r_location, nearby_r_start, nearby_r_end]:
+                    if matched:
+                        used_entity_positions.add(matched['start'])
+        # ── END FIX 3 ────────────────────────────────────────────────────────
+
+
         # ── Phase 21: Duplicate Removal ───────────────────────────────────────
         experiences = self._remove_duplicates(experiences)
-        
-        # ── Phase 22: Experience Ordering ───────────────────────────────────────
+
+        # ── Phase 22: Experience Ordering ─────────────────────────────────────
         experiences = self._order_experiences(experiences)
-        
-        # ── Feature 16: Calculate Quality Scores ───────────────────────────────
+
+        # ── Feature 16: Calculate Quality Scores ──────────────────────────────
         for exp in experiences:
             exp['quality_score'] = self._calculate_quality_score(exp)
-        
-        # ── Comprehensive logging (Blocks, NER Calls, Companies, Roles, Rejected, etc.) ──
+
+        # ── Final count logging ───────────────────────────────────────────────
         experience_count = len(experiences)
-        rejected_count = company_count - experience_count
-        
-        # ── STEP 17: EXPERIENCE COUNT DEBUG LOGGING ───────────────────────────────
         logger.info("=" * 80)
         logger.info("STEP 17: EXPERIENCE COUNT - Final Count")
         logger.info("=" * 80)
         logger.info(f"Total Companies Detected: {company_count}")
         logger.info(f"Total Experiences Built: {experience_count}")
-        logger.info(f"Rejected Records: {rejected_count}")
-        logger.info(f"Reason for rejections: Missing company AND client")
+        logger.info(f"Block boundaries used: {len(block_boundaries)}")
+        logger.info(f"Role-anchor fallbacks applied: {'yes' if block_boundaries else 'no'}")
         logger.info("=" * 80)
-        # ── END STEP 17 ───────────────────────────────────────────────────────────
-        
-        self.logger.info(f"📊 VALIDATION SUMMARY:")
-        self.logger.info(f"   Companies Detected: {company_count}")
-        self.logger.info(f"   NER Calls Made: {ner_call_count}")
-        self.logger.info(f"   Experiences Built: {experience_count}")
-        self.logger.info(f"   Rejected Records: {rejected_count}")
-        
-        # ── STEP 4 COMPLETION ─────────────────────────────────────────────────────
-        logger.info(f"STEP 4 COMPLETED: {experience_count} experience groups created")
-        logger.info("=" * 80)
-        # ── END STEP 4 ───────────────────────────────────────────────────────────
-        
-        # ── STEP 5: COMPANY RESOLUTION DEBUG LOGGING ─────────────────────────────
-        logger.info("=" * 80)
-        logger.info("STEP 5: COMPANY RESOLUTION - Company/Client Mapping")
-        logger.info("=" * 80)
-        for i, exp in enumerate(experiences):
-            logger.info(f"Experience {i + 1}:")
-            logger.info(f"  Company entity: {exp.get('company_name_original')}")
-            logger.info(f"  Client entity: {exp.get('client')}")
-            logger.info(f"  ↓")
-            logger.info(f"  Final company_name: {exp.get('company_name')}")
-            logger.info(f"  Final client: {exp.get('client')}")
-            logger.info(f"  Reason: Company/Client mapping rules applied")
-            logger.info("-" * 40)
-        logger.info("=" * 80)
-        # ── END STEP 5 ───────────────────────────────────────────────────────────
-        
+        self.logger.info(f"📊 VALIDATION SUMMARY: {experience_count} experiences from "
+                         f"{company_count} companies / {len(roles)} roles")
+
         if company_count != experience_count:
-            self.logger.warning(f"⚠️ VALIDATION MISMATCH: {company_count} companies but {experience_count} experiences built")
-            self.logger.warning(f"   Root cause: Some blocks may have been filtered out due to missing company AND client")
-        
+            self.logger.warning(
+                f"⚠️ COUNT MISMATCH: {company_count} companies → {experience_count} experiences "
+                f"(role-fallback may have added or removed records)"
+            )
+
         return experiences
-    
+
+
     def _find_entity_in_window(self, entities: List[Dict], window_start: int, window_end: int, 
                                 anchor_pos: int,
                                 exclude_positions: set = None) -> Dict:

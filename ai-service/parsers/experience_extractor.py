@@ -501,125 +501,196 @@ def extract_date_range(text: str) -> dict:
 def split_job_blocks(experience_text: str) -> list:
     """
     Split experience section into independent job blocks.
-    
+
     Handles multiple resume formats:
-    - Company → Role → Dates
-    - Role → Company → Dates
-    - Client → Role
-    - Company: format
-    - Client: format
+    - Company -> Role -> Dates
+    - Role -> Company -> Dates
+    - Client -> Role (Client: format)
+    - Company | Role | Location | Dates  (pipe-separated)
     - Internship format
     - Multi-line company headers
-    - Multi-column resumes
-    - Mixed layouts
-    
+    - Multi-column resumes / mixed layouts
+
     Each employment record becomes one independent block.
     Never sends multiple jobs together to DeBERTa.
+
+    5-Signal Hybrid Splitter:
+      Signal 1 - Explicit header labels  (Client:, Company:, Employer:, ...)
+      Signal 2 - Pipe-separated one-liner (Company | Role | Location | Dates)
+      Signal 3 - Standalone date range line NOT already present in current block
+      Signal 4 - Two or more consecutive blank lines (guaranteed boundary)
+      Signal 5 - Short capitalized role-keyword / company-suffix header line
+                  that follows a block which already has role/date content
     """
     if not experience_text:
         return []
-    
+
     lines = experience_text.split('\n')
     blocks = []
     current_block = []
-    
-    # Patterns for detecting job block boundaries
-    # Feature 17: Header Pattern Expansion - Support additional formats
+
+    # ── Signal 1: Explicit header labels ──────────────────────────────────────
     COMPANY_HEADER_RE = re.compile(
-        r'^(?:Company|Client|Employer|Organization|Location|Duration|Period|Employer\s+Name|Worked\s+For|Project|Assignment):\s*',
-        re.IGNORECASE  
+        r'^(?:Company|Client|Employer|Organization|Employer\s+Name|'
+        r'Worked\s+For|Vendor|Consulting\s+Company|Duration|Period|'
+        r'Project|Assignment)\s*[:\-]\s*',
+        re.IGNORECASE
     )
-    
-    # Job title indicators (start of new job)
-    JOB_TITLE_INDICATORS = [
+
+    # ── Role keywords for Signal 5 ────────────────────────────────────────────
+    ROLE_KEYWORDS = [
         'engineer', 'developer', 'manager', 'architect', 'analyst',
         'consultant', 'designer', 'specialist', 'lead', 'senior',
         'junior', 'director', 'associate', 'intern', 'trainee',
-        'coordinator', 'administrator', 'officer', 'assistant', 'programmer'
+        'coordinator', 'administrator', 'officer', 'assistant', 'programmer',
+        'scientist', 'researcher', 'strategist', 'writer', 'editor',
+        'recruiter', 'instructor', 'teacher', 'accountant', 'executive',
     ]
-    
-    # Company indicators (start of new job when followed by role)
-    COMPANY_INDICATORS = [
-        'inc', 'llc', 'ltd', 'corp', 'corporation', 'pvt',
-        'technologies', 'solutions', 'systems', 'services',
-        'consulting', 'group', 'labs', 'software'
+
+    # ── Company suffix keywords ───────────────────────────────────────────────
+    COMPANY_SUFFIXES = [
+        'inc', 'llc', 'ltd', 'corp', 'corporation', 'pvt', 'private',
+        'technologies', 'solutions', 'systems', 'services', 'consulting',
+        'group', 'labs', 'software', 'tech', 'global', 'digital',
+        'enterprises', 'ventures', 'partners', 'associates', 'co.',
     ]
-    
+
+    NOISE_PREFIXES = [
+        'responsibilities', 'responsibility', 'environment:', 'technologies:',
+        'tech stack:', 'tools used:', 'achievements:', 'highlights:',
+        'key achievements:', 'description:', 'duties:', 'summary:',
+        'http', 'www', '@',
+    ]
+
+    def _is_bullet_line(s):
+        return bool(re.match(r'^[•\-\*\+►▸▶→]\s*', s))
+
+    def _is_noise_header(s):
+        lo = s.lower()
+        return any(lo.startswith(p) for p in NOISE_PREFIXES)
+
+    def _has_role_kw(s):
+        lo = s.lower()
+        return any(kw in lo for kw in ROLE_KEYWORDS)
+
+    def _has_company_sfx(s):
+        lo = s.lower()
+        return any(kw in lo for kw in COMPANY_SUFFIXES)
+
+    def _is_short_cap_line(s):
+        stripped = s.strip()
+        return (
+            1 < len(stripped) < 100
+            and bool(stripped)
+            and stripped[0].isupper()
+            and not _is_bullet_line(stripped)
+            and not _is_noise_header(stripped)
+        )
+
+    def _is_pipe_line(s):
+        """True if the line is a self-contained pipe-delimited job record."""
+        if '|' not in s:
+            return False
+        parts = [p.strip() for p in s.split('|') if p.strip()]
+        if len(parts) < 2:
+            return False
+        return bool(DATE_LINE_PATTERN.search(s)) or any(_has_role_kw(p) for p in parts)
+
+    def _save_block():
+        if current_block:
+            text = '\n'.join(current_block).strip()
+            if len(text) > 10:
+                blocks.append(text)
+
+    consecutive_blanks = 0
+
     i = 0
     while i < len(lines):
         line = lines[i].strip()
-        
-        # If current line is empty, it could indicate a boundary
+
+        # ── Signal 4: Two or more blank lines = hard boundary ─────────────────
         if not line:
-            is_boundary = False
-            j = i + 1
-            while j < len(lines) and not lines[j].strip():
-                j += 1
-            if j < len(lines):
-                next_line = lines[j].strip()
-                if (DATE_LINE_PATTERN.search(next_line) or 
-                    COMPANY_HEADER_RE.match(next_line) or 
-                    (len(next_line) < 80 and next_line and next_line[0].isupper() and any(ind in next_line.lower() for ind in JOB_TITLE_INDICATORS))):
-                    is_boundary = True
-            
-            if is_boundary and current_block:
-                block_text = '\n'.join(current_block).strip()
-                if len(block_text) > 10:
-                    blocks.append(block_text)
+            consecutive_blanks += 1
+            if consecutive_blanks >= 2 and current_block:
+                _save_block()
                 current_block = []
+                consecutive_blanks = 0
             else:
                 current_block.append('')
             i += 1
             continue
-        
-        # Check other indicators
+        else:
+            consecutive_blanks = 0
+
         is_new_job = False
-        
-        # 1. Company: / Client: / Employer: header
+
+        # ── Signal 2: Pipe-separated self-contained one-liner ─────────────────
+        if _is_pipe_line(line):
+            if current_block:
+                _save_block()
+                current_block = []
+            # Pipe lines are self-contained; append and continue
+            current_block.append(line)
+            _save_block()
+            current_block = []
+            i += 1
+            continue
+
+        # ── Signal 1: Explicit header label (Client:, Company:, …) ───────────
         if COMPANY_HEADER_RE.match(line):
             is_new_job = True
-        
-        # 2. Date line (strong indicator of new job)
-        elif DATE_LINE_PATTERN.search(line):
-            is_new_job = True
-        
-        # 3. Line that looks like a job title (capitalized, short, has role keywords)
-        elif (len(line) < 80 and 
-              line[0].isupper() and 
-              any(ind in line.lower() for ind in JOB_TITLE_INDICATORS) and
-              not re.match(r'^[•\-\*\+►▸▶→]\s*', line)):
-            is_new_job = True
-        
-        # 4. Line that looks like a company name (has company indicators)
-        elif (len(line) < 80 and 
-              line[0].isupper() and 
-              any(ind in line.lower() for ind in COMPANY_INDICATORS) and
-              not re.match(r'^[•\-\*\+►▸▶→]\s*', line)):
-            # Check if next line has a job title or date
-            if i + 1 < len(lines):
-                next_line = lines[i + 1].strip()
-                if (any(ind in next_line.lower() for ind in JOB_TITLE_INDICATORS) or
-                    DATE_LINE_PATTERN.search(next_line)):
+
+        # ── Signal 3: Standalone date line not yet in current block ───────────
+        elif DATE_LINE_PATTERN.search(line) and not _is_bullet_line(line):
+            block_has_date = any(
+                DATE_LINE_PATTERN.search(l)
+                for l in current_block if l.strip()
+            )
+            if not block_has_date and current_block:
+                is_new_job = True
+
+        # ── Signal 5a: Short capitalized role-keyword header ──────────────────
+        elif _is_short_cap_line(line) and _has_role_kw(line) and not _is_noise_header(line):
+            block_has_content = any(
+                _has_role_kw(l) or bool(DATE_LINE_PATTERN.search(l))
+                for l in current_block if l.strip()
+            )
+            if block_has_content:
+                is_new_job = True
+
+        # ── Signal 5b: Short capitalized company-suffix header ────────────────
+        elif _is_short_cap_line(line) and _has_company_sfx(line) and not _is_noise_header(line):
+            next_line = lines[i + 1].strip() if (i + 1) < len(lines) else ''
+            if _has_role_kw(next_line) or DATE_LINE_PATTERN.search(next_line):
+                if any(l.strip() for l in current_block):
                     is_new_job = True
-        
-        # If we found a new job boundary and have content in current_block, save it
+
+        # ── Flush current block and start new one if boundary found ───────────
         if is_new_job and current_block:
-            block_text = '\n'.join(current_block).strip()
-            if len(block_text) > 10:
-                blocks.append(block_text)
+            _save_block()
             current_block = [line]
         else:
             current_block.append(line)
-        
+
         i += 1
-    
-    # Don't forget the last block
-    if current_block:
-        block_text = '\n'.join(current_block).strip()
-        if len(block_text) > 10:
-            blocks.append(block_text)
-    
-    return [b for b in blocks if len(b.strip()) > 10]
+
+    # ── CRITICAL: Always save the last block (never drop it) ──────────────────
+    _save_block()
+
+    result = [b for b in blocks if len(b.strip()) > 10]
+
+    # ── Diagnostic log ────────────────────────────────────────────────────────
+    raw_date_count = len(list(DATE_LINE_PATTERN.finditer(experience_text)))
+    logger.info(
+        f"[SPLIT-JOB-BLOCKS] lines={len(lines)} | blocks={len(result)} | "
+        f"date_patterns_in_raw_text={raw_date_count}"
+    )
+    for idx, blk in enumerate(result):
+        first_line = blk.strip().split('\n')[0][:120]
+        logger.info(f"  Block {idx + 1}: {first_line!r}")
+
+    return result
+
 
 def extract_experience(experience_text: str) -> list:
     """

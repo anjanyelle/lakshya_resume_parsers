@@ -59,6 +59,34 @@ function trunc(s: string | null | undefined, max = 255): string | null {
   return s.length <= max ? s : s.substring(0, max - 3) + "...";
 }
 
+/**
+ * Parse a grade/GPA value from the AI parser to a numeric float suitable for
+ * the DOUBLE PRECISION `gpa` DB column. Handles all formats returned by
+ * _normalize_gpa() in deberta_ner_parser.py:
+ *   "3.8/4.0"  → 3.8     (take numerator)
+ *   "8.5/10"   → 8.5     (take numerator)
+ *   "3.8"      → 3.8     (plain number)
+ *   85         → 85      (already numeric from OpenAI gpa field)
+ *   null/""    → null
+ */
+function parseGrade(raw: any): number | null {
+  if (raw === null || raw === undefined || raw === "") return null;
+  if (typeof raw === "number") {
+    return isFinite(raw) ? raw : null;
+  }
+  const s = String(raw).trim();
+  if (!s) return null;
+  // Handle "X/Y" format — take only the numerator
+  const slashMatch = s.match(/^(\d+\.?\d*)\s*\/\s*\d+\.?\d*$/);
+  if (slashMatch) {
+    const n = parseFloat(slashMatch[1]);
+    return isFinite(n) ? n : null;
+  }
+  // Handle plain number "3.8", "85", "8.5"
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
+
 // Stores ALL sections from the AI response into PostgreSQL
 async function storeAllParsedData(client: any, candidateId: string, ai: any, filePath?: string) {
   // ── 1. UPDATE candidates table ────────────────────────────────────────────
@@ -161,7 +189,7 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
         trunc(e.field_of_study || e.major),
         safeDate(e.start_year || e.start_date),
         safeDate(e.end_year   || e.end_date || e.graduation_date),
-        e.gpa ?? null,
+        parseGrade(e.grade ?? e.gpa ?? null),  // DeBERTa outputs 'grade'; OpenAI/legacy outputs 'gpa'
       ]
     );
   }

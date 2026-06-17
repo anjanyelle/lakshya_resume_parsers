@@ -163,6 +163,25 @@ function validateDateFormat(dateStr: string | null): string | null {
   return dateStr;
 }
 
+/**
+ * Parse a grade/GPA value from the AI parser to a numeric float suitable for
+ * the DOUBLE PRECISION `gpa` DB column. Handles:
+ *   "3.8/4.0" → 3.8, "8.5/10" → 8.5, "3.8" → 3.8, 85 → 85, null → null
+ */
+function parseGrade(raw: any): number | null {
+  if (raw === null || raw === undefined || raw === "") return null;
+  if (typeof raw === "number") return isFinite(raw) ? raw : null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  const slashMatch = s.match(/^(\d+\.?\d*)\s*\/\s*\d+\.?\d*$/);
+  if (slashMatch) {
+    const n = parseFloat(slashMatch[1]);
+    return isFinite(n) ? n : null;
+  }
+  const n = parseFloat(s);
+  return isFinite(n) ? n : null;
+}
+
 const mapCandidateWithParsingStatus = (candidate: any) => {
   if (!candidate) return null;
   return {
@@ -303,7 +322,7 @@ export const createCandidate = async (
             edu.field_of_study || null,
             validateDateFormat(parseDateString(edu.start_date || edu.start_year || null)),
             validateDateFormat(parseDateString(edu.end_date || edu.end_year || null)),
-            edu.gpa || null,
+            parseGrade(edu.grade ?? edu.gpa ?? null),  // DeBERTa outputs 'grade'; OpenAI/legacy outputs 'gpa'
           ]);
         }
       }
