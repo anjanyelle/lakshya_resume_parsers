@@ -537,6 +537,28 @@ def split_job_blocks(experience_text: str) -> list:
         re.IGNORECASE
     )
 
+    # ── Signal 6: CompanyName: Location: pattern ──────────────────────────────
+    # Matches lines like "Huntington: Location: Columbus, OH" or "Allstate: Location: Northbrook, IL"
+    # These are actual company names followed by a colon (not generic keywords)
+    COMPANY_NAME_COLON_RE = re.compile(
+        r'^(?!(?:Company|Client|Employer|Organization|Worked\s+For|Vendor|'
+        r'Consulting\s+Company|Duration|Period|Project|Assignment|'
+        r'Responsibilities|Environment|Technologies|Tech\s+Stack|Tools|'
+        r'Frameworks|Platforms|Libraries|Skills|Achievements|Highlights|'
+        r'Description|Duties|Role|Position|Title|Location|Summary|Contact|'
+        r'Education|Experience|Certification|Reference)\s*[:\-])'
+        r'[A-Z][A-Za-z0-9\s&.,\'-]{1,50}:\s*(?:Location\s*:\s*|Location\s+)',
+        re.IGNORECASE
+    )
+
+    # ── Signal 7: CompanyName Location: pattern ───────────────────────────────
+    # Matches lines like "Cardinal Health Location: Dublin, OH"
+    # Company name (no colon) followed by "Location:" keyword
+    COMPANY_NAME_LOCATION_RE = re.compile(
+        r'^[A-Z][A-Za-z0-9\s&.,\'-]{2,60}\s+Location\s*:',
+        re.IGNORECASE
+    )
+
     # ── Role keywords for Signal 5 ────────────────────────────────────────────
     ROLE_KEYWORDS = [
         'engineer', 'developer', 'manager', 'architect', 'analyst',
@@ -639,6 +661,18 @@ def split_job_blocks(experience_text: str) -> list:
         # ── Signal 1: Explicit header label (Client:, Company:, …) ───────────
         if COMPANY_HEADER_RE.match(line):
             is_new_job = True
+
+        # ── Signal 6: CompanyName: Location: City, ST pattern ─────────────────
+        # e.g. "Huntington: Location: Columbus, OH" or "Allstate: Location: Northbrook, IL"
+        elif COMPANY_NAME_COLON_RE.match(line):
+            if any(l.strip() for l in current_block):
+                is_new_job = True
+
+        # ── Signal 7: CompanyName Location: City, ST pattern ──────────────────
+        # e.g. "Cardinal Health Location: Dublin, OH"
+        elif COMPANY_NAME_LOCATION_RE.match(line):
+            if any(l.strip() for l in current_block):
+                is_new_job = True
 
         # ── Signal 3: Standalone date line not yet in current block ───────────
         elif DATE_LINE_PATTERN.search(line) and not _is_bullet_line(line):

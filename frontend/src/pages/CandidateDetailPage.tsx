@@ -47,23 +47,41 @@ export default function CandidateDetailPage() {
     return "bg-red-100 text-red-800";
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (dateString: string | null | undefined): string => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
-      day: "numeric",
     });
   };
 
   const formatDateRange = (
-    startDate: string,
-    endDate?: string,
+    startDate: string | null | undefined,
+    endDate?: string | null,
     isCurrent?: boolean,
   ) => {
     const start = formatDate(startDate);
-    if (isCurrent) return `${start} - Present`;
-    if (endDate) return `${start} - ${formatDate(endDate)}`;
-    return `${start} - Present`;
+    const end = endDate ? formatDate(endDate) : "";
+    if (isCurrent) return start ? `${start} – Present` : "Present";
+    if (start && end) return `${start} – ${end}`;
+    if (start) return `${start} – Present`;
+    if (end) return end; // Only graduation year known
+    return "";
+  };
+
+  // Renders just the graduation/end year for education cards
+  const formatEduDateRange = (
+    startDate: string | null | undefined,
+    endDate: string | null | undefined,
+  ) => {
+    const start = formatDate(startDate);
+    const end = formatDate(endDate);
+    if (start && end) return `${start} – ${end}`;
+    if (end) return `Graduated: ${end}`;
+    if (start) return `Started: ${start}`;
+    return "";
   };
 
   const groupSkillsByCategory = (skills: any[]) => {
@@ -383,8 +401,8 @@ export default function CandidateDetailPage() {
                             </div>
                             <div className="text-right">
                               <span className="text-sm text-gray-500">
-                                {formatDateRange(
-                                  edu.start_date || "",
+                                {formatEduDateRange(
+                                  edu.start_date,
                                   edu.end_date,
                                 )}
                               </span>
