@@ -1,6 +1,9 @@
-export const parseToDateInput = (dateStr: string | null | undefined): string => {
-  if (!dateStr) return "";
+export const parseToDateInput = (rawDateStr: string | null | undefined): string => {
+  if (!rawDateStr) return "";
   
+  // Clean up punctuation (like "[2021" or "2021]")
+  const dateStr = rawDateStr.replace(/[^\w\s\/-]/g, '').trim();
+
   // If already YYYY-MM-DD, return as is
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     return dateStr;

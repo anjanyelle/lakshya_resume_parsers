@@ -662,8 +662,8 @@ class EntityValidator:
         # Clean grade
         grade = (education.get('grade') or '').strip()
         if grade:
-            # Fix corrupted GPA: "3.854.0" → "3.85/4.0"
-            if grade.count('.') > 1:
+            # Fix corrupted GPA: "3.854.0" → "3.85/4.0" (only if no slash is present)
+            if grade.count('.') > 1 and '/' not in grade:
                 # Pattern: "3.854.0" → extract "3.85" and "4.0"
                 parts = grade.split('.')
                 if len(parts) >= 3:
