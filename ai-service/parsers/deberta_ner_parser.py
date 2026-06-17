@@ -1590,8 +1590,30 @@ class DeBERTaNerParser:
                 logger.info(f"🎓 Parsing Education section with DeBERTa... "
                             f"({len(edu_section)} chars)")
 
+                # ── STEP 3: RAW EDUCATION TEXT LOGGING ─────────────────────────────
+                logger.info("=" * 80)
+                logger.info("STEP 3: RAW EDUCATION TEXT")
+                logger.info("=" * 80)
+                logger.info(f"Raw Education Section ({len(edu_section)} chars):")
+                logger.info(edu_section)
+                logger.info("=" * 80)
+                # ── END STEP 3 ─────────────────────────────────────────────────────
+
                 edu_records = self._split_education_into_records(edu_section)
                 logger.info(f"📋 Education section split into {len(edu_records)} record(s)")
+
+                # ── STEP 4: EDUCATION SPLITTER OUTPUT LOGGING ───────────────────────
+                logger.info("=" * 80)
+                logger.info("STEP 4: EDUCATION SPLITTER OUTPUT")
+                logger.info("=" * 80)
+                logger.info(f"Education Record Count: {len(edu_records)}")
+                for rec_idx, record in enumerate(edu_records):
+                    logger.info(f"Education Record {rec_idx + 1}:")
+                    logger.info(f"  Length: {len(record)} chars")
+                    logger.info(f"  Preview: {record[:200]}...")
+                    logger.info("-" * 40)
+                logger.info("=" * 80)
+                # ── END STEP 4 ─────────────────────────────────────────────────────
 
                 merged_edu_entities: Dict[str, Any] = {
                     'COMPANY': [], 'CLIENT': [], 'ROLE': [], 'LOCATION': [],
@@ -1606,9 +1628,31 @@ class DeBERTaNerParser:
                     logger.debug(f"[EDU] Record {rec_idx + 1}/{len(edu_records)} "
                                  f"before preprocess: {record[:100]!r}")
 
+                    # ── STEP 5: TEXT SENT TO DEBERTA LOGGING ─────────────────────────
+                    logger.info("=" * 80)
+                    logger.info(f"STEP 5: TEXT SENT TO DEBERTA - Education Record {rec_idx + 1}")
+                    logger.info("=" * 80)
+                    logger.info(f"Education Record {rec_idx + 1} ({len(record)} chars):")
+                    logger.info(record)
+                    logger.info("=" * 80)
+                    # ── END STEP 5 ─────────────────────────────────────────────────────
+
                     rec_entities = self._run_deberta_on_record(
                         record, 'education', char_offset=edu_char_offset
                     )
+
+                    # ── STEP 6: ENTITIES EXTRACTED LOGGING ─────────────────────────────
+                    logger.info("=" * 80)
+                    logger.info(f"STEP 6: ENTITIES EXTRACTED - Education Record {rec_idx + 1}")
+                    logger.info("=" * 80)
+                    logger.info(f"Detected Degree: {rec_entities.get('DEGREE', [])}")
+                    logger.info(f"Detected Institution: {rec_entities.get('INSTITUTION', rec_entities.get('EDUCATION', []))}")
+                    logger.info(f"Detected Field of Study: {rec_entities.get('FIELD', [])}")
+                    logger.info(f"Detected Start Year: {rec_entities.get('EDU_YEAR_START', [])}")
+                    logger.info(f"Detected End Year: {rec_entities.get('EDU_YEAR_END', [])}")
+                    logger.info(f"Detected Grade: {rec_entities.get('GRADE', [])}")
+                    logger.info("=" * 80)
+                    # ── END STEP 6 ─────────────────────────────────────────────────────
 
                     for key in merged_edu_entities:
                         if key == '_positions':
@@ -1640,7 +1684,45 @@ class DeBERTaNerParser:
                 return self._format_results(all_entities)
 
             logger.info(f"✅ Found {entity_count} entities across all records")
-            return self._format_results(all_entities)
+            results = self._format_results(all_entities)
+
+            # ── STEP 12: COUNT VALIDATION ─────────────────────────────────────────────
+            logger.info("=" * 80)
+            logger.info("STEP 12: COUNT VALIDATION")
+            logger.info("=" * 80)
+            
+            # Resume Education Count: Number of education records detected
+            resume_edu_count = len(edu_records) if sections.get('education_text') else 0
+            
+            # JSON Education Count: Number of education entries in JSON
+            json_edu_count = len(results.get('education', []))
+            
+            # UI Education Count: Same as JSON (UI renders all JSON entries)
+            ui_edu_count = json_edu_count
+            
+            logger.info(f"Resume Education Count: {resume_edu_count}")
+            logger.info(f"JSON Education Count: {json_edu_count}")
+            logger.info(f"UI Education Count: {ui_edu_count}")
+            
+            if resume_edu_count == json_edu_count == ui_edu_count:
+                logger.info("✅ All counts match - No missing education entries")
+            else:
+                logger.warning("⚠️ Count mismatch detected!")
+                if resume_edu_count != json_edu_count:
+                    logger.warning(f"  Missing Education Index: Resume has {resume_edu_count} but JSON has {json_edu_count}")
+                    logger.warning(f"  Pipeline Stage: Education Builder (_format_results)")
+                    logger.warning(f"  Reason: Some education records may not have institution or degree")
+                    logger.warning(f"  Responsible Function: _format_results in deberta_ner_parser.py")
+                if json_edu_count != ui_edu_count:
+                    logger.warning(f"  Missing Education Index: JSON has {json_edu_count} but UI has {ui_edu_count}")
+                    logger.warning(f"  Pipeline Stage: UI Rendering")
+                    logger.warning(f"  Reason: Frontend may not be rendering all education entries")
+                    logger.warning(f"  Responsible Function: Frontend Education Component")
+            
+            logger.info("=" * 80)
+            # ── END STEP 12 ───────────────────────────────────────────────────────────
+
+            return results
 
         except Exception as e:
             # Safeguard 11: Exception Logging with full traceback
@@ -2601,9 +2683,23 @@ class DeBERTaNerParser:
             end_dates = [exp.get('end_date') for exp in structured_experiences]
         
         # Extract education - REQUIREMENT 8: Only from DeBERTa entities
-        # ── STEP 11: EDUCATION BUILDER DEBUG LOGGING ───────────────────────────────
+        # ── STEP 7: ENTITY → JSON MAPPING VALIDATION ───────────────────────────────
         logger.info("=" * 80)
-        logger.info("STEP 11: EDUCATION BUILDER - Entity Mapping")
+        logger.info("STEP 7: ENTITY → JSON MAPPING VALIDATION")
+        logger.info("=" * 80)
+        logger.info("Entity → JSON Mapping:")
+        logger.info("  Degree → degree")
+        logger.info("  Institution → institution")
+        logger.info("  Field of Study → field_of_study")
+        logger.info("  Start Year → start_year")
+        logger.info("  End Year → end_year")
+        logger.info("  Grade → grade")
+        logger.info("=" * 80)
+        # ── END STEP 7 ─────────────────────────────────────────────────────────────
+
+        # ── STEP 8: EDUCATION BUILDER DEBUG LOGGING ───────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 8: EDUCATION BUILDER - Entity Mapping")
         logger.info("=" * 80)
         education = []
         institutions = entities.get('EDUCATION', entities.get('INSTITUTION', []))
@@ -2621,7 +2717,7 @@ class DeBERTaNerParser:
         logger.info(f"  EDU_YEAR_END: {edu_end}")
         logger.info(f"  GRADE: {grades}")
         logger.info("-" * 80)
-        # ── END STEP 11 START ───────────────────────────────────────────────────────
+        # ── END STEP 8 START ───────────────────────────────────────────────────────
         
         # ── REQUIREMENT 8: EDUCATION RECONSTRUCTION - Only DeBERTa Entities ─────────────
         # Build Education only from: INSTITUTION, DEGREE, FIELD, START_DATE, END_DATE, GPA
@@ -2688,7 +2784,7 @@ class DeBERTaNerParser:
                 if edu['institution'] or edu['degree']:
                     education.append(edu)
                     
-                    # ── STEP 11: LOG EDUCATION MAPPING ───────────────────────────────────
+                    # ── STEP 8: LOG EDUCATION MAPPING ───────────────────────────────────
                     logger.info(f"Education Entry {i + 1}:")
                     logger.info(f"  INSTITUTION: {edu['institution']}")
                     logger.info(f"  ↓")
@@ -2703,13 +2799,72 @@ class DeBERTaNerParser:
                     logger.info(f"  END_YEAR: {edu['end_year']}")
                     logger.info(f"  GRADE: {edu['grade']}")
                     logger.info("-" * 40)
-                    # ── END STEP 11 MAPPING ────────────────────────────────────────────────
+                    # ── END STEP 8 MAPPING ────────────────────────────────────────────────
         
         logger.info("=" * 80)
-        logger.info(f"STEP 11 COMPLETED: {len(education)} education entries built")
+        logger.info(f"STEP 8 COMPLETED: {len(education)} education entries built")
+        logger.info("=" * 80)
+        # ── END STEP 8 ───────────────────────────────────────────────────────────
+
+        # ── STEP 9: FINAL EDUCATION JSON LOGGING ───────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 9: FINAL EDUCATION JSON")
+        logger.info("=" * 80)
+        logger.info("Final Education JSON:")
+        for i, edu in enumerate(education):
+            logger.info(f"education[{i}]:")
+            logger.info(f"  institution: \"{edu.get('institution')}\"")
+            logger.info(f"  degree: \"{edu.get('degree')}\"")
+            logger.info(f"  field_of_study: \"{edu.get('field_of_study')}\"")
+            logger.info(f"  start_year: \"{edu.get('start_year')}\"")
+            logger.info(f"  end_year: \"{edu.get('end_year')}\"")
+            logger.info(f"  grade: \"{edu.get('grade')}\"")
+            logger.info(f"  source: \"{edu.get('source')}\"")
+            logger.info("-" * 40)
+        logger.info("=" * 80)
+        # ── END STEP 9 ───────────────────────────────────────────────────────────
+
+        # ── STEP 10: UI MAPPING VALUES LOGGING ─────────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 10: UI MAPPING VALUES")
+        logger.info("=" * 80)
+        logger.info("UI Field Mapping:")
+        logger.info("  Degree UI Field → education.degree")
+        logger.info("  Institution UI Field → education.institution")
+        logger.info("  Field of Study UI Field → education.field_of_study")
+        logger.info("  Graduation Start Year UI Field → education.start_year")
+        logger.info("  Graduation End Year UI Field → education.end_year")
+        logger.info("  GPA / Percentage UI Field → education.grade")
+        logger.info("-" * 80)
+        for i, edu in enumerate(education):
+            logger.info(f"Education Entry {i + 1} UI Mapping:")
+            logger.info(f"  education[{i}].degree = \"{edu.get('degree')}\"")
+            logger.info(f"  education[{i}].institution = \"{edu.get('institution')}\"")
+            logger.info(f"  education[{i}].field_of_study = \"{edu.get('field_of_study')}\"")
+            logger.info(f"  education[{i}].start_year = \"{edu.get('start_year')}\"")
+            logger.info(f"  education[{i}].end_year = \"{edu.get('end_year')}\"")
+            logger.info(f"  education[{i}].grade = \"{edu.get('grade')}\"")
+            logger.info("-" * 40)
+        logger.info("=" * 80)
+        # ── END STEP 10 ───────────────────────────────────────────────────────────
+
+        # ── STEP 11: FINAL UI VALUES LOGGING ───────────────────────────────────────
+        logger.info("=" * 80)
+        logger.info("STEP 11: FINAL UI VALUES")
+        logger.info("=" * 80)
+        logger.info("Final UI Values (what will be displayed in the UI):")
+        for i, edu in enumerate(education):
+            logger.info(f"Education Entry {i + 1} UI Display:")
+            logger.info(f"  Degree: {edu.get('degree') if edu.get('degree') else '[BLANK]'}")
+            logger.info(f"  Institution: {edu.get('institution') if edu.get('institution') else '[BLANK]'}")
+            logger.info(f"  Field of Study: {edu.get('field_of_study') if edu.get('field_of_study') else '[BLANK]'}")
+            logger.info(f"  Graduation Start Year: {edu.get('start_year') if edu.get('start_year') else '[BLANK]'}")
+            logger.info(f"  Graduation End Year: {edu.get('end_year') if edu.get('end_year') else '[BLANK]'}")
+            logger.info(f"  GPA / Percentage: {edu.get('grade') if edu.get('grade') else '[BLANK]'}")
+            logger.info("-" * 40)
         logger.info("=" * 80)
         # ── END STEP 11 ───────────────────────────────────────────────────────────
-        
+
         # Log education extraction for debugging
         if degrees:
             logger.info(f"📚 DeBERTa extracted {len(degrees)} degrees: {degrees}")
