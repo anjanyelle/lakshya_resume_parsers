@@ -537,7 +537,7 @@ def split_job_blocks(experience_text: str) -> list:
         re.IGNORECASE
     )
 
-    # ── Role keywords for Signal 5 ────────────────────────────────────────────
+    # ── Role keywords for Signal 5  ────────────────────────────────────────────
     ROLE_KEYWORDS = [
         'engineer', 'developer', 'manager', 'architect', 'analyst',
         'consultant', 'designer', 'specialist', 'lead', 'senior',
