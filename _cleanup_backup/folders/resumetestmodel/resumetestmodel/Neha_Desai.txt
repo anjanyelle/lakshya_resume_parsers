@@ -1,7 +1,0 @@
-Neha Desai
-||NIIT Technologies Gurgaon|| ||Senior Golang Developer|| ||2018 to Present|| ||Client: CGI Group Montreal Canada||
-||SPI Global Chennai|| ||Azure Developer|| ||2014 - 2018|| ||Client: Infineon Technologies Munich Germany||
-||Firstsource Mumbai|| ||Junior BI Developer|| ||2011 - 2014|| ||Client: Telus Corporation Vancouver Canada||
-||Microland Bangalore|| ||Fresher Software Engineer|| ||2010 - 2011|| ||Client: Royal Bank of Canada Toronto Canada||
-||M.Tech Cloud Computing|| ||SASTRA University|| ||2010 to 2012|| ||CGPA: 7.9||
-||B.Tech Information Technology|| ||Savitribai Phule Pune University|| ||2006 to 2010|| ||75.7%||

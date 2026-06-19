@@ -1,7 +1,0 @@
-Manjunath Gowda
-ORG=Sonata Software Bangalore | POST=Senior React Developer | SINCE=June 2016 | CLIENT=Rolls Royce London UK
-ORG=Tredence Hyderabad | POST=Full Stack Developer | PERIOD=December 2013 - March 2016 | CLIENT=Standard Chartered Singapore
-ORG=Firstsource Mumbai | POST=Junior Angular Developer | PERIOD=June 2010 - August 2013 | CLIENT=Telus Corporation Vancouver Canada
-ORG=WNS Global Mumbai | POST=Software Support Trainee | PERIOD=June 2008 - July 2010 | CLIENT=Lloyds Banking Group London UK
-DEGREE=M.Tech Embedded Systems | INSTITUTE=Osmania University Hyderabad | YEAR=August 2008-May 2010 | CGPA=7.4
-DEGREE=B.Tech Electrical & Electronics | INSTITUTE=Rajalakshmi Engineering College Chennai | YEAR=August 2004-November 2008 | PCT=79.5%

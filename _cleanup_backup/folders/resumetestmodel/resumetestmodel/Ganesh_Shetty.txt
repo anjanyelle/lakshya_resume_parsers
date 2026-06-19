@@ -1,7 +1,0 @@
-Ganesh Shetty
-$ORG: Syntel Mumbai | $ROLE: Senior QA Automation Lead | $DUR: Jul 2019-Present | $CLIENT: Virgin Atlantic London UK
-$ORG: Sasken Technologies Bangalore | $ROLE: Cloud Engineer | $DUR: Jan 2016 - May 2019 | $CLIENT: Mapletree Investments Singapore
-$ORG: Evoke Technologies Bangalore | $ROLE: Associate Cloud Engineer | $DUR: Nov 2013 - Apr 2016 | $CLIENT: Bayer AG Leverkusen Germany
-$ORG: Aspire Systems Chennai | $ROLE: Associate Systems Engineer | $DUR: May 2012 - Aug 2013 | $CLIENT: Brookfield Asset Management Toronto Canada
-$EDU: M.Tech Data Science | $COLLEGE: Anna University Chennai | $YEAR: Nov 2012 to Sep 2014 | $CGPA: 7.5
-$EDU: B.E. Information Science | $COLLEGE: Savitribai Phule Pune University | $YEAR: Apr 2008 to Aug 2012 | $SCORE: 70.8%

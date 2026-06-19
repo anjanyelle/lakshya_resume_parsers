@@ -1,7 +1,0 @@
-Neha Bhosale
-Employer: DataMetica Hyderabad | Designation: Lead Java Developer | Period: September 2018 to date | Client: Microsoft Corporation Redmond USA
-Employer: Tata Elxsi Bangalore | Designation: BI Developer | Period: August 2015 - March 2018 | Client: Magna International Aurora Canada
-Employer: Subex Ltd Hyderabad | Designation: Junior QA Analyst | Period: August 2012 - February 2015 | Client: Mapletree Investments Singapore
-Employer: Photon Infotech Chennai | Designation: Software Support Trainee | Period: May 2011 - July 2012 | Client: Standard Chartered London UK
-Postgraduate: M.Tech Digital Transformation from SRM University Chennai, August 2011 to December 2013, CGPA 7.8
-Undergraduate: B.Sc Data Science from Panimalar College Chennai, April 2007 to February 2011, 73.6%

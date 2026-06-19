@@ -1,7 +1,0 @@
-Mamta Yadav
-** Clover Infotech Pune ** Senior iOS Developer ** 2020–Present ** Client: Bell Canada Montreal Canada **
-** Nucleus Software Mumbai ** Spring Boot Developer ** 2016 - 2020 ** Client: Lloyds Banking Group London UK **
-** Sigmoid Analytics Hyderabad ** Associate Cloud Engineer ** 2013 - 2016 ** Client: Rolls Royce London UK **
-** SPI Global Chennai ** IT Graduate Trainee ** 2012 - 2013 ** Client: UNSW IT Sydney Australia **
-** M.Tech Computer Science ** BITS Pilani ** 2012 to 2014 ** CGPA 8.0 **
-** B.Sc Cloud Computing ** GL Bajaj Institute Noida ** 2008 to 2012 ** 86.7% **

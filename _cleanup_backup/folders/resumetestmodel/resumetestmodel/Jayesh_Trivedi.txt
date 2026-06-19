@@ -1,7 +1,0 @@
-Jayesh Trivedi
-Currently: Lead Site Reliability Engineer, Cyient Pune, Feb 2016–till date (Client – Rio Tinto Perth Australia)
-Previous: Salesforce Developer, Kellton Tech Chennai, Aug 2013 - Nov 2016 (Client – Volkswagen Group Wolfsburg Germany)
-Earlier: Junior Software Developer, KMS Technology Chennai, Oct 2010 - Jun 2013 (Client – Delta Air Lines Atlanta USA)
-Started: Entry Level Developer, Sonata Software Bangalore, Feb 2008 - Jan 2010 (Client – Henkel AG Dusseldorf Germany)
-Postgrad: M.Tech Network Engineering :: IIT Hyderabad :: Apr 2008 to Sep 2010 :: CGPA 7.5
-Undergrad: B.E. Information Technology :: Sathyabama University Chennai :: Aug 2004 to Jul 2008 :: 81.1%

@@ -1,7 +1,0 @@
-Jagan Mohan
-_Robosoft Technologies Bangalore_ _Principal Data Scientist_ _2013 to Present_ _Client: Google LLC Mountain View USA_
-_Mindtree Bangalore_ _AWS Cloud Developer_ _2011 - 2013_ _Client: Henkel AG Dusseldorf Germany_
-_Sapient Corporation Gurgaon_ _Junior DevOps Engineer_ _2008 - 2011_ _Client: CSL Limited Melbourne Australia_
-_Tiger Analytics Hyderabad_ _Junior Associate Developer_ _2007 - 2008_ _Client: Zalando Berlin Germany_
-_M.Tech Embedded Systems_ _CBIT Hyderabad_ _2007 to 2009_ _CGPA: 7.7_
-_B.E. Mechatronics_ _GL Bajaj Institute Noida_ _2003 to 2007_ _72.8%_

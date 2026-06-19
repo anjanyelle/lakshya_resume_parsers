@@ -1,7 +1,0 @@
-Pooja Gupta
-ORG=Tata Elxsi Mumbai | POST=Principal Cloud Architect | SINCE=December 2014 | CLIENT=Deloitte US New York USA
-ORG=Nucleus Software Bangalore | POST=QA Automation Engineer | PERIOD=October 2011 - January 2014 | CLIENT=Merck KGaA Darmstadt Germany
-ORG=Zensar Technologies Pune | POST=Graduate Software Engineer | PERIOD=April 2009 - August 2011 | CLIENT=BlackRock New York USA
-ORG=Sasken Technologies Bangalore | POST=Junior IT Analyst | PERIOD=May 2007 - November 2009 | CLIENT=Mercedes Benz Stuttgart Germany
-DEGREE=M.Tech Data Science | INSTITUTE=Amity University Noida | YEAR=August 2007-August 2009 | CGPA=8.3
-DEGREE=B.Sc Computer Science | INSTITUTE=DTU Delhi | YEAR=August 2003-April 2007 | PCT=71.5%

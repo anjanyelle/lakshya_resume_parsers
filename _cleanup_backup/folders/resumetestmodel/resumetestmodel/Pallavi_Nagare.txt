@@ -1,7 +1,0 @@
-Pallavi Nagare
-~~CSS Corp Mumbai~~ ~~Senior React Developer~~ ~~2019 to Present~~ ~~Client: Lloyds Banking Group London UK~~
-~~Conduent Delhi~~ ~~Database Engineer~~ ~~2015 - 2019~~ ~~Client: SAP SE Walldorf Germany~~
-~~Datamatics Pune~~ ~~Junior Android Developer~~ ~~2012 - 2015~~ ~~Client: Robert Bosch Stuttgart Germany~~
-~~Accolite Digital Bangalore~~ ~~Trainee Software Engineer~~ ~~2010 - 2012~~ ~~Client: Allianz Group Munich Germany~~
-~~M.Tech Software Engineering~~ ~~IIT Hyderabad~~ ~~2010 to 2012~~ ~~CGPA: 8.7~~
-~~B.Tech Information Technology~~ ~~DTU Delhi~~ ~~2006 to 2010~~ ~~75.7%~~

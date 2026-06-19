@@ -1,7 +1,0 @@
-Priya Shenoy
-::::L&T Infotech Mumbai:::: ::::Principal Cloud Architect:::: ::::2016-Present:::: ::::Client-BT Group London UK::::
-::::GlobalLogic Gurgaon:::: ::::Vue.js Developer:::: ::::2012 - 2016:::: ::::Client-DBS Bank Singapore::::
-::::SunTec Business Mumbai:::: ::::Junior Full Stack Developer:::: ::::2010 - 2012:::: ::::Client-Shell Plc London UK::::
-::::AppsTek Corp Chennai:::: ::::IT Graduate Trainee:::: ::::2008 - 2010:::: ::::Client-Genting Singapore Singapore::::
-::::M.Tech Cyber Security:::: ::::NIT Trichy:::: ::::2008 to 2010:::: ::::CGPA-7.9::::
-::::B.Sc Cloud Computing:::: ::::DTU Delhi:::: ::::2004 to 2008:::: ::::75.7%::::

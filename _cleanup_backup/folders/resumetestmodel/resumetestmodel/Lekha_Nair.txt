@@ -1,7 +1,0 @@
-Lekha Nair
-I am currently designated as Senior QA Automation Lead at Capgemini Pune (from July 2020 to present), assigned to IBM Corporation Armonk USA.
-Previously I held the role of PHP Developer at Tiger Analytics Hyderabad during October 2017 - September 2020, deployed at Shopify Ottawa Canada.
-Earlier I served as Junior Python Developer at Cognizant Pune between December 2014 - May 2017, working for Bell Canada Montreal Canada.
-I began my career as Graduate Engineer Trainee at Zensar Technologies Pune from December 2013 - November 2014, supporting Scotiabank Toronto Canada.
-M.Tech Embedded Systems | JNTU Hyderabad | September 2013–December 2015 | CGPA: 8.2
-B.Sc Computer Science | Panimalar College Chennai | May 2009–February 2013 | Score: 75.7%

@@ -40,8 +40,8 @@ for name, module in _required_imports.items():
 try:
     from config.deberta_config import DEBERTA_MODEL_PATH, REQUIRED_MODEL_FILES, REQUIRED_MODEL_WEIGHTS  # type: ignore
 except ImportError:
-    # Fallback if config not available
-    DEBERTA_MODEL_PATH = str(Path(__file__).parent.parent / "models" / "resume-ner-final")
+    # Fallback if config not available - use correct model directory
+    DEBERTA_MODEL_PATH = str(Path(__file__).parent.parent / "models" / "resume-ner-deberta")
     REQUIRED_MODEL_FILES = ['config.json', 'tokenizer_config.json', 'tokenizer.json']
     REQUIRED_MODEL_WEIGHTS = ['pytorch_model.bin', 'model.safetensors']
 
@@ -87,9 +87,26 @@ class DeBERTaNerParser:
         Returns:
             bool: True if all required files exist, False otherwise
         """
+        # Startup diagnostics
+        logger.info(f"🔍 DeBERTa Model Path Diagnostics:")
+        logger.info(f"   Resolved path: {self.model_path}")
+        logger.info(f"   Absolute path: {os.path.abspath(self.model_path)}")
+        logger.info(f"   Path exists: {os.path.exists(self.model_path)}")
+        
         if not os.path.exists(self.model_path):
             logger.info(f"📁 Model directory not found: {self.model_path}")
             return False
+        
+        # List files in model directory
+        try:
+            files_in_dir = os.listdir(self.model_path)
+            logger.info(f"   Files in directory: {len(files_in_dir)} items")
+            for f in files_in_dir[:10]:  # Show first 10 files
+                logger.info(f"     - {f}")
+            if len(files_in_dir) > 10:
+                logger.info(f"     ... and {len(files_in_dir) - 10} more files")
+        except Exception as e:
+            logger.error(f"   Error listing directory: {e}")
         
         # Check for model weights (at least one required)
         has_model_weights = any(
@@ -100,6 +117,11 @@ class DeBERTaNerParser:
         if not has_model_weights:
             logger.warning(f"⚠️  DeBERTa model weights not found. Expected one of: {', '.join(REQUIRED_MODEL_WEIGHTS)}")
             return False
+        else:
+            for weight_file in REQUIRED_MODEL_WEIGHTS:
+                weight_path = os.path.join(self.model_path, weight_file)
+                if os.path.exists(weight_path):
+                    logger.info(f"   ✅ Found: {weight_file}")
         
         # Check other required files
         missing_files = []
@@ -107,11 +129,14 @@ class DeBERTaNerParser:
             file_path = os.path.join(self.model_path, file_name)
             if not os.path.exists(file_path):
                 missing_files.append(file_name)
+            else:
+                logger.info(f"   ✅ Found: {file_name}")
         
         if missing_files:
             logger.warning(f"⚠️  Required files missing: {', '.join(missing_files)}")
             return False
         
+        logger.info(f"✅ All required model files present")
         return True
     
     def _normalize_gpa(self, gpa_text: str) -> Optional[str]:

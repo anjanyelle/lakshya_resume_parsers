@@ -1,7 +1,0 @@
-Kirandeep Kaur
-Employer: EXL Service Mumbai | Designation: Senior Python Developer | Period: 2019 to date | Client: GlaxoSmithKline London UK
-Employer: iGate Mumbai | Designation: Angular Developer | Period: 2015 - 2019 | Client: GovTech Singapore
-Employer: Sasken Technologies Bangalore | Designation: Junior Python Developer | Period: 2012 - 2015 | Client: Transurban Melbourne Australia
-Employer: Infosys BPM Mumbai | Designation: Fresher Python Developer | Period: 2011 - 2012 | Client: Rolls Royce London UK
-Postgraduate: M.Tech Artificial Intelligence from VIT Vellore, 2011 to 2013, CGPA 8.6
-Undergraduate: B.Tech Artificial Intelligence from Vasavi College Hyderabad, 2007 to 2011, 76.8%

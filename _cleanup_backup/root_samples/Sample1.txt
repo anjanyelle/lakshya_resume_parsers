@@ -1,9 +1,0 @@
-Full Stack Developer
-NextGen Software Pvt Ltd
-Mar 2023 - Present
-Designed and implemented full-stack applications using React.js and Express.js
-
-React Developer
-CodeCraft Technologies Pvt Ltd
-Jul 2021 - Feb 2023
-Created reusable components and optimized application performance

@@ -1,16 +1,0 @@
-EXPERIENCE
-Principal Engineer | SkyHigh Tech Pvt Ltd
-Feb 2021 – Present
-• Leading architecture design and development of scalable applications • Managing a team of engineers and conducting code reviews • Implementing CI/CD pipelines and cloud deployments
-Senior Developer | BlueOcean Systems Pvt Ltd
-Jan 2018 – Jan 2021
-• Developed enterprise web applications using React and Node.js • Improved system performance and optimized database queries • Collaborated with cross-functional teams
-Software Engineer | CodeMatrix Pvt Ltd
-Jun 2015 – Dec 2017
-• Built web modules using Java and Spring • Worked on REST APIs and backend services • Fixed bugs and improved application stability
-EDUCATION
-B.Tech in Information Technology Savitribai Phule Pune University 2011 – 2015
-PROJECT HIGHLIGHTS
-• SaaS Platform Development – Built scalable SaaS product with multi-tenant architecture
-• E-learning System – Developed LMS with real-time tracking features
-
