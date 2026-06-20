@@ -1,0 +1,28 @@
+RESUME
+
+Name: Priya Raman
+Title: Mechanical Design Engineer
+Contact: priya.raman@mail.com | +1-480-555-0173 | Phoenix, AZ
+
+1. SUMMARY
+Mechanical Design Engineer with 6 years of experience in CAD modeling, product
+development, and manufacturing process improvement within the aerospace sector.
+
+2. EXPERIENCE
+
+2.1 Mechanical Design Engineer, Skyline Aerospace Corp, Phoenix, AZ (2019 - Present)
+   - Designed structural components for unmanned aerial systems using SolidWorks
+   - Reduced part weight by 18% through topology optimization
+   - Led FMEA reviews for 3 major product lines
+   - Coordinated with suppliers to resolve manufacturing tolerance issues
+
+2.2 Junior Mechanical Engineer, Vantage Industrial Co, Tempe, AZ (2017 - 2019)
+   - Created detailed manufacturing drawings and BOMs for custom machinery
+   - Performed stress analysis using ANSYS for new product prototypes
+   - Assisted senior engineers with DFM/DFA reviews
+
+3. EDUCATION
+   B.S. Mechanical Engineering, Arizona State University (2013 - 2017), GPA 3.5/4.0
+
+4. SKILLS
+   SolidWorks, AutoCAD, ANSYS, GD&T, Six Sigma, MATLAB, Lean Manufacturing

@@ -1,0 +1,31 @@
+# Alex Petrov
+## DevOps Engineer
+
+**Email:** alex.petrov@devmail.com
+**Phone:** +1 (650) 555-0121
+**Location:** San Jose, CA
+**GitHub:** github.com/alexpetrov
+
+### Summary
+DevOps Engineer with 6 years of experience building and maintaining cloud infrastructure,
+CI/CD pipelines, and observability systems for high-traffic platforms.
+
+### Experience
+
+**DevOps Engineer** — Orbital Systems, San Jose, CA (2020 - Present)
+- Migrated legacy infrastructure to Kubernetes, cutting hosting costs by 30%
+- Built CI/CD pipelines with GitHub Actions and ArgoCD across 25+ microservices
+- Implemented monitoring stack using Prometheus and Grafana
+- On-call lead for production incident response
+
+**Infrastructure Engineer** — Hatchway Cloud, San Jose, CA (2018 - 2020)
+- Managed AWS infrastructure using Terraform across 3 environments
+- Automated deployment workflows reducing manual release steps by 70%
+- Maintained internal developer tooling used by 50+ engineers
+
+### Education
+B.S. Computer Engineering, San Jose State University (2014 - 2018)
+
+### Skills
+Kubernetes, Docker, Terraform, AWS, GCP, GitHub Actions, ArgoCD, Prometheus, Grafana,
+Python, Bash, Linux

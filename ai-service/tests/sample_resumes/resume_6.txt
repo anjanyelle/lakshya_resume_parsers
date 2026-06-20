@@ -1,0 +1,34 @@
+DAVID KIM
+PRODUCT MANAGER
+
+CONTACT
+david.kim@productmail.io | 206-555-0134 | Seattle, WA | linkedin.com/in/davidkim
+
+PROFILE
+Product Manager with 6+ years driving B2B SaaS roadmaps from concept to launch.
+Comfortable working across engineering, design, and sales to ship products customers love.
+
+EXPERIENCE
+
+SENIOR PRODUCT MANAGER | CloudPivot Inc | Seattle WA | Feb 2022 - PRESENT
+* Owned product roadmap for a platform with $40M ARR
+* Launched 3 major features that drove a 22% increase in customer retention
+* Ran weekly discovery interviews with enterprise customers
+* Partnered with engineering leads to plan quarterly sprints
+
+PRODUCT MANAGER | Nimbus Software | Seattle WA | Jun 2019 - Jan 2022
+* Defined requirements and user stories for core platform features
+* Managed backlog of 200+ items across 4 engineering squads
+* Conducted competitive analysis informing pricing strategy changes
+
+ASSOCIATE PRODUCT MANAGER | Lakeside Tech | Portland OR | Jul 2017 - May 2019
+* Supported senior PMs with user research and feature specs
+* Analyzed product usage data to identify churn drivers
+
+EDUCATION
+MBA | University of Washington Foster School of Business | 2015 - 2017
+B.S. Computer Science | Oregon State University | 2011 - 2015
+
+SKILLS
+Product Strategy, Roadmapping, JIRA, SQL, A/B Testing, User Research, Agile/Scrum,
+Figma, Stakeholder Management

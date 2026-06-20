@@ -1,0 +1,34 @@
+ROBERT CHEN
+Financial Analyst
+robert.chen@financemail.com | 212-555-0189 | New York, NY
+
+SUMMARY: Financial Analyst with 5 years of experience in corporate finance, forecasting,
+and financial modeling within the technology sector.
+
+EXPERIENCE
+---------------------------------------------------------
+Title:      Senior Financial Analyst
+Company:    Apex Technologies
+Location:   New York, NY
+Dates:      Jan 2021 - Present
+Duties:
+  - Build and maintain 3-statement financial models for quarterly forecasting
+  - Partner with FP&A team on annual budgeting process covering $80M opex
+  - Present variance analysis to senior leadership monthly
+  - Automated reporting workflows reducing close time by 3 days per month
+
+Title:      Financial Analyst
+Company:    Brightline Capital Partners
+Location:   New York, NY
+Dates:      Jun 2018 - Dec 2020
+Duties:
+  - Supported deal teams with valuation models and due diligence
+  - Prepared investor reporting packages for quarterly LP meetings
+  - Tracked portfolio company KPIs across 12 investments
+---------------------------------------------------------
+
+EDUCATION
+B.S. Finance, New York University Stern School of Business, 2014 - 2018, GPA 3.7
+
+SKILLS
+Excel, Financial Modeling, VBA, SQL, Bloomberg Terminal, PowerPoint, Valuation, FP&A

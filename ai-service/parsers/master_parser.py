@@ -15,6 +15,11 @@ from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from utils.logger import get_request_logger, generate_request_id
 
+# Evaluation framework imports
+from utils.debug_logger import DebugLoggerFactory
+from utils.error_classifier import ErrorClassifier, ErrorType, ErrorCategory
+from utils.enhanced_confidence_scorer import EnhancedConfidenceScorer, ExtractionMethod
+
 from parsers.text_extractor import TextExtractor
 from parsers.section_splitter import SectionSplitter
 from parsers.rule_parser import RuleBasedParser
@@ -157,6 +162,28 @@ class MasterParser:
         # Timing metrics storage
         self.last_parse_metrics = {}
         
+        # Initialize evaluation framework components
+        try:
+            self.debug_logger_factory = DebugLoggerFactory()
+            self.logger.info("✅ DebugLoggerFactory initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize DebugLoggerFactory: {e}")
+            self.debug_logger_factory = None
+        
+        try:
+            self.error_classifier = ErrorClassifier()
+            self.logger.info("✅ ErrorClassifier initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize ErrorClassifier: {e}")
+            self.error_classifier = None
+        
+        try:
+            self.enhanced_confidence_scorer = EnhancedConfidenceScorer()
+            self.logger.info("✅ EnhancedConfidenceScorer initialized")
+        except Exception as e:
+            self.logger.error(f"❌ Failed to initialize EnhancedConfidenceScorer: {e}")
+            self.enhanced_confidence_scorer = None
+        
         # Check overall health
         self._check_parser_health()
     
@@ -204,7 +231,7 @@ class MasterParser:
         optional_count = sum(optional_status)
         self.logger.info(f"📊 Optional parsers: {optional_count}/{len(optional_parsers)} available")
     
-    def parse_file(self, file_path: str, candidate_id: str, llm_provider: Optional[str] = None, force_ocr: bool = False) -> Dict[str, Any]:
+    def parse_file(self, file_path: str, candidate_id: str, llm_provider: Optional[str] = None, force_ocr: bool = False, enable_debug_logging: bool = True) -> Dict[str, Any]:
         """
         Parse resume file through the complete pipeline.
         
@@ -213,6 +240,7 @@ class MasterParser:
             candidate_id: Unique candidate identifier
             llm_provider: Optional LLM provider for experience extraction
             force_ocr: Whether to skip standard extraction and force OCR
+            enable_debug_logging: Whether to enable debug logging
             
         Returns:
             Complete parsed resume data with confidence scores and metrics
@@ -220,13 +248,29 @@ class MasterParser:
         start_time = time.time()
         metrics = {}
         
+        # Initialize debug logger for this request
+        debug_logger = None
+        if enable_debug_logging and self.debug_logger_factory:
+            debug_logger = self.debug_logger_factory.get_logger(candidate_id, enabled=True)
+        
         try:
             self.logger.info(f"🚀 Starting file parse pipeline for {candidate_id}: {file_path}")
             if llm_provider:
                 self.logger.info(f"🤖 Using LLM provider: {llm_provider}")
             
+            # Log input
+            if debug_logger:
+                debug_logger.log_input('file_input', {
+                    'file_path': file_path,
+                    'candidate_id': candidate_id,
+                    'llm_provider': llm_provider,
+                    'force_ocr': force_ocr
+                })
+            
             # Validate file exists
             if not Path(file_path).exists():
+                if debug_logger:
+                    debug_logger.log_error('file_validation', FileNotFoundError(f"File not found: {file_path}"))
                 raise FileNotFoundError(f"File not found: {file_path}")
             
             # Step 1: Extract text from file
@@ -234,7 +278,17 @@ class MasterParser:
             text_result = self._extract_text_from_file(file_path, force_ocr=force_ocr)
             metrics['text_extraction_ms'] = (time.time() - step_start) * 1000
             
+            if debug_logger:
+                debug_logger.log_output('text_extraction', {
+                    'method': text_result.get('method'),
+                    'text_length': len(text_result.get('text', '')),
+                    'quality_score': text_result.get('quality_score', 0.0),
+                    'duration_ms': metrics['text_extraction_ms']
+                })
+            
             if not text_result or not text_result.get('text'):
+                if debug_logger:
+                    debug_logger.log_error('text_extraction', ValueError("Failed to extract text from file"))
                 raise ValueError("Failed to extract text from file")
             
             # Continue with text parsing pipeline
@@ -247,7 +301,8 @@ class MasterParser:
                     'file_path': file_path,
                     'extraction_method': text_result.get('method', 'unknown'),
                     'quality_score': text_result.get('quality_score', 0.0)
-                }
+                },
+                debug_logger=debug_logger
             )
             
             # Add file-specific metadata
@@ -264,13 +319,48 @@ class MasterParser:
             metrics['total_ms'] = total_time
             self.last_parse_metrics = metrics
             
+            # Log final result with debug logger
+            if debug_logger:
+                debug_logger.log_final_result(result, {
+                    'processing_time_ms': total_time,
+                    'pipeline_stages': list(metrics.keys())
+                })
+                
+                # Export debug logs
+                try:
+                    log_path = debug_logger.export_logs()
+                    result['debug_log_path'] = log_path
+                    self.logger.info(f"📁 Debug logs exported to {log_path}")
+                except Exception as log_error:
+                    self.logger.warning(f"Failed to export debug logs: {log_error}")
+            
             self.logger.info(f"✅ File parse completed for {candidate_id} in {total_time:.1f}ms")
             
             return result
             
         except Exception as e:
             self.logger.error(f"❌ Error parsing file {file_path}: {e}", exc_info=True)
-            return self._create_error_result(candidate_id, str(e), metrics)
+            
+            # Classify error using error classifier
+            error_info = None
+            if self.error_classifier:
+                error_info = self.error_classifier.classify_error(e, {
+                    'stage': 'parse_file',
+                    'file_path': file_path,
+                    'candidate_id': candidate_id,
+                    'llm_provider': llm_provider
+                })
+            
+            # Log error with debug logger
+            if debug_logger:
+                debug_logger.log_error('parse_file', e, error_info)
+            
+            # Create error result with error classification info
+            error_result = self._create_error_result(candidate_id, str(e), metrics)
+            if error_info:
+                error_result['error_classification'] = error_info
+                
+            return error_result
     
     def parse(self, file_path: str, options: dict = None) -> dict:
         """
@@ -802,7 +892,7 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
 
     def _parse_text_pipeline(self, text: str, candidate_id: str, metrics: Dict[str, float], 
                            llm_provider: Optional[str] = None, file_info: Dict[str, Any] = None,
-                           request_id: str = None) -> Dict[str, Any]:
+                           request_id: str = None, debug_logger: Any = None) -> Dict[str, Any]:
         """
         Core text parsing pipeline (shared by file and text parsing).
         
@@ -813,6 +903,7 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             llm_provider: Optional LLM provider for full LLM parsing or experience extraction
             file_info: File-specific information
             request_id: Request ID for logging
+            debug_logger: Debug logger instance for evaluation
             
         Returns:
             Parsed result dictionary
@@ -909,6 +1000,13 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                     content_preview=section_text[:500] if len(section_text) > 500 else section_text
                 )
         
+        # Log section extraction with debug logger
+        if debug_logger:
+            debug_logger.log_section_extraction(sections, {
+                'duration_ms': metrics['section_splitting_ms'],
+                'text_length': len(text)
+            })
+        
         # Step 3: Rule-based parsing (pass sections for skills extraction)
         step_start = time.time()
         rule_results = self._run_rule_parsing(text, sections)
@@ -941,6 +1039,17 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             work_experience=deberta_results.get('work_experience', []),
             education=deberta_results.get('education', [])
         )
+        
+        # Log model inference with debug logger
+        if debug_logger:
+            debug_logger.log_model_input('deberta-v3', text, metadata={
+                'model_type': 'NER',
+                'text_length': len(text)
+            })
+            debug_logger.log_model_output('deberta-v3', None, deberta_results, metadata={
+                'duration_ms': metrics['deberta_parsing_ms'],
+                'entities_extracted': len(deberta_results.get('companies', [])) + len(deberta_results.get('job_titles', []))
+            })
         
         # Warn if model didn't extract work experience
         if not deberta_results.get('work_experience') and not deberta_results.get('companies'):
@@ -1453,6 +1562,59 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
             'degrees': degrees
         }
     
+    def _extract_with_enhanced_prompts(self, section_text: str, extraction_type: str, 
+                                       llm_function=None) -> Dict[str, Any]:
+        """
+        Extract structured data using enhanced prompt engineering.
+        
+        Args:
+            section_text: Text section to extract from
+            extraction_type: Type of extraction ('experience', 'education')
+            llm_function: Optional LLM function to use
+            
+        Returns:
+            Extracted structured data
+        """
+        if not section_text or not section_text.strip():
+            self.logger.warning(f"Empty section text for {extraction_type} extraction")
+            return {}
+        
+        try:
+            # Import prompt engineering utilities
+            from utils.prompt_engineering import PromptEngineer, JSONPostProcessor
+            
+            prompt_engineer = PromptEngineer()
+            post_processor = JSONPostProcessor()
+            
+            # Get optimized prompt
+            prompt = prompt_engineer.get_prompt(extraction_type, section_text)
+            
+            # Use retry with fallback if LLM function provided
+            if llm_function:
+                expected_structure = {'work_experience': 'array'} if extraction_type == 'experience' else {'education': 'array'}
+                
+                success, result, version = prompt_engineer.retry_with_fallback(
+                    extraction_type,
+                    section_text,
+                    llm_function,
+                    max_retries=3,
+                    expected_structure=expected_structure
+                )
+                
+                if success:
+                    # Post-process the result
+                    processed_result = post_processor.post_process_json(result, extraction_type)
+                    self.logger.info(f"✅ Enhanced {extraction_type} extraction successful with version {version}")
+                    return processed_result
+                else:
+                    self.logger.warning(f"⚠️ All prompt versions failed for {extraction_type}")
+            
+            return {}
+            
+        except Exception as e:
+            self.logger.error(f"❌ Enhanced prompt extraction failed for {extraction_type}: {e}")
+            return {}
+    
     def _merge_results(self, rule_results: Dict[str, Any], ai_results: Dict[str, Any], 
                    deberta_results: Dict[str, Any], experience_results: Dict[str, Any], 
                    education_results: Dict[str, Any]) -> Dict[str, Any]:
@@ -1526,6 +1688,33 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                 self.logger.info(f"⚠️  Source: Old ExperienceExtractor (fallback - may be incomplete)")
         else:
             self.logger.warning(f"❌ No work experience in final result")
+        
+        # Calculate enhanced confidence scores
+        if self.enhanced_confidence_scorer:
+            # Determine extraction methods used
+            extraction_methods = {}
+            if combined_deberta.get('work_experience') or combined_deberta.get('companies'):
+                extraction_methods['work_experience'] = ExtractionMethod.DEBERTA_NER
+            if combined_rule.get('email'):
+                extraction_methods['email'] = ExtractionMethod.RULE_BASED
+            if ai_results.get('skills'):
+                extraction_methods['skills'] = ExtractionMethod.LLM_EXTRACTION
+            
+            confidence_result = self.enhanced_confidence_scorer.calculate_overall_confidence(
+                merged, extraction_methods
+            )
+            
+            merged['confidence'] = {
+                'overall': confidence_result['overall_confidence'],
+                'fields': confidence_result['field_confidences'],
+                'needs_review': confidence_result['needs_review'],
+                'quality_level': confidence_result['quality_level'],
+                'fields_needing_review': confidence_result['fields_needing_review']
+            }
+            
+            self.logger.info(f"📊 Enhanced confidence: {confidence_result['overall_confidence']:.2%} "
+                           f"(Quality: {confidence_result['quality_level']}) "
+                           f"- Review needed for: {len(confidence_result['fields_needing_review'])} fields")
         
         return merged
     
