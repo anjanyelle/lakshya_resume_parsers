@@ -46,8 +46,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
               },
               body: JSON.stringify({ email, password }),
             },
-          );
-
+          );    
           if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || error.message || "Login failed");
