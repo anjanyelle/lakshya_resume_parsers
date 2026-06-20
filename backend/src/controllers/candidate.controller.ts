@@ -24,6 +24,7 @@ interface CreateCandidateRequest {
   education?: any[];
   certifications?: string[];  // Array of certification names from AI parsing
   projects?: string[];        // Array of project descriptions from AI parsing
+  confidence_score?: number;  // AI parsing confidence score
 }
 
 interface UpdateCandidateRequest {
