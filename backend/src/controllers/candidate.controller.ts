@@ -6,6 +6,13 @@ import {
   Candidate,
   CandidateWithDetails,
 } from "../models/candidate.model";
+import {
+  calculateExperienceFromWorkHistory,
+  extractExperienceFromText,
+  getBestExperience,
+} from "../services/experience.service";
+import { checkDuplicateBeforeInsert } from "../services/duplicate.service";
+import { calculateTotalExperience } from "../utils/experienceCalculator";
 
 interface CreateCandidateRequest {
   full_name?: string;
@@ -15,6 +22,7 @@ interface CreateCandidateRequest {
   location?: string;
   linkedin_url?: string;
   github_url?: string;
+  portfolio_url?: string;
   summary?: string;
   raw_resume_text?: string;
   file_path?: string;
@@ -24,6 +32,7 @@ interface CreateCandidateRequest {
   education?: any[];
   certifications?: string[];  // Array of certification names from AI parsing
   projects?: string[];        // Array of project descriptions from AI parsing
+  confidence_score?: number;  // Optional explicit confidence score
 }
 
 interface UpdateCandidateRequest {
@@ -33,6 +42,7 @@ interface UpdateCandidateRequest {
   location?: string;
   linkedin_url?: string;
   github_url?: string;
+  portfolio_url?: string;
   summary?: string;
 }
 
@@ -204,13 +214,43 @@ export const createCandidate = async (
   try {
     const candidateData: CreateCandidateRequest = req.body;
     const userId = (req as any).user?.id;
+    const tenantId = (req as any).user?.tenant_id || "default";
 
     const client = await getClient();
     try {
+      // ── DUPLICATE CHECK before starting the transaction ─────────────────
+      const forceSave = req.body.forceSave === 'true' || req.body.forceSave === true;
+      
+      let dupCheck = null;
+      if (!forceSave) {
+        dupCheck = await checkDuplicateBeforeInsert(client, {
+          email: candidateData.email || null,
+          phone: candidateData.phone || null,
+          full_name: candidateData.full_name || candidateData.name || null,
+          linkedin_url: candidateData.linkedin_url || null,
+          resume_hash: candidateData.resume_hash || null,
+          tenant_id: tenantId,
+        });
+      }
+      if (dupCheck && dupCheck.isDuplicate) {
+        res.status(409).json({
+          error: "Duplicate candidate",
+          message: dupCheck.message,
+          code: "DUPLICATE_CANDIDATE",
+          field: dupCheck.field,
+          existingCandidateId: dupCheck.existingCandidateId,
+          existingCandidateName: dupCheck.existingCandidateName,
+        });
+        return;
+      }
+
       // Begin transaction
       await client.query("BEGIN");
 
-      const candidate = await CandidateModel.create(client, candidateData);
+      const candidate = await CandidateModel.create(client, {
+        ...candidateData,
+        tenant_id: tenantId,
+      });
 
       // Save nested skills if provided
       if (candidateData.skills && Array.isArray(candidateData.skills)) {
@@ -279,33 +319,40 @@ export const createCandidate = async (
 
       // Save nested work experience if provided
       if (candidateData.work_experience && Array.isArray(candidateData.work_experience)) {
-        for (const work of candidateData.work_experience) {
-          // Infer is_current if end_date represents present/current
-          let isCurrent = work.is_current || false;
-          if (work.end_date) {
-            const endLower = String(work.end_date).trim().toLowerCase();
-            if (endLower === 'present' || endLower === 'current' || endLower === 'till date' || endLower === 'now') {
-              isCurrent = true;
-            }
-          }
+        // Run new total experience calculator
+        const { total, processed } = calculateTotalExperience(candidateData.work_experience);
 
+        for (const work of processed) {
           const workQuery = `
-            INSERT INTO work_history (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            INSERT INTO work_history (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
           `;
           await client.query(workQuery, [
             crypto.randomUUID(),
             candidate.id,
             work.job_title || work.title || null,
             work.company_name || work.company || null,
-            validateDateFormat(parseDateString(work.start_date || null)),
-            validateDateFormat(parseDateString(work.end_date || null)),
-            isCurrent,
+            work.parsed_start ? work.parsed_start.toISOString().split('T')[0] : validateDateFormat(parseDateString(work.start_date || null)),
+            work.parsed_end ? work.parsed_end.toISOString().split('T')[0] : validateDateFormat(parseDateString(work.end_date || null)),
+            work.is_current || false,
             work.description || null,
             work.location || null,
+            work.duration_string || null,
           ]);
         }
+
+        // Save total_years_exp JSON and float fallback
+        try {
+          const bestExpFloat = total.years + (total.months / 12);
+          await client.query(
+            `UPDATE candidates SET total_experience_years = $1, total_years_exp = $2 WHERE id = $3`,
+            [bestExpFloat, JSON.stringify(total), candidate.id]
+          );
+        } catch (expErr: any) {
+          console.warn("Could not save total_years_exp:", expErr.message);
+        }
       }
+
 
       // Save nested education if provided
       if (candidateData.education && Array.isArray(candidateData.education)) {
@@ -415,6 +462,7 @@ export const createCandidate = async (
         res.status(201).json({
           message: "Candidate created and details saved successfully",
           candidate,
+          warning: dupCheck?.warning || undefined,
         });
       } else if (candidateData.file_path && candidateData.file_type) {
         // Fallback: if no nested data but file path is provided, we just save the candidate.
@@ -432,12 +480,14 @@ export const createCandidate = async (
         res.status(201).json({
           message: "Candidate created successfully. Resume parsing must be done via the upload endpoint.",
           candidate,
+          warning: dupCheck?.warning || undefined,
         });
       } else {
         await client.query("COMMIT");
         res.status(201).json({
           message: "Candidate created successfully",
           candidate,
+          warning: dupCheck?.warning || undefined,
         });
       }
     } catch (txError) {

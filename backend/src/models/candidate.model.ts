@@ -20,6 +20,11 @@ export interface Candidate {
   updated_at?: Date;
   summary?: string;
   raw_resume_text?: string;
+  linkedin_url?: string;
+  github_url?: string;
+  portfolio_url?: string;
+  location?: string;
+  total_experience_years?: number;
 }
 
 export interface CandidateWithDetails extends Candidate {
@@ -156,8 +161,10 @@ export class CandidateModel {
     const result = await client.query(
       `INSERT INTO candidates (
         id, email, phone, full_name, status, summary, resume_file_path,
-        consent_given, tenant_id, review_status, email_hash, raw_resume_text, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW()) RETURNING *`,
+        consent_given, tenant_id, review_status, email_hash, raw_resume_text,
+        linkedin_url, github_url, portfolio_url, location,
+        created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -170,7 +177,11 @@ export class CandidateModel {
         data.tenant_id || "default",
         data.review_status || "pending",
         emailHash,
-        data.raw_resume_text || null
+        data.raw_resume_text || null,
+        data.linkedin_url || null,
+        data.github_url || null,
+        data.portfolio_url || null,
+        data.location || null
       ]
     );
     return result.rows[0];
@@ -190,8 +201,12 @@ export class CandidateModel {
            summary = COALESCE($5, summary), 
            email_hash = COALESCE($6, email_hash),
            raw_resume_text = COALESCE($7, raw_resume_text),
+           linkedin_url = COALESCE($8, linkedin_url),
+           github_url = COALESCE($9, github_url),
+           portfolio_url = COALESCE($10, portfolio_url),
+           location = COALESCE($11, location),
            updated_at = NOW() 
-       WHERE id = $8 
+       WHERE id = $12 
        RETURNING *`,
       [
         data.email,
@@ -201,6 +216,10 @@ export class CandidateModel {
         data.summary,
         emailHash,
         data.raw_resume_text,
+        data.linkedin_url,
+        data.github_url,
+        data.portfolio_url,
+        data.location,
         id
       ]
     );

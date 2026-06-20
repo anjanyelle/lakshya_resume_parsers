@@ -13,6 +13,13 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { OpenAIParserService } from "../services/openai-parser.service";
+import {
+  calculateExperienceFromWorkHistory,
+  extractExperienceFromText,
+  getBestExperience,
+} from "../services/experience.service";
+import { calculateTotalExperience } from "../utils/experienceCalculator";
+import { checkDuplicateBeforeInsert } from "../services/duplicate.service";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers — used to store ALL parsed sections inline (no-Redis mode)
@@ -116,16 +123,17 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
          location             = COALESCE($4,  location),
          linkedin_url         = COALESCE($5,  linkedin_url),
          github_url           = COALESCE($6,  github_url),
-         summary              = COALESCE($7,  summary),
+         portfolio_url        = COALESCE($7,  portfolio_url),
+         summary              = COALESCE($8,  summary),
          status               = 'success',
          review_status        = 'pending',
-         email_hash           = COALESCE($8,  email_hash),
-         resume_hash          = COALESCE($9,  resume_hash),
-         resume_quality_score = COALESCE($10, resume_quality_score),
-         confidence_score     = COALESCE($11, confidence_score),
-         raw_resume_text      = COALESCE($12, raw_resume_text),
+         email_hash           = COALESCE($9,  email_hash),
+         resume_hash          = COALESCE($10, resume_hash),
+         resume_quality_score = COALESCE($11, resume_quality_score),
+         confidence_score     = COALESCE($12, confidence_score),
+         raw_resume_text      = COALESCE($13, raw_resume_text),
          updated_at           = NOW()
-     WHERE id = $13`,
+     WHERE id = $14`,
     [
       trunc(ai.name),
       trunc(ai.email),
@@ -133,6 +141,7 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
       trunc(location),
       trunc(ai.linkedin, 500),
       trunc(ai.github, 500),
+      trunc(ai.portfolio_url || ai.portfolio || ai.website || ai.personal_website, 500),
       trunc(ai.summary, 2000),
       emailHash,
       resumeHash,
@@ -152,27 +161,43 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
     [];
 
   await client.query("DELETE FROM work_history WHERE candidate_id = $1", [candidateId]);
-  for (const w of workItems) {
-    const isCurrent = w.is_current ||
-      ["present","current","now","till date"].includes(String(w.end_date || "").toLowerCase());
+  
+  const { total, processed } = calculateTotalExperience(workItems);
+
+  for (const w of processed) {
     await client.query(
       `INSERT INTO work_history
-         (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+         (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
       [
         uuidv4(),
         candidateId,
         trunc(w.job_title || w.title),
         trunc(w.company_name || w.company),
-        safeDate(w.start_date),
-        safeDate(isCurrent ? null : w.end_date),
-        isCurrent,
+        w.parsed_start ? w.parsed_start.toISOString().split('T')[0] : safeDate(w.start_date),
+        w.parsed_end ? w.parsed_end.toISOString().split('T')[0] : safeDate(w.is_current ? null : w.end_date),
+        w.is_current || false,
         trunc(w.description || (Array.isArray(w.responsibilities) ? w.responsibilities.join("; ") : null), 2000),
         trunc(w.location),
+        w.duration_string || null,
       ]
     );
   }
   console.log(`  ✅ Work history: ${workItems.length} entries stored`);
+
+  // ── 2b. SAVE TOTAL EXPERIENCE ───────────────────────────────────────
+  if (total.total_records > 0) {
+    try {
+      const bestExpFloat = total.years + (total.months / 12);
+      await client.query(
+        `UPDATE candidates SET total_experience_years = $1, total_years_exp = $2 WHERE id = $3`,
+        [bestExpFloat, JSON.stringify(total), candidateId]
+      );
+      console.log(`  ✅ Experience: ${total.formatted_string}`);
+    } catch (expErr: any) {
+      console.warn(`  ⚠️  Could not update total_experience_years: ${expErr.message}`);
+    }
+  }
 
   // ── 3. EDUCATION ──────────────────────────────────────────────────────────
   const eduItems: any[] = Array.isArray(ai.education) ? ai.education : [];
@@ -314,6 +339,12 @@ export const uploadResume = async (
 
     const candidateId = uuidv4();
     const tenantId    = (req as any).user?.tenant_id || "default";
+
+    // ── DUPLICATE CHECK ── before creating the candidate
+    // We won't have name/email/phone yet at this early stage (before AI parse),
+    // so duplicate check runs AFTER the AI parse in the direct parse path below.
+    // The early candidate row is created as 'pending' and removed if duplicate.
+
     const cRes = await client.query(
       `INSERT INTO candidates (id, status, review_status, tenant_id, consent_given, raw_resume_text, created_at, updated_at)
        VALUES ($1,'pending','pending',$2,false,$3,NOW(),NOW()) RETURNING *`,
@@ -384,6 +415,40 @@ export const uploadResume = async (
 
         // Store ALL sections into the database
         console.log(`📥 Storing parsed data for candidate ${candidateId}...`);
+
+        // ── DUPLICATE CHECK after AI extraction (we have name/email/phone now) ──
+        const forceSave = req.body.forceSave === 'true' || req.body.forceSave === true;
+        
+        let dupCheck = null;
+        if (!forceSave) {
+          dupCheck = await checkDuplicateBeforeInsert(directClient, {
+            email: aiData.email || null,
+            phone: aiData.phone || null,
+            full_name: aiData.name || null,
+            linkedin_url: aiData.linkedin_url || null,
+            resume_hash: fileHash || null,
+            tenant_id: tenantId,
+          });
+        }
+        if (dupCheck && dupCheck.isDuplicate) {
+          // Clean up the pending candidate we just created
+          await directClient.query(
+            `DELETE FROM candidates WHERE id = $1 AND status = 'pending'`,
+            [candidateId]
+          );
+          if (req.file) deleteUploadedFile(req.file.path);
+          console.log(`⚠️  Duplicate detected: ${dupCheck.message}`);
+          res.status(409).json({
+            error: "Duplicate candidate",
+            message: dupCheck.message,
+            code: "DUPLICATE_CANDIDATE",
+            field: dupCheck.field,
+            existingCandidateId: dupCheck.existingCandidateId,
+            existingCandidateName: dupCheck.existingCandidateName,
+          });
+          return;
+        }
+
         await storeAllParsedData(directClient, candidateId, aiData, fileInfo.path);
 
         // Mark parsing_job as completed
@@ -407,6 +472,7 @@ export const uploadResume = async (
         res.status(201).json({
           success: true,
           message: "Resume uploaded and parsed successfully",
+          warning: dupCheck?.warning || undefined,
           data: {
             candidateId: candidate.id,
             parsingJobId: parsingJob.id,
