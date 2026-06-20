@@ -25,3 +25,4 @@ datasets==2.14.0
 evaluate==0.4.0
 accelerate==0.24.0
 sentencepiece
+boto3>=1.35.0

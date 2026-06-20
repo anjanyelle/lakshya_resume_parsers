@@ -1257,37 +1257,72 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
                 'ai_entities': entities
             }
     
+    @staticmethod
+    def _get_section_text(sections: Dict[str, str], category: str) -> str:
+        """
+        Look up section text by trying all known alias keys for the category.
+        This fixes the case where SectionSplitter stores 'professional experience'
+        but code only checks for 'experience'.
+        """
+        ALIASES = {
+            'experience': [
+                'experience', 'work experience', 'professional experience',
+                'employment history', 'career history', 'work history',
+                'employment', 'relevant experience', 'related experience',
+                'professional background', 'job history', 'positions held',
+                'career summary', 'career profile', 'career overview',
+                'consulting experience', 'internship experience', 'internships',
+                'project experience',
+            ],
+            'education': [
+                'education', 'academic background', 'educational background',
+                'educational qualifications', 'academic qualifications',
+                'academic history', 'qualifications', 'degrees',
+            ],
+            'skills': [
+                'skills', 'technical skills', 'key skills', 'core competencies',
+                'competencies', 'expertise', 'technologies', 'technology stack',
+            ],
+            'summary': [
+                'summary', 'professional summary', 'career summary', 'profile',
+                'objective', 'career objective', 'overview', 'about me',
+            ],
+        }
+        for key in ALIASES.get(category, [category]):
+            text = sections.get(key, '').strip()
+            if text:
+                return text
+        return ''
+
     def _extract_experience(self, sections: Dict[str, str], full_text: str = '', llm_provider: Optional[str] = None) -> Dict[str, Any]:
         """
         Extract structured work experience using HYBRID approach:
         1. PRIMARY: Custom NER Model + Rule-based extraction
         2. FALLBACK: Gemini LLM (only if API key is valid and primary methods fail)
-        
-        NOTE: This method is DEPRECATED when DeBERTa/Structured parser is available.
-        It should only be used as a last resort fallback.
+
+        NOTE: Only used as a fallback when DeBERTa returns 0 results.
+        DeBERTa results take priority in _merge_results().
         """
         self.logger.info("=" * 80)
-        self.logger.info("🔍 HYBRID EXPERIENCE EXTRACTION")
+        self.logger.info("🔍 HYBRID EXPERIENCE EXTRACTION (fallback)")
         self.logger.info("=" * 80)
-        
-        # CRITICAL: Return empty if DeBERTa parser is available
-        # DeBERTa/Structured parser is more accurate than old ExperienceExtractor
-        if self.deberta_parser and self.deberta_parser.is_available():
-            self.logger.info("⚠️  DeBERTa parser available - skipping old ExperienceExtractor entirely")
-            self.logger.info("💡 Work experience will be extracted by DeBERTa/Structured parser instead")
-            return {'work_experience': [], 'job_titles': [], 'companies': [], 'locations': []}
-        
+
+        # FIX 2: Removed early-return guard. ExperienceExtractor now always runs
+        # as a fallback. _merge_results() suppresses its output when DeBERTa
+        # has produced non-empty work_experience results.
         if not self.exp_extractor:
             self.logger.warning("ExperienceExtractor not available, returning empty results")
             return {'work_experience': [], 'job_titles': []}
-        
-        experience_text = sections.get('experience', '').strip()
+
+        # FIX 1: Use alias-aware lookup so 'work experience' / 'professional experience'
+        # section headers are found even though they differ from the canonical key.
+        experience_text = self._get_section_text(sections, 'experience')
         if not experience_text:
-            self.logger.warning("No experience section detected, falling back to full text")
+            self.logger.warning("No experience section detected via any alias key, falling back to full text")
             experience_text = full_text
         if not experience_text:
             return {'work_experience': [], 'job_titles': []}
-        
+
         self.logger.info(f"📝 Experience text length: {len(experience_text)} chars")
         self.logger.info(f"📝 Experience text preview: {experience_text[:300]}...")
         
@@ -1432,10 +1467,11 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         if not self.edu_extractor:
             self.logger.warning("EducationExtractor not available, returning empty results")
             return {'education': [], 'education_institutions': [], 'degrees': []}
-        
-        education_text = sections.get('education', '').strip()
+
+        # FIX 1: Use alias-aware lookup so 'academic background' etc. are found.
+        education_text = self._get_section_text(sections, 'education')
         if not education_text:
-            self.logger.warning("No education section detected, skipping education extraction")
+            self.logger.warning("No education section detected via any alias key, skipping education extraction")
             return {'education': [], 'education_institutions': [], 'degrees': []}
         
         education = self.edu_extractor.extract_education(education_text)
@@ -1459,7 +1495,8 @@ Example: {{"name": "John Smith", "email": "john@example.com"}}"""
         """Merge all parsing results using HybridMerger with resolve_conflicts."""
         if not self.hybrid_merger:
             self.logger.warning("HybridMerger not available, using simple combination")
-            return self._simple_merge(rule_results, ai_results, experience_results, education_results)
+            # FIX 3: Pass deberta_results — was previously missing, causing wrong merge priorities
+            return self._simple_merge(rule_results, ai_results, deberta_results, experience_results, education_results)
         
         self.logger.debug("Using HybridMerger with resolve_conflicts for merging results")
         
