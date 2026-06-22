@@ -45,12 +45,11 @@ export const matchCandidatesToJob = async (
 
       // 2. Get all candidates from database
       const candidatesQuery = `
-        SELECT c.*, 
+        SELECT c.*,
                (
-                 SELECT array_agg(DISTINCT s.name)
-                 FROM candidate_skills cs
-                 JOIN skills s ON cs.skill_id = s.id
-                 WHERE cs.candidate_id = c.id
+                 SELECT array_agg(DISTINCT s.skill_name)
+                 FROM skills s
+                 WHERE s.candidate_id = c.id
                ) as skills,
                (
                  SELECT json_agg(we.*)
@@ -396,12 +395,11 @@ export const matchSingleCandidate = async (
     try {
       // Get candidate details
       const candidateQuery = `
-        SELECT c.*, 
+        SELECT c.*,
                (
-                 SELECT array_agg(DISTINCT s.name)
-                 FROM candidate_skills cs
-                 JOIN skills s ON cs.skill_id = s.id
-                 WHERE cs.candidate_id = c.id
+                 SELECT array_agg(DISTINCT s.skill_name)
+                 FROM skills s
+                 WHERE s.candidate_id = c.id
                ) as skills,
                (
                  SELECT json_agg(we.*)
