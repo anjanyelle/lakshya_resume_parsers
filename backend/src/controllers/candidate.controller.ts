@@ -214,17 +214,35 @@ export const createCandidate = async (
   res: Response,
 ): Promise<void> => {
   try {
+    console.log("=== CREATE CANDIDATE START ===");
+    console.log("REQUEST BODY:", JSON.stringify(req.body, null, 2));
+    
     const candidateData: CreateCandidateRequest = req.body;
     const userId = (req as any).user?.id;
     const tenantId = (req as any).user?.tenant_id || "default";
+
+    console.log("USER ID:", userId);
+    console.log("TENANT ID:", tenantId);
+    console.log("CANDIDATE DATA:", {
+      name: candidateData.name,
+      email: candidateData.email,
+      phone: candidateData.phone,
+      skillsCount: candidateData.skills?.length || 0,
+      workExperienceCount: candidateData.work_experience?.length || 0,
+      educationCount: candidateData.education?.length || 0,
+      certificationsCount: candidateData.certifications?.length || 0,
+      projectsCount: candidateData.projects?.length || 0,
+    });
 
     const client = await getClient();
     try {
       // ── DUPLICATE CHECK before starting the transaction ─────────────────
       const forceSave = req.body.forceSave === 'true' || req.body.forceSave === true;
+      console.log("FORCE SAVE:", forceSave);
       
       let dupCheck = null;
       if (!forceSave) {
+        console.log("Checking for duplicates...");
         dupCheck = await checkDuplicateBeforeInsert(client, {
           email: candidateData.email || null,
           phone: candidateData.phone || null,
@@ -233,8 +251,10 @@ export const createCandidate = async (
           resume_hash: candidateData.resume_hash || null,
           tenant_id: tenantId,
         });
+        console.log("Duplicate check result:", dupCheck);
       }
       if (dupCheck && dupCheck.isDuplicate) {
+        console.log("Duplicate candidate detected:", dupCheck);
         res.status(409).json({
           error: "Duplicate candidate",
           message: dupCheck.message,
@@ -247,98 +267,172 @@ export const createCandidate = async (
       }
 
       // Begin transaction
+      console.log("Starting transaction...");
       await client.query("BEGIN");
 
+      console.log("Creating candidate record...");
       const candidate = await CandidateModel.create(client, {
         ...candidateData,
         tenant_id: tenantId,
       });
+      console.log("Candidate created with ID:", candidate.id);
 
       // Save nested skills if provided
       if (candidateData.skills && Array.isArray(candidateData.skills)) {
-        // Flat skills table design: delete and insert directly
-        await client.query(
-          "DELETE FROM skills WHERE candidate_id = $1",
-          [candidate.id]
-        );
-
-        for (const skillName of candidateData.skills) {
-          if (!skillName || typeof skillName !== "string") continue;
-          await client.query(
-            `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [
-              crypto.randomUUID(),
-              candidate.id,
-              skillName.trim().substring(0, 255),
-              "technical",
-              "intermediate",
-              1.0
-            ]
+        console.log("Saving skills, count:", candidateData.skills.length);
+        try {
+          // Flat skills table design: delete and insert directly
+          const deleteSkillsResult = await client.query(
+            "DELETE FROM skills WHERE candidate_id = $1",
+            [candidate.id]
           );
+          console.log("Deleted existing skills, rows affected:", deleteSkillsResult.rowCount);
+
+          let insertedCount = 0;
+          for (const skillName of candidateData.skills) {
+            if (!skillName || typeof skillName !== "string") continue;
+            try {
+              await client.query(
+                `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [
+                  crypto.randomUUID(),
+                  candidate.id,
+                  skillName.trim().substring(0, 255),
+                  "technical",
+                  "intermediate",
+                  1.0
+                ]
+              );
+              insertedCount++;
+            } catch (skillInsertErr: any) {
+              console.error("Error inserting skill:", skillName, skillInsertErr.message);
+            }
+          }
+          console.log("Inserted skills count:", insertedCount);
+        } catch (skillsErr: any) {
+          console.error("Error saving skills:", skillsErr.message);
+          console.error("Skills error details:", {
+            code: skillsErr.code,
+            detail: skillsErr.detail,
+            constraint: skillsErr.constraint,
+            column: skillsErr.column,
+            table: skillsErr.table,
+          });
+          throw skillsErr;
         }
       }
 
       // Save nested work experience if provided
       if (candidateData.work_experience && Array.isArray(candidateData.work_experience)) {
-        // Run new total experience calculator
-        const { total, processed } = calculateTotalExperience(candidateData.work_experience);
-
-        for (const work of processed) {
-          const workQuery = `
-            INSERT INTO work_experience (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-          `;
-          await client.query(workQuery, [
-            crypto.randomUUID(),
-            candidate.id,
-            work.job_title || work.title || null,
-            work.company_name || work.company || null,
-            work.parsed_start ? work.parsed_start.toISOString().split('T')[0] : validateDateFormat(parseDateString(work.start_date || null)),
-            work.parsed_end ? work.parsed_end.toISOString().split('T')[0] : validateDateFormat(parseDateString(work.end_date || null)),
-            work.is_current || false,
-            work.description || null,
-            work.location || null,
-            work.duration_string || null,
-          ]);
-        }
-
-        // Save total_years_exp JSON and float fallback
+        console.log("Saving work experience, count:", candidateData.work_experience.length);
         try {
-          const bestExpFloat = total.years + (total.months / 12);
-          await client.query(
-            `UPDATE candidates SET total_experience_years = $1, total_years_exp = $2 WHERE id = $3`,
-            [bestExpFloat, JSON.stringify(total), candidate.id]
-          );
-        } catch (expErr: any) {
-          console.warn("Could not save total_years_exp:", expErr.message);
+          // Run new total experience calculator
+          const { total, processed } = calculateTotalExperience(candidateData.work_experience);
+          console.log("Calculated total experience:", total);
+          console.log("Processed work experience count:", processed.length);
+
+          let insertedWorkCount = 0;
+          for (const work of processed) {
+            const workQuery = `
+              INSERT INTO work_experience (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `;
+            const workParams = [
+              crypto.randomUUID(),
+              candidate.id,
+              work.job_title || work.title || null,
+              work.company_name || work.company || null,
+              work.parsed_start ? work.parsed_start.toISOString().split('T')[0] : validateDateFormat(parseDateString(work.start_date || null)),
+              work.parsed_end ? work.parsed_end.toISOString().split('T')[0] : validateDateFormat(parseDateString(work.end_date || null)),
+              work.is_current || false,
+              work.description || null,
+              work.location || null,
+              work.duration_string || null,
+            ];
+            console.log("Inserting work experience:", workParams.slice(2, 10));
+            await client.query(workQuery, workParams);
+            insertedWorkCount++;
+          }
+          console.log("Inserted work experience count:", insertedWorkCount);
+
+          // Save total_years_exp JSON and float fallback
+          try {
+            const bestExpFloat = total.years + (total.months / 12);
+            console.log("Saving total experience years:", bestExpFloat);
+            await client.query(
+              `UPDATE candidates SET total_experience_years = $1, total_years_exp = $2 WHERE id = $3`,
+              [bestExpFloat, JSON.stringify(total), candidate.id]
+            );
+            console.log("Total experience saved successfully");
+          } catch (expErr: any) {
+            console.error("Could not save total_years_exp:", expErr.message);
+            console.error("Total experience error details:", {
+              code: expErr.code,
+              detail: expErr.detail,
+              constraint: expErr.constraint,
+              column: expErr.column,
+              table: expErr.table,
+            });
+            // Don't throw, just warn
+          }
+        } catch (workErr: any) {
+          console.error("Error saving work experience:", workErr.message);
+          console.error("Work experience error details:", {
+            code: workErr.code,
+            detail: workErr.detail,
+            constraint: workErr.constraint,
+            column: workErr.column,
+            table: workErr.table,
+          });
+          throw workErr;
         }
       }
 
 
       // Save nested education if provided
       if (candidateData.education && Array.isArray(candidateData.education)) {
-        for (const edu of candidateData.education) {
-          const eduQuery = `
-            INSERT INTO education (id, candidate_id, degree, institution, field_of_study, start_date, end_date, gpa)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-          `;
-          await client.query(eduQuery, [
-            crypto.randomUUID(),
-            candidate.id,
-            edu.degree || edu.degree_name || null,
-            edu.institution || edu.institution_name || null,
-            edu.field_of_study || null,
-            validateDateFormat(parseDateString(edu.start_date || edu.start_year || null)),
-            validateDateFormat(parseDateString(edu.end_date || edu.end_year || null)),
-            parseGrade(edu.grade ?? edu.gpa ?? null),  // DeBERTa outputs 'grade'; OpenAI/legacy outputs 'gpa'
-          ]);
+        console.log("Saving education, count:", candidateData.education.length);
+        try {
+          let insertedEduCount = 0;
+          for (const edu of candidateData.education) {
+            const eduQuery = `
+              INSERT INTO education (id, candidate_id, degree, institution, field_of_study, start_date, end_date, gpa)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `;
+            const eduParams = [
+              crypto.randomUUID(),
+              candidate.id,
+              edu.degree || edu.degree_name || null,
+              edu.institution || edu.institution_name || null,
+              edu.field_of_study || null,
+              validateDateFormat(parseDateString(edu.start_date || edu.start_year || null)),
+              validateDateFormat(parseDateString(edu.end_date || edu.end_year || null)),
+              parseGrade(edu.grade ?? edu.gpa ?? null),  // DeBERTa outputs 'grade'; OpenAI/legacy outputs 'gpa'
+            ];
+            console.log("Inserting education:", eduParams.slice(2, 8));
+            await client.query(eduQuery, eduParams);
+            insertedEduCount++;
+          }
+          console.log("Inserted education count:", insertedEduCount);
+        } catch (eduErr: any) {
+          console.error("Error saving education:", eduErr.message);
+          console.error("Education error details:", {
+            code: eduErr.code,
+            detail: eduErr.detail,
+            constraint: eduErr.constraint,
+            column: eduErr.column,
+            table: eduErr.table,
+          });
+          throw eduErr;
         }
       }
 
       // Save certifications if provided (skip if table doesn't exist)
       if (candidateData.certifications && Array.isArray(candidateData.certifications)) {
+        console.log("Saving certifications, count:", candidateData.certifications.length);
         try {
+          let insertedCertCount = 0;
           for (const certName of candidateData.certifications) {
             if (!certName || typeof certName !== "string") continue;
             try {
@@ -347,11 +441,13 @@ export const createCandidate = async (
                  ON CONFLICT DO NOTHING`,
                 [crypto.randomUUID(), candidate.id, certName.trim()]
               );
+              insertedCertCount++;
             } catch (certInsertErr: any) {
-              console.warn("Could not insert certification:", certInsertErr.message);
+              console.warn("Could not insert certification:", certName, certInsertErr.message);
               continue;
             }
           }
+          console.log("Inserted certifications count:", insertedCertCount);
         } catch (certErr: any) {
           console.warn("Certifications table not found, skipping:", certErr.message);
         }
@@ -359,13 +455,14 @@ export const createCandidate = async (
 
       // Save projects as JSONB on the candidate record
       if (candidateData.projects && Array.isArray(candidateData.projects) && candidateData.projects.length > 0) {
+        console.log("Saving projects, count:", candidateData.projects.length);
         try {
           await client.query(
             "UPDATE candidates SET projects = $1 WHERE id = $2",
             [JSON.stringify(candidateData.projects), candidate.id]
           );
+          console.log("Projects saved successfully");
         } catch (projUpdateErr: any) {
-          // Column may not exist yet if migration hasn't run
           console.warn("Could not save projects (column may not exist yet):", projUpdateErr.message);
         }
       }
@@ -461,9 +558,29 @@ export const createCandidate = async (
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error("Create candidate error:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (error: any) {
+    console.error("=== CREATE CANDIDATE ERROR ===");
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("PostgreSQL error details:", {
+      code: error.code,
+      detail: error.detail,
+      constraint: error.constraint,
+      column: error.column,
+      table: error.table,
+      dataType: error.dataType,
+      schema: error.schema,
+    });
+
+    res.status(500).json({
+      error: error.message || "Internal server error",
+      detail: error.detail,
+      code: error.code,
+      constraint: error.constraint,
+      column: error.column,
+      table: error.table,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };
 
