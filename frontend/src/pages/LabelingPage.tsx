@@ -83,7 +83,7 @@ export default function LabelingPage() {
 
   const loadProgress = async () => {
     try {
-      const response = await api.get("/labeling/progress");
+      const response = await api.get("/api/labeling/progress");
       setProgress(response.data);
     } catch (error) {
       console.error("Failed to load progress");
@@ -93,7 +93,7 @@ export default function LabelingPage() {
   const loadNextCandidate = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/labeling/next");
+      const response = await api.get("/api/labeling/next");
       const data = response.data;
       
       setCurrentCandidate(data);
@@ -143,7 +143,7 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      await api.post("/labeling/save", {
+      await api.post("/api/labeling/save", {
         candidate_id: currentCandidate.id,
         corrected_fields: formData,
         action: "corrected",
@@ -161,7 +161,7 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      await api.post("/labeling/save", {
+      await api.post("/api/labeling/save", {
         candidate_id: currentCandidate.id,
         action: "skipped",
       });
@@ -184,7 +184,7 @@ export default function LabelingPage() {
     if (!currentCandidate) return;
 
     try {
-      await api.post("/labeling/save", {
+      await api.post("/api/labeling/save", {
         candidate_id: currentCandidate.id,
         corrected_fields: formData,
         action: "approved",

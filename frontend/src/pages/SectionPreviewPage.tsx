@@ -182,7 +182,7 @@ export default function SectionPreviewPage() {
       formData.append("resume", selectedFile);
 
       const response = await api.post<SectionPreviewResponse>(
-        `/upload/preview-sections`,
+        `/api/upload/preview-sections`,
         formData,
         {
           headers: {
@@ -262,7 +262,7 @@ export default function SectionPreviewPage() {
       );
 
       const response = await api.post<ParsedSectionsResponse>(
-        `/upload/parse-sections`,
+        `/api/upload/parse-sections`,
         payload
       );
 
