@@ -645,7 +645,6 @@ export const parseJDAndMatch = async (
         location: row.location,
         summary: row.summary,
         raw_resume_text: row.raw_resume_text,
-          : undefined,
         skills: (row.skills || []).filter(Boolean) as string[],
         work_history: (row.work_history && row.work_history[0] !== null
           ? row.work_history
