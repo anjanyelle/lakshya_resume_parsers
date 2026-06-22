@@ -19,6 +19,7 @@ const corsOptions = {
     "http://localhost:5173",
     "https://lakshya-llm-resume-parser-ated.vercel.app",
     "https://anjanyelle-lakshyaresumeparsers11.vercel.app",
+    "https://lakshya-resume-parsers.vercel.app",
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
