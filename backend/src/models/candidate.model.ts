@@ -258,16 +258,11 @@ export class CandidateModel {
       if (search) {
         queryParams.push(`%${search}%`);
         whereClause += ` AND (
-          candidates.full_name ILIKE $${queryParams.length} 
+          candidates.full_name ILIKE $${queryParams.length}
           OR candidates.email ILIKE $${queryParams.length}
           OR EXISTS (
-            SELECT 1 FROM candidate_skills cs
-            JOIN skills s ON cs.skill_id = s.id
-            WHERE cs.candidate_id = candidates.id AND s.name ILIKE $${queryParams.length}
-          )
-          OR EXISTS (
             SELECT 1 FROM skills s
-            WHERE s.candidate_id = candidates.id AND s.name ILIKE $${queryParams.length}
+            WHERE s.candidate_id = candidates.id AND s.skill_name ILIKE $${queryParams.length}
           )
         )`;
       }
@@ -350,29 +345,18 @@ export class CandidateModel {
         [candidateIds]
       );
       
-      // Batch fetch skills (handle both many-to-many and flat schemas)
+      // Batch fetch skills (use flat skills table)
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT cs.candidate_id, s.id, s.skill_name, s.category, cs.proficiency_level, cs.years_experience 
-           FROM candidate_skills cs
-           JOIN skills s ON cs.skill_id = s.id
-           WHERE cs.candidate_id = ANY($1)`,
+          `SELECT id, candidate_id, skill_name, category, proficiency_level, years_experience
+           FROM skills
+           WHERE candidate_id = ANY($1)`,
           [candidateIds]
         );
         skillRows = skillsResult.rows;
       } catch (skillErr) {
-        try {
-          const skillsResult = await client.query(
-            `SELECT id, candidate_id, skill_name, category, proficiency_level, years_experience 
-             FROM skills 
-             WHERE candidate_id = ANY($1)`,
-            [candidateIds]
-          );
-          skillRows = skillsResult.rows;
-        } catch (flatSkillErr) {
-          console.warn("Failed to fetch skills in candidate list:", flatSkillErr);
-        }
+        console.warn("Failed to fetch skills in candidate list:", skillErr);
       }
       
       // Map work history and skills back to candidate rows
