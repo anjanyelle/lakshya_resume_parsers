@@ -256,66 +256,26 @@ export const createCandidate = async (
 
       // Save nested skills if provided
       if (candidateData.skills && Array.isArray(candidateData.skills)) {
-        const tableCheck = await client.query(`
-          SELECT table_name 
-          FROM information_schema.tables 
-          WHERE table_name = 'candidate_skills'
-        `);
+        // Flat skills table design: delete and insert directly
+        await client.query(
+          "DELETE FROM skills WHERE candidate_id = $1",
+          [candidate.id]
+        );
 
-        if (tableCheck.rows.length > 0) {
-          for (const skillName of candidateData.skills) {
-            if (!skillName || typeof skillName !== "string") continue;
-            
-            const existingSkill = await client.query(
-              "SELECT id FROM skills WHERE skill_name = $1",
-              [skillName],
-            );
-
-            let skillId: string;
-            if (existingSkill.rows.length > 0) {
-              skillId = existingSkill.rows[0].id;
-            } else {
-              const newSkill = await client.query(
-                "INSERT INTO skills (id, skill_name, category) VALUES ($1, $2, $3) RETURNING id",
-                [crypto.randomUUID(), skillName, "technical"],
-              );
-              skillId = newSkill.rows[0].id;
-            }
-
-            // Check if association already exists
-            const linkCheck = await client.query(
-              "SELECT 1 FROM candidate_skills WHERE candidate_id = $1 AND skill_id = $2",
-              [candidate.id, skillId]
-            );
-            if (linkCheck.rows.length === 0) {
-              await client.query(
-                "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3)",
-                [candidate.id, skillId, "intermediate"],
-              );
-            }
-          }
-        } else {
-          // Flat skills table design: delete and insert directly
+        for (const skillName of candidateData.skills) {
+          if (!skillName || typeof skillName !== "string") continue;
           await client.query(
-            "DELETE FROM skills WHERE candidate_id = $1",
-            [candidate.id]
+            `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+              crypto.randomUUID(),
+              candidate.id,
+              skillName.trim().substring(0, 255),
+              "technical",
+              "intermediate",
+              1.0
+            ]
           );
-
-          for (const skillName of candidateData.skills) {
-            if (!skillName || typeof skillName !== "string") continue;
-            await client.query(
-              `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score) 
-               VALUES ($1, $2, $3, $4, $5, $6)`,
-              [
-                crypto.randomUUID(),
-                candidate.id,
-                skillName.trim().substring(0, 255),
-                "technical",
-                "intermediate",
-                1.0
-              ]
-            );
-          }
         }
       }
 
@@ -376,16 +336,9 @@ export const createCandidate = async (
         }
       }
 
-      // Save certifications if provided
+      // Save certifications if provided (skip if table doesn't exist)
       if (candidateData.certifications && Array.isArray(candidateData.certifications)) {
-        // Check if certifications table exists first
-        const certTableCheck = await client.query(`
-          SELECT table_name 
-          FROM information_schema.tables 
-          WHERE table_name = 'certifications'
-        `);
-
-        if (certTableCheck.rows.length > 0) {
+        try {
           for (const certName of candidateData.certifications) {
             if (!certName || typeof certName !== "string") continue;
             try {
@@ -399,6 +352,8 @@ export const createCandidate = async (
               continue;
             }
           }
+        } catch (certErr: any) {
+          console.warn("Certifications table not found, skipping:", certErr.message);
         }
       }
 
