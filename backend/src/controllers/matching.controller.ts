@@ -627,12 +627,15 @@ export const parseJDAndMatch = async (
             FROM education ed
             WHERE ed.candidate_id = c.id
           ) AS education,
-          -- Certifications
-          (
-            SELECT array_agg(DISTINCT cert.name)
-            FROM certifications cert
-            WHERE cert.candidate_id = c.id
-              AND cert.name IS NOT NULL
+          -- Certifications (handle missing table gracefully)
+          COALESCE(
+            (
+              SELECT array_agg(DISTINCT cert.name)
+              FROM certifications cert
+              WHERE cert.candidate_id = c.id
+                AND cert.name IS NOT NULL
+            ),
+            ARRAY[]::text[]
           ) AS certifications,
           -- Latest parsed data (skills, summary, projects from AI parser)
           (
