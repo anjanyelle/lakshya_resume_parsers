@@ -61,8 +61,7 @@ export const matchCandidatesToJob = async (
                  SELECT json_agg(ed.*)
                  FROM education ed
                  WHERE ed.candidate_id = c.id
-               ) as education,
-               c.years_of_experience
+               ) as education
         FROM candidates c
         ORDER BY c.created_at DESC
         LIMIT $1
@@ -91,7 +90,6 @@ export const matchCandidatesToJob = async (
         linkedin: candidate.linkedin_url,
         github: candidate.github_url,
         skills: candidate.skills || [],
-        years_of_experience: candidate.years_of_experience || undefined,
         work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
         education: candidate.education || [],
         parsed_data: candidate.parsed_data || null,
@@ -388,8 +386,7 @@ export const matchSingleCandidate = async (
                  SELECT json_agg(ed.*)
                  FROM education ed
                  WHERE ed.candidate_id = c.id
-               ) as education,
-               c.years_of_experience
+               ) as education
         FROM candidates c
         WHERE c.id = $1
       `;
@@ -441,7 +438,6 @@ export const matchSingleCandidate = async (
           linkedin: candidate.linkedin_url,
           github: candidate.github_url,
           skills: candidate.skills || [],
-          years_of_experience: candidate.years_of_experience || undefined,
           work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
           education: candidate.education || [],
         },
@@ -570,7 +566,6 @@ export const parseJDAndMatch = async (
           c.location,
           c.summary,
           c.raw_resume_text,
-          c.years_of_experience,
           c.projects,
           -- Skills array
           (
@@ -650,8 +645,6 @@ export const parseJDAndMatch = async (
         location: row.location,
         summary: row.summary,
         raw_resume_text: row.raw_resume_text,
-        years_of_experience: row.years_of_experience
-          ? parseFloat(row.years_of_experience)
           : undefined,
         skills: (row.skills || []).filter(Boolean) as string[],
         work_history: (row.work_history && row.work_history[0] !== null
