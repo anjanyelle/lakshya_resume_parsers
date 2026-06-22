@@ -21,6 +21,11 @@ export interface Candidate {
   updated_at?: Date;
   summary?: string;
   raw_resume_text?: string;
+  linkedin_url?: string;
+  github_url?: string;
+  portfolio_url?: string;
+  location?: string;
+  total_experience_years?: number;
 }
 
 export interface CandidateWithDetails extends Candidate {
@@ -150,9 +155,11 @@ export class CandidateModel {
       
     const result = await client.query(
       `INSERT INTO candidates (
-        id, email, phone, full_name, status, summary, file_path,
-        review_status, raw_resume_text, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW()) RETURNING *`,
+        id, email, phone, full_name, status, summary, resume_file_path,
+        consent_given, tenant_id, review_status, email_hash, raw_resume_text,
+        linkedin_url, github_url, portfolio_url, location,
+        created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -162,7 +169,12 @@ export class CandidateModel {
         data.summary || null,
         data.resume_path || data.resume_file_path || data.file_path || null,
         data.review_status || "pending",
-        data.raw_resume_text || null
+        emailHash,
+        data.raw_resume_text || null,
+        data.linkedin_url || null,
+        data.github_url || null,
+        data.portfolio_url || null,
+        data.location || null
       ]
     );
     return result.rows[0];
@@ -176,9 +188,14 @@ export class CandidateModel {
            full_name = COALESCE($3, full_name), 
            status = COALESCE($4, status), 
            summary = COALESCE($5, summary), 
-           raw_resume_text = COALESCE($6, raw_resume_text),
+           email_hash = COALESCE($6, email_hash),
+           raw_resume_text = COALESCE($7, raw_resume_text),
+           linkedin_url = COALESCE($8, linkedin_url),
+           github_url = COALESCE($9, github_url),
+           portfolio_url = COALESCE($10, portfolio_url),
+           location = COALESCE($11, location),
            updated_at = NOW() 
-       WHERE id = $7 
+       WHERE id = $12 
        RETURNING *`,
       [
         data.email,
@@ -187,6 +204,10 @@ export class CandidateModel {
         data.status,
         data.summary,
         data.raw_resume_text,
+        data.linkedin_url,
+        data.github_url,
+        data.portfolio_url,
+        data.location,
         id
       ]
     );

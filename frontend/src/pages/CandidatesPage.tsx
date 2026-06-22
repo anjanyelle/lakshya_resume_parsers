@@ -4,6 +4,7 @@ import { useCandidateStore } from "../store/useCandidateStore";
 import { useFilterStore } from "../store/filterStore";
 import toast from "react-hot-toast";
 import { Users, Search, RefreshCw, User, Award, X } from "lucide-react";
+import CandidateCard from "../components/candidates/CandidateCard";
 
 type FilterType = "all" | "high-confidence" | "needs-review";
 type SortType = "date-added" | "name" | "confidence-score" | "match-score";
@@ -12,23 +13,10 @@ export default function CandidatesPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [sort, setSort] = useState<SortType>("date-added");
   const [currentPage, setCurrentPage] = useState(1);
-  const [expandedSkills, setExpandedSkills] = useState<Set<string>>(new Set());
-
+  
   const { candidates, pagination, isLoading, fetchCandidates } = useCandidateStore();
   const { searchTerm, company, jobTitle, certification, salaryMin, salaryMax, setSearchTerm, setCompany, setJobTitle, setCertification, resetFilters } = useFilterStore();
   const navigate = useNavigate();
-
-  const toggleSkills = (candidateId: string) => {
-    setExpandedSkills((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(candidateId)) {
-        newSet.delete(candidateId);
-      } else {
-        newSet.add(candidateId);
-      }
-      return newSet;
-    });
-  };
 
   // Local input state — holds raw typed values before debounce commits them
   const [inputSearchTerm, setInputSearchTerm] = useState(searchTerm || "");
@@ -178,44 +166,6 @@ export default function CandidatesPage() {
 
   // Use server-side pagination
   const paginatedCandidates = filteredCandidates;
-
-  // Debug: Log pagination state
-  console.log("🔍 Pagination state:", pagination);
-  console.log("🔍 Candidates count:", candidates.length);
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return "bg-purple-100 text-purple-800";
-    if (confidence >= 0.6) return "bg-purple-50 text-purple-700";
-    return "bg-gray-100 text-gray-600";
-  };
-
-  const getMatchScoreColor = (score: number) => {
-    if (score >= 0.8) return "bg-green-100 text-green-800";
-    if (score >= 0.6) return "bg-blue-100 text-blue-800";
-    if (score >= 0.4) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
-  };
-
-
-  const getExperienceSummary = (workExperience: any[]) => {
-    if (!workExperience || workExperience.length === 0) return "No experience";
-
-    const currentJob = workExperience.find((exp) => exp.is_current);
-    if (currentJob) {
-      return `${currentJob.job_title} at ${currentJob.company_name}`;
-    }
-
-    const latestJob = workExperience[0];
-    return `Previously ${latestJob.job_title} at ${latestJob.company_name}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -386,113 +336,13 @@ export default function CandidatesPage() {
           </div>
         ) : paginatedCandidates.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {paginatedCandidates.map((candidate) => {
-              const fullName = candidate.full_name || (candidate as any).name || "Unnamed Candidate";
-              const displayName = fullName.length > 18 ? fullName.substring(0, 18) + "..." : fullName;
-              const email = candidate.email || "";
-              const displayEmail = email.length > 22 ? email.substring(0, 22) + "..." : email;
-
-              return (
-                <div
-                  key={candidate.id}
-                  className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-200 p-6 border border-gray-100 hover:border-purple-200"
-                >
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center">
-                      <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <User className="w-6 h-6 text-purple-600" />
-                      </div>
-                      <div className="ml-3 min-w-0">
-                        <h3
-                          title={fullName}
-                          className="font-semibold text-gray-900 text-lg truncate cursor-pointer hover:text-purple-600 transition-colors"
-                        >
-                          {displayName}
-                        </h3>
-                        <p title={email} className="text-sm text-gray-600 truncate">{displayEmail || "No email"}</p>
-                      </div>
-                    </div>
-
-                    {/* Confidence Badge */}
-                    <div className="flex flex-col gap-1 items-end">
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${getConfidenceColor(candidate.parsing_status?.confidence_score || 0)}`}
-                      >
-                        Parse: {Math.round(
-                          (candidate.parsing_status?.confidence_score || 0) * 100,
-                        )}
-                        %
-                      </span>
-                      {candidate.match_score !== undefined && candidate.match_score !== null && candidate.match_score > 0 && (
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getMatchScoreColor(candidate.match_score)}`}
-                        >
-                          Match: {Math.round(candidate.match_score * 100)}%
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Skills */}
-                  {candidate.skills && candidate.skills.length > 0 && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium text-gray-700 mb-2">Top Skills</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {expandedSkills.has(candidate.id)
-                          ? candidate.skills.map((skill, index) => (
-                              <span
-                                key={index}
-                                className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200"
-                              >
-                                {skill.skill_name}
-                              </span>
-                            ))
-                          : candidate.skills.slice(0, 4).map((skill, index) => (
-                              <span
-                                key={index}
-                                className="px-2.5 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-lg border border-purple-200"
-                              >
-                                {skill.skill_name}
-                              </span>
-                            ))}
-                        {candidate.skills.length > 4 && (
-                          <button
-                            onClick={() => toggleSkills(candidate.id)}
-                            className="px-2.5 py-1 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors cursor-pointer shadow-sm"
-                          >
-                            {expandedSkills.has(candidate.id)
-                              ? "Show less"
-                              : `+${candidate.skills.length - 4} more`}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Experience Summary */}
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-1">Experience</p>
-                    <p className="text-sm text-gray-900">
-                      {getExperienceSummary(candidate.work_experience || [])}
-                    </p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => navigate(`/candidates/${candidate.id}`)}
-                      className="flex-1 mr-2 px-4 py-2.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors"
-                    >
-                      View Profile
-                    </button>
-                    <div className="text-xs text-gray-500">
-                      Added {formatDate(candidate.created_at)}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+            {paginatedCandidates.map((candidate) => (
+              <CandidateCard
+                key={candidate.id}
+                candidate={candidate as any}
+                onViewProfile={(id) => navigate(`/candidates/${id}`)}
+              />
+            ))}
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">

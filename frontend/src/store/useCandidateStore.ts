@@ -10,11 +10,15 @@ interface Candidate {
   location?: string;
   linkedin_url?: string;
   github_url?: string;
+  portfolio_url?: string;
   summary?: string;
   raw_resume_text?: string;
   created_at: string;
   updated_at: string;
   match_score?: number;
+  total_experience_years?: number;
+  total_years_exp?: any;
+  years_experience?: number;
   skills?: Array<{
     id: string;
     skill_name: string;
@@ -32,6 +36,7 @@ interface Candidate {
     is_current: boolean;
     description?: string;
     location?: string;
+    duration_string?: string | null;
   }>;
   education?: Array<{
     id: string;

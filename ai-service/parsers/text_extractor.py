@@ -34,6 +34,19 @@ except ImportError:
     PYTHON_DOCX_AVAILABLE = False
     logging.warning("python-docx not available. DOCX text extraction will be limited.")
 
+try:
+    from parsers.aws_textract_extractor import AwsTextractExtractor
+    _textract_extractor = AwsTextractExtractor()  # singleton, reads env vars at import time
+    TEXTRACT_AVAILABLE = _textract_extractor.is_available()
+    if TEXTRACT_AVAILABLE:
+        logging.info("✅ AWS Textract available and configured")
+    else:
+        logging.info("ℹ️ AWS Textract not configured (missing credentials or boto3) — will use local OCR")
+except Exception as _textract_import_err:
+    _textract_extractor = None
+    TEXTRACT_AVAILABLE = False
+    logging.warning(f"Could not load AwsTextractExtractor: {_textract_import_err}")
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,23 +64,42 @@ class TextExtractor:
     def extract_from_pdf(self, file_path: str, force_ocr: bool = False) -> Dict[str, any]:
         """
         Extract text from PDF using multi-tier strategy:
-        1. pdfplumber (primary) - best for text-based PDFs
-        2. pymupdf (secondary) - fallback if pdfplumber gives < 200 chars
-        3. OCR (tertiary) - fallback if pymupdf also gives < 200 chars
-        
+          Tier 1: pdfplumber            — best for text-based PDFs
+          Tier 2: AWS Textract (cloud)  — scanned PDFs, table-heavy layouts
+          Tier 3: pymupdf               — fallback digital text
+          Tier 4: Tesseract OCR (local) — last-resort local OCR
+
         Args:
             file_path: Path to the PDF file
-            force_ocr: Whether to skip standard extraction and force OCR
-            
+            force_ocr: Force AWS Textract (or local Tesseract if Textract unavailable)
+
         Returns:
             Dictionary with text, method_used, char_count, quality_score
         """
         MIN_CHAR_THRESHOLD = 200
-        
+
+        # ── force_ocr: prefer Textract, then Tesseract ──────────────────────
         if force_ocr:
+            if TEXTRACT_AVAILABLE:
+                try:
+                    logger.info(f"[FORCE-OCR] Using AWS Textract: {file_path}")
+                    result = _textract_extractor.extract_from_pdf(file_path)
+                    char_count = result['char_count']
+                    text = result['text']
+                    logger.info(f"✅ Textract (force) extracted {char_count} chars")
+                    return {
+                        'text': text,
+                        'method_used': 'aws_textract',
+                        'char_count': char_count,
+                        'quality_score': self._calculate_quality_score(text, len(text.split())),
+                        'has_tables': result.get('has_tables', False),
+                    }
+                except Exception as exc:
+                    logger.error(f"Textract (force) failed: {exc}, falling back to Tesseract")
+
             if TESSERACT_AVAILABLE:
                 try:
-                    logger.info(f"[OCR] Manual OCR trigger enabled. Attempting PDF extraction with OCR: {file_path}")
+                    logger.info(f"[FORCE-OCR] Manual OCR trigger enabled. Using Tesseract: {file_path}")
                     text, avg_conf, quality_ok = self._extract_from_pdf_ocr(file_path)
                     char_count = len(text.strip())
                     logger.info(f"✅ OCR extraction completed: {char_count} chars, conf: {avg_conf:.1f}%, quality: {quality_ok}")
@@ -83,16 +115,16 @@ class TextExtractor:
                     logger.error(f"OCR extraction failed: {e}")
                     raise
             else:
-                raise ImportError("Tesseract OCR is required for manual OCR trigger but is not available.")
-        
-        # Tier 1: Try pdfplumber first (best for text-based PDFs)
+                raise ImportError("force_ocr=True but neither AWS Textract nor Tesseract OCR is available.")
+
+        # ── Tier 1: pdfplumber (text-based PDFs) ────────────────────────────
         if PDFPLUMBER_AVAILABLE:
             try:
                 logger.info(f"Attempting PDF extraction with pdfplumber: {file_path}")
                 text = self._extract_with_pdfplumber(file_path)
                 char_count = len(text.strip())
-                
-                if char_count >= MIN_CHAR_THRESHOLD:
+
+                if char_count >= MIN_CHAR_THRESHOLD and self._is_text_quality_good(text):
                     logger.info(f"✅ pdfplumber extraction successful: {char_count} chars")
                     return {
                         'text': text,
@@ -100,18 +132,42 @@ class TextExtractor:
                         'char_count': char_count,
                         'quality_score': self._calculate_quality_score(text, len(text.split()))
                     }
+                elif char_count >= MIN_CHAR_THRESHOLD:
+                    logger.warning(f"⚠️ pdfplumber extracted {char_count} chars but quality is poor — trying Textract")
                 else:
-                    logger.warning(f"⚠️ pdfplumber extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}), trying pymupdf")
+                    logger.warning(f"⚠️ pdfplumber extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}) — trying Textract")
             except Exception as e:
-                logger.warning(f"pdfplumber extraction failed: {e}, trying pymupdf")
-        
-        # Tier 2: Try pymupdf as secondary fallback
+                logger.warning(f"pdfplumber extraction failed: {e}, trying Textract")
+
+        # ── Tier 2: AWS Textract (scanned / table PDFs) ─────────────────────
+        if TEXTRACT_AVAILABLE:
+            try:
+                logger.info(f"[TEXTRACT] Attempting PDF extraction with AWS Textract: {file_path}")
+                result = _textract_extractor.extract_from_pdf(file_path)
+                char_count = result['char_count']
+                text = result['text']
+
+                if char_count >= MIN_CHAR_THRESHOLD:
+                    logger.info(f"✅ AWS Textract extraction successful: {char_count} chars, tables={result.get('has_tables', False)}")
+                    return {
+                        'text': text,
+                        'method_used': 'aws_textract',
+                        'char_count': char_count,
+                        'quality_score': self._calculate_quality_score(text, len(text.split())),
+                        'has_tables': result.get('has_tables', False),
+                    }
+                else:
+                    logger.warning(f"⚠️ Textract extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}), trying pymupdf")
+            except Exception as exc:
+                logger.warning(f"AWS Textract extraction failed: {exc}, trying pymupdf")
+
+        # ── Tier 3: pymupdf (digital text fallback) ──────────────────────────
         if PYMUPDF_AVAILABLE:
             try:
                 logger.info(f"Attempting PDF extraction with pymupdf: {file_path}")
                 text = self._extract_with_pymupdf(file_path)
                 char_count = len(text.strip())
-                
+
                 if char_count >= MIN_CHAR_THRESHOLD:
                     logger.info(f"✅ pymupdf extraction successful: {char_count} chars")
                     return {
@@ -121,14 +177,14 @@ class TextExtractor:
                         'quality_score': self._calculate_quality_score(text, len(text.split()))
                     }
                 else:
-                    logger.warning(f"⚠️ pymupdf extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}), trying OCR")
+                    logger.warning(f"⚠️ pymupdf extracted only {char_count} chars (< {MIN_CHAR_THRESHOLD}), trying local OCR")
             except Exception as e:
                 logger.warning(f"pymupdf extraction failed: {e}, trying OCR")
-        
-        # Tier 3: Try OCR as last resort
+
+        # ── Tier 4: Tesseract OCR (last-resort local OCR) ────────────────────
         if TESSERACT_AVAILABLE:
             try:
-                logger.info(f"Attempting PDF extraction with OCR: {file_path}")
+                logger.info(f"Attempting PDF extraction with Tesseract OCR: {file_path}")
                 text, avg_conf, quality_ok = self._extract_from_pdf_ocr(file_path)
                 char_count = len(text.strip())
                 logger.info(f"✅ OCR extraction completed: {char_count} chars, conf: {avg_conf:.1f}%, quality: {quality_ok}")
@@ -142,9 +198,9 @@ class TextExtractor:
                 }
             except Exception as e:
                 logger.error(f"OCR extraction failed: {e}")
-        
-        # If all methods failed, raise error
-        raise Exception(f"All PDF extraction methods failed for {file_path}. Install pdfplumber, pymupdf, or tesseract.")
+
+        # All methods failed
+        raise Exception(f"All PDF extraction methods failed for {file_path}. Install pdfplumber, boto3 (AWS), or tesseract.")
     
     def _extract_with_pdfplumber(self, file_path: str) -> str:
         """
@@ -263,8 +319,8 @@ class TextExtractor:
         if len(re.findall(r"[a-z][A-Z]", text)) > 20:
             return False
 
-        # Too many artificial separators
-        if text.count("|") > 10:
+        # Too many artificial separators — raised threshold; OCR/table PDFs legitimately use pipes
+        if text.count("|") > 30:
             return False
 
         # Too many abnormal long alpha runs
@@ -779,57 +835,9 @@ class TextExtractor:
         
         text = '\n'.join(merged_abbrev_lines)
         
-        # FIX 3: Merge short continuation lines (e.g., "Senior\nManager", "Computer\nScience")
-        # Split into lines and intelligently merge short lines with previous line
-        lines = text.split('\n')
-        merged_lines = []
-        i = 0
-        while i < len(lines):
-            current_line = lines[i].strip()
-            
-            # If current line is empty, keep it as paragraph break
-            if not current_line:
-                merged_lines.append('')
-                i += 1
-                continue
-            
-            # Check if next line should be merged with current line
-            if i + 1 < len(lines):
-                next_line = lines[i + 1].strip()
-                
-                # Special case: Both lines are short (likely name split like "Padmavathi\nSubramaniam")
-                both_short = len(current_line) < 20 and len(next_line) < 20
-                
-                # Merge if:
-                # 1. Next line is very short (< 30 chars) AND doesn't start with special markers
-                # 2. Current line doesn't end with sentence-ending punctuation
-                # 3. Next line is not a section header (all caps or starts with keywords)
-                # 4. OR both lines are very short (< 20 chars each, likely name split)
-                should_merge = (
-                    next_line and
-                    (
-                        (both_short and not next_line.isupper()) or  # Name split
-                        (
-                            len(next_line) < 30 and
-                            not next_line[0].isdigit() and  # Not a date/number
-                            not next_line.isupper() and  # Not a section header
-                            not next_line.startswith(('Company:', 'Location:', 'Duration:', 'Institution:', 'Responsibilities:', 'Client:')) and
-                            not current_line.endswith(('.', '!', '?', ':')) and
-                            not re.match(r'^[A-Z][a-z]+\s+\d{4}', next_line)  # Not "May 2014"
-                        )
-                    )
-                )
-                
-                if should_merge:
-                    # Merge next line with current line
-                    merged_lines.append(f"{current_line} {next_line}")
-                    i += 2  # Skip next line since we merged it
-                    continue
-            
-            merged_lines.append(current_line)
-            i += 1
-        
-        text = '\n'.join(merged_lines)
+        # NOTE: Short-line merging was removed. AWS Textract and Tesseract OCR return
+        # each detected text element on its own line (title, company, date are all short).
+        # Merging short lines destroys the structure needed for section parsing.
         
         # Remove non-printable characters except newlines and tabs
         text = ''.join(char for char in text if char.isprintable() or char in '\n\t')

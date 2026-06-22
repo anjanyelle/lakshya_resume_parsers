@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { Briefcase, Calendar, Clock } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,6 +16,8 @@ import ParsedResultCard from "../components/upload/ParsedResultCard";
 import ModelResultsView from "../components/upload/ModelResultsView";
 import { parseToDateInput } from "../utils/date";
 import { validateEmail } from "../utils/validation";
+import DuplicateCandidateModal from "../components/upload/DuplicateCandidateModal";
+import { calculateTotalExperience } from "../utils/experienceCalculator";
 
 interface LLMModel {
   id: string;
@@ -203,8 +206,11 @@ export default function UploadPage() {
   const [parsedName, setParsedName] = useState("");
   const [parsedEmail, setParsedEmail] = useState("");
   const [parsedPhone, setParsedPhone] = useState("");
+  const [parsedLinkedin, setParsedLinkedin] = useState("");
+  const [parsedPortfolio, setParsedPortfolio] = useState("");
   const [rawResumeText, setRawResumeText] = useState(""); // Full raw text from preview-sections
   const [extractedSkillsFromText, setExtractedSkillsFromText] = useState<any>(null); // Skills extracted from resume text
+  const [duplicateErrorModal, setDuplicateErrorModal] = useState<{ message: string; field: string; existingCandidateId: string; existingCandidateName: string } | null>(null);
 
   // Skills editing states
   const [newSkillText, setNewSkillText] = useState("");
@@ -261,10 +267,10 @@ export default function UploadPage() {
 
   // Contact editing states
   const [isEditingContact, setIsEditingContact] = useState(false);
-  const [tempContact, setTempContact] = useState({ name: "", email: "", phone: "" });
+  const [tempContact, setTempContact] = useState({ name: "", email: "", phone: "", linkedin: "", portfolio: "" });
 
   // Error states for inline validation
-  const [contactErrors, setContactErrors] = useState<{ name?: string, email?: string, phone?: string }>({});
+  const [contactErrors, setContactErrors] = useState<{ name?: string, email?: string, phone?: string, linkedin?: string, portfolio?: string }>({});
   const [workErrors, setWorkErrors] = useState<any>({});
   const [newWorkErrors, setNewWorkErrors] = useState<any>({});
   const [eduErrors, setEduErrors] = useState<any>({});
@@ -277,7 +283,7 @@ export default function UploadPage() {
 
   // Contact Handlers
   const handleStartEditContact = () => {
-    setTempContact({ name: parsedName, email: parsedEmail, phone: parsedPhone });
+    setTempContact({ name: parsedName, email: parsedEmail, phone: parsedPhone, linkedin: parsedLinkedin, portfolio: parsedPortfolio });
     setContactErrors({});
     setIsEditingContact(true);
   };
@@ -313,6 +319,8 @@ export default function UploadPage() {
     setParsedName(tempContact.name);
     setParsedEmail(tempContact.email);
     setParsedPhone(tempContact.phone);
+    setParsedLinkedin(tempContact.linkedin || "");
+    setParsedPortfolio(tempContact.portfolio || "");
     setIsEditingContact(false);
   };
 
@@ -320,6 +328,8 @@ export default function UploadPage() {
     setParsedName("");
     setParsedEmail("");
     setParsedPhone("");
+    setParsedLinkedin("");
+    setParsedPortfolio("");
     setContactErrors({});
     setIsEditingContact(false);
   };
@@ -733,6 +743,12 @@ export default function UploadPage() {
       setParsedName(parsedSections.contact?.name || "");
       setParsedEmail(parsedSections.contact?.email || "");
       setParsedPhone(parsedSections.contact?.phone || "");
+      setParsedLinkedin(parsedSections.contact?.linkedin || "");
+      setParsedPortfolio(
+        (parsedSections.contact as any)?.portfolio_url ||
+        (parsedSections.contact as any)?.portfolio ||
+        (parsedSections.contact as any)?.website || ""
+      );
     }
   }, [parsedSections]);
 
@@ -1084,6 +1100,12 @@ export default function UploadPage() {
       setParsedName(file.result.contact?.name || "");
       setParsedEmail(file.result.contact?.email || "");
       setParsedPhone(file.result.contact?.phone || "");
+      setParsedLinkedin(file.result.contact?.linkedin || "");
+      setParsedPortfolio(
+        file.result.contact?.portfolio_url ||
+        file.result.contact?.portfolio ||
+        file.result.contact?.website || ""
+      );
       setViewingBulkFileId(fileId);
 
       // Reset editing states
@@ -1151,8 +1173,8 @@ export default function UploadPage() {
       setIsParsingModel(false);
     } 
   };
- 
-  const saveCandidateProfile = async () => {
+
+  const saveCandidateProfile = async (forceSave: boolean = false) => {
     if (!parsedSections) {
       toast.error("No parsed data to save");
       return;
@@ -1185,6 +1207,14 @@ export default function UploadPage() {
         education: parsedSections.education,
         certifications: parsedSections.certifications,
         projects: parsedSections.projects,
+        // Contact info from parsed sections
+        linkedin_url: parsedLinkedin || parsedSections.contact?.linkedin || undefined,
+        github_url: parsedSections.contact?.github || undefined,
+        portfolio_url: parsedPortfolio ||
+                       (parsedSections.contact as any)?.portfolio_url ||
+                       (parsedSections.contact as any)?.portfolio ||
+                       (parsedSections.contact as any)?.website || undefined,
+        forceSave: forceSave,
       };
 
       const response = await api.post(
@@ -1206,7 +1236,29 @@ export default function UploadPage() {
       }
     } catch (error: any) {
       console.error("Error saving candidate:", error);
-      toast.error(error.response?.data?.error || "Failed to save candidate profile");
+
+      // ── Handle duplicate candidate 409 specifically ──────────────────────
+      if (error.response?.status === 409) {
+        const errData = error.response.data;
+        const fieldLabels: Record<string, string> = {
+          email: "email address",
+          phone: "phone number",
+          "name+email": "name + email combination",
+          "name+phone": "name + phone combination",
+        };
+        const fieldLabel = fieldLabels[errData?.field] || errData?.field || "contact details";
+        const existingName = errData?.existingCandidateName
+          ? ` (${errData.existingCandidateName})`
+          : "";
+        setDuplicateErrorModal({
+          message: errData?.message || `Duplicate detected: a candidate with this ${fieldLabel} already exists${existingName}.`,
+          field: errData?.field || "unknown",
+          existingCandidateId: errData?.existingCandidateId || "",
+          existingCandidateName: errData?.existingCandidateName || "",
+        });
+      } else {
+        toast.error(error.response?.data?.message || error.response?.data?.error || "Failed to save candidate profile");
+      }
     } finally {
       setIsSavingCandidate(false);
     }
@@ -1220,6 +1272,8 @@ export default function UploadPage() {
     setParsedName("");
     setParsedEmail("");
     setParsedPhone("");
+    setParsedLinkedin("");
+    setParsedPortfolio("");
     setRawResumeText("");
     setExtractedSkillsFromText(null);
   };
@@ -1917,20 +1971,77 @@ export default function UploadPage() {
                         />
                         {contactErrors.phone && <p className="text-red-500 text-xs mt-1">{contactErrors.phone}</p>}
                       </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">LinkedIn URL</label>
+                        <input
+                          type="url"
+                          value={tempContact.linkedin || ""}
+                          onChange={(e) => setTempContact({ ...tempContact, linkedin: e.target.value })}
+                          placeholder="https://linkedin.com/in/..."
+                          className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Portfolio / Website</label>
+                        <input
+                          type="url"
+                          value={tempContact.portfolio || ""}
+                          onChange={(e) => setTempContact({ ...tempContact, portfolio: e.target.value })}
+                          placeholder="https://yourportfolio.com"
+                          className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
-                      <div>
-                        <span className="text-gray-500 block text-xs mb-1">Candidate Name</span>
-                        <span className="font-medium text-gray-900">{parsedName || <span className="text-gray-400 italic">Not available</span>}</span>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm">
+                      {/* Row 1: Name · Email · Phone */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                        <div>
+                          <span className="text-gray-500 block text-xs mb-1">Candidate Name</span>
+                          <span className="font-medium text-gray-900">{parsedName || <span className="text-gray-400 italic">Not available</span>}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 block text-xs mb-1">Email Address</span>
+                          <span className="font-medium text-gray-900">{parsedEmail || <span className="text-gray-400 italic">Not available</span>}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 block text-xs mb-1">Phone Number</span>
+                          <span className="font-medium text-gray-900">{parsedPhone || <span className="text-gray-400 italic">Not available</span>}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-gray-500 block text-xs mb-1">Email Address</span>
-                        <span className="font-medium text-gray-900">{parsedEmail || <span className="text-gray-400 italic">Not available</span>}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 block text-xs mb-1">Phone Number</span>
-                        <span className="font-medium text-gray-900">{parsedPhone || <span className="text-gray-400 italic">Not available</span>}</span>
+                      {/* Row 2: LinkedIn · Portfolio · Experience */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-gray-200">
+                        <div>
+                          <span className="text-gray-500 block text-xs mb-1">LinkedIn URL</span>
+                          {parsedLinkedin ? (
+                            <a
+                              href={parsedLinkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-blue-600 hover:text-blue-800 break-all"
+                            >
+                              {parsedLinkedin}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 italic">Not available</span>
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-gray-500 block text-xs mb-1">Portfolio / Website</span>
+                          {parsedPortfolio ? (
+                            <a
+                              href={parsedPortfolio}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-blue-600 hover:text-blue-800 break-all"
+                            >
+                              {parsedPortfolio}
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 italic">Not available</span>
+                          )}
+                        </div>
+
                       </div>
                     </div>
                   )}
@@ -1990,6 +2101,60 @@ export default function UploadPage() {
                     )}
                   </div>
                 )}
+
+                {/* Total Experience Banner */}
+                {parsedSections.work_experience.length > 0 && (() => {
+                  const { total } = calculateTotalExperience(parsedSections.work_experience);
+                  if (total.total_records > 0) {
+                      return (
+                        <div className="mb-6 bg-[#f2faf0] rounded-xl p-4 border border-green-200 shadow-sm flex flex-col xl:flex-row items-center gap-4 justify-between">
+                          {/* Left: Total Experience */}
+                          <div className="flex items-center gap-3 flex-shrink-0 min-w-max">
+                            <div className="w-10 h-10 bg-[#bdf0c1] rounded flex items-center justify-center shrink-0">
+                              <Briefcase className="w-5 h-5 text-green-800" />
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Total Experience</p>
+                              <p className="text-xl font-bold text-green-700 whitespace-nowrap tracking-tight">{total.formatted_string}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Middle: From / To */}
+                          {total.earliest_date && total.latest_date && (
+                            <div className="flex items-center gap-6 px-4 py-2 bg-[#f8fcf7] rounded-lg border border-green-100 shrink-0 mx-auto w-full xl:w-auto justify-center">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-green-50 flex items-center justify-center">
+                                  <Calendar className="w-4 h-4 text-green-600" />
+                                </div>
+                                <div>
+                                  <p className="text-[10px] text-gray-400 font-semibold uppercase">From</p>
+                                  <p className="text-[13px] font-bold text-gray-800 whitespace-nowrap">{new Date(total.earliest_date).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'})}</p>
+                                </div>
+                              </div>
+                              <div className="w-px h-8 bg-green-200" />
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded bg-green-50 flex items-center justify-center">
+                                  <Calendar className="w-4 h-4 text-green-600" />
+                                </div>
+                                <div>
+                                  <p className="text-[10px] text-gray-400 font-semibold uppercase">To</p>
+                                  <p className="text-[13px] font-bold text-gray-800 whitespace-nowrap">{new Date(total.latest_date).toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'})}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Right: Calculated from */}
+                          <div className="text-center xl:text-right shrink-0 min-w-max">
+                            <p className="text-[11px] text-gray-500 font-medium mb-0.5">Calculated from</p>
+                            <p className="text-sm font-bold text-green-700">{total.total_records} Employment Records</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">(Based on start and end dates)</p>
+                          </div>
+                        </div>
+                      );
+                  }
+                  return null;
+                })()}
 
                 {/* Work Experience Results */}
                 <div className="mb-6">
@@ -2129,13 +2294,13 @@ export default function UploadPage() {
                             <>
                               <button
                                 onClick={() => handleStartEditWork(idx, exp)}
-                                className="px-2 py-0.5 text-xs font-semibold text-blue-600 bg-white border border-blue-200 rounded-md hover:bg-blue-50 transition-colors shadow-sm"
+                                className="px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-100 rounded hover:bg-blue-100 transition-colors"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteWork(idx)}
-                                className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                                className="px-3 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded hover:bg-red-100 transition-colors"
                               >
                                 Delete
                               </button>
@@ -2179,7 +2344,7 @@ export default function UploadPage() {
                                 {workErrors.job_title && <p className="text-red-500 text-xs mt-1">{workErrors.job_title}</p>}
                               </div>
                               <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Company Name</label>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Company</label>
                                 <input
                                   type="text"
                                   value={editWorkData.company_name || ""}
@@ -2261,16 +2426,16 @@ export default function UploadPage() {
                           </div>
                         ) : (
                           <div className="grid grid-cols-2 gap-3 text-sm pr-20">
-                            {exp.job_title && (
+                            {(exp.job_title || exp.title) && (
                               <div>
                                 <span className="text-gray-600">Job Title:</span>
-                                <span className="font-medium text-gray-900 ml-2">{exp.job_title}</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.job_title || exp.title}</span>
                               </div>
                             )}
-                            {exp.company_name && (
+                            {(exp.company_name || exp.company) && (
                               <div>
                                 <span className="text-gray-600">Company:</span>
-                                <span className="font-medium text-gray-900 ml-2">{exp.company_name}</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.company_name || exp.company}</span>
                               </div>
                             )}
                             {exp.location && (
@@ -2281,20 +2446,30 @@ export default function UploadPage() {
                             )}
                             {exp.start_date && (
                               <div>
-                                <span className="text-gray-600">Start:</span>
+                                <span className="text-gray-600">Start Date:</span>
                                 <span className="font-medium text-gray-900 ml-2">{exp.start_date}</span>
                               </div>
                             )}
-                            {exp.end_date && (
+                            {(exp.end_date || exp.is_current) && (
                               <div>
-                                <span className="text-gray-600">End:</span>
-                                <span className="font-medium text-gray-900 ml-2">{exp.end_date}</span>
+                                <span className="text-gray-600">End Date:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.end_date || (exp.is_current ? "Present" : "Unknown")}</span>
                               </div>
                             )}
+                            {(() => {
+                              const { processed } = calculateTotalExperience([exp]);
+                              const duration = processed[0]?.duration_string;
+                              return duration && duration !== "0 Months" ? (
+                                <div>
+                                  <span className="text-gray-600">Duration:</span>
+                                  <span className="font-medium text-gray-900 ml-2">{duration}</span>
+                                </div>
+                              ) : null;
+                            })()}
                             {exp.description && (
-                              <div className="col-span-2 mt-1">
-                                <span className="text-gray-600 block mb-0.5">Description:</span>
-                                <span className="text-gray-700 text-xs whitespace-pre-line leading-normal">{exp.description}</span>
+                              <div className="col-span-2 mt-2">
+                                <span className="text-gray-600 block mb-1">Description:</span>
+                                <p className="text-gray-800 whitespace-pre-wrap">{exp.description}</p>
                               </div>
                             )}
                           </div>
@@ -2894,7 +3069,7 @@ export default function UploadPage() {
                 {/* Action Buttons */}
                 <div className="mt-8 flex justify-end gap-3 border-t border-gray-100 pt-6">
                   <button
-                    onClick={saveCandidateProfile}
+                    onClick={() => saveCandidateProfile()}
                     disabled={isSavingCandidate}
                     className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:shadow-lg hover:shadow-green-500/20 font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
@@ -3163,6 +3338,34 @@ export default function UploadPage() {
           </div>
         )}
       </div>
+
+      {/* Duplicate Candidate Modal */}
+      <DuplicateCandidateModal
+        open={!!duplicateErrorModal}
+        onClose={() => setDuplicateErrorModal(null)}
+        errorData={duplicateErrorModal as any}
+        newCandidateData={{
+          name: parsedName,
+          email: parsedEmail,
+          phone: parsedPhone,
+          summary: parsedSections?.summary,
+          education: parsedSections?.education,
+        }}
+        onSaveAsNew={() => {
+          setDuplicateErrorModal(null);
+          saveCandidateProfile(true);
+        }}
+        onViewExisting={(id) => {
+          setDuplicateErrorModal(null);
+          navigate(`/candidates/${id}`);
+        }}
+        onUpdateExisting={(id) => {
+          setDuplicateErrorModal(null);
+          // For now, redirect to candidate page to manually update
+          navigate(`/candidates/${id}`);
+          toast.success("Navigated to existing profile. You can manually edit it here.");
+        }}
+      />
     </div>
   );
 }
