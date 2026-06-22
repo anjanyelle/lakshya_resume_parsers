@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { User, Briefcase, Building, Calendar } from "lucide-react";
 import type { Candidate } from "../../types/candidate";
 import { calculateTotalExperience } from "../../utils/experienceCalculator";
@@ -8,6 +9,8 @@ type CandidateCardProps = {
 };
 
 export default function CandidateCard({ candidate, onViewProfile }: CandidateCardProps) {
+  const [showAllSkills, setShowAllSkills] = useState(false);
+
   const fullName = candidate.full_name || (candidate as any).name || "Unnamed candidate";
   const initials = fullName
     .split(' ')
@@ -78,7 +81,7 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
       <div className="mb-5">
         <p className="text-sm font-bold text-purple-800 mb-3">Top Skills</p>
         <div className="flex flex-wrap gap-2">
-          {displaySkills.map((skill, idx) => (
+          {(showAllSkills ? skills : displaySkills).map((skill, idx) => (
             <span
               key={skill.id || idx}
               className="px-3 py-1.5 bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-lg text-xs sm:text-sm font-semibold border border-purple-200 shadow-sm break-words"
@@ -87,9 +90,12 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
             </span>
           ))}
           {remainingSkillsCount > 0 && (
-            <span className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md">
-              +{remainingSkillsCount} more
-            </span>
+            <button
+              onClick={() => setShowAllSkills(!showAllSkills)}
+              className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              {showAllSkills ? `Show less` : `+${remainingSkillsCount} more`}
+            </button>
           )}
         </div>
       </div>
