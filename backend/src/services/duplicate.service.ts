@@ -70,7 +70,7 @@ export async function checkDuplicateBeforeInsert(
     tenant_id?: string | null;
   }
 ): Promise<DuplicateCheckResult | null> {
-  const { email, phone, full_name, linkedin_url, resume_hash, tenant_id = "default" } = params;
+  const { email, phone, full_name, linkedin_url, resume_hash } = params;
 
   // ── 1. Email check ────────────────────────────────────────────────────────
   if (email && email.trim()) {
@@ -79,9 +79,8 @@ export async function checkDuplicateBeforeInsert(
       `SELECT id, full_name FROM candidates
        WHERE LOWER(TRIM(email)) = $1
          AND status != 'deleted'
-         AND tenant_id = $2
        LIMIT 1`,
-      [normalizedEmail, tenant_id]
+      [normalizedEmail]
     );
 
     if (emailResult.rows.length > 0) {
@@ -107,9 +106,8 @@ export async function checkDuplicateBeforeInsert(
         `SELECT id, full_name, phone FROM candidates
          WHERE REGEXP_REPLACE(phone, '[^0-9]', '', 'g') LIKE $1
            AND status != 'deleted'
-           AND tenant_id = $2
          LIMIT 1`,
-        [`%${normalizedPhone}`, tenant_id]
+        [`%${normalizedPhone}`]
       );
 
       if (phoneResult.rows.length > 0) {
@@ -141,9 +139,8 @@ export async function checkDuplicateBeforeInsert(
       `SELECT id, full_name FROM candidates
        WHERE LOWER(TRIM(TRIM(TRAILING '/' FROM linkedin_url))) = $1
          AND status != 'deleted'
-         AND tenant_id = $2
        LIMIT 1`,
-      [normalizedLinkedin, tenant_id]
+      [normalizedLinkedin]
     );
 
     if (linkedinResult.rows.length > 0) {
@@ -164,9 +161,8 @@ export async function checkDuplicateBeforeInsert(
       `SELECT id, full_name FROM candidates
        WHERE resume_hash = $1
          AND status != 'deleted'
-         AND tenant_id = $2
        LIMIT 1`,
-      [resume_hash.trim(), tenant_id]
+      [resume_hash.trim()]
     );
 
     if (hashResult.rows.length > 0) {
@@ -193,9 +189,8 @@ export async function checkDuplicateBeforeInsert(
            WHERE LOWER(TRIM(full_name)) = $1
              AND REGEXP_REPLACE(phone, '[^0-9]', '', 'g') LIKE $2
              AND status != 'deleted'
-             AND tenant_id = $3
            LIMIT 1`,
-          [normalizedName, `%${normalizedPhone}`, tenant_id]
+          [normalizedName, `%${normalizedPhone}`]
         );
 
         if (namePhoneResult.rows.length > 0) {
@@ -218,9 +213,8 @@ export async function checkDuplicateBeforeInsert(
          WHERE LOWER(TRIM(full_name)) = $1
            AND LOWER(TRIM(email)) = $2
            AND status != 'deleted'
-           AND tenant_id = $3
            LIMIT 1`,
-        [normalizedName, normalizedEmail, tenant_id]
+        [normalizedName, normalizedEmail]
       );
 
       if (nameEmailResult.rows.length > 0) {
@@ -240,9 +234,8 @@ export async function checkDuplicateBeforeInsert(
       `SELECT id, full_name FROM candidates
        WHERE LOWER(TRIM(full_name)) = $1
          AND status != 'deleted'
-         AND tenant_id = $2
        LIMIT 1`,
-      [normalizedName, tenant_id]
+      [normalizedName]
     );
 
     if (nameOnlyResult.rows.length > 0) {
