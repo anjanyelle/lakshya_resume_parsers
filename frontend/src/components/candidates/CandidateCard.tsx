@@ -15,9 +15,8 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
     .join('')
     .substring(0, 2)
     .toUpperCase();
-    
+
   const email = candidate.email || "";
-  const displayEmail = email.length > 25 ? email.substring(0, 22) + "..." : email;
 
   // Formatting skills
   const skills = candidate.skills || [];
@@ -51,93 +50,93 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
                      : (candidate.total_years_exp?.total_records || workExperience.length || 0);
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
+    <div className="rounded-2xl border border-purple-200 bg-gradient-to-br from-white to-purple-50 p-6 shadow-md hover:shadow-xl transition-all flex flex-col h-full">
       {/* Top Header Section */}
       <div className="flex items-start justify-between mb-5 gap-2">
         <div className="flex gap-3 sm:gap-4 items-center min-w-0 flex-1">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-purple-50 flex items-center justify-center border-2 border-purple-100 text-purple-600 font-bold text-lg sm:text-xl shrink-0">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center border-2 border-purple-200 text-white font-bold text-lg sm:text-xl shrink-0 shadow-md">
             {initials ? initials : <User className="w-6 h-6" />}
           </div>
           <div className="min-w-0">
-            <h3 className="text-lg sm:text-xl font-medium text-slate-800 uppercase tracking-wide truncate">
+            <h3 className="text-lg sm:text-xl font-bold text-purple-900 uppercase tracking-wide break-words leading-tight">
               {fullName}
             </h3>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5 truncate">
-              {displayEmail}
+            <p className="text-xs sm:text-sm text-purple-600 mt-1 break-words">
+              {email}
             </p>
           </div>
         </div>
         <div className="flex flex-col items-end shrink-0 ml-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-purple-50 border border-purple-100 rounded-full">
-            <span className="text-xs font-medium text-purple-600">Parse:</span>
-            <span className="text-sm font-bold text-purple-700">{parseScore}%</span>
+          <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 rounded-full shadow-md">
+            <span className="text-xs font-medium text-purple-100">Parse:</span>
+            <span className="text-sm font-bold text-white">{parseScore}%</span>
           </div>
         </div>
       </div>
 
       {/* Skills Section */}
       <div className="mb-5">
-        <p className="text-sm font-semibold text-slate-700 mb-3">Top Skills</p>
+        <p className="text-sm font-bold text-purple-800 mb-3">Top Skills</p>
         <div className="flex flex-wrap gap-2">
           {displaySkills.map((skill, idx) => (
             <span
               key={skill.id || idx}
-              className="px-2.5 py-1 sm:px-3 sm:py-1 bg-purple-50 text-purple-700 rounded-lg text-xs sm:text-sm font-medium border border-purple-100"
+              className="px-3 py-1.5 bg-gradient-to-r from-purple-100 to-purple-50 text-purple-800 rounded-lg text-xs sm:text-sm font-semibold border border-purple-200 shadow-sm break-words"
             >
               {(skill as any).skill_name || skill.name}
             </span>
           ))}
           {remainingSkillsCount > 0 && (
-            <span className="px-2.5 py-1 sm:px-3 sm:py-1 bg-purple-600 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm">
+            <span className="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md">
               +{remainingSkillsCount} more
             </span>
           )}
         </div>
       </div>
 
-      <hr className="border-gray-100 mb-5 mt-auto" />
+      <hr className="border-purple-200 mb-5 mt-auto" />
 
       {/* Experience & Company Section */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0 border border-purple-100">
-            <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center shrink-0 border border-purple-200">
+            <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] sm:text-xs text-slate-500 mb-0.5">Total Experience</p>
-            <p className="text-sm font-bold text-purple-800 leading-snug">{totalExp}</p>
+            <p className="text-xs font-semibold text-purple-600 mb-1">Total Experience</p>
+            <p className="text-sm font-bold text-purple-900 leading-snug break-words">{totalExp}</p>
             {expEntries > 0 && (
-              <p className="text-[10px] text-slate-400 mt-1 leading-tight">Calc from {expEntries} entries</p>
+              <p className="text-xs text-purple-500 mt-1 leading-tight">Calc from {expEntries} entries</p>
             )}
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0 border border-purple-100">
-            <Building className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center shrink-0 border border-purple-200">
+            <Building className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] sm:text-xs text-slate-500 mb-0.5">Current Company</p>
-            <p className="text-xs sm:text-sm font-semibold text-purple-800 leading-snug break-words">
+            <p className="text-xs font-semibold text-purple-600 mb-1">Current Company</p>
+            <p className="text-xs sm:text-sm font-bold text-purple-900 leading-snug break-words">
               {jobTitle !== "N/A" ? `${jobTitle} at ${currentCompany}` : currentCompany}
             </p>
           </div>
         </div>
       </div>
 
-      <hr className="border-gray-100 mb-5" />
+      <hr className="border-purple-200 mb-5" />
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
-        <button 
+      <div className="flex items-center justify-between mt-auto">
+        <button
           onClick={() => onViewProfile && onViewProfile(candidate.id)}
-          className="px-4 py-2 sm:px-6 sm:py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-sm transition-colors cursor-pointer"
+          className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer"
         >
           View Profile
         </button>
-        <div className="flex items-center gap-1.5 text-slate-500 shrink-0 pl-2">
-          <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="text-[11px] sm:text-sm">Added {addedDate}</span>
+        <div className="flex items-center gap-1.5 text-purple-600 shrink-0 pl-2">
+          <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="text-xs sm:text-sm font-medium">Added {addedDate}</span>
         </div>
       </div>
     </div>
