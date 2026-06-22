@@ -662,6 +662,12 @@ export const parseJDAndMatch = async (
       const ranked = rankCandidates(extractedJD, candidates);
       console.log(`✅ ATS Ranking complete. Top score: ${ranked[0]?.overall_score ?? 0}%`);
 
+      // Transform ATS results to match frontend expected structure
+      const transformedMatches = ranked.map((match) => ({
+        ...match,
+        recommendation: match.match_label,
+      }));
+
       // 5. Return results (stateless — no DB write required for JD matching)
       res.json({
         success: true,
@@ -671,7 +677,7 @@ export const parseJDAndMatch = async (
         role_keywords: extractedJD.roleKeywords,
         education_keywords: extractedJD.educationKeywords,
         total_candidates: candidates.length,
-        matches: ranked,
+        matches: transformedMatches,
       });
     } finally {
       client.release();
