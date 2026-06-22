@@ -1151,7 +1151,7 @@ export default function UploadPage() {
       setIsParsingModel(false);
     }
   };
-
+ 
   const saveCandidateProfile = async () => {
     if (!parsedSections) {
       toast.error("No parsed data to save");
