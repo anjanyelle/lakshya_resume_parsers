@@ -2288,8 +2288,8 @@ export default function UploadPage() {
 
                   <div className="space-y-4">
                     {parsedSections.work_experience.map((exp, idx) => (
-                      <div key={idx} className="relative group border-b border-dashed border-gray-200 pb-4 last:border-0 last:pb-0">
-                        <div className="absolute top-0 right-0 flex gap-1.5 transition-opacity">
+                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200 relative group">
+                        <div className="absolute top-4 right-4 flex gap-1.5 transition-opacity">
                           {editingWorkIdx !== idx ? (
                             <>
                               <button
@@ -2344,7 +2344,7 @@ export default function UploadPage() {
                                 {workErrors.job_title && <p className="text-red-500 text-xs mt-1">{workErrors.job_title}</p>}
                               </div>
                               <div>
-                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Company Name</label>
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Company</label>
                                 <input
                                   type="text"
                                   value={editWorkData.company_name || ""}
@@ -2425,61 +2425,53 @@ export default function UploadPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-4 w-full pr-32">
-                            {/* Circle Index */}
-                            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-800 font-bold text-sm shrink-0">
-                              {String(idx + 1).padStart(2, '0')}
-                            </div>
-
-                            {/* Job Title */}
-                            <div className="flex flex-col flex-1 min-w-0">
-                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Job Title</span>
-                              <span className="font-semibold text-gray-900 text-[13px] truncate" title={exp.job_title || "Unknown"}>
-                                {exp.job_title || "Unknown"}
-                              </span>
-                            </div>
-                            
-                            {/* Company */}
-                            <div className="flex flex-col flex-1 min-w-0">
-                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Company</span>
-                              <span className="font-semibold text-gray-900 text-[13px] truncate" title={exp.company_name || "Unknown"}>
-                                {exp.company_name || "Unknown"}
-                              </span>
-                            </div>
-
-                            {/* Start Date */}
-                            <div className="flex flex-col w-28 shrink-0">
-                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1 mb-0.5">
-                                <Calendar className="w-3.5 h-3.5 text-gray-400" /> Start Date
-                              </span>
-                              <span className="font-bold text-gray-700 text-[13px] truncate">
-                                {exp.start_date || "Unknown"}
-                              </span>
-                            </div>
-
-                            {/* End Date */}
-                            <div className="flex flex-col w-28 shrink-0 border-l pl-3 border-gray-100">
-                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1 mb-0.5">
-                                <Calendar className="w-3.5 h-3.5 text-gray-400" /> End Date
-                              </span>
-                              <span className="font-bold text-gray-700 text-[13px] truncate">
-                                {exp.end_date || (exp.is_current ? "Present" : "Unknown")}
-                              </span>
-                            </div>
-
-                            {/* Duration */}
+                          <div className="grid grid-cols-2 gap-3 text-sm pr-20">
+                            {(exp.job_title || exp.title) && (
+                              <div>
+                                <span className="text-gray-600">Job Title:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.job_title || exp.title}</span>
+                              </div>
+                            )}
+                            {(exp.company_name || exp.company) && (
+                              <div>
+                                <span className="text-gray-600">Company:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.company_name || exp.company}</span>
+                              </div>
+                            )}
+                            {exp.location && (
+                              <div>
+                                <span className="text-gray-600">Location:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.location}</span>
+                              </div>
+                            )}
+                            {exp.start_date && (
+                              <div>
+                                <span className="text-gray-600">Start Date:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.start_date}</span>
+                              </div>
+                            )}
+                            {(exp.end_date || exp.is_current) && (
+                              <div>
+                                <span className="text-gray-600">End Date:</span>
+                                <span className="font-medium text-gray-900 ml-2">{exp.end_date || (exp.is_current ? "Present" : "Unknown")}</span>
+                              </div>
+                            )}
                             {(() => {
                               const { processed } = calculateTotalExperience([exp]);
                               const duration = processed[0]?.duration_string;
                               return duration && duration !== "0 Months" ? (
-                                <div className="flex flex-col w-32 shrink-0 border-l pl-3 border-gray-100">
-                                  <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide flex items-center gap-1 mb-0.5">
-                                    <Clock className="w-3.5 h-3.5 text-gray-400" /> Duration
-                                  </span>
-                                  <span className="font-bold text-gray-900 text-[13px] truncate">{duration}</span>
+                                <div>
+                                  <span className="text-gray-600">Duration:</span>
+                                  <span className="font-medium text-gray-900 ml-2">{duration}</span>
                                 </div>
-                              ) : <div className="w-32 shrink-0 border-l pl-3 border-transparent" />;
+                              ) : null;
                             })()}
+                            {exp.description && (
+                              <div className="col-span-2 mt-2">
+                                <span className="text-gray-600 block mb-1">Description:</span>
+                                <p className="text-gray-800 whitespace-pre-wrap">{exp.description}</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
