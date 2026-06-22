@@ -93,15 +93,26 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.id, s.skill_name, s.category, cs.proficiency_level, cs.years_experience 
-           FROM candidate_skills cs
-           JOIN skills s ON cs.skill_id = s.id
-           WHERE cs.candidate_id = $1`,
+          `SELECT id, skill_name, category, proficiency_level, years_experience 
+           FROM skills 
+           WHERE candidate_id = $1`,
           [id]
         );
         skillRows = skillsResult.rows;
       } catch (skillErr: any) {
-        console.warn("skills query failed:", skillErr.message);
+        console.warn("flat skills query failed, trying many-to-many:", skillErr.message);
+        try {
+          const skillsResult = await client.query(
+            `SELECT s.id, s.skill_name, s.category, cs.proficiency_level, cs.years_experience 
+             FROM candidate_skills cs
+             JOIN skills s ON cs.skill_id = s.id
+             WHERE cs.candidate_id = $1`,
+            [id]
+          );
+          skillRows = skillsResult.rows;
+        } catch (joinErr: any) {
+          console.warn("many-to-many skills query also failed:", joinErr.message);
+        }
       }
 
       // Get projects from candidates.projects JSONB column (graceful fallback)
@@ -155,11 +166,11 @@ export class CandidateModel {
       
     const result = await client.query(
       `INSERT INTO candidates (
-        id, email, phone, full_name, status, summary, resume_file_path,
-        consent_given, tenant_id, review_status, email_hash, raw_resume_text,
+        id, email, phone, full_name, status, summary, file_path,
+        review_status, raw_resume_text,
         linkedin_url, github_url, portfolio_url, location,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW()) RETURNING *`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -169,7 +180,6 @@ export class CandidateModel {
         data.summary || null,
         data.resume_path || data.resume_file_path || data.file_path || null,
         data.review_status || "pending",
-        emailHash,
         data.raw_resume_text || null,
         data.linkedin_url || null,
         data.github_url || null,
@@ -188,14 +198,13 @@ export class CandidateModel {
            full_name = COALESCE($3, full_name), 
            status = COALESCE($4, status), 
            summary = COALESCE($5, summary), 
-           email_hash = COALESCE($6, email_hash),
-           raw_resume_text = COALESCE($7, raw_resume_text),
-           linkedin_url = COALESCE($8, linkedin_url),
-           github_url = COALESCE($9, github_url),
-           portfolio_url = COALESCE($10, portfolio_url),
-           location = COALESCE($11, location),
+           raw_resume_text = COALESCE($6, raw_resume_text),
+           linkedin_url = COALESCE($7, linkedin_url),
+           github_url = COALESCE($8, github_url),
+           portfolio_url = COALESCE($9, portfolio_url),
+           location = COALESCE($10, location),
            updated_at = NOW() 
-       WHERE id = $12 
+       WHERE id = $11 
        RETURNING *`,
       [
         data.email,

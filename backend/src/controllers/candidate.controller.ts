@@ -324,7 +324,7 @@ export const createCandidate = async (
 
         for (const work of processed) {
           const workQuery = `
-            INSERT INTO work_history (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
+            INSERT INTO work_experience (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
           `;
           await client.query(workQuery, [
@@ -376,18 +376,26 @@ export const createCandidate = async (
 
       // Save certifications if provided
       if (candidateData.certifications && Array.isArray(candidateData.certifications)) {
-        for (const certName of candidateData.certifications) {
-          if (!certName || typeof certName !== "string") continue;
-          try {
-            await client.query(
-              `INSERT INTO certifications (id, candidate_id, name) VALUES ($1, $2, $3)
-               ON CONFLICT DO NOTHING`,
-              [crypto.randomUUID(), candidate.id, certName.trim()]
-            );
-          } catch (certInsertErr: any) {
-            // Table may not exist yet; skip gracefully
-            console.warn("Could not insert certification (table may not exist yet):", certInsertErr.message);
-            continue;
+        // Check if certifications table exists first
+        const certTableCheck = await client.query(`
+          SELECT table_name 
+          FROM information_schema.tables 
+          WHERE table_name = 'certifications'
+        `);
+
+        if (certTableCheck.rows.length > 0) {
+          for (const certName of candidateData.certifications) {
+            if (!certName || typeof certName !== "string") continue;
+            try {
+              await client.query(
+                `INSERT INTO certifications (id, candidate_id, name) VALUES ($1, $2, $3)
+                 ON CONFLICT DO NOTHING`,
+                [crypto.randomUUID(), candidate.id, certName.trim()]
+              );
+            } catch (certInsertErr: any) {
+              console.warn("Could not insert certification:", certInsertErr.message);
+              continue;
+            }
           }
         }
       }
@@ -445,17 +453,17 @@ export const createCandidate = async (
           : (calculatedConfidence || 0.85);
 
         await client.query(
-          `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, confidence_score, parsed_data, started_at, completed_at) 
-           VALUES ($1, $2, $3, $4, 'completed', $5, $6, NOW(), NOW())`,
-          [crypto.randomUUID(), candidate.id, filename, candidateData.file_path || `uploads/${filename}`, confidenceToSave, JSON.stringify(parsedDataJson)],
+          `INSERT INTO parsing_jobs (id, candidate_id, filename, status, confidence_score, parsed_data, started_at, completed_at) 
+           VALUES ($1, $2, $3, 'completed', $4, $5, NOW(), NOW())`,
+          [crypto.randomUUID(), candidate.id, filename, confidenceToSave, JSON.stringify(parsedDataJson)],
         );
 
-        // Update candidate status to success since parsing is complete
+        // Update candidate status to completed since parsing is complete
         await client.query(
-          "UPDATE candidates SET status = 'success' WHERE id = $1",
+          "UPDATE candidates SET status = 'completed' WHERE id = $1",
           [candidate.id]
         );
-        candidate.status = 'success';
+        candidate.status = 'completed';
 
         await client.query("COMMIT");
 
