@@ -1149,7 +1149,7 @@ export default function UploadPage() {
       }
     } finally {
       setIsParsingModel(false);
-    }
+    } 
   };
  
   const saveCandidateProfile = async () => {
