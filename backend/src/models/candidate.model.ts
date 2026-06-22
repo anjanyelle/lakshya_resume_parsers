@@ -168,9 +168,9 @@ export class CandidateModel {
       `INSERT INTO candidates (
         id, email, phone, full_name, status, summary, file_path,
         review_status, raw_resume_text,
-        linkedin_url, github_url, portfolio_url, location,
+        linkedin_url, github_url, location,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW()) RETURNING *`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -183,7 +183,6 @@ export class CandidateModel {
         data.raw_resume_text || null,
         data.linkedin_url || null,
         data.github_url || null,
-        data.portfolio_url || null,
         data.location || null
       ]
     );
@@ -201,10 +200,9 @@ export class CandidateModel {
            raw_resume_text = COALESCE($6, raw_resume_text),
            linkedin_url = COALESCE($7, linkedin_url),
            github_url = COALESCE($8, github_url),
-           portfolio_url = COALESCE($9, portfolio_url),
-           location = COALESCE($10, location),
+           location = COALESCE($9, location),
            updated_at = NOW() 
-       WHERE id = $11 
+       WHERE id = $10 
        RETURNING *`,
       [
         data.email,
@@ -215,7 +213,6 @@ export class CandidateModel {
         data.raw_resume_text,
         data.linkedin_url,
         data.github_url,
-        data.portfolio_url,
         data.location,
         id
       ]
