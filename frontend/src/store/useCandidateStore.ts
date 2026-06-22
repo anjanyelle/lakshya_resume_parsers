@@ -120,7 +120,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
           params.append("salary_max", salaryMax.toString());
         }
         
-        const response = await api.get(`/candidates?${params.toString()}`);
+        const response = await api.get(`/api/candidates?${params.toString()}`);
         console.log("📊 API Response:", response.data);
         console.log("📄 Pagination data:", response.data.pagination);
         console.log("👥 Candidates count:", response.data.candidates?.length || 0);
@@ -142,7 +142,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
     fetchCandidate: async (id: string) => {
       set({ isLoading: true, error: null });
       try {
-        const response = await api.get(`/candidates/${id}`);
+        const response = await api.get(`/api/candidates/${id}`);
         set({ currentCandidate: response.data.candidate, isLoading: false });
       } catch (error: any) {
         const errorMessage =
@@ -165,7 +165,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
           formData.append("llm_provider", llmProvider);
         }
 
-        const response = await api.post("/upload", formData, {
+        const response = await api.post("/api/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -215,7 +215,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
 
     deleteCandidate: async (id: string) => {
       try {
-        await api.delete(`/candidates/${id}`);
+        await api.delete(`/api/candidates/${id}`);
         set((state) => ({
           candidates: state.candidates.filter((c) => c.id !== id),
           currentCandidate:

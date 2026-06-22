@@ -341,7 +341,7 @@ export default function JDMatchingPage() {
     setResults(null);
 
     try {
-      const response = await api.post<JDParseResponse>("/matching/jd/parse", {
+      const response = await api.post<JDParseResponse>("/api/matching/jd/parse", {
         jd_text: jdText,
       });
 

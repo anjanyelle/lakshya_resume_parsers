@@ -1,9 +1,0 @@
-transformers
-datasets
-seqeval
-torch
-accelerate
-evaluate
-scikit-learn
-spacy>=3.7.0  # Used for section boundary validation in the resume parser
-en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl  # English language model for spaCy

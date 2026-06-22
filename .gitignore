@@ -126,5 +126,4 @@ AI_Storage/
 *.pt
 *.bin
 *.safetensors
-*.json
 __pycache__/

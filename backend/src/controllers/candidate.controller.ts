@@ -265,7 +265,7 @@ export const createCandidate = async (
             if (!skillName || typeof skillName !== "string") continue;
             
             const existingSkill = await client.query(
-              "SELECT id FROM skills WHERE name = $1",
+              "SELECT id FROM skills WHERE skill_name = $1",
               [skillName],
             );
 
@@ -274,7 +274,7 @@ export const createCandidate = async (
               skillId = existingSkill.rows[0].id;
             } else {
               const newSkill = await client.query(
-                "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
+                "INSERT INTO skills (id, skill_name, category) VALUES ($1, $2, $3) RETURNING id",
                 [crypto.randomUUID(), skillName, "technical"],
               );
               skillId = newSkill.rows[0].id;
@@ -302,7 +302,7 @@ export const createCandidate = async (
           for (const skillName of candidateData.skills) {
             if (!skillName || typeof skillName !== "string") continue;
             await client.query(
-              `INSERT INTO skills (id, candidate_id, name, category, proficiency_level, confidence_score) 
+              `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score) 
                VALUES ($1, $2, $3, $4, $5, $6)`,
               [
                 crypto.randomUUID(),
@@ -805,7 +805,7 @@ export const importCandidatesFromCSV = async (
             if (tableCheck.rows.length > 0) {
               for (const skillName of skillNames) {
                 const existingSkill = await client.query(
-                  "SELECT id FROM skills WHERE name = $1",
+                  "SELECT id FROM skills WHERE skill_name = $1",
                   [skillName],
                 );
 
@@ -814,7 +814,7 @@ export const importCandidatesFromCSV = async (
                   skillId = existingSkill.rows[0].id;
                 } else {
                   const newSkill = await client.query(
-                    "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
+                    "INSERT INTO skills (id, skill_name, category) VALUES ($1, $2, $3) RETURNING id",
                     [crypto.randomUUID(), skillName, "technical"],
                   );
                   skillId = newSkill.rows[0].id;
@@ -834,7 +834,7 @@ export const importCandidatesFromCSV = async (
 
               for (const skillName of skillNames) {
                 await client.query(
-                  `INSERT INTO skills (id, candidate_id, name, category, proficiency_level, confidence_score) 
+                  `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score) 
                    VALUES ($1, $2, $3, $4, $5, $6)`,
                   [
                     crypto.randomUUID(),

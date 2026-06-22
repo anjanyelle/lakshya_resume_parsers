@@ -11,6 +11,7 @@ export interface Candidate {
   status?: string;
   resume_path?: string;
   resume_file_path?: string;
+  file_path?: string;
   consent_given?: boolean;
   tenant_id?: string;
   review_status?: string;
@@ -65,7 +66,7 @@ export class CandidateModel {
       
       // Get work experience
       const workExperienceResult = await client.query(
-        "SELECT * FROM work_history WHERE candidate_id = $1 ORDER BY start_date DESC",
+        "SELECT * FROM work_experience WHERE candidate_id = $1 ORDER BY start_date DESC",
         [id]
       );
       
@@ -92,7 +93,7 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience 
+          `SELECT s.id, s.skill_name, s.category, cs.proficiency_level, cs.years_experience 
            FROM candidate_skills cs
            JOIN skills s ON cs.skill_id = s.id
            WHERE cs.candidate_id = $1`,
@@ -115,22 +116,19 @@ export class CandidateModel {
 
       // Get latest parsing job
       const parsingJobResult = await client.query(
-        "SELECT status, confidence_score, error_message, completed_at, raw_text, parsed_data FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
+        "SELECT status, confidence_score, error_message, completed_at, parsed_data FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
         [id]
       );
       const parsingJob = parsingJobResult.rows[0] || null;
 
       // Safe fallback for raw_resume_text
       let safeRawText = candidate.raw_resume_text || null;
-      if (!safeRawText && parsingJob) {
-        safeRawText = parsingJob.raw_text || null;
-        if (!safeRawText && parsingJob.parsed_data) {
-          try {
-            const pd = typeof parsingJob.parsed_data === 'string' ? JSON.parse(parsingJob.parsed_data) : parsingJob.parsed_data;
-            safeRawText = pd.raw_text || pd.full_text || pd.raw_resume_text || "";
-          } catch (e) {
-            // ignore JSON parse error
-          }
+      if (!safeRawText && parsingJob && parsingJob.parsed_data) {
+        try {
+          const pd = typeof parsingJob.parsed_data === 'string' ? JSON.parse(parsingJob.parsed_data) : parsingJob.parsed_data;
+          safeRawText = pd.raw_text || pd.full_text || pd.raw_resume_text || "";
+        } catch (e) {
+          // ignore JSON parse error
         }
       }
 
@@ -154,9 +152,6 @@ export class CandidateModel {
 
   static async create(client: any, data: Partial<Candidate>): Promise<Candidate> {
     const id = data.id || crypto.randomUUID();
-    const emailHash = data.email
-      ? crypto.createHash("md5").update(data.email.trim().toLowerCase()).digest("hex")
-      : null;
       
     const result = await client.query(
       `INSERT INTO candidates (
@@ -172,9 +167,7 @@ export class CandidateModel {
         data.full_name || data.name || null,
         data.status || "pending",
         data.summary || null,
-        data.resume_path || data.resume_file_path || null,
-        data.consent_given !== undefined ? data.consent_given : false,
-        data.tenant_id || "default",
+        data.resume_path || data.resume_file_path || data.file_path || null,
         data.review_status || "pending",
         emailHash,
         data.raw_resume_text || null,
@@ -188,10 +181,6 @@ export class CandidateModel {
   }
 
   static async update(client: any, id: string, data: Partial<Candidate>): Promise<Candidate | null> {
-    const emailHash = data.email
-      ? crypto.createHash("md5").update(data.email.trim().toLowerCase()).digest("hex")
-      : null;
-      
     const result = await client.query(
       `UPDATE candidates 
        SET email = COALESCE($1, email), 
@@ -214,7 +203,6 @@ export class CandidateModel {
         data.full_name || data.name,
         data.status,
         data.summary,
-        emailHash,
         data.raw_resume_text,
         data.linkedin_url,
         data.github_url,
@@ -257,7 +245,7 @@ export class CandidateModel {
       const offset = (page - 1) * limit;
       
       // Build WHERE clause for search
-      let whereClause = "WHERE candidates.status = 'success'";
+      let whereClause = "WHERE candidates.status = 'completed'";
       const queryParams: any[] = [];
       let joinClause = "";
       
@@ -278,18 +266,18 @@ export class CandidateModel {
         )`;
       }
       
-      // Add company filter (join with work_history)
+      // Add company filter (join with work_experience)
       if (company) {
         queryParams.push(`%${company}%`);
-        joinClause += " JOIN work_history we ON candidates.id = we.candidate_id";
+        joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
         whereClause += ` AND we.company_name ILIKE $${queryParams.length}`;
       }
       
-      // Add job_title filter (join with work_history)
+      // Add job_title filter (join with work_experience)
       if (jobTitle) {
         queryParams.push(`%${jobTitle}%`);
         if (!joinClause) {
-          joinClause += " JOIN work_history we ON candidates.id = we.candidate_id";
+          joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
         }
         whereClause += ` AND we.job_title ILIKE $${queryParams.length}`;
       }
@@ -352,7 +340,7 @@ export class CandidateModel {
       
       // Batch fetch work history
       const workHistoryResult = await client.query(
-        "SELECT * FROM work_history WHERE candidate_id = ANY($1) ORDER BY start_date DESC",
+        "SELECT * FROM work_experience WHERE candidate_id = ANY($1) ORDER BY start_date DESC",
         [candidateIds]
       );
       
@@ -360,7 +348,7 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT cs.candidate_id, s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience 
+          `SELECT cs.candidate_id, s.id, s.skill_name, s.category, cs.proficiency_level, cs.years_experience 
            FROM candidate_skills cs
            JOIN skills s ON cs.skill_id = s.id
            WHERE cs.candidate_id = ANY($1)`,
@@ -370,7 +358,7 @@ export class CandidateModel {
       } catch (skillErr) {
         try {
           const skillsResult = await client.query(
-            `SELECT id, candidate_id, name as skill_name, category, proficiency_level, years_experience 
+            `SELECT id, candidate_id, skill_name, category, proficiency_level, years_experience 
              FROM skills 
              WHERE candidate_id = ANY($1)`,
             [candidateIds]

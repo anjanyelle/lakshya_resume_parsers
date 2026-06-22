@@ -46,43 +46,43 @@ export interface RecruiterActivity {
 export const analyticsService = {
   // Get parsing statistics
   async getParsingStats(): Promise<ParsingStats> {
-    const response = await api.get('/analytics/parsing-stats');
+    const response = await api.get('/api/analytics/parsing-stats');
     return response.data;
   },
 
   // Get skill distribution
   async getSkillDistribution(): Promise<SkillDistribution[]> {
-    const response = await api.get('/analytics/skill-distribution');
+    const response = await api.get('/api/analytics/skill-distribution');
     return response.data;
   },
 
   // Get accuracy overview
   async getAccuracyOverview(): Promise<AccuracyOverview> {
-    const response = await api.get('/accuracy/overview');
+    const response = await api.get('/api/accuracy/overview');
     return response.data;
   },
 
   // Get metrics
   async getMetrics(): Promise<Metrics> {
-    const response = await api.get('/analytics/metrics');
+    const response = await api.get('/api/analytics/metrics');
     return response.data;
   },
 
   // Get upload trends with date range
   async getUploadTrends(dateRange: string = '30'): Promise<UploadTrend[]> {
-    const response = await api.get(`/analytics/upload-trends?range=${dateRange}`);
+    const response = await api.get(`/api/analytics/upload-trends?range=${dateRange}`);
     return response.data;
   },
 
   // Get recruiter activity
   async getRecruiterActivity(): Promise<RecruiterActivity> {
-    const response = await api.get('/analytics/recruiter-activity');
+    const response = await api.get('/api/analytics/recruiter-activity');
     return response.data;
   },
 
   // Export analytics as CSV
   async exportAnalyticsCSV(dateRange: string): Promise<Blob> {
-    const response = await api.get(`/analytics/export/csv?range=${dateRange}`, {
+    const response = await api.get(`/api/analytics/export/csv?range=${dateRange}`, {
       responseType: 'blob',
     });
     return response.data;
@@ -90,7 +90,7 @@ export const analyticsService = {
 
   // Export analytics as PDF
   async exportAnalyticsPDF(dateRange: string): Promise<Blob> {
-    const response = await api.get(`/analytics/export/pdf?range=${dateRange}`, {
+    const response = await api.get(`/api/analytics/export/pdf?range=${dateRange}`, {
       responseType: 'blob',
     });
     return response.data;

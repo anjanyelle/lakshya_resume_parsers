@@ -1,312 +1,0 @@
-
-================================================================================
-🚀 RESUME FOLDER ANALYSIS
-================================================================================
-Folder: resumes/
-
-📁 Found 52 resume files in resumes/
-================================================================================
-
-[1/52] Processing: Yeshwanth_Resume-sk (1)12 (5).pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 2943.08it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[2/52] Processing: Silas Blackwood .NET Executive Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 4331.91it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[3/52] Processing: Julian Vance Executive Resume (1).pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 13136.35it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[4/52] Processing: Thaddeus Vance Executive QA Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 14955.35it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[5/52] Processing: Ramsubhash_1.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15615.43it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-⚠️ No experience/education sections found, using chunking fallback
-   ✅ Success - 0 sections found
-
-[6/52] Processing: Venkatesh_SQL_Developer_Resume (1).pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15621.53it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-⚠️ No experience/education sections found, using chunking fallback
-   ✅ Success - 0 sections found
-
-[7/52] Processing: Elias Thorne-Vaughan SAP Executive Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15030.92it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[8/52] Processing: Rohan_Shah_Data_Analyst_5_Years_Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 17185.19it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[9/52] Processing: Arjun_Krishnamurthy_Java_Developer_Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16284.13it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[10/52] Processing: Everett Montgomery Java Leader Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16367.70it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[11/52] Processing: Detailed Senior .NET CV.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15539.06it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 6 sections found
-
-[12/52] Processing: Python_Developer_Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15760.65it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[13/52] Processing: Kiran_Santhosh_Reddy_NodeJS_ReactJS_Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 19341.07it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[14/52] Processing: RAJU_AWS DevOps Engineer10+.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 13280.05it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[15/52] Processing: Meredith Sinclair Executive HR Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15786.46it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[16/52] Processing: Alistair Caldwell .NET Engineering Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16101.90it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[17/52] Processing: CHANDRA SHYAM7.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16666.55it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-⚠️ No experience/education sections found, using chunking fallback
-   ✅ Success - 0 sections found
-
-[18/52] Processing: Senior Java Spring Boot Developer Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15975.87it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[19/52] Processing: Rahul_Venkataraman_Data_Engineer_Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 17281.49it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 1 sections found
-
-[20/52] Processing: Silas Thorne Full Stack Architect Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15462.87it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[21/52] Processing: sai sucharitha-skeleton621121121 (1).pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16084.61it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-⚠️ No experience/education sections found, using chunking fallback
-   ✅ Success - 0 sections found
-
-[22/52] Processing: Dominic Thorne Executive Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16144.36it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[23/52] Processing: ELIAS THORNE.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15739.36it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[24/52] Processing: Julianne Sterling Strategic BA Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 17531.78it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[25/52] Processing: Alistair Sterling Comprehensive Resume (1).pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 17925.91it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[26/52] Processing: Senior Full Stack Developer Resume.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15460.31it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 6 sections found
-
-[27/52] Processing: Raghu-skeleton2.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 13844.64it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[28/52] Processing: Harsha_JavaFullStack.pdf
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16359.72it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[29/52] Processing: REACT DEVELOPER_VENKY 10+.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 13833.23it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[30/52] Processing: Rohan_Shah_Data_Analyst_5_Years_Resume.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15623.86it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[31/52] Processing: RAJIV MALHOTRA_QA_Resume.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16161.46it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[32/52] Processing: Ravi_krishna_DotNET_resume(7 pages).docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15997.50it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[33/52] Processing: Arjun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 17810.59it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[34/52] Processing: ~$jun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16044.00it/s]
-Error extracting text from DOCX resumes/~$jun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx: Package not found at 'resumes/~$jun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx'
-⚠️ File extraction failed: Package not found at 'resumes/~$jun_Mehta_Lead_Data_Engineer_8Pages_US_Style.docx', using direct text
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-⚠️ No experience/education sections found, using chunking fallback
-   ✅ Success - 0 sections found
-
-[35/52] Processing: ALEXANDER MORGAN AI_Engineer 5+.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16462.45it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 2 sections found
-
-[36/52] Processing: RAGHAVENDRA PRASAD VEMURI__(9 pages)_Devops.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 15677.30it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[37/52] Processing: ALISTAIR THORNE (2).docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 16176.11it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[38/52] Processing: Hari_Java_Developer_Resume.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 13449.10it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[39/52] Processing: RYAN MATTHEWS 12+.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 17960.07it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[40/52] Processing: ARAVIND CHOWDARY KOLLI_.QA(8 pages)docx.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 11864.40it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 4 sections found
-
-[41/52] Processing: Rahul_Sharma_Senior_Python_Engineer.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 18679.12it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-⚠️ No experience/education sections found, using chunking fallback
-   ✅ Success - 0 sections found
-
-[42/52] Processing: ELARA V.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 10330.03it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 5 sections found
-
-[43/52] Processing: Resume-Sreenivasulu-kH_salesForce.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 14454.89it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-   ✅ Success - 3 sections found
-
-[44/52] Processing: AARAV RAGHUNATH IYER_AndroidDevloper.docx
-Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 14484.34it/s]
-⚠️ Section validation failed: spaCy is required for section validation. Please install it using: pip install spacy>=3.7.0, using uncorrected sections
-Traceback (most recent call last):
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/test_resume_folder_analysis.py", line 289, in <module>
-    results = analyze_folder(folder_path)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/test_resume_folder_analysis.py", line 145, in analyze_folder
-    result = analyze_resume(str(file_path))
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/test_resume_folder_analysis.py", line 71, in analyze_resume
-    parsed = parse_resume('', file_path=file_path)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service/resume_parser_pipeline.py", line 1177, in parse_resume
-    return parser.parse(resume_text, file_path)
-           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service/resume_parser_pipeline.py", line 936, in parse
-    edu_entities = self.model.extract_entities(education_text)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/ai-service/resume_parser_pipeline.py", line 604, in extract_entities
-    outputs = self.model(**inputs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 1153, in forward
-    outputs = self.deberta(
-        input_ids,
-    ...<6 lines>...
-        return_dict=return_dict,
-    )
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 765, in forward
-    encoder_outputs = self.encoder(
-        embedding_output,
-    ...<3 lines>...
-        return_dict=return_dict,
-    )
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 653, in forward
-    output_states, attn_weights = layer_module(
-                                  ~~~~~~~~~~~~^
-        next_kv,
-        ^^^^^^^^
-    ...<4 lines>...
-        output_attentions=output_attentions,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/transformers/modeling_layers.py", line 93, in __call__
-    return super().__call__(*args, **kwargs)
-           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 441, in forward
-    layer_output = self.output(intermediate_output, attention_output)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/transformers/models/deberta_v2/modeling_deberta_v2.py", line 409, in forward
-    hidden_states = self.dense(hidden_states)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
-    return self._call_impl(*args, **kwargs)
-           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1790, in _call_impl
-    return forward_call(*args, **kwargs)
-  File "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/venv/lib/python3.14/site-packages/torch/nn/modules/linear.py", line 134, in forward
-    return F.linear(input, self.weight, self.bias)
-           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-KeyboardInterrupt

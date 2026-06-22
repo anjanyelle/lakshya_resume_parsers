@@ -898,7 +898,7 @@ export default function UploadPage() {
       formData.append("force_ocr", forceOcr ? "true" : "false");
 
       const response = await api.post(
-        `/upload/preview-sections`,
+        `/api/upload/preview-sections`,
         formData,
         {
           headers: {
@@ -1018,7 +1018,7 @@ export default function UploadPage() {
       formData.append("force_ocr", forceOcr ? "true" : "false");
 
       const extractResponse = await api.post(
-        `/upload/preview-sections`,
+        `/api/upload/preview-sections`,
         formData,
         {
           headers: {
@@ -1051,7 +1051,7 @@ export default function UploadPage() {
         ),
       );
 
-      const parseResponse = await api.post(`/upload/parse-sections`, {
+      const parseResponse = await api.post(`/api/upload/parse-sections`, {
         model: selectedLLM,
         experience_text: extracted.experience?.text || "",
         education_text: extracted.education?.text || "",
@@ -1144,7 +1144,7 @@ export default function UploadPage() {
     try {
       // Use relative URL - Vite proxy will forward to AI service on port 8000
       const response = await api.post<ParsedSectionsResponse>(
-        `/upload/parse-sections`,
+        `/api/upload/parse-sections`,
         {
           model: selectedLLM, // Send selected model (own-model or gpt-4o-mini)
           experience_text: extractedSections.experience?.text || "",
@@ -1171,7 +1171,7 @@ export default function UploadPage() {
       }
     } finally {
       setIsParsingModel(false);
-    }
+    } 
   };
 
   const saveCandidateProfile = async (forceSave: boolean = false) => {
@@ -1218,7 +1218,7 @@ export default function UploadPage() {
       };
 
       const response = await api.post(
-        `/candidates`,
+        `/api/candidates`,
         payload
       );
 

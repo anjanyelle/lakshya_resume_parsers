@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({ isLoading: true });
         try {
           const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/auth/login`,
+            `${import.meta.env.VITE_API_URL}/api/auth/login`,
             {
               method: "POST",
               headers: {
@@ -46,8 +46,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
               },
               body: JSON.stringify({ email, password }),
             },
-          );
-
+          );    
           if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || error.message || "Login failed");
