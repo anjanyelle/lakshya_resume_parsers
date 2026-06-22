@@ -39,7 +39,7 @@ export default function DuplicateCandidateModal({
   const fetchExistingCandidate = async (id: string) => {
     setIsLoading(true);
     try {
-      const response = await api.get(`/candidates/${id}`);
+      const response = await api.get(`/api/candidates/${id}`);
       setExistingCandidate(response.data.candidate || response.data);
     } catch (error) {
       console.error("Failed to fetch existing candidate details", error);
