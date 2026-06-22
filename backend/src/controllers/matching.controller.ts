@@ -108,62 +108,85 @@ export const matchCandidatesToJob = async (
       };
 
       let matches: any[] = [];
+      
+      // Use local ATS engine for matching (no external AI dependency)
       try {
-        console.log(`🤖 Requesting batch match for ${candidates.length} candidates from AI service`);
-        const batchResponse = await callAIService("/match-batch", {
-          candidates_data: candidatesData,
-          job_data: jobData,
-        });
+        console.log(`🔍 Using local ATS engine to match ${candidates.length} candidates`);
+        
+        // Extract JD data using the JD extractor service
+        const jdText = `${job.title || ''}\n${job.description || ''}\nRequired Skills: ${(job.required_skills || []).filter(Boolean).join(', ')}\nPreferred Skills: ${(job.preferred_skills || []).filter(Boolean).join(', ')}`;
+        const jdData = extractJD(jdText);
 
-        // Map the results back to the expected structure
-        matches = batchResponse.results.map((matchResult: any) => {
-          const candidate = candidates.find((c) => c.id === matchResult.candidate_id);
+        // Convert candidates to ATS engine format
+        const atsCandidates: CandidateData[] = candidates.map((candidate) => ({
+          id: candidate.id,
+          full_name: candidate.full_name,
+          email: candidate.email,
+          phone: candidate.phone,
+          location: candidate.location,
+          summary: candidate.summary,
+          raw_resume_text: candidate.raw_resume_text,
+          years_of_experience: candidate.years_experience,
+          skills: Array.isArray(candidate.skills) ? candidate.skills.filter((s: any) => typeof s === 'string' && s.trim()) : [],
+          work_history: Array.isArray(candidate.work_experience) && candidate.work_experience[0] !== null ? candidate.work_experience : [],
+          education: Array.isArray(candidate.education) ? candidate.education : [],
+          certifications: Array.isArray(candidate.certifications) ? candidate.certifications : [],
+          projects: candidate.projects,
+          parsed_data: candidate.parsed_data || null,
+        }));
+
+        // Use local ATS engine for ranking
+        const atsResults = await rankCandidates(jdData, atsCandidates);
+        
+        // Map ATS results to expected format
+        matches = atsResults.map((atsResult) => {
+          const candidate = candidates.find((c) => c.id === atsResult.candidate_id);
           return {
-            candidate_id: matchResult.candidate_id,
-            candidate_name: candidate?.full_name || "",
-            candidate_email: candidate?.email || "",
-            candidate_location: candidate?.location || "",
-            ...matchResult,
+            candidate_id: atsResult.candidate_id,
+            candidate_name: atsResult.candidate_name,
+            candidate_email: atsResult.candidate_email,
+            candidate_location: atsResult.candidate_location,
+            overall_score: atsResult.overall_score,
+            skill_score: atsResult.skill_score,
+            experience_score: atsResult.experience_score,
+            education_score: atsResult.education_score,
+            role_score: atsResult.role_score,
+            project_score: atsResult.project_score,
+            certification_score: atsResult.certification_score,
+            matching_skills: atsResult.matched_skills,
+            missing_skills: atsResult.missing_skills,
+            extra_skills: [], // ATS engine doesn't provide this
+            experience_gap_years: (jdData.experienceYears || 0) - (atsResult.experience_years || 0),
+            recommendation: atsResult.match_label,
+            reason: atsResult.match_summary,
           };
         });
-      } catch (batchError) {
-        console.error("Error calling batch matching API, falling back to individual calls:", batchError);
-        // Fallback to individual calls if batch fails
-        const matchPromises = candidates.map(async (candidate) => {
-          try {
-            const matchResult = await callAIService("/match", {
-              candidate_data: candidatesData.find((c) => c.id === candidate.id),
-              job_data: jobData,
-            });
-            return {
-              candidate_id: candidate.id,
-              candidate_name: candidate.full_name,
-              candidate_email: candidate.email,
-              candidate_location: candidate.location,
-              ...matchResult,
-            };
-          } catch (individualError) {
-            console.error(`Error matching candidate ${candidate.id}:`, individualError);
-            return {
-              candidate_id: candidate.id,
-              candidate_name: candidate.full_name,
-              candidate_email: candidate.email,
-              candidate_location: candidate.location,
-              overall_score: 0,
-              skill_score: 0,
-              experience_score: 0,
-              education_score: 0,
-              matching_skills: [],
-              missing_skills: [],
-              extra_skills: [],
-              experience_gap_years: 0,
-              recommendation: "Not Recommended",
-              reason: "Matching service unavailable",
-              error: true,
-            };
-          }
-        });
-        matches = await Promise.all(matchPromises);
+        
+        console.log(`✅ Successfully matched ${matches.length} candidates using local ATS engine`);
+        
+      } catch (atsError) {
+        console.error("Error using local ATS engine:", atsError);
+        // Fallback: return zero-scored candidates if ATS engine fails
+        matches = candidates.map((candidate) => ({
+          candidate_id: candidate.id,
+          candidate_name: candidate.full_name,
+          candidate_email: candidate.email,
+          candidate_location: candidate.location,
+          overall_score: 0,
+          skill_score: 0,
+          experience_score: 0,
+          education_score: 0,
+          role_score: 0,
+          project_score: 0,
+          certification_score: 0,
+          matching_skills: [],
+          missing_skills: (job.required_skills || []).filter(Boolean),
+          extra_skills: [],
+          experience_gap_years: 0,
+          recommendation: "Not Recommended",
+          reason: "ATS engine unavailable",
+          error: true,
+        }));
       }
 
       // 4. Sort candidates by overall_score descending

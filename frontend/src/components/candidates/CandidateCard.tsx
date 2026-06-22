@@ -102,13 +102,14 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
 
       <hr className="border-gray-200 mb-4 mt-auto" />
 
-      {/* Experience & Company Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="flex flex-col sm:flex-row gap-3">
+      {/* Experience & Company Section - Vertical Stacked Layout */}
+      <div className="flex flex-col gap-4 mb-4">
+        {/* Total Experience */}
+        <div className="flex gap-3">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
             <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-gray-600 mb-1">Total Experience</p>
             <p className="text-sm font-medium text-gray-900 leading-snug break-words">{totalExp}</p>
             {expEntries > 0 && (
@@ -117,13 +118,14 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* Current Company */}
+        <div className="flex gap-3">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
             <Building className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
           </div>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-600 mb-1">Current Company</p>
-            <p className="text-xs sm:text-sm font-medium text-gray-900 leading-snug break-words">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-gray-600 mb-1">Current Company / Current Role</p>
+            <p className="text-sm font-medium text-gray-900 leading-snug break-words">
               {jobTitle !== "N/A" ? `${jobTitle} at ${currentCompany}` : currentCompany}
             </p>
           </div>
