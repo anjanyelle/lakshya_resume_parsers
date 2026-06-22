@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Briefcase, Calendar, Clock } from "lucide-react";
+import { Briefcase, Calendar } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import {
