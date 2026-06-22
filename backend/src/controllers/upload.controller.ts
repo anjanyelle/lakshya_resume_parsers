@@ -426,7 +426,6 @@ export const uploadResume = async (
             phone: aiData.phone || null,
             full_name: aiData.name || null,
             linkedin_url: aiData.linkedin_url || null,
-            resume_hash: fileHash || null,
             tenant_id: tenantId,
           });
         }
