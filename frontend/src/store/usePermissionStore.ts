@@ -7,7 +7,7 @@ interface Permission {
   description: string | null;
   module: string;
   created_at: string;
-}
+} 
 
 interface PermissionState {
   permissions: Permission[];
