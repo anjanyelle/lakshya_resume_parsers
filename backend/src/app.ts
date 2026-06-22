@@ -11,7 +11,7 @@ import settingsRoutes from "./routes/settings.routes";
 import analyticsRoutes from "./routes/analytics.routes";
 
 const app: Application = express();
-
+ 
 // CORS configuration
 const corsOptions = {
   origin: [

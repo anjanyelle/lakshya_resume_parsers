@@ -98,7 +98,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
   fetchJobs: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/jobs");
+      const response = await api.get("/api/jobs");
       set({ jobs: response.data.jobs || [], isLoading: false });
     } catch (error: any) {
       const errorMessage =
@@ -111,7 +111,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
   fetchJob: async (id: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/jobs/${id}`);
+      const response = await api.get(`/api/jobs/${id}`);
       set({ currentJob: response.data.job, isLoading: false });
     } catch (error: any) {
       const errorMessage =
@@ -123,7 +123,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
 
   createJob: async (jobData: Partial<Job>) => {
     try {
-      const response = await api.post("/jobs", jobData);
+      const response = await api.post("/api/jobs", jobData);
       const newJob = response.data.job;
 
       set((state) => ({
@@ -144,7 +144,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
 
   updateJob: async (id: string, jobData: Partial<Job>) => {
     try {
-      const response = await api.put(`/jobs/${id}`, jobData);
+      const response = await api.put(`/api/jobs/${id}`, jobData);
       const updatedJob = response.data.job;
 
       set((state) => ({
@@ -165,7 +165,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
 
   deleteJob: async (id: string) => {
     try {
-      await api.delete(`/jobs/${id}`);
+      await api.delete(`/api/jobs/${id}`);
       set((state) => ({
         jobs: state.jobs.filter((job) => job.id !== id),
         currentJob: state.currentJob?.id === id ? null : state.currentJob,
@@ -186,7 +186,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
   runMatching: async (jobId: string, limit = 20) => {
     set({ isMatching: true, matchingProgress: 0, error: null });
     try {
-      const response = await api.post(`/matching/job/${jobId}/candidates`, {
+      const response = await api.post(`/api/matching/job/${jobId}/candidates`, {
         limit,
       });
 
@@ -214,8 +214,8 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
       // If jobId is 'all', use the all results endpoint
       const endpoint =
         jobId === "all"
-          ? "/matching/results"
-          : `/matching/job/${jobId}/results`;
+          ? "/api/matching/results"
+          : `/api/matching/job/${jobId}/results`;
       const response = await api.get(endpoint);
       set({ matchResults: response.data.matches || [], isLoading: false });
     } catch (error: any) {

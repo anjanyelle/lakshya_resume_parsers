@@ -34,7 +34,7 @@ export default function SettingsPage() {
   const loadSettings = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/settings");
+      const response = await api.get("/api/settings");
       if (response.data?.settings) {
         setSettings({
           ...settings,
@@ -53,7 +53,7 @@ export default function SettingsPage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await api.put("/settings", { settings });
+      await api.put("/api/settings", { settings });
       toast.success("Settings updated successfully!");
     } catch (error: any) {
       console.error("Failed to save settings:", error);

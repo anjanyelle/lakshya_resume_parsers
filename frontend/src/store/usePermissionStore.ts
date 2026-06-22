@@ -32,7 +32,7 @@ export const usePermissionStore = create<PermissionState>((set) => ({
   fetchPermissions: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/permissions");
+      const response = await api.get("/api/permissions");
       set({ 
         permissions: response.data.permissions || [], 
         isLoading: false 
@@ -46,7 +46,7 @@ export const usePermissionStore = create<PermissionState>((set) => ({
   fetchRoles: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get("/roles");
+      const response = await api.get("/api/roles");
       set({ 
         roles: response.data.roles || [], 
         isLoading: false 
@@ -60,7 +60,7 @@ export const usePermissionStore = create<PermissionState>((set) => ({
   fetchRolePermissions: async (role) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get(`/roles/${role}/permissions`);
+      const response = await api.get(`/api/roles/${role}/permissions`);
       set((state) => ({
         rolePermissions: {
           ...state.rolePermissions,
@@ -77,7 +77,7 @@ export const usePermissionStore = create<PermissionState>((set) => ({
   updateRolePermissions: async (role, permissions) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.put(`/roles/${role}/permissions`, { permissions });
+      const response = await api.put(`/api/roles/${role}/permissions`, { permissions });
       set((state) => ({
         rolePermissions: {
           ...state.rolePermissions,
