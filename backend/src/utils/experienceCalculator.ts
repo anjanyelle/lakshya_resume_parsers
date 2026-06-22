@@ -1,11 +1,22 @@
 // src/utils/experienceCalculator.ts
-import { differenceInDays, addDays } from "date-fns";
 
 export interface ExperienceInput {
   start_date?: string;
   end_date?: string;
   is_current?: boolean;
   [key: string]: any;
+}
+
+// Helper functions to replace date-fns
+function differenceInDays(date1: Date, date2: Date): number {
+  const oneDay = 24 * 60 * 60 * 1000;
+  return Math.round((date1.getTime() - date2.getTime()) / oneDay);
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
 }
 
 export interface ParsedExperience extends ExperienceInput {

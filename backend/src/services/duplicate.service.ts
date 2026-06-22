@@ -15,10 +15,11 @@
 
 export interface DuplicateCheckResult {
   isDuplicate: boolean;
-  field: "email" | "phone" | "name+email" | "name+phone";
+  field: "email" | "phone" | "name+email" | "name+phone" | "linkedin_url" | "resume_hash" | "name";
   message: string;
   existingCandidateId: string;
   existingCandidateName: string | null;
+  warning?: string;
 }
 
 /**

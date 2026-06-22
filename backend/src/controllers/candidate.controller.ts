@@ -33,6 +33,8 @@ interface CreateCandidateRequest {
   certifications?: string[];  // Array of certification names from AI parsing
   projects?: string[];        // Array of project descriptions from AI parsing
   confidence_score?: number;  // Optional explicit confidence score
+  resume_hash?: string;
+  forceSave?: boolean;
 }
 
 interface UpdateCandidateRequest {
