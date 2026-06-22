@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Briefcase, Building, Calendar } from "lucide-react";
+import { User, Briefcase, Building, Calendar, GraduationCap } from "lucide-react";
 import type { Candidate } from "../../types/candidate";
 import { calculateTotalExperience } from "../../utils/experienceCalculator";
 
@@ -41,6 +41,15 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
   const workExperience = candidate.work_history || (candidate as any).work_experience || [];
   const currentCompany = workExperience.find((e: any) => e.is_current)?.company_name || "N/A";
   const jobTitle = workExperience.find((e: any) => e.is_current)?.job_title || "N/A";
+
+  // Education data
+  const education = candidate.education || (candidate as any).education_history || [];
+  const latestEducation = education.length > 0 ? education[0] : null;
+  const educationText = latestEducation 
+    ? [latestEducation.degree, latestEducation.field_of_study, latestEducation.institution]
+        .filter(Boolean)
+        .join(' / ')
+    : "N/A";
 
   // Total Experience calculations
   const { total } = calculateTotalExperience(workExperience);
@@ -127,6 +136,19 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
             <p className="text-xs font-semibold text-gray-600 mb-1">Current Company / Current Role</p>
             <p className="text-sm font-medium text-gray-900 leading-snug break-words">
               {jobTitle !== "N/A" ? `${jobTitle} at ${currentCompany}` : currentCompany}
+            </p>
+          </div>
+        </div>
+
+        {/* Education */}
+        <div className="flex gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
+            <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-gray-600 mb-1">Education</p>
+            <p className="text-sm font-medium text-gray-900 leading-snug break-words">
+              {educationText}
             </p>
           </div>
         </div>
