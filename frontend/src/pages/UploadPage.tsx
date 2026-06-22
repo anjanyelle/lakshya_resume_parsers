@@ -1188,7 +1188,7 @@ export default function UploadPage() {
       };
 
       const response = await api.post(
-        `/candidates`,
+        `/api/candidates`,
         payload
       );
 
