@@ -262,13 +262,26 @@ export const getAllMatchResults = async (
         return;
       }
 
-      // Map match results safely
-      const matches = result.rows.map((row) => ({
-        ...row,
-        matching_skills: row.matching_skills || [],
-        missing_skills: row.missing_skills || [],
-        extra_skills: row.extra_skills || [],
-      }));
+      // Map match results safely and convert scores to numbers
+      const matches = result.rows.map((row) => {
+        const overallScore = parseFloat(row.overall_score);
+        let recommendation = "Not Recommended";
+        if (overallScore >= 80) recommendation = "Strong Match";
+        else if (overallScore >= 70) recommendation = "Good Match";
+        else if (overallScore >= 60) recommendation = "Partial Match";
+
+        return {
+          ...row,
+          overall_score: overallScore,
+          skill_score: parseFloat(row.skill_score),
+          experience_score: parseFloat(row.experience_score),
+          education_score: parseFloat(row.education_score),
+          recommendation,
+          matching_skills: row.matching_skills || [],
+          missing_skills: row.missing_skills || [],
+          extra_skills: row.extra_skills || [],
+        };
+      });
 
       res.json({ matches });
     } finally {
@@ -331,13 +344,26 @@ export const getMatchResultsForJob = async (
         return;
       }
 
-      // Map matching skills correctly
-      const matches = result.rows.map((row) => ({
-        ...row,
-        matching_skills: row.matching_skills || [],
-        missing_skills: row.missing_skills || [],
-        extra_skills: row.extra_skills || [],
-      }));
+      // Map matching skills correctly and convert scores to numbers
+      const matches = result.rows.map((row) => {
+        const overallScore = parseFloat(row.overall_score);
+        let recommendation = "Not Recommended";
+        if (overallScore >= 80) recommendation = "Strong Match";
+        else if (overallScore >= 70) recommendation = "Good Match";
+        else if (overallScore >= 60) recommendation = "Partial Match";
+
+        return {
+          ...row,
+          overall_score: overallScore,
+          skill_score: parseFloat(row.skill_score),
+          experience_score: parseFloat(row.experience_score),
+          education_score: parseFloat(row.education_score),
+          recommendation,
+          matching_skills: row.matching_skills || [],
+          missing_skills: row.missing_skills || [],
+          extra_skills: row.extra_skills || [],
+        };
+      });
 
       res.json({
         success: true,
