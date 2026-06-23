@@ -301,7 +301,7 @@ export const createCandidate = async (
             try {
               // Check if skill already exists in skills table
               const existingSkill = await client.query(
-                "SELECT id FROM skills WHERE name = $1",
+                "SELECT id FROM skills WHERE skill_name = $1",
                 [skillName.trim().substring(0, 255)]
               );
 
