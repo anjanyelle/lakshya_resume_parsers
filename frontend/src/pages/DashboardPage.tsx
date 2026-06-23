@@ -29,8 +29,12 @@ export default function DashboardPage() {
     const loadDashboardData = async () => {
       setIsLoading(true);
       try {
+        // Use limit=100 for production compatibility (production backend not yet updated)
+        // Change to 500 after backend deployment
+        const limit = 100;
+        
         await Promise.all([
-          fetchCandidates(1, 500), // Fetch up to 500 candidates for accurate stats
+          fetchCandidates(1, limit), // Use conservative limit for production compatibility
           fetchJobs(),
           fetchMatchResults("all"),
         ]);

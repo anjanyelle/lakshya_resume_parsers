@@ -100,7 +100,9 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
       try {
         const params = new URLSearchParams();
         params.append("page", page.toString());
-        params.append("limit", limit.toString());
+        // Cap limit at 100 for production compatibility
+        const safeLimit = Math.min(limit, 100);
+        params.append("limit", safeLimit.toString());
         if (search) {
           params.append("search", search);
         }
