@@ -118,7 +118,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-resume_parser_secure_password}
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
-      TOKENIZERS_PARALLELISM: false
+      TOKENIZERS_PARALLELISM: "false"
       TRANSFORMERS_CACHE: /app/models/cache
       HF_HOME: /app/models/cache
     volumes:
