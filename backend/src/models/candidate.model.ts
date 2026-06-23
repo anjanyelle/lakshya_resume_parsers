@@ -92,7 +92,7 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience 
+          `SELECT s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_of_experience 
            FROM candidate_skills cs
            JOIN skills s ON cs.skill_id = s.id
            WHERE cs.candidate_id = $1`,
@@ -336,7 +336,7 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.id, cs.candidate_id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience
+          `SELECT s.id, cs.candidate_id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_of_experience
            FROM candidate_skills cs
            JOIN skills s ON cs.skill_id = s.id
            WHERE cs.candidate_id = ANY($1)`,
