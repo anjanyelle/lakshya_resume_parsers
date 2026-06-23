@@ -79,7 +79,7 @@ export class CandidateModel {
       let certificationRows: any[] = [];
       try {
         const certificationsResult = await client.query(
-          "SELECT * FROM certifications WHERE candidate_id = $1 ORDER BY issue_date DESC",
+          "SELECT * FROM certifications WHERE candidate_id = $1 ORDER BY created_at DESC",
           [id]
         );
         certificationRows = certificationsResult.rows;
