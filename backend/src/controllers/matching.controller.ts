@@ -47,20 +47,26 @@ export const matchCandidatesToJob = async (
       const candidatesQuery = `
         SELECT c.*,
                (
-                 SELECT array_agg(DISTINCT s.skill_name)
-                 FROM skills s
-                 WHERE s.candidate_id = c.id
+                 SELECT array_agg(DISTINCT s.name)
+                 FROM candidate_skills cs
+                 JOIN skills s ON cs.skill_id = s.id
+                 WHERE cs.candidate_id = c.id
                ) as skills,
                (
                  SELECT json_agg(we.*)
                  FROM work_history we
                  WHERE we.candidate_id = c.id
-               ) as work_experience,
+               ) as work_history,
                (
                  SELECT json_agg(ed.*)
                  FROM education ed
                  WHERE ed.candidate_id = c.id
-               ) as education
+               ) as education,
+               (
+                 SELECT json_agg(cert.*)
+                 FROM certifications cert
+                 WHERE cert.candidate_id = c.id
+               ) as certifications
         FROM candidates c
         ORDER BY c.created_at DESC
         LIMIT $1
@@ -89,7 +95,7 @@ export const matchCandidatesToJob = async (
         linkedin: candidate.linkedin_url,
         github: candidate.github_url,
         skills: candidate.skills || [],
-        work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
+        work_history: candidate.work_history && candidate.work_history[0] !== null ? candidate.work_history : [],
         education: candidate.education || [],
         parsed_data: candidate.parsed_data || null,
       }));
@@ -125,10 +131,9 @@ export const matchCandidatesToJob = async (
           phone: candidate.phone,
           location: candidate.location,
           summary: candidate.summary,
-          raw_resume_text: candidate.raw_resume_text,
-          years_of_experience: candidate.years_experience,
+          years_of_experience: candidate.years_of_experience,
           skills: Array.isArray(candidate.skills) ? candidate.skills.filter((s: any) => typeof s === 'string' && s.trim()) : [],
-          work_history: Array.isArray(candidate.work_experience) && candidate.work_experience[0] !== null ? candidate.work_experience : [],
+          work_history: Array.isArray(candidate.work_history) && candidate.work_history[0] !== null ? candidate.work_history : [],
           education: Array.isArray(candidate.education) ? candidate.education : [],
           certifications: Array.isArray(candidate.certifications) ? candidate.certifications : [],
           projects: candidate.projects,
@@ -180,7 +185,7 @@ export const matchCandidatesToJob = async (
           project_score: 0,
           certification_score: 0,
           matching_skills: [],
-          missing_skills: (job.required_skills || []).filter(Boolean),
+          missing_skills: (jobData.required_skills || []).filter(Boolean),
           extra_skills: [],
           experience_gap_years: 0,
           recommendation: "Not Recommended",
@@ -249,6 +254,7 @@ export const matchCandidatesToJob = async (
     res.status(500).json({
       error: "INTERNAL_ERROR",
       message: "Failed to match candidates to job",
+      details: error instanceof Error ? error.message : String(error),
     });
   }
 };
@@ -420,20 +426,26 @@ export const matchSingleCandidate = async (
       const candidateQuery = `
         SELECT c.*,
                (
-                 SELECT array_agg(DISTINCT s.skill_name)
-                 FROM skills s
-                 WHERE s.candidate_id = c.id
+                 SELECT array_agg(DISTINCT s.name)
+                 FROM candidate_skills cs
+                 JOIN skills s ON cs.skill_id = s.id
+                 WHERE cs.candidate_id = c.id
                ) as skills,
                (
                  SELECT json_agg(we.*)
                  FROM work_history we
                  WHERE we.candidate_id = c.id
-               ) as work_experience,
+               ) as work_history,
                (
                  SELECT json_agg(ed.*)
                  FROM education ed
                  WHERE ed.candidate_id = c.id
-               ) as education
+               ) as education,
+               (
+                 SELECT json_agg(cert.*)
+                 FROM certifications cert
+                 WHERE cert.candidate_id = c.id
+               ) as certifications
         FROM candidates c
         WHERE c.id = $1
       `;
@@ -485,7 +497,7 @@ export const matchSingleCandidate = async (
           linkedin: candidate.linkedin_url,
           github: candidate.github_url,
           skills: candidate.skills || [],
-          work_experience: candidate.work_experience && candidate.work_experience[0] !== null ? candidate.work_experience : [],
+          work_history: candidate.work_history && candidate.work_history[0] !== null ? candidate.work_history : [],
           education: candidate.education || [],
         },
         job_data: {
@@ -612,13 +624,14 @@ export const parseJDAndMatch = async (
           c.phone,
           c.location,
           c.summary,
-          c.raw_resume_text,
+          c.years_experience,
           c.projects,
           -- Skills array
           (
             SELECT array_agg(DISTINCT s.name)
-            FROM skills s
-            WHERE s.candidate_id = c.id
+            FROM candidate_skills cs
+            JOIN skills s ON cs.skill_id = s.id
+            WHERE cs.candidate_id = c.id
               AND s.name IS NOT NULL
           ) AS skills,
           -- Work history
@@ -694,7 +707,7 @@ export const parseJDAndMatch = async (
         phone: row.phone,
         location: row.location,
         summary: row.summary,
-        raw_resume_text: row.raw_resume_text,
+        years_of_experience: row.years_experience,
         skills: (row.skills || []).filter(Boolean) as string[],
         work_history: (row.work_history && row.work_history[0] !== null
           ? row.work_history

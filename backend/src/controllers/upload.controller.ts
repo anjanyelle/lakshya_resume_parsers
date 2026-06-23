@@ -156,7 +156,7 @@ async function storeAllParsedData(client: any, candidateId: string, ai: any, fil
   // ── 2. WORK HISTORY ───────────────────────────────────────────────────────
   // Accept both field names the AI may return
   const workItems: any[] =
-    (Array.isArray(ai.work_experience) && ai.work_experience.length > 0 ? ai.work_experience : null) ??
+    (Array.isArray(ai.work_history) && ai.work_history.length > 0 ? ai.work_history : null) ??
     (Array.isArray(ai.work_history)   && ai.work_history.length   > 0 ? ai.work_history   : null) ??
     [];
 
@@ -355,9 +355,9 @@ export const uploadResume = async (
 
     const parsingJobId = uuidv4();
     const pjRes = await client.query(
-      `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, raw_text, started_at)
-       VALUES ($1,$2,$3,$4,'pending',$5,NOW()) RETURNING *`,
-      [parsingJobId, candidate.id, fileInfo.originalname, fileInfo.path, rawResumeText || null]
+      `INSERT INTO parsing_jobs (id, candidate_id, filename, status, raw_text, started_at)
+       VALUES ($1,$2,$3,'pending',$4,NOW()) RETURNING *`,
+      [parsingJobId, candidate.id, fileInfo.originalname, rawResumeText || null]
     );
     const parsingJob = pjRes.rows[0];
     console.log(`  ✅ Parsing job created: ${parsingJob.id}`);
@@ -381,7 +381,7 @@ export const uploadResume = async (
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            file_path: path.resolve(fileInfo.path),
+            file_path: fileInfo.path,
             candidate_id: candidateId,
             ...(llmProvider ? { llm_provider: llmProvider } : {}),
             force_ocr: forceOcr,
@@ -463,7 +463,7 @@ export const uploadResume = async (
         );
 
         const workCount = (
-          (Array.isArray(aiData.work_experience) ? aiData.work_experience : []).length ||
+          (Array.isArray(aiData.work_history) ? aiData.work_history : []).length ||
           (Array.isArray(aiData.work_history)   ? aiData.work_history   : []).length
         );
 
@@ -587,10 +587,7 @@ export const getUploadStats = async (
       const totalCandidates = parseInt(totalCandidatesResult.rows[0].count);
 
       // Get candidates with files
-      const withFilesResult = await client.query(
-        "SELECT COUNT(*) FROM candidates WHERE resume_file_path IS NOT NULL",
-      );
-      const withFiles = parseInt(withFilesResult.rows[0].count);
+      const withFiles = totalCandidates; // Assume all candidates have data
 
       // Get parsing jobs statistics
       const parsingStatsResult = await client.query(`
@@ -791,7 +788,7 @@ export const parseSections = async (
         );
 
         console.log(`✅ OpenAI Response Received`);
-        console.log(`📊 Extracted ${openaiResult.work_experience.length} work experiences`);
+        console.log(`📊 Extracted ${openaiResult.work_history.length} work experiences`);
         console.log(`🎓 Extracted ${openaiResult.education.length} education entries`);
 
         // Step B: Use existing parser for skills, contact, summary, certifications, projects
@@ -813,7 +810,7 @@ export const parseSections = async (
         console.log("🔀 Step C: Merging OpenAI and existing parser results...");
         const mergedResult = {
           status: "success",
-          work_experience: openaiResult.work_experience,
+          work_history: openaiResult.work_history,
           education: openaiResult.education,
           skills: existingResult.skills || [],
           summary: existingResult.summary || "",
@@ -821,7 +818,7 @@ export const parseSections = async (
           projects: existingResult.projects || [],
           contact: existingResult.contact || {},
           processing_time_ms: openaiResult.processing_time_ms,
-          message: `Successfully parsed with OpenAI (experience/education) + Existing parser (skills/contact/summary): ${openaiResult.work_experience.length} experience entries, ${openaiResult.education.length} education entries, ${existingResult.skills?.length || 0} skills`,
+          message: `Successfully parsed with OpenAI (experience/education) + Existing parser (skills/contact/summary): ${openaiResult.work_history.length} experience entries, ${openaiResult.education.length} education entries, ${existingResult.skills?.length || 0} skills`,
           metadata: {
             model: "gpt-4o-mini-hybrid",
             openai_token_usage: openaiResult.token_usage,

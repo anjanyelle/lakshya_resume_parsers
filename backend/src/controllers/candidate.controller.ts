@@ -25,10 +25,11 @@ interface CreateCandidateRequest {
   portfolio_url?: string;
   summary?: string;
   raw_resume_text?: string;
-  file_path?: string;
+
   file_type?: string;
   skills?: string[];
-  work_experience?: any[];
+  work_history?: any[];
+  work_experience?: any[];  // Legacy field name support for frontend compatibility
   education?: any[];
   certifications?: string[];  // Array of certification names from AI parsing
   projects?: string[];        // Array of project descriptions from AI parsing
@@ -221,6 +222,12 @@ export const createCandidate = async (
     const userId = (req as any).user?.id;
     const tenantId = (req as any).user?.tenant_id || "default";
 
+    // Handle field name mapping: work_experience -> work_history
+    if (candidateData.work_experience && !candidateData.work_history) {
+      console.log("Mapping work_experience to work_history");
+      candidateData.work_history = candidateData.work_experience;
+    }
+
     console.log("USER ID:", userId);
     console.log("TENANT ID:", tenantId);
     console.log("CANDIDATE DATA:", {
@@ -228,7 +235,7 @@ export const createCandidate = async (
       email: candidateData.email,
       phone: candidateData.phone,
       skillsCount: candidateData.skills?.length || 0,
-      workExperienceCount: candidateData.work_experience?.length || 0,
+      workExperienceCount: candidateData.work_history?.length || 0,
       educationCount: candidateData.education?.length || 0,
       certificationsCount: candidateData.certifications?.length || 0,
       projectsCount: candidateData.projects?.length || 0,
@@ -281,9 +288,9 @@ export const createCandidate = async (
       if (candidateData.skills && Array.isArray(candidateData.skills)) {
         console.log("Saving skills, count:", candidateData.skills.length);
         try {
-          // Flat skills table design: delete and insert directly
+          // Delete existing candidate_skills associations
           const deleteSkillsResult = await client.query(
-            "DELETE FROM skills WHERE candidate_id = $1",
+            "DELETE FROM candidate_skills WHERE candidate_id = $1",
             [candidate.id]
           );
           console.log("Deleted existing skills, rows affected:", deleteSkillsResult.rowCount);
@@ -292,17 +299,28 @@ export const createCandidate = async (
           for (const skillName of candidateData.skills) {
             if (!skillName || typeof skillName !== "string") continue;
             try {
+              // Check if skill already exists in skills table
+              const existingSkill = await client.query(
+                "SELECT id FROM skills WHERE name = $1",
+                [skillName.trim().substring(0, 255)]
+              );
+
+              let skillId;
+              if (existingSkill.rows.length > 0) {
+                skillId = existingSkill.rows[0].id;
+              } else {
+                // Create new skill in skills table
+                const newSkill = await client.query(
+                  "INSERT INTO skills (id, name, category) VALUES ($1, $2, $3) RETURNING id",
+                  [crypto.randomUUID(), skillName.trim().substring(0, 255), "technical"]
+                );
+                skillId = newSkill.rows[0].id;
+              }
+
+              // Create association in candidate_skills table
               await client.query(
-                `INSERT INTO skills (id, candidate_id, skill_name, category, proficiency_level, confidence_score)
-                 VALUES ($1, $2, $3, $4, $5, $6)`,
-                [
-                  crypto.randomUUID(),
-                  candidate.id,
-                  skillName.trim().substring(0, 255),
-                  "technical",
-                  "intermediate",
-                  1.0
-                ]
+                "INSERT INTO candidate_skills (candidate_id, skill_id, proficiency_level) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING",
+                [candidate.id, skillId, "intermediate"]
               );
               insertedCount++;
             } catch (skillInsertErr: any) {
@@ -324,19 +342,19 @@ export const createCandidate = async (
       }
 
       // Save nested work experience if provided
-      if (candidateData.work_experience && Array.isArray(candidateData.work_experience)) {
-        console.log("Saving work experience, count:", candidateData.work_experience.length);
+      if (candidateData.work_history && Array.isArray(candidateData.work_history)) {
+        console.log("Saving work experience, count:", candidateData.work_history.length);
         try {
           // Run new total experience calculator
-          const { total, processed } = calculateTotalExperience(candidateData.work_experience);
+          const { total, processed } = calculateTotalExperience(candidateData.work_history);
           console.log("Calculated total experience:", total);
           console.log("Processed work experience count:", processed.length);
 
           let insertedWorkCount = 0;
           for (const work of processed) {
             const workQuery = `
-              INSERT INTO work_experience (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location, duration_string)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+              INSERT INTO work_history (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `;
             const workParams = [
               crypto.randomUUID(),
@@ -348,9 +366,8 @@ export const createCandidate = async (
               work.is_current || false,
               work.description || null,
               work.location || null,
-              work.duration_string || null,
             ];
-            console.log("Inserting work experience:", workParams.slice(2, 10));
+            console.log("Inserting work experience:", workParams.slice(2, 9));
             await client.query(workQuery, workParams);
             insertedWorkCount++;
           }
@@ -361,8 +378,8 @@ export const createCandidate = async (
             const bestExpFloat = total.years + (total.months / 12);
             console.log("Saving total experience years:", bestExpFloat);
             await client.query(
-              `UPDATE candidates SET total_experience_years = $1, total_years_exp = $2 WHERE id = $3`,
-              [bestExpFloat, JSON.stringify(total), candidate.id]
+              `UPDATE candidates SET total_years_exp = $1 WHERE id = $2`,
+              [JSON.stringify(total), candidate.id]
             );
             console.log("Total experience saved successfully");
           } catch (expErr: any) {
@@ -470,80 +487,66 @@ export const createCandidate = async (
       // Check if we are inserting already parsed data (manual profile creation or preview save)
       const hasParsedData = 
         (candidateData.skills && candidateData.skills.length > 0) ||
-        (candidateData.work_experience && candidateData.work_experience.length > 0) ||
+        (candidateData.work_history && candidateData.work_history.length > 0) ||
         (candidateData.education && candidateData.education.length > 0);
 
       if (hasParsedData) {
-        // Insert completed parsing job record
-        const parsedDataJson = {
-          name: candidateData.full_name || candidateData.name,
-          email: candidateData.email,
-          phone: candidateData.phone,
-          summary: candidateData.summary,
-          skills: candidateData.skills || [],
-          work_experience: candidateData.work_experience || [],
-          education: candidateData.education || [],
-          certifications: candidateData.certifications || [],
-          projects: candidateData.projects || [],
-        };
+        try {
+          // Insert completed parsing job record
+          const parsedDataJson = {
+            name: candidateData.full_name || candidateData.name,
+            email: candidateData.email,
+            phone: candidateData.phone,
+            summary: candidateData.summary,
+            skills: candidateData.skills || [],
+            work_history: candidateData.work_history || [],
+            education: candidateData.education || [],
+            certifications: candidateData.certifications || [],
+            projects: candidateData.projects || [],
+          };
 
-        const filename = candidateData.file_path 
-          ? candidateData.file_path.split(/[/\\]/).pop() 
-          : `${candidate.full_name || "candidate"}_resume.pdf`;
+          const filename = `${candidate.full_name || "candidate"}_manual_entry.pdf`;
 
-        // Calculate a realistic confidence score based on data completeness if not provided
-        let calculatedConfidence = 0.0;
-        if (candidateData.work_experience && candidateData.work_experience.length > 0) calculatedConfidence += 0.35;
-        if (candidateData.education && candidateData.education.length > 0) calculatedConfidence += 0.25;
-        if (candidateData.skills && candidateData.skills.length > 0) calculatedConfidence += 0.20;
-        if (candidateData.summary && candidateData.summary.length > 0) calculatedConfidence += 0.10;
-        if (candidateData.email || candidateData.phone) calculatedConfidence += 0.10;
-        
-        // Cap at 0.98 to look realistic
-        calculatedConfidence = Math.min(calculatedConfidence, 0.98);
+          // Calculate a realistic confidence score based on data completeness if not provided
+          let calculatedConfidence = 0.0;
+          if (candidateData.work_history && candidateData.work_history.length > 0) calculatedConfidence += 0.35;
+          if (candidateData.education && candidateData.education.length > 0) calculatedConfidence += 0.25;
+          if (candidateData.skills && candidateData.skills.length > 0) calculatedConfidence += 0.20;
+          if (candidateData.summary && candidateData.summary.length > 0) calculatedConfidence += 0.10;
+          if (candidateData.email || candidateData.phone) calculatedConfidence += 0.10;
+          
+          // Cap at 0.98 to look realistic
+          calculatedConfidence = Math.min(calculatedConfidence, 0.98);
 
-        const confidenceToSave = candidateData.confidence_score !== undefined 
-          ? candidateData.confidence_score 
-          : (calculatedConfidence || 0.85);
+          const confidenceToSave = candidateData.confidence_score !== undefined 
+            ? candidateData.confidence_score 
+            : (calculatedConfidence || 0.85);
 
-        await client.query(
-          `INSERT INTO parsing_jobs (id, candidate_id, filename, status, confidence_score, parsed_data, started_at, completed_at) 
-           VALUES ($1, $2, $3, 'completed', $4, $5, NOW(), NOW())`,
-          [crypto.randomUUID(), candidate.id, filename, confidenceToSave, JSON.stringify(parsedDataJson)],
-        );
+          await client.query(
+            `INSERT INTO parsing_jobs (id, candidate_id, filename, status, confidence_score, parsed_data, started_at, completed_at) 
+             VALUES ($1, $2, $3, 'completed', $4, $5, NOW(), NOW())`,
+            [crypto.randomUUID(), candidate.id, filename, confidenceToSave, JSON.stringify(parsedDataJson)],
+          );
 
-        // Update candidate status to completed since parsing is complete
-        await client.query(
-          "UPDATE candidates SET status = 'completed' WHERE id = $1",
-          [candidate.id]
-        );
-        candidate.status = 'completed';
+          // Update candidate status to completed since parsing is complete
+          await client.query(
+            "UPDATE candidates SET status = 'completed' WHERE id = $1",
+            [candidate.id]
+          );
+          candidate.status = 'completed';
 
-        await client.query("COMMIT");
+          await client.query("COMMIT");
 
-        res.status(201).json({
-          message: "Candidate created and details saved successfully",
-          candidate,
-          warning: dupCheck?.warning || undefined,
-        });
-      } else if (candidateData.file_path && candidateData.file_type) {
-        // Fallback: if no nested data but file path is provided, we just save the candidate.
-        // Synchronous parsing happens in upload.controller.ts now.
-        const filename = candidateData.file_path 
-          ? candidateData.file_path.split(/[/\\]/).pop() 
-          : `${candidate.full_name || "candidate"}_resume.pdf`;
-
-        await client.query(
-          `INSERT INTO parsing_jobs (candidate_id, filename, file_path, status, started_at) 
-           VALUES ($1, $2, $3, 'pending', NOW())`,
-          [candidate.id, filename, candidateData.file_path],
-        );
-        await client.query("COMMIT");
-        res.status(201).json({
-          message: "Candidate created successfully. Resume parsing must be done via the upload endpoint.",
-          candidate,
-          warning: dupCheck?.warning || undefined,
-        });
+          res.status(201).json({
+            message: "Candidate created and details saved successfully",
+            candidate,
+            warning: dupCheck?.warning || undefined,
+          });
+        } catch (parsedDataErr: any) {
+          console.error("Error saving parsed data:", parsedDataErr.message);
+          await client.query("ROLLBACK");
+          throw parsedDataErr;
+        }
       } else {
         await client.query("COMMIT");
         res.status(201).json({
@@ -599,10 +602,10 @@ export const getAllCandidates = async (
     const salaryMax = req.query.salary_max ? parseFloat(req.query.salary_max as string) : undefined;
 
     // Validate pagination
-    if (page < 1 || limit < 1 || limit > 100) {
+    if (page < 1 || limit < 1 || limit > 500) {
       res.status(400).json({
         error:
-          "Invalid pagination parameters. Page must be ≥1, limit must be between 1-100",
+          "Invalid pagination parameters. Page must be ≥1, limit must be between 1-500",
       });
       return;
     }
@@ -908,7 +911,7 @@ export const importCandidatesFromCSV = async (
                 );
               }
             } else {
-              // Delete existing flat skills
+              // Delete existing flat skills (fallback for old schema)
               await client.query(
                 "DELETE FROM skills WHERE candidate_id = $1",
                 [candidate.id]
@@ -938,7 +941,7 @@ export const importCandidatesFromCSV = async (
             phone: candidateData.phone,
             summary: candidateData.summary,
             skills: skillsStr ? skillsStr.split(";").map((s: string) => s.trim()) : [],
-            work_experience: [],
+            work_history: [],
             education: [],
             certifications: [],
             projects: [],
@@ -951,9 +954,9 @@ export const importCandidatesFromCSV = async (
           if (skillsStr) calculatedConfidence += 0.20;
 
           await client.query(
-            `INSERT INTO parsing_jobs (id, candidate_id, filename, file_path, status, confidence_score, parsed_data, started_at, completed_at) 
-             VALUES ($1, $2, $3, $4, 'completed', $5, $6, NOW(), NOW())`,
-            [crypto.randomUUID(), candidate.id, "imported_from_csv.pdf", "uploads/imported_from_csv.pdf", calculatedConfidence, JSON.stringify(parsedDataJson)],
+            `INSERT INTO parsing_jobs (id, candidate_id, filename, status, confidence_score, parsed_data, started_at, completed_at) 
+             VALUES ($1, $2, $3, 'completed', $4, $5, NOW(), NOW())`,
+            [crypto.randomUUID(), candidate.id, "imported_from_csv.pdf", calculatedConfidence, JSON.stringify(parsedDataJson)],
           );
 
           await client.query("COMMIT");
@@ -1106,7 +1109,7 @@ export const mergeCandidates = async (
 
       // Merge work experience (update duplicate's experience candidate_id to primary)
       await client.query(
-        "UPDATE work_experience SET candidate_id = $1 WHERE candidate_id = $2",
+        "UPDATE work_history SET candidate_id = $1 WHERE candidate_id = $2",
         [primaryId, duplicateId]
       );
 

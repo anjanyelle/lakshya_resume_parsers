@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import { useJobStore } from "../store/useJobStore";
 
@@ -9,22 +10,38 @@ interface StatCard {
 }
 
 export default function DashboardPage() {
-  const { candidates, fetchCandidates } = useCandidateStore();
+  const navigate = useNavigate();
+  const { candidates, fetchCandidates, pagination } = useCandidateStore();
   const { jobs, fetchJobs, matchResults, fetchMatchResults } = useJobStore();
   const [stats, setStats] = useState<StatCard[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load initial data
-    fetchCandidates();
-    fetchJobs();
-    fetchMatchResults("all");
+    // Load initial data with proper pagination
+    const loadDashboardData = async () => {
+      setIsLoading(true);
+      try {
+        await Promise.all([
+          fetchCandidates(1, 500), // Fetch up to 500 candidates for accurate stats
+          fetchJobs(),
+          fetchMatchResults("all"),
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, [fetchCandidates, fetchJobs, fetchMatchResults]);
 
   useEffect(() => {
     // Calculate stats when data changes
-    const totalCandidates = (candidates || []).length;
+    // Use pagination total_items for real candidate count
+    const totalCandidates = pagination?.total_items || 0;
     const activeJobs = (jobs || []).length;
-    const matchesToday = (matchResults || []).length;
+    const totalMatches = (matchResults || []).length;
+    
+    // Calculate average score from all match results
     const avgScore =
       (matchResults || []).length > 0
         ? Math.round(
@@ -73,8 +90,8 @@ export default function DashboardPage() {
         ),
       },
       {
-        title: "Matches Today",
-        value: matchesToday,
+        title: "Total Matches",
+        value: totalMatches,
         icon: (
           <svg
             className="h-6 w-6"
@@ -111,10 +128,29 @@ export default function DashboardPage() {
         ),
       },
     ]);
-  }, [candidates, jobs, matchResults]);
+  }, [pagination, jobs, matchResults]);
 
   const recentUploads = (candidates || []).slice(0, 5);
   const topMatches = (matchResults || []).slice(0, 5);
+
+  const handleStatClick = (title: string) => {
+    switch (title) {
+      case "Total Candidates":
+        navigate("/candidates");
+        break;
+      case "Active Jobs":
+        navigate("/jobs");
+        break;
+      case "Total Matches":
+        navigate("/matching");
+        break;
+      case "Avg Match Score":
+        navigate("/matching");
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="p-6">
@@ -127,27 +163,49 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 p-3 bg-indigo-100 rounded-lg">
-                <div className="text-indigo-600">{stat.icon}</div>
-              </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600">
-                  {stat.title}
-                </p>
-                <div className="flex items-baseline">
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {stat.value}
-                  </p>
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-lg shadow p-6 animate-pulse">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 p-3 bg-gray-200 rounded-lg">
+                  <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                </div>
+                <div className="ml-4 flex-1">
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-16"></div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+              onClick={() => handleStatClick(stat.title)}
+            >
+              <div className="flex items-center">
+                <div className="flex-shrink-0 p-3 bg-indigo-100 rounded-lg">
+                  <div className="text-indigo-600">{stat.icon}</div>
+                </div>
+                <div className="ml-4 flex-1">
+                  <p className="text-sm font-medium text-gray-600">
+                    {stat.title}
+                  </p>
+                  <div className="flex items-baseline">
+                    <p className="text-2xl font-semibold text-gray-900">
+                      {stat.value}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Uploads */}

@@ -16,7 +16,7 @@ const app: Application = express();
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "http://localhost:3001/",
+    "http://localhost:3001",
     "http://localhost:5173",
     "https://lakshya-llm-resume-parser-ated.vercel.app",
     "https://anjanyelle-lakshyaresumeparsers11.vercel.app",
@@ -54,8 +54,6 @@ app.use("/api/labeling", labelingRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/accuracy", analyticsRoutes);
-app.use("/api/api/analytics", analyticsRoutes);
-app.use("/api/api/accuracy", analyticsRoutes);
 
 // 404 handler
 app.use("*", (req: Request, res: Response) => {

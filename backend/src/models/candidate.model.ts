@@ -10,8 +10,7 @@ export interface Candidate {
   full_name?: string;
   status?: string;
   resume_path?: string;
-  resume_file_path?: string;
-  file_path?: string;
+
   consent_given?: boolean;
   tenant_id?: string;
   review_status?: string;
@@ -29,7 +28,7 @@ export interface Candidate {
 }
 
 export interface CandidateWithDetails extends Candidate {
-  work_experience?: any[];
+  work_history?: any[];
   education?: any[];
   certifications?: any[];
   projects?: any[];
@@ -66,7 +65,7 @@ export class CandidateModel {
       
       // Get work experience
       const workExperienceResult = await client.query(
-        "SELECT * FROM work_experience WHERE candidate_id = $1 ORDER BY start_date DESC",
+        "SELECT * FROM work_history WHERE candidate_id = $1 ORDER BY start_date DESC",
         [id]
       );
       
@@ -93,26 +92,15 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT id, skill_name, category, proficiency_level, years_experience 
-           FROM skills 
-           WHERE candidate_id = $1`,
+          `SELECT s.id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience 
+           FROM candidate_skills cs
+           JOIN skills s ON cs.skill_id = s.id
+           WHERE cs.candidate_id = $1`,
           [id]
         );
         skillRows = skillsResult.rows;
       } catch (skillErr: any) {
-        console.warn("flat skills query failed, trying many-to-many:", skillErr.message);
-        try {
-          const skillsResult = await client.query(
-            `SELECT s.id, s.skill_name, s.category, cs.proficiency_level, cs.years_experience 
-             FROM candidate_skills cs
-             JOIN skills s ON cs.skill_id = s.id
-             WHERE cs.candidate_id = $1`,
-            [id]
-          );
-          skillRows = skillsResult.rows;
-        } catch (joinErr: any) {
-          console.warn("many-to-many skills query also failed:", joinErr.message);
-        }
+        console.warn("skills query failed:", skillErr.message);
       }
 
       // Get projects from candidates.projects JSONB column (graceful fallback)
@@ -127,7 +115,7 @@ export class CandidateModel {
 
       // Get latest parsing job
       const parsingJobResult = await client.query(
-        "SELECT status, confidence_score, error_message, completed_at, parsed_data FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
+        "SELECT status, confidence_score, error_message, completed_at, parsed_data FROM parsing_jobs WHERE candidate_id = $1 ORDER BY started_at DESC LIMIT 1",
         [id]
       );
       const parsingJob = parsingJobResult.rows[0] || null;
@@ -149,7 +137,7 @@ export class CandidateModel {
         pj_status: parsingJob?.status || null,
         pj_confidence_score: parsingJob?.confidence_score || null,
         pj_error_message: parsingJob?.error_message || null,
-        work_experience: workExperienceResult.rows,
+        work_history: workExperienceResult.rows,
         education: educationResult.rows,
         certifications: certificationRows,
         projects: projectRows,
@@ -166,11 +154,11 @@ export class CandidateModel {
       
     const result = await client.query(
       `INSERT INTO candidates (
-        id, email, phone, full_name, status, summary, file_path,
-        review_status, raw_resume_text,
+        id, email, phone, full_name, status, summary,
+        review_status,
         linkedin_url, github_url, location,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), NOW()) RETURNING *`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -178,9 +166,7 @@ export class CandidateModel {
         data.full_name || data.name || null,
         data.status || "pending",
         data.summary || null,
-        data.resume_path || data.resume_file_path || data.file_path || null,
         data.review_status || "pending",
-        data.raw_resume_text || null,
         data.linkedin_url || null,
         data.github_url || null,
         data.location || null
@@ -230,7 +216,7 @@ export class CandidateModel {
 
   static async getParsingStatus(client: any, candidateId: string): Promise<any | null> {
     const result = await client.query(
-      "SELECT * FROM parsing_jobs WHERE candidate_id = $1 ORDER BY updated_at DESC LIMIT 1",
+      "SELECT * FROM parsing_jobs WHERE candidate_id = $1 ORDER BY started_at DESC LIMIT 1",
       [candidateId]
     );
     return result.rows[0] || null;
@@ -251,7 +237,7 @@ export class CandidateModel {
       const offset = (page - 1) * limit;
       
       // Build WHERE clause for search
-      let whereClause = "WHERE candidates.status = 'completed'";
+      let whereClause = "WHERE candidates.status IN ('success', 'completed', 'pending', 'processing', 'failed')";
       const queryParams: any[] = [];
       let joinClause = "";
       
@@ -261,24 +247,25 @@ export class CandidateModel {
           candidates.full_name ILIKE $${queryParams.length}
           OR candidates.email ILIKE $${queryParams.length}
           OR EXISTS (
-            SELECT 1 FROM skills s
-            WHERE s.candidate_id = candidates.id AND s.skill_name ILIKE $${queryParams.length}
+            SELECT 1 FROM candidate_skills cs
+            JOIN skills s ON cs.skill_id = s.id
+            WHERE cs.candidate_id = candidates.id AND s.name ILIKE $${queryParams.length}
           )
         )`;
       }
       
-      // Add company filter (join with work_experience)
+      // Add company filter (join with work_history)
       if (company) {
         queryParams.push(`%${company}%`);
-        joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
+        joinClause += " JOIN work_history we ON candidates.id = we.candidate_id";
         whereClause += ` AND we.company_name ILIKE $${queryParams.length}`;
       }
       
-      // Add job_title filter (join with work_experience)
+      // Add job_title filter (join with work_history)
       if (jobTitle) {
         queryParams.push(`%${jobTitle}%`);
         if (!joinClause) {
-          joinClause += " JOIN work_experience we ON candidates.id = we.candidate_id";
+          joinClause += " JOIN work_history we ON candidates.id = we.candidate_id";
         }
         whereClause += ` AND we.job_title ILIKE $${queryParams.length}`;
       }
@@ -315,10 +302,10 @@ export class CandidateModel {
                pj.completed_at as pj_completed_at
         FROM candidates 
         LEFT JOIN LATERAL (
-            SELECT DISTINCT ON (candidate_id) candidate_id, status, confidence_score, error_message, completed_at, updated_at
+            SELECT DISTINCT ON (candidate_id) candidate_id, status, confidence_score, error_message, completed_at, started_at
             FROM parsing_jobs
             WHERE parsing_jobs.candidate_id = candidates.id
-            ORDER BY candidate_id, updated_at DESC
+            ORDER BY candidate_id, started_at DESC
             LIMIT 1
         ) pj ON true
         ${joinClause}
@@ -341,17 +328,18 @@ export class CandidateModel {
       
       // Batch fetch work history
       const workHistoryResult = await client.query(
-        "SELECT * FROM work_experience WHERE candidate_id = ANY($1) ORDER BY start_date DESC",
+        "SELECT * FROM work_history WHERE candidate_id = ANY($1) ORDER BY start_date DESC",
         [candidateIds]
       );
       
-      // Batch fetch skills (use flat skills table)
+      // Batch fetch skills (use many-to-many table)
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT id, candidate_id, skill_name, category, proficiency_level, years_experience
-           FROM skills
-           WHERE candidate_id = ANY($1)`,
+          `SELECT s.id, cs.candidate_id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience
+           FROM candidate_skills cs
+           JOIN skills s ON cs.skill_id = s.id
+           WHERE cs.candidate_id = ANY($1)`,
           [candidateIds]
         );
         skillRows = skillsResult.rows;
@@ -365,7 +353,7 @@ export class CandidateModel {
         const candidateSkills = skillRows.filter((s: any) => s.candidate_id === candidate.id);
         return {
           ...candidate,
-          work_experience: candidateWork,
+          work_history: candidateWork,
           skills: candidateSkills
         };
       });

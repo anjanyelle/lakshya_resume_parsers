@@ -173,15 +173,15 @@ export default function CandidatesPage() {
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Candidates</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Candidates</h1>
+            <p className="text-gray-500 mt-1">
               Manage and review candidate profiles with AI-powered resume parsing insights
             </p>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <div className="flex flex-col gap-4">
             {/* Search Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -252,8 +252,8 @@ export default function CandidatesPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilter("all")}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === "all"
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${filter === "all"
+                      ? "bg-indigo-600 text-white shadow-sm hover:bg-indigo-700"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
@@ -261,8 +261,8 @@ export default function CandidatesPage() {
                 </button>
                 <button
                   onClick={() => setFilter("high-confidence")}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === "high-confidence"
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${filter === "high-confidence"
+                      ? "bg-emerald-600 text-white shadow-sm hover:bg-emerald-700"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
@@ -270,8 +270,8 @@ export default function CandidatesPage() {
                 </button>
                 <button
                   onClick={() => setFilter("needs-review")}
-                  className={`px-4 py-2 rounded-md font-medium transition-colors ${filter === "needs-review"
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${filter === "needs-review"
+                      ? "bg-amber-600 text-white shadow-sm hover:bg-amber-700"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                 >
@@ -334,7 +334,7 @@ export default function CandidatesPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
         ) : paginatedCandidates.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mb-6">
             {paginatedCandidates.map((candidate) => (
               <CandidateCard
                 key={candidate.id}
@@ -344,7 +344,7 @@ export default function CandidatesPage() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-200">
             <Users className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">
               No candidates found

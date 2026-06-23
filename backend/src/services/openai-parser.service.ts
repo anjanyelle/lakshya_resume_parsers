@@ -24,7 +24,7 @@ interface Education {
 }
 
 interface OpenAIParseResult {
-  work_experience: WorkExperience[];
+  work_history: WorkExperience[];
   education: Education[];
   token_usage?: {
     prompt_tokens: number;
@@ -92,7 +92,7 @@ export class OpenAIParserService {
       const parsed = JSON.parse(content);
 
       return {
-        work_experience: this.normalizeWorkExperience(parsed.work_experience || []),
+        work_history: this.normalizeWorkExperience(parsed.work_history || []),
         education: this.normalizeEducation(parsed.education || []),
         token_usage: completion.usage
           ? {
@@ -191,7 +191,7 @@ ${educationText || "No education section provided"}
 
 Return ONLY valid JSON with this exact structure:
 {
-  "work_experience": [...],
+  "work_history": [...],
   "education": [...]
 }
 

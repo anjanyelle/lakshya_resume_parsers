@@ -53,47 +53,57 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
 
   // Total Experience calculations
   const { total } = calculateTotalExperience(workExperience);
-  const totalExp = total.total_records > 0 && total.formatted_string !== "0 Days" 
-                   ? total.formatted_string 
-                   : (candidate.total_years_exp?.formatted_string || 
+  const totalExp = total.total_records > 0 && total.formatted_string !== "0 Days"
+                   ? total.formatted_string
+                   : (candidate.total_years_exp?.formatted_string ||
                      (candidate.years_experience ? `${candidate.years_experience} Years` : "N/A"));
-  const expEntries = total.total_records > 0 
-                     ? total.total_records 
-                     : (candidate.total_years_exp?.total_records || workExperience.length || 0);
+
+  // Determine badge color based on score
+  const getBadgeColor = (score: number) => {
+    if (score >= 80) return "bg-emerald-50 border-emerald-200 text-emerald-700";
+    if (score >= 60) return "bg-amber-50 border-amber-200 text-amber-700";
+    return "bg-red-50 border-red-200 text-red-700";
+  };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
-      {/* Top Header Section */}
-      <div className="flex items-start justify-between mb-4 gap-2">
-        <div className="flex gap-3 sm:gap-4 items-center min-w-0 flex-1">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-indigo-50 flex items-center justify-center border-2 border-indigo-100 text-indigo-600 font-bold text-lg sm:text-xl shrink-0">
-            {initials ? initials : <User className="w-6 h-6" />}
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col h-full">
+      {/* Modern Header Section */}
+      <div className="flex items-start justify-between mb-5">
+        {/* Avatar and Info */}
+        <div className="flex items-center gap-4 min-w-0 flex-1">
+          {/* Fixed 56px Avatar */}
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-sm">
+            {initials || <User className="w-6 h-6" />}
           </div>
-          <div className="min-w-0">
-            <h3 className="text-lg sm:text-xl font-medium text-gray-900 uppercase tracking-wide break-words leading-tight">
+          
+          {/* Name and Email */}
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-semibold text-gray-900 truncate leading-tight">
               {fullName}
             </h3>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
+            <p className="text-sm text-gray-500 mt-0.5 truncate">
               {email}
             </p>
           </div>
         </div>
-        <div className="flex flex-col items-end shrink-0 ml-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full">
-            <span className="text-xs font-medium text-indigo-600">Parse:</span>
-            <span className="text-sm font-bold text-indigo-700">{parseScore}%</span>
+
+        {/* Parse Score Badge - Top Right */}
+        <div className="shrink-0 ml-3">
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${getBadgeColor(parseScore)}`}>
+            <span className="text-xs font-semibold">Parse</span>
+            <span className="text-sm font-bold">{parseScore}%</span>
           </div>
         </div>
       </div>
 
       {/* Skills Section */}
-      <div className="mb-4">
-        <p className="text-sm font-semibold text-gray-700 mb-3">Top Skills</p>
+      <div className="mb-5">
+        <p className="text-xs font-semibold text-gray-600 mb-2.5 uppercase tracking-wide">Skills</p>
         <div className="flex flex-wrap gap-2">
           {(showAllSkills ? skills : displaySkills).map((skill, idx) => (
             <span
               key={skill.id || idx}
-              className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs sm:text-sm font-medium border border-gray-200 break-words"
+              className="px-3 py-1.5 bg-gray-50 text-gray-700 rounded-md text-xs font-medium border border-gray-200 hover:bg-gray-100 transition-colors"
             >
               {(skill as any).skill_name || skill.name}
             </span>
@@ -101,72 +111,68 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
           {remainingSkillsCount > 0 && (
             <button
               onClick={() => setShowAllSkills(!showAllSkills)}
-              className="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-md text-xs font-medium border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer"
             >
-              {showAllSkills ? `Show less` : `+${remainingSkillsCount} more`}
+              {showAllSkills ? `Show less` : `+${remainingSkillsCount}`}
             </button>
           )}
         </div>
       </div>
 
-      <hr className="border-gray-200 mb-4 mt-auto" />
+      <div className="border-t border-gray-100 my-4" />
 
-      {/* Experience & Company Section - Vertical Stacked Layout */}
-      <div className="flex flex-col gap-4 mb-4">
+      {/* Experience & Company Section */}
+      <div className="flex flex-col gap-3.5 mb-4">
         {/* Total Experience */}
-        <div className="flex gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
-            <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100">
+            <Briefcase className="w-4 h-4 text-blue-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-gray-600 mb-1">Total Experience</p>
-            <p className="text-sm font-medium text-gray-900 leading-snug break-words">{totalExp}</p>
-            {expEntries > 0 && (
-              <p className="text-xs text-gray-500 mt-1 leading-tight">Calc from {expEntries} entries</p>
-            )}
+            <p className="text-xs font-medium text-gray-500 mb-0.5">Experience</p>
+            <p className="text-sm font-semibold text-gray-900 truncate">{totalExp}</p>
           </div>
         </div>
 
         {/* Current Company */}
-        <div className="flex gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
-            <Building className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center shrink-0 border border-purple-100">
+            <Building className="w-4 h-4 text-purple-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-gray-600 mb-1">Current Company / Current Role</p>
-            <p className="text-sm font-medium text-gray-900 leading-snug break-words">
-              {jobTitle !== "N/A" ? `${jobTitle} at ${currentCompany}` : currentCompany}
+            <p className="text-xs font-medium text-gray-500 mb-0.5">Current Role</p>
+            <p className="text-sm font-semibold text-gray-900 truncate">
+              {jobTitle !== "N/A" ? jobTitle : "Not specified"}
             </p>
+            <p className="text-xs text-gray-500 truncate">{currentCompany}</p>
           </div>
         </div>
 
         {/* Education */}
-        <div className="flex gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
-            <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center shrink-0 border border-green-100">
+            <GraduationCap className="w-4 h-4 text-green-600" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-gray-600 mb-1">Education</p>
-            <p className="text-sm font-medium text-gray-900 leading-snug break-words">
-              {educationText}
-            </p>
+            <p className="text-xs font-medium text-gray-500 mb-0.5">Education</p>
+            <p className="text-sm font-semibold text-gray-900 truncate">{educationText}</p>
           </div>
         </div>
       </div>
 
-      <hr className="border-gray-200 mb-4" />
+      <div className="border-t border-gray-100 my-4" />
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-auto">
         <button
           onClick={() => onViewProfile && onViewProfile(candidate.id)}
-          className="px-4 py-2 sm:px-6 sm:py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-sm hover:shadow"
         >
           View Profile
         </button>
-        <div className="flex items-center gap-1.5 text-gray-600 shrink-0 pl-2">
-          <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span className="text-xs sm:text-sm">Added {addedDate}</span>
+        <div className="flex items-center gap-1.5 text-gray-500 shrink-0">
+          <Calendar className="w-3.5 h-3.5" />
+          <span className="text-xs">{addedDate}</span>
         </div>
       </div>
     </div>

@@ -91,9 +91,10 @@ export const getParsingStats = async (req: Request, res: Response): Promise<void
 export const getSkillDistribution = async (req: Request, res: Response): Promise<void> => {
   try {
     const skillsResult = await query(`
-      SELECT s.skill_name, COUNT(s.candidate_id)::int as count
+      SELECT s.name, COUNT(cs.candidate_id)::int as count
       FROM skills s
-      GROUP BY s.skill_name
+      LEFT JOIN candidate_skills cs ON s.id = cs.skill_id
+      GROUP BY s.name
       ORDER BY count DESC
       LIMIT 10
     `);

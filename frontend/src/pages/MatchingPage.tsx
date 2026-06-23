@@ -241,7 +241,7 @@ export default function MatchingPage() {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-full w-full overflow-hidden">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Candidate Matching</h1>
@@ -348,9 +348,9 @@ export default function MatchingPage() {
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {selectedJob && !isActive ? (
-          <div className="flex-1 bg-white rounded-lg shadow-sm p-12 flex flex-col items-center justify-center text-center">
+          <div className="lg:col-span-4 bg-white rounded-lg shadow-sm p-12 flex flex-col items-center justify-center text-center">
             {isDraft && (
               <div className="max-w-md">
                 <div className="text-4xl mb-4">📝</div>
@@ -394,7 +394,7 @@ export default function MatchingPage() {
         ) : (
           <>
             {/* Results Table */}
-            <div className="flex-1">
+            <div className="lg:col-span-3">
               {showSuccessBanner && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-start">
                   <span className="text-green-500 mr-3 text-xl">✅</span>
@@ -619,18 +619,18 @@ export default function MatchingPage() {
         </div>
 
         {/* Side Panel - Charts */}
-        <div className="w-80">
+        <div className="lg:col-span-1">
           <div className="space-y-6">
             {/* Score Distribution */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-lg shadow-sm p-5">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Score Distribution
               </h3>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={scoreDistribution}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="range" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <XAxis dataKey="range" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#6366f1" />
                 </BarChart>
@@ -638,18 +638,18 @@ export default function MatchingPage() {
             </div>
 
             {/* Recommendation Breakdown */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-lg shadow-sm p-5">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Recommendations
               </h3>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
                     data={recommendationData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
+                    innerRadius={35}
+                    outerRadius={70}
                     paddingAngle={5}
                     dataKey="value"
                   >
@@ -682,7 +682,7 @@ export default function MatchingPage() {
             </div>
 
             {/* Summary Stats */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-white rounded-lg shadow-sm p-5">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Summary
               </h3>
