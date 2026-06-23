@@ -119,21 +119,30 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
         if (salaryMax !== null) {
           params.append("salary_max", salaryMax.toString());
         }
-        
+
         const response = await api.get(`/api/candidates?${params.toString()}`);
         console.log("📊 API Response:", response.data);
         console.log("📄 Pagination data:", response.data.pagination);
         console.log("👥 Candidates count:", response.data.candidates?.length || 0);
-        
-        set({ 
-          candidates: response.data.candidates || [], 
+
+        set({
+          candidates: response.data.candidates || [],
           pagination: response.data.pagination || null,
-          isLoading: false 
+          isLoading: false
         });
       } catch (error: any) {
         const errorMessage =
           error.response?.data?.message || "Failed to fetch candidates";
         console.error("❌ Fetch candidates error:", error);
+        
+        // Handle authentication errors
+        if (error.response?.status === 401 || error.response?.status === 400) {
+          if (error.response?.data?.error === "Access token required" || error.response?.data?.error === "Invalid or expired token") {
+            // Clear auth and let the auth interceptor handle redirect
+            errorMessage;
+          }
+        }
+        
         set({ error: errorMessage, isLoading: false, candidates: [], pagination: null });
         toast.error(errorMessage);
       }

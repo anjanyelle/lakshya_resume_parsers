@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCandidateStore } from "../store/useCandidateStore";
 import { useJobStore } from "../store/useJobStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 interface StatCard {
   title: string;
@@ -13,10 +14,17 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { candidates, fetchCandidates, pagination } = useCandidateStore();
   const { jobs, fetchJobs, matchResults, fetchMatchResults } = useJobStore();
+  const { isAuthenticated } = useAuthStore();
   const [stats, setStats] = useState<StatCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
     // Load initial data with proper pagination
     const loadDashboardData = async () => {
       setIsLoading(true);
@@ -26,13 +34,22 @@ export default function DashboardPage() {
           fetchJobs(),
           fetchMatchResults("all"),
         ]);
+      } catch (error) {
+        console.error("Failed to load dashboard data:", error);
+        // If authentication error, redirect to login
+        if (error && typeof error === 'object' && 'response' in error) {
+          const axiosError = error as any;
+          if (axiosError.response?.status === 401 || axiosError.response?.status === 400) {
+            navigate("/login");
+          }
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     loadDashboardData();
-  }, [fetchCandidates, fetchJobs, fetchMatchResults]);
+  }, [fetchCandidates, fetchJobs, fetchMatchResults, isAuthenticated, navigate]);
 
   useEffect(() => {
     // Calculate stats when data changes
