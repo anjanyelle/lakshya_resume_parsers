@@ -602,3 +602,19 @@ ai-service/training/data/
 ---
 
 *Last updated: June 2026 — Branch: `Uwanted_Clean`*
+cd frontend && vercel --prod
+
+cd /root/lakshya_resume_parsers/backend/src && npm audit fix
+
+pm2 monit
+
+# Restore stashed changes
+cd /root/lakshya_resume_parsers
+git stash pop
+
+# Revert to previous commit
+git checkout 16e94c6
+
+# Rebuild and restart
+npm install && npm run build
+pm2 restart lakshya-backend lakshya-ai
