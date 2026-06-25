@@ -237,7 +237,7 @@ export class CandidateModel {
       const offset = (page - 1) * limit;
       
       // Build WHERE clause for search
-      let whereClause = "WHERE candidates.status IN ('success', 'completed', 'pending', 'processing', 'failed')";
+      let whereClause = "WHERE candidates.status IN ('success', 'pending', 'processing', 'failed')";
       const queryParams: any[] = [];
       let joinClause = "";
       

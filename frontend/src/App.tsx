@@ -21,9 +21,10 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AccuracyPage from "./pages/AccuracyPage";
 import UsersPage from "./pages/UsersPage";
+import ApplyPage from "./pages/ApplyPage";
 
 // Protected Route Component
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: Readonly<{ children: React.ReactNode }>) {
   const { isAuthenticated, token } = useAuthStore();
 
   if (!isAuthenticated || !token) {
@@ -34,7 +35,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 // Public Route Component (redirect to dashboard if authenticated)
-function PublicRoute({ children }: { children: React.ReactNode }) {
+function PublicRoute({ children }: Readonly<{ children: React.ReactNode }>) {
   const { isAuthenticated } = useAuthStore();
 
   if (isAuthenticated) {
@@ -66,6 +67,8 @@ function App() {
           </PublicRoute>
         }
       />
+
+      <Route path="/apply" element={<ApplyPage />} />
 
       {/* Redirect root to login */}
       <Route path="/" element={<Navigate to="/login" replace />} />
