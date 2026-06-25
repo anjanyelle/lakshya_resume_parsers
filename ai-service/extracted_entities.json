@@ -1,0 +1,214 @@
+{
+  "summary": {
+    "total_companies": 7,
+    "total_roles": 8,
+    "total_clients": 0,
+    "total_start_dates": 7,
+    "total_end_dates": 4,
+    "total_education": 1,
+    "total_degrees": 4,
+    "total_locations": 0
+  },
+  "companies": [
+    "ABC Tech Solutions Pvt Ltd",
+    "BrightSoft Technologies Pvt Ltd",
+    "CodeCraft Technologies Pvt Ltd",
+    "Innovatech Pvt Ltd",
+    "NextGen Software Pvt Ltd",
+    "TechNova Solutions Pvt Ltd",
+    "WebSpark Technologies Pvt Ltd"
+  ],
+  "roles": [
+    "Frontend Developer",
+    "Full Stack Developer",
+    "Full Stack Engineer",
+    "React Developer",
+    "Software Developer",
+    "Software Engineer",
+    "UI Developer",
+    "responsive"
+  ],
+  "clients": [],
+  "start_dates": [
+    "Apr 2023",
+    "Aug 2022",
+    "Feb 2023",
+    "Jan 2024",
+    "Jul 2021",
+    "Jun 2021",
+    "Mar 2023"
+  ],
+  "end_dates": [
+    "Dec 2023",
+    "Feb 2023",
+    "Mar 2023",
+    "Present"
+  ],
+  "education": [
+    "Kakatiya University"
+  ],
+  "degrees": [
+    "B.Tech",
+    "Computer Science",
+    "Node",
+    "React"
+  ],
+  "locations": [],
+  "by_file": {
+    "Sample.txt": {
+      "COMPANY": [
+        "ABC Tech Solutions Pvt Ltd"
+      ],
+      "ROLE": [
+        "Software Developer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Feb 2023"
+      ],
+      "END_DATE": [
+        "Present"
+      ],
+      "EDUCATION": [],
+      "DEGREE": [
+        "React"
+      ],
+      "LOCATION": []
+    },
+    "Sample1.txt": {
+      "COMPANY": [
+        "TechNova Solutions Pvt Ltd"
+      ],
+      "ROLE": [
+        "Full Stack Developer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Jan 2024"
+      ],
+      "END_DATE": [
+        "Present"
+      ],
+      "EDUCATION": [],
+      "DEGREE": [
+        "React"
+      ],
+      "LOCATION": []
+    },
+    "Sample2.txt": {
+      "COMPANY": [
+        "TechNova Solutions Pvt Ltd"
+      ],
+      "ROLE": [
+        "Software Engineer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Jan 2024"
+      ],
+      "END_DATE": [
+        "Present"
+      ],
+      "EDUCATION": [],
+      "DEGREE": [],
+      "LOCATION": []
+    },
+    "Sample3.txt": {
+      "COMPANY": [
+        "TechNova Solutions Pvt Ltd"
+      ],
+      "ROLE": [
+        "Software Engineer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Jan 2024"
+      ],
+      "END_DATE": [
+        "Present"
+      ],
+      "EDUCATION": [],
+      "DEGREE": [
+        "React"
+      ],
+      "LOCATION": []
+    },
+    "resume1.txt": {
+      "COMPANY": [
+        "CodeCraft Technologies Pvt Ltd",
+        "NextGen Software Pvt Ltd"
+      ],
+      "ROLE": [
+        "responsive",
+        "React Developer",
+        "Full Stack Developer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Mar 2023",
+        "Jul 2021"
+      ],
+      "END_DATE": [
+        "Present",
+        "Feb 2023"
+      ],
+      "EDUCATION": [],
+      "DEGREE": [
+        "React"
+      ],
+      "LOCATION": []
+    },
+    "resume2.txt": {
+      "COMPANY": [
+        "WebSpark Technologies Pvt Ltd",
+        "TechNova Solutions Pvt Ltd"
+      ],
+      "ROLE": [
+        "Frontend Developer",
+        "Software Engineer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Jan 2024",
+        "Aug 2022"
+      ],
+      "END_DATE": [
+        "Dec 2023",
+        "Present"
+      ],
+      "EDUCATION": [],
+      "DEGREE": [
+        "React"
+      ],
+      "LOCATION": []
+    },
+    "resume3.txt": {
+      "COMPANY": [
+        "Innovatech Pvt Ltd",
+        "BrightSoft Technologies Pvt Ltd"
+      ],
+      "ROLE": [
+        "UI Developer",
+        "Full Stack Engineer"
+      ],
+      "CLIENT": [],
+      "START_DATE": [
+        "Apr 2023",
+        "Jun 2021"
+      ],
+      "END_DATE": [
+        "Mar 2023",
+        "Present"
+      ],
+      "EDUCATION": [
+        "Kakatiya University"
+      ],
+      "DEGREE": [
+        "Node",
+        "B.Tech",
+        "Computer Science"
+      ],
+      "LOCATION": []
+    }
+  }
+}

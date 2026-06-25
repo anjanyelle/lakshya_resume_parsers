@@ -528,12 +528,12 @@ export const createCandidate = async (
             [crypto.randomUUID(), candidate.id, filename, confidenceToSave, JSON.stringify(parsedDataJson)],
           );
 
-          // Update candidate status to completed since parsing is complete
+          // Update candidate status to success since parsing is complete
           await client.query(
-            "UPDATE candidates SET status = 'completed' WHERE id = $1",
+            "UPDATE candidates SET status = 'success' WHERE id = $1",
             [candidate.id]
           );
-          candidate.status = 'completed';
+          candidate.status = 'success';
 
           await client.query("COMMIT");
 

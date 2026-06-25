@@ -1311,30 +1311,30 @@ class DeBERTaNerParser:
 
                 chunk_text_offset += len(chunk) + 1  # +1 for newline separator between chunks
 
-        # ── DEDUPLICATE OVERLAP ENTITIES ───────────────────────────────────────────
-        # Remove duplicate entities that may appear in overlap regions
-        for entity_type in entities:
-            if isinstance(entities[entity_type], list):
-                # Remove exact duplicates while preserving order
-                seen = set()
-                unique_entities = []
-                for entity in entities[entity_type]:
-                    normalized = entity.lower().strip()
-                    if normalized not in seen:
-                        seen.add(normalized)
-                        unique_entities.append(entity)
-                entities[entity_type] = unique_entities
-        
-        # Also deduplicate positions
-        seen_positions = set()
-        unique_positions = []
-        for pos in entities_with_positions:
-            pos_key = (pos['type'], pos['text'].lower().strip(), pos['start'], pos['end'])
-            if pos_key not in seen_positions:
-                seen_positions.add(pos_key)
-                unique_positions.append(pos)
-        entities_with_positions = unique_positions
-        # ── END DEDUPLICATION ─────────────────────────────────────────────────────
+            # ── DEDUPLICATE OVERLAP ENTITIES ───────────────────────────────────────────
+            # Remove duplicate entities that may appear in overlap regions
+            for entity_type in entities:
+                if isinstance(entities[entity_type], list):
+                    # Remove exact duplicates while preserving order
+                    seen = set()
+                    unique_entities = []
+                    for entity in entities[entity_type]:
+                        normalized = entity.lower().strip()
+                        if normalized not in seen:
+                            seen.add(normalized)
+                            unique_entities.append(entity)
+                    entities[entity_type] = unique_entities
+            
+            # Also deduplicate positions
+            seen_positions = set()
+            unique_positions = []
+            for pos in entities_with_positions:
+                pos_key = (pos['type'], pos['text'].lower().strip(), pos['start'], pos['end'])
+                if pos_key not in seen_positions:
+                    seen_positions.add(pos_key)
+                    unique_positions.append(pos)
+            entities_with_positions = unique_positions
+            # ── END DEDUPLICATION ─────────────────────────────────────────────────────
 
         except Exception as e:
             # Safeguard 11: Exception Logging with full traceback

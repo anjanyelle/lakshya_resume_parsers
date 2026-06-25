@@ -1,0 +1,23 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"candidates":[{"id":"e5b58006-f5d2-4989-adf6-80d2b5fdf8a7","full_name":"Java Developer","email":"java.developer@example.com","phone":"+91-9876543210","location":"Bangalore, 
+                    India","linkedin_url":"htt...
+RawContent        : HTTP/1.1 200 OK
+                    Content-Length: 3933
+                    Content-Type: application/json
+                    Date: Tue, 28 Apr 2026 13:04:02 GMT
+                    Server: uvicorn
+                    
+                    {"candidates":[{"id":"e5b58006-f5d2-4989-adf6-80d2b5fdf8a7","full_name":"...
+Forms             : 
+Headers           : {[Content-Length, 3933], [Content-Type, application/json], [Date, Tue, 28 Apr 2026 13:04:02 GMT], [Server, uvicorn]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : 
+RawContentLength  : 3933
+
+
+
