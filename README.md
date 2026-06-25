@@ -95,7 +95,7 @@ npm run dev
 cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/frontend"
 npm install
 npm run dev
-
+    
 
 cd "/Users/anjanyelle/Desktop/untitled folder 3/Lakshya-LLM-Resume-Parser/backend"
 source venv/bin/activate
