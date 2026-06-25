@@ -1,19 +1,33 @@
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore as useSimpleAuthStore } from "../../store/authStore";
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Backend API (Node.js) - Authentication, Candidates, etc.
+const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
 
-export const apiClient = axios.create({
-  baseURL,
+// AI Service API (Python) - Resume parsing
+const aiServiceURL = import.meta.env.VITE_AI_SERVICE_URL || "http://localhost:8000";
+
+// Auth client - no interceptors for login/register
+export const authClient = axios.create({
+  baseURL: backendURL,
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-const authClient = axios.create({
-  baseURL,
+// Main API client - with interceptors for authenticated requests
+export const apiClient = axios.create({
+  baseURL: backendURL,
   timeout: 15000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export const aiServiceClient = axios.create({
+  baseURL: aiServiceURL,
+  timeout: 30000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -23,24 +37,23 @@ let refreshingPromise: Promise<string> | null = null;
 
 const refreshToken = async () => {
   const {
-    refreshToken: token,
-    setTokens,
+    accessToken: token,
     clearTokens,
-  } = useAuthStore.getState();
+  } = useSimpleAuthStore.getState();
   if (!token) {
     clearTokens();
-    throw new Error("Missing refresh token");
+    throw new Error("Missing access token");
   }
-  const response = await authClient.post("/api/auth/refresh", {
-    refresh_token: token,
-  });
-  const { access_token, refresh_token } = response.data;
-  setTokens(access_token, refresh_token);
-  return access_token as string;
+  
+  // Note: The current backend doesn't have a refresh endpoint
+  // For now, we'll just clear tokens and force re-login
+  // In production, you'd implement a proper refresh token mechanism
+  clearTokens();
+  throw new Error("Token expired. Please login again.");
 };
 
 apiClient.interceptors.request.use((config) => {
-  const { accessToken } = useAuthStore.getState();
+  const { accessToken } = useSimpleAuthStore.getState();
   if (accessToken) {
     config.headers = {
       ...config.headers,
@@ -72,7 +85,7 @@ apiClient.interceptors.response.use(
         return apiClient(original);
       } catch {
         refreshingPromise = null;
-        useAuthStore.getState().clearTokens();
+        useSimpleAuthStore.getState().clearTokens();
       }
     }
 
@@ -94,3 +107,6 @@ apiClient.interceptors.response.use(
 );
 
 export const createAbortController = () => new AbortController();
+
+// Export the base URLs for reference
+export { backendURL, aiServiceURL };

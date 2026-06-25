@@ -4,44 +4,159 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Button } from "../../../components/ui/button";
 import { FooterButtons } from "./FooterButtons";
 import { useApplicationContext } from "../context/ApplicationContext";
+import { previewSections, parseSections, type ParseSectionsResponse } from "../../../services/api/apply";
+import { toast } from "react-hot-toast";
 
 const ACCEPTED_TYPES = [".pdf", ".doc", ".docx", ".txt"];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
 export function ResumeUploader() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const { application, saveSection, markResumeParsingComplete, nextStep, prevStep } =
+  const { application, saveSection, nextStep, prevStep } =
     useApplicationContext();
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string>("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const startMockUpload = (file: File) => {
+  const handleResumeUpload = async (file: File) => {
     setError("");
-    saveSection("resume", {
-      fileName: file.name,
-      fileSizeKb: Math.round(file.size / 1024),
-      uploadStatus: "uploading",
-    });
+    setIsUploading(true);
+    setProgress(0);
 
-    const timer = window.setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          window.clearInterval(timer);
-          saveSection("resume", {
-            fileName: file.name,
-            fileSizeKb: Math.round(file.size / 1024),
-            uploadStatus: "parsing",
-          });
-
-          window.setTimeout(() => {
-            markResumeParsingComplete(file.name, Math.round(file.size / 1024));
-          }, 2000);
-
-          return 100;
-        }
-        return prev + 10;
+    try {
+      saveSection("resume", {
+        fileName: file.name,
+        fileSizeKb: Math.round(file.size / 1024),
+        uploadStatus: "uploading",
       });
-    }, 100);
+
+      setProgress(20);
+      const previewResponse = await previewSections(file, false);
+      console.log("Preview response:", previewResponse);
+      
+      setProgress(50);
+      saveSection("resume", {
+        fileName: file.name,
+        fileSizeKb: Math.round(file.size / 1024),
+        uploadStatus: "parsing",
+      });
+
+      const parseResponse = await parseSections(previewResponse, "deberta");
+      console.log("Parse response:", parseResponse);
+      
+      setProgress(100);
+      saveSection("resume", {
+        fileName: file.name,
+        fileSizeKb: Math.round(file.size / 1024),
+        uploadStatus: "parsed",
+      });
+
+      populateFormWithParsedData(parseResponse);
+      toast.success("Resume parsed successfully!");
+    } catch (err: any) {
+      console.error("Resume upload error:", err);
+      setError(err.message || "Failed to upload and parse resume. Please try again.");
+      toast.error(err.message || "Failed to upload resume");
+      saveSection("resume", {
+        fileName: "",
+        fileSizeKb: 0,
+        uploadStatus: "idle",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const populateFormWithParsedData = (data: ParseSectionsResponse) => {
+    if (data.contact) {
+      const nameParts = (data.contact.name || "").split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      saveSection("personalInfo", {
+        ...application.personalInfo,
+        firstName,
+        lastName,
+        email: data.contact.email || application.personalInfo.email,
+        phone: data.contact.phone || application.personalInfo.phone,
+        linkedIn: data.contact.linkedin || application.personalInfo.linkedIn,
+        portfolio: data.contact.portfolio || data.contact.portfolio_url || data.contact.website || application.personalInfo.portfolio,
+      });
+    }
+
+    if (data.work_experience && data.work_experience.length > 0) {
+      const experiences = data.work_experience.map((exp) => {
+        const startDate = exp.start_date ? new Date(exp.start_date) : null;
+        const endDate = exp.end_date ? new Date(exp.end_date) : null;
+
+        return {
+          id: crypto.randomUUID(),
+          jobTitle: exp.job_title || "",
+          company: exp.company_name || "",
+          employmentType: "",
+          location: exp.location || "",
+          country: "",
+          state: "",
+          city: "",
+          startMonth: startDate ? String(startDate.getMonth() + 1).padStart(2, "0") : "",
+          startYear: startDate ? String(startDate.getFullYear()) : "",
+          endMonth: endDate ? String(endDate.getMonth() + 1).padStart(2, "0") : "",
+          endYear: endDate ? String(endDate.getFullYear()) : "",
+          duration: "",
+          currentlyWorking: exp.is_current || false,
+          roleDescription: exp.description || "",
+          technologiesUsed: "",
+          skillsUsed: "",
+        };
+      });
+      saveSection("experiences", experiences);
+    }
+
+    if (data.education && data.education.length > 0) {
+      const education = data.education.map((edu) => ({
+        id: crypto.randomUUID(),
+        degree: edu.degree || "",
+        institution: edu.institution || "",
+        fieldOfStudy: edu.field_of_study || "",
+        startYear: edu.start_date || "",
+        endYear: edu.end_date || "",
+        cgpa: edu.gpa ? String(edu.gpa) : "",
+        percentage: "",
+        description: edu.description || "",
+      }));
+      saveSection("education", education);
+    }
+
+    if (data.skills && data.skills.length > 0) {
+      saveSection("skills", data.skills);
+    }
+
+    if (data.certifications && data.certifications.length > 0) {
+      const certifications = data.certifications.map((cert) => ({
+        id: crypto.randomUUID(),
+        certificationName: cert.name || "",
+        organization: cert.issuing_organization || "",
+        issueDate: cert.issue_date || "",
+        expiryDate: cert.expiry_date || "",
+        credentialId: cert.credential_id || "",
+        credentialUrl: "",
+      }));
+      saveSection("certifications", certifications);
+    }
+
+    if (data.projects && data.projects.length > 0) {
+      const projects = data.projects.map((proj) => ({
+        id: crypto.randomUUID(),
+        projectName: proj.name || "",
+        client: proj.client || "",
+        role: proj.role || "",
+        duration: proj.duration || "",
+        technologies: proj.technologies || "",
+        description: proj.description || "",
+        projectUrl: proj.url || "",
+      }));
+      saveSection("projects", projects);
+    }
   };
 
   const onFileSelect = (file?: File) => {
@@ -60,8 +175,7 @@ export function ResumeUploader() {
       return;
     }
 
-    setProgress(0);
-    startMockUpload(file);
+    handleResumeUpload(file);
   };
 
   return (
@@ -94,6 +208,7 @@ export function ResumeUploader() {
               variant="secondary"
               type="button"
               onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
             >
               Select File
             </Button>

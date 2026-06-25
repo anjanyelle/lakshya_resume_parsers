@@ -39,7 +39,7 @@ export default function AuthPage() {
         await register(email, password, role);
       }
       const tokens = await login(email, password);
-      setTokens(tokens.access_token, tokens.refresh_token);
+      setTokens(tokens.token, tokens.refresh_token || tokens.token);
       toast.success(mode === "register" ? "Account created" : "Logged in");
       navigate("/upload");
     } catch (error) {

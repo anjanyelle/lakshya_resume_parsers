@@ -9,7 +9,7 @@ export function Header() {
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="flex h-20 items-center justify-between pl-2 pr-6">
-        <div className="bg-gradient-to-r from-[#5f89dc] via-[#ef8c56] to-[#5f89dc] bg-clip-text text-6xl font-bold leading-none tracking-[0.14em] text-transparent">DXC</div>
+        <img src="https://resume-analyzer.gatnix.com/assets/image-zoOnZMzA.png" alt="DXC Logo" className="h-12 w-auto" />
         <div className="text-right text-sm text-slate-700">
           <div className="mb-1 flex items-center justify-end gap-3">
             <span>🌐 English</span>

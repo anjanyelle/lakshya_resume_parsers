@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
 import { WIZARD_STEPS, useApplicationContext } from "../context/ApplicationContext";
+import { saveCandidate, transformApplicationToCandidate } from "../../../services/api/apply";
 
 const stepTargetMap = {
   account: "account",
@@ -154,13 +155,20 @@ export function ReviewPage() {
   const handleSubmit = async () => {
     try {
       setSubmitting(true);
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      
+      const candidatePayload = transformApplicationToCandidate(application);
+      
+      const response = await saveCandidate(candidatePayload);
+      
       clearDraft();
-      toast.success("Application submitted locally. Ready for parser integration.");
-      resetApplication();
-    } catch (error) {
-      console.error(error);
-      toast.error("Unable to complete local submit simulation.");
+      toast.success(`Application submitted successfully! Candidate ID: ${response.id}`);
+      
+      setTimeout(() => {
+        resetApplication();
+      }, 2000);
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      toast.error(error.message || "Failed to submit application. Please try again.");
     } finally {
       setSubmitting(false);
     }
