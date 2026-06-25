@@ -1,8 +1,10 @@
 import { useApplicationContext } from "../context/ApplicationContext";
 
 export function Header() {
-  const { currentStep } = useApplicationContext();
+  const { currentStep, application } = useApplicationContext();
   const isAccountStep = currentStep === "account";
+  const accountEmail = application.account.email?.trim();
+  const showUserEmail = !isAccountStep && Boolean(accountEmail);
 
   return (
     <header className="border-b border-slate-200 bg-white">
@@ -18,7 +20,7 @@ export function Header() {
               <>
                 <span>⚙ Settings</span>
                 <span className="text-slate-400">|</span>
-                <span>👤 ykrajesh345@gmail.com</span>
+                {showUserEmail ? <span>👤 {accountEmail}</span> : <span>Sign In</span>}
               </>
             )}
           </div>
