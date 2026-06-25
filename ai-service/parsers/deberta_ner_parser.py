@@ -227,6 +227,21 @@ class DeBERTaNerParser:
         role-like text from responsibilities, environment, technologies, etc.
         """
         import re
+        
+        # ── PREPROCESSING DEBUG (PRODUCTION: REDUCED LOGGING) ───────────────────
+        # Only log preprocessing details in debug mode to reduce performance impact
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.info("=" * 80)
+            logger.info("PREPROCESSING DEBUG - NEWLINE HANDLING")
+            logger.info("=" * 80)
+            logger.info(f"INPUT TEXT (repr):")
+            logger.info(repr(text))
+            logger.info(f"\nINPUT TEXT LENGTH: {len(text)} chars")
+            logger.info(f"\nNEWLINE COUNT IN INPUT: {text.count('\\n')}")
+            logger.info(f"\nINPUT TEXT (raw):")
+            logger.info(text)
+            logger.info("=" * 80)
+        # ── END PREPROCESSING DEBUG ───────────────────────────────────────────
 
         # ── Noise label prefixes to strip from line starts ──────────────────
         # Original 9 prefixes preserved + 13 new additions from audit findings
@@ -328,6 +343,7 @@ class DeBERTaNerParser:
         skip_continuation = False  # True while inside a noise-label block
         in_header_section = True  # True if we're in the header section (first 3 lines)
         header_stop_detected = False  # True when we hit a stop keyword (Responsibilities, Environment, etc.)
+        desc_line_count = 0  # Track consecutive description lines to limit noise
 
         # ── STEP 3: Header Detection Stop Keywords ───────────────────────────
         # These keywords indicate the end of the header section
@@ -455,6 +471,25 @@ class DeBERTaNerParser:
             # ── Skip long description lines (> 130 chars) ────────────────────
             if len(stripped_cleaned) > 130:
                 continue
+            
+            # ── Limit responsibility paragraphs to prevent noise (IMPROVED) ───────
+            # Track consecutive description lines and limit to max 5 per block
+            # BUT: Allow entity-bearing lines even after limit (companies, roles, dates)
+            if header_stop_detected:
+                # Count consecutive description lines
+                desc_line_count += 1
+                
+                # Check if this line is entity-bearing (should always be kept)
+                is_entity_bearing = bool(_DATE_RE.search(stripped) or 
+                                       _ENTITY_INDICATOR.search(stripped))
+                
+                # Limit to 5 description lines after stop keyword, unless entity-bearing
+                if desc_line_count > 5 and not is_entity_bearing:
+                    logger.debug(f"[PREPROCESS] Skipping excess description line (limit 5): '{stripped[:80]}'")
+                    continue
+            else:
+                # Reset counter when not in description section
+                desc_line_count = 0
 
             # ── Skip action-verb-led lines ────────────────────────────────────
             if _ACTION_VERB_RE.match(stripped_cleaned):
@@ -462,7 +497,23 @@ class DeBERTaNerParser:
 
             cleaned_lines.append(cleaned_line)
 
-        return '\n'.join(cleaned_lines)
+        # ── PREPROCESSING OUTPUT DEBUG (PRODUCTION: REDUCED LOGGING) ─────────────
+        output_text = '\n'.join(cleaned_lines)
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.info("=" * 80)
+            logger.info("PREPROCESSING OUTPUT DEBUG")
+            logger.info("=" * 80)
+            logger.info(f"OUTPUT TEXT (repr):")
+            logger.info(repr(output_text))
+            logger.info(f"\nOUTPUT TEXT LENGTH: {len(output_text)} chars")
+            logger.info(f"\nNEWLINE COUNT IN OUTPUT: {output_text.count('\\n')}")
+            logger.info(f"\nOUTPUT TEXT (raw):")
+            logger.info(output_text)
+            logger.info(f"\nLINES REMOVED: {len(lines) - len(cleaned_lines)}")
+            logger.info("=" * 80)
+        # ── END PREPROCESSING OUTPUT DEBUG ─────────────────────────────────────
+        
+        return output_text
 
     def _recover_pdf_layout(self, text: str) -> str:
         """
@@ -851,20 +902,23 @@ class DeBERTaNerParser:
 
     # ── Token-safe chunking ───────────────────────────────────────────────────
 
-    def _chunk_record_for_deberta(self, record_text: str, max_tokens: int = 400) -> List[str]:
+    def _chunk_record_for_deberta(self, record_text: str, max_tokens: int = 450, overlap_tokens: int = 50) -> List[str]:
         """
-        Split a single record into token-safe chunks if it exceeds max_tokens.
+        Split a single record into token-safe chunks with overlap if it exceeds max_tokens.
 
-        Splits on sentence/line boundaries — never mid-entity. Uses a rough
-        word-count heuristic (1 word ≈ 1.3 tokens) as a fast pre-check before
-        invoking the real tokenizer.
+        IMPROVED: Now uses sentence-aware chunking with overlap to prevent entity loss at boundaries.
+        Increased max_tokens from 400 to 450 to better utilize 512-token limit.
+        Added 50-token overlap to preserve context across chunk boundaries.
+        Added fallback to line-based chunking for resumes without proper sentence structure.
+        Added dynamic max_tokens adjustment for very large records.
 
         Args:
             record_text: Single job/education record text
-            max_tokens:  Safe token budget per chunk (default 400, well under 512)
+            max_tokens: Safe token budget per chunk (default 450, closer to 512 limit)
+            overlap_tokens: Overlap between chunks (default 50 tokens for context preservation)
 
         Returns:
-            List of text chunks — usually just [record_text] for short records
+            List of text chunks with overlap — usually just [record_text] for short records
         """
         # Fast heuristic: words * 1.3 ≈ tokens
         estimated_tokens = len(record_text.split()) * 1.3
@@ -872,27 +926,94 @@ class DeBERTaNerParser:
         if estimated_tokens <= max_tokens:
             return [record_text]  # No chunking needed — common case
 
-        logger.debug(f"[CHUNK] Record estimated {estimated_tokens:.0f} tokens > {max_tokens}, chunking…")
+        # For very large records (> 2000 tokens), increase max_tokens to reduce chunk count
+        if estimated_tokens > 2000:
+            max_tokens = 500  # Push closer to 512 limit for very large records
+            logger.debug(f"[CHUNK] Very large record ({estimated_tokens:.0f} tokens), increased max_tokens to {max_tokens}")
 
-        lines = record_text.split('\n')
-        chunks: List[str] = []
-        current_lines: List[str] = []
-        current_words = 0
+        logger.debug(f"[CHUNK] Record estimated {estimated_tokens:.0f} tokens > {max_tokens}, chunking with overlap…")
 
-        for line in lines:
-            line_words = len(line.split())
-            if current_words + line_words > max_tokens and current_lines:
-                chunks.append('\n'.join(current_lines))
-                current_lines = [line]
-                current_words = line_words
-            else:
-                current_lines.append(line)
-                current_words += line_words
+        # Split into chunks using multiple strategies for better resume handling
+        import re
+        
+        # Strategy 1: Try sentence splitting (for well-formatted text)
+        sentences = re.split(r'(?<=[.!?])\s+', record_text)
+        
+        # Strategy 2: If sentence splitting fails (too few sentences), use line-based chunking
+        if len(sentences) < 3 or max(len(s.split()) for s in sentences) > max_tokens * 0.8:
+            # Use line-based chunking with bullet point awareness
+            lines = record_text.split('\n')
+            chunks: List[str] = []
+            current_chunk: List[str] = []
+            current_words = 0
+            overlap_buffer: List[str] = []
+            
+            for line in lines:
+                line_words = len(line.split())
+                
+                # If adding this line would exceed max_tokens
+                if current_words + line_words > max_tokens and current_chunk:
+                    # Save current chunk
+                    chunks.append('\n'.join(current_chunk))
+                    
+                    # Keep overlap lines for next chunk
+                    overlap_words = 0
+                    overlap_buffer = []
+                    for l in reversed(current_chunk):
+                        l_w = len(l.split())
+                        if overlap_words + l_w <= overlap_tokens:
+                            overlap_buffer.insert(0, l)
+                            overlap_words += l_w
+                        else:
+                            break
+                    
+                    # Start new chunk with overlap
+                    current_chunk = overlap_buffer.copy()
+                    current_words = overlap_words
+                else:
+                    current_chunk.append(line)
+                    current_words += line_words
+            
+            if current_chunk:
+                chunks.append('\n'.join(current_chunk))
+        else:
+            # Use sentence-based chunking
+            chunks: List[str] = []
+            current_chunk: List[str] = []
+            current_words = 0
+            overlap_buffer: List[str] = []
+            
+            for sentence in sentences:
+                sentence_words = len(sentence.split())
+                
+                # If adding this sentence would exceed max_tokens
+                if current_words + sentence_words > max_tokens and current_chunk:
+                    # Save current chunk
+                    chunks.append(' '.join(current_chunk))
+                    
+                    # Keep overlap sentences for next chunk
+                    overlap_words = 0
+                    overlap_buffer = []
+                    for sent in reversed(current_chunk):
+                        sent_w = len(sent.split())
+                        if overlap_words + sent_w <= overlap_tokens:
+                            overlap_buffer.insert(0, sent)
+                            overlap_words += sent_w
+                        else:
+                            break
+                    
+                    # Start new chunk with overlap
+                    current_chunk = overlap_buffer.copy()
+                    current_words = overlap_words
+                else:
+                    current_chunk.append(sentence)
+                    current_words += sentence_words
 
-        if current_lines:
-            chunks.append('\n'.join(current_lines))
+            # Add final chunk
+            if current_chunk:
+                chunks.append(' '.join(current_chunk))
 
-        logger.debug(f"[CHUNK] Split into {len(chunks)} chunks")
+        logger.debug(f"[CHUNK] Split into {len(chunks)} chunks with {overlap_tokens}-token overlap")
         return chunks
 
     # ── Single-record DeBERTa inference ──────────────────────────────────────
@@ -955,9 +1076,24 @@ class DeBERTaNerParser:
 
         # ── STEP 1: MODEL INPUT DEBUG LOGGING ─────────────────────────────────
         logger.info("=" * 80)
-        logger.info("STEP 1: DeBERTa MODEL INPUT ANALYSIS")
+        logger.info("DEBERTA NER INPUT DEBUG")
         logger.info("=" * 80)
-        logger.info(f"Section: {section_type}")
+        logger.info(f"EXPERIENCE TEXT:")
+        logger.info(record_text)
+        logger.info(f"\nEDUCATION TEXT:")
+        logger.info(record_text if section_type == 'education' else '(not education section)')
+        logger.info(f"\nSKILLS TEXT:")
+        logger.info('(not included in DeBERTa inference)')
+        logger.info(f"\nSUMMARY TEXT:")
+        logger.info('(not included in DeBERTa inference)')
+        logger.info(f"\nPROJECTS TEXT:")
+        logger.info('(not included in DeBERTa inference)')
+        logger.info(f"\nRAW TEXT:")
+        logger.info('(not included in DeBERTa inference)')
+        logger.info(f"\nPREPROCESSED TEXT (ACTUAL MODEL INPUT):")
+        logger.info(preprocessed)
+        logger.info(f"\nFINAL MODEL INPUT LENGTH: {len(preprocessed)} chars")
+        logger.info("=" * 80)
         
         # Calculate metrics
         char_count = len(preprocessed)
@@ -1042,7 +1178,63 @@ class DeBERTaNerParser:
                     continue
 
                 try:
+                    # ── TOKENIZER DEBUG ─────────────────────────────────────────────────
+                    logger.info("=" * 80)
+                    logger.info(f"TOKENIZER DEBUG (Chunk {chunk_idx + 1})")
+                    logger.info("=" * 80)
+                    logger.info(f"CHUNK INPUT (repr):")
+                    logger.info(repr(chunk))
+                    logger.info(f"\nCHUNK INPUT LENGTH: {len(chunk)} chars")
+                    
+                    # Tokenize to show how newlines are handled
+                    tokens = self.tokenizer.tokenize(chunk)
+                    logger.info(f"\nTOKEN COUNT: {len(tokens)}")
+                    logger.info(f"\nFIRST 200 TOKENS:")
+                    logger.info(tokens[:200])
+                    
+                    # Check for newline tokens
+                    newline_tokens = [t for t in tokens if '\n' in t or 'Ċ' in t or 'ľ' in t]
+                    if newline_tokens:
+                        logger.info(f"\nNEWLINE TOKENS FOUND: {newline_tokens}")
+                    else:
+                        logger.info(f"\nNO NEWLINE TOKENS - newlines likely normalized to spaces")
+                    
+                    # Check encoding
+                    encoded = self.tokenizer.encode(chunk)
+                    logger.info(f"\nENCODED TOKEN IDs (first 50):")
+                    logger.info(encoded[:50])
+                    logger.info("=" * 80)
+                    # ── END TOKENIZER DEBUG ─────────────────────────────────────────────
+                    
                     predictions = ner_pipeline(chunk)
+                    
+                    # ── CONFIDENCE FILTERING ───────────────────────────────────────────
+                    # Filter out low-confidence predictions to reduce false positives
+                    # Use entity-specific thresholds for better accuracy
+                    confidence_thresholds = {
+                        'COMPANY': 0.75,    # Higher threshold for companies (more false positives)
+                        'CLIENT': 0.70,     # High threshold for clients
+                        'ROLE': 0.55,       # Lower threshold for roles (more variations)
+                        'LOCATION': 0.60,   # Medium threshold for locations
+                        'DATE_START': 0.50, # Low threshold for dates (format variations)
+                        'DATE_END': 0.50,
+                        'DEGREE': 0.60,     # Medium threshold for degrees
+                        'INSTITUTION': 0.65, # Medium-high for institutions
+                        'FIELD': 0.55,      # Lower for field of study
+                    }
+                    
+                    high_conf_predictions = []
+                    for pred in predictions:
+                        etype = pred['entity_group']
+                        threshold = confidence_thresholds.get(etype, 0.65)  # Default 0.65
+                        if pred.get('score', 0.0) >= threshold:
+                            high_conf_predictions.append(pred)
+                    
+                    if len(high_conf_predictions) < len(predictions):
+                        logger.info(f"Filtered {len(predictions) - len(high_conf_predictions)} low-confidence entities "
+                                   f"(thresholds: {confidence_thresholds})")
+                        predictions = high_conf_predictions
+                    # ── END CONFIDENCE FILTERING ───────────────────────────────────────
                     
                     # ── STEP 2: MODEL OUTPUT DEBUG LOGGING ─────────────────────────────
                     logger.info("=" * 80)
@@ -1118,6 +1310,31 @@ class DeBERTaNerParser:
                         })
 
                 chunk_text_offset += len(chunk) + 1  # +1 for newline separator between chunks
+
+        # ── DEDUPLICATE OVERLAP ENTITIES ───────────────────────────────────────────
+        # Remove duplicate entities that may appear in overlap regions
+        for entity_type in entities:
+            if isinstance(entities[entity_type], list):
+                # Remove exact duplicates while preserving order
+                seen = set()
+                unique_entities = []
+                for entity in entities[entity_type]:
+                    normalized = entity.lower().strip()
+                    if normalized not in seen:
+                        seen.add(normalized)
+                        unique_entities.append(entity)
+                entities[entity_type] = unique_entities
+        
+        # Also deduplicate positions
+        seen_positions = set()
+        unique_positions = []
+        for pos in entities_with_positions:
+            pos_key = (pos['type'], pos['text'].lower().strip(), pos['start'], pos['end'])
+            if pos_key not in seen_positions:
+                seen_positions.add(pos_key)
+                unique_positions.append(pos)
+        entities_with_positions = unique_positions
+        # ── END DEDUPLICATION ─────────────────────────────────────────────────────
 
         except Exception as e:
             # Safeguard 11: Exception Logging with full traceback
@@ -1377,13 +1594,15 @@ class DeBERTaNerParser:
             
             # Check if this line is a work experience header
             if any(header == line_lower or line_lower.startswith(header) for header in work_headers):
-                work_start = i  # Include the header line (structured parser will handle it)
+                work_start = i
+                logger.info(f"Found work experience header at line {i}: '{line}'")
                 continue
             
             # Check if this line is an education header (marks end of work experience)
             if work_start != -1 and work_end == -1:
                 if any(header == line_lower or line_lower.startswith(header) for header in edu_headers + other_headers):
                     work_end = i
+                    logger.info(f"Found section end at line {i}: '{line}'")
                     break
         
         # If work section found but no end, take rest of document

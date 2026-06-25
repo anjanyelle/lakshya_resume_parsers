@@ -79,6 +79,23 @@ class EntityValidator:
             # Frameworks & Libraries
             'react', 'angular', 'vue', 'node', 'nodejs', 'express', 'django', 'flask', 
             'spring', 'spring boot', 'tensorflow', 'pytorch', 'keras', 'pandas', 'numpy',
+            # State Management & UI Libraries (NEW - addresses user's specific issues)
+            'redux', 'redux toolkit', 'redux saga', 'mobx', 'zustand', 'context api',
+            'tailwind', 'tailwind css', 'bootstrap', 'material ui', 'mui', 'ant design',
+            'chakra ui', 'styled components', 'emotion', 'sass', 'less',
+            # Authentication & Security (NEW)
+            'jwt', 'json web token', 'oauth', 'oauth2', 'saml', 'openid connect',
+            'passport', 'auth0', 'firebase auth', 'cognito',
+            # Testing (NEW)
+            'jest', 'mocha', 'jasmine', 'karma', 'enzyme', 'testing library',
+            'cypress', 'selenium', 'playwright', 'puppeteer',
+            # Build Tools & Bundlers (NEW)
+            'webpack', 'vite', 'rollup', 'parcel', 'babel', 'esbuild',
+            'npm', 'yarn', 'pnpm', 'grunt', 'gulp',
+            # CI/CD & Automation (NEW - addresses "Actions", "Automation Suite")
+            'github actions', 'gitlab ci', 'jenkins pipeline', 'circleci', 'travis ci',
+            'automation suite', 'test suite', 'test automation', 'rpa',
+            'actions', 'workflows', 'pipelines', 'jobs', 'steps',
             # Data Tools
             'tableau', 'power bi', 'looker', 'dbt', 'airflow', 'kafka', 'spark', 
             'hadoop', 'databricks', 'informatica', 'ssis', 'ssrs',
@@ -87,7 +104,10 @@ class EntityValidator:
             'git', 'ci/cd', 'cicd', 'junit', 'mockito',
             # Generic terms
             'api', 'rest', 'graphql', 'microservices', 'agile', 'scrum', 'ml', 'ai',
-            'etl', 'elt', 'pipeline', 'workflow', 'automation', 'gateways', 'payment gateways'
+            'etl', 'elt', 'pipeline', 'workflow', 'automation', 'gateways', 'payment gateways',
+            # Additional tech terms from user's issues
+            'suite', 'toolkit', 'library', 'framework', 'platform', 'sdk',
+            'middleware', 'backend', 'frontend', 'fullstack', 'full stack'
         }
         
         # Activity keywords that should NEVER be job titles

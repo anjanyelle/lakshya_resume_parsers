@@ -345,9 +345,6 @@ class SectionSplitter:
         # Normalize bullet points to standard format
         text = re.sub(r'[●○■□▪▫•‣⁃◦⦾⦿]', '•', text)
         
-        # Normalize runs of 3+ spaces to newlines (multi-column PDF artifacts)
-        text = re.sub(r' {3,}', '\n', text)
-        
         # Remove zero-width and other invisible characters
         text = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', text)
         

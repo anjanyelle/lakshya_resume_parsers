@@ -10,6 +10,7 @@ import torch
 from typing import Optional, Dict, Any, List
 from collections import defaultdict
 from dotenv import load_dotenv
+import re
 
 # Load environment variables from .env file
 load_dotenv()
@@ -74,6 +75,75 @@ async def log_requests(request: Request, call_next):
 
 # Global master parser instance (will be initialized at startup)
 master_parser: Optional[MasterParser] = None
+
+def _merge_broken_entities(text: str) -> str:
+    """
+    Merge broken entity names that were split across lines.
+    
+    Examples:
+    - "Capgemini\nTechnology Services\nIndia Limited" -> "Capgemini Technology Services India Limited"
+    - "Software\nEngineer" -> "Software Engineer"
+    - "Information\nTechnology" -> "Information Technology"
+    - "Anna\nUniversity" -> "Anna University"
+    
+    Strategy:
+    - Merge lines where each line is short (< 30 chars) and starts with capital letter
+    - Stop merging when we hit a line that looks like a new entity (starts with bullet, date, etc.)
+    """
+    if not text:
+        return text
+    
+    lines = text.split('\n')
+    merged_lines = []
+    buffer = []
+    
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        
+        # Empty line - flush buffer and add empty line
+        if not stripped:
+            if buffer:
+                merged_lines.append(' '.join(buffer))
+                buffer = []
+            merged_lines.append('')
+            continue
+        
+        # Check if this line should be merged with previous
+        should_merge = False
+        if buffer:
+            # Merge if:
+            # 1. Current line is short (< 30 chars)
+            # 2. Current line starts with capital letter or is all caps
+            # 3. Current line doesn't start with bullet, date pattern, or special markers
+            # 4. Previous line was also short
+            
+            is_short = len(stripped) < 30
+            starts_with_capital = stripped[0].isupper() if stripped else False
+            not_bullet = not stripped.startswith(('•', '-', '*', '○', '■'))
+            not_date = not re.match(r'^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}', stripped)
+            not_date_word = not re.match(r'^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}', stripped, re.IGNORECASE)
+            not_designation = not stripped.lower().startswith(('designation:', 'role:', 'position:', 'title:'))
+            not_client = not stripped.lower().startswith(('client:', 'customer:', 'account:'))
+            prev_was_short = len(buffer[-1]) < 30
+            
+            should_merge = (is_short and starts_with_capital and not_bullet and 
+                          not_date and not_date_word and not_designation and 
+                          not_client and prev_was_short)
+        
+        if should_merge:
+            buffer.append(stripped)
+        else:
+            # Flush buffer
+            if buffer:
+                merged_lines.append(' '.join(buffer))
+                buffer = []
+            buffer.append(stripped)
+    
+    # Flush remaining buffer
+    if buffer:
+        merged_lines.append(' '.join(buffer))
+    
+    return '\n'.join(merged_lines)
 
 # Import matching engine
 try:
@@ -1025,6 +1095,26 @@ async def parse_sections(request: ParseSectionsRequest):
                 # Input keys confirmed: 'work_experience_text', 'education_text'
                 # Output structure:  identical to parse_text() — both call _format_results()
                 # ──────────────────────────────────────────────────────────────────────
+                
+                # ── PAYLOAD DEBUG ───────────────────────────────────────────────────────
+                logger.info("=" * 80)
+                logger.info("PARSE-SECTIONS DEBUG - PAYLOAD RECEIVED")
+                logger.info("=" * 80)
+                logger.info(f"EXPERIENCE_TEXT (repr):")
+                logger.info(repr(request.experience_text))
+                logger.info(f"\nEDUCATION_TEXT (repr):")
+                logger.info(repr(request.education_text))
+                logger.info(f"\nSKILLS_TEXT (repr):")
+                logger.info(repr(request.skills_text))
+                logger.info(f"\nSUMMARY_TEXT (repr):")
+                logger.info(repr(request.summary_text))
+                logger.info(f"\nPROJECTS_TEXT (repr):")
+                logger.info(repr(request.projects_text))
+                logger.info(f"\nRAW_TEXT (repr):")
+                logger.info(repr(request.raw_text))
+                logger.info("=" * 80)
+                # ── END PAYLOAD DEBUG ─────────────────────────────────────────────────
+                
                 sections_for_deberta = {
                     'work_experience_text': request.experience_text.strip()
                         if request.experience_text and request.experience_text.strip() else '',
@@ -1037,6 +1127,30 @@ async def parse_sections(request: ParseSectionsRequest):
                 logger.info("=" * 70)
                 logger.info(f"  work_experience_text : {len(sections_for_deberta['work_experience_text'])} chars")
                 logger.info(f"  education_text       : {len(sections_for_deberta['education_text'])} chars")
+                
+                # Debug: Show exact text being passed to DeBERTa
+                logger.info("=" * 80)
+                logger.info("DEBERTA NER INPUT DEBUG (API LEVEL)")
+                logger.info("=" * 80)
+                logger.info(f"EXPERIENCE TEXT:")
+                logger.info(sections_for_deberta['work_experience_text'])
+                logger.info(f"\nEDUCATION TEXT:")
+                logger.info(sections_for_deberta['education_text'])
+                logger.info(f"\nSKILLS TEXT:")
+                logger.info('(not included in DeBERTa inference)')
+                logger.info(f"\nSUMMARY TEXT:")
+                logger.info('(not included in DeBERTa inference)')
+                logger.info(f"\nPROJECTS TEXT:")
+                logger.info('(not included in DeBERTa inference)')
+                logger.info(f"\nRAW TEXT:")
+                logger.info('(not included in DeBERTa inference)')
+                
+                # Check if sections are combined
+                combined_model_input = f"{sections_for_deberta['work_experience_text']}\n\n{sections_for_deberta['education_text']}"
+                logger.info(f"\nCOMBINED MODEL INPUT (if used):")
+                logger.info(repr(combined_model_input))
+                logger.info(f"\nCOMBINED MODEL INPUT LENGTH: {len(combined_model_input)}")
+                logger.info("=" * 80)
 
                 # Pre-flight: show how many job records will reach DeBERTa
                 if sections_for_deberta['work_experience_text']:
@@ -1499,12 +1613,15 @@ async def preview_sections(file: UploadFile = File(...), force_ocr: bool = Form(
         detected_sections = []
         
         for section_name, section_text in corrected_sections.items():
+            # Clean up section text - merge broken entity names
+            cleaned_section_text = _merge_broken_entities(section_text)
+            
             sections_dict[section_name] = {
-                'text': section_text,
-                'char_count': len(section_text)
+                'text': cleaned_section_text,
+                'char_count': len(cleaned_section_text)
             }
             
-            if section_text.strip():
+            if cleaned_section_text.strip():
                 detected_sections.append(section_name)
         
         # Find missing standard sections
@@ -1635,6 +1752,193 @@ async def extract_skills(request: Request):
     except Exception as e:
         logger.error(f"Error extracting skills: {e}")
         raise HTTPException(status_code=500, detail=f"Skill extraction failed: {str(e)}")
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NER POST-PROCESSOR TEST ENDPOINT
+# ═══════════════════════════════════════════════════════════════════════════
+
+class NERTestRequest(BaseModel):
+    """Request model for NER post-processor testing."""
+    model: str = "own-model"
+    experience_text: str
+    education_text: Optional[str] = ""
+
+class NERTestResponse(BaseModel):
+    """Response model for NER post-processor testing."""
+    status: str
+    model_used: str
+    processing_time_ms: float
+    raw_entities: Dict[str, Any]
+    validated_entities: Dict[str, Any]
+    statistics: Dict[str, Any]
+    work_experience: List[Dict[str, Any]]
+    education: List[Dict[str, Any]]
+
+@app.post("/test-ner-postprocessor", response_model=NERTestResponse)
+async def test_ner_postprocessor(request: NERTestRequest):
+    """
+    Test endpoint for the production-grade NER post-processor.
+    
+    This endpoint:
+    1. Runs DeBERTa NER model on the input text
+    2. Applies the 13-phase post-processing pipeline
+    3. Returns both raw and validated entities for comparison
+    4. Provides detailed statistics on filtering/validation
+    
+    Perfect for testing and debugging the NER post-processing logic.
+    """
+    import time
+    from parsers.integrated_ner_pipeline import IntegratedNERPipeline
+    from parsers.deberta_ner_parser import DeBERTaNerParser
+    
+    start_time = time.time()
+    
+    try:
+        logger.info("=" * 80)
+        logger.info("NER POST-PROCESSOR TEST ENDPOINT")
+        logger.info("=" * 80)
+        logger.info(f"Model: {request.model}")
+        logger.info(f"Experience text length: {len(request.experience_text)} chars")
+        logger.info(f"Education text length: {len(request.education_text)} chars")
+        
+        # Combine experience and education text with section headers
+        # DeBERTa parser requires section headers to identify sections
+        combined_text = ""
+        if request.experience_text and request.experience_text.strip():
+            combined_text += "WORK EXPERIENCE\n\n" + request.experience_text + "\n\n"
+        if request.education_text and request.education_text.strip():
+            combined_text += "EDUCATION\n\n" + request.education_text
+        
+        # Initialize integrated NER pipeline
+        try:
+            pipeline = IntegratedNERPipeline(enable_preprocessing=True)
+            if not pipeline.is_available():
+                raise Exception("NER pipeline not available - DeBERTa model not loaded")
+        except Exception as e:
+            logger.error(f"Failed to initialize NER pipeline: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail=f"NER pipeline initialization failed: {str(e)}"
+            )
+        
+        # Extract entities with raw predictions
+        result = pipeline.extract_entities(combined_text, return_raw=True)
+        
+        # Extract work experience and education separately (with section headers)
+        work_exp_text = "WORK EXPERIENCE\n\n" + request.experience_text if request.experience_text else ""
+        edu_exp_text = "EDUCATION\n\n" + request.education_text if request.education_text else ""
+        
+        work_exp_entities = pipeline.extract_work_experience(work_exp_text)
+        edu_entities = pipeline.extract_education(edu_exp_text) if request.education_text else {}
+        
+        # Build structured work experience
+        work_experience = []
+        roles = work_exp_entities.get('roles', [])
+        companies = work_exp_entities.get('companies', [])
+        locations = work_exp_entities.get('locations', [])
+        date_starts = work_exp_entities.get('date_start', [])
+        date_ends = work_exp_entities.get('date_end', [])
+        clients = work_exp_entities.get('clients', [])
+        
+        # Match entities to create work experience entries
+        max_entries = max(len(roles), len(companies))
+        for i in range(max_entries):
+            entry = {
+                'job_title': roles[i] if i < len(roles) else None,
+                'company_name': companies[i] if i < len(companies) else None,
+                'client': clients[i] if i < len(clients) else None,
+                'location': locations[i] if i < len(locations) else None,
+                'start_date': date_starts[i] if i < len(date_starts) else None,
+                'end_date': date_ends[i] if i < len(date_ends) else None,
+                'is_current': (date_ends[i] if i < len(date_ends) else '').lower() in ['present', 'current', 'now']
+            }
+            work_experience.append(entry)
+        
+        # Build structured education
+        education = []
+        degrees = edu_entities.get('degrees', [])
+        institutions = edu_entities.get('institutions', [])
+        fields = edu_entities.get('fields', [])
+        edu_year_starts = edu_entities.get('edu_year_start', [])
+        edu_year_ends = edu_entities.get('edu_year_end', [])
+        grades = edu_entities.get('grades', [])
+        
+        max_edu_entries = max(len(degrees), len(institutions))
+        for i in range(max_edu_entries):
+            entry = {
+                'degree': degrees[i] if i < len(degrees) else None,
+                'institution': institutions[i] if i < len(institutions) else None,
+                'field_of_study': fields[i] if i < len(fields) else None,
+                'start_year': edu_year_starts[i] if i < len(edu_year_starts) else None,
+                'end_year': edu_year_ends[i] if i < len(edu_year_ends) else None,
+                'gpa': grades[i] if i < len(grades) else None
+            }
+            education.append(entry)
+        
+        # Get statistics from post-processor
+        statistics = {
+            'total_raw_entities': result['metadata']['total_raw_entities'],
+            'total_validated_entities': result['metadata']['total_validated_entities'],
+            'filtering_rate': (
+                (result['metadata']['total_raw_entities'] - result['metadata']['total_validated_entities']) 
+                / result['metadata']['total_raw_entities'] * 100
+                if result['metadata']['total_raw_entities'] > 0 else 0
+            ),
+            'preprocessing_enabled': result['metadata']['preprocessing_enabled'],
+            'model_available': result['metadata']['model_available']
+        }
+        
+        # Separate raw and validated entities
+        raw_entities = {
+            'raw_predictions': result.get('raw_predictions', [])
+        }
+        
+        validated_entities = {
+            'companies': result.get('companies', []),
+            'roles': result.get('roles', []),
+            'clients': result.get('clients', []),
+            'locations': result.get('locations', []),
+            'degrees': result.get('degrees', []),
+            'institutions': result.get('institutions', []),
+            'fields': result.get('fields', []),
+            'date_start': result.get('date_start', []),
+            'date_end': result.get('date_end', []),
+            'edu_year_start': result.get('edu_year_start', []),
+            'edu_year_end': result.get('edu_year_end', []),
+            'grades': result.get('grades', []),
+            'person_names': result.get('person_names', [])
+        }
+        
+        processing_time_ms = (time.time() - start_time) * 1000
+        
+        logger.info("=" * 80)
+        logger.info("NER POST-PROCESSOR TEST COMPLETE")
+        logger.info("=" * 80)
+        logger.info(f"Processing time: {processing_time_ms:.2f}ms")
+        logger.info(f"Raw entities: {statistics['total_raw_entities']}")
+        logger.info(f"Validated entities: {statistics['total_validated_entities']}")
+        logger.info(f"Filtering rate: {statistics['filtering_rate']:.1f}%")
+        logger.info("=" * 80)
+        
+        return NERTestResponse(
+            status="success",
+            model_used=request.model,
+            processing_time_ms=processing_time_ms,
+            raw_entities=raw_entities,
+            validated_entities=validated_entities,
+            statistics=statistics,
+            work_experience=work_experience,
+            education=education
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"NER post-processor test failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"NER post-processor test failed: {str(e)}"
+        )
 
 @app.on_event("shutdown")
 async def shutdown_event():
