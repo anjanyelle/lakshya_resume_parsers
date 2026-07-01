@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { usePermissionStore } from "./usePermissionStore";
 
 interface User {
   id: string;
@@ -69,6 +70,14 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             isAuthenticated: true,
             isLoading: false,
           });
+          
+          // Fetch user permissions after successful login
+          try {
+            await usePermissionStore.getState().fetchUserPermissions();
+          } catch (permissionError) {
+            console.error("Failed to fetch permissions after login:", permissionError);
+            // Don't throw error - login succeeded even if permission fetch failed
+          }
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -82,6 +91,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           isAuthenticated: false,
           isLoading: false,
         });
+        
+        // Clear permissions on logout
+        usePermissionStore.getState().reset();
       },
 
       setUser: (user: User) => {

@@ -9,6 +9,16 @@ import matchingRoutes from "./routes/matching.routes";
 import labelingRoutes from "./routes/labeling.routes";
 import settingsRoutes from "./routes/settings.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import permissionsRoutes from "./routes/permissions.routes";
+import clientRoutes from "./routes/client.routes";
+import auditRoutes from "./routes/audit.routes";
+import submissionRoutes from "./routes/submission.routes";
+import interviewRoutes from "./routes/interview.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
+import activityRoutes from "./routes/activity.routes";
+import userRoutes from "./routes/user.routes";
+import teamRoutes from "./routes/team.routes";
+import communicationRoutes from "./routes/communication.routes";
 
 const app: Application = express();
  
@@ -54,6 +64,16 @@ app.use("/api/labeling", labelingRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/accuracy", analyticsRoutes);
+app.use("/api/permissions", permissionsRoutes);
+app.use("/api/clients", clientRoutes);
+app.use("/api/audit-logs", auditRoutes);
+app.use("/api/submissions", submissionRoutes);
+app.use("/api/interviews", interviewRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/activity", activityRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/team-lead", teamRoutes);
+app.use("/api/communications", communicationRoutes);
 
 // 404 handler
 app.use("*", (req: Request, res: Response) => {

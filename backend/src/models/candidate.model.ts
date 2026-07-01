@@ -25,6 +25,7 @@ export interface Candidate {
   portfolio_url?: string;
   location?: string;
   total_experience_years?: number;
+  created_by_user_id?: string;
 }
 
 export interface CandidateWithDetails extends Candidate {
@@ -157,8 +158,9 @@ export class CandidateModel {
         id, email, phone, full_name, status, summary,
         review_status,
         linkedin_url, github_url, location,
+        created_by_user_id, tenant_id,
         created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW()) RETURNING *`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING *`,
       [
         id,
         data.email || null,
@@ -169,7 +171,9 @@ export class CandidateModel {
         data.review_status || "pending",
         data.linkedin_url || null,
         data.github_url || null,
-        data.location || null
+        data.location || null,
+        data.created_by_user_id || null,
+        data.tenant_id || "default"
       ]
     );
     return result.rows[0];
@@ -231,13 +235,14 @@ export class CandidateModel {
     jobTitle?: string,
     certification?: string,
     salaryMin?: number,
-    salaryMax?: number
+    salaryMax?: number,
+    myCandidates?: string
   ): Promise<{ candidates: CandidateWithDetails[]; total: number }> {
     try {
       const offset = (page - 1) * limit;
       
       // Build WHERE clause for search
-      let whereClause = "WHERE candidates.status IN ('success', 'completed', 'pending', 'processing', 'failed')";
+      let whereClause = "WHERE candidates.status IN ('success', 'pending', 'processing', 'failed')";
       const queryParams: any[] = [];
       let joinClause = "";
       
@@ -285,6 +290,12 @@ export class CandidateModel {
       if (salaryMax !== undefined) {
         queryParams.push(salaryMax);
         whereClause += ` AND expected_salary_max <= $${queryParams.length}`;
+      }
+      
+      // Add myCandidates filter
+      if (myCandidates) {
+        queryParams.push(myCandidates);
+        whereClause += ` AND created_by_user_id = $${queryParams.length}`;
       }
       
       // Get total count
@@ -336,7 +347,7 @@ export class CandidateModel {
       let skillRows: any[] = [];
       try {
         const skillsResult = await client.query(
-          `SELECT s.id, cs.candidate_id, s.skill_name, s.category, cs.proficiency_level, cs.years_of_experience
+          `SELECT s.id, cs.candidate_id, s.name as skill_name, s.category, cs.proficiency_level, cs.years_experience
            FROM candidate_skills cs
            JOIN skills s ON cs.skill_id = s.id
            WHERE cs.candidate_id = ANY($1)`,

@@ -618,3 +618,46 @@ git checkout 16e94c6
 # Rebuild and restart
 npm install && npm run build
 pm2 restart lakshya-backend lakshya-ai
+
+
+# Login as recruiter
+curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "recruiter1@lakshya.com", "password": "your_password"}'
+
+# Login as admin  
+curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin1@example.com", "password": "your_password"}'
+  
+# Register new recruiter
+curl -X POST http://localhost:3001/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "new.recruiter@example.com", "password": "password123", "role": "recruiter"}'
+
+
+
+  # Register Admin User
+curl -X POST 'http://localhost:3001/api/auth/register' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"email":"admin@test.com","password":"password123","role":"admin"}'
+
+# Register BDM User
+curl -X POST 'http://localhost:3001/api/auth/register' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"email":"bdm@test.com","password":"password123","role":"bdm"}'
+
+# Register Client Manager User
+curl -X POST 'http://localhost:3001/api/auth/register' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"email":"clientmanager@test.com","password":"password123","role":"client_manager"}'
+
+# Register Team Lead User
+curl -X POST 'http://localhost:3001/api/auth/register' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"email":"teamlead@test.com","password":"password123","role":"team_lead"}'
+
+# Register Recruiter User
+curl -X POST 'http://localhost:3001/api/auth/register' \
+  -H 'Content-Type: application/json' \
+  --data-raw '{"email":"recruiter@test.com","password":"password123","role":"recruiter"}'

@@ -346,9 +346,9 @@ export const uploadResume = async (
     // The early candidate row is created as 'pending' and removed if duplicate.
 
     const cRes = await client.query(
-      `INSERT INTO candidates (id, status, review_status, tenant_id, consent_given, raw_resume_text, created_at, updated_at)
-       VALUES ($1,'pending','pending',$2,false,$3,NOW(),NOW()) RETURNING *`,
-      [candidateId, tenantId, rawResumeText || null]
+      `INSERT INTO candidates (id, status, review_status, tenant_id, consent_given, raw_resume_text, created_by_user_id, created_at, updated_at)
+       VALUES ($1,'pending','pending',$2,false,$3,$4,NOW(),NOW()) RETURNING *`,
+      [candidateId, tenantId, rawResumeText || null, userId]
     );
     const candidate = cRes.rows[0];
     console.log(`  ✅ Candidate created: ${candidate.id}`);
@@ -361,6 +361,26 @@ export const uploadResume = async (
     );
     const parsingJob = pjRes.rows[0];
     console.log(`  ✅ Parsing job created: ${parsingJob.id}`);
+
+    // Log activity
+    await client.query(
+      `INSERT INTO activity_log (activity_type, related_id, user_id, tenant_id, created_at, details)
+       VALUES ($1, $2, $3, $4, NOW(), $5)`,
+      ['candidate_created', candidate.id, userId, tenantId, JSON.stringify({
+        filename: fileInfo.originalname,
+        method: 'resume_upload'
+      })]
+    );
+
+    // Log audit
+    await client.query(
+      `INSERT INTO audit_logs (action, table_name, record_id, user_id, tenant_id, created_at, details)
+       VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+      ['create', 'candidates', candidate.id, userId, tenantId, JSON.stringify({
+        filename: fileInfo.originalname,
+        method: 'resume_upload'
+      })]
+    );
 
     // ── DIRECT PARSE PATH: call AI service inline ──────────────────────────
     await client.query("COMMIT"); // commit DB records before slow AI call

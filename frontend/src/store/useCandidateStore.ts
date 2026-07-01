@@ -73,7 +73,7 @@ interface CandidateState {
 }
 
 interface CandidateActions {
-  fetchCandidates: (page?: number, limit?: number, search?: string, company?: string, jobTitle?: string, certification?: string, salaryMin?: number | null, salaryMax?: number | null) => Promise<void>;
+  fetchCandidates: (page?: number, limit?: number, search?: string, company?: string, jobTitle?: string, certification?: string, salaryMin?: number | null, salaryMax?: number | null, myCandidates?: boolean) => Promise<void>;
   fetchCandidate: (id: string) => Promise<void>;
   uploadResume: (file: File, llmProvider?: string, candidateId?: string) => Promise<Candidate>;
   deleteCandidate: (id: string) => Promise<void>;
@@ -95,7 +95,7 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
     pagination: null,
 
     // Actions
-    fetchCandidates: async (page = 1, limit = 20, search = "", company = "", jobTitle = "", certification = "", salaryMin = null, salaryMax = null) => {
+    fetchCandidates: async (page = 1, limit = 20, search = "", company = "", jobTitle = "", certification = "", salaryMin = null, salaryMax = null, myCandidates = false) => {
       set({ isLoading: true, error: null });
       try {
         const params = new URLSearchParams();
@@ -120,6 +120,9 @@ export const useCandidateStore = create<CandidateState & CandidateActions>(
         }
         if (salaryMax !== null) {
           params.append("salary_max", salaryMax.toString());
+        }
+        if (myCandidates) {
+          params.append("myCandidates", "true");
         }
 
         const response = await api.get(`/api/candidates?${params.toString()}`);

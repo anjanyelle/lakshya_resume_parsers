@@ -53,9 +53,34 @@ export const registerUser = async (
 
     const user = result.rows[0];
 
-    // Generate JWT token
+    // Get role information from roles table
+    let roleId = null;
+    let roleName = user.role;
+    
+    try {
+      const roleResult = await query(
+        "SELECT id, name FROM roles WHERE name = $1",
+        [user.role]
+      );
+      
+      if (roleResult.rows.length > 0) {
+        roleId = roleResult.rows[0].id;
+        roleName = roleResult.rows[0].name;
+      }
+    } catch (error) {
+      console.error("Error fetching role information:", error);
+      // Continue with default role if role lookup fails
+    }
+
+    // Generate JWT token with enhanced role information
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,        // Legacy role for backward compatibility
+        roleId: roleId,         // New role UUID
+        roleName: roleName      // New role name
+      },
       process.env.JWT_SECRET || "fallback-secret",
       { expiresIn: "24h" },
     );
@@ -86,9 +111,12 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Find user
+    // Find user with role information
     const result = await query(
-      "SELECT id, email, hashed_password, role, created_at FROM users WHERE email = $1",
+      `SELECT u.id, u.email, u.hashed_password, u.role, u.created_at, u.role_id, r.name as role_name
+       FROM users u 
+       LEFT JOIN roles r ON u.role_id = r.id 
+       WHERE u.email = $1`,
       [email],
     );
 
@@ -110,9 +138,15 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Generate JWT token
+    // Generate JWT token with enhanced role information
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,        // Legacy role for backward compatibility
+        roleId: user.role_id,   // New role UUID
+        roleName: user.role_name || user.role  // New role name
+      },
       process.env.JWT_SECRET || "fallback-secret",
       { expiresIn: "24h" },
     );

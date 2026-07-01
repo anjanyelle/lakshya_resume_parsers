@@ -3359,11 +3359,60 @@ export default function UploadPage() {
           setDuplicateErrorModal(null);
           navigate(`/candidates/${id}`);
         }}
-        onUpdateExisting={(id) => {
+        onUpdateExisting={async (id) => {
           setDuplicateErrorModal(null);
-          // For now, redirect to candidate page to manually update
-          navigate(`/candidates/${id}`);
-          toast.success("Navigated to existing profile. You can manually edit it here.");
+          
+          try {
+            console.log("Updating existing candidate with ID:", id);
+            
+            // Prepare the complete candidate data from parsed sections
+            const updateData = {
+              name: parsedName,
+              email: parsedEmail,
+              phone: parsedPhone,
+              summary: parsedSections?.summary,
+              skills: parsedSections?.skills || [],
+              work_history: parsedSections?.work_experience || [],
+              education: parsedSections?.education || [],
+              certifications: parsedSections?.certifications || [],
+              projects: parsedSections?.projects || [],
+              linkedin_url: parsedLinkedin,
+              portfolio_url: parsedPortfolio,
+              raw_resume_text: rawResumeText,
+            };
+
+            console.log("Sending update data:", {
+              name: updateData.name,
+              email: updateData.email,
+              skillsCount: updateData.skills?.length || 0,
+              workHistoryCount: updateData.work_history?.length || 0,
+              educationCount: updateData.education?.length || 0,
+              certificationsCount: updateData.certifications?.length || 0,
+              projectsCount: updateData.projects?.length || 0,
+            });
+
+            // Call the enhanced update endpoint
+            const response = await api.put(`/candidates/${id}/update-full`, updateData);
+            
+            console.log("Update response:", response.data);
+            
+            toast.success("Candidate updated successfully with all resume data!");
+            
+            // Navigate to the updated candidate page
+            navigate(`/candidates/${id}`);
+            
+          } catch (error: any) {
+            console.error("Error updating candidate:", error);
+            
+            if (error.response?.data?.message) {
+              toast.error(`Update failed: ${error.response.data.message}`);
+            } else {
+              toast.error("Failed to update candidate. Please try again.");
+            }
+            
+            // Fallback to manual edit page
+            navigate(`/candidates/${id}`);
+          }
         }}
       />
     </div>

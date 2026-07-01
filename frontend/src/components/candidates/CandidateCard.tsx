@@ -1,10 +1,76 @@
 import { useState } from "react";
 import { User, Briefcase, Building, Calendar, GraduationCap } from "lucide-react";
-import type { Candidate } from "../../types/candidate";
 import { calculateTotalExperience } from "../../utils/experienceCalculator";
 
+// Use a more flexible candidate type to handle both store and types
+type FlexibleCandidate = {
+  id: string;
+  full_name?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedin_url?: string;
+  github_url?: string;
+  portfolio_url?: string;
+  summary?: string;
+  raw_resume_text?: string;
+  created_at: string;
+  updated_at: string;
+  match_score?: number;
+  total_experience_years?: number;
+  total_years_exp?: any;
+  years_experience?: number;
+  skills?: Array<{
+    id: string;
+    skill_name?: string;
+    name?: string;
+    category?: string;
+    proficiency_level?: string;
+    years_experience?: number;
+    confidence_score?: number;
+  }>;
+  work_history?: Array<{
+    id: string;
+    job_title?: string;
+    company_name?: string;
+    start_date?: string;
+    end_date?: string;
+    is_current?: boolean;
+    description?: string;
+    location?: string;
+    duration_string?: string | null;
+  }>;
+  work_experience?: Array<{
+    id: string;
+    job_title?: string;
+    company_name?: string;
+    start_date?: string;
+    end_date?: string;
+    is_current?: boolean;
+    description?: string;
+    location?: string;
+    duration_string?: string | null;
+  }>;
+  education?: Array<{
+    id: string;
+    degree?: string;
+    institution?: string;
+    field_of_study?: string;
+    start_date?: string;
+    end_date?: string;
+    gpa?: number;
+  }>;
+  parsing_status?: {
+    status: string;
+    progress?: number;
+    confidence_score?: number;
+    error_message?: string;
+  };
+};
+
 type CandidateCardProps = {
-  candidate: Candidate;
+  candidate: FlexibleCandidate;
   onViewProfile?: (id: string) => void;
 };
 
@@ -21,7 +87,7 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
 
   const email = candidate.email || "";
 
-  // Formatting skills
+  // Formatting skills - handle both skill_name and name fields
   const skills = candidate.skills || [];
   const displaySkills = skills.slice(0, 4);
   const remainingSkillsCount = skills.length > 4 ? skills.length - 4 : 0;
@@ -105,7 +171,7 @@ export default function CandidateCard({ candidate, onViewProfile }: CandidateCar
               key={skill.id || idx}
               className="px-3 py-1.5 bg-gray-50 text-gray-700 rounded-md text-xs font-medium border border-gray-200 hover:bg-gray-100 transition-colors"
             >
-              {(skill as any).skill_name || skill.name}
+              {skill.skill_name || skill.name || 'Unknown Skill'}
             </span>
           ))}
           {remainingSkillsCount > 0 && (

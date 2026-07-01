@@ -42,7 +42,7 @@ export const getClient = (): Promise<PoolClient> => pool.connect();
  * Auto-commits on success, rolls back on any thrown error.
  */
 export const transaction = async <T>(
-  fn: (client: PoolClient) => Promise<T>,
+  fn: (client: PoolClient) => Promise<T>
 ): Promise<T> => {
   const client = await pool.connect();
   try {
@@ -50,9 +50,9 @@ export const transaction = async <T>(
     const result = await fn(client);
     await client.query("COMMIT");
     return result;
-  } catch (err) {
+  } catch (e) {
     await client.query("ROLLBACK");
-    throw err;
+    throw e;
   } finally {
     client.release();
   }

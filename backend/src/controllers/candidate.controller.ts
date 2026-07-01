@@ -281,6 +281,7 @@ export const createCandidate = async (
       const candidate = await CandidateModel.create(client, {
         ...candidateData,
         tenant_id: tenantId,
+        created_by_user_id: userId,
       });
       console.log("Candidate created with ID:", candidate.id);
 
@@ -535,6 +536,28 @@ export const createCandidate = async (
           );
           candidate.status = 'completed';
 
+          // Log activity
+          await client.query(
+            `INSERT INTO activity_log (activity_type, related_id, user_id, tenant_id, created_at, details)
+             VALUES ($1, $2, $3, $4, NOW(), $5)`,
+            ['candidate_created', candidate.id, userId, tenantId, JSON.stringify({
+              candidate_name: candidate.full_name || candidate.name,
+              candidate_email: candidate.email,
+              method: 'manual_creation'
+            })]
+          );
+
+          // Log audit
+          await client.query(
+            `INSERT INTO audit_logs (action, table_name, record_id, user_id, tenant_id, created_at, details)
+             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            ['create', 'candidates', candidate.id, userId, tenantId, JSON.stringify({
+              candidate_name: candidate.full_name || candidate.name,
+              candidate_email: candidate.email,
+              method: 'manual_creation'
+            })]
+          );
+
           await client.query("COMMIT");
 
           res.status(201).json({
@@ -548,6 +571,28 @@ export const createCandidate = async (
           throw parsedDataErr;
         }
       } else {
+        // Log activity
+        await client.query(
+          `INSERT INTO activity_log (activity_type, related_id, user_id, tenant_id, created_at, details)
+           VALUES ($1, $2, $3, $4, NOW(), $5)`,
+          ['candidate_created', candidate.id, userId, tenantId, JSON.stringify({
+            candidate_name: candidate.full_name || candidate.name,
+            candidate_email: candidate.email,
+            method: 'manual_creation'
+          })]
+        );
+
+        // Log audit
+        await client.query(
+          `INSERT INTO audit_logs (action, table_name, record_id, user_id, tenant_id, created_at, details)
+           VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+          ['create', 'candidates', candidate.id, userId, tenantId, JSON.stringify({
+            candidate_name: candidate.full_name || candidate.name,
+            candidate_email: candidate.email,
+            method: 'manual_creation'
+          })]
+        );
+
         await client.query("COMMIT");
         res.status(201).json({
           message: "Candidate created successfully",
@@ -600,6 +645,7 @@ export const getAllCandidates = async (
     const certification = (req.query.certification as string) || undefined;
     const salaryMin = req.query.salary_min ? parseFloat(req.query.salary_min as string) : undefined;
     const salaryMax = req.query.salary_max ? parseFloat(req.query.salary_max as string) : undefined;
+    const myCandidates = req.query.myCandidates === 'true' ? (req as any).user?.id : undefined;
 
     // Validate pagination
     if (page < 1 || limit < 1 || limit > 500) {
@@ -622,6 +668,7 @@ export const getAllCandidates = async (
         certification,
         salaryMin,
         salaryMax,
+        myCandidates,
       );
 
       const totalPages = Math.ceil(total / limit);
@@ -725,6 +772,303 @@ export const updateCandidate = async (
       client.release();
     }
   } catch (error) {
+    console.error("Update candidate error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const updateCandidateWithFullData = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const candidateId = Array.isArray(id) ? id[0] : id;
+    const updates: any = req.body;
+    const userId = (req as any).user?.id;
+    const tenantId = (req as any).user?.tenant_id || "default";
+
+    console.log("=== UPDATE CANDIDATE WITH FULL DATA START ===");
+    console.log("CANDIDATE ID:", candidateId);
+    console.log("REQUEST BODY:", JSON.stringify(updates, null, 2));
+
+    if (!candidateId) {
+      res.status(400).json({ error: "Candidate ID is required" });
+      return;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      res.status(400).json({ error: "At least one field must be provided for update" });
+      return;
+    }
+
+    const client = await getClient();
+    try {
+      // Begin transaction
+      await client.query("BEGIN");
+
+      // Check if candidate exists
+      const existingCandidate = await CandidateModel.findByIdWithDetails(client, candidateId);
+      if (!existingCandidate) {
+        await client.query("ROLLBACK");
+        res.status(404).json({ error: "Candidate not found" });
+        return;
+      }
+
+      console.log("Found existing candidate:", existingCandidate.full_name);
+
+      // Update basic candidate fields
+      const basicUpdates: Record<string, any> = {
+        email: updates.email,
+        phone: updates.phone,
+        full_name: updates.full_name || updates.name,
+        summary: updates.summary,
+        raw_resume_text: updates.raw_resume_text,
+        linkedin_url: updates.linkedin_url,
+        github_url: updates.github_url,
+        portfolio_url: updates.portfolio_url,
+        location: updates.location,
+        years_experience: updates.years_experience,
+        current_title: updates.current_title,
+        current_company: updates.current_company,
+        total_experience_years: updates.total_experience_years,
+        updated_at: new Date(),
+      };
+
+      // Remove undefined values
+      const filteredUpdates: Record<string, any> = {};
+      Object.keys(basicUpdates).forEach(key => {
+        if (basicUpdates[key] !== undefined) {
+          filteredUpdates[key] = basicUpdates[key];
+        }
+      });
+
+      if (Object.keys(filteredUpdates).length > 0) {
+        const setClause = Object.keys(filteredUpdates).map((key, index) => `${key} = $${index + 2}`).join(', ');
+        const values = [candidateId, ...Object.values(filteredUpdates)];
+        
+        await client.query(
+          `UPDATE candidates SET ${setClause} WHERE id = $1`,
+          values
+        );
+        console.log("Updated basic candidate fields");
+      }
+
+      // Update skills if provided
+      if (updates.skills && Array.isArray(updates.skills)) {
+        console.log("Updating skills, count:", updates.skills.length);
+        
+        // Delete existing skills
+        await client.query("DELETE FROM candidate_skills WHERE candidate_id = $1", [candidateId]);
+        
+        // Insert new skills
+        let insertedCount = 0;
+        for (const skillName of updates.skills) {
+          if (!skillName || typeof skillName !== "string") continue;
+          
+          try {
+            // Check if skill already exists in skills table
+            const existingSkill = await client.query(
+              "SELECT id FROM skills WHERE name = $1",
+              [skillName.trim().substring(0, 255)]
+            );
+
+            let skillId;
+            if (existingSkill.rows.length > 0) {
+              skillId = existingSkill.rows[0].id;
+            } else {
+              // Create new skill
+              const newSkillResult = await client.query(
+                "INSERT INTO skills (id, name) VALUES ($1, $2) RETURNING id",
+                [crypto.randomUUID(), skillName.trim().substring(0, 255)]
+              );
+              skillId = newSkillResult.rows[0].id;
+            }
+
+            // Link skill to candidate
+            await client.query(
+              "INSERT INTO candidate_skills (candidate_id, skill_id) VALUES ($1, $2)",
+              [candidateId, skillId]
+            );
+            insertedCount++;
+          } catch (skillErr: any) {
+            console.warn("Could not insert skill:", skillName, skillErr.message);
+          }
+        }
+        console.log("Updated skills count:", insertedCount);
+      }
+
+      // Update work history if provided
+      if (updates.work_history && Array.isArray(updates.work_history)) {
+        console.log("Updating work history, count:", updates.work_history.length);
+        
+        // Delete existing work history
+        await client.query("DELETE FROM work_history WHERE candidate_id = $1", [candidateId]);
+        
+        // Insert new work history
+        let insertedCount = 0;
+        for (const work of updates.work_history) {
+          if (!work || (!work.job_title && !work.company_name)) continue;
+          
+          try {
+            const workQuery = `
+              INSERT INTO work_history (id, candidate_id, job_title, company_name, start_date, end_date, is_current, description, location)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `;
+            const workParams = [
+              crypto.randomUUID(),
+              candidateId,
+              work.job_title || work.title || null,
+              work.company_name || work.company || null,
+              work.start_date || null,
+              work.end_date || null,
+              work.is_current || false,
+              work.description || null,
+              work.location || null,
+            ];
+            await client.query(workQuery, workParams);
+            insertedCount++;
+          } catch (workErr: any) {
+            console.warn("Could not insert work experience:", work.job_title, workErr.message);
+          }
+        }
+        console.log("Updated work history count:", insertedCount);
+      }
+
+      // Update education if provided
+      if (updates.education && Array.isArray(updates.education)) {
+        console.log("Updating education, count:", updates.education.length);
+        
+        // Delete existing education
+        await client.query("DELETE FROM education WHERE candidate_id = $1", [candidateId]);
+        
+        // Insert new education
+        let insertedCount = 0;
+        for (const edu of updates.education) {
+          if (!edu || (!edu.degree && !edu.institution)) continue;
+          
+          try {
+            const eduQuery = `
+              INSERT INTO education (id, candidate_id, degree, institution, field_of_study, start_date, end_date, gpa)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `;
+            const eduParams = [
+              crypto.randomUUID(),
+              candidateId,
+              edu.degree || edu.degree_name || null,
+              edu.institution || edu.institution_name || null,
+              edu.field_of_study || null,
+              edu.start_date || edu.start_year || null,
+              edu.end_date || edu.end_year || null,
+              edu.grade || edu.gpa || null,
+            ];
+            await client.query(eduQuery, eduParams);
+            insertedCount++;
+          } catch (eduErr: any) {
+            console.warn("Could not insert education:", edu.degree, eduErr.message);
+          }
+        }
+        console.log("Updated education count:", insertedCount);
+      }
+
+      // Update certifications if provided
+      if (updates.certifications && Array.isArray(updates.certifications)) {
+        console.log("Updating certifications, count:", updates.certifications.length);
+        
+        // Delete existing certifications
+        await client.query("DELETE FROM certifications WHERE candidate_id = $1", [candidateId]);
+        
+        // Insert new certifications
+        let insertedCount = 0;
+        for (const certName of updates.certifications) {
+          if (!certName || typeof certName !== "string") continue;
+          
+          try {
+            await client.query(
+              "INSERT INTO certifications (id, candidate_id, name) VALUES ($1, $2, $3)",
+              [crypto.randomUUID(), candidateId, certName.trim()]
+            );
+            insertedCount++;
+          } catch (certErr: any) {
+            console.warn("Could not insert certification:", certName, certErr.message);
+          }
+        }
+        console.log("Updated certifications count:", insertedCount);
+      }
+
+      // Update projects if provided
+      if (updates.projects && Array.isArray(updates.projects)) {
+        console.log("Updating projects, count:", updates.projects.length);
+        
+        try {
+          await client.query(
+            "UPDATE candidates SET projects = $1 WHERE id = $2",
+            [JSON.stringify(updates.projects), candidateId]
+          );
+          console.log("Updated projects successfully");
+        } catch (projErr: any) {
+          console.warn("Could not update projects:", projErr.message);
+        }
+      }
+
+      // Update parsing job record if we have parsed data
+      if (updates.skills || updates.work_history || updates.education || updates.certifications || updates.projects) {
+        const parsedDataJson = {
+          name: updates.full_name || updates.name || existingCandidate.full_name,
+          email: updates.email || existingCandidate.email,
+          phone: updates.phone || existingCandidate.phone,
+          summary: updates.summary,
+          skills: updates.skills || [],
+          work_history: updates.work_history || [],
+          education: updates.education || [],
+          certifications: updates.certifications || [],
+          projects: updates.projects || [],
+        };
+
+        // Update existing parsing job or create new one
+        await client.query(
+          `INSERT INTO parsing_jobs (id, candidate_id, filename, status, confidence_score, parsed_data, started_at, completed_at) 
+           VALUES ($1, $2, $3, 'completed', $4, $5, NOW(), NOW())
+           ON CONFLICT (candidate_id) 
+           DO UPDATE SET 
+             parsed_data = $5,
+             completed_at = NOW(),
+             status = 'completed'`,
+          [
+            crypto.randomUUID(), 
+            candidateId, 
+            `${existingCandidate.full_name || "candidate"}_update.pdf`,
+            0.95, // High confidence for manual updates
+            JSON.stringify(parsedDataJson)
+          ]
+        );
+
+        // Update candidate status to completed
+        await client.query("UPDATE candidates SET status = 'success' WHERE id = $1", [candidateId]);
+      }
+
+      await client.query("COMMIT");
+
+      // Get updated candidate with all details
+      const updatedCandidate = await CandidateModel.findByIdWithDetails(client, candidateId);
+
+      res.json({
+        message: "Candidate updated successfully with all related data",
+        candidate: updatedCandidate ? mapCandidateWithParsingStatus(updatedCandidate) : null,
+      });
+
+    } catch (error: any) {
+      await client.query("ROLLBACK");
+      console.error("Update candidate error:", error);
+      res.status(500).json({ 
+        error: "Internal server error", 
+        message: error.message,
+        code: error.code 
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error: any) {
     console.error("Update candidate error:", error);
     res.status(500).json({ error: "Internal server error" });
   }

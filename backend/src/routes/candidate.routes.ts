@@ -4,6 +4,7 @@ import {
   getAllCandidates,
   getCandidateById,
   updateCandidate,
+  updateCandidateWithFullData,
   deleteCandidate,
   getCandidateParsingStatus,
   importCandidatesFromCSV,
@@ -216,6 +217,68 @@ router.get("/:id", getCandidateById);
  *         description: Unauthorized
  */
 router.put("/:id", updateCandidate);
+
+/**
+ * @swagger
+ * /api/candidates/{id}/update-full:
+ *   put:
+ *     summary: Update a candidate with full resume data (skills, work history, education, etc.)
+ *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Candidate ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               summary:
+ *                 type: string
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               work_history:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               education:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *               certifications:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               projects:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Candidate updated successfully with all related data
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Candidate not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.put("/:id/update-full", updateCandidateWithFullData);
 
 /**
  * @swagger

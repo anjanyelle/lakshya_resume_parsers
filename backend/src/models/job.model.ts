@@ -16,6 +16,8 @@ export interface JobDescription {
   salary_max?: number;
   created_at?: Date;
   updated_at?: Date;
+  client_id?: string;
+  created_by_user_id?: string;
   
   // Custom ATS columns
   education_requirement?: string;
@@ -37,12 +39,14 @@ export interface JobFilter {
   employment_type?: string;
   min_experience?: number;
   max_experience?: number;
+  created_by_user_id?: string;
 }
 
 export class JobModel {
   static async create(
     client: PoolClient,
-    data: Partial<JobDescription>
+    data: Partial<JobDescription>,
+    userId?: string
   ): Promise<JobDescription> {
     const query = `
       INSERT INTO job_descriptions (
@@ -50,9 +54,10 @@ export class JobModel {
         employment_type, min_experience_years, max_experience_years,
         education_level, salary_min, salary_max, education_requirement,
         seniority_level, salary_range, status, preferred_skills,
-        currency, salary_period, work_mode, number_of_openings, notice_period
+        currency, salary_period, work_mode, number_of_openings, notice_period,
+        client_id, created_by_user_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
       RETURNING *
     `;
 
@@ -78,6 +83,8 @@ export class JobModel {
       data.work_mode || null,
       data.number_of_openings || 1,
       data.notice_period || null,
+      data.client_id || null,
+      userId || null,
     ];
 
     const result = await client.query(query, values);
@@ -114,12 +121,20 @@ export class JobModel {
     client: PoolClient,
     page: number = 1,
     limit: number = 20,
-    filters: JobFilter = {}
+    filters: JobFilter = {},
+    clientManagerUserId?: string
   ): Promise<{ jobs: JobDescription[]; total: number }> {
     const offset = (page - 1) * limit;
     const conditions: string[] = [];
     const values: any[] = [];
     let paramCount = 1;
+
+    // Add client_manager scoping
+    if (clientManagerUserId) {
+      conditions.push(`client_id IN (SELECT id FROM clients WHERE owner_user_id = $${paramCount})`);
+      values.push(clientManagerUserId);
+      paramCount++;
+    }
 
     if (filters.search) {
       conditions.push(
@@ -156,6 +171,12 @@ export class JobModel {
     if (filters.max_experience !== undefined) {
       conditions.push(`max_experience_years <= $${paramCount}`);
       values.push(filters.max_experience);
+      paramCount++;
+    }
+
+    if (filters.created_by_user_id) {
+      conditions.push(`created_by_user_id = $${paramCount}`);
+      values.push(filters.created_by_user_id);
       paramCount++;
     }
 
