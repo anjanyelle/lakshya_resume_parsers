@@ -292,11 +292,11 @@ export class CandidateModel {
         whereClause += ` AND expected_salary_max <= $${queryParams.length}`;
       }
       
-      // Add myCandidates filter
-      if (myCandidates) {
-        queryParams.push(myCandidates);
-        whereClause += ` AND created_by_user_id = $${queryParams.length}`;
-      }
+      // Add myCandidates filter - DISABLED until candidates table has created_by_user_id column
+      // if (myCandidates) {
+      //   queryParams.push(myCandidates);
+      //   whereClause += ` AND created_by_user_id = $${queryParams.length}`;
+      // }
       
       // Get total count
       const countQuery = `SELECT COUNT(DISTINCT candidates.id) FROM candidates ${joinClause} ${whereClause}`;

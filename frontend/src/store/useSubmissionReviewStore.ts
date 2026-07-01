@@ -60,7 +60,7 @@ export const useSubmissionReviewStore = create<SubmissionReviewStore>((set, get)
       if (params.page) queryParams.append('page', params.page.toString());
       if (params.limit) queryParams.append('limit', params.limit.toString());
 
-      const response = await api.get(`/submissions/pending-review?${queryParams.toString()}`);
+      const response = await api.get(`/api/submissions/pending-review?${queryParams.toString()}`);
       set({
         submissions: response.data.submissions,
         pagination: response.data.pagination,

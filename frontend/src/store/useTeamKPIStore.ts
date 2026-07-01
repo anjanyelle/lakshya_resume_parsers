@@ -70,7 +70,7 @@ export const useTeamKPIStore = create<TeamKPIStore>((set, get) => ({
       if (dateRange?.from) params.append('from', dateRange.from);
       if (dateRange?.to) params.append('to', dateRange.to);
 
-      const response = await api.get(`/team/kpis?${params.toString()}`);
+      const response = await api.get(`/api/team/kpis?${params.toString()}`);
       set({
         kpis: response.data.kpis,
         teamTotals: response.data.team_totals,

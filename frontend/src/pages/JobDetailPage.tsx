@@ -13,7 +13,7 @@ export default function JobDetailPage() {
   useEffect(() => {
     const loadJob = async () => {
       try {
-        const response = await api.get(`/jobs/${id}`);
+        const response = await api.get(`/api/jobs/${id}`);
         setJob(response.data.job);
       } catch (err: any) {
         console.error("Failed to fetch job:", err);

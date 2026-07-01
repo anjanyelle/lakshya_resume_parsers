@@ -242,6 +242,126 @@ router.get("/options", getJobOptions);
 
 /**
  * @swagger
+ * /api/jobs/my-assignments:
+ *   get:
+ *     summary: Get jobs assigned to the current recruiter
+ *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           maximum: 100
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Recruiter assignments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 jobs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         format: uuid
+ *                         description: Job ID
+ *                       title:
+ *                         type: string
+ *                         description: Job title
+ *                       department:
+ *                         type: string
+ *                         description: Job department
+ *                       description:
+ *                         type: string
+ *                         description: Job description
+ *                       required_skills:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         description: Required skills
+ *                       location:
+ *                         type: string
+ *                         description: Job location
+ *                       employment_type:
+ *                         type: string
+ *                         description: Employment type
+ *                       status:
+ *                         type: string
+ *                         description: Job status
+ *                       company_name:
+ *                         type: string
+ *                         description: Client company name
+ *                       assignment_priority:
+ *                         type: string
+ *                         description: Assignment priority (low/normal/high/urgent)
+ *                       assigned_at:
+ *                         type: string
+ *                         format: date-time
+ *                         description: When the job was assigned
+ *                       days_open:
+ *                         type: number
+ *                         description: Number of days the job has been open
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     current_page:
+ *                       type: integer
+ *                       description: Current page number
+ *                     total_pages:
+ *                       type: integer
+ *                       description: Total number of pages
+ *                     total_items:
+ *                       type: integer
+ *                       description: Total number of jobs
+ *                     items_per_page:
+ *                       type: integer
+ *                       description: Number of items per page
+ *                     has_next_page:
+ *                       type: boolean
+ *                       description: Whether there's a next page
+ *                     has_prev_page:
+ *                       type: boolean
+ *                       description: Whether there's a previous page
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Insufficient permissions - requirePermission("requirements", "view_assigned")
+ *       400:
+ *         description: Bad Request - Invalid pagination parameters
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/my-assignments", requirePermission("requirements", "view_assigned"), async (req, res) => {
+  try {
+    console.log('[Route /my-assignments] Request received');
+    await getMyAssignments(req as any, res);
+  } catch (error: any) {
+    console.error('[Route /my-assignments] Error:', error);
+    res.status(500).json({ 
+      error: "Internal server error",
+      details: error.message,
+      stack: error.stack 
+    });
+  }
+});
+
+/**
+ * @swagger
  * /api/jobs/{id}:
  *   get:
  *     summary: Get a specific job description
@@ -562,113 +682,7 @@ router.patch("/:id/clarify", clarifyJobValidation, requirePermission("requiremen
  */
 router.patch("/:id/force-close", forceCloseJobValidation, requirePermission("requirements", "delete"), forceCloseJob);
 
-/**
- * @swagger
- * /api/jobs/my-assignments:
- *   get:
- *     summary: Get jobs assigned to the current recruiter
- *     tags: [Jobs]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *           minimum: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *           maximum: 100
- *         description: Number of items per page
- *     responses:
- *       200:
- *         description: Recruiter assignments retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 jobs:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         format: uuid
- *                         description: Job ID
- *                       title:
- *                         type: string
- *                         description: Job title
- *                       department:
- *                         type: string
- *                         description: Job department
- *                       description:
- *                         type: string
- *                         description: Job description
- *                       required_skills:
- *                         type: array
- *                         items:
- *                           type: string
- *                         description: Required skills
- *                       location:
- *                         type: string
- *                         description: Job location
- *                       employment_type:
- *                         type: string
- *                         description: Employment type
- *                       status:
- *                         type: string
- *                         description: Job status
- *                       company_name:
- *                         type: string
- *                         description: Client company name
- *                       assignment_priority:
- *                         type: string
- *                         description: Assignment priority (low/normal/high/urgent)
- *                       assigned_at:
- *                         type: string
- *                         format: date-time
- *                         description: When the job was assigned
- *                       days_open:
- *                         type: number
- *                         description: Number of days the job has been open
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     current_page:
- *                       type: integer
- *                       description: Current page number
- *                     total_pages:
- *                       type: integer
- *                       description: Total number of pages
- *                     total_items:
- *                       type: integer
- *                       description: Total number of jobs
- *                     items_per_page:
- *                       type: integer
- *                       description: Number of items per page
- *                     has_next_page:
- *                       type: boolean
- *                       description: Whether there's a next page
- *                     has_prev_page:
- *                       type: boolean
- *                       description: Whether there's a previous page
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Insufficient permissions - requirePermission("requirements", "view_assigned")
- *       400:
- *         description: Bad Request - Invalid pagination parameters
- *       500:
- *         description: Internal server error
- */
-router.get("/my-assignments", requirePermission("requirements", "view_assigned"), getMyAssignments);
+
 
 /**
  * @swagger

@@ -19,6 +19,8 @@ import activityRoutes from "./routes/activity.routes";
 import userRoutes from "./routes/user.routes";
 import teamRoutes from "./routes/team.routes";
 import communicationRoutes from "./routes/communication.routes";
+import { getMyAssignments } from "./controllers/job.controller";
+import { authenticateToken, requirePermission } from "./middleware/auth.middleware";
 
 const app: Application = express();
  
@@ -34,7 +36,7 @@ const corsOptions = {
     
   ],
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
@@ -74,6 +76,9 @@ app.use("/api/activity", activityRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/team-lead", teamRoutes);
 app.use("/api/communications", communicationRoutes);
+
+// Recruiter requirements route (alias for my-assignments)
+app.get("/api/recruiter/requirements", authenticateToken, requirePermission("requirements", "view_assigned"), getMyAssignments);
 
 // 404 handler
 app.use("*", (req: Request, res: Response) => {

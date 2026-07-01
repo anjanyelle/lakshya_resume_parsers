@@ -140,7 +140,7 @@ export const createInterview = async (req: Request, res: Response): Promise<void
       // 1. User submitted the submission
       // 2. User has interviews:schedule permission
       // 3. User is a client_manager and the job belongs to their clients
-      const hasPermission = 
+      const hasPermission =
         submission.submitted_by === userId ||
         await hasRolePermission(client, userId, tenantId, 'interviews', 'schedule') ||
         (await isClientManager(client, userId) && submission.owner_user_id === userId);
@@ -444,6 +444,31 @@ export const getUpcomingInterviews = async (req: Request, res: Response): Promis
     const client = await getClient();
     try {
       const offset = (page - 1) * limit;
+
+      // Check if interviews table exists
+      const tableCheck = await client.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'interviews'
+        )
+      `);
+
+      if (!tableCheck.rows[0].exists) {
+        // Interviews table doesn't exist yet, return empty response
+        res.json({
+          interviews: [],
+          pagination: {
+            current_page: page,
+            total_pages: 0,
+            total_items: 0,
+            items_per_page: limit,
+            has_next_page: false,
+            has_prev_page: false
+          }
+        });
+        return;
+      }
 
       // Get total count
       const countQuery = `

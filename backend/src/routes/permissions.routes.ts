@@ -4,6 +4,7 @@ import {
   getAllPermissions,
   getRolePermissions,
   updateRolePermissions,
+  getAllRoles,
 } from "../controllers/permissions.controller";
 import { authenticateToken, requireRole } from "../middleware/auth.middleware";
 
@@ -47,6 +48,24 @@ router.get("/me", getUserPermissions);
  *         description: Internal server error
  */
 router.get("/", getAllPermissions);
+
+/**
+ * @swagger
+ * /api/roles:
+ *   get:
+ *     summary: Get all available roles
+ *     tags: [Permissions]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Roles retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/roles", getAllRoles);
 
 // Admin-only routes for role management
 router.use(requireRole(["admin"]));

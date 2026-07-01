@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJobStore } from "../store/useJobStore";
+import { useUserStore } from "../store/useUserStore";
 import toast from "react-hot-toast";
-import { Briefcase, Search, RefreshCw, User, ArrowRight, Archive } from "lucide-react";
+import { Briefcase, Search, RefreshCw, User, ArrowRight, Archive, X } from "lucide-react";
+import api from "../services/api";
 
 export default function JobOversightPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -10,8 +12,14 @@ export default function JobOversightPage() {
   const [department, setDepartment] = useState("");
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("");
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [selectedJobTitle, setSelectedJobTitle] = useState("");
+  const [selectedNewOwnerId, setSelectedNewOwnerId] = useState("");
+  const [recruiters, setRecruiters] = useState<any[]>([]);
 
   const { jobs, isLoading, fetchJobs } = useJobStore();
+  const { users, fetchUsers } = useUserStore();
   const navigate = useNavigate();
 
   // Local input state — holds raw typed values before debounce commits them
@@ -24,6 +32,23 @@ export default function JobOversightPage() {
   const isInitialMount = useRef(true);
 
   const itemsPerPage = 20;
+
+  // Fetch recruiters for reassignment
+  useEffect(() => {
+    const loadRecruiters = async () => {
+      try {
+        await fetchUsers(0, 100); // Fetch all users
+        // Filter for recruiters and team leads
+        const recruiterUsers = users.filter(
+          (user: any) => user.role === 'recruiter' || user.role === 'team_lead'
+        );
+        setRecruiters(recruiterUsers);
+      } catch (error) {
+        console.error("Failed to fetch recruiters:", error);
+      }
+    };
+    loadRecruiters();
+  }, [users.length]);
 
   // Debounce: commit local inputs to filter state 400 ms after the user stops typing
   useEffect(() => {
@@ -68,21 +93,63 @@ export default function JobOversightPage() {
   };
 
   const handleReassign = (jobId: string, jobTitle: string) => {
-    // Navigate to job detail or show reassign modal
-    toast(`Reassign functionality for "${jobTitle}" - coming soon`);
+    setSelectedJobId(jobId);
+    setSelectedJobTitle(jobTitle);
+    setSelectedNewOwnerId("");
+    setShowReassignModal(true);
+  };
+
+  const handleReassignSubmit = async () => {
+    if (!selectedNewOwnerId) {
+      toast.error("Please select a recruiter");
+      return;
+    }
+
+    try {
+      console.log("Reassigning job:", { selectedJobId, selectedNewOwnerId, selectedJobTitle });
+      const response = await api.patch(`/api/jobs/${selectedJobId}/reassign`, {
+        new_owner_id: selectedNewOwnerId
+      });
+      console.log("Reassign response:", response.data);
+      toast.success(`"${selectedJobTitle}" has been reassigned`);
+      setShowReassignModal(false);
+      fetchJobs(); // Refresh the job list
+    } catch (error: any) {
+      console.error("Reassign error:", error);
+      console.error("Error response:", error.response?.data);
+      const errorMessage = error.response?.data?.details?.[0] || error.response?.data?.error || "Failed to reassign job";
+      toast.error(errorMessage);
+    }
   };
 
   const handleForceClose = async (jobId: string, jobTitle: string) => {
     if (!confirm(`Are you sure you want to force close "${jobTitle}"?`)) return;
 
-    try {
-      const reason = prompt("Please provide a reason for force closing this job:");
-      if (!reason) return;
+    const reason = prompt("Please provide a reason for force closing this job (min 5 characters):");
+    if (!reason) return;
+    
+    // Validate reason length
+    if (reason.length < 5) {
+      toast.error("Reason must be at least 5 characters long");
+      return;
+    }
+    
+    if (reason.length > 500) {
+      toast.error("Reason must be less than 500 characters");
+      return;
+    }
 
-      // This would call the forceCloseJob endpoint
-      toast(`Force close functionality for "${jobTitle}" - coming soon`);
-    } catch (error) {
-      toast.error("Failed to force close job");
+    try {
+      console.log("Force closing job:", { jobId, jobTitle, reason });
+      const response = await api.patch(`/api/jobs/${jobId}/force-close`, { reason });
+      console.log("Force close response:", response.data);
+      toast.success(`"${jobTitle}" has been force closed`);
+      fetchJobs(); // Refresh the job list
+    } catch (error: any) {
+      console.error("Force close error:", error);
+      console.error("Error response:", error.response?.data);
+      const errorMessage = error.response?.data?.details?.[0] || error.response?.data?.error || "Failed to force close job";
+      toast.error(errorMessage);
     }
   };
 
@@ -321,6 +388,60 @@ export default function JobOversightPage() {
           </div>
         )}
       </div>
+
+      {/* Reassign Modal */}
+      {showReassignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h3 className="text-lg font-semibold text-gray-900">Reassign Job</h3>
+              <button
+                onClick={() => setShowReassignModal(false)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Assign "{selectedJobTitle}" to a new recruiter:
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Recruiter
+                </label>
+                <select
+                  value={selectedNewOwnerId}
+                  onChange={(e) => setSelectedNewOwnerId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="">-- Select a recruiter --</option>
+                  {recruiters.map((recruiter) => (
+                    <option key={recruiter.id} value={recruiter.id}>
+                      {recruiter.email} ({recruiter.role})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 p-6 border-t bg-gray-50 rounded-b-lg">
+              <button
+                onClick={() => setShowReassignModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReassignSubmit}
+                disabled={!selectedNewOwnerId}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Reassign
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getClient } from "../database/db";
 import { authenticateToken } from "../middleware/auth.middleware";
+import bcrypt from "bcryptjs";
 
 interface TeamMember {
   id: string;
@@ -28,31 +29,58 @@ export const getAllUsers = async (
   try {
     const skip = parseInt(req.query.skip as string) || 0;
     const limit = parseInt(req.query.limit as string) || 20;
+    const userId = (req as any).user?.id;
     const userRole = (req as any).user?.role;
-
-    // Only admins can view all users
-    if (userRole !== 'admin') {
-      res.status(403).json({
-        error: "Forbidden",
-        message: "Only admins can view all users",
-      });
-      return;
-    }
 
     const client = await getClient();
     try {
-      // Get total count
-      const countResult = await client.query("SELECT COUNT(*) as total FROM users");
-      const total = parseInt(countResult.rows[0].total);
+      let result;
+      let total;
 
-      // Get paginated users
-      const result = await client.query(
-        `SELECT id, email, role, is_active, tenant_id, created_at
-         FROM users
-         ORDER BY created_at DESC
-         LIMIT $1 OFFSET $2`,
-        [limit, skip]
-      );
+      if (userRole === 'admin') {
+        // Admins can view all users
+        const countResult = await client.query("SELECT COUNT(*) as total FROM users");
+        total = parseInt(countResult.rows[0].total);
+
+        result = await client.query(
+          `SELECT id, email, role, is_active, tenant_id, created_at
+           FROM users
+           ORDER BY created_at DESC
+           LIMIT $1 OFFSET $2`,
+          [limit, skip]
+        );
+      } else if (userRole === 'client_manager') {
+        // Client managers can only see recruiters assigned to their clients' jobs
+        const query = `
+          SELECT DISTINCT u.id, u.email, u.role, u.is_active, u.tenant_id, u.created_at
+          FROM users u
+          JOIN job_recruiter_assignments jra ON u.id = jra.recruiter_id
+          JOIN job_descriptions j ON jra.job_id = j.id
+          JOIN clients c ON j.client_id = c.id
+          WHERE c.owner_user_id = $1
+          ORDER BY u.created_at DESC
+          LIMIT $2 OFFSET $3
+        `;
+        result = await client.query(query, [userId, limit, skip]);
+
+        const countQuery = `
+          SELECT COUNT(DISTINCT u.id) as total
+          FROM users u
+          JOIN job_recruiter_assignments jra ON u.id = jra.recruiter_id
+          JOIN job_descriptions j ON jra.job_id = j.id
+          JOIN clients c ON j.client_id = c.id
+          WHERE c.owner_user_id = $1
+        `;
+        const countResult = await client.query(countQuery, [userId]);
+        total = parseInt(countResult.rows[0].total);
+      } else {
+        // Other roles are forbidden
+        res.status(403).json({
+          error: "Forbidden",
+          message: "Only admins and client managers can view users",
+        });
+        return;
+      }
 
       const users: User[] = result.rows.map(row => ({
         id: row.id,
@@ -305,6 +333,105 @@ export const deactivateUser = async (
     res.status(500).json({
       error: "Internal server error",
       message: "Failed to deactivate user",
+    });
+  }
+};
+
+// Create user
+export const createUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { email, password, role } = req.body;
+    const userRole = (req as any).user?.role;
+
+    // Only admins can create users
+    if (userRole !== 'admin') {
+      res.status(403).json({
+        error: "Forbidden",
+        message: "Only admins can create users",
+      });
+      return;
+    }
+
+    // Validate input
+    if (!email || !password || !role) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: "Email, password, and role are required",
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid email format",
+      });
+      return;
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: "Password must be at least 6 characters",
+      });
+      return;
+    }
+
+    // Validate role
+    const validRoles = ['admin', 'recruiter', 'team_lead', 'client_manager', 'bdm', 'viewer'];
+    if (!validRoles.includes(role)) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: `Invalid role. Valid roles are: ${validRoles.join(', ')}`,
+      });
+      return;
+    }
+
+    const client = await getClient();
+    try {
+      // Check if email already exists
+      const existingUser = await client.query(
+        "SELECT id FROM users WHERE email = $1",
+        [email]
+      );
+
+      if (existingUser.rows.length > 0) {
+        res.status(409).json({
+          error: "Conflict",
+          message: "Email already exists",
+        });
+        return;
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      // Create user
+      const result = await client.query(
+        `INSERT INTO users (id, email, hashed_password, role, is_active, tenant_id)
+         VALUES (gen_random_uuid(), $1, $2, $3, true, 'default')
+         RETURNING id, email, role, is_active, tenant_id, created_at`,
+        [email, hashedPassword, role]
+      );
+
+      res.status(201).json({
+        message: "User created successfully",
+        user: result.rows[0],
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Create user error:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: "Failed to create user",
     });
   }
 };

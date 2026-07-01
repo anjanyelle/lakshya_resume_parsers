@@ -5,6 +5,7 @@ import {
   updateUserRole,
   activateUser,
   deactivateUser,
+  createUser,
 } from "../controllers/user.controller";
 import { authenticateToken, requirePermission } from "../middleware/auth.middleware";
 
@@ -45,6 +46,44 @@ router.use(authenticateToken);
  *         description: Internal server error
  */
 router.get("/", requirePermission("users", "view"), getAllUsers);
+
+/**
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *               role:
+ *                 type: string
+ *                 enum: [admin, recruiter, team_lead, client_manager, bdm, viewer]
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Bad request - invalid input
+ *       403:
+ *         description: Forbidden - Only admins can create users
+ *       409:
+ *         description: Conflict - email already exists
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/", requirePermission("users", "edit"), createUser);
 
 /**
  * @swagger

@@ -16,6 +16,7 @@ import {
   getNewClientsAcquired,
   getRevenueGenerated,
   getOpenOpportunities,
+  getClientManagerSummary,
 } from "../controllers/analytics.controller";
 import { authenticateToken, requirePermission } from "../middleware/auth.middleware";
 
@@ -652,5 +653,81 @@ router.get("/open-opportunities",
   requirePermission("reports", "view_own"),
   getOpenOpportunities
 );
+
+/**
+ * @swagger
+ * /api/analytics/client-manager-summary:
+ *   get:
+ *     summary: Get summary analytics for client manager's clients
+ *     tags: [Analytics]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Client manager summary retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 clients:
+ *                   type: integer
+ *                   description: Total number of clients managed
+ *                 jobs:
+ *                   type: object
+ *                   properties:
+ *                     total_jobs:
+ *                       type: integer
+ *                     active_jobs:
+ *                       type: integer
+ *                     closed_jobs:
+ *                       type: integer
+ *                 submissions:
+ *                   type: object
+ *                   properties:
+ *                     total_submissions:
+ *                       type: integer
+ *                     submitted:
+ *                       type: integer
+ *                     under_review:
+ *                       type: integer
+ *                     shortlisted:
+ *                       type: integer
+ *                     interview_scheduled:
+ *                       type: integer
+ *                     offer_extended:
+ *                       type: integer
+ *                     offer_accepted:
+ *                       type: integer
+ *                     rejected:
+ *                       type: integer
+ *                 interviews:
+ *                   type: object
+ *                   properties:
+ *                     total_interviews:
+ *                       type: integer
+ *                     scheduled:
+ *                       type: integer
+ *                     completed:
+ *                       type: integer
+ *                     cancelled:
+ *                       type: integer
+ *                 placements:
+ *                   type: object
+ *                   properties:
+ *                     total_placements:
+ *                       type: integer
+ *                     total_revenue:
+ *                       type: number
+ *                     avg_revenue:
+ *                       type: number
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not a client manager
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/client-manager-summary", authenticateToken, getClientManagerSummary);
 
 export default router;

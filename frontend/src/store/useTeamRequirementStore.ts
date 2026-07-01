@@ -59,7 +59,7 @@ export const useTeamRequirementStore = create<TeamRequirementStore>((set) => ({
       if (params.limit) queryParams.append('limit', params.limit.toString());
       if (params.search) queryParams.append('search', params.search);
 
-      const response = await api.get(`/team-lead/requirements?${queryParams.toString()}`);
+      const response = await api.get(`/api/team-lead/requirements?${queryParams.toString()}`);
       set({
         requirements: response.data.requirements,
         pagination: response.data.pagination,

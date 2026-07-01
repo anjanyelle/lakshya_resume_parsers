@@ -188,23 +188,43 @@ export const getClientPerformance = async (req: Request, res: Response): Promise
   try {
     const fromDate = req.query.from as string;
     const toDate = req.query.to as string;
+    const userId = (req as any).user?.id;
+    const userRole = (req as any).user?.role;
 
     let dateFilter = "";
     const queryParams: any[] = [];
     let paramIndex = 1;
 
+    // Add client_manager filtering
+    let clientFilter = "";
+    if (userRole === 'client_manager' && userId) {
+      clientFilter = "AND c.owner_user_id = $1";
+      queryParams.push(userId);
+      paramIndex = 2;
+    }
+
     if (fromDate && toDate) {
-      dateFilter = "WHERE p.placed_at BETWEEN $1 AND $2";
+      dateFilter = `WHERE p.placed_at BETWEEN $${paramIndex} AND $${paramIndex + 1}`;
       queryParams.push(fromDate, toDate);
-      paramIndex = 3;
+      paramIndex += 2;
     } else if (fromDate) {
-      dateFilter = "WHERE p.placed_at >= $1";
+      dateFilter = `WHERE p.placed_at >= $${paramIndex}`;
       queryParams.push(fromDate);
-      paramIndex = 2;
+      paramIndex += 1;
     } else if (toDate) {
-      dateFilter = "WHERE p.placed_at <= $1";
+      dateFilter = `WHERE p.placed_at <= $${paramIndex}`;
       queryParams.push(toDate);
-      paramIndex = 2;
+      paramIndex += 1;
+    }
+
+    // Combine filters
+    let whereClause = "";
+    if (dateFilter && clientFilter) {
+      whereClause = dateFilter.replace("WHERE ", "WHERE ") + " " + clientFilter;
+    } else if (dateFilter) {
+      whereClause = dateFilter;
+    } else if (clientFilter) {
+      whereClause = "WHERE " + clientFilter.replace("AND ", "");
     }
 
     const clientPerformanceResult = await query(`
@@ -220,7 +240,7 @@ export const getClientPerformance = async (req: Request, res: Response): Promise
         MAX(p.placed_at) as last_placement_date
       FROM placements p
       JOIN clients c ON p.client_id = c.id
-      ${dateFilter}
+      ${whereClause}
       GROUP BY c.id, c.company_name
       ORDER BY total_revenue DESC
     `, queryParams);
@@ -1412,5 +1432,100 @@ export const getOpenOpportunities = async (req: AuthenticatedRequest, res: Respo
   } catch (error) {
     console.error("Get open opportunities error:", error);
     res.status(500).json({ error: "Internal server error", message: "Failed to retrieve open opportunities" });
+  }
+};
+
+// GET /api/analytics/client-manager-summary
+export const getClientManagerSummary = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized", message: "User ID is required" });
+      return;
+    }
+
+    if (userRole !== 'client_manager') {
+      res.status(403).json({ error: "Forbidden", message: "Only client managers can access this endpoint" });
+      return;
+    }
+
+    const client = await getClient();
+    try {
+      // Get total clients for this client manager
+      const clientsResult = await client.query(
+        `SELECT COUNT(*)::int as total_clients FROM clients WHERE owner_user_id = $1 AND is_archived = false`,
+        [userId]
+      );
+
+      // Get total jobs for this client manager's clients
+      const jobsResult = await client.query(
+        `SELECT COUNT(*)::int as total_jobs,
+         COUNT(*) FILTER (WHERE status = 'active')::int as active_jobs,
+         COUNT(*) FILTER (WHERE status = 'closed')::int as closed_jobs
+         FROM job_descriptions j
+         JOIN clients c ON j.client_id = c.id
+         WHERE c.owner_user_id = $1`,
+        [userId]
+      );
+
+      // Get total submissions for this client manager's clients
+      const submissionsResult = await client.query(
+        `SELECT COUNT(*)::int as total_submissions,
+         COUNT(*) FILTER (WHERE status = 'Submitted')::int as submitted,
+         COUNT(*) FILTER (WHERE status = 'Under Review')::int as under_review,
+         COUNT(*) FILTER (WHERE status = 'Shortlisted')::int as shortlisted,
+         COUNT(*) FILTER (WHERE status = 'Interview Scheduled')::int as interview_scheduled,
+         COUNT(*) FILTER (WHERE status = 'Offer Extended')::int as offer_extended,
+         COUNT(*) FILTER (WHERE status = 'Offer Accepted')::int as offer_accepted,
+         COUNT(*) FILTER (WHERE status = 'Rejected')::int as rejected
+         FROM submissions s
+         JOIN job_descriptions j ON s.job_id = j.id
+         JOIN clients c ON j.client_id = c.id
+         WHERE c.owner_user_id = $1`,
+        [userId]
+      );
+
+      // Get total interviews for this client manager's clients
+      const interviewsResult = await client.query(
+        `SELECT COUNT(*)::int as total_interviews,
+         COUNT(*) FILTER (WHERE status = 'scheduled')::int as scheduled,
+         COUNT(*) FILTER (WHERE status = 'completed')::int as completed,
+         COUNT(*) FILTER (WHERE status = 'cancelled')::int as cancelled
+         FROM interviews i
+         JOIN submissions s ON i.submission_id = s.id
+         JOIN job_descriptions j ON s.job_id = j.id
+         JOIN clients c ON j.client_id = c.id
+         WHERE c.owner_user_id = $1`,
+        [userId]
+      );
+
+      // Get placements/revenue for this client manager's clients
+      const placementsResult = await client.query(
+        `SELECT COUNT(*)::int as total_placements,
+         COALESCE(SUM(billing_amount), 0) as total_revenue,
+         COALESCE(AVG(billing_amount), 0) as avg_revenue
+         FROM placements p
+         JOIN clients c ON p.client_id = c.id
+         WHERE c.owner_user_id = $1`,
+        [userId]
+      );
+
+      const summary = {
+        clients: clientsResult.rows[0].total_clients,
+        jobs: jobsResult.rows[0],
+        submissions: submissionsResult.rows[0],
+        interviews: interviewsResult.rows[0],
+        placements: placementsResult.rows[0],
+      };
+
+      res.json(summary);
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error("Get client manager summary error:", error);
+    res.status(500).json({ error: "Internal server error", message: "Failed to retrieve client manager summary" });
   }
 };

@@ -92,7 +92,7 @@ export default function RecruiterRequirementsPage() {
       queryParams.append('page', currentPage.toString());
       queryParams.append('limit', itemsPerPage.toString());
 
-      const response = await api.get(`/recruiter/requirements?${queryParams.toString()}`);
+      const response = await api.get(`/api/recruiter/requirements?${queryParams.toString()}`);
       setJobs(response.data.jobs || []);
       setPagination(response.data.pagination || null);
     } catch (error: any) {
@@ -105,7 +105,7 @@ export default function RecruiterRequirementsPage() {
   };
 
   const handleViewDetails = (jobId: string) => {
-    navigate(`/jobs/${jobId}/details`);
+    navigate(`/jobs/${jobId}`);
   };
 
   const handleSubmitCandidate = (jobId: string) => {

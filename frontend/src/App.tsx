@@ -14,6 +14,7 @@ import CandidatesPage from "./pages/CandidatesPage";
 import CandidateDetailPage from "./pages/CandidateDetailPage";
 import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
+import MyAssignmentsPage from "./pages/MyAssignmentsPage";
 import MatchingPage from "./pages/MatchingPage";
 import JDMatchingPage from "./pages/JDMatchingPage";
 import SectionPreviewPage from "./pages/SectionPreviewPage";
@@ -23,6 +24,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AccuracyPage from "./pages/AccuracyPage";
 import UsersPage from "./pages/UsersPage";
 import UserEditPage from "./pages/UserEditPage";
+import UserCreatePage from "./pages/UserCreatePage";
 import ClientsPage from "./pages/ClientsPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
 import ClientCreatePage from "./pages/ClientCreatePage";
@@ -46,6 +48,7 @@ import PipelineStagesPage from "./pages/PipelineStagesPage";
 import EmailTemplatesPage from "./pages/EmailTemplatesPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import AuditLogPage from "./pages/AuditLogPage";
+import PermissionManagementPage from "./pages/PermissionManagementPage";
 import TeamKpisPage from "./pages/TeamKpisPage";
 
 // Protected Route Component
@@ -176,6 +179,7 @@ function App() {
         }
       >
         <Route index element={<JobsPage />} />
+        <Route path="my-assignments" element={<MyAssignmentsPage />} />
         <Route path=":id" element={<JobDetailPage />} />
       </Route>
 
@@ -264,6 +268,7 @@ function App() {
         }
       >
         <Route index element={<UsersPage />} />
+        <Route path="create" element={<UserCreatePage />} />
         <Route path=":id/edit" element={<UserEditPage />} />
       </Route>
 
@@ -550,6 +555,18 @@ function App() {
         }
       >
         <Route index element={<AuditLogPage />} />
+      </Route>
+
+      {/* Admin Routes - Permissions */}
+      <Route
+        path="/admin/permissions"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<PermissionManagementPage />} />
       </Route>
 
       {/* Catch all route - redirect to dashboard if authenticated, login if not */}

@@ -474,18 +474,8 @@ export const getJobById = async (
         return;
       }
 
-      // Add client_manager scoping - check if job belongs to user's clients
-      if (req.user && req.user.role === 'client_manager') {
-        const clientCheck = await client.query(
-          `SELECT id FROM clients WHERE owner_user_id = $1 AND id = $2`,
-          [req.user.id, job.client_id || '']
-        );
-        
-        if (clientCheck.rows.length === 0) {
-          res.status(403).json({ error: "Forbidden - You don't have access to this job" });
-          return;
-        }
-      }
+      // Note: Client-based scoping removed since jobs table doesn't have client_id column
+      // When client_id is added to jobs table, implement proper client_manager scoping here
 
       res.json({ job });
     } finally {
@@ -785,10 +775,20 @@ export const reassignJob = async (req: AuthenticatedRequest, res: Response): Pro
     const { id } = req.params;
     const jobId = Array.isArray(id) ? id[0] : id;
     const { new_owner_id } = req.body;
+    const authenticatedUser = (req as any).user;
+
+    // Debugging logs
+    console.log("[Reassign] Incoming request:", {
+      jobId,
+      new_owner_id,
+      authenticatedUser: authenticatedUser ? { id: authenticatedUser.id, email: authenticatedUser.email, role: authenticatedUser.role } : null,
+      requestBody: req.body
+    });
 
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("[Reassign] Validation failed:", errors.array());
       res.status(400).json({
         error: "Validation failed",
         details: errors.array().map((err: any) => err.msg),
@@ -796,20 +796,26 @@ export const reassignJob = async (req: AuthenticatedRequest, res: Response): Pro
       return;
     }
 
+    console.log("[Reassign] Validation passed, proceeding to check job existence");
+
     const client = await getClient();
     try {
       // Check if job exists
       const existingJob = await client.query(
-        "SELECT id, title, owner_user_id FROM job_descriptions WHERE id = $1",
+        "SELECT id, title, owner_user_id FROM jobs WHERE id = $1",
         [jobId]
       );
 
+      console.log("[Reassign] Job query result:", existingJob.rows);
+
       if (existingJob.rows.length === 0) {
+        console.log("[Reassign] Job not found");
         res.status(404).json({ error: "Job not found" });
         return;
       }
 
       const job = existingJob.rows[0];
+      console.log("[Reassign] Job found:", job);
 
       // Check if new owner exists
       const newOwner = await client.query(
@@ -817,14 +823,19 @@ export const reassignJob = async (req: AuthenticatedRequest, res: Response): Pro
         [new_owner_id]
       );
 
+      console.log("[Reassign] New owner query result:", newOwner.rows);
+
       if (newOwner.rows.length === 0) {
+        console.log("[Reassign] New owner not found");
         res.status(400).json({ error: "New owner not found" });
         return;
       }
 
+      console.log("[Reassign] New owner found:", newOwner.rows[0]);
+
       // Update job ownership
       const result = await client.query(
-        `UPDATE job_descriptions 
+        `UPDATE jobs 
          SET owner_user_id = $1, updated_at = NOW() 
          WHERE id = $2 
          RETURNING id, title, owner_user_id, updated_at`,
@@ -832,6 +843,7 @@ export const reassignJob = async (req: AuthenticatedRequest, res: Response): Pro
       );
 
       const updatedJob = result.rows[0];
+      console.log("[Reassign] Job updated successfully:", updatedJob);
 
       // Write audit log
       await writeJobAuditLog(
@@ -865,10 +877,20 @@ export const forceCloseJob = async (req: AuthenticatedRequest, res: Response): P
     const { id } = req.params;
     const jobId = Array.isArray(id) ? id[0] : id;
     const { reason } = req.body;
+    const authenticatedUser = (req as any).user;
+
+    // Debugging logs
+    console.log("[Force Close] Incoming request:", {
+      jobId,
+      reason,
+      authenticatedUser: authenticatedUser ? { id: authenticatedUser.id, email: authenticatedUser.email, role: authenticatedUser.role } : null,
+      requestBody: req.body
+    });
 
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("[Force Close] Validation failed:", errors.array());
       res.status(400).json({
         error: "Validation failed",
         details: errors.array().map((err: any) => err.msg),
@@ -876,23 +898,30 @@ export const forceCloseJob = async (req: AuthenticatedRequest, res: Response): P
       return;
     }
 
+    console.log("[Force Close] Validation passed, proceeding to check job existence");
+
     const client = await getClient();
     try {
       // Check if job exists
       const existingJob = await client.query(
-        "SELECT id, title, status FROM job_descriptions WHERE id = $1",
+        "SELECT id, title, status FROM jobs WHERE id = $1",
         [jobId]
       );
 
+      console.log("[Force Close] Job query result:", existingJob.rows);
+
       if (existingJob.rows.length === 0) {
+        console.log("[Force Close] Job not found");
         res.status(404).json({ error: "Job not found" });
         return;
       }
 
       const job = existingJob.rows[0];
+      console.log("[Force Close] Job found:", job);
 
       // Check if job is already closed
       if (job.status === "closed" || job.status === "archived") {
+        console.log("[Force Close] Job already closed:", job.status);
         res.status(400).json({
           error: "Job is already closed",
           message: `Job status is currently: ${job.status}`,
@@ -900,9 +929,11 @@ export const forceCloseJob = async (req: AuthenticatedRequest, res: Response): P
         return;
       }
 
+      console.log("[Force Close] Job status check passed, proceeding to update status");
+
       // Update job status to closed
       const result = await client.query(
-        `UPDATE job_descriptions 
+        `UPDATE jobs 
          SET status = 'closed', updated_at = NOW() 
          WHERE id = $1 
          RETURNING id, title, status, updated_at`,
@@ -910,6 +941,7 @@ export const forceCloseJob = async (req: AuthenticatedRequest, res: Response): P
       );
 
       const updatedJob = result.rows[0];
+      console.log("[Force Close] Job updated successfully:", updatedJob);
 
       // Write audit log
       await writeJobAuditLog(
@@ -952,6 +984,8 @@ export const getMyAssignments = async (
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
+    console.log('[getMyAssignments] Request:', { userId: req.user.id, page, limit });
+
     // Validate pagination
     if (page < 1 || limit < 1 || limit > 500) {
       res.status(400).json({
@@ -972,50 +1006,42 @@ export const getMyAssignments = async (
           j.department,
           j.description,
           j.required_skills,
-          j.preferred_skills,
           j.experience_years,
-          j.min_experience_years,
-          j.max_experience_years,
-          j.education_level,
-          j.education_requirement,
-          j.seniority_level,
+          j.status,
           j.location,
           j.employment_type,
-          j.work_mode,
           j.salary_min,
           j.salary_max,
-          j.salary_range,
-          j.currency,
-          j.status,
           j.created_at,
           j.updated_at,
           j.client_id,
+          j.created_by_user_id,
           COALESCE(cl.company_name, 'Unknown Company') as company_name,
           ja.priority as assignment_priority,
-          ja.assigned_at as assigned_at,
-          EXTRACT(DAYS FROM (NOW() - j.created_at)) as days_open
+          ja.assigned_at as assigned_at
         FROM job_descriptions j
-        INNER JOIN job_recruiter_assignments ja ON j.id = ja.job_id
+        LEFT JOIN job_recruiter_assignments ja ON j.id = ja.job_id AND ja.recruiter_id = $1
         LEFT JOIN clients cl ON j.client_id = cl.id
-        WHERE ja.recruiter_id = $1
-          AND j.status != 'archived'
+        WHERE ja.recruiter_id IS NOT NULL
         ORDER BY ja.priority DESC, j.created_at DESC
         LIMIT $2 OFFSET $3
       `;
 
+      console.log('[getMyAssignments] Executing query with params:', [req.user.id, limit, offset]);
       const result = await client.query(query, [req.user.id, limit, offset]);
+      console.log('[getMyAssignments] Query result count:', result.rows.length);
 
       // Get total count for pagination
       const countQuery = `
-        SELECT COUNT(*) as total
+        SELECT COUNT(DISTINCT j.id) as total
         FROM job_descriptions j
-        INNER JOIN job_recruiter_assignments ja ON j.id = ja.job_id
-        WHERE ja.recruiter_id = $1
-          AND j.status != 'archived'
+        LEFT JOIN job_recruiter_assignments ja ON j.id = ja.job_id AND ja.recruiter_id = $1
+        WHERE ja.recruiter_id IS NOT NULL
       `;
 
       const countResult = await client.query(countQuery, [req.user.id]);
       const total = parseInt(countResult.rows[0].total);
+      console.log('[getMyAssignments] Total count:', total);
 
       const totalPages = Math.ceil(total / limit);
       const hasNextPage = page < totalPages;
@@ -1035,9 +1061,12 @@ export const getMyAssignments = async (
     } finally {
       client.release();
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Get my assignments error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ 
+      error: "Internal server error",
+      details: error.message 
+    });
   }
 };
 

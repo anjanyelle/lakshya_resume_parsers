@@ -12,8 +12,8 @@ interface Role {
 
 interface Permission {
   id: string;
-  module_name: string;
-  action_name: string;
+  module: string;
+  name: string;
   description?: string;
 }
 
@@ -35,16 +35,12 @@ export default function PermissionManagementPage() {
 
   // Module and action mappings for display
   const moduleDisplayNames: Record<string, string> = {
-    users: "Users",
-    clients: "Clients", 
-    requirements: "Requirements",
-    candidates: "Candidates",
-    reports: "Reports",
-    settings: "Settings",
-    audit_logs: "Audit Logs",
-    upload: "Upload",
-    matching: "Matching",
+    user: "Users",
+    candidate: "Candidates", 
+    job: "Jobs",
     labeling: "Labeling",
+    matching: "Matching",
+    settings: "Settings",
     analytics: "Analytics"
   };
 
@@ -69,7 +65,7 @@ export default function PermissionManagementPage() {
       await fetchAllPermissions();
       
       // Fetch all roles
-      const rolesResponse = await api.get("/api/roles");
+      const rolesResponse = await api.get("/api/permissions/roles");
       setRoles(rolesResponse.data.roles || []);
       
       // Get permissions catalog
@@ -92,14 +88,14 @@ export default function PermissionManagementPage() {
 
   const fetchRolePermissions = async (roleId: string) => {
     try {
-      const response = await api.get(`/api/role-permissions/${roleId}`);
+      const response = await api.get(`/api/permissions/role-permissions/${roleId}`);
       const permissions = response.data.permissions || [];
       
       // Convert to RolePermission format
       const rolePerms: RolePermission[] = permissions.map((perm: any) => ({
         permissionId: perm.id,
-        moduleId: perm.module_name,
-        actionId: perm.action_name
+        moduleId: perm.module,
+        actionId: perm.name
       }));
       
       setRolePermissions(rolePerms);
@@ -124,9 +120,14 @@ export default function PermissionManagementPage() {
       setRolePermissions(prev => prev.filter((_, index) => index !== existingIndex));
     } else {
       // Add permission
-      const permission = allPermissions.find(
-        p => p.module_name === moduleId && p.action_name === actionId
-      );
+      const permission = allPermissions.find(p => {
+        if (p.module !== moduleId) return false;
+        
+        // Extract action from permission name (format: "module.action")
+        const parts = p.name.split('.');
+        const permissionAction = parts.length > 1 ? parts[1] : p.name;
+        return permissionAction === actionId;
+      });
       if (permission) {
         setRolePermissions(prev => [...prev, {
           permissionId: permission.id,
@@ -147,7 +148,7 @@ export default function PermissionManagementPage() {
     try {
       const permissionIds = rolePermissions.map(rp => rp.permissionId);
       
-      await api.put(`/api/role-permissions/${selectedRoleId}`, {
+      await api.put(`/api/permissions/role-permissions/${selectedRoleId}`, {
         permissionIds
       });
 
@@ -166,16 +167,20 @@ export default function PermissionManagementPage() {
 
   // Group permissions by module
   const groupedPermissions = allPermissions.reduce((acc, permission) => {
-    if (!acc[permission.module_name]) {
-      acc[permission.module_name] = [];
+    if (!acc[permission.module]) {
+      acc[permission.module] = [];
     }
-    acc[permission.module_name].push(permission);
+    acc[permission.module].push(permission);
     return acc;
   }, {} as Record<string, Permission[]>);
 
   // Get all unique actions across modules
   const allActions = Array.from(
-    new Set(allPermissions.map(p => p.action_name))
+    new Set(allPermissions.map(p => {
+      // Extract action from permission name (format: "module.action")
+      const parts = p.name.split('.');
+      return parts.length > 1 ? parts[1] : p.name;
+    }))
   ).sort();
 
   if (isLoading) {
@@ -256,7 +261,12 @@ export default function PermissionManagementPage() {
                     </td>
                     {allActions.map((action) => {
                       const isSelected = isPermissionSelected(moduleId, action);
-                      const hasPermission = permissions.some(p => p.action_name === action);
+                      const hasPermission = permissions.some(p => {
+                        // Extract action from permission name (format: "module.action")
+                        const parts = p.name.split('.');
+                        const permissionAction = parts.length > 1 ? parts[1] : p.name;
+                        return permissionAction === action;
+                      });
                       
                       return (
                         <td key={action} className="px-6 py-4 whitespace-nowrap text-center">

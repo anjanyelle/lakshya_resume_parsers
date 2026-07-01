@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/useUserStore";
 import toast from "react-hot-toast";
-import { Users, Shield, Edit, Trash2, Power, PowerOff } from "lucide-react";
+import { Users, Shield, Edit, Trash2, Power, PowerOff, UserPlus } from "lucide-react";
 
 export default function UsersPage() {
   const navigate = useNavigate();
@@ -65,14 +65,13 @@ export default function UsersPage() {
           <div className="text-sm text-gray-600">
             Total users: <span className="font-semibold">{total}</span>
           </div>
-          {/* Add User button disabled - create endpoint not implemented yet */}
-          {/* <button
+          <button
             onClick={() => navigate("/users/create")}
             className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
           >
             <UserPlus className="h-4 w-4" />
             Add User
-          </button> */}
+          </button>
         </div>
 
         {/* Error */}

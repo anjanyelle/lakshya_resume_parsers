@@ -49,7 +49,7 @@ export class JobModel {
     userId?: string
   ): Promise<JobDescription> {
     const query = `
-      INSERT INTO jobs (
+      INSERT INTO job_descriptions (
         title, description, required_skills, department, location,
         employment_type, min_experience_years, max_experience_years,
         education_level, salary_min, salary_max, status
@@ -117,10 +117,9 @@ export class JobModel {
 
     // Add client_manager scoping
     if (clientManagerUserId) {
-      // Skip client scoping since clients table doesn't exist
-      // conditions.push(`client_id IN (SELECT id FROM clients WHERE owner_user_id = $${paramCount})`);
-      // values.push(clientManagerUserId);
-      // paramCount++;
+      conditions.push(`client_id IN (SELECT id FROM clients WHERE owner_user_id = $${paramCount})`);
+      values.push(clientManagerUserId);
+      paramCount++;
     }
 
     if (filters.search) {
@@ -169,12 +168,12 @@ export class JobModel {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    const countQuery = `SELECT COUNT(*) FROM jobs ${whereClause}`;
+    const countQuery = `SELECT COUNT(*) FROM job_descriptions ${whereClause}`;
     const countResult = await client.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count);
 
     const dataQuery = `
-      SELECT * FROM jobs
+      SELECT * FROM job_descriptions
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
@@ -200,7 +199,7 @@ export class JobModel {
     client: PoolClient,
     id: string
   ): Promise<JobDescription | null> {
-    const query = "SELECT * FROM jobs WHERE id = $1";
+    const query = "SELECT * FROM job_descriptions WHERE id = $1";
     const result = await client.query(query, [id]);
     
     if (result.rows.length === 0) {
@@ -305,7 +304,7 @@ export class JobModel {
 
     values.push(id);
     const query = `
-      UPDATE jobs
+      UPDATE job_descriptions
       SET ${updates.join(", ")}, updated_at = NOW()
       WHERE id = $${paramCount}
       RETURNING *
@@ -351,7 +350,7 @@ export class JobModel {
 
   static async delete(client: PoolClient, id: string): Promise<boolean> {
     await client.query("DELETE FROM job_skills WHERE job_id = $1", [id]);
-    const query = "DELETE FROM jobs WHERE id = $1 RETURNING id";
+    const query = "DELETE FROM job_descriptions WHERE id = $1 RETURNING id";
     const result = await client.query(query, [id]);
     return result.rows.length > 0;
   }
@@ -359,7 +358,7 @@ export class JobModel {
   static async getDepartments(client: PoolClient): Promise<string[]> {
     const query = `
       SELECT DISTINCT department
-      FROM jobs
+      FROM job_descriptions
       WHERE department IS NOT NULL AND department != ''
       ORDER BY department
     `;
@@ -370,7 +369,7 @@ export class JobModel {
   static async getLocations(client: PoolClient): Promise<string[]> {
     const query = `
       SELECT DISTINCT location
-      FROM jobs
+      FROM job_descriptions
       WHERE location IS NOT NULL AND location != ''
       ORDER BY location
     `;

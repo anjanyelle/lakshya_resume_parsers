@@ -52,9 +52,9 @@ const writePermissionsAuditLog = async (
  *                   items:
  *                     type: object
  *                     properties:
- *                       module_name:
+ *                       module:
  *                         type: string
- *                       action_name:
+ *                       name:
  *                         type: string
  *       401:
  *         description: Unauthorized
@@ -70,27 +70,56 @@ export const getUserPermissions = async (req: AuthenticatedRequest, res: Respons
       return;
     }
 
-    // If user doesn't have roleId, return empty permissions (or fallback to legacy role check)
+    // If user doesn't have roleId, return permissions based on legacy role check
     if (!req.user.roleId) {
       // For backward compatibility, admin users get all permissions
       if (req.user.role === 'admin') {
         const allPermissionsResult = await query(
-          "SELECT module_name, action_name FROM permissions ORDER BY module_name, action_name"
+          "SELECT module, name FROM permissions ORDER BY module, name"
         );
         res.json({ permissions: allPermissionsResult.rows });
         return;
       }
-      
-      res.json({ permissions: [] });
+
+      // Return default permissions for other roles based on their access
+      const defaultPermissions: any[] = [];
+
+      // Common permissions for all non-admin roles
+      const commonModules = ['upload', 'matching', 'labeling', 'analytics', 'settings'];
+      commonModules.forEach(module => {
+        defaultPermissions.push({ module, name: 'view' });
+      });
+
+      // Role-specific permissions
+      if (req.user.role === 'recruiter') {
+        defaultPermissions.push({ module: 'candidates', name: 'view' });
+        defaultPermissions.push({ module: 'jobs', name: 'view' });
+        defaultPermissions.push({ module: 'dashboard', name: 'view' });
+        defaultPermissions.push({ module: 'interviews', name: 'view_own' });
+      } else if (req.user.role === 'team_lead') {
+        defaultPermissions.push({ module: 'candidates', name: 'view' });
+        defaultPermissions.push({ module: 'jobs', name: 'view' });
+        defaultPermissions.push({ module: 'dashboard', name: 'view' });
+        defaultPermissions.push({ module: 'requirements', name: 'view' });
+        defaultPermissions.push({ module: 'interviews', name: 'view_own' });
+      } else if (req.user.role === 'client_manager') {
+        defaultPermissions.push({ module: 'clients', name: 'view_own' });
+        defaultPermissions.push({ module: 'communications', name: 'view' });
+        defaultPermissions.push({ module: 'dashboard', name: 'view' });
+        defaultPermissions.push({ module: 'submissions', name: 'view_own_clients' });
+        defaultPermissions.push({ module: 'interviews', name: 'view_own' });
+      }
+
+      res.json({ permissions: defaultPermissions });
       return;
     }
 
     const result = await query(
-      `SELECT p.module_name, p.action_name
+      `SELECT p.module, p.name
        FROM role_permissions rp
        JOIN permissions p ON rp.permission_id = p.id
-       WHERE rp.role_id = $1
-       ORDER BY p.module_name, p.action_name`,
+       WHERE rp.role = $1
+       ORDER BY p.module, p.name`,
       [req.user.roleId]
     );
 
@@ -125,9 +154,9 @@ export const getUserPermissions = async (req: AuthenticatedRequest, res: Respons
  *                       id:
  *                         type: string
  *                         format: uuid
- *                       module_name:
+ *                       module:
  *                         type: string
- *                       action_name:
+ *                       name:
  *                         type: string
  *                       description:
  *                         type: string
@@ -139,7 +168,7 @@ export const getUserPermissions = async (req: AuthenticatedRequest, res: Respons
 export const getAllPermissions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const result = await query(
-      "SELECT id, module_name, action_name, description FROM permissions ORDER BY module_name, action_name"
+      "SELECT id, module, name, description FROM permissions ORDER BY module, name"
     );
 
     res.json({ permissions: result.rows });
@@ -191,9 +220,9 @@ export const getAllPermissions = async (req: AuthenticatedRequest, res: Response
  *                       id:
  *                         type: string
  *                         format: uuid
- *                       module_name:
+ *                       module:
  *                         type: string
- *                       action_name:
+ *                       name:
  *                         type: string
  *                       description:
  *                         type: string
@@ -212,35 +241,32 @@ export const getAllPermissions = async (req: AuthenticatedRequest, res: Response
 export const getRolePermissions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { roleId } = req.params;
+    const roleIdString = Array.isArray(roleId) ? roleId[0] : roleId;
 
-    if (!roleId) {
+    if (!roleIdString) {
       res.status(400).json({ error: "Bad Request", message: "Role ID is required" });
       return;
     }
 
-    // Get role details
-    const roleResult = await query(
-      "SELECT id, name, description FROM roles WHERE id = $1",
-      [roleId]
-    );
+    // Since we're using string-based roles, create a mock role object
+    const role = {
+      id: roleIdString,
+      name: roleIdString,
+      description: `${roleIdString.charAt(0).toUpperCase() + roleIdString.slice(1)} role`
+    };
 
-    if (roleResult.rows.length === 0) {
-      res.status(404).json({ error: "Not Found", message: "Role not found" });
-      return;
-    }
-
-    // Get role permissions
+    // Get role permissions - role_id in role_permissions table stores the role name as string
     const permissionsResult = await query(
-      `SELECT p.id, p.module_name, p.action_name, p.description, rp.granted_at
+      `SELECT p.id, p.module, p.name, p.description
        FROM role_permissions rp
        JOIN permissions p ON rp.permission_id = p.id
-       WHERE rp.role_id = $1
-       ORDER BY p.module_name, p.action_name`,
-      [roleId]
+       WHERE rp.role = $1
+       ORDER BY p.module, p.name`,
+      [roleIdString]
     );
 
     res.json({
-      role: roleResult.rows[0],
+      role: role,
       permissions: permissionsResult.rows
     });
   } catch (error) {
@@ -306,9 +332,9 @@ export const getRolePermissions = async (req: AuthenticatedRequest, res: Respons
  *                       id:
  *                         type: string
  *                         format: uuid
- *                       module_name:
+ *                       module:
  *                         type: string
- *                       action_name:
+ *                       name:
  *                         type: string
  *       400:
  *         description: Bad Request
@@ -324,9 +350,10 @@ export const getRolePermissions = async (req: AuthenticatedRequest, res: Respons
 export const updateRolePermissions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { roleId } = req.params;
+    const roleIdString = Array.isArray(roleId) ? roleId[0] : roleId;
     const { permissionIds } = req.body;
 
-    if (!roleId) {
+    if (!roleIdString) {
       res.status(400).json({ error: "Bad Request", message: "Role ID is required" });
       return;
     }
@@ -349,13 +376,13 @@ export const updateRolePermissions = async (req: AuthenticatedRequest, res: Resp
       }
     }
 
-    // Verify role exists
-    const roleResult = await query(
-      "SELECT id, name FROM roles WHERE id = $1",
-      [roleId]
+    // Since we're using string-based roles, verify the role is valid by checking if it exists in users table
+    const validRoleResult = await query(
+      "SELECT DISTINCT role FROM users WHERE role = $1 LIMIT 1",
+      [roleIdString]
     );
 
-    if (roleResult.rows.length === 0) {
+    if (validRoleResult.rows.length === 0) {
       res.status(404).json({ error: "Not Found", message: "Role not found" });
       return;
     }
@@ -366,22 +393,22 @@ export const updateRolePermissions = async (req: AuthenticatedRequest, res: Resp
     try {
       // Delete existing role permissions
       await query(
-        "DELETE FROM role_permissions WHERE role_id = $1",
-        [roleId]
+        "DELETE FROM role_permissions WHERE role = $1",
+        [roleIdString]
       );
 
       // Insert new role permissions if any provided
       if (permissionIds.length > 0) {
         const values = permissionIds.map((permissionId: string, index: number) => 
-          `($1, $${index + 2}, NOW(), $${permissionIds.length + 2})`
+          `($1, $${index + 2}, NOW())`
         ).join(', ');
 
         const insertQuery = `
-          INSERT INTO role_permissions (role_id, permission_id, granted_at, granted_by)
+          INSERT INTO role_permissions (role, permission_id, created_at)
           VALUES ${values}
         `;
 
-        const params = [roleId, ...permissionIds, req.user?.id];
+        const params = [roleIdString, ...permissionIds];
         await query(insertQuery, params);
       }
 
@@ -390,12 +417,12 @@ export const updateRolePermissions = async (req: AuthenticatedRequest, res: Resp
 
       // Get updated permissions for response
       const updatedPermissionsResult = await query(
-        `SELECT p.id, p.module_name, p.action_name
+        `SELECT p.id, p.module, p.name
          FROM role_permissions rp
          JOIN permissions p ON rp.permission_id = p.id
-         WHERE rp.role_id = $1
-         ORDER BY p.module_name, p.action_name`,
-        [roleId]
+         WHERE rp.role = $1
+         ORDER BY p.module, p.name`,
+        [roleIdString]
       );
 
       // Write audit log
@@ -403,8 +430,8 @@ export const updateRolePermissions = async (req: AuthenticatedRequest, res: Resp
         req.user!.id,
         "UPDATE_ROLE_PERMISSIONS",
         {
-          role_id: roleId,
-          role_name: roleResult.rows[0].name,
+          role_id: roleIdString,
+          role_name: roleIdString,
           new_permissions: permissionIds,
           updated_by: req.user!.email,
         },
@@ -413,7 +440,11 @@ export const updateRolePermissions = async (req: AuthenticatedRequest, res: Resp
 
       res.json({
         message: "Role permissions updated successfully",
-        role: roleResult.rows[0],
+        role: {
+          id: roleIdString,
+          name: roleIdString,
+          description: `${roleIdString.charAt(0).toUpperCase() + roleIdString.slice(1)} role`
+        },
         permissions: updatedPermissionsResult.rows
       });
     } catch (error) {
@@ -424,5 +455,26 @@ export const updateRolePermissions = async (req: AuthenticatedRequest, res: Resp
   } catch (error) {
     console.error("Update role permissions error:", error);
     res.status(500).json({ error: "Internal server error", message: "Failed to update role permissions" });
+  }
+};
+
+export const getAllRoles = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    // Get unique roles from users table
+    const result = await query(
+      "SELECT DISTINCT role as name, role as id FROM users WHERE role IS NOT NULL ORDER BY role"
+    );
+
+    // Format roles for frontend
+    const roles = result.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      description: `${row.name.charAt(0).toUpperCase() + row.name.slice(1)} role`
+    }));
+
+    res.json({ roles });
+  } catch (error) {
+    console.error("Get all roles error:", error);
+    res.status(500).json({ error: "Internal server error", message: "Failed to retrieve roles" });
   }
 };

@@ -298,6 +298,8 @@ export const getAllClients = async (
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
+    const userId = (req as any).user?.id;
+    const userRole = (req as any).user?.role;
 
     const filters: ClientFilter = {
       search: (req.query.search as string) || undefined,
@@ -313,6 +315,13 @@ export const getAllClients = async (
       const whereConditions = [];
       const queryParams: any[] = [];
       let paramIndex = 1;
+
+      // Add client_manager scoping
+      if (userRole === 'client_manager' && userId) {
+        whereConditions.push(`owner_user_id = $${paramIndex}`);
+        queryParams.push(userId);
+        paramIndex++;
+      }
 
       if (filters.search) {
         whereConditions.push(`(company_name ILIKE $${paramIndex})`);
