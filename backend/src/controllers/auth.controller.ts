@@ -53,33 +53,12 @@ export const registerUser = async (
 
     const user = result.rows[0];
 
-    // Get role information from roles table
-    let roleId = null;
-    let roleName = user.role;
-    
-    try {
-      const roleResult = await query(
-        "SELECT id, name FROM roles WHERE name = $1",
-        [user.role]
-      );
-      
-      if (roleResult.rows.length > 0) {
-        roleId = roleResult.rows[0].id;
-        roleName = roleResult.rows[0].name;
-      }
-    } catch (error) {
-      console.error("Error fetching role information:", error);
-      // Continue with default role if role lookup fails
-    }
-
-    // Generate JWT token with enhanced role information
+    // Generate JWT token with role information
     const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        role: user.role,        // Legacy role for backward compatibility
-        roleId: roleId,         // New role UUID
-        roleName: roleName      // New role name
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
       },
       process.env.JWT_SECRET || "fallback-secret",
       { expiresIn: "24h" },
@@ -113,9 +92,8 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     // Find user with role information
     const result = await query(
-      `SELECT u.id, u.email, u.hashed_password, u.role, u.created_at, u.role_id, r.name as role_name
+      `SELECT u.id, u.email, u.hashed_password, u.role, u.created_at
        FROM users u 
-       LEFT JOIN roles r ON u.role_id = r.id 
        WHERE u.email = $1`,
       [email],
     );
@@ -138,14 +116,12 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Generate JWT token with enhanced role information
+    // Generate JWT token with role information
     const token = jwt.sign(
-      { 
-        id: user.id, 
-        email: user.email, 
-        role: user.role,        // Legacy role for backward compatibility
-        roleId: user.role_id,   // New role UUID
-        roleName: user.role_name || user.role  // New role name
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
       },
       process.env.JWT_SECRET || "fallback-secret",
       { expiresIn: "24h" },
@@ -156,6 +132,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       user: {
         id: user.id,
         email: user.email,
+        name: user.email.split('@')[0], // Generate name from email
         role: user.role,
         created_at: user.created_at,
       },

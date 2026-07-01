@@ -263,7 +263,7 @@ export default function JobOversightPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => navigate(`/jobs/${job.id}`)}
+                      onClick={() => navigate(`/admin/jobs/${job.id}`)}
                       className="px-3 py-1.5 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 flex items-center gap-1"
                     >
                       <ArrowRight className="w-3 h-3" />

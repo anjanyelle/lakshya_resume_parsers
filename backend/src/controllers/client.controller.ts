@@ -602,8 +602,8 @@ export const archiveClient = async (req: AuthenticatedRequest, res: Response): P
 // Contact-related controllers
 export const getClientContacts = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { clientId } = req.params;
-    const clientIdStr = Array.isArray(clientId) ? clientId[0] : clientId;
+    const { id } = req.params;
+    const clientIdStr = Array.isArray(id) ? id[0] : id;
 
     const client = await getClient();
     try {
@@ -649,8 +649,8 @@ export const getClientContacts = async (req: AuthenticatedRequest, res: Response
 
 export const createContact = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { clientId } = req.params;
-    const clientIdStr = Array.isArray(clientId) ? clientId[0] : clientId;
+    const { id } = req.params;
+    const clientIdStr = Array.isArray(id) ? id[0] : id;
 
     // Check validation errors
     const errors = validationResult(req);

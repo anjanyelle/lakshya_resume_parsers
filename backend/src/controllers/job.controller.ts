@@ -368,8 +368,7 @@ export const getAllJobs = async (
         // Get total count
         const countQuery = `
           SELECT COUNT(*) as total 
-          FROM job_descriptions j 
-          LEFT JOIN clients c ON j.client_id = c.id 
+          FROM jobs j 
           ${whereClause}
         `;
         const countResult = await client.query(countQuery, queryParams);
@@ -382,11 +381,9 @@ export const getAllJobs = async (
             j.id, j.title, j.description, j.department, j.location, 
             j.employment_type, j.min_experience_years, j.max_experience_years,
             j.education_level, j.salary_min, j.salary_max, j.status,
-            j.created_at, j.updated_at, j.client_id,
-            c.company_name,
+            j.created_at, j.updated_at,
             EXTRACT(DAYS FROM (NOW() - j.created_at)) as days_open
-          FROM job_descriptions j
-          LEFT JOIN clients c ON j.client_id = c.id
+          FROM jobs j
           ${whereClause}
           ORDER BY j.created_at DESC
           LIMIT $${paramIndex} OFFSET $${paramIndex + 1}

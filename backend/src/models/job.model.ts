@@ -49,15 +49,12 @@ export class JobModel {
     userId?: string
   ): Promise<JobDescription> {
     const query = `
-      INSERT INTO job_descriptions (
+      INSERT INTO jobs (
         title, description, required_skills, department, location,
         employment_type, min_experience_years, max_experience_years,
-        education_level, salary_min, salary_max, education_requirement,
-        seniority_level, salary_range, status, preferred_skills,
-        currency, salary_period, work_mode, number_of_openings, notice_period,
-        client_id, created_by_user_id
+        education_level, salary_min, salary_max, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `;
 
@@ -73,18 +70,7 @@ export class JobModel {
       data.education_level,
       data.salary_min,
       data.salary_max,
-      data.education_requirement || null,
-      data.seniority_level || null,
-      data.salary_range || null,
       data.status || "active",
-      JSON.stringify(data.preferred_skills || []),
-      data.currency || 'USD',
-      data.salary_period || 'Yearly',
-      data.work_mode || null,
-      data.number_of_openings || 1,
-      data.notice_period || null,
-      data.client_id || null,
-      userId || null,
     ];
 
     const result = await client.query(query, values);
@@ -131,9 +117,10 @@ export class JobModel {
 
     // Add client_manager scoping
     if (clientManagerUserId) {
-      conditions.push(`client_id IN (SELECT id FROM clients WHERE owner_user_id = $${paramCount})`);
-      values.push(clientManagerUserId);
-      paramCount++;
+      // Skip client scoping since clients table doesn't exist
+      // conditions.push(`client_id IN (SELECT id FROM clients WHERE owner_user_id = $${paramCount})`);
+      // values.push(clientManagerUserId);
+      // paramCount++;
     }
 
     if (filters.search) {
@@ -182,12 +169,12 @@ export class JobModel {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    const countQuery = `SELECT COUNT(*) FROM job_descriptions ${whereClause}`;
+    const countQuery = `SELECT COUNT(*) FROM jobs ${whereClause}`;
     const countResult = await client.query(countQuery, values);
     const total = parseInt(countResult.rows[0].count);
 
     const dataQuery = `
-      SELECT * FROM job_descriptions
+      SELECT * FROM jobs
       ${whereClause}
       ORDER BY created_at DESC
       LIMIT $${paramCount} OFFSET $${paramCount + 1}
@@ -213,7 +200,7 @@ export class JobModel {
     client: PoolClient,
     id: string
   ): Promise<JobDescription | null> {
-    const query = "SELECT * FROM job_descriptions WHERE id = $1";
+    const query = "SELECT * FROM jobs WHERE id = $1";
     const result = await client.query(query, [id]);
     
     if (result.rows.length === 0) {
@@ -306,63 +293,9 @@ export class JobModel {
       paramCount++;
     }
 
-    if (data.education_requirement !== undefined) {
-      updates.push(`education_requirement = $${paramCount}`);
-      values.push(data.education_requirement);
-      paramCount++;
-    }
-
-    if (data.seniority_level !== undefined) {
-      updates.push(`seniority_level = $${paramCount}`);
-      values.push(data.seniority_level);
-      paramCount++;
-    }
-
-    if (data.salary_range !== undefined) {
-      updates.push(`salary_range = $${paramCount}`);
-      values.push(data.salary_range);
-      paramCount++;
-    }
-
     if (data.status !== undefined) {
       updates.push(`status = $${paramCount}`);
       values.push(data.status);
-      paramCount++;
-    }
-
-    if (data.preferred_skills !== undefined) {
-      updates.push(`preferred_skills = $${paramCount}`);
-      values.push(JSON.stringify(data.preferred_skills));
-      paramCount++;
-    }
-
-    if (data.currency !== undefined) {
-      updates.push(`currency = $${paramCount}`);
-      values.push(data.currency);
-      paramCount++;
-    }
-
-    if (data.salary_period !== undefined) {
-      updates.push(`salary_period = $${paramCount}`);
-      values.push(data.salary_period);
-      paramCount++;
-    }
-
-    if (data.work_mode !== undefined) {
-      updates.push(`work_mode = $${paramCount}`);
-      values.push(data.work_mode);
-      paramCount++;
-    }
-
-    if (data.number_of_openings !== undefined) {
-      updates.push(`number_of_openings = $${paramCount}`);
-      values.push(data.number_of_openings);
-      paramCount++;
-    }
-
-    if (data.notice_period !== undefined) {
-      updates.push(`notice_period = $${paramCount}`);
-      values.push(data.notice_period);
       paramCount++;
     }
 
@@ -372,7 +305,7 @@ export class JobModel {
 
     values.push(id);
     const query = `
-      UPDATE job_descriptions
+      UPDATE jobs
       SET ${updates.join(", ")}, updated_at = NOW()
       WHERE id = $${paramCount}
       RETURNING *
@@ -418,7 +351,7 @@ export class JobModel {
 
   static async delete(client: PoolClient, id: string): Promise<boolean> {
     await client.query("DELETE FROM job_skills WHERE job_id = $1", [id]);
-    const query = "DELETE FROM job_descriptions WHERE id = $1 RETURNING id";
+    const query = "DELETE FROM jobs WHERE id = $1 RETURNING id";
     const result = await client.query(query, [id]);
     return result.rows.length > 0;
   }
@@ -426,7 +359,7 @@ export class JobModel {
   static async getDepartments(client: PoolClient): Promise<string[]> {
     const query = `
       SELECT DISTINCT department
-      FROM job_descriptions
+      FROM jobs
       WHERE department IS NOT NULL AND department != ''
       ORDER BY department
     `;
@@ -437,7 +370,7 @@ export class JobModel {
   static async getLocations(client: PoolClient): Promise<string[]> {
     const query = `
       SELECT DISTINCT location
-      FROM job_descriptions
+      FROM jobs
       WHERE location IS NOT NULL AND location != ''
       ORDER BY location
     `;

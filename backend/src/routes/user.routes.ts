@@ -1,13 +1,146 @@
 import { Router } from "express";
 import {
+  getAllUsers,
   getMyTeam,
+  updateUserRole,
+  activateUser,
+  deactivateUser,
 } from "../controllers/user.controller";
-import { authenticateToken } from "../middleware/auth.middleware";
+import { authenticateToken, requirePermission } from "../middleware/auth.middleware";
 
 const router = Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Get all users with pagination
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Number of users to skip
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of users to return
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only admins can view all users
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/", requirePermission("users", "view"), getAllUsers);
+
+/**
+ * @swagger
+ * /api/users/{id}/role:
+ *   put:
+ *     summary: Update user role
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User role updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only admins can update roles
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id/role", requirePermission("users", "edit"), updateUserRole);
+
+/**
+ * @swagger
+ * /api/users/{id}/activate:
+ *   put:
+ *     summary: Activate a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User activated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only admins can activate users
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id/activate", requirePermission("users", "edit"), activateUser);
+
+/**
+ * @swagger
+ * /api/users/{id}/deactivate:
+ *   put:
+ *     summary: Deactivate a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: User deactivated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only admins can deactivate users
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put("/:id/deactivate", requirePermission("users", "edit"), deactivateUser);
 
 /**
  * @swagger

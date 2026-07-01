@@ -187,7 +187,6 @@ export const getSubmissions = async (req: Request, res: Response): Promise<void>
     const status = req.query.status as string;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const tenantId = (req as any).user?.tenant_id || "default";
 
     // Validate pagination
     if (page < 1 || limit < 1 || limit > 100) {
@@ -204,9 +203,9 @@ export const getSubmissions = async (req: Request, res: Response): Promise<void>
       const offset = (page - 1) * limit;
 
       // Build WHERE clause
-      let whereClause = "WHERE s.tenant_id = $1";
-      const queryParams: any[] = [tenantId];
-      let paramIndex = 2;
+      let whereClause = "WHERE 1=1";
+      const queryParams: any[] = [];
+      let paramIndex = 1;
 
       if (jobId) {
         whereClause += ` AND s.job_id = $${paramIndex}`;
@@ -241,16 +240,15 @@ export const getSubmissions = async (req: Request, res: Response): Promise<void>
         SELECT 
           s.*,
           j.title as job_title,
-          j.company as job_company,
           c.full_name as candidate_name,
           c.email as candidate_email,
-          u.name as submitted_by_name
+          u.email as submitted_by_email
         FROM submissions s
         LEFT JOIN job_descriptions j ON s.job_id = j.id
         LEFT JOIN candidates c ON s.candidate_id = c.id
         LEFT JOIN users u ON s.submitted_by = u.id
         ${whereClause}
-        ORDER BY s.created_at DESC
+        ORDER BY s.submitted_at DESC
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
       `;
 

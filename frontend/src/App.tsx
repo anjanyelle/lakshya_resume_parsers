@@ -13,6 +13,7 @@ import LabelingPage from "./pages/LabelingPage";
 import CandidatesPage from "./pages/CandidatesPage";
 import CandidateDetailPage from "./pages/CandidateDetailPage";
 import JobsPage from "./pages/JobsPage";
+import JobDetailPage from "./pages/JobDetailPage";
 import MatchingPage from "./pages/MatchingPage";
 import JDMatchingPage from "./pages/JDMatchingPage";
 import SectionPreviewPage from "./pages/SectionPreviewPage";
@@ -21,8 +22,10 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AccuracyPage from "./pages/AccuracyPage";
 import UsersPage from "./pages/UsersPage";
+import UserEditPage from "./pages/UserEditPage";
 import ClientsPage from "./pages/ClientsPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
+import ClientCreatePage from "./pages/ClientCreatePage";
 import JobOversightPage from "./pages/JobOversightPage";
 import RecruiterRequirementsPage from "./pages/RecruiterRequirementsPage";
 import RecruiterCandidatesPage from "./pages/RecruiterCandidatesPage";
@@ -173,6 +176,7 @@ function App() {
         }
       >
         <Route index element={<JobsPage />} />
+        <Route path=":id" element={<JobDetailPage />} />
       </Route>
 
       <Route
@@ -260,6 +264,7 @@ function App() {
         }
       >
         <Route index element={<UsersPage />} />
+        <Route path=":id/edit" element={<UserEditPage />} />
       </Route>
 
       <Route
@@ -283,6 +288,7 @@ function App() {
         }
       >
         <Route index element={<ClientsPage />} />
+        <Route path="new" element={<ClientCreatePage />} />
       </Route>
 
       <Route
@@ -306,6 +312,7 @@ function App() {
         }
       >
         <Route index element={<JobOversightPage />} />
+        <Route path=":id" element={<JobDetailPage />} />
       </Route>
 
       {/* Recruiter Routes - Requirements */}

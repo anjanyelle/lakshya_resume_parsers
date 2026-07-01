@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getClient } from "../database/db";
 import { authenticateToken, requirePermission } from "../middleware/auth.middleware";
+import crypto from "crypto";
 
 // Types
 interface CreateCommunicationRequest {
@@ -29,7 +30,7 @@ export const createCommunication = async (req: Request, res: Response): Promise<
   try {
     const { client_id, contact_id, communication_type, subject, notes, follow_up_date }: CreateCommunicationRequest = req.body;
     const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenant_id || "default";
+    const userRole = (req as any).user?.role;
 
     // Validate required fields
     if (!client_id || !communication_type || !subject || !notes) {
@@ -37,6 +38,17 @@ export const createCommunication = async (req: Request, res: Response): Promise<
         error: "Bad Request",
         message: "client_id, communication_type, subject, and notes are required",
         code: "MISSING_REQUIRED_FIELDS"
+      });
+      return;
+    }
+
+    // Validate communication_type
+    const validTypes = ['call', 'email', 'meeting'];
+    if (!validTypes.includes(communication_type)) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: `communication_type must be one of: ${validTypes.join(', ')}`,
+        code: "INVALID_COMMUNICATION_TYPE"
       });
       return;
     }
@@ -54,10 +66,10 @@ export const createCommunication = async (req: Request, res: Response): Promise<
     try {
       await client.query("BEGIN");
 
-      // Validate client belongs to user (ownership check)
+      // Validate client exists
       const clientCheck = await client.query(
-        `SELECT id, owner_user_id FROM clients WHERE id = $1 AND tenant_id = $2`,
-        [client_id, tenantId]
+        `SELECT id, owner_user_id FROM clients WHERE id = $1`,
+        [client_id]
       );
 
       if (clientCheck.rows.length === 0) {
@@ -72,8 +84,8 @@ export const createCommunication = async (req: Request, res: Response): Promise<
 
       const clientData = clientCheck.rows[0];
 
-      // Check if user owns the client
-      if (clientData.owner_user_id !== userId) {
+      // Check if user owns the client (admins can skip this check)
+      if (userRole !== 'admin' && clientData.owner_user_id !== userId) {
         await client.query("ROLLBACK");
         res.status(403).json({
           error: "Forbidden",
@@ -86,8 +98,8 @@ export const createCommunication = async (req: Request, res: Response): Promise<
       // If contact_id is provided, validate it belongs to the client
       if (contact_id) {
         const contactCheck = await client.query(
-          `SELECT id FROM client_contacts WHERE id = $1 AND client_id = $2 AND tenant_id = $3`,
-          [contact_id, client_id, tenantId]
+          `SELECT id FROM client_contacts WHERE id = $1 AND client_id = $2`,
+          [contact_id, client_id]
         );
 
         if (contactCheck.rows.length === 0) {
@@ -127,9 +139,9 @@ export const createCommunication = async (req: Request, res: Response): Promise<
 
       // Insert audit log
       await client.query(
-        `INSERT INTO audit_logs (action, table_name, record_id, user_id, tenant_id, created_at, details)
-         VALUES ('LOG_COMMUNICATION', 'client_communications', $1, $2, $3, NOW(), $4)`,
-        [communication.id, userId, tenantId, JSON.stringify({
+        `INSERT INTO audit_logs (id, user_id, action, resource_type, resource_id, ip_address, details)
+         VALUES ($1, $2, 'LOG_COMMUNICATION', 'client_communications', $3, 'unknown', $4)`,
+        [crypto.randomUUID(), userId, communication.id, JSON.stringify({
           client_id,
           contact_id,
           communication_type,
@@ -172,7 +184,7 @@ export const getCommunications = async (req: Request, res: Response): Promise<vo
   try {
     const { clientId, from, to } = req.query;
     const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenant_id || "default";
+    const userRole = (req as any).user?.role;
 
     if (!userId) {
       res.status(401).json({
@@ -186,14 +198,16 @@ export const getCommunications = async (req: Request, res: Response): Promise<vo
     const client = await getClient();
     try {
       // Build query with optional filters
-      let whereClause = "WHERE cc.tenant_id = $1";
-      const queryParams: any[] = [tenantId];
+      let whereClause = "WHERE 1=1";
+      const queryParams: any[] = [];
       let paramCount = 1;
 
-      // Filter by user's clients (ownership check)
-      whereClause += ` AND c.owner_user_id = $${paramCount}`;
-      queryParams.push(userId);
-      paramCount++;
+      // Filter by user's clients (ownership check) - admins can see all
+      if (userRole !== 'admin') {
+        whereClause += ` AND c.owner_user_id = $${paramCount}`;
+        queryParams.push(userId);
+        paramCount++;
+      }
 
       if (clientId) {
         whereClause += ` AND cc.client_id = $${paramCount}`;
@@ -214,7 +228,7 @@ export const getCommunications = async (req: Request, res: Response): Promise<vo
       }
 
       const query = `
-        SELECT 
+        SELECT
           cc.id,
           cc.client_id,
           cc.contact_id,
@@ -225,11 +239,9 @@ export const getCommunications = async (req: Request, res: Response): Promise<vo
           cc.logged_by,
           cc.created_at,
           c.company_name,
-          ctc.first_name as contact_first_name,
-          ctc.last_name as contact_last_name,
+          ctc.contact_name,
           ctc.email as contact_email,
-          u.first_name as logged_by_name,
-          u.last_name as logged_by_last_name
+          u.email as logged_by_email
         FROM client_communications cc
         JOIN clients c ON cc.client_id = c.id
         LEFT JOIN client_contacts ctc ON cc.contact_id = ctc.id
@@ -262,7 +274,6 @@ export const getCommunications = async (req: Request, res: Response): Promise<vo
 export const getFollowUpsDue = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenant_id || "default";
 
     if (!userId) {
       res.status(401).json({
@@ -276,7 +287,7 @@ export const getFollowUpsDue = async (req: Request, res: Response): Promise<void
     const client = await getClient();
     try {
       const query = `
-        SELECT 
+        SELECT
           cc.id,
           cc.client_id,
           cc.contact_id,
@@ -287,21 +298,19 @@ export const getFollowUpsDue = async (req: Request, res: Response): Promise<void
           cc.logged_by,
           cc.created_at,
           c.company_name,
-          ctc.first_name as contact_first_name,
-          ctc.last_name as contact_last_name,
+          ctc.contact_name,
           ctc.email as contact_email,
           ctc.phone as contact_phone
         FROM client_communications cc
         JOIN clients c ON cc.client_id = c.id
         LEFT JOIN client_contacts ctc ON cc.contact_id = ctc.id
-        WHERE cc.tenant_id = $1
-          AND cc.follow_up_date IS NOT NULL
+        WHERE cc.follow_up_date IS NOT NULL
           AND cc.follow_up_date <= NOW()
-          AND cc.logged_by = $2
+          AND cc.logged_by = $1
         ORDER BY cc.follow_up_date ASC
       `;
 
-      const result = await client.query(query, [tenantId, userId]);
+      const result = await client.query(query, [userId]);
 
       res.json({
         followUps: result.rows,

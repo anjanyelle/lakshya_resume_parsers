@@ -164,7 +164,7 @@ router.post("/", requirePermission("communications", "log"), createCommunication
  *       500:
  *         description: Internal server error
  */
-router.get("/", requirePermission("communications", "log"), getCommunications);
+router.get("/", requirePermission("communications", "view"), getCommunications);
 
 /**
  * @swagger
