@@ -69,6 +69,14 @@ interface JobState {
   isMatching: boolean;
   matchingProgress: number;
   error: string | null;
+  pagination: {
+    current_page: number;
+    total_pages: number;
+    total_items: number;
+    items_per_page: number;
+    has_next_page: boolean;
+    has_prev_page: boolean;
+  } | null;
 }
 
 interface JobActions {
@@ -95,6 +103,7 @@ export const useJobStore = create<JobState & JobActions>((set) => ({
   isMatching: false,
   matchingProgress: 0,
   error: null,
+  pagination: null,
 
   // Actions
   fetchJobs: async (params = {}) => {

@@ -55,6 +55,24 @@ const normalizeJobData = (req: Request, res: Response, next: NextFunction) => {
     req.body.education_level = eduMap[key] || "any";
   }
 
+  // 4. Map min_experience_years to experience_years for database
+  if (req.body.min_experience_years !== undefined) {
+    req.body.experience_years = req.body.min_experience_years;
+    delete req.body.min_experience_years;
+  }
+
+  // 5. Remove fields that don't exist in database schema
+  const allowedFields = [
+    'title', 'description', 'required_skills', 'department', 'location',
+    'employment_type', 'experience_years', 'salary_min', 'salary_max',
+    'status', 'client_id'
+  ];
+  Object.keys(req.body).forEach(key => {
+    if (!allowedFields.includes(key)) {
+      delete req.body[key];
+    }
+  });
+
   next();
 };
 

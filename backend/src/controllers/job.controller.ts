@@ -185,32 +185,10 @@ export const updateJobValidation = [
     .withMessage(
       "Employment type must be one of: full-time, part-time, contract, internship, temporary",
     ),
-  body("min_experience_years")
+  body("experience_years")
     .optional()
     .isInt({ min: 0, max: 50 })
-    .withMessage("Minimum experience must be between 0 and 50 years"),
-  body("max_experience_years")
-    .optional()
-    .isInt({ min: 0, max: 50 })
-    .withMessage("Maximum experience must be between 0 and 50 years")
-    .custom((value: number, { req }: { req: any }) => {
-      if (
-        req.body.min_experience_years !== undefined &&
-        value !== undefined &&
-        req.body.min_experience_years > value
-      ) {
-        throw new Error(
-          "Minimum experience cannot be greater than maximum experience",
-        );
-      }
-      return true;
-    }),
-  body("education_level")
-    .optional()
-    .isIn(["high-school", "bachelor", "master", "phd", "any"])
-    .withMessage(
-      "Education level must be one of: high-school, bachelor, master, phd, any",
-    ),
+    .withMessage("Experience must be between 0 and 50 years"),
   body("salary_min")
     .optional()
     .isInt({ min: 0 })
@@ -275,9 +253,13 @@ export const createJob = async (req: AuthenticatedRequest, res: Response): Promi
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error("Create job error:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (error: any) {
+    console.error("Create job error:", error.message);
+    console.error("Error stack:", error.stack);
+    res.status(500).json({ 
+      error: "Internal server error",
+      details: error.message 
+    });
   }
 };
 
@@ -285,11 +267,11 @@ export const getAllJobs = async (
   req: AuthenticatedRequest,
   res: Response,
 ): Promise<void> => {
-  try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const adminView = req.query.adminView === "true";
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  const adminView = req.query.adminView === "true";
 
+  try {
     // If adminView is requested, check for proper permission
     if (adminView) {
       // This will be handled by middleware, but we double-check here
@@ -298,6 +280,16 @@ export const getAllJobs = async (
         return;
       }
     }
+
+    console.log("=== GET ALL JOBS START ===");
+    console.log("Request parameters:", {
+      page,
+      limit,
+      adminView,
+      user: req.user?.id,
+      role: req.user?.role,
+      query: req.query
+    });
 
     const filters: JobFilter = {
       search: (req.query.search as string) || undefined,
@@ -312,6 +304,8 @@ export const getAllJobs = async (
         : undefined,
       created_by_user_id: (req.query.created_by_user_id as string) || undefined,
     };
+
+    console.log("Filters:", filters);
 
     const client = await getClient();
     try {
@@ -346,13 +340,13 @@ export const getAllJobs = async (
         }
 
         if (filters.min_experience !== undefined) {
-          whereConditions.push(`j.min_experience_years >= $${paramIndex}`);
+          whereConditions.push(`j.experience_years >= $${paramIndex}`);
           queryParams.push(filters.min_experience);
           paramIndex++;
         }
 
         if (filters.max_experience !== undefined) {
-          whereConditions.push(`j.max_experience_years <= $${paramIndex}`);
+          whereConditions.push(`j.experience_years <= $${paramIndex}`);
           queryParams.push(filters.max_experience);
           paramIndex++;
         }
@@ -368,7 +362,7 @@ export const getAllJobs = async (
         // Get total count
         const countQuery = `
           SELECT COUNT(*) as total 
-          FROM jobs j 
+          FROM job_descriptions j 
           ${whereClause}
         `;
         const countResult = await client.query(countQuery, queryParams);
@@ -379,11 +373,11 @@ export const getAllJobs = async (
         const dataQuery = `
           SELECT 
             j.id, j.title, j.description, j.department, j.location, 
-            j.employment_type, j.min_experience_years, j.max_experience_years,
-            j.education_level, j.salary_min, j.salary_max, j.status,
+            j.employment_type, j.experience_years,
+            j.salary_min, j.salary_max, j.status,
             j.created_at, j.updated_at,
             EXTRACT(DAYS FROM (NOW() - j.created_at)) as days_open
-          FROM jobs j
+          FROM job_descriptions j
           ${whereClause}
           ORDER BY j.created_at DESC
           LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -446,9 +440,27 @@ export const getAllJobs = async (
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error("Get all jobs error:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (error: any) {
+    console.error("Get all jobs error:", error.message);
+    console.error("Error details:", {
+      code: error.code,
+      detail: error.detail,
+      constraint: error.constraint,
+      column: error.column,
+      table: error.table,
+      routine: error.routine,
+      stack: error.stack
+    });
+    console.error("Request parameters:", {
+      page,
+      limit,
+      adminView
+    });
+    res.status(500).json({ 
+      error: error.message || "Internal server error",
+      detail: error.detail,
+      code: error.code
+    });
   }
 };
 

@@ -152,13 +152,17 @@ export class CandidateModel {
 
   static async create(client: any, data: Partial<Candidate>): Promise<Candidate> {
     const id = data.id || crypto.randomUUID();
+
+    // Validate status field - only allow valid enum values
+    const validStatuses = ['pending', 'processing', 'success', 'failed', 'deleted'];
+    const status = data.status && validStatuses.includes(data.status) ? data.status : 'pending';
       
     const result = await client.query(
       `INSERT INTO candidates (
         id, email, phone, full_name, status, summary,
         review_status,
         linkedin_url, github_url, location,
-        created_by_user_id, tenant_id,
+        tenant_id,
         created_at, updated_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()) RETURNING *`,
       [
@@ -166,13 +170,12 @@ export class CandidateModel {
         data.email || null,
         data.phone || null,
         data.full_name || data.name || null,
-        data.status || "pending",
+        status,
         data.summary || null,
         data.review_status || "pending",
         data.linkedin_url || null,
         data.github_url || null,
         data.location || null,
-        data.created_by_user_id || null,
         data.tenant_id || "default"
       ]
     );
@@ -180,6 +183,10 @@ export class CandidateModel {
   }
 
   static async update(client: any, id: string, data: Partial<Candidate>): Promise<Candidate | null> {
+    // Validate status field - only allow valid enum values
+    const validStatuses = ['pending', 'processing', 'success', 'failed', 'deleted'];
+    const status = data.status && validStatuses.includes(data.status) ? data.status : null;
+
     const result = await client.query(
       `UPDATE candidates 
        SET email = COALESCE($1, email), 
@@ -198,7 +205,7 @@ export class CandidateModel {
         data.email,
         data.phone,
         data.full_name || data.name,
-        data.status,
+        status,
         data.summary,
         data.raw_resume_text,
         data.linkedin_url,

@@ -8,6 +8,7 @@ import {
   reviewSubmission,
   getSubmissionsForMyClients,
   updateSubmissionClientOutcome,
+  getSubmissionById,
 } from "../controllers/submission.controller";
 import { authenticateToken, requirePermission } from "../middleware/auth.middleware";
 
@@ -213,6 +214,160 @@ router.get("/my", requirePermission("submissions", "view_own"), getMySubmissions
 
 /**
  * @swagger
+ * /api/submissions/pending-review:
+ *   get:
+ *     summary: Get submissions pending review for team lead
+ *     tags: [Submissions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Pending review submissions retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 submissions:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     current_page:
+ *                       type: integer
+ *                     total_pages:
+ *                       type: integer
+ *                     total_items:
+ *                       type: integer
+ *                     items_per_page:
+ *                       type: integer
+ *                     has_next_page:
+ *                       type: boolean
+ *                     has_prev_page:
+ *                       type: boolean
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Only team leads and admins can access
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/pending-review", requirePermission("submissions", "review"), getPendingReviewSubmissions);
+
+/**
+ * @swagger
+ * /api/submissions/for-my-clients:
+ *   get:
+ *     summary: Get submissions for client manager's clients
+ *     tags: [Submissions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter by submission status
+ *     responses:
+ *       200:
+ *         description: Submissions for client's jobs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 submissions:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 count:
+ *                   type: integer
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Insufficient permissions - requirePermission("submissions", "view_own_clients")
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/for-my-clients", requirePermission("submissions", "view_own_clients"), getSubmissionsForMyClients);
+
+/**
+ * @swagger
+ * /api/submissions/{id}:
+ *   get:
+ *     summary: Get submission by ID
+ *     tags: [Submissions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Submission ID
+ *     responses:
+ *       200:
+ *         description: Submission retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 submission:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     job_id:
+ *                       type: string
+ *                     candidate_id:
+ *                       type: string
+ *                     candidate_name:
+ *                       type: string
+ *                     candidate_email:
+ *                       type: string
+ *                     job_title:
+ *                       type: string
+ *                     client_name:
+ *                       type: string
+ *                     status:
+ *                       type: string
+ *                     submitted_at:
+ *                       type: string
+ *                       format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Insufficient permissions - requirePermission("submissions", "view")
+ *       404:
+ *         description: Submission not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/:id", requirePermission("submissions", "view"), getSubmissionById);
+
+/**
+ * @swagger
  * /api/submissions/{id}/status:
  *   patch:
  *     summary: Update submission status
@@ -267,87 +422,6 @@ router.get("/my", requirePermission("submissions", "view_own"), getMySubmissions
  *         description: Internal server error
  */
 router.patch("/:id/status", requirePermission("submissions", "edit"), updateSubmissionStatus);
-
-/**
- * @swagger
- * /api/submissions/pending-review:
- *   get:
- *     summary: Get submissions pending review for team lead
- *     tags: [Submissions]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *         description: Number of items per page
- *     responses:
- *       200:
- *         description: Pending review submissions retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 submissions:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                       job_id:
- *                         type: string
- *                       candidate_id:
- *                         type: string
- *                       status:
- *                         type: string
- *                       job_title:
- *                         type: string
- *                       candidate_name:
- *                         type: string
- *                       candidate_email:
- *                         type: string
- *                       submitted_by:
- *                         type: object
- *                         properties:
- *                           email:
- *                             type: string
- *                           name:
- *                             type: string
- *                       has_review:
- *                         type: boolean
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     current_page:
- *                       type: integer
- *                     total_pages:
- *                       type: integer
- *                     total_items:
- *                       type: integer
- *                     items_per_page:
- *                       type: integer
- *                     has_next_page:
- *                       type: boolean
- *                     has_prev_page:
- *                       type: boolean
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Only team leads and admins can access
- *       500:
- *         description: Internal server error
- */
-router.get("/pending-review", requirePermission("submissions", "review"), getPendingReviewSubmissions);
 
 /**
  * @swagger
@@ -415,87 +489,6 @@ router.get("/pending-review", requirePermission("submissions", "review"), getPen
  *         description: Internal server error
  */
 router.post("/:id/review", requirePermission("submissions", "review"), reviewSubmission);
-
-/**
- * @swagger
- * /api/submissions/for-my-clients:
- *   get:
- *     summary: Get submissions for client manager's clients
- *     tags: [Submissions]
- *     security:
- *       - bearerAuth: []
- *     description: |
- *       Retrieves submissions for jobs belonging to the client manager's clients.
- *       Shows submissions that have already been reviewed by Team Lead (status reflects
- *       whatever the Team Lead review moved it to). Client Manager doesn't re-approve,
- *       they just see what's ready and manage the client-facing outcome.
- *     parameters:
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *         description: Filter by submission status (e.g., 'Shortlisted', 'Rejected', 'Under Review')
- *     responses:
- *       200:
- *         description: Submissions retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 submissions:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                         format: uuid
- *                       job_id:
- *                         type: string
- *                         format: uuid
- *                       candidate_id:
- *                         type: string
- *                         format: uuid
- *                       submitted_by:
- *                         type: string
- *                       status:
- *                         type: string
- *                       rejection_reason:
- *                         type: string
- *                       created_at:
- *                         type: string
- *                         format: date-time
- *                       updated_at:
- *                         type: string
- *                         format: date-time
- *                       job_title:
- *                         type: string
- *                       job_description:
- *                         type: string
- *                       job_location:
- *                         type: string
- *                       company_name:
- *                         type: string
- *                       client_id:
- *                         type: string
- *                         format: uuid
- *                       candidate_name:
- *                         type: string
- *                       candidate_email:
- *                         type: string
- *                       candidate_phone:
- *                         type: string
- *                 count:
- *                   type: integer
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Insufficient permissions - requirePermission("submissions", "view_own_clients")
- *       500:
- *         description: Internal server error
- */
-router.get("/for-my-clients", requirePermission("submissions", "view_own_clients"), getSubmissionsForMyClients);
 
 /**
  * @swagger

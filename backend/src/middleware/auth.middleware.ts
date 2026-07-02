@@ -125,6 +125,14 @@ export const requirePermission = (moduleName: string, actionName: string) => {
         }
       }
 
+      // Allow bdm to access jobs, candidates, dashboard, requirements, clients, reports, and settings
+      if (req.user.role === 'bdm') {
+        if (['jobs', 'candidates', 'dashboard', 'requirements', 'clients', 'reports', 'settings'].includes(moduleName)) {
+          console.log(`[Permission Check] BDM accessing ${moduleName} - allowing access`);
+          return next();
+        }
+      }
+
       // For other users without roleId, deny access to permission-protected routes
       console.log("[Permission Check] No roleId - denying access");
       res.status(403).json({ error: "Insufficient permissions - role not assigned" });

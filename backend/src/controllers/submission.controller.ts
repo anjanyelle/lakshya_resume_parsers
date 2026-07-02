@@ -25,7 +25,7 @@ interface Submission {
   submitted_by: string;
   status: string;
   rejection_reason?: string;
-  created_at: string;
+  submitted_at: string;
   updated_at: string;
 }
 
@@ -534,7 +534,7 @@ export const getPendingReviewSubmissions = async (req: Request, res: Response): 
           s.submitted_by,
           s.status,
           s.rejection_reason,
-          s.created_at,
+          s.submitted_at,
           s.updated_at,
           j.title as job_title,
           j.company as job_company,
@@ -587,7 +587,7 @@ export const getPendingReviewSubmissions = async (req: Request, res: Response): 
       `;
 
       query += `
-        ORDER BY s.created_at DESC
+        ORDER BY s.submitted_at DESC
         LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
       `;
 
@@ -1044,6 +1044,76 @@ export const updateSubmissionClientOutcome = async (req: Request, res: Response)
       error: "Internal Server Error",
       message: "Failed to record client outcome",
       code: "UPDATE_OUTCOME_FAILED",
+      details: error.message
+    });
+  }
+};
+
+// Get submission by ID
+export const getSubmissionById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const submissionId = Array.isArray(id) ? id[0] : id;
+    const userId = (req as any).user?.id;
+    const userRole = (req as any).user?.role;
+
+    console.log('[getSubmissionById] Request received:', { submissionId, userId, userRole });
+
+    if (!submissionId) {
+      res.status(400).json({ error: "Submission ID is required" });
+      return;
+    }
+
+    const client = await getClient();
+    try {
+      // Fetch submission with candidate and job details
+      const query = `
+        SELECT 
+          s.id,
+          s.job_id,
+          s.candidate_id,
+          s.submitted_by,
+          s.status,
+          s.rejection_reason,
+          s.submitted_at,
+          s.updated_at,
+          c.full_name as candidate_name,
+          c.email as candidate_email,
+          c.phone as candidate_phone,
+          c.years_experience as candidate_experience,
+          j.title as job_title,
+          j.department as job_department,
+          j.location as job_location,
+          cli.company_name as client_name,
+          u.email as submitted_by_email
+        FROM submissions s
+        LEFT JOIN candidates c ON s.candidate_id = c.id
+        LEFT JOIN job_descriptions j ON s.job_id = j.id
+        LEFT JOIN clients cli ON j.client_id = cli.id
+        LEFT JOIN users u ON s.submitted_by = u.id
+        WHERE s.id = $1
+      `;
+
+      const result = await client.query(query, [submissionId]);
+
+      if (result.rows.length === 0) {
+        res.status(404).json({ error: "Submission not found" });
+        return;
+      }
+
+      const submission = result.rows[0];
+
+      console.log('[getSubmissionById] Submission found:', submission.id);
+      res.json({ submission });
+    } finally {
+      client.release();
+    }
+  } catch (error: any) {
+    console.error("Get submission by ID error:", error.message);
+    console.error("Error stack:", error.stack);
+    res.status(500).json({
+      error: "Internal Server Error",
+      message: "Failed to fetch submission details",
       details: error.message
     });
   }

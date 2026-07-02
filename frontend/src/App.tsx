@@ -44,6 +44,10 @@ import ClientPipelinePage from "./pages/ClientPipelinePage";
 import BDMRequirementsPage from "./pages/BDMRequirementsPage";
 import BDMRequirementFormPage from "./pages/BDMRequirementFormPage";
 import BdmDashboardPage from "./pages/BdmDashboardPage";
+import BDMCandidatesPage from "./pages/BDMCandidatesPage";
+import BDMReportsPage from "./pages/BDMReportsPage";
+import BDMSubmissionsPage from "./pages/BDMSubmissionsPage";
+import SubmissionDetailPage from "./pages/SubmissionDetailPage";
 import PipelineStagesPage from "./pages/PipelineStagesPage";
 import EmailTemplatesPage from "./pages/EmailTemplatesPage";
 import NotificationsPage from "./pages/NotificationsPage";
@@ -498,6 +502,52 @@ function App() {
       >
         <Route index element={<BDMRequirementFormPage />} />
       </Route>
+
+      {/* BDM Routes - Candidates */}
+      <Route
+        path="/bdm/candidates"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<BDMCandidatesPage />} />
+      </Route>
+
+      {/* BDM Routes - Reports */}
+      <Route
+        path="/bdm/reports"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<BDMReportsPage />} />
+      </Route>
+
+      {/* BDM Routes - Submissions */}
+      <Route
+        path="/bdm/submissions"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<BDMSubmissionsPage />} />
+      </Route>
+
+      {/* Submission Detail Page - Shared across all roles */}
+      <Route
+        path="/submissions/:id"
+        element={
+          <ProtectedRoute>
+            <SubmissionDetailPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Admin Routes - Duplicate Review */}
       <Route

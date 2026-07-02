@@ -206,10 +206,10 @@ export const matchCandidatesToJob = async (
       const insertScoreQuery = `
         INSERT INTO match_scores (
           job_id, candidate_id, overall_score, skill_score, 
-          experience_score, education_score, matching_skills, 
-          missing_skills, extra_skills, experience_gap_years, 
-          recommendation, reason, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+          experience_score, education_score, matched_skills, 
+          missing_skills, role_score, project_score, certification_score,
+          match_summary, jd_hash, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, $12, $13, NOW())
       `;
 
       for (const match of sortedMatches) {
@@ -221,12 +221,13 @@ export const matchCandidatesToJob = async (
             match.skill_score,
             match.experience_score,
             match.education_score,
-            match.matching_skills || [],
-            match.missing_skills || [],
-            match.extra_skills || [],
-            match.experience_gap_years,
-            match.recommendation,
-            match.reason,
+            JSON.stringify(match.matching_skills || []),
+            JSON.stringify(match.missing_skills || []),
+            match.role_score || 0,
+            match.project_score || 0,
+            match.certification_score || 0,
+            match.recommendation || 'Not Recommended',
+            '', // jd_hash
           ]);
 
           // Update candidate record's match_score column (scaled to 0-1)
@@ -305,9 +306,9 @@ export const getAllMatchResults = async (
           experience_score: parseFloat(row.experience_score),
           education_score: parseFloat(row.education_score),
           recommendation,
-          matching_skills: row.matching_skills || [],
+          matching_skills: row.matched_skills || [],
           missing_skills: row.missing_skills || [],
-          extra_skills: row.extra_skills || [],
+          extra_skills: [],
         };
       });
 
@@ -387,9 +388,9 @@ export const getMatchResultsForJob = async (
           experience_score: parseFloat(row.experience_score),
           education_score: parseFloat(row.education_score),
           recommendation,
-          matching_skills: row.matching_skills || [],
+          matching_skills: row.matched_skills || [],
           missing_skills: row.missing_skills || [],
-          extra_skills: row.extra_skills || [],
+          extra_skills: [],
         };
       });
 

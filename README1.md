@@ -661,3 +661,13 @@ curl -X POST 'http://localhost:3001/api/auth/register' \
 curl -X POST 'http://localhost:3001/api/auth/register' \
   -H 'Content-Type: application/json' \
   --data-raw '{"email":"recruiter@test.com","password":"password123","role":"recruiter"}'
+
+  Role	Email	Password
+Admin	admin@company.com	password
+BDM	robert.bdm@company.com	password
+Client Manager	lisa.clientmanager@company.com	password
+Team Lead	mike.teamlead@company.com	password
+Recruiter	john.recruiter@company.com	password
+Recruiter	sarah.recruiter@company.com	password
+Recruiter	emma.recruiter@company.com	password
+Viewer	david.viewer@company.com	password

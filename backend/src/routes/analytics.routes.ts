@@ -25,17 +25,17 @@ const router = Router();
 // Protect all analytics endpoints with token authentication
 router.use(authenticateToken);
 
-// Analytics endpoints
-router.get("/parsing-stats", getParsingStats);
-router.get("/skill-distribution", getSkillDistribution);
-router.get("/metrics", getMetrics);
-router.get("/upload-trends", getUploadTrends);
-router.get("/recruiter-activity", getRecruiterActivity);
-router.get("/export/csv", exportCSV);
-router.get("/export/pdf", exportPDF);
+// Analytics endpoints - all require analytics:view permission
+router.get("/parsing-stats", requirePermission("analytics", "view"), getParsingStats);
+router.get("/skill-distribution", requirePermission("analytics", "view"), getSkillDistribution);
+router.get("/metrics", requirePermission("analytics", "view"), getMetrics);
+router.get("/upload-trends", requirePermission("analytics", "view"), getUploadTrends);
+router.get("/recruiter-activity", requirePermission("analytics", "view"), getRecruiterActivity);
+router.get("/export/csv", requirePermission("analytics", "view"), exportCSV);
+router.get("/export/pdf", requirePermission("analytics", "view"), exportPDF);
 
 // Accuracy overview endpoint
-router.get("/overview", getAccuracyOverview);
+router.get("/overview", requirePermission("analytics", "view"), getAccuracyOverview);
 
 /**
  * @swagger
@@ -103,7 +103,7 @@ router.get("/overview", getAccuracyOverview);
  *       500:
  *         description: Internal server error
  */
-router.get("/client-performance", getClientPerformance);
+router.get("/client-performance", requirePermission("analytics", "view"), getClientPerformance);
 
 /**
  * @swagger
@@ -195,7 +195,7 @@ router.get("/client-performance", getClientPerformance);
  *       500:
  *         description: Internal server error
  */
-router.get("/placements", getPlacements);
+router.get("/placements", requirePermission("analytics", "view"), getPlacements);
 
 /**
  * @swagger
@@ -297,7 +297,7 @@ router.get("/placements", getPlacements);
  *       500:
  *         description: Internal server error
  */
-router.get("/revenue", getRevenue);
+router.get("/revenue", requirePermission("analytics", "view"), getRevenue);
 
 /**
  * @swagger
@@ -728,6 +728,6 @@ router.get("/open-opportunities",
  *       500:
  *         description: Internal server error
  */
-router.get("/client-manager-summary", authenticateToken, getClientManagerSummary);
+router.get("/client-manager-summary", requirePermission("analytics", "view"), getClientManagerSummary);
 
 export default router;

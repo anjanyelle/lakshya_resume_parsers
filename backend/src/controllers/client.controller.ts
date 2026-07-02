@@ -366,7 +366,7 @@ export const getAllClients = async (
       const offset = (page - 1) * limit;
       const dataQuery = `
         SELECT id, company_name, industry, address, city, country, owner_user_id, 
-               is_archived, tenant_id, created_at
+               pipeline_stage, is_archived, tenant_id, created_at, updated_at
         FROM clients 
         ${whereClause}
         ORDER BY created_at DESC
@@ -992,6 +992,8 @@ export const updatePipelineStage = async (req: AuthenticatedRequest, res: Respon
 
       const clientData = clientResult.rows[0];
       const currentStage = clientData.pipeline_stage;
+      console.log("Current stage from DB:", currentStage);
+      console.log("Requested new stage:", stage);
 
       // Verify ownership: user must own the client OR be admin
       if (clientData.owner_user_id !== userId && userRole !== 'admin') {
@@ -1050,9 +1052,20 @@ export const updatePipelineStage = async (req: AuthenticatedRequest, res: Respon
     } finally {
       client.release();
     }
-  } catch (error) {
-    console.error("Update pipeline stage error:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (error: any) {
+    console.error("Update pipeline stage error:", error.message);
+    console.error("Error details:", {
+      code: error.code,
+      detail: error.detail,
+      constraint: error.constraint,
+      column: error.column,
+      table: error.table,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: error.message || "Internal server error",
+      detail: error.detail
+    });
   }
 };
 
@@ -1072,19 +1085,18 @@ export const getBDMSummary = async (req: AuthenticatedRequest, res: Response): P
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-      // 1. newClientsThisMonth: COUNT from client_pipeline_history WHERE to_stage = 'won' AND changed_by = req.user.id AND changed_at in current month
+      // 1. newClientsThisMonth: COUNT from clients WHERE owner_user_id = req.user.id AND created_at in current month
       const newClientsResult = await client.query(
         `SELECT COUNT(*) as count
-         FROM client_pipeline_history
-         WHERE to_stage = 'won'
-         AND changed_by = $1
-         AND changed_at >= $2
-         AND changed_at <= $3`,
+         FROM clients
+         WHERE owner_user_id = $1
+         AND created_at >= $2
+         AND created_at <= $3`,
         [userId, monthStart.toISOString(), monthEnd.toISOString()]
       );
       const newClientsThisMonth = parseInt(newClientsResult.rows[0].count);
 
-      // 2. openOpportunitiesCount: COUNT from clients WHERE owner_user_id = req.user.id AND pipeline_stage NOT IN ('won','lost')
+      // 2. openOpportunitiesCount: COUNT from clients WHERE owner_user_id = req.user.id AND pipeline_stage NOT IN ('won','lost') AND is_archived = false
       const openOpportunitiesResult = await client.query(
         `SELECT COUNT(*) as count
          FROM clients
@@ -1095,18 +1107,8 @@ export const getBDMSummary = async (req: AuthenticatedRequest, res: Response): P
       );
       const openOpportunitiesCount = parseInt(openOpportunitiesResult.rows[0].count);
 
-      // 3. revenueGeneratedThisMonth: SUM placements.billing_amount joined through job_descriptions.client_id where that client's owner_user_id = req.user.id, placed_at in current month
-      const revenueResult = await client.query(
-        `SELECT COALESCE(SUM(p.billing_amount), 0) as total
-         FROM placements p
-         JOIN job_descriptions jd ON p.job_id = jd.id
-         JOIN clients c ON jd.client_id = c.id
-         WHERE c.owner_user_id = $1
-         AND p.placed_at >= $2
-         AND p.placed_at <= $3`,
-        [userId, monthStart.toISOString(), monthEnd.toISOString()]
-      );
-      const revenueGeneratedThisMonth = parseFloat(revenueResult.rows[0].total) || 0;
+      // 3. revenueGeneratedThisMonth: Set to 0 since placements table doesn't exist yet
+      const revenueGeneratedThisMonth = 0;
 
       res.json({
         newClientsThisMonth,

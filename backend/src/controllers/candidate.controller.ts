@@ -214,35 +214,34 @@ export const createCandidate = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
+  console.log("=== CREATE CANDIDATE START ===");
+  console.log("REQUEST BODY:", JSON.stringify(req.body, null, 2));
+  
+  const candidateData: CreateCandidateRequest = req.body;
+  const userId = (req as any).user?.id;
+  const tenantId = (req as any).user?.tenant_id || "default";
+
+  // Handle field name mapping: work_experience -> work_history
+  if (candidateData.work_experience && !candidateData.work_history) {
+    console.log("Mapping work_experience to work_history");
+    candidateData.work_history = candidateData.work_experience;
+  }
+
+  console.log("USER ID:", userId);
+  console.log("TENANT ID:", tenantId);
+  console.log("CANDIDATE DATA:", {
+    name: candidateData.name,
+    email: candidateData.email,
+    phone: candidateData.phone,
+    skillsCount: candidateData.skills?.length || 0,
+    workExperienceCount: candidateData.work_history?.length || 0,
+    educationCount: candidateData.education?.length || 0,
+    certificationsCount: candidateData.certifications?.length || 0,
+    projectsCount: candidateData.projects?.length || 0,
+  });
+
+  const client = await getClient();
   try {
-    console.log("=== CREATE CANDIDATE START ===");
-    console.log("REQUEST BODY:", JSON.stringify(req.body, null, 2));
-    
-    const candidateData: CreateCandidateRequest = req.body;
-    const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenant_id || "default";
-
-    // Handle field name mapping: work_experience -> work_history
-    if (candidateData.work_experience && !candidateData.work_history) {
-      console.log("Mapping work_experience to work_history");
-      candidateData.work_history = candidateData.work_experience;
-    }
-
-    console.log("USER ID:", userId);
-    console.log("TENANT ID:", tenantId);
-    console.log("CANDIDATE DATA:", {
-      name: candidateData.name,
-      email: candidateData.email,
-      phone: candidateData.phone,
-      skillsCount: candidateData.skills?.length || 0,
-      workExperienceCount: candidateData.work_history?.length || 0,
-      educationCount: candidateData.education?.length || 0,
-      certificationsCount: candidateData.certifications?.length || 0,
-      projectsCount: candidateData.projects?.length || 0,
-    });
-
-    const client = await getClient();
-    try {
       // ── DUPLICATE CHECK before starting the transaction ─────────────────
       const forceSave = req.body.forceSave === 'true' || req.body.forceSave === true;
       console.log("FORCE SAVE:", forceSave);
@@ -277,13 +276,25 @@ export const createCandidate = async (
       console.log("Starting transaction...");
       await client.query("BEGIN");
 
-      console.log("Creating candidate record...");
-      const candidate = await CandidateModel.create(client, {
-        ...candidateData,
-        tenant_id: tenantId,
-        created_by_user_id: userId,
-      });
-      console.log("Candidate created with ID:", candidate.id);
+      let candidate: any;
+      let transactionError: any = null;
+
+      try {
+        console.log("Creating candidate record...");
+        console.log("Candidate data being inserted:", {
+          email: candidateData.email,
+          full_name: candidateData.full_name,
+          phone: candidateData.phone,
+          status: candidateData.status,
+          summary_length: candidateData.summary?.length || 0,
+          tenant_id: tenantId,
+        });
+        
+        candidate = await CandidateModel.create(client, {
+          ...candidateData,
+          tenant_id: tenantId,
+        });
+        console.log("Candidate created with ID:", candidate.id);
 
       // Save nested skills if provided
       if (candidateData.skills && Array.isArray(candidateData.skills)) {
@@ -558,17 +569,16 @@ export const createCandidate = async (
             })]
           );
 
-          await client.query("COMMIT");
-
-          res.status(201).json({
-            message: "Candidate created and details saved successfully",
-            candidate,
-            warning: dupCheck?.warning || undefined,
-          });
         } catch (parsedDataErr: any) {
           console.error("Error saving parsed data:", parsedDataErr.message);
-          await client.query("ROLLBACK");
-          throw parsedDataErr;
+          console.error("Parsed data error details:", {
+            code: parsedDataErr.code,
+            detail: parsedDataErr.detail,
+            constraint: parsedDataErr.constraint,
+            column: parsedDataErr.column,
+            table: parsedDataErr.table,
+          });
+          transactionError = parsedDataErr;
         }
       } else {
         // Log activity
@@ -592,13 +602,19 @@ export const createCandidate = async (
             method: 'manual_creation'
           })]
         );
+      }
 
+      // Single COMMIT point at the end
+      if (!transactionError) {
         await client.query("COMMIT");
         res.status(201).json({
           message: "Candidate created successfully",
           candidate,
           warning: dupCheck?.warning || undefined,
         });
+      } else {
+        await client.query("ROLLBACK");
+        throw transactionError;
       }
     } catch (txError) {
       await client.query("ROLLBACK");
@@ -618,6 +634,20 @@ export const createCandidate = async (
       table: error.table,
       dataType: error.dataType,
       schema: error.schema,
+      routine: error.routine,
+      position: error.position,
+      internalPosition: error.internalPosition,
+      internalQuery: error.internalQuery,
+      where: error.where,
+    });
+    console.error("Candidate data that caused error:", {
+      email: candidateData.email,
+      full_name: candidateData.full_name,
+      phone: candidateData.phone,
+      summary_length: candidateData.summary?.length || 0,
+      skills_count: candidateData.skills?.length || 0,
+      work_history_count: candidateData.work_history?.length || 0,
+      education_count: candidateData.education?.length || 0,
     });
 
     res.status(500).json({

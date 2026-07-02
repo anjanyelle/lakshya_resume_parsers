@@ -38,6 +38,12 @@ export default function ClientPipelinePage() {
     try {
       // Fetch all clients and filter by owner_user_id = current user
       await fetchClients({ limit: 1000 });
+      console.log("Clients loaded successfully, count:", clients.length);
+      console.log("Client pipeline stages:", clients.map(c => ({ 
+        id: c.id, 
+        company_name: c.company_name, 
+        pipeline_stage: c.pipeline_stage 
+      })));
     } catch (error) {
       console.error("Failed to load clients:", error);
     } finally {
@@ -52,28 +58,39 @@ export default function ClientPipelinePage() {
 
   // Group clients by pipeline stage
   const clientsByStage = PIPELINE_STAGES.reduce((acc, stage) => {
-    acc[stage.key] = myClients.filter(client => client.pipeline_stage === stage.key);
+    // Handle missing pipeline_stage by treating it as 'prospect'
+    const stageClients = myClients.filter(client => 
+      (client.pipeline_stage || 'prospect') === stage.key
+    );
+    console.log(`Stage '${stage.key}':`, stageClients.length, "clients:", stageClients.map(c => c.company_name));
+    acc[stage.key] = stageClients;
     return acc;
   }, {} as Record<string, Client[]>);
 
   const moveClientToNextStage = async (client: Client) => {
-    const currentIndex = PIPELINE_STAGES.findIndex(s => s.key === client.pipeline_stage);
+    const currentStage = client.pipeline_stage || 'prospect';
+    const currentIndex = PIPELINE_STAGES.findIndex(s => s.key === currentStage);
     if (currentIndex === -1 || currentIndex === PIPELINE_STAGES.length - 1) {
       toast.error("Cannot move from this stage");
       return;
     }
 
     const nextStage = PIPELINE_STAGES[currentIndex + 1];
+    console.log("Moving client:", client.company_name, "from", currentStage, "to", nextStage.key);
     
     try {
-      await api.patch(`/api/clients/${client.id}/pipeline-stage`, {
+      const response = await api.patch(`/api/clients/${client.id}/pipeline-stage`, {
         stage: nextStage.key,
-        notes: `Moved from ${client.pipeline_stage} to ${nextStage.key}`,
+        notes: `Moved from ${currentStage} to ${nextStage.key}`,
       });
       
+      console.log("API response:", response.data);
       toast.success(`${client.company_name} moved to ${nextStage.label}`);
+      
       await loadClients();
+      console.log("Clients reloaded after pipeline update");
     } catch (error: any) {
+      console.error("Failed to move client:", error);
       toast.error(error.response?.data?.message || "Failed to move client");
     }
   };

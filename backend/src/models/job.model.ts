@@ -51,12 +51,14 @@ export class JobModel {
     const query = `
       INSERT INTO job_descriptions (
         title, description, required_skills, department, location,
-        employment_type, min_experience_years, max_experience_years,
-        education_level, salary_min, salary_max, status
+        employment_type, experience_years, salary_min, salary_max, status, created_by_user_id
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
     `;
+
+    // Use min_experience_years if available, otherwise default to 0
+    const experienceYears = data.min_experience_years !== undefined ? data.min_experience_years : 0;
 
     const values = [
       data.title,
@@ -65,12 +67,11 @@ export class JobModel {
       data.department,
       data.location,
       data.employment_type,
-      data.min_experience_years,
-      data.max_experience_years,
-      data.education_level,
+      experienceYears,
       data.salary_min,
       data.salary_max,
       data.status || "active",
+      userId,
     ];
 
     const result = await client.query(query, values);
@@ -110,7 +111,11 @@ export class JobModel {
     filters: JobFilter = {},
     clientManagerUserId?: string
   ): Promise<{ jobs: JobDescription[]; total: number }> {
-    const offset = (page - 1) * limit;
+    console.log("=== JobModel.findAll START ===");
+    console.log("Parameters:", { page, limit, filters, clientManagerUserId });
+    
+    try {
+      const offset = (page - 1) * limit;
     const conditions: string[] = [];
     const values: any[] = [];
     let paramCount = 1;
@@ -149,13 +154,13 @@ export class JobModel {
     }
 
     if (filters.min_experience !== undefined) {
-      conditions.push(`min_experience_years >= $${paramCount}`);
+      conditions.push(`experience_years >= $${paramCount}`);
       values.push(filters.min_experience);
       paramCount++;
     }
 
     if (filters.max_experience !== undefined) {
-      conditions.push(`max_experience_years <= $${paramCount}`);
+      conditions.push(`experience_years <= $${paramCount}`);
       values.push(filters.max_experience);
       paramCount++;
     }
@@ -192,7 +197,21 @@ export class JobModel {
       return job;
     });
 
-    return { jobs, total };
+    console.log("JobModel.findAll completed, returning", jobs.length, "jobs, total:", total);
+      return { jobs, total };
+    } catch (error: any) {
+      console.error("JobModel.findAll error:", error.message);
+      console.error("Error details:", {
+        code: error.code,
+        detail: error.detail,
+        constraint: error.constraint,
+        column: error.column,
+        table: error.table,
+        routine: error.routine,
+        stack: error.stack
+      });
+      throw error;
+    }
   }
 
   static async findById(
